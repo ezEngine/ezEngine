@@ -34,4 +34,3 @@ private:
   bool m_bScheduled = false;
   QToolButton* m_pBackgroundProcess = nullptr;
 };
-

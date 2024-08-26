@@ -23,9 +23,9 @@ ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::ComputePipelineM
 
 ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_descriptorSetLayouts;
 
-#define EZ_LOG_VULKAN_RESOURCES
+// #define EZ_LOG_VULKAN_RESOURCES
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
+static_assert(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
 namespace
 {
   EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezGALRenderTargetViewHandle& Value)
@@ -59,17 +59,33 @@ void ezResourceCacheVulkan::DeInitialize()
   s_frameBuffers.Clear();
   s_frameBuffers.Compact();
 
-  for (auto it : s_graphicsPipelines)
+  // graphic
   {
-    s_device.destroyPipeline(it.Value(), nullptr);
+    for (auto it : s_graphicsPipelines)
+    {
+      s_device.destroyPipeline(it.Value(), nullptr);
+    }
+    s_graphicsPipelines.Clear();
+    GraphicsPipelineMap tmp;
+    s_graphicsPipelines.Swap(tmp);
+    s_graphicsPipelineUsedBy.Clear();
+    ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
+    s_graphicsPipelineUsedBy.Swap(tmp2);
   }
-  s_graphicsPipelines.Clear();
-  GraphicsPipelineMap tmp;
-  s_graphicsPipelines.Swap(tmp);
-  s_graphicsPipelineUsedBy.Clear();
-  ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
-  s_graphicsPipelineUsedBy.Swap(tmp2);
 
+  // compute
+  {
+    for (auto it : s_computePipelines)
+    {
+      s_device.destroyPipeline(it.Value(), nullptr);
+    }
+    s_computePipelines.Clear();
+    ComputePipelineMap tmp;
+    s_computePipelines.Swap(tmp);
+    s_computePipelineUsedBy.Clear();
+    ezMap<const ezRefCounted*, ezHybridArray<ComputePipelineMap::Iterator, 1>> tmp2;
+    s_computePipelineUsedBy.Swap(tmp2);
+  }
 
   for (auto it : s_pipelineLayouts)
   {
@@ -231,17 +247,21 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPassInternal(const RenderPass
   subpass.pDepthStencilAttachment = bHasDepth ? depthAttachmentRefs.GetData() : nullptr;
 
   vk::SubpassDependency dependency;
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
   dependency.dstSubpass = 0;
+  dependency.dependencyFlags = vk::DependencyFlagBits::eByRegion; // VK_DEPENDENCY_BY_REGION_BIT;
+
+  dependency.srcAccessMask = {};
   if (bHasColor)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite;
+    dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
 
   if (bHasDepth)
-    dependency.dstAccessMask |= vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    dependency.dstAccessMask |= vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead;
 
-  dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  dependency.srcAccessMask = {};
   dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+  dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
+
+
 
   vk::RenderPassCreateInfo renderPassCreateInfo;
   renderPassCreateInfo.attachmentCount = attachments.GetCount();
@@ -293,7 +313,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = texDesc.m_uiArraySize;
+    out_desc.layers = pRenderTargetView->GetDescription().m_uiSliceCount;
   }
   for (size_t i = 0; i < uiColorCount; i++)
   {
@@ -306,7 +326,7 @@ void ezResourceCacheVulkan::GetFrameBufferDesc(vk::RenderPass renderPass, const 
     vk::Extent3D extend = pTex->GetMipLevelSize(pRenderTargetView->GetDescription().m_uiMipLevel);
     out_desc.m_msaa = texDesc.m_SampleCount;
     out_desc.m_size = {extend.width, extend.height};
-    out_desc.layers = texDesc.m_uiArraySize;
+    out_desc.layers = pRenderTargetView->GetDescription().m_uiSliceCount;
   }
 
   // In some places rendering is started with an empty ezGALRenderTargetSetup just to be able to run GPU commands.
@@ -371,8 +391,13 @@ vk::PipelineLayout ezResourceCacheVulkan::RequestPipelineLayout(const PipelineLa
 #endif // EZ_LOG_VULKAN_RESOURCES
 
   vk::PipelineLayoutCreateInfo layoutInfo;
-  layoutInfo.setLayoutCount = 1;
-  layoutInfo.pSetLayouts = &desc.m_layout;
+  layoutInfo.setLayoutCount = desc.m_layout.GetCount();
+  layoutInfo.pSetLayouts = desc.m_layout.GetData();
+  if (desc.m_pushConstants.size != 0)
+  {
+    layoutInfo.pushConstantRangeCount = 1;
+    layoutInfo.pPushConstantRanges = &desc.m_pushConstants;
+  }
 
   vk::PipelineLayout layout;
   VK_ASSERT_DEBUG(s_device.createPipelineLayout(&layoutInfo, nullptr, &layout));
@@ -409,11 +434,17 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
 
   vk::PipelineInputAssemblyStateCreateInfo input_assembly;
   input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(desc.m_topology);
+  const bool bTessellation = desc.m_pCurrentShader->GetShader(ezGALShaderStage::HullShader) != nullptr;
+  if (bTessellation)
+  {
+    // Tessellation shaders always need to use patch list as the topology.
+    input_assembly.topology = vk::PrimitiveTopology::ePatchList;
+  }
 
   // Specify rasterization state.
   const vk::PipelineRasterizationStateCreateInfo* raster = desc.m_pCurrentRasterizerState->GetRasterizerState();
 
-  // Our attachment will write to all color channels, but no blending is enabled.
+  // Our attachment will write to all color channels
   vk::PipelineColorBlendStateCreateInfo blend = *desc.m_pCurrentBlendState->GetBlendState();
   blend.attachmentCount = desc.m_uiAttachmentCount;
 
@@ -422,10 +453,10 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   viewport.viewportCount = 1;
   viewport.scissorCount = 1;
 
-  // Disable all depth testing.
+  // Depth Testing
   const vk::PipelineDepthStencilStateCreateInfo* depth_stencil = desc.m_pCurrentDepthStencilState->GetDepthStencilState();
 
-  // No multisampling.
+  // Multisampling.
   vk::PipelineMultisampleStateCreateInfo multisample;
   multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(desc.m_msaa);
   if (multisample.rasterizationSamples != vk::SampleCountFlagBits::e1 && desc.m_pCurrentBlendState->GetDescription().m_bAlphaToCoverage)
@@ -455,6 +486,12 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
     }
   }
 
+  vk::PipelineTessellationStateCreateInfo tessellationInfo;
+  if (bTessellation)
+  {
+    tessellationInfo.patchControlPoints = desc.m_pCurrentShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
+  }
+
   vk::GraphicsPipelineCreateInfo pipe;
   pipe.renderPass = desc.m_renderPass;
   pipe.layout = desc.m_layout;
@@ -468,6 +505,8 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   pipe.pViewportState = &viewport;
   pipe.pDepthStencilState = depth_stencil;
   pipe.pDynamicState = &dynamic;
+  if (bTessellation)
+    pipe.pTessellationState = &tessellationInfo;
 
   vk::Pipeline pipeline;
   vk::PipelineCache cache;
@@ -500,6 +539,7 @@ vk::Pipeline ezResourceCacheVulkan::RequestComputePipeline(const ComputePipeline
   pipe.layout = desc.m_layout;
   {
     vk::ShaderModule shader = desc.m_pCurrentShader->GetShader(ezGALShaderStage::ComputeShader);
+    EZ_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");
     pipe.stage.stage = ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::ComputeShader);
     pipe.stage.module = shader;
     pipe.stage.pName = "main";
@@ -714,13 +754,30 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, co
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const PipelineLayoutDesc& desc)
 {
   ezHashStreamWriter32 writer;
-  writer << desc.m_layout;
+  const ezUInt32 uiCount = desc.m_layout.GetCount();
+  writer << uiCount;
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    writer << desc.m_layout[i];
+  }
+  writer << desc.m_pushConstants.offset;
+  writer << desc.m_pushConstants.size;
+  writer << ezConversionUtilsVulkan::GetUnderlyingFlagsValue(desc.m_pushConstants.stageFlags);
   return writer.GetHashValue();
 }
 
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const PipelineLayoutDesc& a, const PipelineLayoutDesc& b)
 {
-  return a.m_layout == b.m_layout;
+  if (a.m_layout.GetCount() != b.m_layout.GetCount())
+    return false;
+
+  const ezUInt32 uiCount = a.m_layout.GetCount();
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    if (a.m_layout[i] != b.m_layout[i])
+      return false;
+  }
+  return a.m_pushConstants == b.m_pushConstants;
 }
 
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDesc& desc)

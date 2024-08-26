@@ -72,7 +72,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   renderingSetup.m_bClearDepth = true;
   renderingSetup.m_bClearStencil = true;
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 
   ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
   if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
@@ -99,7 +99,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
 
   // filter out all selected objects
-  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData) { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
+  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
+    { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);

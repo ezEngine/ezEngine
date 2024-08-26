@@ -22,9 +22,7 @@ public:
     ezVariant m_Value;
   };
 
-  ezAbstractObjectNode()
-
-    = default;
+  ezAbstractObjectNode() = default;
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 

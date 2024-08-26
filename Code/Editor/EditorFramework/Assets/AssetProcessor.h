@@ -53,35 +53,47 @@ public:
 class ezProcessTask
 {
 public:
+  enum class State
+  {
+    LookingForWork,
+    WaitingForConnection,
+    Ready,
+    Processing,
+    ReportResult
+  };
+
+public:
   ezProcessTask();
   ~ezProcessTask();
 
-  ezAtomicInteger32 m_bDidWork = true;
   ezUInt32 m_uiProcessorID;
 
-  bool BeginExecute();
+  bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
-  bool FinishExecute();
+  bool IsConnected();
+
+  bool HasProcessCrashed();
+
+  ezResult StartProcess();
 
   void ShutdownProcess();
 
 private:
-  void StartProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
   bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path);
   bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path);
-  void OnProcessCrashed();
+  void OnProcessCrashed(ezStringView message);
 
 
+  State m_State = State::LookingForWork;
   ezUuid m_AssetGuid;
   ezUInt64 m_uiAssetHash = 0;
   ezUInt64 m_uiThumbHash = 0;
+  ezUInt64 m_uiPackageHash = 0;
   ezDataDirPath m_AssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
-  bool m_bProcessCrashed = false;
-  bool m_bWaiting = false;
   ezTransformStatus m_Status;
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezDynamicArray<ezString> m_TransitiveHull;
@@ -137,6 +149,5 @@ private:
   std::atomic<ProcessTaskState> m_ProcessTaskState = ProcessTaskState::Stopped;
 
   // Data owned by the process thread.
-  ezDynamicArray<bool> m_ProcessRunning;
   ezDynamicArray<ezProcessTask> m_ProcessTasks;
 };

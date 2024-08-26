@@ -125,7 +125,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   m_hVertexBuffer = pDevice->CreateVertexBuffer(sizeof(ezDynamicMeshVertex), m_Descriptor.m_uiMaxVertices /* no initial data -> mutable */);
 
   ezStringBuilder sName;
-  sName.Format("{0} - Dynamic Vertex Buffer", GetResourceDescription());
+  sName.SetFormat("{0} - Dynamic Vertex Buffer", GetResourceDescription());
   pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   const ezUInt32 uiMaxIndices = ezGALPrimitiveTopology::VerticesPerPrimitive(m_Descriptor.m_Topology) * m_Descriptor.m_uiMaxPrimitives;
@@ -135,7 +135,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
     m_ColorData.SetCountUninitialized(uiMaxIndices);
     m_hColorBuffer = pDevice->CreateVertexBuffer(sizeof(ezColorLinearUB), m_Descriptor.m_uiMaxVertices /* no initial data -> mutable */);
 
-    sName.Format("{0} - Dynamic Color Buffer", GetResourceDescription());
+    sName.SetFormat("{0} - Dynamic Color Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hColorBuffer)->SetDebugName(sName);
   }
 
@@ -145,7 +145,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
 
     m_hIndexBuffer = pDevice->CreateIndexBuffer(ezGALIndexType::UInt, uiMaxIndices /* no initial data -> mutable */);
 
-    sName.Format("{0} - Dynamic Index32 Buffer", GetResourceDescription());
+    sName.SetFormat("{0} - Dynamic Index32 Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
   }
   else if (m_Descriptor.m_IndexType == ezGALIndexType::UShort)
@@ -154,7 +154,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
 
     m_hIndexBuffer = pDevice->CreateIndexBuffer(ezGALIndexType::UShort, uiMaxIndices /* no initial data -> mutable */);
 
-    sName.Format("{0} - Dynamic Index16 Buffer", GetResourceDescription());
+    sName.SetFormat("{0} - Dynamic Index16 Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
   }
 

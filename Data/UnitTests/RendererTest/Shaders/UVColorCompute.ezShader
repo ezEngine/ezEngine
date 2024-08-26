@@ -1,0 +1,27 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+RWTexture2D<float4> OutputTexture;
+
+[numthreads(8, 8, 1)]
+void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
+{
+  const uint faceIndex = groupID.z;
+  const uint2 pixelIndex = uint2(groupID.x * 8 + groupThreadID.x, groupID.y * 8 + groupThreadID.y);
+
+  uint width, height;
+  OutputTexture.GetDimensions(width, height);
+  // Check for out of bounds threads
+  if (pixelIndex.x >= width || pixelIndex.y >= height)
+    return;
+
+  // Compute tex coord using centroid sampling.
+  const float2 texCoord = float2(((float)pixelIndex.x + 0.5) / width, ((float)pixelIndex.y + 0.5) / height );
+  
+  float4 color = float4(texCoord.xy, 0, 1);
+  OutputTexture[pixelIndex] = color;
+}

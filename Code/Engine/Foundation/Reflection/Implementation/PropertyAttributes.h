@@ -210,7 +210,7 @@ public:
   const ezVariant& GetMinValue() const { return m_MinValue; }
   const ezVariant& GetMaxValue() const { return m_MaxValue; }
 
-private:
+protected:
   ezVariant m_MinValue;
   ezVariant m_MaxValue;
 };
@@ -452,6 +452,30 @@ private:
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
+/// \brief Indicates that the string property should allow to browse for an file (or programs) outside the project directories.
+///
+/// Allows to specify the title for the browse dialog and the allowed file types.
+/// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.exe")),
+class EZ_FOUNDATION_DLL ezExternalFileBrowserAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExternalFileBrowserAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezExternalFileBrowserAttribute() = default;
+  ezExternalFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter)
+    : m_sDialogTitle(sDialogTitle)
+    , m_sTypeFilter(sTypeFilter)
+  {
+  }
+
+  ezStringView GetDialogTitle() const { return m_sDialogTitle; }
+  ezStringView GetTypeFilter() const { return m_sTypeFilter; }
+
+private:
+  ezUntrackedString m_sDialogTitle;
+  ezUntrackedString m_sTypeFilter;
+};
+
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
 ///
 /// Allows to specify the allowed asset types, separated with ;
@@ -462,11 +486,17 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter,
-    ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
     : m_DependencyFlags(depencyFlags)
   {
     SetTypeFilter(szTypeFilter);
+  }
+
+  ezAssetBrowserAttribute(const char* szTypeFilter, const char* szRequiredTag, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+    : m_DependencyFlags(depencyFlags)
+  {
+    SetTypeFilter(szTypeFilter);
+    m_sRequiredTag = szRequiredTag;
   }
 
   void SetTypeFilter(const char* szTypeFilter)
@@ -474,11 +504,15 @@ public:
     ezStringBuilder sTemp(";", szTypeFilter, ";");
     m_sTypeFilter = sTemp;
   }
+
   const char* GetTypeFilter() const { return m_sTypeFilter; }
   ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
+  const char* GetRequiredTag() const { return m_sRequiredTag; }
+
 private:
   ezUntrackedString m_sTypeFilter;
+  ezUntrackedString m_sRequiredTag;
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
@@ -966,6 +1000,7 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
     const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
 
+  ezUInt32 GetArgumentCount() const { return m_ArgNames.GetCount(); }
   const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
 
   ArgType GetArgumentType(ezUInt32 uiIndex) const { return static_cast<ArgType>(m_ArgTypes[uiIndex]); }
@@ -982,6 +1017,7 @@ class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribut
 
   ezFunctionArgumentAttributes() = default;
   ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 = nullptr, const ezPropertyAttribute* pAttribute3 = nullptr, const ezPropertyAttribute* pAttribute4 = nullptr);
+  ~ezFunctionArgumentAttributes();
 
   ezUInt32 GetArgumentIndex() const { return m_uiArgIndex; }
   ezArrayPtr<const ezPropertyAttribute* const> GetArgumentAttributes() const { return m_ArgAttributes; }
@@ -1037,4 +1073,28 @@ class EZ_FOUNDATION_DLL ezGameObjectReferenceAttribute : public ezTypeWidgetAttr
 
 public:
   ezGameObjectReferenceAttribute() = default;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Displays the value range as an image, allowing users to pick a value like on a slider.
+///
+/// This attribute always has to be combined with an ezClampValueAttribute to define the min and max value range.
+/// The constructor takes the name of an image generator. The generator is used to build the QImage used for the slider background.
+///
+/// Image generators are registered through ezQtImageSliderWidget::s_ImageGenerators. Search the codebase for that variable
+/// to determine which types of image generators are available.
+/// You can register custom generators as well.
+class EZ_FOUNDATION_DLL ezImageSliderUiAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezImageSliderUiAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezImageSliderUiAttribute() = default;
+  ezImageSliderUiAttribute(const char* szImageGenerator)
+  {
+    m_sImageGenerator = szImageGenerator;
+  }
+
+  ezUntrackedString m_sImageGenerator;
 };

@@ -144,6 +144,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageSliderUiAttribute, 1, ezRTTIDefaultAllocator<ezImageSliderUiAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ImageGenerator", m_sImageGenerator),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator<ezClampValueAttribute>)
 {
   EZ_BEGIN_PROPERTIES
@@ -283,17 +298,37 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocato
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExternalFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezExternalFileBrowserAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
+    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(ezStringView, ezStringView),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocator<ezAssetBrowserAttribute>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    EZ_MEMBER_PROPERTY("RequiredTag", m_sRequiredTag),
     EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, ezBitflags<ezDependencyFlags>),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, ezBitflags<ezDependencyFlags>),
   }
   EZ_END_FUNCTIONS;
 }
@@ -1028,7 +1063,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFunctionArgumentAttributes, 1, ezRTTIDefaultAl
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ArgIndex", m_uiArgIndex),
-    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes),
+    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
 }
@@ -1061,6 +1096,15 @@ ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, 
       return;
 
     m_ArgAttributes.PushBack(pAttribute4);
+  }
+}
+
+ezFunctionArgumentAttributes::~ezFunctionArgumentAttributes()
+{
+  for (auto pAttribute : m_ArgAttributes)
+  {
+    auto pAttributeNonConst = const_cast<ezPropertyAttribute*>(pAttribute);
+    EZ_DEFAULT_DELETE(pAttributeNonConst);
   }
 }
 

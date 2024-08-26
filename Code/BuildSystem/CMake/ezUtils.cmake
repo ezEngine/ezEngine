@@ -30,6 +30,9 @@ macro(ez_pull_config_vars)
 
 	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION)
 	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_URL GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_URL)
+
+	get_property(EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION)
+	get_property(EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL)
 endmacro()
 
 # #####################################
@@ -44,6 +47,7 @@ macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	set(PLATFORM_POSTFIX "")
 	set(ARCH "x${EZ_CMAKE_ARCHITECTURE_POSTFIX}")
 
+	# PLATFORM-TODO (build output path hook? add more variables?)
 	if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		# UWP has deployment problems if all applications output to the same path.
 		set(SUB_DIR "/${TARGET_NAME}")
@@ -250,7 +254,7 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 	get_property(EZ_SUBMODULE_MODE GLOBAL PROPERTY EZ_SUBMODULE_MODE)
 
 	if(EZ_SUBMODULE_MODE)
-		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "ezEngine/${IDE_FOLDER}")
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${EZ_SUBMODULE_ROOT_IDE_FOLDER}/${IDE_FOLDER}")
 	else()
 		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
 	endif()
@@ -262,38 +266,6 @@ endfunction()
 function(ez_add_output_ez_prefix TARGET_NAME)
 	set_target_properties(${TARGET_NAME} PROPERTIES IMPORT_PREFIX "ez")
 	set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "ez")
-endfunction()
-
-# #####################################
-# ## ez_set_library_properties(<target>)
-# #####################################
-function(ez_set_library_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		# c = libc.so (the C standard library)
-		# m = libm.so (the C standard library math portion)
-		# pthread = libpthread.so (thread support)
-		# rt = librt.so (compiler runtime functions)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt c m)
-
-		if(EZ_CMAKE_COMPILER_GCC)
-			# Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-			target_link_libraries(${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
-		endif()
-	endif()
-endfunction()
-
-# #####################################
-# ## ez_set_application_properties(<target>)
-# #####################################
-function(ez_set_application_properties TARGET_NAME)
-	ez_pull_all_vars()
-
-	# We need to link against pthread and rt last or linker errors will occur.
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
-	endif()
 endfunction()
 
 # #####################################
@@ -344,10 +316,13 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
 		"${ROOT_DIR}/*.txt"
+		"${ROOT_DIR}/*.ezPluginBundle"
 		"${ROOT_DIR}/*.ddl"
 		"${ROOT_DIR}/*.ezPermVar"
 		"${ROOT_DIR}/*.ezShader"
 		"${ROOT_DIR}/*.ezShaderTemplate"
+		"${ROOT_DIR}/*.rml"
+		"${ROOT_DIR}/*.rcss"
 	)
 
 	set(${RESULT_ALL_SOURCES} ${RELEVANT_FILES} PARENT_SCOPE)
@@ -415,17 +390,10 @@ macro(ez_requires_one_of)
 endmacro()
 
 # #####################################
-# ## ez_requires_windows()
+# ## ez_requires_desktop()
 # #####################################
-macro(ez_requires_windows)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
-endmacro()
-
-# #####################################
-# ## ez_requires_windows_desktop()
-# #####################################
-macro(ez_requires_windows_desktop)
-	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+macro(ez_requires_desktop)
+	ez_requires_one_of(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP EZ_CMAKE_PLATFORM_LINUX)
 endmacro()
 
 # #####################################
@@ -434,8 +402,8 @@ endmacro()
 macro(ez_requires_editor)
 	ez_requires_qt()
 	ez_requires_renderer()
-	if(EZ_CMAKE_PLATFORM_LINUX)
-		ez_requires(EZ_EXPERIMENTAL_EDITOR_ON_LINUX)
+	if(NOT EZ_CMAKE_PLATFORM_SUPPORTS_EDITOR)
+		return()
 	endif()
 endmacro()
 
@@ -590,6 +558,13 @@ function(ez_set_build_types)
 	set(CMAKE_MODULE_LINKER_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} CACHE STRING "" FORCE)
 	set(CMAKE_MODULE_LINKER_FLAGS_${EZ_BUILDTYPENAME_RELEASE_UPPER} ${CMAKE_MODULE_LINKER_FLAGS_RELEASE} CACHE STRING "" FORCE)
 
+	# Fix for cl : Command line warning D9025 : overriding '/Ob0' with '/Ob1'
+	# We are adding /Ob1 to debug inside ./CMakeUtils/ezUtilsCppFlags.cmake
+	if(EZ_CMAKE_COMPILER_GCC)
+		string(REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+		string(REPLACE "/Ob0" "/Ob1" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	endif ()
+
 	set(CMAKE_CXX_FLAGS_${EZ_BUILDTYPENAME_DEBUG_UPPER} ${CMAKE_CXX_FLAGS_DEBUG} CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS_${EZ_BUILDTYPENAME_DEV_UPPER} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS_${EZ_BUILDTYPENAME_RELEASE_UPPER} ${CMAKE_CXX_FLAGS_RELEASE} CACHE STRING "" FORCE)
@@ -633,11 +608,33 @@ function(ez_set_build_types)
 endfunction()
 
 # #####################################
+# ## ez_create_link(<source> <destination-folder> <destination-name>)
+# #####################################
+function(ez_create_link SOURCE DEST_FOLDER DEST_NAME)
+	if(NOT EXISTS "${DEST_FOLDER}")
+		file(MAKE_DIRECTORY ${DEST_FOLDER})
+	endif()
+
+	# We re-create the link every time because it could become a dead link when shared between workspaces.
+	if(EXISTS "${DEST_FOLDER}/${DEST_NAME}")
+		file(REMOVE ${DEST_FOLDER}/${DEST_NAME})
+	endif()
+
+	file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC)
+
+	if (NOT ${OUT_RESULT} EQUAL 0)
+		message(FATAL_ERROR "Failed to run: file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC) \nRe-run with admin rights:\n${OUT_RESULT}")
+	endif ()
+endfunction()
+
+# #####################################
 # ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension>)
 # #####################################
 function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	if(${URL} MATCHES ".tar.gz$")
 		set(PKG_TYPE "tar.gz")
+	elseif(${URL} MATCHES ".tar.xz$")
+		set(PKG_TYPE "tar.xz")
 	else()
 		get_filename_component(PKG_TYPE ${URL} LAST_EXT)
 	endif()
@@ -679,7 +676,6 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 			WORKING_DIRECTORY "${DEST_FOLDER}"
 			COMMAND_ERROR_IS_FATAL ANY
 			RESULT_VARIABLE CMD_STATUS)
-
 	else()
 		execute_process(COMMAND ${CMAKE_COMMAND}
 			-E tar -xf "${PKG_FILE}"
@@ -694,4 +690,23 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	endif()
 
 	file(TOUCH ${EXTRACT_MARKER})
+endfunction()
+
+function(ez_get_export_location DST_VAR)
+	ez_pull_config_vars()
+	ez_pull_output_vars("" "${EZ_OUTPUT_DIRECTORY_DLL}")
+
+	if(GENERATOR_IS_MULTI_CONFIG OR (CMAKE_GENERATOR MATCHES "Visual Studio"))
+		set("${DST_VAR}" "${EZ_OUTPUT_DIRECTORY_DLL}/ezExport.cmake" PARENT_SCOPE)
+	else()
+		if("${CMAKE_BUILD_TYPE}" STREQUAL ${EZ_BUILDTYPENAME_DEBUG})
+			set("${DST_VAR}" "${EZ_OUTPUT_DIRECTORY_DLL}/${OUTPUT_DEBUG}/ezExport.cmake" PARENT_SCOPE)
+		elseif("${CMAKE_BUILD_TYPE}" STREQUAL ${EZ_BUILDTYPENAME_RELEASE})
+			set("${DST_VAR}" "${EZ_OUTPUT_DIRECTORY_DLL}/${OUTPUT_RELEASE}/ezExport.cmake" PARENT_SCOPE)
+		elseif("${CMAKE_BUILD_TYPE}" STREQUAL ${EZ_BUILDTYPENAME_DEV})
+			set("${DST_VAR}" "${EZ_OUTPUT_DIRECTORY_DLL}/${OUTPUT_DEV}/ezExport.cmake" PARENT_SCOPE)
+		else()
+			message(FATAL_ERROR "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
+		endif()
+	endif()
 endfunction()

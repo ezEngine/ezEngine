@@ -2,9 +2,9 @@
 
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-static thread_local ezAllocatorBase* s_pAllocator = nullptr;
+static thread_local ezAllocator* s_pAllocator = nullptr;
 
-ezLocalAllocatorWrapper::ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
+ezLocalAllocatorWrapper::ezLocalAllocatorWrapper(ezAllocator* pAllocator)
 {
   s_pAllocator = pAllocator;
 }
@@ -14,9 +14,7 @@ void ezLocalAllocatorWrapper::Reset()
   s_pAllocator = nullptr;
 }
 
-ezAllocatorBase* ezLocalAllocatorWrapper::GetAllocator()
+ezAllocator* ezLocalAllocatorWrapper::GetAllocator()
 {
   return s_pAllocator;
 }
-
-

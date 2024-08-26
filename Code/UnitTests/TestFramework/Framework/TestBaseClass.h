@@ -78,6 +78,8 @@ private:
   void DoSubTestDeInitialization(ezInt32 iIdentifier);
   ezTestAppRun DoSubTestRun(ezInt32 iIdentifier, double& fDuration, ezUInt32 uiInvocationCount);
 
+  // Finds internal entry index for identifier
+  ezInt32 FindEntryForIdentifier(ezInt32 iIdentifier) const;
 
   std::deque<TestEntry> m_Entries;
 };

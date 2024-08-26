@@ -4,15 +4,6 @@
 
 using namespace ezTokenParseUtils;
 
-ezPreprocessor::MacroDefinition::MacroDefinition()
-{
-  m_MacroIdentifier = nullptr;
-  m_bIsFunction = false;
-  m_bCurrentlyExpanding = false;
-  m_iNumParameters = -1;
-  m_bHasVarArgs = false;
-}
-
 void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters)
 {
   Destination.Clear();
@@ -199,5 +190,3 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
   if (bSurroundWithQuotes)
     sResult.Append("\"");
 }
-
-

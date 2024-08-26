@@ -26,32 +26,34 @@ namespace
       Shader,
       Buffer,
       Texture,
-      ResourceView,
+      TextureResourceView,
+      BufferResourceView,
       RenderTargetView,
-      UnorderedAccessView,
+      TextureUnorderedAccessView,
+      BufferUnorderedAccessView,
       SwapChain,
-      Query,
       VertexDeclaration
     };
   };
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBlendStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALDepthStencilStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRasterizerStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSamplerStateHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALShaderHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALBufferHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALTextureHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALResourceViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALUnorderedAccessViewHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALQueryHandle) == sizeof(ezUInt32));
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBlendStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALDepthStencilStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALRasterizerStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALSamplerStateHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALShaderHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureResourceViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferResourceViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALRenderTargetViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALTextureUnorderedAccessViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBufferUnorderedAccessViewHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
-
+ezEvent<const ezGALDeviceEvent&> ezGALDevice::s_Events;
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
@@ -84,20 +86,23 @@ ezGALDevice::~ezGALDevice()
     if (!m_Textures.IsEmpty())
       ezLog::Warning("{0} textures have not been cleaned up", m_Textures.GetCount());
 
-    if (!m_ResourceViews.IsEmpty())
-      ezLog::Warning("{0} resource views have not been cleaned up", m_ResourceViews.GetCount());
+    if (!m_TextureResourceViews.IsEmpty())
+      ezLog::Warning("{0} texture resource views have not been cleaned up", m_TextureResourceViews.GetCount());
+
+    if (!m_BufferResourceViews.IsEmpty())
+      ezLog::Warning("{0} buffer resource views have not been cleaned up", m_BufferResourceViews.GetCount());
 
     if (!m_RenderTargetViews.IsEmpty())
       ezLog::Warning("{0} render target views have not been cleaned up", m_RenderTargetViews.GetCount());
 
-    if (!m_UnorderedAccessViews.IsEmpty())
-      ezLog::Warning("{0} unordered access views have not been cleaned up", m_UnorderedAccessViews.GetCount());
+    if (!m_TextureUnorderedAccessViews.IsEmpty())
+      ezLog::Warning("{0} texture unordered access views have not been cleaned up", m_TextureUnorderedAccessViews.GetCount());
+
+    if (!m_BufferUnorderedAccessViews.IsEmpty())
+      ezLog::Warning("{0} buffer unordered access views have not been cleaned up", m_BufferUnorderedAccessViews.GetCount());
 
     if (!m_SwapChains.IsEmpty())
       ezLog::Warning("{0} swap chains have not been cleaned up", m_SwapChains.GetCount());
-
-    if (!m_Queries.IsEmpty())
-      ezLog::Warning("{0} queries have not been cleaned up", m_Queries.GetCount());
 
     if (!m_VertexDeclarations.IsEmpty())
       ezLog::Warning("{0} vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
@@ -115,7 +120,9 @@ ezResult ezGALDevice::Init()
     return EZ_FAILURE;
   }
 
-  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
+  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
 
   // Fill the capabilities
   FillCapabilitiesPlatform();
@@ -132,11 +139,13 @@ ezResult ezGALDevice::Init()
 
   ezProfilingSystem::InitializeGPUData();
 
+
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterInit;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   return EZ_SUCCESS;
@@ -152,7 +161,7 @@ ezResult ezGALDevice::Shutdown()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeShutdown;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   DestroyDeadObjects();
@@ -166,48 +175,63 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
-void ezGALDevice::BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain)
+ezStringView ezGALDevice::GetRenderer()
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  EZ_ASSERT_DEV(!m_bBeginPipelineCalled, "Nested Pipelines are not allowed: You must call ezGALDevice::EndPipeline before you can call ezGALDevice::BeginPipeline again");
-  m_bBeginPipelineCalled = true;
-
-  ezGALSwapChain* pSwapChain = nullptr;
-  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-  BeginPipelinePlatform(szName, pSwapChain);
+  return GetRendererPlatform();
 }
 
-void ezGALDevice::EndPipeline(ezGALSwapChainHandle hSwapChain)
+ezGALCommandEncoder* ezGALDevice::BeginCommands(const char* szName)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
+  {
+    EZ_PROFILE_SCOPE("BeforeBeginCommands");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeBeginCommands;
+    s_Events.Broadcast(e, 1);
+  }
+  ezGALCommandEncoder* pCommandEncoder = nullptr;
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  EZ_ASSERT_DEV(m_bBeginPipelineCalled, "You must have called ezGALDevice::BeginPipeline before you can call ezGALDevice::EndPipeline");
-  m_bBeginPipelineCalled = false;
+    EZ_ASSERT_DEV(!m_bBeginCommandsCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
+    m_bBeginCommandsCalled = true;
 
-  ezGALSwapChain* pSwapChain = nullptr;
-  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-  EndPipelinePlatform(pSwapChain);
+    pCommandEncoder = BeginCommandsPlatform(szName);
+  }
+  {
+    EZ_PROFILE_SCOPE("AfterBeginCommands");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterBeginCommands;
+    e.m_pCommandEncoder = pCommandEncoder;
+    s_Events.Broadcast(e, 1);
+  }
+  return pCommandEncoder;
 }
 
-ezGALPass* ezGALDevice::BeginPass(const char* szName)
+void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  EZ_ASSERT_DEV(!m_bBeginPassCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndPass before you can call ezGALDevice::BeginPass again");
-  m_bBeginPassCalled = true;
-
-  return BeginPassPlatform(szName);
-}
-
-void ezGALDevice::EndPass(ezGALPass* pPass)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  EZ_ASSERT_DEV(m_bBeginPassCalled, "You must have called ezGALDevice::BeginPass before you can call ezGALDevice::EndPass");
-  m_bBeginPassCalled = false;
-
-  EndPassPlatform(pPass);
+  {
+    EZ_PROFILE_SCOPE("BeforeEndCommands");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeEndCommands;
+    e.m_pCommandEncoder = pCommandEncoder;
+    s_Events.Broadcast(e, 1);
+  }
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
+    EZ_ASSERT_DEV(m_bBeginCommandsCalled, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
+    m_bBeginCommandsCalled = false;
+    EndCommandsPlatform(pCommandEncoder);
+  }
+  {
+    EZ_PROFILE_SCOPE("AfterEndCommands");
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterEndCommands;
+    s_Events.Broadcast(e, 1);
+  }
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
@@ -544,16 +568,19 @@ ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationD
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
 
     // Create default resource view
-    if (desc.m_bAllowShaderResourceView && desc.m_BufferType == ezGALBufferType::Generic)
+    if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource))
     {
-      ezGALResourceViewCreationDescription viewDesc;
-      viewDesc.m_hBuffer = hBuffer;
-      viewDesc.m_uiFirstElement = 0;
-      viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
+      if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
+      {
+        ezGALBufferResourceViewCreationDescription viewDesc;
+        viewDesc.m_hBuffer = hBuffer;
+        viewDesc.m_uiFirstElement = 0;
+        viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
+        viewDesc.m_Format = desc.m_Format;
 
-      pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
+        pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
+      }
     }
-
     return hBuffer;
   }
 
@@ -581,8 +608,8 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
-  desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
-  desc.m_BufferType = ezGALBufferType::VertexBuffer;
+  desc.m_uiTotalSize = uiVertexSize * ezMath::Max(1u, uiVertexCount);
+  desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !initialData.IsEmpty() && !bDataIsMutable;
 
   return CreateBuffer(desc, initialData);
@@ -592,8 +619,8 @@ ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum indexType,
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(indexType);
-  desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
-  desc.m_BufferType = ezGALBufferType::IndexBuffer;
+  desc.m_uiTotalSize = desc.m_uiStructSize * ezMath::Max(1u, uiIndexCount);
+  desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
   desc.m_ResourceAccess.m_bImmutable = !bDataIsMutable && !initialData.IsEmpty();
 
   return CreateBuffer(desc, initialData);
@@ -604,7 +631,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
-  desc.m_BufferType = ezGALBufferType::ConstantBuffer;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return CreateBuffer(desc);
@@ -644,7 +671,7 @@ ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreati
     // Create default resource view
     if (desc.m_bAllowShaderResourceView)
     {
-      ezGALResourceViewCreationDescription viewDesc;
+      ezGALTextureResourceViewCreationDescription viewDesc;
       viewDesc.m_hTexture = hTexture;
       viewDesc.m_uiArraySize = desc.m_uiArraySize;
       pTexture->m_hDefaultResourceView = CreateResourceView(viewDesc);
@@ -700,6 +727,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   }
 
   const auto& parentDesc = pParentTexture->GetDescription();
+  EZ_IGNORE_UNUSED(parentDesc);
   EZ_ASSERT_DEV(parentDesc.m_Type != ezGALTextureType::Texture2DProxy, "Can't create a proxy texture of a proxy texture.");
   EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_uiArraySize > 1,
     "Proxy textures can only be created for cubemaps or array textures.");
@@ -712,7 +740,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   // Create default resource view
   if (desc.m_bAllowShaderResourceView)
   {
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = hProxyTexture;
     viewDesc.m_uiFirstArraySlice = uiSlice;
     viewDesc.m_uiArraySize = 1;
@@ -831,34 +859,70 @@ void ezGALDevice::DestroySharedTexture(ezGALTextureHandle hSharedTexture)
   }
 }
 
-ezGALResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureHandle hTexture)
+ezGALTextureResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureHandle hTexture)
 {
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
   {
     return pTexture->m_hDefaultResourceView;
   }
 
-  return ezGALResourceViewHandle();
+  return ezGALTextureResourceViewHandle();
 }
 
-ezGALResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALBufferHandle hBuffer)
+ezGALBufferResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALBufferHandle hBuffer)
 {
   if (const ezGALBuffer* pBuffer = GetBuffer(hBuffer))
   {
     return pBuffer->m_hDefaultResourceView;
   }
 
-  return ezGALResourceViewHandle();
+  return ezGALBufferResourceViewHandle();
 }
 
-ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewCreationDescription& desc)
+ezGALTextureResourceViewHandle ezGALDevice::CreateResourceView(const ezGALTextureResourceViewCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALResourceBase* pResource = nullptr;
+  ezGALTexture* pResource = nullptr;
 
   if (!desc.m_hTexture.IsInvalidated())
     pResource = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
+
+  if (pResource == nullptr)
+  {
+    ezLog::Error("No valid texture handle given for resource view creation!");
+    return ezGALTextureResourceViewHandle();
+  }
+
+  // Hash desc and return potential existing one
+  ezUInt32 uiHash = desc.CalculateHash();
+
+  {
+    ezGALTextureResourceViewHandle hResourceView;
+    if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
+    {
+      return hResourceView;
+    }
+  }
+
+  ezGALTextureResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
+
+  if (pResourceView != nullptr)
+  {
+    ezGALTextureResourceViewHandle hResourceView(m_TextureResourceViews.Insert(pResourceView));
+    pResource->m_ResourceViews.Insert(uiHash, hResourceView);
+
+    return hResourceView;
+  }
+
+  return ezGALTextureResourceViewHandle();
+}
+
+ezGALBufferResourceViewHandle ezGALDevice::CreateResourceView(const ezGALBufferResourceViewCreationDescription& desc)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALBuffer* pResource = nullptr;
 
   if (!desc.m_hBuffer.IsInvalidated())
     pResource = Get<BufferTable, ezGALBuffer>(desc.m_hBuffer, m_Buffers);
@@ -866,42 +930,58 @@ ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewC
   if (pResource == nullptr)
   {
     ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
-    return ezGALResourceViewHandle();
+    return ezGALBufferResourceViewHandle();
   }
 
   // Hash desc and return potential existing one
   ezUInt32 uiHash = desc.CalculateHash();
 
   {
-    ezGALResourceViewHandle hResourceView;
+    ezGALBufferResourceViewHandle hResourceView;
     if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
     {
       return hResourceView;
     }
   }
 
-  ezGALResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
+  ezGALBufferResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
 
   if (pResourceView != nullptr)
   {
-    ezGALResourceViewHandle hResourceView(m_ResourceViews.Insert(pResourceView));
+    ezGALBufferResourceViewHandle hResourceView(m_BufferResourceViews.Insert(pResourceView));
     pResource->m_ResourceViews.Insert(uiHash, hResourceView);
 
     return hResourceView;
   }
 
-  return ezGALResourceViewHandle();
+  return ezGALBufferResourceViewHandle();
 }
 
-void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
+void ezGALDevice::DestroyResourceView(ezGALTextureResourceViewHandle hResourceView)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALResourceView* pResourceView = nullptr;
+  ezGALTextureResourceView* pResourceView = nullptr;
 
-  if (m_ResourceViews.TryGetValue(hResourceView, pResourceView))
+  if (m_TextureResourceViews.TryGetValue(hResourceView, pResourceView))
   {
-    AddDeadObject(GALObjectType::ResourceView, hResourceView);
+    AddDeadObject(GALObjectType::TextureResourceView, hResourceView);
+  }
+  else
+  {
+    ezLog::Warning("DestroyResourceView called on invalid handle (double free?)");
+  }
+}
+
+void ezGALDevice::DestroyResourceView(ezGALBufferResourceViewHandle hResourceView)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALBufferResourceView* pResourceView = nullptr;
+
+  if (m_BufferResourceViews.TryGetValue(hResourceView, pResourceView))
+  {
+    AddDeadObject(GALObjectType::BufferResourceView, hResourceView);
   }
   else
   {
@@ -976,59 +1056,30 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
   }
 }
 
-ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& desc)
+ezGALTextureUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALTextureUnorderedAccessViewCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  if (!desc.m_hTexture.IsInvalidated() && !desc.m_hBuffer.IsInvalidated())
-  {
-    ezLog::Error("Can't pass both a texture and buffer to a ezGALUnorderedAccessViewCreationDescription.");
-    return ezGALUnorderedAccessViewHandle();
-  }
-
-  ezGALResourceBase* pResource = nullptr;
   ezGALTexture* pTexture = nullptr;
-  ezGALBuffer* pBuffer = nullptr;
 
   if (!desc.m_hTexture.IsInvalidated())
   {
-    pResource = pTexture = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
-  }
-  else if (!desc.m_hBuffer.IsInvalidated())
-  {
-    pResource = pBuffer = Get<BufferTable, ezGALBuffer>(desc.m_hBuffer, m_Buffers);
+    pTexture = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
   }
 
-  if (pResource == nullptr)
+  if (pTexture == nullptr)
   {
-    ezLog::Error("No valid texture handle or buffer handle given for unordered access view creation!");
-    return ezGALUnorderedAccessViewHandle();
+    ezLog::Error("No valid texture handle given for unordered access view creation!");
+    return ezGALTextureUnorderedAccessViewHandle();
   }
 
   // Some platform independent validation.
   {
-    if (pTexture)
+    // Is this really platform independent?
+    if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
     {
-      // Is this really platform independent?
-      if (pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None)
-      {
-        ezLog::Error("Can't create unordered access view on textures with multisampling.");
-        return ezGALUnorderedAccessViewHandle();
-      }
-    }
-    else
-    {
-      if (desc.m_OverrideViewFormat == ezGALResourceFormat::Invalid)
-      {
-        ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
-        return ezGALUnorderedAccessViewHandle();
-      }
-
-      if (!pBuffer->GetDescription().m_bAllowRawViews && desc.m_bRawView)
-      {
-        ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-        return ezGALUnorderedAccessViewHandle();
-      }
+      ezLog::Error("Can't create unordered access view on textures with multisampling.");
+      return ezGALTextureUnorderedAccessViewHandle();
     }
   }
 
@@ -1036,35 +1087,107 @@ ezGALUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGA
   ezUInt32 uiHash = desc.CalculateHash();
 
   {
-    ezGALUnorderedAccessViewHandle hUnorderedAccessView;
-    if (pResource->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
+    ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView;
+    if (pTexture->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
     {
       return hUnorderedAccessView;
     }
   }
 
-  ezGALUnorderedAccessView* pUnorderedAccessViewView = CreateUnorderedAccessViewPlatform(pResource, desc);
+  ezGALTextureUnorderedAccessView* pUnorderedAccessView = CreateUnorderedAccessViewPlatform(pTexture, desc);
 
-  if (pUnorderedAccessViewView != nullptr)
+  if (pUnorderedAccessView != nullptr)
   {
-    ezGALUnorderedAccessViewHandle hUnorderedAccessView(m_UnorderedAccessViews.Insert(pUnorderedAccessViewView));
-    pResource->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
+    ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView(m_TextureUnorderedAccessViews.Insert(pUnorderedAccessView));
+    pTexture->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
 
     return hUnorderedAccessView;
   }
 
-  return ezGALUnorderedAccessViewHandle();
+  return ezGALTextureUnorderedAccessViewHandle();
 }
 
-void ezGALDevice::DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle)
+ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALBufferUnorderedAccessViewCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ezGALUnorderedAccessView* pUnorderedAccesssView = nullptr;
+  ezGALBuffer* pBuffer = nullptr;
 
-  if (m_UnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
+  if (!desc.m_hBuffer.IsInvalidated())
   {
-    AddDeadObject(GALObjectType::UnorderedAccessView, hUnorderedAccessViewHandle);
+    pBuffer = Get<BufferTable, ezGALBuffer>(desc.m_hBuffer, m_Buffers);
+  }
+
+  if (pBuffer == nullptr)
+  {
+    ezLog::Error("No valid buffer handle given for unordered access view creation!");
+    return ezGALBufferUnorderedAccessViewHandle();
+  }
+
+  // Some platform independent validation.
+  {
+    if (desc.m_Format == ezGALResourceFormat::Invalid)
+    {
+      ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
+      return ezGALBufferUnorderedAccessViewHandle();
+    }
+
+    if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && desc.m_bRawView)
+    {
+      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
+      return ezGALBufferUnorderedAccessViewHandle();
+    }
+  }
+
+  // Hash desc and return potential existing one
+  ezUInt32 uiHash = desc.CalculateHash();
+
+  {
+    ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView;
+    if (pBuffer->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
+    {
+      return hUnorderedAccessView;
+    }
+  }
+
+  ezGALBufferUnorderedAccessView* pUnorderedAccessViewView = CreateUnorderedAccessViewPlatform(pBuffer, desc);
+
+  if (pUnorderedAccessViewView != nullptr)
+  {
+    ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView(m_BufferUnorderedAccessViews.Insert(pUnorderedAccessViewView));
+    pBuffer->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
+
+    return hUnorderedAccessView;
+  }
+
+  return ezGALBufferUnorderedAccessViewHandle();
+}
+
+void ezGALDevice::DestroyUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALTextureUnorderedAccessView* pUnorderedAccesssView = nullptr;
+
+  if (m_TextureUnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
+  {
+    AddDeadObject(GALObjectType::TextureUnorderedAccessView, hUnorderedAccessViewHandle);
+  }
+  else
+  {
+    ezLog::Warning("DestroyUnorderedAccessView called on invalid handle (double free?)");
+  }
+}
+
+void ezGALDevice::DestroyUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALBufferUnorderedAccessView* pUnorderedAccesssView = nullptr;
+
+  if (m_BufferUnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
+  {
+    AddDeadObject(GALObjectType::BufferUnorderedAccessView, hUnorderedAccessViewHandle);
   }
   else
   {
@@ -1077,14 +1200,14 @@ ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ///// \todo Platform independent validation
-  //if (desc.m_pWindow == nullptr)
+  // if (desc.m_pWindow == nullptr)
   //{
-  //  ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
-  //  return ezGALSwapChainHandle();
-  //}
+  //   ezLog::Error("The desc for the swap chain creation contained an invalid (nullptr) window handle!");
+  //   return ezGALSwapChainHandle();
+  // }
 
   ezGALSwapChain* pSwapChain = func(&m_Allocator);
-  //ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
+  // ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
 
   if (!pSwapChain->InitPlatform(this).Succeeded())
   {
@@ -1125,38 +1248,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
   else
   {
     ezLog::Warning("DestroySwapChain called on invalid handle (double free?)");
-  }
-}
-
-ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& desc)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALQuery* pQuery = CreateQueryPlatform(desc);
-
-  if (pQuery == nullptr)
-  {
-    return ezGALQueryHandle();
-  }
-  else
-  {
-    return ezGALQueryHandle(m_Queries.Insert(pQuery));
-  }
-}
-
-void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALQuery* pQuery = nullptr;
-
-  if (m_Queries.TryGetValue(hQuery, pQuery))
-  {
-    AddDeadObject(GALObjectType::Query, hQuery);
-  }
-  else
-  {
-    ezLog::Warning("DestroyQuery called on invalid handle (double free?)");
   }
 }
 
@@ -1239,32 +1330,38 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 // Misc functions
 
-void ezGALDevice::BeginFrame(const ezUInt64 uiRenderFrame)
+void ezGALDevice::EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain)
+{
+  EZ_ASSERT_DEV(!m_bBeginFrameCalled, "EnqueueFrameSwapChain must be called before or during ezGALDeviceEvent::BeforeBeginFrame");
+  ezGALSwapChain* pSwapChain = nullptr;
+  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
+  if (pSwapChain != nullptr)
+    // EZ_ASSERT_DEBUG(pSwapChain != nullptr, "");
+    m_FrameSwapChains.PushBack(pSwapChain);
+}
+
+void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)
 {
   {
     EZ_PROFILE_SCOPE("BeforeBeginFrame");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeBeginFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
     EZ_ASSERT_DEV(!m_bBeginFrameCalled, "You must call ezGALDevice::EndFrame before you can call ezGALDevice::BeginFrame again");
     m_bBeginFrameCalled = true;
-
-    BeginFramePlatform(uiRenderFrame);
+    BeginFramePlatform(m_FrameSwapChains, uiAppFrame);
   }
-
-  // TODO: move to beginrendering/compute calls
-  //m_pPrimaryContext->ClearStatisticsCounters();
 
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterBeginFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 }
 
@@ -1274,7 +1371,7 @@ void ezGALDevice::EndFrame()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeEndFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 
   {
@@ -1283,8 +1380,8 @@ void ezGALDevice::EndFrame()
 
     DestroyDeadObjects();
 
-    EndFramePlatform();
-
+    EndFramePlatform(m_FrameSwapChains);
+    m_FrameSwapChains.Clear();
     m_bBeginFrameCalled = false;
   }
 
@@ -1292,7 +1389,7 @@ void ezGALDevice::EndFrame()
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterEndFrame;
-    m_Events.Broadcast(e);
+    s_Events.Broadcast(e);
   }
 }
 
@@ -1338,7 +1435,7 @@ void ezGALDevice::WaitIdle()
   WaitIdlePlatform();
 }
 
-void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
+void ezGALDevice::DestroyViews(ezGALTexture* pResource)
 {
   EZ_ASSERT_DEBUG(pResource != nullptr, "Must provide valid resource");
 
@@ -1346,10 +1443,10 @@ void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 
   for (auto it = pResource->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
   {
-    ezGALResourceViewHandle hResourceView = it.Value();
-    ezGALResourceView* pResourceView = m_ResourceViews[hResourceView];
+    ezGALTextureResourceViewHandle hResourceView = it.Value();
+    ezGALTextureResourceView* pResourceView = m_TextureResourceViews[hResourceView];
 
-    m_ResourceViews.Remove(hResourceView);
+    m_TextureResourceViews.Remove(hResourceView);
 
     DestroyResourceViewPlatform(pResourceView);
   }
@@ -1370,10 +1467,40 @@ void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 
   for (auto it = pResource->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
   {
-    ezGALUnorderedAccessViewHandle hUnorderedAccessView = it.Value();
-    ezGALUnorderedAccessView* pUnorderedAccessView = m_UnorderedAccessViews[hUnorderedAccessView];
+    ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView = it.Value();
+    ezGALTextureUnorderedAccessView* pUnorderedAccessView = m_TextureUnorderedAccessViews[hUnorderedAccessView];
 
-    m_UnorderedAccessViews.Remove(hUnorderedAccessView);
+    m_TextureUnorderedAccessViews.Remove(hUnorderedAccessView);
+
+    DestroyUnorderedAccessViewPlatform(pUnorderedAccessView);
+  }
+  pResource->m_UnorderedAccessViews.Clear();
+}
+
+void ezGALDevice::DestroyViews(ezGALBuffer* pResource)
+{
+  EZ_ASSERT_DEBUG(pResource != nullptr, "Must provide valid resource");
+
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  for (auto it = pResource->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+  {
+    ezGALBufferResourceViewHandle hResourceView = it.Value();
+    ezGALBufferResourceView* pResourceView = m_BufferResourceViews[hResourceView];
+
+    m_BufferResourceViews.Remove(hResourceView);
+
+    DestroyResourceViewPlatform(pResourceView);
+  }
+  pResource->m_ResourceViews.Clear();
+  pResource->m_hDefaultResourceView.Invalidate();
+
+  for (auto it = pResource->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+  {
+    ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView = it.Value();
+    ezGALBufferUnorderedAccessView* pUnorderedAccessView = m_BufferUnorderedAccessViews[hUnorderedAccessView];
+
+    m_BufferUnorderedAccessViews.Remove(hUnorderedAccessView);
 
     DestroyUnorderedAccessViewPlatform(pUnorderedAccessView);
   }
@@ -1444,7 +1571,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALShaderHandle hShader(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALShader* pShader = nullptr;
 
-        m_Shaders.Remove(hShader, &pShader);
+        EZ_VERIFY(m_Shaders.Remove(hShader, &pShader), "");
 
         DestroyShaderPlatform(pShader);
 
@@ -1455,7 +1582,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBufferHandle hBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALBuffer* pBuffer = nullptr;
 
-        m_Buffers.Remove(hBuffer, &pBuffer);
+        EZ_VERIFY(m_Buffers.Remove(hBuffer, &pBuffer), "");
 
         DestroyViews(pBuffer);
         DestroyBufferPlatform(pBuffer);
@@ -1482,14 +1609,31 @@ void ezGALDevice::DestroyDeadObjects()
         }
         break;
       }
-      case GALObjectType::ResourceView:
+      case GALObjectType::TextureResourceView:
       {
-        ezGALResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
-        ezGALResourceView* pResourceView = nullptr;
+        ezGALTextureResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALTextureResourceView* pResourceView = nullptr;
 
-        m_ResourceViews.Remove(hResourceView, &pResourceView);
+        EZ_VERIFY(m_TextureResourceViews.Remove(hResourceView, &pResourceView), "");
 
-        ezGALResourceBase* pResource = pResourceView->m_pResource;
+        ezGALTexture* pResource = pResourceView->m_pResource;
+        EZ_ASSERT_DEBUG(pResource != nullptr, "");
+
+        EZ_VERIFY(pResource->m_ResourceViews.Remove(pResourceView->GetDescription().CalculateHash()), "");
+        pResourceView->m_pResource = nullptr;
+
+        DestroyResourceViewPlatform(pResourceView);
+
+        break;
+      }
+      case GALObjectType::BufferResourceView:
+      {
+        ezGALBufferResourceViewHandle hResourceView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALBufferResourceView* pResourceView = nullptr;
+
+        EZ_VERIFY(m_BufferResourceViews.Remove(hResourceView, &pResourceView), "");
+
+        ezGALBuffer* pResource = pResourceView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
 
         EZ_VERIFY(pResource->m_ResourceViews.Remove(pResourceView->GetDescription().CalculateHash()), "");
@@ -1504,7 +1648,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALRenderTargetViewHandle hRenderTargetView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALRenderTargetView* pRenderTargetView = nullptr;
 
-        m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView);
+        EZ_VERIFY(m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView), "");
 
         ezGALTexture* pTexture = pRenderTargetView->m_pTexture;
         EZ_ASSERT_DEBUG(pTexture != nullptr, "");
@@ -1515,21 +1659,36 @@ void ezGALDevice::DestroyDeadObjects()
 
         break;
       }
-      case GALObjectType::UnorderedAccessView:
+      case GALObjectType::TextureUnorderedAccessView:
       {
-        ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
-        ezGALUnorderedAccessView* pUnorderedAccesssView = nullptr;
+        ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALTextureUnorderedAccessView* pUnorderedAccesssView = nullptr;
 
-        m_UnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView);
+        EZ_VERIFY(m_TextureUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView), "");
 
-        ezGALResourceBase* pResource = pUnorderedAccesssView->m_pResource;
+        ezGALTexture* pResource = pUnorderedAccesssView->m_pResource;
         EZ_ASSERT_DEBUG(pResource != nullptr, "");
 
         EZ_VERIFY(pResource->m_UnorderedAccessViews.Remove(pUnorderedAccesssView->GetDescription().CalculateHash()), "");
         pUnorderedAccesssView->m_pResource = nullptr;
 
         DestroyUnorderedAccessViewPlatform(pUnorderedAccesssView);
+        break;
+      }
+      case GALObjectType::BufferUnorderedAccessView:
+      {
+        ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALBufferUnorderedAccessView* pUnorderedAccesssView = nullptr;
 
+        EZ_VERIFY(m_BufferUnorderedAccessViews.Remove(hUnorderedAccessViewHandle, &pUnorderedAccesssView), "");
+
+        ezGALBuffer* pResource = pUnorderedAccesssView->m_pResource;
+        EZ_ASSERT_DEBUG(pResource != nullptr, "");
+
+        EZ_VERIFY(pResource->m_UnorderedAccessViews.Remove(pUnorderedAccesssView->GetDescription().CalculateHash()), "");
+        pUnorderedAccesssView->m_pResource = nullptr;
+
+        DestroyUnorderedAccessViewPlatform(pUnorderedAccesssView);
         break;
       }
       case GALObjectType::SwapChain:
@@ -1537,24 +1696,13 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALSwapChainHandle hSwapChain(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALSwapChain* pSwapChain = nullptr;
 
-        m_SwapChains.Remove(hSwapChain, &pSwapChain);
+        EZ_VERIFY(m_SwapChains.Remove(hSwapChain, &pSwapChain), "");
 
         if (pSwapChain != nullptr)
         {
           pSwapChain->DeInitPlatform(this).IgnoreResult();
           EZ_DELETE(&m_Allocator, pSwapChain);
         }
-
-        break;
-      }
-      case GALObjectType::Query:
-      {
-        ezGALQueryHandle hQuery(ezGAL::ez20_12Id(deadObject.m_uiHandle));
-        ezGALQuery* pQuery = nullptr;
-
-        m_Queries.Remove(hQuery, &pQuery);
-
-        DestroyQueryPlatform(pQuery);
 
         break;
       }
@@ -1588,5 +1736,3 @@ const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSw
   }
   return pSwapChain;
 }
-
-

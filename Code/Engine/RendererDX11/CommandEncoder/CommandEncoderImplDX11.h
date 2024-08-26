@@ -19,7 +19,7 @@ struct ID3D11Query;
 
 class ezGALDeviceDX11;
 
-class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 : public ezGALCommandEncoderCommonPlatformInterface, public ezGALCommandEncoderRenderPlatformInterface, public ezGALCommandEncoderComputePlatformInterface
+class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface
 {
 public:
   ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
@@ -30,25 +30,29 @@ public:
 
   virtual void SetShaderPlatform(const ezGALShader* pShader) override;
 
-  virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) override;
-  virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
+  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) override;
+  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) override;
+  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
+  virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
-  // Query functions
+  // GPU -> CPU query functions
 
-  virtual void BeginQueryPlatform(const ezGALQuery* pQuery) override;
-  virtual void EndQueryPlatform(const ezGALQuery* pQuery) override;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult) override;
+  virtual ezGALTimestampHandle InsertTimestampPlatform() override;
+  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) override;
+  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) override;
+  virtual ezGALFenceHandle InsertFencePlatform() override;
 
-  // Timestamp functions
-
-  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) override;
 
   // Resource update functions
 
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
+
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
@@ -68,7 +72,7 @@ public:
 
   virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) override;
+  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) override;
 
   // Misc
 
@@ -80,22 +84,28 @@ public:
   virtual void PopMarkerPlatform() override;
   virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
+  // ezGALCommandEncoderComputePlatformInterface
+  // Dispatch
+  virtual void BeginComputePlatform() override;
+  virtual void EndComputePlatform() override;
+
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
   // ezGALCommandEncoderRenderPlatformInterface
-  void BeginRendering(const ezGALRenderingSetup& renderingSetup);
-  void BeginCompute();
+  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) override;
+  virtual void EndRenderingPlatform() override;
 
   // Draw functions
 
   virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
 
-  virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
-  virtual void DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
-  virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-  virtual void DrawAutoPlatform() override;
+  virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex) override;
+  virtual ezResult DrawIndexedInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
+  virtual ezResult DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex) override;
+  virtual ezResult DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
 
   // State functions
 
@@ -111,17 +121,12 @@ public:
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
 
-
-  // ezGALCommandEncoderComputePlatformInterface
-  // Dispatch
-
-  virtual void DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) override;
-  virtual void DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
-
 private:
-  friend class ezGALPassDX11;
+  friend class ezGALDeviceDX11;
 
-  void FlushDeferredStateChanges();
+  bool UnsetResourceViews(const ezGALResourceBase* pResource);
+  bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
+  ezResult FlushDeferredStateChanges();
 
   ezGALDeviceDX11& m_GALDeviceDX11;
   ezGALCommandEncoder* m_pOwner = nullptr;
@@ -130,14 +135,19 @@ private:
   ID3DUserDefinedAnnotation* m_pDXAnnotation = nullptr;
 
   // Bound objects for deferred state flushes
+  ezEnum<ezGALPrimitiveTopology> m_Topology;
+  ezUInt8 m_uiTessellationPatchControlPoints = 0;
+
   ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundConstantBuffersRange[ezGALShaderStage::ENUM_COUNT];
 
   ezHybridArray<ID3D11ShaderResourceView*, 16> m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT] = {};
+  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForResourceViews[ezGALShaderStage::ENUM_COUNT];
   ezGAL::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnoderedAccessViews;
-  ezGAL::ModifiedRange m_BoundUnoderedAccessViewsRange;
+  ezHybridArray<ID3D11UnorderedAccessView*, 16> m_BoundUnorderedAccessViews;
+  ezHybridArray<const ezGALResourceBase*, 16> m_ResourcesForUnorderedAccessViews;
+  ezGAL::ModifiedRange m_BoundUnorderedAccessViewsRange;
 
   ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SAMPLER_COUNT] = {};
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
@@ -154,4 +164,6 @@ private:
 
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  void SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
+  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, ezGALResourceBase* pResource);
 };

@@ -41,7 +41,8 @@ namespace ezInternal
 
     ezTaskSystem::ParallelFor(
       blocks.GetArrayPtr(),
-      [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice) {
+      [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice)
+      {
         for (WorldData::Hierarchy::DataBlock& block : blocksSlice)
         {
           ezGameObject::TransformationData* pCurrentData = block.m_pData;
@@ -181,7 +182,7 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocatorBase* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame)
+  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocator* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame)
     : m_bMustFinishWithinOneFrame(bMustFinishWithinOneFrame)
     , m_ComponentsToInitialize(pAllocator)
     , m_ComponentsToStartSimulation(pAllocator)

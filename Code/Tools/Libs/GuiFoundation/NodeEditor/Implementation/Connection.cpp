@@ -91,6 +91,24 @@ void ezQtConnection::UpdateGeometry()
     p.moveTo(startPoint);
     p.lineTo(endPoint);
   }
+  else if (pScene->GetConnectionStyle() == ezQtNodeScene::ConnectionStyle::SubwayLines)
+  {
+    // Used to enforce a small padding connection from the node itself to help readability.
+    const float fPaddingFromNode = 20.0f;
+
+    QPointF startPoint = m_OutPoint;
+
+    QPointF offsetStartPoint = QPointF(startPoint.x() + fPaddingFromNode, startPoint.y());
+
+    QPointF endPoint = m_InPoint;
+    QPointF offsetEndPoint = QPointF(endPoint.x() - fPaddingFromNode, endPoint.y());
+
+    p.moveTo(startPoint);
+    p.lineTo(offsetStartPoint);
+    DrawSubwayPath(p, offsetStartPoint, offsetEndPoint);
+    p.lineTo(offsetEndPoint);
+    p.lineTo(endPoint);
+  }
   else
   {
     p.moveTo(m_OutPoint);
@@ -168,4 +186,102 @@ void ezQtConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
   }
 
   painter->drawPath(path());
+
+  if (decorationFlags.IsSet(ezQtNodeScene::ConnectionDecorationFlags::DrawDebugging))
+  {
+    const float offset = fmod(ezTime::Now().GetSeconds(), 1.0f);
+    const qreal segments = path().length() / 16;
+
+    for (qreal length = 0; length < segments + 0.0005f; ++length)
+    {
+      painter->drawEllipse(path().pointAtPercent(path().percentAtLength((length + offset) * 16)), 2, 2);
+    }
+  }
+}
+
+void ezQtConnection::DrawSubwayPath(QPainterPath& path, const QPointF& startPoint, const QPointF& endPoint)
+{
+  const bool isStartAboveTarget = startPoint.y() <= endPoint.y();
+  const bool isStartLeftOfTarget = startPoint.x() <= endPoint.x();
+
+  const float diffX = fabs(endPoint.x() - startPoint.x());
+  float diffY = fabs(endPoint.y() - startPoint.y());
+
+  const qreal bezierOffset = 5;
+  const qreal nodeCableOffset = 20;
+
+  if (!isStartLeftOfTarget)
+  {
+    if (diffY < 0.000001f)
+    {
+      diffY += nodeCableOffset;
+    }
+
+    float step = diffY / 4 - bezierOffset;
+    step = step < nodeCableOffset ? step : nodeCableOffset;
+
+    const float yDistance = fabs(diffY - step * 4) / 2;
+
+    const float x = startPoint.x() + step;
+    const float x2 = x - step;
+    const float x3 = x - step * 2 - diffX;
+
+    if (!isStartAboveTarget)
+    {
+      const float y = startPoint.y() - step;
+      const float y2 = startPoint.y() - step * 2;
+      const float y3 = startPoint.y() - step * 3;
+
+      path.lineTo(x, y);
+      path.lineTo(x, y - yDistance);
+      path.lineTo(x2, y2 - yDistance);
+      path.lineTo(x2 - diffX, y2 - yDistance);
+      path.lineTo(x3, y3 - yDistance);
+      path.lineTo(x3, y3 - yDistance * 2);
+    }
+    else
+    {
+      const float y = startPoint.y() + step;
+      const float y2 = startPoint.y() + step * 2;
+      const float y3 = startPoint.y() + step * 3;
+
+      path.lineTo(x, y);
+      path.lineTo(x, y + yDistance);
+      path.lineTo(x2, y2 + yDistance);
+      path.lineTo(x2 - diffX, y2 + yDistance);
+      path.lineTo(x3, y3 + yDistance);
+      path.lineTo(x3, y3 + yDistance * 2);
+    }
+  }
+  else
+  {
+    const bool isDistanceTooShort = diffX <= diffY;
+
+    if (!isStartAboveTarget)
+    {
+      if (!isDistanceTooShort)
+      {
+        path.lineTo(startPoint.x() + diffY, startPoint.y() - diffY);
+      }
+      else
+      {
+        const float x = startPoint.x() + diffX / 2;
+        path.lineTo(x, startPoint.y() - diffX / 2);
+        path.lineTo(x, startPoint.y() - diffX / 2 - (diffY - diffX));
+      }
+    }
+    else
+    {
+      if (!isDistanceTooShort)
+      {
+        path.lineTo(startPoint.x() + diffY, startPoint.y() + diffY);
+      }
+      else
+      {
+        const float x = startPoint.x() + diffX / 2;
+        path.lineTo(x, startPoint.y() + diffX / 2);
+        path.lineTo(x, startPoint.y() + diffX / 2 + (diffY - diffX));
+      }
+    }
+  }
 }

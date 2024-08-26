@@ -49,11 +49,10 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
 
     // Before starting to render in a frame call this function
+    device->EnqueueFrameSwapChain(m_hSwapChain);
     device->BeginFrame();
 
-    device->BeginPipeline("ComputeShaderHistogramSample", m_hSwapChain);
-
-    ezGALPass* pGALPass = device->BeginPass("ezComputeShaderHistogram");
+    ezGALCommandEncoder* pCommandEncoder = device->BeginCommands("ezComputeShaderHistogram");
 
     ezRenderContext& renderContext = *ezRenderContext::GetDefaultInstance();
 
@@ -74,7 +73,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hScreenRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "Background");
+      renderContext.BeginRendering(renderingSetup, viewport, "Background");
 
       renderContext.BindShader(m_hScreenShader);
       renderContext.BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
@@ -92,13 +91,13 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "Dummy");
+      renderContext.BeginRendering(renderingSetup, viewport, "Dummy");
       renderContext.EndRendering();
     }
 
     // Compute histogram.
     {
-      renderContext.BeginCompute(pGALPass, "ComputeHistogram");
+      renderContext.BeginCompute("ComputeHistogram");
 
       // Reset first.
       renderContext.GetCommandEncoder()->ClearUnorderedAccessView(m_hHistogramUAV, ezVec4U32(0, 0, 0, 0));
@@ -115,7 +114,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     {
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-      renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "DrawHistogram");
+      renderContext.BeginRendering(renderingSetup, viewport, "DrawHistogram");
 
       renderContext.BindShader(m_hHistogramDisplayShader);
       renderContext.BindMeshBuffer(m_hHistogramQuadMeshBuffer);
@@ -125,9 +124,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
       renderContext.EndRendering();
     }
 
-    device->EndPass(pGALPass);
-
-    device->EndPipeline(m_hSwapChain);
+    device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -208,7 +205,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     m_hHistogramTexture = device->CreateTexture(texDesc);
     m_hHistogramSRV = device->GetDefaultResourceView(m_hHistogramTexture);
 
-    ezGALUnorderedAccessViewCreationDescription uavDesc;
+    ezGALTextureUnorderedAccessViewCreationDescription uavDesc;
     uavDesc.m_hTexture = m_hHistogramTexture;
     m_hHistogramUAV = device->CreateUnorderedAccessView(uavDesc);
   }
@@ -237,7 +234,6 @@ void ezComputeShaderHistogramApp::BeforeHighLevelSystemsShutdown()
   m_hScreenSRV.Invalidate();
   device->DestroyTexture(m_hScreenTexture);
   m_hScreenTexture.Invalidate();
-  device->DestroySwapChain(m_hSwapChain);
 
   device->DestroyUnorderedAccessView(m_hHistogramUAV);
   m_hHistogramUAV.Invalidate();
@@ -262,7 +258,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
     opt.m_Transform = ezMat4(ezMat3::MakeIdentity(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
-    geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
+    geom.AddRect(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);

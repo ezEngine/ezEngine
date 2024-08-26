@@ -15,7 +15,7 @@ o
 			s{"Data/Package.sbs"}
 		}
 		Uuid %DocumentID{u4{3345295321325032637,5402314451583926984}}
-		u4 %Hash{5419514237260030345}
+		u4 %Hash{7123939778179577916}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9779573371017384785,12196406172074653475}}
@@ -26,6 +26,7 @@ o
 		{
 			s{"Data/Package.sbs"}
 		}
+		s %Tags{""}
 	}
 }
 o
@@ -61,12 +62,13 @@ o
 	u3 %v{1}
 	p
 	{
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %Enabled{1}
 		s %Label{"Normal"}
 		s %Name{"normal"}
 		u1 %NumChannels{3}
+		b %PreserveAlphaCoverage{0}
 		s %Usage{"ezSubstanceUsage::Normal"}
-		b %UseHighCompression{1}
 		Uuid %Uuid{u4{1257018998624723487,13473559993415137679}}
 	}
 }
@@ -77,12 +79,13 @@ o
 	u3 %v{1}
 	p
 	{
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %Enabled{1}
 		s %Label{"AO"}
 		s %Name{"AmbientOcclusion"}
 		u1 %NumChannels{1}
+		b %PreserveAlphaCoverage{0}
 		s %Usage{"ezSubstanceUsage::Occlusion"}
-		b %UseHighCompression{1}
 		Uuid %Uuid{u4{3707555714600286245,12106739684100558448}}
 	}
 }
@@ -93,12 +96,13 @@ o
 	u3 %v{1}
 	p
 	{
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %Enabled{1}
 		s %Label{"BaseColor"}
 		s %Name{"basecolor"}
 		u1 %NumChannels{3}
+		b %PreserveAlphaCoverage{0}
 		s %Usage{"ezSubstanceUsage::BaseColor"}
-		b %UseHighCompression{1}
 		Uuid %Uuid{u4{14112052734906091349,2370550855521161189}}
 	}
 }
@@ -113,6 +117,7 @@ o
 		{
 			Uuid{u4{12419822247995823241,5245040463622873039}}
 		}
+		s %OutputPattern{"$(graph)_$(label)"}
 		s %SubstanceFile{"Data/Package.sbs"}
 	}
 }
@@ -123,12 +128,13 @@ o
 	u3 %v{1}
 	p
 	{
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %Enabled{0}
 		s %Label{"Height"}
 		s %Name{"height"}
 		u1 %NumChannels{1}
+		b %PreserveAlphaCoverage{0}
 		s %Usage{"ezSubstanceUsage::Height"}
-		b %UseHighCompression{1}
 		Uuid %Uuid{u4{1894772883668971464,14900553548406836919}}
 	}
 }
@@ -139,12 +145,13 @@ o
 	u3 %v{1}
 	p
 	{
+		s %CompressionMode{"ezTexConvCompressionMode::High"}
 		b %Enabled{1}
 		s %Label{"Roughness"}
 		s %Name{"roughness"}
 		u1 %NumChannels{1}
+		b %PreserveAlphaCoverage{0}
 		s %Usage{"ezSubstanceUsage::Roughness"}
-		b %UseHighCompression{1}
 		Uuid %Uuid{u4{10222724681967774040,9653149981057391976}}
 	}
 }
@@ -157,6 +164,8 @@ o
 	{
 		b %Enabled{1}
 		s %Name{"Bricks"}
+		u1 %OutputHeight{0}
+		u1 %OutputWidth{0}
 		VarArray %Outputs
 		{
 			Uuid{u4{8889991852476993417,4748259994322283119}}
@@ -184,6 +193,23 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{12203372038544747648,1304846957001536306}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexConvCompressionMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{16276481030183908599,2137405385972112921}}

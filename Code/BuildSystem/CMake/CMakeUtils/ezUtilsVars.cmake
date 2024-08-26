@@ -34,10 +34,3 @@ mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 set(EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis in the compiler options")
 
 mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
-
-# #####################################
-# ## vcpkg
-# #####################################
-
-# ## Qt
-# set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")

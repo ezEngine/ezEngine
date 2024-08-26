@@ -113,7 +113,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sConte
   pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
-  pWriteTask->m_sPath.Format(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
+  pWriteTask->m_sPath.SetFormat(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
   pWriteTask->m_sPath.Append(sContext);
   pWriteTask->m_sPath.Append(".png");
@@ -213,25 +213,21 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, const ezTransform* pStartPosition /*= nullptr*/)
+void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
 
-  m_pGameState = CreateGameState(pWorld);
+  m_pGameState = CreateGameState();
 
-  if (m_pGameState == nullptr)
-    return EZ_FAILURE;
+  EZ_ASSERT_ALWAYS(m_pGameState != nullptr, "Failed to create a game state.");
 
-  m_pWorldLinkedWithGameState = pWorld;
-  m_pGameState->OnActivation(pWorld, pStartPosition);
+  m_pGameState->OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ezGameApplicationStaticEvent e;
   e.m_Type = ezGameApplicationStaticEvent::Type::AfterGameStateActivated;
   m_StaticEvents.Broadcast(e);
 
   EZ_BROADCAST_EVENT(AfterGameStateActivation, m_pGameState.Borrow());
-
-  return EZ_SUCCESS;
 }
 
 void ezGameApplicationBase::DeactivateGameState()
@@ -252,44 +248,56 @@ void ezGameApplicationBase::DeactivateGameState()
   m_pGameState = nullptr;
 }
 
-ezGameStateBase* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const
-{
-  if (m_pWorldLinkedWithGameState == pWorld)
-    return m_pGameState.Borrow();
-
-  return nullptr;
-}
-
-ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState()
 {
   EZ_LOG_BLOCK("Create Game State");
 
   ezUniquePtr<ezGameStateBase> pCurState;
 
-  {
-    ezInt32 iBestPriority = -1;
+  ezRTTI::ForEachDerivedType<ezGameStateBase>(
+    [&](const ezRTTI* pRtti)
+    {
+      ezUniquePtr<ezGameStateBase> pNewState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
-    ezRTTI::ForEachDerivedType<ezGameStateBase>(
-      [&](const ezRTTI* pRtti) {
-        ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+      if (pCurState == nullptr)
 
-        const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
-        if (iPriority > iBestPriority)
+      {
+        pCurState = std::move(pNewState);
+        return;
+      }
+
+      if (pCurState->IsFallbackGameState() && !pNewState->IsFallbackGameState())
+      {
+        pCurState = std::move(pNewState);
+        return;
+      }
+
+      if (pCurState->IsFallbackGameState() && pNewState->IsFallbackGameState())
+      {
+        if (pNewState->GetDynamicRTTI()->IsDerivedFrom(pCurState->GetDynamicRTTI()))
         {
-          iBestPriority = iPriority;
-
-          pCurState = std::move(pState);
+          pCurState = std::move(pNewState);
+          return;
         }
-      },
-      ezRTTI::ForEachOptions::ExcludeNonAllocatable);
-  }
+
+        ezLog::Warning("Multiple fallback game states found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        return;
+      }
+
+      if (!pCurState->IsFallbackGameState() && !pNewState->IsFallbackGameState())
+      {
+        ezLog::Warning("Multiple game state implementations found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        return;
+      }
+    },
+    ezRTTI::ForEachOptions::ExcludeNotConcrete);
 
   return pCurState;
 }
 
 void ezGameApplicationBase::ActivateGameStateAtStartup()
 {
-  ActivateGameState().IgnoreResult();
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()
@@ -371,6 +379,11 @@ static bool s_bUpdatePluginsExecuted = false;
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 {
+  EZ_IGNORE_UNUSED(param0);
+  EZ_IGNORE_UNUSED(param1);
+  EZ_IGNORE_UNUSED(param2);
+  EZ_IGNORE_UNUSED(param3);
+
   s_bUpdatePluginsExecuted = true;
 }
 
@@ -404,6 +417,8 @@ void ezGameApplicationBase::RunOneFrame()
 
   Run_InputUpdate();
 
+  Run_AcquireImage();
+
   Run_WorldUpdateAndRender();
 
   if (!s_bUpdatePluginsExecuted)
@@ -432,8 +447,8 @@ void ezGameApplicationBase::RunOneFrame()
   }
 
   {
-    EZ_PROFILE_SCOPE("Run_Present");
-    Run_Present();
+    EZ_PROFILE_SCOPE("Run_PresentImage");
+    Run_PresentImage();
   }
   ezClock::GetGlobalClock()->Update();
   UpdateFrameTime();
@@ -470,6 +485,10 @@ bool ezGameApplicationBase::Run_ProcessApplicationInput()
   return true;
 }
 
+void ezGameApplicationBase::Run_AcquireImage()
+{
+}
+
 void ezGameApplicationBase::Run_BeforeWorldUpdate()
 {
   EZ_PROFILE_SCOPE("GameApplication.BeforeWorldUpdate");
@@ -493,6 +512,8 @@ void ezGameApplicationBase::Run_AfterWorldUpdate()
   if (m_pGameState)
   {
     m_pGameState->AfterWorldUpdate();
+
+    m_pGameState->ConfigureMainCamera();
   }
 
   {
@@ -521,7 +542,7 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
-void ezGameApplicationBase::Run_Present() {}
+void ezGameApplicationBase::Run_PresentImage() {}
 
 void ezGameApplicationBase::Run_FinishFrame()
 {
@@ -550,6 +571,4 @@ void ezGameApplicationBase::UpdateFrameTime()
 
 
 
-
 EZ_STATICLINK_FILE(Core, Core_GameApplication_Implementation_GameApplicationBase);
-

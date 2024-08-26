@@ -1,7 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="SVGRepo_bgCarrier" stroke-width="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0512 15.75L9.51642 14.2768L9.18821 14.0137C8.15637 13.1865 7.5 11.9204 7.5 10.5C7.5 8.01472 9.51472 6 12 6C14.4853 6 16.5 8.01472 16.5 10.5C16.5 11.9204 15.8436 13.1865 14.8118 14.0137L14.4836 14.2768L13.9488 15.75H10.0512ZM9 17.25H15L15.75 15.184C17.1217 14.0844 18 12.3948 18 10.5C18 7.18629 15.3137 4.5 12 4.5C8.68629 4.5 6 7.18629 6 10.5C6 12.3948 6.87831 14.0844 8.25 15.184L9 17.25ZM14.25 19.5V18H9.75V19.5H14.25Z" fill="#ffffff"/> </g>
-</svg>
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="SVGRepo_iconCarrier">
+        <g transform="matrix(1.10052,0,0,1.11462,-40.2069,-41.5487)">
+            <path d="M335.04,525L317.214,475.893L306.274,467.123C271.879,439.55 250,397.347 250,350C250,267.157 317.157,200 400,200C482.843,200 550,267.157 550,350C550,397.347 528.12,439.55 493.727,467.123L482.787,475.893L464.96,525L335.04,525Z" style="fill:rgb(191,191,191);"/>
+        </g>
+        <path d="M335.04,525L317.214,475.893L306.274,467.123C271.879,439.55 250,397.347 250,350C250,267.157 317.157,200 400,200C482.843,200 550,267.157 550,350C550,397.347 528.12,439.55 493.727,467.123L482.787,475.893L464.96,525L335.04,525ZM300,575L500,575L525,506.133C570.723,469.48 600,413.16 600,350C600,239.543 510.457,150 400,150C289.543,150 200,239.543 200,350C200,413.16 229.277,469.48 275,506.133L300,575ZM475,650L475,600L325,600L325,650L475,650Z" style="fill:white;"/>
+    </g>
+</svg>

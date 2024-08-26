@@ -131,10 +131,10 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass("Update Instanced Mesh Data");
+  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Update Instanced Mesh Data");
 
   ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
-  pRenderContext->BeginCompute(pGALPass);
+  pRenderContext->BeginCompute();
 
   for (const auto& componentToUpdate : m_RequireUpdate)
   {
@@ -153,7 +153,7 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
   }
 
   pRenderContext->EndCompute();
-  pDevice->EndPass(pGALPass);
+  pDevice->EndCommands(pCommandEncoder);
 
   m_RequireUpdate.Clear();
 }
@@ -179,7 +179,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_ACCESSOR_PROPERTY("MainColor", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
 
@@ -295,7 +295,7 @@ void ezInstancedMeshComponent::Instances_SetValue(ezUInt32 uiIndex, ezMeshInstan
 
 void ezInstancedMeshComponent::Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value)
 {
-  m_RawInstancedData.Insert(value, uiIndex);
+  m_RawInstancedData.InsertAt(uiIndex, value);
 
   TriggerLocalBoundsUpdate();
 }
@@ -351,6 +351,7 @@ ezArrayPtr<ezPerInstanceData> ezInstancedMeshComponent::GetInstanceData() const
     instanceData[i].BoundingSphereRadius = fBoundingSphereRadius * m_RawInstancedData[i].m_transform.GetMaxScale();
 
     instanceData[i].Color = m_Color * m_RawInstancedData[i].m_color;
+    instanceData[i].CustomData.SetZero(); // unused
   }
 
   return instanceData;

@@ -116,7 +116,7 @@ struct ezHashHelper<ezShaderUtils::ezBuiltinShaderType>
 
 ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
-ezImageCopyVulkan::Cache::Cache(ezAllocatorBase* pAllocator)
+ezImageCopyVulkan::Cache::Cache(ezAllocator* pAllocator)
   : m_vertexDeclarations(pAllocator)
   , m_renderPasses(pAllocator)
   , m_sourceImageViews(pAllocator)
@@ -139,7 +139,7 @@ ezImageCopyVulkan::~ezImageCopyVulkan() = default;
 
 void ezImageCopyVulkan::Initialize(ezGALDeviceVulkan& GALDeviceVulkan)
 {
-  s_cache = EZ_NEW(&GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, &GALDeviceVulkan.GetAllocator());
+  s_cache = EZ_NEW(GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, GALDeviceVulkan.GetAllocator());
 
   s_cache->m_onBeforeImageDeletedSubscription = GALDeviceVulkan.OnBeforeImageDestroyed.AddEventHandler(ezMakeDelegate(OnBeforeImageDestroyed));
 }
@@ -228,7 +228,7 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
       vkAttachment.format = cacheEntry.targetFormat;
       vkAttachment.samples = cacheEntry.targetSamples;
-      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; //#TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
+      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; // #TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
       vkAttachment.storeOp = vk::AttachmentStoreOp::eStore;
       vkAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
       vkAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
@@ -245,7 +245,7 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
       vk::SubpassDependency dependency;
       dependency.dstSubpass = 0;
-      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite;
+      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
 
       dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
       dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -322,8 +322,12 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       m_PipelineDesc.m_pCurrentVertexDecl = static_cast<const ezGALVertexDeclarationVulkan*>(m_GALDeviceVulkan.GetVertexDeclaration(m_hVertexDecl));
     }
 
-    const ezGALShaderVulkan::DescriptorSetLayoutDesc& descriptorLayoutDesc = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout();
-    m_LayoutDesc.m_layout = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorLayoutDesc);
+    const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
+    m_LayoutDesc.m_layout.SetCount(uiSets);
+    for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
+    {
+      m_LayoutDesc.m_layout[uiSet] = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout(uiSet);
+    }
     m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
     m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
   }
@@ -344,8 +348,8 @@ void ezImageCopyVulkan::Copy(const ezVec3U32& sourceOffset, const vk::ImageSubre
   // Barriers
   {
     const bool bSourceIsDepth = ezConversionUtilsVulkan::IsDepthFormat(m_pSource->GetImageFormat());
-    pipelineBarrier.EnsureImageLayout(m_pSource, ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers), bSourceIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal, vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderRead);
-    pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite);
+    pipelineBarrier.EnsureImageLayout(m_pSource, ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers), ezConversionUtilsVulkan::GetDefaultLayout(m_pSource->GetImageFormat()), vk::PipelineStageFlagBits::eFragmentShader, vk::AccessFlagBits::eShaderRead);
+    pipelineBarrier.EnsureImageLayout(m_pTarget, ezConversionUtilsVulkan::GetSubresourceRange(targetLayers), vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
     pipelineBarrier.Flush();
   }
 
@@ -457,38 +461,43 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   }
 
   // Descriptor Set
-  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout);
+  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout[0]);
   {
     ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
 
     vk::DescriptorImageInfo sourceInfo;
-    sourceInfo.imageLayout = bSourceIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
+    sourceInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(m_pSource->GetImageFormat());
     sourceInfo.imageView = sourceView;
 
-    ezArrayPtr<const ezGALShaderVulkan::BindingMapping> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindingMapping();
+    ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindings();
     const ezUInt32 uiCount = bindingMapping.GetCount();
     for (ezUInt32 i = 0; i < uiCount; i++)
     {
-      const ezGALShaderVulkan::BindingMapping& mapping = bindingMapping[i];
+      const ezShaderResourceBinding& mapping = bindingMapping[i];
       vk::WriteDescriptorSet& write = descriptorWrites.ExpandAndGetRef();
       write.dstArrayElement = 0;
-      write.descriptorType = mapping.m_descriptorType;
-      write.dstBinding = mapping.m_uiTarget;
+      write.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(mapping.m_ResourceType);
+      write.dstBinding = mapping.m_iSlot;
       write.dstSet = descriptorSet;
       write.descriptorCount = 1;
-      switch (mapping.m_type)
+      switch (mapping.m_ResourceType)
       {
-        case ezGALShaderVulkan::BindingMapping::ConstantBuffer:
+        case ezGALShaderResourceType::ConstantBuffer:
         {
-          //#TODO_VULKAN constant buffer for offset in the shader to allow region copy
-          //const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
-          //write.pBufferInfo = &pBuffer->GetBufferInfo();
+          // #TODO_VULKAN constant buffer for offset in the shader to allow region copy
+          // const ezGALBufferVulkan* pBuffer = m_pBoundConstantBuffers[mapping.m_uiSource];
+          // write.pBufferInfo = &pBuffer->GetBufferInfo();
+          EZ_REPORT_FAILURE("ConstantBuffer resource type not supported in copy shader.");
         }
         break;
-        case ezGALShaderVulkan::BindingMapping::ResourceView:
+        case ezGALShaderResourceType::Texture:
         {
           write.pImageInfo = &sourceInfo;
         }
+        break;
+        default:
+          EZ_REPORT_FAILURE("Resource type '{}' not supported in copy shader.", mapping.m_ResourceType);
+          break;
       }
     }
     ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);

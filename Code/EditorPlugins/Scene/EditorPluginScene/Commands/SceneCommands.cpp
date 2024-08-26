@@ -119,6 +119,9 @@ void ezDuplicateObjectsCommand::SetAsSelection()
 {
   if (!m_DuplicatedObjects.IsEmpty())
   {
+    m_DuplicatedObjects.Sort([](const auto& lhs, const auto& rhs)
+      { return lhs.m_uiSelectionOrder < rhs.m_uiSelectionOrder; });
+
     auto pSelMan = m_pDocument->GetSelectionManager();
 
     ezDeque<const ezDocumentObject*> NewSelection = m_OriginalSelection;
@@ -168,10 +171,13 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
     ParentGuids[guidObj] = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
   }
 
+  ezHybridArray<ezUInt32, 32> selectionOrder;
+
   auto& nodes = graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
+
     if (pNode->GetNodeName() == "root")
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode);
@@ -179,6 +185,13 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
       if (pNewObject)
       {
         reader.ApplyPropertiesToObject(pNode, pNewObject);
+
+        selectionOrder.PushBack(0);
+
+        if (auto* pProperty = pNode->FindProperty("__SelectionOrder"))
+        {
+          selectionOrder.PeekBack() = pProperty->m_Value.ConvertTo<ezUInt32>();
+        }
 
         auto& ref = ToBePasted.ExpandAndGetRef();
         ref.m_pObject = pNewObject;
@@ -194,13 +207,16 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 
   if (pDocument->DuplicateSelectedObjects(ToBePasted, graph, false))
   {
-    for (const auto& item : ToBePasted)
+    for (ezUInt32 i = 0; i < ToBePasted.GetCount(); ++i)
     {
+      const auto& item = ToBePasted[i];
+
       auto& po = m_DuplicatedObjects.ExpandAndGetRef();
       po.m_pObject = item.m_pObject;
       po.m_Index = item.m_pObject->GetPropertyIndex();
       po.m_pParent = item.m_pParent;
       po.m_sParentProperty = item.m_pObject->GetParentProperty();
+      po.m_uiSelectionOrder = selectionOrder[i];
     }
   }
   else

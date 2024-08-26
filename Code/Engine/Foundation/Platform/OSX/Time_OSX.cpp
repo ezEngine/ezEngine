@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 
-#include <CoreServices/CoreServices.h>
-#include <mach/mach.h>
-#include <mach/mach_time.h>
+#  include <CoreServices/CoreServices.h>
+#  include <mach/mach.h>
+#  include <mach/mach_time.h>
 
 static double g_TimeFactor = 0;
 
@@ -22,5 +22,3 @@ ezTime ezTime::Now()
 }
 
 #endif
-
-

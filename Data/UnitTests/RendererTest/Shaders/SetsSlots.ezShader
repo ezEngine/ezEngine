@@ -1,0 +1,58 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[SHADER]
+
+#include "../../../Base/Shaders/Common/Platforms.h"
+
+cbuffer ezTestPerFrame BIND_RESOURCE(0, SET_FRAME)
+{
+  float Time;
+  float Unused1;
+  float Unused2;
+  float Unused3;
+};
+
+cbuffer PerObject BIND_SET(SET_MATERIAL)
+{
+  float4x4 mvp : packoffset(c0);
+  float4 ObjectColor : packoffset(c4);
+};
+
+struct VS_IN
+{
+  float3 pos : POSITION;
+  float2 texcoord0 : TEXCOORD0;
+};
+
+struct VS_OUT
+{
+  float4 pos : SV_Position;
+  float2 texcoord0 : TEXCOORD0;
+};
+
+typedef VS_OUT PS_IN;
+
+[VERTEXSHADER]
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.texcoord0 * Time;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+Texture2D DiffuseTexture BIND_SET(SET_DRAW_CALL);
+SamplerState PointClampSampler BIND_SET(SET_DRAW_CALL);
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return DiffuseTexture.Sample(PointClampSampler, Input.texcoord0);
+}

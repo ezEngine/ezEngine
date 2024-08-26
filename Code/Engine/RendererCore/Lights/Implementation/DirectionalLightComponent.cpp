@@ -116,8 +116,9 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_LightColor = m_LightColor;
+  pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
+  pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this, msg.m_pView) : ezInvalidIndex;
 
   pRenderData->FillBatchIdAndSortingKey(1.0f);
@@ -158,8 +159,8 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stre
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {

@@ -195,7 +195,7 @@ public:
 
 private:
   /// \brief This function is called whenever the camera position or rotation changed.
-  void CameraOrientationChanged(bool bPosition, bool bRotation) { ++m_uiOrientationModificationCounter; }
+  void CameraOrientationChanged() { ++m_uiOrientationModificationCounter; }
 
   /// \brief This function is called when the camera mode or projection changes (e.g. SetCameraProjectionAndMode was called).
   void CameraSettingsChanged();

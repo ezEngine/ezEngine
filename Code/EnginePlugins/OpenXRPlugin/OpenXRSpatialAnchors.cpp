@@ -20,9 +20,11 @@ ezOpenXRSpatialAnchors::~ezOpenXRSpatialAnchors()
   for (auto it = m_Anchors.GetIterator(); it.IsValid(); ++it)
   {
     AnchorData anchorData;
-    m_Anchors.TryGetValue(it.Id(), anchorData);
-    XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrDestroySpatialAnchorMSFT(anchorData.m_Anchor));
-    XR_LOG_ERROR(xrDestroySpace(anchorData.m_Space));
+    if (m_Anchors.TryGetValue(it.Id(), anchorData))
+    {
+      XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrDestroySpatialAnchorMSFT(anchorData.m_Anchor));
+      XR_LOG_ERROR(xrDestroySpace(anchorData.m_Space));
+    }
   }
   m_Anchors.Clear();
 }

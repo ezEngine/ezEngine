@@ -96,7 +96,7 @@ void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
   rhs.Clear();
   rhs.Reserve(uiIndices);
 
-  for (int i = 0; i < uiIndices; ++i)
+  for (ezUInt32 i = 0; i < uiIndices; ++i)
   {
     T obj = {};
     inout_stream >> obj;
@@ -107,10 +107,10 @@ void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 template <typename T>
 void operator<<(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 {
-  ezUInt32 iIndices = rhs.GetCount();
-  inout_stream << iIndices;
+  ezUInt32 uiIndices = rhs.GetCount();
+  inout_stream << uiIndices;
 
-  for (ezUInt32 i = 0; i < iIndices; ++i)
+  for (ezUInt32 i = 0; i < uiIndices; ++i)
   {
     inout_stream << rhs[i];
   }

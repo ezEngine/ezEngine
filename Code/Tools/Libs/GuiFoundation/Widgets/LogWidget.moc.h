@@ -27,13 +27,20 @@ public:
 
   virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 
+  using LogItemContextActionCallback = ezDelegate<void(const ezStringView& sLogText)>;
+  static bool AddLogItemContextActionCallback(const ezStringView& sName, const LogItemContextActionCallback& logCallback);
+  static bool RemoveLogItemContextActionCallback(const ezStringView& sName);
+
 private Q_SLOTS:
   void on_ButtonClearLog_clicked();
   void on_Search_textChanged(const QString& text);
   void on_ComboFilter_currentIndexChanged(int index);
+  void OnItemDoubleClicked(QModelIndex idx);
 
 private:
   ezQtLogModel* m_pLog;
   void ScrollToBottomIfAtEnd(int iNumElements);
-};
 
+  /// \brief List of callbacks invoked when the user double clicks a log message
+  static ezMap<ezString, LogItemContextActionCallback> s_LogCallbacks;
+};

@@ -11,6 +11,7 @@ public:
   ~ezStandardInputDevice();
 
   virtual void SetShowMouseCursor(bool bShow) override;
+  virtual bool GetShowMouseCursor() const override;
   virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
   virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override;
 

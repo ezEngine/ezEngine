@@ -192,14 +192,14 @@ void ezReflectionProbeMapping::PostExtraction()
     {
       const SortedProbes& probe = m_AddProbes[i];
       const ProbeDataInternal& probeData = m_RegisteredProbes[probe.m_uiIndex.m_InstanceIndex];
-      //#TODO static probe resource loading
+      // #TODO static probe resource loading
     }
   }
 
   // Unmap probes in case we need free slots using results from last frame
   {
     // Only unmap one probe per frame
-    //#TODO better heuristic to decide how many if any should be unmapped.
+    // #TODO better heuristic to decide how many if any should be unmapped.
     if (m_UnusedProbeSlots.GetCount() == 0 && m_AddProbes.GetCount() > 0)
     {
       const SortedProbes probe = m_ActiveProbes.PeekBack();
@@ -238,7 +238,7 @@ void ezReflectionProbeMapping::PostExtraction()
       else
       {
 
-        //#TODO Add static probes once resources are loaded.
+        // #TODO Add static probes once resources are loaded.
         if (probeData.m_Flags.IsSet(ezProbeMappingFlags::Dirty))
         {
           ezReflectionProbeMappingEvent e = {probeData.m_id, ezReflectionProbeMappingEvent::Type::ProbeUpdateRequested};
@@ -273,5 +273,3 @@ void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
     m_Events.Broadcast(e);
   }
 }
-
-

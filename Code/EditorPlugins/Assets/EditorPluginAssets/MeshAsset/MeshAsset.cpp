@@ -126,7 +126,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
   {
-    geom.AddPyramid(ezVec3(1.0f), pProp->m_bCap, opt);
+    geom.AddPyramid(1.0f, 1.0f, pProp->m_bCap, opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Rect)
   {
@@ -134,7 +134,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     opt.m_Transform.Element(2, 1) = -opt.m_Transform.Element(2, 1);
     opt.m_Transform.Element(2, 2) = -opt.m_Transform.Element(2, 2);
 
-    geom.AddRectXY(ezVec2(1.0f), ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
+    geom.AddRect(ezVec2(1.0f), ezMath::Max<ezUInt16>(1, detail1), ezMath::Max<ezUInt16>(1, detail2), opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Sphere)
   {
@@ -144,7 +144,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
     if (detail2 == 0)
       detail2 = 32;
 
-    geom.AddSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), opt);
+    geom.AddStackedSphere(pProp->m_fRadius, ezMath::Max<ezUInt16>(3, detail1), ezMath::Max<ezUInt16>(2, detail2), opt);
   }
   else if (pProp->m_PrimitiveType == ezMeshPrimitive::Torus)
   {
@@ -226,7 +226,15 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   opt.m_pMeshOutput = &desc;
   opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
   opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+
+  if (pProp->m_bSimplifyMesh)
+  {
+    opt.m_uiMeshSimplification = pProp->m_uiMeshSimplification;
+    opt.m_uiMaxSimplificationError = pProp->m_uiMaxSimplificationError;
+    opt.m_bAggressiveSimplification = pProp->m_bAggressiveSimplification;
+  }
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
@@ -314,7 +322,7 @@ void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ez
   }
 }
 
-ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -325,11 +333,13 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("MeshFile", sInputFileRel.GetView());

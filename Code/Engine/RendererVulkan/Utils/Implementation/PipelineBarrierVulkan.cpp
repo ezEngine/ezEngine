@@ -10,6 +10,8 @@
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
+#include <Foundation/Profiling/Profiling.h>
+
 namespace
 {
   vk::ImageSubresourceRange CreateSubRange(const vk::ImageSubresourceRange& fullRange, ezUInt32 uiLayer, ezUInt32 uiMipLevel)
@@ -23,6 +25,13 @@ namespace
   }
 } // namespace
 
+ezPipelineBarrierVulkan::ezPipelineBarrierVulkan(ezAllocator* pAllocator)
+  : m_bufferBarriers(pAllocator)
+  , m_imageBarriers(pAllocator)
+  , m_imageState(pAllocator)
+  , m_bufferState(pAllocator)
+{
+}
 
 void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer)
 {
@@ -31,6 +40,8 @@ void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer
 
 void ezPipelineBarrierVulkan::Flush()
 {
+  EZ_PROFILE_SCOPE("Flush");
+
   if (m_srcStageMask || m_dstStageMask)
   {
     if (!m_srcStageMask)
@@ -46,9 +57,11 @@ void ezPipelineBarrierVulkan::Flush()
     m_pCommandBuffer->pipelineBarrier(m_srcStageMask, m_dstStageMask, vk::DependencyFlags(), bHasMemoryBarrier ? 1 : 0, bHasMemoryBarrier ? &memoryBarrier : nullptr, m_bufferBarriers.GetCount(), m_bufferBarriers.IsEmpty() ? nullptr : m_bufferBarriers.GetData(), m_imageBarriers.GetCount(), m_imageBarriers.IsEmpty() ? nullptr : m_imageBarriers.GetData());
 
 #ifdef VK_LOG_LAYOUT_CHANGES
+    ezLog::Warning("Flush: [m{}] {}|{} -> {}|{}", bHasMemoryBarrier, vk::to_string(m_srcStageMask).c_str(), vk::to_string(m_srcAccess).c_str(), vk::to_string(m_dstStageMask).c_str(), vk::to_string(m_dstAccess).c_str());
+
     for (vk::ImageMemoryBarrier& img : m_imageBarriers)
     {
-      ezLog::Warning("Layout Changed {}: {} -> {}", ezArgP(img.image), vk::to_string(img.oldLayout).c_str(), vk::to_string(img.newLayout).c_str());
+      ezLog::Warning("Layout Changed: {} [{},{}]: {} [{}] -> {} [{}]", ezArgP(img.image), img.subresourceRange.baseMipLevel, img.subresourceRange.levelCount, vk::to_string(img.oldLayout).c_str(), vk::to_string(img.srcAccessMask).c_str(), vk::to_string(img.newLayout).c_str(), vk::to_string(img.dstAccessMask).c_str());
     }
 #endif
 
@@ -177,13 +190,13 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulka
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
   auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
@@ -323,11 +336,14 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
   }
   else
   {
-    vk::ImageLayout srcLayout = pTexture->GetPreferredLayout();
-    if (srcLayout == dstLayout)
+    const vk::ImageLayout srcLayout = pTexture->GetPreferredLayout();
+    if (srcLayout == dstLayout && !(s_writeAccess & dstAccess))
+    {
+      // We can early out of read-only access transitions into the current layout.
       return;
+    }
 
-    m_srcStageMask |= vk::PipelineStageFlagBits::eTopOfPipe;
+    m_srcStageMask |= pTexture->GetUsedByPipelineStage();
     m_dstStageMask |= dstStages;
 
     ImageState state;
@@ -337,7 +353,10 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
       state.m_dirty.SetCount(1, true);
       state.m_subElementLayout.SetCount(1, {dstStages, dstAccess, dstLayout});
 
-      AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, {}, dstLayout, dstAccess, bDiscardSource);
+      if (srcLayout != dstLayout || (s_writeAccess & dstAccess))
+      {
+        AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, pTexture->GetAccessMask(), dstLayout, dstAccess, bDiscardSource);
+      }
     }
     else
     {
@@ -355,7 +374,10 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
           state.m_subElementLayout[uiSubresourceIndex] = {dstStages, dstAccess, dstLayout};
         }
       }
-      AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, {}, dstLayout, dstAccess, bDiscardSource);
+      if (srcLayout != dstLayout || (s_writeAccess & dstAccess))
+      {
+        AddImageBarrierInternal(pTexture->GetImage(), subResources, srcLayout, pTexture->GetAccessMask(), dstLayout, dstAccess, bDiscardSource);
+      }
     }
     m_imageState.Insert(pTexture->GetImage(), state);
   }
@@ -364,7 +386,9 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTextu
 void ezPipelineBarrierVulkan::SetInitialImageState(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess)
 {
   auto it = m_imageState.Find(pTexture->GetImage());
-  EZ_ASSERT_DEBUG(!it.IsValid(), "Can't set initial state, texture is already tracked.");
+
+  // A Vulkan runtime is free to provide us with the very same native object if we request a resize but didn't actually change the size, in which case we ignore that we are already tacking this resource.
+  EZ_ASSERT_DEBUG(!it.IsValid() || it.Value().m_pTexture->GetDescription().m_pExisitingNativeObject != nullptr, "Can't set initial state, texture is already tracked.");
 
   ImageState state;
   state.m_pTexture = pTexture;
@@ -401,7 +425,7 @@ void ezPipelineBarrierVulkan::BufferDestroyed(const ezGALBufferVulkan* pBuffer)
   auto it = m_bufferState.Find(pBuffer->GetVkBuffer());
   if (it.IsValid())
   {
-    //#TODO_VULKAN do we need to flush here in case the resource is dirty?
+    // #TODO_VULKAN do we need to flush here in case the resource is dirty?
     m_bufferState.Remove(it);
   }
 }
@@ -419,7 +443,7 @@ bool ezPipelineBarrierVulkan::AddBufferBarrierInternal(vk::Buffer buffer, vk::De
 {
   // According to https://themaister.net/blog/2019/08/14/yet-another-blog-explaining-vulkan-synchronization/, no GPU supports VkBufferMemoryBarrier so it's best to just use a memory barrier. This is corroborated by https://github.com/doitsujin/dxvk/blob/master/src/dxvk/dxvk_barrier.cpp which also omits using VkBufferMemoryBarrier.
 
-  if ((((srcAccess | dstAccess) & s_writeAccess)) != vk::AccessFlagBits::eNone)
+  if ((((srcAccess | dstAccess) & s_writeAccess)) == vk::AccessFlagBits::eNone)
     return false;
 
   m_srcStageMask |= srcStages;
@@ -449,7 +473,7 @@ bool ezPipelineBarrierVulkan::IsDirtyInternal(const BufferState& state, const Su
 
 bool ezPipelineBarrierVulkan::AddImageBarrierInternal(vk::Image image, const vk::ImageSubresourceRange& subResources, vk::ImageLayout srcLayout, vk::AccessFlags srcAccess, vk::ImageLayout dstLayout, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  if (srcLayout == dstLayout && srcAccess == dstAccess)
+  if (srcLayout == dstLayout && srcAccess == dstAccess && !(s_writeAccess & srcAccess))
     return false;
 
   vk::ImageMemoryBarrier& imageBarrier = m_imageBarriers.ExpandAndGetRef();

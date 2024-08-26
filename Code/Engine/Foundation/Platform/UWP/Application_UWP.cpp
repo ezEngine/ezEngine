@@ -36,10 +36,12 @@ void ezUwpApplication::Initialize(winrt::Windows::ApplicationModel::Core::CoreAp
 
 void ezUwpApplication::SetWindow(winrt::Windows::UI::Core::CoreWindow const& window)
 {
+  EZ_IGNORE_UNUSED(window);
 }
 
 void ezUwpApplication::Load(winrt::hstring const& entryPoint)
 {
+  EZ_IGNORE_UNUSED(entryPoint);
 }
 
 void ezUwpApplication::Run()
@@ -85,5 +87,3 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
 }
 
 #endif
-
-

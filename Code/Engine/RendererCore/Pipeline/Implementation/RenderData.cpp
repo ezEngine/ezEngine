@@ -125,7 +125,8 @@ void ezRenderData::UpdateRendererTypes()
 {
   s_RendererTypes.Clear();
 
-  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti) { s_RendererTypes.PushBack(pRtti); },
+  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti)
+    { s_RendererTypes.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   s_bRendererInstancesDirty = true;

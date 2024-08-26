@@ -18,7 +18,7 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodePassThrougPin m_PinColor;
+  ezRenderPipelineNodePassThroughPin m_PinColor;
   ezRenderPipelineNodeInputPin m_PinDepthStencil;
 
   ezShaderResourceHandle m_hShader;

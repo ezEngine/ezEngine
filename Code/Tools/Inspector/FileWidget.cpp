@@ -189,7 +189,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> bSuccess;
 
         ezStringBuilder s;
-        s.Format("'{0}' -> '{1}'", sFile1, sFile2);
+        s.SetFormat("'{0}' -> '{1}'", sFile1, sFile2);
         data.m_sFile = s.GetData();
 
         data.m_State = bSuccess ? FileCopy : FileCopyFailed;
@@ -398,18 +398,18 @@ void ezQtFileWidget::UpdateTable()
 
     ezStringBuilder sThread;
 
-    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
+    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0)      // Main Thread
       pItem->setForeground(QColor::fromRgb(255, 64, 0));
     else if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
       pItem->setForeground(QColor::fromRgb(160, 90, 255));
-    else // Task Loading Thread
+    else                                                   // Task Loading Thread
       pItem->setForeground(QColor::fromRgb(0, 255, 0));
 
-    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
+    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0)      // Main Thread
       sThread.Append(" Main ");
-    if ((it.Value().m_uiThreadTypes & (1 << 1)) != 0) // Loading Thread
+    if ((it.Value().m_uiThreadTypes & (1 << 1)) != 0)      // Loading Thread
       sThread.Append(" Loading ");
-    if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
+    if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0)      // Other Thread
       sThread.Append(" Other ");
 
     pItem->setData(Qt::DisplayRole, QVariant(sThread.GetData()));

@@ -13,24 +13,6 @@ public:
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
 };
 
-/// \brief This custom mirror additionally sends over the connection meta data as properties to the engine side so that the graph can be reconstructed there.
-/// This is necessary as DocumentNodeManager_DefaultConnection does not contain any data, instead all data is in the DocumentNodeManager_ConnectionMetaData object.
-class ezRenderPipelineObjectMirrorEditor : public ezIPCObjectMirrorEditor
-{
-  using SUPER = ezIPCObjectMirrorEditor;
-
-public:
-  void InitNodeSender(const ezDocumentNodeManager* pNodeManager);
-  void DeInitNodeSender();
-  virtual void ApplyOp(ezObjectChange& ref_change) override;
-
-private:
-  void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
-  void SendConnection(const ezConnection& connection);
-
-  const ezDocumentNodeManager* m_pNodeManager = nullptr;
-};
-
 class ezRenderPipelineAssetDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineAssetDocument, ezAssetDocument);
@@ -40,7 +22,6 @@ public:
   ~ezRenderPipelineAssetDocument();
 
 protected:
-  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,

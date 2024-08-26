@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
+#include "../Common/Platforms.h"
 
 CONSTANT_BUFFER(ezReflectionIrradianceConstants, 3)
 {
@@ -10,4 +10,3 @@ CONSTANT_BUFFER(ezReflectionIrradianceConstants, 3)
   FLOAT1(Saturation);
   UINT1(OutputIndex);
 };
-

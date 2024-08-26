@@ -194,6 +194,11 @@ void ezRemoteInterface::SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHa
   m_MessageQueues[uiSystemID].m_MessageHandler = messageHandler;
 }
 
+void ezRemoteInterface::SetUnhandledMessageHandler(ezRemoteMessageHandler messageHandler)
+{
+  m_UnhandledMessageHandler = messageHandler;
+}
+
 ezUInt32 ezRemoteInterface::ExecuteMessageHandlers(ezUInt32 uiSystem)
 {
   EZ_LOCK(m_Mutex);
@@ -219,12 +224,18 @@ ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue&
   queue.m_MessageQueueIn.Swap(queue.m_MessageQueueOut);
   const ezUInt32 ret = queue.m_MessageQueueOut.GetCount();
 
-
   if (queue.m_MessageHandler.IsValid())
   {
     for (auto& msg : queue.m_MessageQueueOut)
     {
       queue.m_MessageHandler(msg);
+    }
+  }
+  else if (m_UnhandledMessageHandler.IsValid())
+  {
+    for (auto& msg : queue.m_MessageQueueOut)
+    {
+      m_UnhandledMessageHandler(msg);
     }
   }
 
@@ -310,10 +321,6 @@ void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyste
   EZ_LOCK(m_Mutex);
 
   auto& queue = m_MessageQueues[uiSystemID];
-
-  // discard messages for which we have no message handler
-  if (!queue.m_MessageHandler.IsValid())
-    return;
 
   // store the data for later
   auto& msg = queue.m_MessageQueueIn.ExpandAndGetRef();
@@ -414,5 +421,3 @@ ezUInt32 ezRemoteThread::Run()
 
   return 0;
 }
-
-

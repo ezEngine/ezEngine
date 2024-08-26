@@ -24,11 +24,11 @@ namespace clang
         NameCheck(StringRef Name, ClangTidyContext* Context);
 
       protected:
-        llvm::Optional<FailureInfo>
+        std::optional<FailureInfo>
         getDeclFailureInfo(const NamedDecl* Decl,
           const SourceManager& SM) const override;
 
-        llvm::Optional<FailureInfo>
+        std::optional<FailureInfo>
         getMacroFailureInfo(const Token& MacroNameTok,
           const SourceManager& SM) const override;
 
@@ -40,7 +40,7 @@ namespace clang
       };
 
     } // namespace ez
-  }   // namespace tidy
+  } // namespace tidy
 } // namespace clang
 
 #endif // LLVM_CLANG_TOOLS_EXTRA_CLANG_TIDY_EZ_MEMBERVARCHECKCHECK_H

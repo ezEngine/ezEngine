@@ -13,7 +13,7 @@ using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 /// \brief This component deletes the object it is attached to after a timeout.
 ///
 /// \note The timeout must be set immediately after component creation. Once the component
-/// has been initialized (start of the next frame), changing the values has no effect.
+/// has been initialized (start of the next frame), changing the value has no effect.
 /// The only way around this, is to delete the entire component and create a new one.
 class EZ_GAMEENGINE_DLL ezTimedDeathComponent : public ezComponent
 {
@@ -41,11 +41,8 @@ public:
   ezTime m_MinDelay = ezTime::MakeFromSeconds(1.0);   // [ property ]
   ezTime m_DelayRange = ezTime::MakeFromSeconds(0.0); // [ property ]
 
-  void SetTimeoutPrefab(const char* szPrefab); // [ property ]
-  const char* GetTimeoutPrefab() const;        // [ property ]
+  ezPrefabResourceHandle m_hTimeoutPrefab;            ///< [ property ] Spawned when the component is killed due to the timeout
 
 protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
-
-  ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the component is killed due to the timeout
 };

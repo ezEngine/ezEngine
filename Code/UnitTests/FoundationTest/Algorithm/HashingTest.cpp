@@ -201,7 +201,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     const char* szTestHalf1 = "This is a test";
     const char* szTestHalf2 = " string. 1234";
 
-    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt32* pHash) {
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt32* pHash)
+    {
       ezHashStreamWriter32 writer1;
       writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
       if (bFlush)
@@ -259,7 +260,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     const char* szTestHalf1 = "This is a test";
     const char* szTestHalf2 = " string. 1234";
 
-    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt64* pHash) {
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool bFlush, ezUInt64* pHash)
+    {
       ezHashStreamWriter64 writer1;
       writer1.WriteBytes(szTest, std::strlen(szTest)).IgnoreResult();
 
@@ -329,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   SimpleStruct NonAutomaticInst;
   ezMemoryUtils::ZeroFill(&NonAutomaticInst, 1);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
+  static_assert(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
 
   EZ_TEST_INT(ezMemoryUtils::Compare<ezUInt8>((ezUInt8*)&AutomaticInst, (ezUInt8*)&NonAutomaticInst, sizeof(AutomaticInst)), 0);
 

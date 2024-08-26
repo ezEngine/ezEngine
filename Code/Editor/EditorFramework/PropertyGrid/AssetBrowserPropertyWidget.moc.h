@@ -50,4 +50,3 @@ protected:
   ezUInt32 m_uiThumbnailID;
   ezUuid m_AssetGuid;
 };
-

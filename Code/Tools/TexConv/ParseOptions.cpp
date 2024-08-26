@@ -4,9 +4,14 @@
 
 #include <Foundation/Utilities/CommandLineOptions.h>
 
+ezCommandLineOptionEnum opt_Mode("_TexConv", "-mode", "Mode determines which arguments need to be set.\n\
+  In compare mode the mean-square error (MSE) is returned. 0 if it is below the threshold.\
+",
+  "Convert | Compare", 0);
+
 ezCommandLineOptionPath opt_Out("_TexConv", "-out",
   "Absolute path to main output file.\n\
-   ext = tga, dds, ezTexture2D, ezTexture3D, ezTextureCube or ezTextureAtlas.",
+   ext = tga, dds, ezBinTexture2D, ezBinTexture3D, ezBinTextureCube or ezBinTextureAtlas.",
   "");
 
 
@@ -101,27 +106,96 @@ ezCommandLineOptionEnum opt_BumpMapFilter("_TexConv", "-bumpMapFilter", "Filter 
 
 ezCommandLineOptionEnum opt_Platform("_TexConv", "-platform", "What platform to generate the textures for.", "PC | Android", 0);
 
+ezCommandLineOptionString opt_CompareHtmlTitle("_TexConv", "-cmpHtml", "Title for the compare result HTML. If empty no HTML file is written.", "");
+ezCommandLineOptionPath opt_CompareActual("_TexConv", "-cmpImg", "Path to an image to compare with another.", "");
+ezCommandLineOptionPath opt_CompareExpected("_TexConv", "-cmpRef", "Path to a reference image to compare against.", "");
+ezCommandLineOptionInt opt_CompareThreshold("_TexConv", "-cmpMSE", "The error threshold for the comparison to be considered as failed.\n\
+  No output files are written, if the image difference is below this value.",
+  100, 0);
+ezCommandLineOptionBool opt_CompareRelaxed("_TexConv", "-cmpRelaxed", "Use a more lenient comparison method.\nUseful for images with single-pixel wide rasterized lines.", false);
+
+
 ezResult ezTexConv::ParseCommandLine()
 {
   if (ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_TexConv"))
     return EZ_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
-  EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
+  EZ_SUCCEED_OR_RETURN(ParseMode());
 
-  EZ_SUCCEED_OR_RETURN(ParseOutputType());
-  EZ_SUCCEED_OR_RETURN(ParseAssetHeader());
-  EZ_SUCCEED_OR_RETURN(ParseTargetPlatform());
-  EZ_SUCCEED_OR_RETURN(ParseCompressionMode());
-  EZ_SUCCEED_OR_RETURN(ParseUsage());
-  EZ_SUCCEED_OR_RETURN(ParseMipmapMode());
-  EZ_SUCCEED_OR_RETURN(ParseWrapModes());
-  EZ_SUCCEED_OR_RETURN(ParseFilterModes());
-  EZ_SUCCEED_OR_RETURN(ParseResolutionModifiers());
-  EZ_SUCCEED_OR_RETURN(ParseMiscOptions());
-  EZ_SUCCEED_OR_RETURN(ParseInputFiles());
-  EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
-  EZ_SUCCEED_OR_RETURN(ParseBumpMapFilter());
+  if (m_Mode == ezTexConvMode::Compare)
+  {
+    EZ_SUCCEED_OR_RETURN(ParseCompareMode());
+  }
+  else
+  {
+    EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
+    EZ_SUCCEED_OR_RETURN(DetectOutputFormat());
+
+    EZ_SUCCEED_OR_RETURN(ParseOutputType());
+    EZ_SUCCEED_OR_RETURN(ParseAssetHeader());
+    EZ_SUCCEED_OR_RETURN(ParseTargetPlatform());
+    EZ_SUCCEED_OR_RETURN(ParseCompressionMode());
+    EZ_SUCCEED_OR_RETURN(ParseUsage());
+    EZ_SUCCEED_OR_RETURN(ParseMipmapMode());
+    EZ_SUCCEED_OR_RETURN(ParseWrapModes());
+    EZ_SUCCEED_OR_RETURN(ParseFilterModes());
+    EZ_SUCCEED_OR_RETURN(ParseResolutionModifiers());
+    EZ_SUCCEED_OR_RETURN(ParseMiscOptions());
+    EZ_SUCCEED_OR_RETURN(ParseInputFiles());
+    EZ_SUCCEED_OR_RETURN(ParseChannelMappings());
+    EZ_SUCCEED_OR_RETURN(ParseBumpMapFilter());
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv::ParseMode()
+{
+  switch (opt_Mode.GetOptionValue(ezCommandLineOption::LogMode::FirstTime))
+  {
+    case 0:
+      m_Mode = ezTexConvMode::Convert;
+      return EZ_SUCCESS;
+
+    case 1:
+      m_Mode = ezTexConvMode::Compare;
+      return EZ_SUCCESS;
+  }
+
+  ezLog::Error("Invalid mode selected.");
+  return EZ_FAILURE;
+}
+
+ezResult ezTexConv::ParseCompareMode()
+{
+  m_sOutputFile = opt_Out.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  if (m_sOutputFile.IsEmpty())
+  {
+    ezLog::Warning("Output path is not specified. Use option '-out \"path\"' to set the prefix path for the output files.");
+  }
+
+  m_sHtmlTitle = opt_CompareHtmlTitle.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+
+  ezStringBuilder tmp, res;
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+
+  m_Comparer.m_Descriptor.m_sActualFile = opt_CompareActual.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+  m_Comparer.m_Descriptor.m_sExpectedFile = opt_CompareExpected.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+  m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold = opt_CompareThreshold.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+  m_Comparer.m_Descriptor.m_bRelaxedComparison = opt_CompareRelaxed.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);
+
+  if (m_Comparer.m_Descriptor.m_sActualFile.IsEmpty())
+  {
+    ezLog::Error("Image to compare is not specified.");
+    return EZ_FAILURE;
+  }
+
+  if (m_Comparer.m_Descriptor.m_sExpectedFile.IsEmpty())
+  {
+    ezLog::Error("Reference image to compare against is not specified.");
+    return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
@@ -194,7 +268,7 @@ ezResult ezTexConv::ParseInputFiles()
 
   for (ezUInt32 i = 0; i < 64; ++i)
   {
-    tmp.Format("-in{0}", i);
+    tmp.SetFormat("-in{0}", i);
 
     res = pCmd->GetAbsolutePathOption(tmp);
 

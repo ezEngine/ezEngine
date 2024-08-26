@@ -33,14 +33,14 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  virtual void SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
+  virtual void SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
   virtual void SetupLighting(const ezRenderViewContext& renderViewContext);
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) = 0;
 
-  ezRenderPipelineNodePassThrougPin m_PinColor;
-  ezRenderPipelineNodePassThrougPin m_PinDepthStencil;
+  ezRenderPipelineNodePassThroughPin m_PinColor;
+  ezRenderPipelineNodePassThroughPin m_PinDepthStencil;
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
 };

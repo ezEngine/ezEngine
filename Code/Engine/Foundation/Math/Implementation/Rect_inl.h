@@ -22,6 +22,15 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
 }
 
 template <typename Type>
+EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize)
+{
+  x = vTopLeftPosition.x;
+  y = vTopLeftPosition.y;
+  width = vSize.x;
+  height = vSize.y;
+}
+
+template <typename Type>
 ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
 {
   /// \test This is new
@@ -35,6 +44,12 @@ ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
   res.height = -fLargeValue;
 
   return res;
+}
+
+template <typename Type>
+ezRectTemplate<Type> ezRectTemplate<Type>::MakeZero()
+{
+  return ezRectTemplate<Type>(0, 0, 0, 0);
 }
 
 template <typename Type>
@@ -105,6 +120,12 @@ EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezVec2Template<Type>&
   }
 
   return false;
+}
+
+template <typename Type>
+EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::Contains(const ezRectTemplate<Type>& r) const
+{
+  return r.x >= x && r.y >= y && r.Right() <= Right() && r.Bottom() <= Bottom();
 }
 
 template <typename Type>
@@ -200,6 +221,15 @@ EZ_ALWAYS_INLINE const ezVec2Template<Type> ezRectTemplate<Type>::GetClampedPoin
   /// \test This is new
 
   return ezVec2Template<Type>(ezMath::Clamp(vPoint.x, Left(), Right()), ezMath::Clamp(vPoint.y, Top(), Bottom()));
+}
+
+template <typename Type>
+void ezRectTemplate<Type>::SetCenter(Type tX, Type tY)
+{
+  /// \test This is new
+
+  x = tX - width / 2;
+  y = tY - height / 2;
 }
 
 template <typename Type>

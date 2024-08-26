@@ -1,5 +1,7 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/Containers/IterateBits.h>
+
 namespace
 {
   // declare bitflags using macro magic
@@ -32,7 +34,9 @@ namespace
   EZ_DECLARE_FLAGS_OPERATORS(ManualFlags);
 } // namespace
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBitflags<AutoFlags>) == 4);
+EZ_DEFINE_AS_POD_TYPE(AutoFlags::Enum);
+static_assert(sizeof(ezBitflags<AutoFlags>) == 4);
+
 
 EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
 {
@@ -100,6 +104,52 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
     f &= AutoFlags::Bit3;
 
     EZ_TEST_BOOL(f.GetValue() == AutoFlags::Bit3);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
+  {
+    {
+      // Empty
+      ezBitflags<AutoFlags> f;
+      auto it = f.GetIterator();
+      EZ_TEST_BOOL(it == f.GetEndIterator());
+      EZ_TEST_BOOL(!it.IsValid());
+
+      for (AutoFlags::Enum flag : f)
+      {
+        EZ_TEST_BOOL_MSG(false, "No bit should be set");
+      }
+    }
+
+    {
+      // All flags
+      ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3 | AutoFlags::Bit4;
+      ezHybridArray<AutoFlags::Enum, 4> flags;
+      flags.PushBack(AutoFlags::Bit1);
+      flags.PushBack(AutoFlags::Bit2);
+      flags.PushBack(AutoFlags::Bit3);
+      flags.PushBack(AutoFlags::Bit4);
+
+      ezUInt32 uiIndex = 0;
+      // Iterator
+      for (auto it = f.GetIterator(); it.IsValid(); ++it)
+      {
+        EZ_TEST_INT(*it, flags[uiIndex]);
+        EZ_TEST_INT(it.Value(), flags[uiIndex]);
+        EZ_TEST_BOOL(it.IsValid());
+        ++uiIndex;
+      }
+      EZ_TEST_INT(uiIndex, 4);
+
+      // Range-base for loop
+      uiIndex = 0;
+      for (AutoFlags::Enum flag : f)
+      {
+        EZ_TEST_INT(flag, flags[uiIndex]);
+        ++uiIndex;
+      }
+      EZ_TEST_INT(uiIndex, 4);
+    }
   }
 }
 

@@ -1,36 +1,36 @@
 #include <GameEngine/GameEnginePCH.h>
 
-//#include <Core/Input/InputManager.h>
-//#include <Core/WorldSerializer/WorldReader.h>
-//#include <Core/WorldSerializer/WorldWriter.h>
-//#include <GameEngine/Animation/Skeletal/MotionMatchingComponent.h>
-//#include <RendererCore/AnimationSystem/AnimationClipResource.h>
-//#include <RendererCore/AnimationSystem/SkeletonResource.h>
-//#include <RendererCore/Debug/DebugRenderer.h>
-//#include <RendererFoundation/Device/Device.h>
+// #include <Core/Input/InputManager.h>
+// #include <Core/WorldSerializer/WorldReader.h>
+// #include <Core/WorldSerializer/WorldWriter.h>
+// #include <GameEngine/Animation/Skeletal/MotionMatchingComponent.h>
+// #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+// #include <RendererCore/AnimationSystem/SkeletonResource.h>
+// #include <RendererCore/Debug/DebugRenderer.h>
+// #include <RendererFoundation/Device/Device.h>
 //
 //// clang-format off
-//EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
+// EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
 //{
-//  EZ_BEGIN_PROPERTIES
-//  {
-//    EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
-//  }
-//  EZ_END_PROPERTIES;
+//   EZ_BEGIN_PROPERTIES
+//   {
+//     EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+//   }
+//   EZ_END_PROPERTIES;
 //
-//  EZ_BEGIN_ATTRIBUTES
-//  {
-//      new ezCategoryAttribute("Animation"),
-//  }
-//  EZ_END_ATTRIBUTES;
-//}
-//EZ_END_COMPONENT_TYPE
+//   EZ_BEGIN_ATTRIBUTES
+//   {
+//       new ezCategoryAttribute("Animation"),
+//   }
+//   EZ_END_ATTRIBUTES;
+// }
+// EZ_END_COMPONENT_TYPE
 //// clang-format on
 //
-//ezMotionMatchingComponent::ezMotionMatchingComponent() = default;
-//ezMotionMatchingComponent::~ezMotionMatchingComponent() = default;
+// ezMotionMatchingComponent::ezMotionMatchingComponent() = default;
+// ezMotionMatchingComponent::~ezMotionMatchingComponent() = default;
 //
-//void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
+// void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
 //{
 //  SUPER::SerializeComponent(stream);
 //  auto& s = stream.GetStream();
@@ -38,7 +38,7 @@
 //  s.WriteArray(m_Animations);
 //}
 //
-//void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
+// void ezMotionMatchingComponent::DeserializeComponent(ezWorldReader& stream)
 //{
 //  SUPER::DeserializeComponent(stream);
 //  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -50,7 +50,7 @@
 //  }
 //}
 //
-//void ezMotionMatchingComponent::OnSimulationStarted()
+// void ezMotionMatchingComponent::OnSimulationStarted()
 //{
 //  SUPER::OnSimulationStarted();
 //
@@ -109,7 +109,7 @@
 //
 //  ConfigureInput();
 //}
-//void ezMotionMatchingComponent::ConfigureInput()
+// void ezMotionMatchingComponent::ConfigureInput()
 //{
 //  ezInputActionConfig iac;
 //  iac.m_bApplyTimeScaling = false;
@@ -143,7 +143,7 @@
 //  ezInputManager::SetInputActionConfig("mm", "turnleft", iac, true);
 //}
 //
-//ezVec3 ezMotionMatchingComponent::GetInputDirection() const
+// ezVec3 ezMotionMatchingComponent::GetInputDirection() const
 //{
 //  float fw, bw, l, r;
 //
@@ -161,7 +161,7 @@
 //  return dir * 3.0f;
 //}
 //
-//ezQuat ezMotionMatchingComponent::GetInputRotation() const
+// ezQuat ezMotionMatchingComponent::GetInputRotation() const
 //{
 //  float tl, tr;
 //
@@ -171,11 +171,11 @@
 //  const ezAngle turn = ezAngle::MakeFromDegree((tr - tl) * 90.0f);
 //
 //  ezQuat q;
-//  q.SetFromAxisAndAngle(ezVec3(0, 0, 1), turn);
+//  q = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), turn);
 //  return q;
 //}
 //
-//void ezMotionMatchingComponent::Update()
+// void ezMotionMatchingComponent::Update()
 //{
 //  if (!m_hSkeleton.IsValid() || m_Animations.IsEmpty())
 //    return;
@@ -192,7 +192,7 @@
 //    const ezVec3 vTargetDir = GetInputDirection() / GetOwner()->GetGlobalScaling().x;
 //
 //    ezStringBuilder tmp;
-//    tmp.Format("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
+//    tmp.SetFormat("Gamepad: {0} / {1}", ezArgF(vTargetDir.x, 1), ezArgF(vTargetDir.y, 1));
 //    ezDebugRenderer::DrawInfoText(GetWorld(), tmp, ezVec2I32(10, 10), ezColor::White);
 //
 //    m_fKeyframeLerp += fKeyframeFraction;
@@ -301,14 +301,14 @@
 //  m_SkinningMatrices = pRenderMatrices;
 //}
 //
-//void ezMotionMatchingComponent::SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource)
+// void ezMotionMatchingComponent::SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource)
 //{
 //  m_Animations.EnsureCount(uiIndex + 1);
 //
 //  m_Animations[uiIndex] = hResource;
 //}
 //
-//ezAnimationClipResourceHandle ezMotionMatchingComponent::GetAnimation(ezUInt32 uiIndex) const
+// ezAnimationClipResourceHandle ezMotionMatchingComponent::GetAnimation(ezUInt32 uiIndex) const
 //{
 //  if (uiIndex >= m_Animations.GetCount())
 //    return ezAnimationClipResourceHandle();
@@ -316,12 +316,12 @@
 //  return m_Animations[uiIndex];
 //}
 //
-//ezUInt32 ezMotionMatchingComponent::Animations_GetCount() const
+// ezUInt32 ezMotionMatchingComponent::Animations_GetCount() const
 //{
 //  return m_Animations.GetCount();
 //}
 //
-//const char* ezMotionMatchingComponent::Animations_GetValue(ezUInt32 uiIndex) const
+// const char* ezMotionMatchingComponent::Animations_GetValue(ezUInt32 uiIndex) const
 //{
 //  const auto& hMat = GetAnimation(uiIndex);
 //
@@ -331,7 +331,7 @@
 //  return hMat.GetResourceID();
 //}
 //
-//void ezMotionMatchingComponent::Animations_SetValue(ezUInt32 uiIndex, const char* value)
+// void ezMotionMatchingComponent::Animations_SetValue(ezUInt32 uiIndex, const char* value)
 //{
 //  if (ezStringUtils::IsNullOrEmpty(value))
 //    SetAnimation(uiIndex, ezAnimationClipResourceHandle());
@@ -342,7 +342,7 @@
 //  }
 //}
 //
-//void ezMotionMatchingComponent::Animations_Insert(ezUInt32 uiIndex, const char* value)
+// void ezMotionMatchingComponent::Animations_Insert(ezUInt32 uiIndex, const char* value)
 //{
 //  ezAnimationClipResourceHandle hMat;
 //
@@ -352,12 +352,12 @@
 //  m_Animations.Insert(hMat, uiIndex);
 //}
 //
-//void ezMotionMatchingComponent::Animations_Remove(ezUInt32 uiIndex)
+// void ezMotionMatchingComponent::Animations_Remove(ezUInt32 uiIndex)
 //{
 //  m_Animations.RemoveAtAndCopy(uiIndex);
 //}
 //
-//ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current, const ezVec3& vTargetDir) const
+// ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current, const ezVec3& vTargetDir) const
 //{
 //  TargetKeyframe kf;
 //  kf.m_uiAnimClip = current.m_uiAnimClip;
@@ -396,7 +396,7 @@
 //  return kf;
 //}
 //
-//void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
+// void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
 //  const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton)
 //{
 //  const ezUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFu;
@@ -468,7 +468,7 @@
 //  }
 //}
 //
-//ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(
+// ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(
 //  const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition, ezVec3 vTargetDir) const
 //{
 //  float fClosest = 1000000000.0f;

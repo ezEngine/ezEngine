@@ -3,7 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 
 template <typename EventData, typename MutexType, ezEventType EventType>
-ezEventBase<EventData, MutexType, EventType>::ezEventBase(ezAllocatorBase* pAllocator)
+ezEventBase<EventData, MutexType, EventType>::ezEventBase(ezAllocator* pAllocator)
   : m_EventHandlers(pAllocator)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -196,15 +196,15 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
       return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    EZ_ASSERT_ALWAYS(m_pSelf != nullptr, "This ezEvent is broadcasted before it was initialized.");
     EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
 #endif
 
     m_uiRecursionDepth++;
 
     // RAII to ensure correctness in case exceptions are used
-    auto scopeExit = ezMakeScopeExit([&]() {
-      m_uiRecursionDepth--;
-    });
+    auto scopeExit = ezMakeScopeExit([&]()
+      { m_uiRecursionDepth--; });
 
     // don't execute handlers that are added while we are broadcasting
     ezUInt32 uiMaxHandlers = m_EventHandlers.GetCount();
@@ -255,20 +255,21 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
     }
 
     // RAII to ensure correctness in case exceptions are used
-    auto scopeExit = ezMakeScopeExit([&]() {
+    auto scopeExit = ezMakeScopeExit([&]()
+      {
     // Bug in MSVC 2017. Can't use if constexpr.
 #if EZ_ENABLED(EZ_COMPILER_MSVC) && _MSC_VER < 1920
-      if (RecursionDepthSupported)
-      {
-        m_uiRecursionDepth--;
-      }
+        if (RecursionDepthSupported)
+        {
+          m_uiRecursionDepth--;
+        }
 #else
-      if constexpr (RecursionDepthSupported)
-      {
-        m_uiRecursionDepth--;
-      }
+        if constexpr (RecursionDepthSupported)
+        {
+          m_uiRecursionDepth--;
+        }
 #endif
-    });
+      });
 
     const ezUInt32 uiHandlerCount = eventHandlers.GetCount();
     for (ezUInt32 ui = 0; ui < uiHandlerCount; ++ui)
@@ -286,7 +287,7 @@ ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent()
 }
 
 template <typename EventData, typename MutexType, typename AllocatorWrapper, ezEventType EventType>
-ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent(ezAllocatorBase* pAllocator)
+ezEvent<EventData, MutexType, AllocatorWrapper, EventType>::ezEvent(ezAllocator* pAllocator)
   : ezEventBase<EventData, MutexType, EventType>(pAllocator)
 {
 }

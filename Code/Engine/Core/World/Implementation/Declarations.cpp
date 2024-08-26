@@ -30,21 +30,29 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 void operator<<(ezStreamWriter& inout_stream, const ezGameObjectHandle& hValue)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(hValue);
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteGameObjectHandle instead.");
 }
 
 void operator>>(ezStreamReader& inout_stream, ezGameObjectHandle& ref_hValue)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(ref_hValue);
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadGameObjectHandle instead.");
 }
 
 void operator<<(ezStreamWriter& inout_stream, const ezComponentHandle& hValue)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(hValue);
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldWriter::WriteComponentHandle instead.");
 }
 
 void operator>>(ezStreamReader& inout_stream, ezComponentHandle& ref_hValue)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(ref_hValue);
   EZ_ASSERT_DEV(false, "This function should not be called. Use ezWorldReader::ReadComponentHandle instead.");
 }
 

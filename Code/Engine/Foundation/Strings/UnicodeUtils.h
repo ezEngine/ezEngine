@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include UnicodeUtils.h directly, but instead include Foundation/Basics.h"
+#endif
+
 #include <Foundation/ThirdParty/utf8/utf8.h>
-
-
 
 /// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils
@@ -42,19 +43,19 @@ public:
   ///
   /// The string may point to an invalid position (in between a character sequence).
   /// It may not point to a zero terminator already.
-  static void MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
+  static ezResult MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Moves the given string pointer ahead to the next Utf8 character sequence.
   ///
   /// The string may point to an invalid position (in between a character sequence).
   /// It may not point to a zero terminator already.
-  static void MoveToNextUtf8(const char*& ref_szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters = 1); // [tested]
+  static ezResult MoveToNextUtf8(const char*& ref_szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Moves the given string pointer backwards to the previous Utf8 character sequence.
   ///
   /// The string may point to an invalid position (in between a character sequence), or even the \0 terminator,
   /// as long as there is a valid string before it (and the user knows when to stop).
-  static void MoveToPriorUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
+  static ezResult MoveToPriorUtf8(const char*& ref_szUtf8, const char* szUtf8Start, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Returns false if the given string does not contain a completely valid Utf8 string.
   static bool IsValidUtf8(const char* szString, const char* szStringEnd = GetMaxStringEnd<char>());

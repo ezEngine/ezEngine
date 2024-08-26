@@ -263,7 +263,7 @@ void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& inout_stream, c
     writer.SetIndentation(-1);
 
   ezStringBuilder sHeaderVersion;
-  sHeaderVersion.Format("HeaderV{0}", (int)EZ_DOCUMENT_VERSION);
+  sHeaderVersion.SetFormat("HeaderV{0}", (int)EZ_DOCUMENT_VERSION);
   WriteGraph(writer, pHeader, sHeaderVersion);
   WriteGraph(writer, pGraph, "Objects");
   WriteGraph(writer, pTypes, "Types");
@@ -299,7 +299,7 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& inout_stream
   {
     // Move header into its own graph.
     ezStringBuilder sHeaderVersion;
-    sHeaderVersion.Format("HeaderV{0}", iVersion);
+    sHeaderVersion.SetFormat("HeaderV{0}", iVersion);
     pHB = GetOrCreateBlock(blocks, sHeaderVersion);
     ezAbstractObjectGraph& graph = *pOB->m_Graph.Borrow();
     if (auto* pHeaderNode = graph.GetNodeByName("Header"))
@@ -450,5 +450,3 @@ ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& inout_stream, 
   }
   return EZ_SUCCESS;
 }
-
-

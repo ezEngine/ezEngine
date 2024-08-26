@@ -128,7 +128,7 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
           sLayerName = subAsset->GetName();
         }
       }
-      sMsg.Format("The layer '{}' has been modified.\nSave before unloading?", sLayerName);
+      sMsg.SetFormat("The layer '{}' has been modified.\nSave before unloading?", sLayerName);
       QMessageBox::StandardButton res = ezQtUiServices::MessageBoxQuestion(sMsg, QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::No);
       switch (res)
       {

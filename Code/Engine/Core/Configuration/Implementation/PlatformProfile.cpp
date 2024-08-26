@@ -9,14 +9,6 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProfileTargetPlatform, 1)
-  EZ_ENUM_CONSTANTS(ezProfileTargetPlatform::PC, ezProfileTargetPlatform::UWP, ezProfileTargetPlatform::Android)
-EZ_END_STATIC_REFLECTED_ENUM;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProfileConfigData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
@@ -24,8 +16,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezProfileConfigData::ezProfileConfigData() = default;
 ezProfileConfigData::~ezProfileConfigData() = default;
 
-void ezProfileConfigData::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const {}
-void ezProfileConfigData::LoadRuntimeData(ezChunkStreamReader& inout_stream) {}
+void ezProfileConfigData::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const
+{
+  EZ_IGNORE_UNUSED(inout_stream);
+}
+
+void ezProfileConfigData::LoadRuntimeData(ezChunkStreamReader& inout_stream)
+{
+  EZ_IGNORE_UNUSED(inout_stream);
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlatformProfile, 1, ezRTTIDefaultAllocator<ezP
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezHiddenAttribute()),
-    EZ_ENUM_MEMBER_PROPERTY("Platform", ezProfileTargetPlatform, m_TargetPlatform),
+    EZ_MEMBER_PROPERTY("TargetPlatform", m_sTargetPlatform)->AddAttributes(new ezDynamicStringEnumAttribute("TargetPlatformNames"), new ezDefaultValueAttribute("Windows")),
     EZ_ARRAY_MEMBER_PROPERTY("Configs", m_Configs)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }
   EZ_END_PROPERTIES;
@@ -63,7 +62,8 @@ void ezPlatformProfile::Clear()
 void ezPlatformProfile::AddMissingConfigs()
 {
   ezRTTI::ForEachDerivedType<ezProfileConfigData>(
-    [this](const ezRTTI* pRtti) {
+    [this](const ezRTTI* pRtti)
+    {
       // find all types derived from ezProfileConfigData
       bool bHasTypeAlready = false;
 
@@ -89,8 +89,12 @@ void ezPlatformProfile::AddMissingConfigs()
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
+  // in case unknown configs were loaded from disk, remove them
+  m_Configs.RemoveAndSwap(nullptr);
+
   // sort all configs alphabetically
-  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool { return lhs->GetDynamicRTTI()->GetTypeName().Compare(rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
+  m_Configs.Sort([](const ezProfileConfigData* lhs, const ezProfileConfigData* rhs) -> bool
+    { return lhs->GetDynamicRTTI()->GetTypeName().Compare(rhs->GetDynamicRTTI()->GetTypeName()) < 0; });
 }
 
 const ezProfileConfigData* ezPlatformProfile::GetTypeConfig(const ezRTTI* pRtti) const
@@ -150,6 +154,7 @@ ezResult ezPlatformProfile::LoadForRuntime(ezStringView sFile)
 
   chunk.EndStream();
 
+  ++m_uiLastModificationCounter;
   return EZ_SUCCESS;
 }
 

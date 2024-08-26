@@ -16,7 +16,7 @@ namespace
 {
   static ezVariantArray GetDefaultTags()
   {
-    ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
+    ezVariantArray value(ezStaticsAllocatorWrapper::GetAllocator());
     value.PushBack("SkyLight");
     return value;
   }
@@ -167,21 +167,22 @@ bool ezSkyLightComponent::GetShowMipMaps() const
   return m_Desc.m_bShowMipMaps;
 }
 
-
-void ezSkyLightComponent::SetCubeMapFile(const char* szFile)
+void ezSkyLightComponent::SetCubeMapFile(ezStringView sFile)
 {
   ezTextureCubeResourceHandle hCubeMap;
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+
+  if (!sFile.IsEmpty())
   {
-    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
+    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sFile);
   }
+
   m_hCubeMap = hCubeMap;
   m_bStatesDirty = true;
 }
 
-const char* ezSkyLightComponent::GetCubeMapFile() const
+ezStringView ezSkyLightComponent::GetCubeMapFile() const
 {
-  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID().GetData() : "";
+  return m_hCubeMap.GetResourceID();
 }
 
 void ezSkyLightComponent::SetNearPlane(float fNearPlane)

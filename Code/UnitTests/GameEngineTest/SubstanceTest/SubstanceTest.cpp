@@ -28,7 +28,8 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
     return *s_Cache;
   }
 
-  auto CheckPath = [&](ezStringView sPath) {
+  auto CheckPath = [&](ezStringView sPath)
+  {
     ezStringBuilder path = sPath;
     path.AppendPath("sbscooker.exe");
 
@@ -72,7 +73,7 @@ ezResult ezGameEngineTestSubstance::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(9);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezBinScene"));
     return EZ_SUCCESS;
   }
 

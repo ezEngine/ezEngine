@@ -98,8 +98,8 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetResourceFile(const char* szFile);
-  const char* GetResourceFile() const;
+  void SetResourceFile(ezStringView sFile);
+  ezStringView GetResourceFile() const;
 
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }

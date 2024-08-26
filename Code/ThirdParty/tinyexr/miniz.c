@@ -45,7 +45,7 @@ mz_ulong mz_adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
         return MZ_ADLER32_INIT;
     while (buf_len)
     {
-        for (i = 0; i + 7 < block_len; i += 8, ptr += 8)
+        for (i = 0; i + 7 < (mz_uint32)block_len; i += 8, ptr += 8)
         {
             s1 += ptr[0], s2 += s1;
             s1 += ptr[1], s2 += s1;
@@ -56,7 +56,7 @@ mz_ulong mz_adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
             s1 += ptr[6], s2 += s1;
             s1 += ptr[7], s2 += s1;
         }
-        for (; i < block_len; ++i)
+        for (; i < (mz_uint32)block_len; ++i)
             s1 += *ptr++, s2 += s1;
         s1 %= 65521U, s2 %= 65521U;
         buf_len -= block_len;
@@ -2836,7 +2836,7 @@ common_exit:
         size_t block_len = buf_len % 5552;
         while (buf_len)
         {
-            for (i = 0; i + 7 < block_len; i += 8, ptr += 8)
+            for (i = 0; i + 7 < (mz_uint32)block_len; i += 8, ptr += 8)
             {
                 s1 += ptr[0], s2 += s1;
                 s1 += ptr[1], s2 += s1;
@@ -2847,7 +2847,7 @@ common_exit:
                 s1 += ptr[6], s2 += s1;
                 s1 += ptr[7], s2 += s1;
             }
-            for (; i < block_len; ++i)
+            for (; i < (mz_uint32)block_len; ++i)
                 s1 += *ptr++, s2 += s1;
             s1 %= 65521U, s2 %= 65521U;
             buf_len -= block_len;

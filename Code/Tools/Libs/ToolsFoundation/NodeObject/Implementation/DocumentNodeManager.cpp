@@ -41,6 +41,8 @@ struct DocumentNodeManager_ConnectionMetaData
   ezUuid m_Target;
   ezString m_SourcePin;
   ezString m_TargetPin;
+
+  bool IsValid() const { return m_Source.IsValid() && m_Target.IsValid(); }
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_ConnectionMetaData);
 
@@ -70,6 +72,25 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
+// ezDocumentObject_ConnectionBase
+////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObject_ConnectionBase, 1, ezRTTIDefaultAllocator<ezDocumentObject_ConnectionBase>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Source", m_Source)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("Target", m_Target)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager
 ////////////////////////////////////////////////////////////////////////
 
@@ -87,9 +108,21 @@ ezDocumentNodeManager::~ezDocumentNodeManager()
   m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezDocumentNodeManager::PropertyEventsHandler, this));
 }
 
+void ezDocumentNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
+{
+  ezHybridArray<const ezRTTI*, 32> types;
+  GetCreateableTypes(types);
+
+  for (auto pType : types)
+  {
+    auto& nodeTemplate = out_templates.ExpandAndGetRef();
+    nodeTemplate.m_pType = pType;
+  }
+}
+
 const ezRTTI* ezDocumentNodeManager::GetConnectionType() const
 {
-  return ezGetStaticRTTI<DocumentNodeManager_DefaultConnection>();
+  return ezGetStaticRTTI<ezDocumentObject_ConnectionBase>();
 }
 
 ezVec2 ezDocumentNodeManager::GetNodePos(const ezDocumentObject* pObject) const
@@ -106,6 +139,13 @@ const ezConnection& ezDocumentNodeManager::GetConnection(const ezDocumentObject*
   auto it = m_ObjectToConnection.Find(pObject->GetGuid());
   EZ_ASSERT_DEV(it.IsValid(), "Can't get connection for objects that aren't connections!");
   return *it.Value();
+}
+
+const ezConnection* ezDocumentNodeManager::GetConnectionIfExists(const ezDocumentObject* pObject) const
+{
+  EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
+  auto it = m_ObjectToConnection.Find(pObject->GetGuid());
+  return it.IsValid() ? it.Value().Borrow() : nullptr;
 }
 
 const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
@@ -268,6 +308,11 @@ void ezDocumentNodeManager::Connect(const ezDocumentObject* pObject, const ezPin
   EZ_IGNORE_UNUSED(res);
   EZ_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
 
+  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Source") == source.GetParent()->GetGuid(), "Property should have been set at this point already");
+  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Target") == target.GetParent()->GetGuid(), "Property should have been set at this point already");
+  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("SourcePin") == source.GetName(), "Property should have been set at this point already");
+  EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("TargetPin") == target.GetName(), "Property should have been set at this point already");
+
   auto pConnection = EZ_DEFAULT_NEW(ezConnection, source, target, pObject);
   m_ObjectToConnection.Insert(pObject->GetGuid(), pConnection);
 
@@ -336,23 +381,6 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& re
         rttiConverter.AddProperties(pAbstractObject, pNodeMetaDataType, &nodeMetaData);
       }
     }
-
-    {
-      auto it2 = m_ObjectToConnection.Find(guid);
-      if (it2.IsValid())
-      {
-        const ezConnection& connection = *it2.Value();
-        const ezPin& sourcePin = connection.GetSourcePin();
-        const ezPin& targetPin = connection.GetTargetPin();
-
-        DocumentNodeManager_ConnectionMetaData connectionMetaData;
-        connectionMetaData.m_Source = sourcePin.GetParent()->GetGuid();
-        connectionMetaData.m_Target = targetPin.GetParent()->GetGuid();
-        connectionMetaData.m_SourcePin = sourcePin.GetName();
-        connectionMetaData.m_TargetPin = targetPin.GetName();
-        rttiConverter.AddProperties(pAbstractObject, pConnectionMetaDataType, &connectionMetaData);
-      }
-    }
   }
 }
 
@@ -365,6 +393,21 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
+
+  // Ensure that all nodes have their pins created
+  for (auto it : graph.GetAllNodes())
+  {
+    auto pAbstractObject = it.Value();
+    ezDocumentObject* pObject = GetObject(pAbstractObject->GetGuid());
+    if (pObject != nullptr && IsNode(pObject))
+    {
+      auto& nodeInternal = m_ObjectToNode[pObject->GetGuid()];
+      if (nodeInternal.m_Inputs.IsEmpty() && nodeInternal.m_Outputs.IsEmpty())
+      {
+        InternalCreatePins(pObject, nodeInternal);
+      }
+    }
+  }
 
   for (auto it : graph.GetAllNodes())
   {
@@ -393,67 +436,90 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
         }
       }
 
-      // Backwards compatibility to old file format
-      if (auto pOldConnections = pAbstractObject->FindProperty("Node::Connections"))
-      {
-        EZ_ASSERT_DEV(bUndoable == false, "Undo not supported for old file format");
-        RestoreOldMetaDataAfterLoading(graph, *pOldConnections, pObject);
-      }
+      EZ_ASSERT_DEV(pAbstractObject->FindProperty("Node::Connections") == nullptr, "Old file format detected that is not supported anymore. Re-save the document with a previous version of ez. ({})", GetDocument()->GetDocumentPath());
     }
     else if (IsConnection(pObject))
+    {
+      ezVariant sourceVar = pObject->GetTypeAccessor().GetValue("Source");
+      ezVariant targetVar = pObject->GetTypeAccessor().GetValue("Target");
+      ezVariant sourcePinVar = pObject->GetTypeAccessor().GetValue("SourcePin");
+      ezVariant targetPinVar = pObject->GetTypeAccessor().GetValue("TargetPin");
+      EZ_ASSERT_DEV(sourceVar.IsA<ezUuid>() && targetVar.IsA<ezUuid>() && sourcePinVar.IsA<ezString>() && targetPinVar.IsA<ezString>(), "Invalid connection object");
+
+      ezUuid source = sourceVar.Get<ezUuid>();
+      ezUuid target = targetVar.Get<ezUuid>();
+      ezStringView sourcePin = sourcePinVar.Get<ezString>();
+      ezStringView targetPin = targetPinVar.Get<ezString>();
+
+      const ezPin* pSourcePin = nullptr;
+      const ezPin* pTargetPin = nullptr;
+      if (ResolveConnection(source, target, sourcePin, targetPin, pSourcePin, pTargetPin).Failed())
+      {
+        // Try to restore from metadata
+        DocumentNodeManager_ConnectionMetaData connectionMetaData;
+        rttiConverter.ApplyPropertiesToObject(pAbstractObject, pConnectionMetaDataType, &connectionMetaData);
+        if (connectionMetaData.IsValid())
+        {
+          pObject->GetTypeAccessor().SetValue("Source", connectionMetaData.m_Source);
+          pObject->GetTypeAccessor().SetValue("Target", connectionMetaData.m_Target);
+          pObject->GetTypeAccessor().SetValue("SourcePin", connectionMetaData.m_SourcePin);
+          pObject->GetTypeAccessor().SetValue("TargetPin", connectionMetaData.m_TargetPin);
+
+          source = connectionMetaData.m_Source;
+          target = connectionMetaData.m_Target;
+          sourcePin = connectionMetaData.m_SourcePin;
+          targetPin = connectionMetaData.m_TargetPin;
+        }
+      }
+
+      if (ResolveConnection(source, target, sourcePin, targetPin, pSourcePin, pTargetPin).Succeeded())
+      {
+        if (bUndoable)
+        {
+          ezConnectNodePinsCommand cmd;
+          cmd.m_ConnectionObject = pObject->GetGuid();
+          cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
+          cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
+          cmd.m_sSourcePin = pSourcePin->GetName();
+          cmd.m_sTargetPin = pTargetPin->GetName();
+          history->AddCommand(cmd).LogFailure();
+        }
+        else
+        {
+          Connect(pObject, *pSourcePin, *pTargetPin);
+        }
+      }
+      else
+      {
+        RemoveObject(pObject);
+        DestroyObject(pObject);
+      }
+    }
+    else
     {
       DocumentNodeManager_ConnectionMetaData connectionMetaData;
       rttiConverter.ApplyPropertiesToObject(pAbstractObject, pConnectionMetaDataType, &connectionMetaData);
 
-      ezDocumentObject* pSource = GetObject(connectionMetaData.m_Source);
-      ezDocumentObject* pTarget = GetObject(connectionMetaData.m_Target);
-      if (pSource == nullptr || pTarget == nullptr)
-      {
-        RemoveObject(pObject);
-        DestroyObject(pObject);
+      if (connectionMetaData.IsValid() == false)
         continue;
+
+      const ezPin* pSourcePin = nullptr;
+      const ezPin* pTargetPin = nullptr;
+      if (ResolveConnection(connectionMetaData.m_Source, connectionMetaData.m_Target, connectionMetaData.m_SourcePin, connectionMetaData.m_TargetPin, pSourcePin, pTargetPin).Succeeded())
+      {
+        ezDocumentObject* pNewConnectionObject = CreateObject(GetConnectionType());
+        pNewConnectionObject->GetTypeAccessor().SetValue("Source", connectionMetaData.m_Source);
+        pNewConnectionObject->GetTypeAccessor().SetValue("Target", connectionMetaData.m_Target);
+        pNewConnectionObject->GetTypeAccessor().SetValue("SourcePin", connectionMetaData.m_SourcePin);
+        pNewConnectionObject->GetTypeAccessor().SetValue("TargetPin", connectionMetaData.m_TargetPin);
+        AddObject(pNewConnectionObject, nullptr, "", -1);
+
+        EZ_ASSERT_DEV(bUndoable == false, "This code path should only be taken by document loading code");
+        Connect(pNewConnectionObject, *pSourcePin, *pTargetPin);
       }
 
-      const ezPin* pSourcePin = GetOutputPinByName(pSource, connectionMetaData.m_SourcePin);
-      if (pSourcePin == nullptr)
-      {
-        ezLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_SourcePin, pSource->GetType()->GetTypeName());
-        RemoveObject(pObject);
-        DestroyObject(pObject);
-        continue;
-      }
-
-      const ezPin* pTargetPin = GetInputPinByName(pTarget, connectionMetaData.m_TargetPin);
-      if (pTargetPin == nullptr)
-      {
-        ezLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_TargetPin, pTarget->GetType()->GetTypeName());
-        RemoveObject(pObject);
-        DestroyObject(pObject);
-        continue;
-      }
-
-      ezDocumentNodeManager::CanConnectResult res;
-      if (CanConnect(pObject->GetType(), *pSourcePin, *pTargetPin, res).m_Result.Failed())
-      {
-        RemoveObject(pObject);
-        DestroyObject(pObject);
-        continue;
-      }
-
-      if (bUndoable)
-      {
-        ezConnectNodePinsCommand cmd;
-        cmd.m_ConnectionObject = pObject->GetGuid();
-        cmd.m_ObjectSource = connectionMetaData.m_Source;
-        cmd.m_ObjectTarget = connectionMetaData.m_Target;
-        cmd.m_sSourcePin = connectionMetaData.m_SourcePin;
-        cmd.m_sTargetPin = connectionMetaData.m_TargetPin;
-        history->AddCommand(cmd).LogFailure();
-      }
-      else
-      {
-        Connect(pObject, *pSourcePin, *pTargetPin);
-      }
+      RemoveObject(pObject);
+      DestroyObject(pObject);
     }
   }
 }
@@ -623,6 +689,34 @@ bool ezDocumentNodeManager::WouldConnectionCreateCircle(const ezPin& source, con
   return CanReachNode(pTargetNode, pSourceNode, Visited);
 }
 
+ezResult ezDocumentNodeManager::ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezPin*& out_pSourcePin, const ezPin*& out_pTargetPin) const
+{
+  const ezDocumentObject* pSource = GetObject(sourceObject);
+  const ezDocumentObject* pTarget = GetObject(targetObject);
+  if (pSource == nullptr || pTarget == nullptr)
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezPin* pSourcePin = GetOutputPinByName(pSource, sourcePin);
+  if (pSourcePin == nullptr)
+  {
+    ezLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", sourcePin, pSource->GetType()->GetTypeName());
+    return EZ_FAILURE;
+  }
+
+  const ezPin* pTargetPin = GetInputPinByName(pTarget, targetPin);
+  if (pTargetPin == nullptr)
+  {
+    ezLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", targetPin, pTarget->GetType()->GetTypeName());
+    return EZ_FAILURE;
+  }
+
+  out_pSourcePin = pSourcePin;
+  out_pTargetPin = pTargetPin;
+  return EZ_SUCCESS;
+}
+
 void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const
 {
   out_Names.Clear();
@@ -644,7 +738,7 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
       ezUInt32 uiCount = value.ConvertTo<ezUInt32>();
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}[{}]", sPinName, i);
+        sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
       }
     }
@@ -661,7 +755,7 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}", a[i]);
+        sTemp.SetFormat("{}", a[i]);
         out_Names.PushBack(sTemp);
       }
     }
@@ -672,11 +766,31 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
         out_Names.PushBack(a[i].ConvertTo<ezString>());
       }
     }
+    else if (pArrayProp->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class))
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        auto pInnerObject = GetObject(a[i].Get<ezUuid>());
+        if (pInnerObject == nullptr)
+          continue;
+
+        ezVariant nameVar = pInnerObject->GetTypeAccessor().GetValue("Name");
+        if (nameVar.IsString() || nameVar.IsHashedString())
+        {
+          out_Names.PushBack(nameVar.ConvertTo<ezString>());
+        }
+        else
+        {
+          sTemp.SetFormat("{}[{}]", sPinName, i);
+          out_Names.PushBack(sTemp);
+        }
+      }
+    }
     else
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        sTemp.Format("{}[{}]", sPinName, i);
+        sTemp.SetFormat("{}[{}]", sPinName, i);
         out_Names.PushBack(sTemp);
       }
     }
@@ -693,13 +807,19 @@ bool ezDocumentNodeManager::TryRecreatePins(const ezDocumentObject* pObject)
   for (auto& pPin : nodeInternal.m_Inputs)
   {
     if (HasConnections(*pPin))
+    {
+      ezLog::Error("Can't re-create pins if they are still connected");
       return false;
+    }
   }
 
   for (auto& pPin : nodeInternal.m_Outputs)
   {
     if (HasConnections(*pPin))
+    {
+      ezLog::Error("Can't re-create pins if they are still connected");
       return false;
+    }
   }
 
   {
@@ -800,6 +920,10 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::AfterNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
+      else
+      {
+        HandlePotentialDynamicPinPropertyChanged(e.m_pNewParent, e.m_sParentProperty);
+      }
     }
     break;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
@@ -818,6 +942,10 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
         ezDocumentNodeManagerEvent e2(ezDocumentNodeManagerEvent::Type::AfterNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
       }
+      else
+      {
+        HandlePotentialDynamicPinPropertyChanged(e.m_pPreviousParent, e.m_sParentProperty);
+      }
     }
     break;
 
@@ -831,58 +959,25 @@ void ezDocumentNodeManager::PropertyEventsHandler(const ezDocumentObjectProperty
   if (e.m_pObject == nullptr)
     return;
 
-  const ezAbstractProperty* pProp = e.m_pObject->GetType()->FindPropertyByName(e.m_sProperty);
-  if (pProp == nullptr)
-    return;
+  HandlePotentialDynamicPinPropertyChanged(e.m_pObject, e.m_sProperty);
 
-  if (IsDynamicPinProperty(e.m_pObject, pProp))
+  if (const ezDocumentObject* pParent = e.m_pObject->GetParent())
   {
-    TryRecreatePins(e.m_pObject);
+    HandlePotentialDynamicPinPropertyChanged(pParent, e.m_pObject->GetParentProperty());
   }
 }
 
-void ezDocumentNodeManager::RestoreOldMetaDataAfterLoading(const ezAbstractObjectGraph& graph, const ezAbstractObjectNode::Property& connectionsProperty, const ezDocumentObject* pSourceObject)
+void ezDocumentNodeManager::HandlePotentialDynamicPinPropertyChanged(const ezDocumentObject* pObject, ezStringView sPropertyName)
 {
-  if (connectionsProperty.m_Value.IsA<ezVariantArray>() == false)
+  if (pObject == nullptr)
     return;
 
-  const ezVariantArray& array = connectionsProperty.m_Value.Get<ezVariantArray>();
-  for (const ezVariant& var : array)
+  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
+  if (pProp == nullptr)
+    return;
+
+  if (IsDynamicPinProperty(pObject, pProp))
   {
-    if (var.IsA<ezUuid>() == false)
-      continue;
-
-    auto pOldConnectionAbstractObject = graph.GetNode(var.Get<ezUuid>());
-    auto pTargetProperty = pOldConnectionAbstractObject->FindProperty("Target");
-    if (pTargetProperty == nullptr || pTargetProperty->m_Value.IsA<ezUuid>() == false)
-      continue;
-
-    ezDocumentObject* pTargetObject = GetObject(pTargetProperty->m_Value.Get<ezUuid>());
-    if (pTargetObject == nullptr)
-      continue;
-
-    auto pSourcePinProperty = pOldConnectionAbstractObject->FindProperty("SourcePin");
-    if (pSourcePinProperty == nullptr || pSourcePinProperty->m_Value.IsA<ezString>() == false)
-      continue;
-
-    auto pTargetPinProperty = pOldConnectionAbstractObject->FindProperty("TargetPin");
-    if (pTargetPinProperty == nullptr || pTargetPinProperty->m_Value.IsA<ezString>() == false)
-      continue;
-
-    const ezPin* pSourcePin = GetOutputPinByName(pSourceObject, pSourcePinProperty->m_Value.Get<ezString>());
-    const ezPin* pTargetPin = GetInputPinByName(pTargetObject, pTargetPinProperty->m_Value.Get<ezString>());
-    if (pSourcePin == nullptr || pTargetPin == nullptr)
-      continue;
-
-    const ezRTTI* pConnectionType = GetConnectionType();
-    ezDocumentNodeManager::CanConnectResult res;
-    if (CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
-    {
-      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ezUuid::MakeUuid());
-
-      AddObject(pConnectionObject, nullptr, "", -1);
-
-      Connect(pConnectionObject, *pSourcePin, *pTargetPin);
-    }
+    TryRecreatePins(pObject);
   }
 }

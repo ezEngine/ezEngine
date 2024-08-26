@@ -62,7 +62,9 @@ ezInt32 ezConfigFileResource::GetInt(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'int' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezStringView name = "<unknown>"_ezsv;
+  sName.LookupStringHash(name).IgnoreResult();
+  ezLog::Error("{}: 'int' config variable '{}' doesn't exist.", this->GetResourceIdOrDescription(), name);
   return 0;
 }
 
@@ -81,7 +83,9 @@ float ezConfigFileResource::GetFloat(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezStringView name = "<unknown>"_ezsv;
+  sName.LookupStringHash(name).IgnoreResult();
+  ezLog::Error("{}: 'float' config variable '{}' doesn't exist.", this->GetResourceIdOrDescription(), name);
   return 0;
 }
 
@@ -100,7 +104,9 @@ bool ezConfigFileResource::GetBool(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'float' config variable (name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezStringView name = "<unknown>"_ezsv;
+  sName.LookupStringHash(name).IgnoreResult();
+  ezLog::Error("{}: 'float' config variable '{}' doesn't exist.", this->GetResourceIdOrDescription(), name);
   return false;
 }
 
@@ -119,12 +125,16 @@ ezStringView ezConfigFileResource::GetString(ezTempHashedString sName) const
   if (it.IsValid())
     return it.Value();
 
-  ezLog::Error("{}: 'string' config variable '(name hash = {}) doesn't exist.", this->GetResourceDescription(), sName.GetHash());
+  ezStringView name = "<unknown>"_ezsv;
+  sName.LookupStringHash(name).IgnoreResult();
+  ezLog::Error("{}: 'string' config variable '{}' doesn't exist.", this->GetResourceIdOrDescription(), name);
   return "";
 }
 
 ezResourceLoadDesc ezConfigFileResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   m_IntData.Clear();
   m_FloatData.Clear();
   m_StringData.Clear();
@@ -196,7 +206,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
   // used to gather all the transitive file dependencies
   preprop.SetFileLocatorFunction(ezMakeDelegate(&ezConfigFileResourceLoader::LoadedData::PrePropFileLocator, pData));
 
-  if (ezStringUtils::IsEqual(pResource->GetResourceID(), "Empty.ezConfig"))
+  if (pResource->GetResourceID() == "Empty.ezConfig")
   {
     // do nothing
   }
@@ -357,6 +367,8 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
 
 void ezConfigFileResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
+  EZ_IGNORE_UNUSED(pResource);
+
   LoadedData* pData = static_cast<LoadedData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);

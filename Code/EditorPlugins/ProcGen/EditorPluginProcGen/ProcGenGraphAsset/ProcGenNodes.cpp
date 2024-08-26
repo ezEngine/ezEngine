@@ -81,6 +81,19 @@ namespace
     auto pValue = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, pLowerValue, pUpperValue);
     return out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pValue);
   }
+
+  void AddDefaultInputs(ezExpressionAST& out_ast)
+  {
+    out_ast.m_InputNodes.Clear();
+
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float}));
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float}));
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float}));
+
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalX, ezProcessingStream::DataType::Float}));
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalY, ezProcessingStream::DataType::Float}));
+    out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalZ, ezProcessingStream::DataType::Float}));
+  }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -158,6 +171,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezExpressionAST::Node* ezProcGen_PlacementOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
+
+  AddDefaultInputs(out_ast);
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Short}));
 
   out_ast.m_OutputNodes.Clear();
 
@@ -277,6 +293,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezExpressionAST::Node* ezProcGen_VertexColorOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
 {
   EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
+
+  AddDefaultInputs(out_ast);
+
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sColorR, ezProcessingStream::DataType::Float}));
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sColorG, ezProcessingStream::DataType::Float}));
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sColorB, ezProcessingStream::DataType::Float}));
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sColorA, ezProcessingStream::DataType::Float}));
+
+  out_ast.m_InputNodes.PushBack(out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Int}));
 
   out_ast.m_OutputNodes.Clear();
 

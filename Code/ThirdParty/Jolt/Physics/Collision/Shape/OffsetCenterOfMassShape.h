@@ -96,7 +96,7 @@ public:
 	// See: Shape::CollidePoint
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
-	// See: Shape::ColideSoftBodyVertices
+	// See: Shape::CollideSoftBodyVertices
 	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, SoftBodyVertex *ioVertices, uint inNumVertices, float inDeltaTime, Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const override;
 
 	// See Shape::CollectTransformedShapes
@@ -122,6 +122,9 @@ public:
 
 	// See Shape::IsValidScale
 	virtual bool					IsValidScale(Vec3Arg inScale) const override			{ return mInnerShape->IsValidScale(inScale); }
+
+	// See Shape::MakeScaleValid
+	virtual Vec3					MakeScaleValid(Vec3Arg inScale) const override			{ return mInnerShape->MakeScaleValid(inScale); }
 
 	// Register shape functions with the registry
 	static void						sRegister();

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9435237488896449200,5307858925547613951}}
-		u4 %Hash{4097134043046289680}
+		u4 %Hash{2115195256647245668}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 979855cc-32fc-4c63-844d-fe5cbd2f64d7 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -132,8 +133,8 @@ o
 o
 {
 	Uuid %id{u4{15466592892694675135,4750605213340611604}}
-	s %t{"ezBlackboardComponent"}
-	u3 %v{2}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
@@ -160,8 +161,8 @@ o
 o
 {
 	Uuid %id{u4{13447646934284786592,4919330798533159051}}
-	s %t{"ezBlackboardComponent"}
-	u3 %v{2}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
@@ -220,8 +221,8 @@ o
 o
 {
 	Uuid %id{u4{11813876875955919539,5162244235363815353}}
-	s %t{"ezBlackboardComponent"}
-	u3 %v{2}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
@@ -260,8 +261,8 @@ o
 o
 {
 	Uuid %id{u4{17034881107611466937,5239024791553629708}}
-	s %t{"ezBlackboardComponent"}
-	u3 %v{2}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
@@ -536,6 +537,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18348731351651790920,4897320743890407264}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBlackboardComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLocalBlackboardComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5195345338716098525,5056385137718360950}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -593,13 +611,13 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -56,9 +56,6 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
 
   for (ezInt32 iAsteroid = 0; iAsteroid < MaxAsteroids; ++iAsteroid)
     CreateAsteroid();
-
-  m_Camera.LookAt(ezVec3(0.0f, 0.0f, 100.0f), ezVec3(0.0f), ezVec3(0, 1, 0));
-  m_Camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, 45.0f, 0.0f, 500.0f);
 }
 
 void Level::UpdatePlayerInput(ezInt32 iPlayer)
@@ -81,7 +78,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   ezStringBuilder sControls[MaxPlayerActions];
 
   for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
-    sControls[iAction].Format("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
+    sControls[iAction].SetFormat("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
 
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
@@ -158,7 +155,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
     // this only works because the materials are part of the Asset Collection and get a name like this from there
     // otherwise we would need to have the GUIDs of the 4 different material assets available
     ezStringBuilder sMaterialName;
-    sMaterialName.Format("MaterialPlayer{0}", iPlayer + 1);
+    sMaterialName.SetFormat("MaterialPlayer{0}", iPlayer + 1);
     pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
   }
   {

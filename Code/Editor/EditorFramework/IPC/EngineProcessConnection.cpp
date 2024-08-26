@@ -40,9 +40,8 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    ezAssetDocument* pDocument = m_DocumentByGuid[pMsg->m_DocumentGuid];
-
-    if (pDocument)
+    ezAssetDocument* pDocument = nullptr;
+    if (m_DocumentByGuid.TryGetValue(pMsg->m_DocumentGuid, pDocument))
     {
       pDocument->HandleEngineMessage(pMsg);
     }
@@ -141,9 +140,9 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const char* EditorEngineProcessExecutableName = "EditorEngineProcess.exe";
+  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess.exe";
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  const char* EditorEngineProcessExecutableName = "EditorEngineProcess";
+  const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess";
 #else
 #  error Platform not supported
 #endif
@@ -152,6 +151,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_IPC.StartClientProcess(EditorEngineProcessExecutableName, args, false, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
+    ezLog::Error("EngineProcess crashed on startup");
   }
   else
   {
@@ -215,7 +215,8 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool {
+  waitDialog.m_OnIdle = [this]() -> bool
+  {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -308,7 +309,8 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
@@ -358,6 +360,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
+    msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : 1.0f;
 
     SendMessage(&msg);
   }
@@ -381,7 +384,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     docs.PushBack(it.Value());
   }
-  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
+  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b)
+    {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
     return a < b; });

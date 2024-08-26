@@ -9,13 +9,13 @@
 #define EZ_OFF !
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_ENABLED(x) (1 EZ_CONCAT(x, =) 1)
+#define EZ_ENABLED(x) (1 EZ_PP_CONCAT(x, =) 1)
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_DISABLED(x) (1 EZ_CONCAT(x, =) 2)
+#define EZ_DISABLED(x) (1 EZ_PP_CONCAT(x, =) 2)
 
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
-#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_CONCAT(x, =) 1) == (1 EZ_CONCAT(y, =) 1))
+#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_PP_CONCAT(x, =) 1) == (1 EZ_PP_CONCAT(y, =) 1))
 
 
 
@@ -66,15 +66,14 @@
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
 #define EZ_SUPPORTS_CRASH_DUMPS EZ_OFF
 #define EZ_SUPPORTS_LONG_PATHS EZ_OFF
-#define EZ_SUPPORTS_GLFW EZ_OFF
 
 // Allocators
-#define EZ_USE_ALLOCATION_TRACKING EZ_OFF
-#define EZ_USE_ALLOCATION_STACK_TRACING EZ_OFF
-#define EZ_USE_GUARDED_ALLOCATIONS EZ_OFF
+#define EZ_ALLOC_GUARD_ALLOCATIONS EZ_OFF
+#define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
+#define EZ_USE_STRING_VALIDATION EZ_OFF
 
 // Hashed String
 /// \brief Ref counting on hashed strings adds the possibility to cleanup unused strings. Since ref counting has a performance overhead it is disabled
@@ -96,3 +95,7 @@
 
 // Whether 'RuntimeConfigs' files should be searched in the old location
 #define EZ_MIGRATE_RUNTIMECONFIGS EZ_OFF
+
+// Interoperability with other libraries
+#define EZ_INTEROP_STL_STRINGS EZ_OFF
+#define EZ_INTEROP_STL_SPAN EZ_OFF

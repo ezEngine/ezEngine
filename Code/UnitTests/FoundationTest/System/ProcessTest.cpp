@@ -122,7 +122,8 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezDynamicArray<ezStringBuilder> lines;
     ezStringBuilder out;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView sView) {
+    opt.m_onStdOut = [&](ezStringView sView)
+    {
       out.Append(sView);
       lines.PushBack(sView);
     };
@@ -155,7 +156,8 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
   {
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdError = [&err](ezStringView sView) { err.Append(sView); };
+    opt.m_onStdError = [&err](ezStringView sView)
+    { err.Append(sView); };
 
     opt.m_sProcess = pathToSelf;
     opt.m_Arguments.PushBack("-cmd");
@@ -179,11 +181,13 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     ezStringBuilder out;
     ezStringBuilder err;
     ezProcessOptions opt;
-    opt.m_onStdOut = [&](ezStringView sView) {
+    opt.m_onStdOut = [&](ezStringView sView)
+    {
       out.Append(sView);
       lines.PushBack(sView);
     };
-    opt.m_onStdError = [&err](ezStringView sView) { err.Append(sView); };
+    opt.m_onStdError = [&err](ezStringView sView)
+    { err.Append(sView); };
     opt.m_sProcess = pathToSelf;
     opt.m_Arguments.PushBack("-cmd");
     opt.m_Arguments.PushBack("-stdout");

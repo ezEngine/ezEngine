@@ -77,19 +77,28 @@ protected:
 /// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
 /// See class ezEnumerable for more details.
-#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base)                      \
-private:                                                                       \
-  using ezEnumerableBase = base;                                               \
-  friend class ezEnumerable<self, base>;                                       \
-  static ezEnumerable<self, base>* s_pFirstInstance;                           \
-  static ezEnumerable<self, base>* s_pLastInstance;                            \
-  static ezUInt32 s_uiInstances;                                               \
-                                                                               \
-public:                                                                        \
-  static self* GetFirstInstance() { return (self*)s_pFirstInstance; }          \
-  self* GetNextInstance() { return (self*)m_pNextInstance; }                   \
-  const self* GetNextInstance() const { return (const self*)m_pNextInstance; } \
-                                                                               \
+#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
+private:                                                  \
+  using ezEnumerableBase = base;                          \
+  friend class ezEnumerable<self, base>;                  \
+  static ezEnumerable<self, base>* s_pFirstInstance;      \
+  static ezEnumerable<self, base>* s_pLastInstance;       \
+  static ezUInt32 s_uiInstances;                          \
+                                                          \
+public:                                                   \
+  static self* GetFirstInstance()                         \
+  {                                                       \
+    return (self*)s_pFirstInstance;                       \
+  }                                                       \
+  self* GetNextInstance()                                 \
+  {                                                       \
+    return (self*)m_pNextInstance;                        \
+  }                                                       \
+  const self* GetNextInstance() const                     \
+  {                                                       \
+    return (const self*)m_pNextInstance;                  \
+  }                                                       \
+                                                          \
 private:
 
 /// \brief Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.

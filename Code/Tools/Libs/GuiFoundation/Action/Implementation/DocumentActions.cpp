@@ -72,7 +72,6 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hCloseAll, sTargetMenu, 9.0f);
   pMap->MapAction(s_hCloseAllButThis, sTargetMenu, 10.0f);
   pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 11.0f);
-
   pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 12.0f);
 }
 
@@ -217,7 +216,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
           if (res.Failed())
           {
             ezStringBuilder s;
-            s.Format("Failed to save document: \n'{0}'", sFile);
+            s.SetFormat("Failed to save document: \n'{0}'", sFile);
             ezQtUiServices::MessageBoxStatus(res, s);
           }
           else

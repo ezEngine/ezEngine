@@ -2,16 +2,6 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{9377381712417440504,2860590547626113092}}
-	s %t{"ezExposedParameters"}
-	u3 %v{3}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
 	Uuid %id{u4{5334942610881720477,4902072475820936660}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -21,10 +11,10 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5334942610881720477,4902072475820936660}}
-		u4 %Hash{16352631068352655263}
+		u4 %Hash{16310102898275773824}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{9377381712417440504,2860590547626113092}}
+			Uuid{u4{17153500375782796081,16512316250170471894}}
 		}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -35,6 +25,17 @@ o
 		{
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{17153500375782796081,16512316250170471894}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -170,7 +171,7 @@ o
 }
 o
 {
-	Uuid %id{u4{2028811376275789594,5773806447299665213}}
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}

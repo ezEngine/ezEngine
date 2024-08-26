@@ -11,10 +11,11 @@ EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
 /// A structure describing the pairs of source/target format that may be converted using the conversion routine.
 struct ezImageConversionEntry
 {
-  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags)
+  ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float fAdditionalPenalty = 0)
     : m_sourceFormat(source)
     , m_targetFormat(target)
     , m_flags(flags)
+    , m_fAdditionalPenalty(fAdditionalPenalty)
   {
   }
 
@@ -25,7 +26,7 @@ struct ezImageConversionEntry
   /// This member adds an additional amount to the cost estimate for this conversion step.
   /// It can be used to bias the choice between steps when there are comparable conversion
   /// steps available.
-  float m_additionalPenalty = 0.0f;
+  float m_fAdditionalPenalty = 0.0f;
 };
 
 /// \brief Interface for a single image conversion step.
@@ -129,11 +130,11 @@ public:
   ///                               A path generated with sourceEqualsTarget == true will work correctly even if source and target are not
   ///                               the same, but may not be optimal. A path generated with sourceEqualsTarget == false will not work
   ///                               correctly when source and target are the same.
-  /// \param path_out               The generated path.
-  /// \param numScratchBuffers_out The number of scratch buffers required for the conversion path.
+  /// \param out_path               The generated path.
+  /// \param out_numScratchBuffers The number of scratch buffers required for the conversion path.
   /// \returns                      ez_SUCCESS if a path was found, ez_FAILURE otherwise.
   static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
-    ezHybridArray<ConversionPathNode, 16>& ref_path_out, ezUInt32& ref_uiNumScratchBuffers_out);
+    ezHybridArray<ConversionPathNode, 16>& out_path, ezUInt32& out_uiNumScratchBuffers);
 
   /// \brief  Converts the source image into a target image with the given format. Source and target may be the same.
   static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat);
@@ -161,7 +162,7 @@ private:
   static ezResult ConvertSingleStepCompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
-    static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
+  static ezResult ConvertSingleStepDeplanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static ezResult ConvertSingleStepPlanarize(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,

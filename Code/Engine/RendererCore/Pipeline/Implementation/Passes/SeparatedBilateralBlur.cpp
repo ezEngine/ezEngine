@@ -94,15 +94,13 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-    EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
     // Setup input view and sampler
-    ezGALResourceViewCreationDescription rvcd;
+    ezGALTextureResourceViewCreationDescription rvcd;
     rvcd.m_hTexture = inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
     rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
@@ -110,7 +108,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     tempTextureDesc.m_bCreateRenderTarget = true;
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
     rvcd.m_hTexture = tempTexture;
-    ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    ezGALTextureResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     ezGALRenderingSetup renderingSetup;
 
@@ -123,7 +121,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Horizontal
     {
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
+      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
       renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hBlurSourceInputView);
@@ -133,7 +131,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Vertical
     {
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
+      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
       renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hTempTextureRView);

@@ -11,15 +11,17 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11369016172417737879,5494970252615995465}}
-		u4 %Hash{3772349309353650750}
+		u4 %Hash{10059662949173109353}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 057754e8-cedd-40a7-8807-c27362749481 }"}
 			s{"{ ba0f436e-db3b-42c3-b9be-412335556e5e }"}
 			s{"{ ebd840fb-aa8b-4ef5-b1b8-10e0e562c4fe }"}
 		}
+		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }
@@ -104,7 +106,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezCollectionAssetEntry"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -122,7 +123,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -140,7 +140,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezCollectionAssetData"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -158,7 +157,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

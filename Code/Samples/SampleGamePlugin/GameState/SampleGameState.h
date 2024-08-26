@@ -14,8 +14,6 @@ class EZ_SAMPLEGAMEPLUGIN_DLL SampleGameState : public ezFallbackGameState
 public:
   SampleGameState();
 
-  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
-
   virtual void ProcessInput() override;
 
 protected:
@@ -24,7 +22,7 @@ protected:
   virtual void ConfigureMainCamera() override;
 
 private:
-  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
   virtual void AfterWorldUpdate() override;

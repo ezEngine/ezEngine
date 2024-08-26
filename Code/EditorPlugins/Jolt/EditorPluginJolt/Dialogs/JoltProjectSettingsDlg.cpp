@@ -155,7 +155,7 @@ ezResult ezQtJoltProjectSettingsDlg::Save()
   if (m_Config.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'{0}'", ezCollisionFilterConfig::s_sConfigFile);
+    sError.SetFormat("Failed to save the Collision Layer file\n'{0}'", ezCollisionFilterConfig::s_sConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 

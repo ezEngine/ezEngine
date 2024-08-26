@@ -32,4 +32,3 @@ private:
   ezEvent<const ezScene2LayerEvent&>::Unsubscriber m_LayerEventUnsubscriber;
   ezMap<ezUuid, ezQtGameObjectWidget*> m_LayerWidgets;
 };
-

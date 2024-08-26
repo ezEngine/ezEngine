@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeBones)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("VisualizeColliders", m_bVisualizeColliders),
     EZ_MEMBER_PROPERTY("VisualizeJoints", m_bVisualizeJoints),
@@ -150,27 +150,6 @@ void ezSkeletonComponent::OnActivated()
   VisualizeSkeletonDefaultState();
 }
 
-void ezSkeletonComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezSkeletonComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
-
 void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
@@ -258,7 +237,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int iCurrentBone, int iParentBone) {
+  auto renderBone = [&](int iCurrentBone, int iParentBone)
+  {
     if (iParentBone == ozz::animation::Skeleton::kNoParent)
       return;
 

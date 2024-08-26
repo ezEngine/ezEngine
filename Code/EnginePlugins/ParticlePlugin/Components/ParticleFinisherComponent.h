@@ -18,6 +18,10 @@ public:
   void UpdateBounds();
 };
 
+/// \brief Automatically created by the particle system to finish playing a particle effect.
+///
+/// This is needed to play a particle effect to the end, when a game object with a particle effect on it gets deleted.
+/// This component should never be instantiated manually.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent final : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezParticleFinisherComponent, ezRenderComponent, ezParticleFinisherComponentManager);
@@ -28,13 +32,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent final : public ezRenderC
 protected:
   virtual void OnDeactivated() override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezParticleFinisherComponent

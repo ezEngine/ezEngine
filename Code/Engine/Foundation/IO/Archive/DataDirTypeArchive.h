@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/IO/Archive/ArchiveReader.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
@@ -21,7 +22,7 @@ namespace ezDataDirectory
     ArchiveType();
     ~ArchiveType();
 
-    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage);
+    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage);
 
     virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 
@@ -51,23 +52,22 @@ namespace ezDataDirectory
     ezHybridArray<ezUniquePtr<ArchiveReaderZstd>, 4> m_ReadersZstd;
     ezHybridArray<ArchiveReaderZstd*, 4> m_FreeReadersZstd;
 #endif
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    ezHybridArray<ezUniquePtr<ArchiveReaderZip>, 4> m_ReadersZip;
+    ezHybridArray<ArchiveReaderZip*, 4> m_FreeReadersZip;
+#endif
   };
 
-  class EZ_FOUNDATION_DLL ArchiveReaderUncompressed : public ezDataDirectoryReader
+  class EZ_FOUNDATION_DLL ArchiveReaderCommon : public ezDataDirectoryReader
   {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderUncompressed);
+    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderCommon);
 
   public:
-    ArchiveReaderUncompressed(ezInt32 iDataDirUserData);
-    ~ArchiveReaderUncompressed();
+    ArchiveReaderCommon(ezInt32 iDataDirUserData);
 
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
     virtual ezUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
-    virtual void InternalClose() override;
-
     friend class ArchiveType;
 
     ezUInt64 m_uiUncompressedSize = 0;
@@ -75,14 +75,49 @@ namespace ezDataDirectory
     ezRawMemoryStreamReader m_MemStreamReader;
   };
 
+  class EZ_FOUNDATION_DLL ArchiveReaderUncompressed : public ArchiveReaderCommon
+  {
+    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderUncompressed);
+
+  public:
+    ArchiveReaderUncompressed(ezInt32 iDataDirUserData);
+
+    virtual ezUInt64 Skip(ezUInt64 uiBytes) override;
+    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+
+  protected:
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual void InternalClose() override;
+  };
+
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  class EZ_FOUNDATION_DLL ArchiveReaderZstd : public ArchiveReaderUncompressed
+  class EZ_FOUNDATION_DLL ArchiveReaderZstd : public ArchiveReaderCommon
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZstd);
 
   public:
     ArchiveReaderZstd(ezInt32 iDataDirUserData);
-    ~ArchiveReaderZstd();
+
+    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+
+  protected:
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+    virtual void InternalClose() override;
+
+    ezCompressedStreamReaderZstd m_CompressedStreamReader;
+  };
+#endif
+
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  /// \brief Allows reading of zip / apk containers.
+  /// Needed to allow Android to read data from the apk.
+  class EZ_FOUNDATION_DLL ArchiveReaderZip : public ArchiveReaderUncompressed
+  {
+    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZip);
+
+  public:
+    ArchiveReaderZip(ezInt32 iDataDirUserData);
+    ~ArchiveReaderZip();
 
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
 
@@ -91,9 +126,7 @@ namespace ezDataDirectory
 
     friend class ArchiveType;
 
-    ezCompressedStreamReaderZstd m_CompressedStreamReader;
+    ezCompressedStreamReaderZip m_CompressedStreamReader;
   };
 #endif
-
-
 } // namespace ezDataDirectory

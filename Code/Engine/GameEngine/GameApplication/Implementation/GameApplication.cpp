@@ -108,14 +108,6 @@ void ezGameApplication::Run_WorldUpdateAndRender()
 
   ezRenderWorld::BeginFrame();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // On most platforms it doesn't matter that much how early this happens.
-  // But on HoloLens this executes something that needs to be done at the right time,
-  // for the reprojection to work properly.
-  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
-  pDevice->BeginFrame(uiRenderFrame);
-
   ezTaskGroupID updateTaskID;
   if (ezRenderWorld::GetUseMultithreadedRendering())
   {
@@ -134,11 +126,35 @@ void ezGameApplication::Run_WorldUpdateAndRender()
   }
 }
 
-void ezGameApplication::Run_Present()
+void ezGameApplication::Run_AcquireImage()
 {
   ezHybridArray<ezActor*, 8> allActors;
   ezActorManager::GetSingleton()->GetAllActors(allActors);
 
+  for (ezActor* pActor : allActors)
+  {
+    EZ_PROFILE_SCOPE(pActor->GetName());
+
+    ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
+
+    if (pWindowPlugin == nullptr)
+      continue;
+
+    // Ignore actors without an output target
+    if (auto pOutput = pWindowPlugin->GetOutputTarget())
+    {
+      EZ_PROFILE_SCOPE("AcquireImage");
+      pOutput->AcquireImage();
+    }
+  }
+}
+
+void ezGameApplication::Run_PresentImage()
+{
+  ezHybridArray<ezActor*, 8> allActors;
+  ezActorManager::GetSingleton()->GetAllActors(allActors);
+
+  bool bExecutedFrameCapture = false;
   for (ezActor* pActor : allActors)
   {
     EZ_PROFILE_SCOPE(pActor->GetName());
@@ -160,20 +176,20 @@ void ezGameApplication::Run_Present()
 
       ExecuteTakeScreenshot(pOutput, ctxt);
 
-      if (pWindowPlugin->GetWindow())
+      if (pWindowPlugin->GetWindow() && !bExecutedFrameCapture)
       {
         ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
+        bExecutedFrameCapture = true;
       }
 
-      EZ_PROFILE_SCOPE("Present");
-      pOutput->Present(cvar_AppVSync);
+      EZ_PROFILE_SCOPE("PresentImage");
+      pOutput->PresentImage(cvar_AppVSync);
     }
   }
 }
 
 void ezGameApplication::Run_FinishFrame()
 {
-  ezGALDevice::GetDefaultDevice()->EndFrame();
   ezRenderWorld::EndFrame();
 
   SUPER::Run_FinishFrame();
@@ -182,7 +198,7 @@ void ezGameApplication::Run_FinishFrame()
 void ezGameApplication::UpdateWorldsAndExtractViews()
 {
   ezStringBuilder sb;
-  sb.Format("FRAME {}", ezRenderWorld::GetFrameCounter());
+  sb.SetFormat("FRAME {}", ezRenderWorld::GetFrameCounter());
   EZ_PROFILE_SCOPE(sb.GetData());
 
   Run_BeforeWorldUpdate();
@@ -280,12 +296,13 @@ void ezGameApplication::RenderConsole()
 
   const float fViewWidth = pView->GetViewport().width;
   const float fViewHeight = pView->GetViewport().height;
-  const float fTextHeight = 20.0f;
+  const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth();
+  const float fLineHeight = ezDebugRenderer::GetTextLineHeight();
   const float fConsoleHeight = (fViewHeight / 2.0f);
   const float fBorderWidth = 3.0f;
-  const float fConsoleTextAreaHeight = fConsoleHeight - fTextHeight - (2.0f * fBorderWidth);
+  const float fConsoleTextAreaHeight = fConsoleHeight - fLineHeight - (2.0f * fBorderWidth);
 
-  const ezInt32 iTextHeight = (ezInt32)fTextHeight;
+  const ezInt32 iTextHeight = (ezInt32)fLineHeight;
   const ezInt32 iTextLeft = (ezInt32)(fBorderWidth);
 
   {
@@ -294,7 +311,7 @@ void ezGameApplication::RenderConsole()
 
     ezColor foregroundColor(0.0f, 0.0f, 0.0f, 0.8f);
     ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
-    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fLineHeight), 0.0f, foregroundColor);
   }
 
   {
@@ -302,7 +319,7 @@ void ezGameApplication::RenderConsole()
 
     auto& consoleStrings = m_pConsole->GetConsoleStrings();
 
-    ezUInt32 uiNumConsoleLines = (ezUInt32)(ezMath::Ceil(fConsoleTextAreaHeight / fTextHeight));
+    ezUInt32 uiNumConsoleLines = (ezUInt32)(ezMath::Ceil(fConsoleTextAreaHeight / fLineHeight));
     ezInt32 iFirstLinePos = (ezInt32)fConsoleTextAreaHeight - uiNumConsoleLines * iTextHeight;
     ezInt32 uiFirstLine = m_pConsole->GetScrollPosition() + uiNumConsoleLines - 1;
     ezInt32 uiSkippedLines = ezMath::Max(uiFirstLine - (ezInt32)consoleStrings.GetCount() + 1, 0);
@@ -313,13 +330,15 @@ void ezGameApplication::RenderConsole()
       ezDebugRenderer::Draw2DText(hView, consoleString.m_sText.GetData(), ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.GetColor());
     }
 
-    ezDebugRenderer::Draw2DText(hView, m_pConsole->GetInputLine(), ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+    ezDebugRenderer::Draw2DText(hView, m_pConsole->GetInputLine(), ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth + (fLineHeight * 0.5f))), ezColor::White, 16, ezDebugTextHAlign::Default, ezDebugTextVAlign::Center);
 
     if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
     {
-      float fCaretPosition = (float)m_pConsole->GetCaretPosition();
+      const float fCaretPosition = (float)m_pConsole->GetCaretPosition();
+      const float fCaretX = fBorderWidth + (fCaretPosition + 0.5f) * fGlyphWidth;
+      const float fCaretY = fConsoleTextAreaHeight + fBorderWidth + 1.0f;
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
-      ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+      ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fCaretX, fCaretY, 2.0f, fLineHeight - 2.0f), 0.0f, caretColor);
     }
   }
 }
@@ -443,5 +462,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   return true;
 }
+
+
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);

@@ -17,6 +17,8 @@ void ezMessageLoop_Fallback::WakeUp()
 
 bool ezMessageLoop_Fallback::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter)
 {
+  EZ_IGNORE_UNUSED(pFilter);
+
   // nothing to do
 
   if (iTimeout < 0)
@@ -27,5 +29,3 @@ bool ezMessageLoop_Fallback::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFi
 
   return false;
 }
-
-

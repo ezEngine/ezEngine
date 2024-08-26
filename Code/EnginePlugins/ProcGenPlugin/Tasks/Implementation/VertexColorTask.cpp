@@ -188,7 +188,10 @@ void VertexColorTask::Execute()
     }
 
     // Execute expression bytecode
-    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData).IgnoreResult();
+    if (m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData, ezExpressionVM::Flags::BestPerformance).Failed())
+    {
+      continue;
+    }
 
     auto& outputMapping = m_OutputMappings[uiOutputIndex];
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)

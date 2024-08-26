@@ -80,4 +80,3 @@ private:
   bool m_bUpdateTable;
   ezHashTable<ezUInt32, FileOpData> m_FileOps;
 };
-

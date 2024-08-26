@@ -14,12 +14,12 @@ struct ezDirectoryWatcherImpl;
 /// \brief Which action has been performed on a file.
 enum class ezDirectoryWatcherAction
 {
-  None,           ///< Nothing happend
-  Added,          ///< A file or directory was added
-  Removed,        ///< A file or directory was removed
-  Modified,       ///< A file was modified. Both Reads and Writes can 'modify' the timestamps of a file.
-  RenamedOldName, ///< A file or directory was renamed. First the old name is provided.
-  RenamedNewName, ///< A file or directory was renamed. The new name is provided second.
+  None,           ///< Nothing happened
+  Added,          ///< A file or directory was added, requires ezDirectoryWatcher::Watch::Creates flag when creating ezDirectoryWatcher.
+  Removed,        ///< A file or directory was removed, requires ezDirectoryWatcher::Watch::Deletes flag when creating ezDirectoryWatcher.
+  Modified,       ///< A file was modified. Both Reads and Writes can 'modify' the timestamps of a file, requires ezDirectoryWatcher::Watch::Writes flag when creating ezDirectoryWatcher.
+  RenamedOldName, ///< A file or directory was renamed. First the old name is provided, requires ezDirectoryWatcher::Watch::Renames flag when creating ezDirectoryWatcher.
+  RenamedNewName, ///< A file or directory was renamed. The new name is provided second, requires ezDirectoryWatcher::Watch::Renames flag when creating ezDirectoryWatcher.
 };
 
 enum class ezDirectoryWatcherType
@@ -42,10 +42,10 @@ public:
     /// \brief Enum values
     enum Enum
     {
-      Writes = EZ_BIT(0),         ///< Watch for writes.
-      Creates = EZ_BIT(1),        ///< Watch for newly created files.
-      Deletes = EZ_BIT(2),        ///< Watch for deleted files.
-      Renames = EZ_BIT(3),        ///< Watch for renames.
+      Writes = EZ_BIT(0),         ///< Watch for writes. Will trigger ezDirectoryWatcherAction::Modified events.
+      Creates = EZ_BIT(1),        ///< Watch for newly created files. Will trigger ezDirectoryWatcherAction::Added events.
+      Deletes = EZ_BIT(2),        ///< Watch for deleted files. Will trigger ezDirectoryWatcherAction::Removed events.
+      Renames = EZ_BIT(3),        ///< Watch for renames. Will trigger ezDirectoryWatcherAction::RenamedOldName and ezDirectoryWatcherAction::RenamedNewName events.
       Subdirectories = EZ_BIT(4), ///< Watch files in subdirectories recursively.
     };
 
@@ -60,7 +60,12 @@ public:
   };
 
   ezDirectoryWatcher();
+  ezDirectoryWatcher(const ezDirectoryWatcher&) = delete;
+  ezDirectoryWatcher(ezDirectoryWatcher&&) noexcept = delete;
   ~ezDirectoryWatcher();
+
+  ezDirectoryWatcher& operator=(const ezDirectoryWatcher&) = delete;
+  ezDirectoryWatcher& operator=(ezDirectoryWatcher&&) noexcept = delete;
 
   /// \brief
   ///   Opens the directory at \p absolutePath for watching. \p whatToWatch controls what exactly should be watched.

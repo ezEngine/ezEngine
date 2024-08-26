@@ -94,5 +94,3 @@ bool ezGALRenderingSetup::operator!=(const ezGALRenderingSetup& other) const
 {
   return !(*this == other);
 }
-
-

@@ -34,6 +34,7 @@ Q_SIGNALS:
 private Q_SLOTS:
   void on_LinePosition_editingFinished();
   void on_AddEventButton_clicked();
+  void on_InsertEventButton_clicked();
   void onDeleteControlPoints();
   void onDoubleClick(double scenePosX, double epsilon);
   void onMoveControlPoints(double x);
@@ -57,4 +58,3 @@ private:
   QPointF m_ContextMenuScenePos;
   ezEventSet m_EventSet;
 };
-

@@ -8,6 +8,17 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(APPLICATION ${PROJECT_NAME})
 
+if(EZ_CMAKE_PLATFORM_ANDROID)
+#TODO: Add actual packaging code. This is done in PRE_BUILD so that it happens before the
+#apk gen steps that happen in POST_BUILD and which are already done via ez_create_target. 
+add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${EZ_ROOT}/Data/UnitTests/CoreTest/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/UnitTests/CoreTest/)
+add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${EZ_ROOT}/Data/Tools/ezEditor/Typescript/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/Tools/ezEditor/Typescript/)
+endif()  
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   TestFramework

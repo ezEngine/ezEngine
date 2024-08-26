@@ -5,7 +5,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
 {
   BeginFrame();
-  BeginPass("RendererTest");
+  BeginCommands("RendererTest");
 
   ezColor clear(0, 0, 0, 0);
   BeginRendering(clear);
@@ -14,7 +14,7 @@ ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
 
   EZ_TEST_LINE_IMAGE(0, 150);
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < 0 ? ezTestAppRun::Continue : ezTestAppRun::Quit;

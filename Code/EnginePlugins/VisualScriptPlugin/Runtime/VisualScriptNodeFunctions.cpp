@@ -8,40 +8,40 @@
 using ExecResult = ezVisualScriptGraphDescription::ExecResult;
 using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*)(ezVisualScriptDataType::Enum dataType);
 
-#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                               \
-  ezVisualScriptGraphDescription::ExecuteFunction EZ_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
-  {                                                                                                                   \
-    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                        \
-      nullptr, /* Invalid*/                                                                                           \
-      &funcName<bool>,                                                                                                \
-      &funcName<ezUInt8>,                                                                                             \
-      &funcName<ezInt32>,                                                                                             \
-      &funcName<ezInt64>,                                                                                             \
-      &funcName<float>,                                                                                               \
-      &funcName<double>,                                                                                              \
-      &funcName<ezColor>,                                                                                             \
-      &funcName<ezVec3>,                                                                                              \
-      &funcName<ezQuat>,                                                                                              \
-      &funcName<ezTransform>,                                                                                         \
-      &funcName<ezTime>,                                                                                              \
-      &funcName<ezAngle>,                                                                                             \
-      &funcName<ezString>,                                                                                            \
-      &funcName<ezHashedString>,                                                                                      \
-      &funcName<ezGameObjectHandle>,                                                                                  \
-      &funcName<ezComponentHandle>,                                                                                   \
-      &funcName<ezTypedPointer>,                                                                                      \
-      &funcName<ezVariant>,                                                                                           \
-      &funcName<ezVariantArray>,                                                                                      \
-      &funcName<ezVariantDictionary>,                                                                                 \
-      &funcName<ezScriptCoroutineHandle>,                                                                             \
-    };                                                                                                                \
-                                                                                                                      \
-    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                     \
-    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                     \
-      return functionTable[dataType];                                                                                 \
-                                                                                                                      \
-    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                     \
-    return nullptr;                                                                                                   \
+#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                                  \
+  ezVisualScriptGraphDescription::ExecuteFunction EZ_PP_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
+  {                                                                                                                      \
+    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                           \
+      nullptr, /* Invalid*/                                                                                              \
+      &funcName<bool>,                                                                                                   \
+      &funcName<ezUInt8>,                                                                                                \
+      &funcName<ezInt32>,                                                                                                \
+      &funcName<ezInt64>,                                                                                                \
+      &funcName<float>,                                                                                                  \
+      &funcName<double>,                                                                                                 \
+      &funcName<ezColor>,                                                                                                \
+      &funcName<ezVec3>,                                                                                                 \
+      &funcName<ezQuat>,                                                                                                 \
+      &funcName<ezTransform>,                                                                                            \
+      &funcName<ezTime>,                                                                                                 \
+      &funcName<ezAngle>,                                                                                                \
+      &funcName<ezString>,                                                                                               \
+      &funcName<ezHashedString>,                                                                                         \
+      &funcName<ezGameObjectHandle>,                                                                                     \
+      &funcName<ezComponentHandle>,                                                                                      \
+      &funcName<ezTypedPointer>,                                                                                         \
+      &funcName<ezVariant>,                                                                                              \
+      &funcName<ezVariantArray>,                                                                                         \
+      &funcName<ezVariantDictionary>,                                                                                    \
+      &funcName<ezScriptCoroutineHandle>,                                                                                \
+    };                                                                                                                   \
+                                                                                                                         \
+    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                        \
+    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                        \
+      return functionTable[dataType];                                                                                    \
+                                                                                                                         \
+    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                        \
+    return nullptr;                                                                                                      \
   }
 
 template <typename T>
@@ -254,7 +254,7 @@ namespace
         return ExecResult::Error();
       }
 
-      pCoroutine->Start(args);
+      pCoroutine->StartWithVarargs(args);
 
       inout_context.SetCurrentCoroutine(pCoroutine);
     }
@@ -658,6 +658,29 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IsValid);
 
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Select(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
+
+    if constexpr (std::is_same_v<T, ezTypedPointer>)
+    {
+      ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(1));
+      ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(2));
+      ezTypedPointer res = bCondition ? a : b;
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), res.m_pObject, res.m_pType);
+    }
+    else
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
+      inout_context.SetData(node.GetOutputDataOffset(0), bCondition ? a : b);
+    }
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Select);
+
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
@@ -833,6 +856,58 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Div);
 
+  static ExecResult NodeFunction_Builtin_Expression(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto pModule = GetScriptModule(inout_context);
+    if (pModule == nullptr)
+      return ExecResult::Error();
+
+    static ezHashedString sStream = ezMakeHashedString("VsStream");
+
+    int iDummy = 0;
+    ezHybridArray<ezProcessingStream, 8> inputStreams;
+    for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
+    {
+      auto dataOffset = node.GetInputDataOffset(i);
+
+      ezTypedPointer ptr;
+      if (dataOffset.IsConstant())
+      {
+        ptr.m_pObject = &iDummy;
+      }
+      else
+      {
+        ptr = inout_context.GetPointerData(dataOffset);
+      }
+
+      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+
+      inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+    }
+
+    ezHybridArray<ezProcessingStream, 8> outputStreams;
+    for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
+    {
+      auto dataOffset = node.GetOutputDataOffset(i);
+      ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
+
+      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+
+      outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+    }
+
+    auto& userData = node.GetUserData<NodeUserData_Expression>();
+    if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, ezExpression::GlobalData(), ezExpressionVM::Flags::ScalarizeStreams).Failed())
+    {
+      ezLog::Error("Visual script expression execution failed");
+      return ExecResult::Error();
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
   template <typename T>
@@ -882,7 +957,7 @@ namespace
     NumberType res = 0;
     if constexpr (std::is_same_v<T, bool>)
     {
-      res = inout_context.GetData<T>(dataOffset) ? 1 : 0;
+      res = inout_context.GetData<T>(dataOffset) ? NumberType(1) : NumberType(0);
     }
     else if constexpr (std::is_same_v<T, ezUInt8> ||
                        std::is_same_v<T, ezInt32> ||
@@ -905,11 +980,11 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                              \
-  template <typename T>                                                                                                                                        \
-  static ExecResult EZ_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
-  {                                                                                                                                                            \
-    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                           \
+#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                                 \
+  template <typename T>                                                                                                                                           \
+  static ExecResult EZ_PP_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
+  {                                                                                                                                                               \
+    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                              \
   }
 
   MAKE_TONUMBER_EXEC_FUNC(ezUInt8, Byte);
@@ -934,7 +1009,7 @@ namespace
                   std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      sb.Format("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
       s = sb;
     }
     else if constexpr (std::is_same_v<T, ezString>)
@@ -955,13 +1030,12 @@ namespace
   static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
-    auto& params = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
 
     ezHybridArray<ezString, 12> stringStorage;
-    stringStorage.Reserve(params.GetCount());
-    for (auto& param : params)
+    stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
+    for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
     {
-      stringStorage.PushBack(param.ConvertTo<ezString>());
+      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
     }
 
     ezHybridArray<ezStringView, 12> stringViews;
@@ -989,7 +1063,7 @@ namespace
                   std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      sb.Format("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
       s = sb;
     }
     else if constexpr (std::is_same_v<T, ezString>)
@@ -1092,10 +1166,31 @@ namespace
   static ExecResult NodeFunction_Builtin_Array_GetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
-    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
-    inout_context.SetData(node.GetOutputDataOffset(0), a[uiIndex]);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), a[iIndex]);
+    }
+    else
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), ezVariant());
+    }
 
     return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_SetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a[iIndex] = inout_context.GetDataAsVariant(node.GetInputDataOffset(2), nullptr);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::SetElement: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1104,6 +1199,90 @@ namespace
     inout_context.SetData<int>(node.GetOutputDataOffset(0), a.GetCount());
 
     return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Clear(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    a.Clear();
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_IsEmpty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.IsEmpty());
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Contains(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    inout_context.SetData<bool>(node.GetOutputDataOffset(0), a.Contains(element));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_IndexOf(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    ezUInt32 uiStartIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+
+    ezUInt32 uiIndex = a.IndexOf(element, uiStartIndex);
+    inout_context.SetData<int>(node.GetOutputDataOffset(0), uiIndex == ezInvalidIndex ? -1 : int(uiIndex));
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Insert(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(2));
+    if (iIndex >= 0 && iIndex <= int(a.GetCount()))
+    {
+      a.InsertAt(iIndex, element);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::Insert: Index '{}' is out of bounds. Valid range is [0, {}].", iIndex, a.GetCount());
+    return ExecResult::Error();
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_PushBack(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    a.PushBack(element);
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_Remove(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariant& element = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+    a.RemoveAndCopy(element);
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_RemoveAt(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    int iIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    if (iIndex >= 0 && iIndex < int(a.GetCount()))
+    {
+      a.RemoveAtAndCopy(iIndex);
+      return ExecResult::RunNext(0);
+    }
+
+    ezLog::Error("Visual script Array::RemoveAt: Index '{}' is out of bounds. Valid range is [0, {}).", iIndex, a.GetCount());
+    return ExecResult::Error();
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -1246,48 +1425,48 @@ namespace
   };
 
   static ExecuteFunctionContext s_TypeToExecuteFunctions[] = {
-    {},                                                   // Invalid,
-    {},                                                   // EntryCall,
-    {},                                                   // EntryCall_Coroutine,
-    {},                                                   // MessageHandler,
-    {},                                                   // MessageHandler_Coroutine,
-    {&NodeFunction_ReflectedFunction},                    // ReflectedFunction,
-    {nullptr, &NodeFunction_GetReflectedProperty_Getter}, // GetReflectedProperty,
-    {nullptr, &NodeFunction_SetReflectedProperty_Getter}, // SetReflectedProperty,
-    {&NodeFunction_InplaceCoroutine},                     // InplaceCoroutine,
-    {&NodeFunction_GetScriptOwner},                       // GetScriptOwner,
-    {&NodeFunction_SendMessage},                          // SendMessage,
+    {},                                                        // Invalid,
+    {},                                                        // EntryCall,
+    {},                                                        // EntryCall_Coroutine,
+    {},                                                        // MessageHandler,
+    {},                                                        // MessageHandler_Coroutine,
+    {&NodeFunction_ReflectedFunction},                         // ReflectedFunction,
+    {nullptr, &NodeFunction_GetReflectedProperty_Getter},      // GetReflectedProperty,
+    {nullptr, &NodeFunction_SetReflectedProperty_Getter},      // SetReflectedProperty,
+    {&NodeFunction_InplaceCoroutine},                          // InplaceCoroutine,
+    {&NodeFunction_GetScriptOwner},                            // GetScriptOwner,
+    {&NodeFunction_SendMessage},                               // SendMessage,
 
-    {}, // FirstBuiltin,
+    {},                                                        // FirstBuiltin,
 
-    {},                                                  // Builtin_Constant,
-    {},                                                  // Builtin_GetVariable,
-    {nullptr, &NodeFunction_Builtin_SetVariable_Getter}, // Builtin_SetVariable,
-    {nullptr, &NodeFunction_Builtin_IncVariable_Getter}, // Builtin_IncVariable,
-    {nullptr, &NodeFunction_Builtin_DecVariable_Getter}, // Builtin_DecVariable,
+    {},                                                        // Builtin_Constant,
+    {},                                                        // Builtin_GetVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_SetVariable,
+    {nullptr, &NodeFunction_Builtin_IncVariable_Getter},       // Builtin_IncVariable,
+    {nullptr, &NodeFunction_Builtin_DecVariable_Getter},       // Builtin_DecVariable,
 
-    {&NodeFunction_Builtin_Branch},                 // Builtin_Branch,
-    {nullptr, &NodeFunction_Builtin_Switch_Getter}, // Builtin_Switch,
-    {},                                             // Builtin_WhileLoop,
-    {},                                             // Builtin_ForLoop,
-    {},                                             // Builtin_ForEachLoop,
-    {},                                             // Builtin_ReverseForEachLoop,
-    {},                                             // Builtin_Break,
-    {},                                             // Builtin_Jump,
+    {&NodeFunction_Builtin_Branch},                            // Builtin_Branch,
+    {nullptr, &NodeFunction_Builtin_Switch_Getter},            // Builtin_Switch,
+    {},                                                        // Builtin_WhileLoop,
+    {},                                                        // Builtin_ForLoop,
+    {},                                                        // Builtin_ForEachLoop,
+    {},                                                        // Builtin_ReverseForEachLoop,
+    {},                                                        // Builtin_Break,
+    {},                                                        // Builtin_Jump,
 
-    {&NodeFunction_Builtin_And},                     // Builtin_And,
-    {&NodeFunction_Builtin_Or},                      // Builtin_Or,
-    {&NodeFunction_Builtin_Not},                     // Builtin_Not,
-    {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
-    {},                                              // Builtin_CompareExec,
-    {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
-    {},                                              // Builtin_Select,
+    {&NodeFunction_Builtin_And},                               // Builtin_And,
+    {&NodeFunction_Builtin_Or},                                // Builtin_Or,
+    {&NodeFunction_Builtin_Not},                               // Builtin_Not,
+    {nullptr, &NodeFunction_Builtin_Compare_Getter},           // Builtin_Compare,
+    {},                                                        // Builtin_CompareExec,
+    {nullptr, &NodeFunction_Builtin_IsValid_Getter},           // Builtin_IsValid,
+    {nullptr, &NodeFunction_Builtin_Select_Getter},            // Builtin_Select,
 
-    {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
-    {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
-    {nullptr, &NodeFunction_Builtin_Mul_Getter}, // Builtin_Multiply,
-    {nullptr, &NodeFunction_Builtin_Div_Getter}, // Builtin_Divide,
-    {},                                          // Builtin_Expression,
+    {nullptr, &NodeFunction_Builtin_Add_Getter},               // Builtin_Add,
+    {nullptr, &NodeFunction_Builtin_Sub_Getter},               // Builtin_Subtract,
+    {nullptr, &NodeFunction_Builtin_Mul_Getter},               // Builtin_Multiply,
+    {nullptr, &NodeFunction_Builtin_Div_Getter},               // Builtin_Divide,
+    {&NodeFunction_Builtin_Expression},                        // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
     {nullptr, &NodeFunction_Builtin_ToByte_Getter},            // Builtin_ToByte,
@@ -1301,29 +1480,29 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
 
-    {&NodeFunction_Builtin_MakeArray},        // Builtin_MakeArray
-    {&NodeFunction_Builtin_Array_GetElement}, // Builtin_Array_GetElement,
-    {},                                       // Builtin_Array_SetElement,
-    {&NodeFunction_Builtin_Array_GetCount},   // Builtin_Array_GetCount,
-    {},                                       // Builtin_Array_IsEmpty,
-    {},                                       // Builtin_Array_Clear,
-    {},                                       // Builtin_Array_Contains,
-    {},                                       // Builtin_Array_IndexOf,
-    {},                                       // Builtin_Array_Insert,
-    {},                                       // Builtin_Array_PushBack,
-    {},                                       // Builtin_Array_Remove,
-    {},                                       // Builtin_Array_RemoveAt,
+    {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
+    {&NodeFunction_Builtin_Array_GetElement},                  // Builtin_Array_GetElement,
+    {&NodeFunction_Builtin_Array_SetElement},                  // Builtin_Array_SetElement,
+    {&NodeFunction_Builtin_Array_GetCount},                    // Builtin_Array_GetCount,
+    {&NodeFunction_Builtin_Array_IsEmpty},                     // Builtin_Array_IsEmpty,
+    {&NodeFunction_Builtin_Array_Clear},                       // Builtin_Array_Clear,
+    {&NodeFunction_Builtin_Array_Contains},                    // Builtin_Array_Contains,
+    {&NodeFunction_Builtin_Array_IndexOf},                     // Builtin_Array_IndexOf,
+    {&NodeFunction_Builtin_Array_Insert},                      // Builtin_Array_Insert,
+    {&NodeFunction_Builtin_Array_PushBack},                    // Builtin_Array_PushBack,
+    {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
+    {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 
-    {&NodeFunction_Builtin_TryGetComponentOfBaseType}, // Builtin_TryGetComponentOfBaseType
+    {&NodeFunction_Builtin_TryGetComponentOfBaseType},         // Builtin_TryGetComponentOfBaseType
 
-    {&NodeFunction_Builtin_StartCoroutine},    // Builtin_StartCoroutine,
-    {&NodeFunction_Builtin_StopCoroutine},     // Builtin_StopCoroutine,
-    {&NodeFunction_Builtin_StopAllCoroutines}, // Builtin_StopAllCoroutines,
-    {&NodeFunction_Builtin_WaitForX<true>},    // Builtin_WaitForAll,
-    {&NodeFunction_Builtin_WaitForX<false>},   // Builtin_WaitForAny,
-    {&NodeFunction_Builtin_Yield},             // Builtin_Yield,
+    {&NodeFunction_Builtin_StartCoroutine},                    // Builtin_StartCoroutine,
+    {&NodeFunction_Builtin_StopCoroutine},                     // Builtin_StopCoroutine,
+    {&NodeFunction_Builtin_StopAllCoroutines},                 // Builtin_StopAllCoroutines,
+    {&NodeFunction_Builtin_WaitForX<true>},                    // Builtin_WaitForAll,
+    {&NodeFunction_Builtin_WaitForX<false>},                   // Builtin_WaitForAny,
+    {&NodeFunction_Builtin_Yield},                             // Builtin_Yield,
 
-    {}, // LastBuiltin,
+    {},                                                        // LastBuiltin,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_TypeToExecuteFunctions) == ezVisualScriptNodeDescription::Type::Count);

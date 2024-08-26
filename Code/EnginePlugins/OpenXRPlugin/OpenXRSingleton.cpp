@@ -32,10 +32,10 @@
 
 #include <vector>
 
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::None == 1);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::TwoSamples == 2);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::FourSamples == 4);
-EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::EightSamples == 8);
+static_assert(ezGALMSAASampleCount::None == 1);
+static_assert(ezGALMSAASampleCount::TwoSamples == 2);
+static_assert(ezGALMSAASampleCount::FourSamples == 4);
+static_assert(ezGALMSAASampleCount::EightSamples == 8);
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 
@@ -98,8 +98,10 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -145,8 +147,10 @@ XrResult ezOpenXR::SelectLayers(ezHybridArray<const char*, 6>& layers)
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(layerCount, &layerCount, layerProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult {
-    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop) { return ezStringUtils::IsEqual(prop.layerName, layerName); });
+  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult
+  {
+    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop)
+      { return ezStringUtils::IsEqual(prop.layerName, layerName); });
     if (it != end(layerProperties))
     {
       layers.PushBack(layerName);
@@ -320,7 +324,9 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
     return {};
   }
 
-  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
+  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle
+    { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocator* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
   EZ_SCOPE_EXIT(ezGALXRSwapChain::SetFactoryMethod({}););
 
   m_hSwapChain = ezGALXRSwapChain::Create(this);
@@ -354,7 +360,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
   pView->SetSwapChain(m_hSwapChain);
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
-
 
   return std::move(pActor);
 }
@@ -485,7 +490,7 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->CreateActions(m_pSession, m_pSceneSpace), DeinitSession);
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->AttachSessionActionSets(m_pSession), DeinitSession);
 
-  m_GALdeviceEventsId = ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
+  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
   if (m_Extensions.m_bSpatialAnchor)
@@ -512,7 +517,7 @@ void ezOpenXR::DeinitSession()
   m_pAnchors = nullptr;
   if (m_GALdeviceEventsId != 0)
   {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(m_GALdeviceEventsId);
+    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
   }
 
   if (m_pSceneSpace)
@@ -729,11 +734,13 @@ void ezOpenXR::UpdatePoses()
   }
 
   // Needed as workaround for broken XR runtimes.
-  auto FovIsNull = [](const XrFovf& fov) {
+  auto FovIsNull = [](const XrFovf& fov)
+  {
     return fov.angleLeft == 0.0f && fov.angleRight == 0.0f && fov.angleDown == 0.0f && fov.angleUp == 0.0f;
   };
 
-  auto IdentityFov = [](XrFovf& fov) {
+  auto IdentityFov = [](XrFovf& fov)
+  {
     fov.angleLeft = -ezAngle::MakeFromDegree(45.0f).GetRadian();
     fov.angleRight = ezAngle::MakeFromDegree(45.0f).GetRadian();
     fov.angleUp = ezAngle::MakeFromDegree(45.0f).GetRadian();
@@ -776,7 +783,8 @@ void ezOpenXR::UpdateCamera()
   {
     m_bProjectionChanged = false;
     const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
-    auto CreateProjection = [](const XrView& view, ezCamera* cam) {
+    auto CreateProjection = [](const XrView& view, ezCamera* cam)
+    {
       return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleDown)) * cam->GetNearPlane(),
         ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
     };
@@ -890,6 +898,11 @@ void ezOpenXR::BeginFrame()
   {
     pView->UpdateViewData(ezRenderWorld::GetDataIndexForRendering());
   }
+
+  if (m_pCompanion)
+  {
+    m_pCompanion->CompanionViewBeginFrame();
+  }
   m_bRenderInProgress = true;
 }
 
@@ -912,7 +925,7 @@ void ezOpenXR::Present()
 
   if (m_pCompanion)
   {
-    m_pCompanion->RenderCompanionView();
+    m_pCompanion->CompanionViewEndFrame();
     pSwapChain->PresentRenderTarget();
   }
 }
@@ -932,34 +945,35 @@ void ezOpenXR::EndFrame()
 
   if (!m_bRenderInProgress || !pSwapChain)
     return;
-
-  EZ_PROFILE_SCOPE("OpenXrEndFrame");
-  for (uint32_t i = 0; i < 2; i++)
+  /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
   {
-    m_ProjectionLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW};
-    m_ProjectionLayerViews[i].pose = m_Views[i].pose;
-    m_ProjectionLayerViews[i].fov = m_Views[i].fov;
-    m_ProjectionLayerViews[i].subImage.swapchain = pSwapChain->GetColorSwapchain();
-    m_ProjectionLayerViews[i].subImage.imageRect.offset = {0, 0};
-    m_ProjectionLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
-    m_ProjectionLayerViews[i].subImage.imageArrayIndex = i;
-
-    if (m_Extensions.m_bDepthComposition && m_pCameraToSynchronize)
+    EZ_PROFILE_SCOPE("OpenXrEndFrame");
+    for (uint32_t i = 0; i < 2; i++)
     {
-      m_DepthLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR};
-      m_DepthLayerViews[i].minDepth = 0;
-      m_DepthLayerViews[i].maxDepth = 1;
-      m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
-      m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
-      m_DepthLayerViews[i].subImage.swapchain = pSwapChain->GetDepthSwapchain();
-      m_DepthLayerViews[i].subImage.imageRect.offset = {0, 0};
-      m_DepthLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
-      m_DepthLayerViews[i].subImage.imageArrayIndex = i;
+      m_ProjectionLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW};
+      m_ProjectionLayerViews[i].pose = m_Views[i].pose;
+      m_ProjectionLayerViews[i].fov = m_Views[i].fov;
+      m_ProjectionLayerViews[i].subImage.swapchain = pSwapChain->GetColorSwapchain();
+      m_ProjectionLayerViews[i].subImage.imageRect.offset = {0, 0};
+      m_ProjectionLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
+      m_ProjectionLayerViews[i].subImage.imageArrayIndex = i;
 
-      m_ProjectionLayerViews[i].next = &m_DepthLayerViews[i];
+      if (m_Extensions.m_bDepthComposition && m_pCameraToSynchronize)
+      {
+        m_DepthLayerViews[i] = {XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR};
+        m_DepthLayerViews[i].minDepth = 0;
+        m_DepthLayerViews[i].maxDepth = 1;
+        m_DepthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
+        m_DepthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
+        m_DepthLayerViews[i].subImage.swapchain = pSwapChain->GetDepthSwapchain();
+        m_DepthLayerViews[i].subImage.imageRect.offset = {0, 0};
+        m_DepthLayerViews[i].subImage.imageRect.extent = {(ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height};
+        m_DepthLayerViews[i].subImage.imageArrayIndex = i;
+
+        m_ProjectionLayerViews[i].next = &m_DepthLayerViews[i];
+      }
     }
   }
-
 
   m_Layer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
   m_Layer.space = GetBaseSpace();

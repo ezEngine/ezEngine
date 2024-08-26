@@ -163,7 +163,8 @@ retry:
     newCfg.m_sName = name.toUtf8().data();
   }
 
-  m_Config.m_PathSearchConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
+  m_Config.m_PathSearchConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool
+    { return lhs.m_sName < rhs.m_sName; });
 
   FillPathSearchTypeComboBox();
   SelectedPathCfg->setCurrentText(name);
@@ -173,7 +174,7 @@ void ezQtAiProjectSettingsDlg::on_RemovePathCfg_clicked()
 {
   int cur = SelectedPathCfg->currentIndex();
 
-  if (cur < 0 || cur >= m_Config.m_PathSearchConfigs.GetCount())
+  if (cur < 0 || cur >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
 
   if (ezQtUiServices::MessageBoxQuestion("Remove the current Path Search Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
@@ -200,7 +201,7 @@ void ezQtAiProjectSettingsDlg::ApplyPathConfig(int index)
   m_iSelectedPathSearchConfig = index;
   PathConfig->setRowCount(0);
 
-  if (index < 0 || index >= m_Config.m_PathSearchConfigs.GetCount())
+  if (index < 0 || index >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
 
   const auto& ps = m_Config.m_PathSearchConfigs[index];
@@ -251,7 +252,7 @@ void ezQtAiProjectSettingsDlg::FillPathSearchTypeComboBox()
 
 void ezQtAiProjectSettingsDlg::RetrievePathConfig(int index)
 {
-  if (index < 0 || index >= m_Config.m_PathSearchConfigs.GetCount())
+  if (index < 0 || index >= (int)m_Config.m_PathSearchConfigs.GetCount())
     return;
 
   auto& cfg = m_Config.m_PathSearchConfigs[index];
@@ -307,7 +308,8 @@ retry:
     newCfg.m_sName = name.toUtf8().data();
   }
 
-  m_Config.m_NavmeshConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
+  m_Config.m_NavmeshConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool
+    { return lhs.m_sName < rhs.m_sName; });
 
   FillNavmeshTypeComboBox();
   SelectedMeshCfg->setCurrentText(name);
@@ -317,7 +319,7 @@ void ezQtAiProjectSettingsDlg::on_RemoveMeshCfg_clicked()
 {
   int cur = SelectedMeshCfg->currentIndex();
 
-  if (cur < 0 || cur >= m_Config.m_NavmeshConfigs.GetCount())
+  if (cur < 0 || cur >= (int)m_Config.m_NavmeshConfigs.GetCount())
     return;
 
   if (ezQtUiServices::MessageBoxQuestion("Remove the current Navmesh Config?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
@@ -343,7 +345,7 @@ void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
 {
   m_iSelectedNavmeshConfig = index;
 
-  if (index < 0 || index >= m_Config.m_NavmeshConfigs.GetCount())
+  if (index < 0 || index >= (int)m_Config.m_NavmeshConfigs.GetCount())
   {
     NavmeshCfg->setEnabled(false);
     return;
@@ -353,6 +355,9 @@ void ezQtAiProjectSettingsDlg::ApplyNavmeshConfig(int index)
 
   const auto& ps = m_Config.m_NavmeshConfigs[index];
 
+  NumSectorsX->setValue(ps.m_uiNumSectorsX);
+  NumSectorsY->setValue(ps.m_uiNumSectorsY);
+  SectorSizeXY->setValue(ps.m_fSectorSize);
   NavCellSize->setValue(ps.m_fCellSize);
   NavCellHeight->setValue(ps.m_fCellHeight);
   NavAgentRadius->setValue(ps.m_fAgentRadius);
@@ -397,12 +402,16 @@ void ezQtAiProjectSettingsDlg::FillNavmeshTypeComboBox()
 
 void ezQtAiProjectSettingsDlg::RetrieveNavmeshConfig(int index)
 {
-  if (index < 0 || index >= m_Config.m_NavmeshConfigs.GetCount())
+  if (index < 0 || index >= (int)m_Config.m_NavmeshConfigs.GetCount())
     return;
 
   auto& cfg = m_Config.m_NavmeshConfigs[index];
 
   cfg.m_uiCollisionLayer = (ezUInt32)CollisionLayer->currentData(Qt::UserRole).toInt();
+
+  cfg.m_uiNumSectorsX = NumSectorsX->value();
+  cfg.m_uiNumSectorsY = NumSectorsY->value();
+  cfg.m_fSectorSize = SectorSizeXY->value();
 
   cfg.m_fCellSize = NavCellSize->value();
   cfg.m_fCellHeight = NavCellHeight->value();

@@ -22,6 +22,12 @@ public:
   ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
   ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
   ezEnum<ezMeshBoneWeigthPrecision> m_BoneWeightPrecision;
+  ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
+
+  bool m_bSimplifyMesh = false;
+  bool m_bAggressiveSimplification = false;
+  ezUInt8 m_uiMeshSimplification = 50;
+  ezUInt8 m_uiMaxSimplificationError = 5;
 };

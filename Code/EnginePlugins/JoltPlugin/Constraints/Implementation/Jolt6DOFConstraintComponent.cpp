@@ -388,4 +388,3 @@ void ezJolt6DOFConstraintComponent::SetTwistDamping(float f)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_Jolt6DOFConstraintComponent);
-

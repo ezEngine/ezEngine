@@ -1,11 +1,11 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <QItemDelegate>
 #include <QListView>
-#include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 
 class ezQtIconViewDelegate;
 
@@ -21,11 +21,19 @@ public:
   void SetIconScale(ezInt32 iIconSizePercentage);
   ezInt32 GetIconScale() const;
 
+  void dragEnterEvent(QDragEnterEvent* pEvent) override;
+  void dragMoveEvent(QDragMoveEvent* pEvent) override;
+  void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
+  void dropEvent(QDropEvent* pEvent) override;
+
 Q_SIGNALS:
   void ViewZoomed(ezInt32 iIconSizePercentage);
 
 protected:
   virtual void wheelEvent(QWheelEvent* pEvent) override;
+  virtual void mousePressEvent(QMouseEvent* pEvent) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent* pEvent) override;
+  virtual void mouseMoveEvent(QMouseEvent* pEvent) override;
 
 private:
   bool m_bDialogMode;

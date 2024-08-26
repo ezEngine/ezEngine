@@ -215,4 +215,3 @@ private:
 private:
   QPointer<ezQtSliderWidgetAction> m_pQtAction;
 };
-

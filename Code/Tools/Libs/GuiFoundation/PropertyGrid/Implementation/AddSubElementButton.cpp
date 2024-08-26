@@ -139,32 +139,17 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     }
     m_SupportedTypes.Insert(pProp->GetSpecificType());
 
-    // remove all types that are marked as hidden
-    for (auto it = m_SupportedTypes.GetIterator(); it.IsValid();)
-    {
-      if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      {
-        it = m_SupportedTypes.Remove(it);
-        continue;
-      }
-
-      if (!s_bShowInDevelopmentFeatures)
-      {
-        if (auto pInDev = it.Key()->GetAttributeByType<ezInDevelopmentAttribute>())
-        {
-          it = m_SupportedTypes.Remove(it);
-          continue;
-        }
-      }
-
-      ++it;
-    }
-
-    // Make category-sorted array of types
+    // Make category-sorted array of types and skip all abstract, hidden or in development types
     ezDynamicArray<const ezRTTI*> supportedTypes;
     for (const ezRTTI* pRtti : m_SupportedTypes)
     {
       if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+        continue;
+
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        continue;
+
+      if (!s_bShowInDevelopmentFeatures && pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
         continue;
 
       supportedTypes.PushBack(pRtti);
@@ -262,14 +247,16 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
     if (m_pSearchableMenu != nullptr)
     {
-      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant) {
+      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+        {
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
         OnAction(pRtti);
         m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
-        [this](const QString& sText) { s_sLastMenuSearch = sText.toUtf8().data(); });
+        [this](const QString& sText)
+        { s_sLastMenuSearch = sText.toUtf8().data(); });
 
       m_pMenu->addAction(m_pSearchableMenu);
 
@@ -406,24 +393,40 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   {
     for (auto& item : m_Items)
     {
-      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
-      if (res.m_Result.Failed())
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
+      {
+        res = ezStatus("Maximum number of allowed elements reached.");
         break;
+      }
+      else
+      {
+        res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
+        if (res.m_Result.Failed())
+          break;
+      }
     }
   }
   else if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::Class))
   {
     for (auto& item : m_Items)
     {
-      ezUuid guid;
-      res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
-      if (res.m_Result.Failed())
+      if (m_uiMaxElements > 0 && m_pObjectAccessor->GetCount(item.m_pObject, m_pProp) >= (int)m_uiMaxElements)
+      {
+        res = ezStatus("Maximum number of allowed elements reached.");
         break;
+      }
+      else
+      {
+        ezUuid guid;
+        res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
+        if (res.m_Result.Failed())
+          break;
 
-      ezHybridArray<ezPropertySelection, 1> selection;
-      selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
-      ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
-      defaultState.RevertObject().AssertSuccess();
+        ezHybridArray<ezPropertySelection, 1> selection;
+        selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
+        ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
+        defaultState.RevertObject().AssertSuccess();
+      }
     }
   }
 

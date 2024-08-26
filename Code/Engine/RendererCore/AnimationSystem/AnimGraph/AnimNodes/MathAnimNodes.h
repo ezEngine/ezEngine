@@ -67,9 +67,9 @@ public:
   ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
 
 private:
-  ezAnimGraphNumberInputPin m_InNumber;    // [ property ]
-  ezAnimGraphNumberInputPin m_InReference; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;    // [ property ]
+  ezAnimGraphNumberInputPin m_InNumber;      // [ property ]
+  ezAnimGraphNumberInputPin m_InReference;   // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;      // [ property ]
 };
 
 
@@ -103,4 +103,40 @@ public:
 private:
   ezAnimGraphBoolInputPin m_InValue;      // [ property ]
   ezAnimGraphNumberOutputPin m_OutNumber; // [ property ]
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezBoolToTriggerAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezBoolToTriggerAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezBoolToNumberAnimNode
+
+public:
+  ezBoolToTriggerAnimNode();
+  ~ezBoolToTriggerAnimNode();
+
+private:
+  ezAnimGraphBoolInputPin m_InValue;        // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
+
+  struct InstanceData
+  {
+    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+  };
 };

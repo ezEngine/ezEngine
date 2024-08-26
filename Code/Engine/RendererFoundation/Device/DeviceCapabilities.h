@@ -13,16 +13,24 @@ struct ezGALResourceFormatSupport
   enum Enum
   {
     None = 0,
-    Sample = EZ_BIT(0),          ///< The format can be sampled as a texture in a shader or in case of integer textures load can be called.
-    Render = EZ_BIT(1),          ///< The format can be used as a render target texture.
-    VertexAttribute = EZ_BIT(2), ///< The format can be used as a vertex attribute.
+    Texture = EZ_BIT(0),         ///< Can be used as a texture and bound to a ezGALShaderResourceType::Texture slot.
+    RenderTarget = EZ_BIT(1),    ///< Can be used as a texture and bound as a render target.
+    TextureRW = EZ_BIT(2),       ///< Can be used as a texture and bound to a ezGALShaderResourceType::TextureRW slot.
+    MSAA2x = EZ_BIT(3),          ///< The format supports 2x MSAA
+    MSAA4x = EZ_BIT(4),          ///< The format supports 4x MSAA
+    MSAA8x = EZ_BIT(5),          ///< The format supports 8x MSAA
+    VertexAttribute = EZ_BIT(6), ///< The format can be used as a vertex attribute.
     Default = 0
   };
 
   struct Bits
   {
-    StorageType Sample : 1;
-    StorageType Render : 1;
+    StorageType Texture : 1;
+    StorageType RenderTarget : 1;
+    StorageType TextureRW : 1;
+    StorageType MSAA2x : 1;
+    StorageType MSAA4x : 1;
+    StorageType MSAA8x : 1;
     StorageType VertexAttribute : 1;
   };
 };
@@ -51,6 +59,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bConservativeRasterization = false;
   bool m_bVertexShaderRenderTargetArrayIndex = false;
   ezUInt16 m_uiMaxConstantBuffers = 0;
+  ezUInt16 m_uiMaxPushConstantsSize = 0;
 
 
   // Texture related capabilities

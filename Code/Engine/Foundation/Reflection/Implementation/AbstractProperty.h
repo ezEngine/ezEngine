@@ -55,9 +55,9 @@ struct ezPropertyFlags
     Bitflags = EZ_BIT(2),     ///< Bitflags property, cast to ezAbstractEnumerationProperty.
     Class = EZ_BIT(3),        ///< A struct or class. All of the above are mutually exclusive.
 
-    Const = EZ_BIT(4),     ///< Property value is const.
-    Reference = EZ_BIT(5), ///< Property value is a reference.
-    Pointer = EZ_BIT(6),   ///< Property value is a pointer.
+    Const = EZ_BIT(4),        ///< Property value is const.
+    Reference = EZ_BIT(5),    ///< Property value is a reference.
+    Pointer = EZ_BIT(6),      ///< Property value is a pointer.
 
     PointerOwner = EZ_BIT(7), ///< This pointer property takes ownership of the passed pointer.
     ReadOnly = EZ_BIT(8),     ///< Can only be read but not modified.
@@ -65,8 +65,8 @@ struct ezPropertyFlags
     Phantom = EZ_BIT(10),     ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used
                               ///< for data driven types, e.g. by the Visual Shader asset.
 
-    VarOut = EZ_BIT(11),   ///< Tag for non-const-ref function parameters to indicate usage 'out'
-    VarInOut = EZ_BIT(12), ///< Tag for non-const-ref function parameters to indicate usage 'inout'
+    VarOut = EZ_BIT(11),      ///< Tag for non-const-ref function parameters to indicate usage 'out'
+    VarInOut = EZ_BIT(12),    ///< Tag for non-const-ref function parameters to indicate usage 'inout'
 
     Default = 0,
     Void = 0
@@ -205,7 +205,7 @@ public:
 protected:
   ezBitflags<ezPropertyFlags> m_Flags;
   const char* m_szPropertyName;
-  ezHybridArray<const ezPropertyAttribute*, 2, ezStaticAllocatorWrapper> m_Attributes; // Do not track RTTI data.
+  ezHybridArray<const ezPropertyAttribute*, 2, ezStaticsAllocatorWrapper> m_Attributes; // Do not track RTTI data.
 };
 
 /// \brief This is the base class for all constant properties that are stored inside the RTTI data.
@@ -302,7 +302,12 @@ public:
   /// \brief Resizes the array to uiCount.
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) const = 0;
 
-  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const { return nullptr; }
+  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const
+  {
+    EZ_IGNORE_UNUSED(pInstance);
+    EZ_IGNORE_UNUSED(uiIndex);
+    return nullptr;
+  }
 };
 
 
@@ -407,7 +412,7 @@ struct ezFunctionParameterTypeResolver<I, R (*)(P...)>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };
@@ -419,7 +424,7 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...)>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };
@@ -431,7 +436,7 @@ struct ezFunctionParameterTypeResolver<I, R (Class::*)(P...) const>
   {
     Arguments = sizeof...(P),
   };
-  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  static_assert(I < Arguments, "I needs to be smaller than the number of function parameters.");
   using ParameterType = typename getArgument<I, P...>::Type;
   using ReturnType = R;
 };

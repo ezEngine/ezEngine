@@ -44,20 +44,20 @@ public:
   ezFogComponent();
   ~ezFogComponent();
 
-  void SetColor(ezColor color); // [ property ]
-  ezColor GetColor() const;     // [ property ]
+  void SetColor(ezColor color);                 // [ property ]
+  ezColor GetColor() const;                     // [ property ]
 
-  void SetDensity(float fDensity); // [ property ]
-  float GetDensity() const;        // [ property ]
+  void SetDensity(float fDensity);              // [ property ]
+  float GetDensity() const;                     // [ property ]
 
-  void SetHeightFalloff(float fHeightFalloff); // [ property ]
-  float GetHeightFalloff() const;              // [ property ]
+  void SetHeightFalloff(float fHeightFalloff);  // [ property ]
+  float GetHeightFalloff() const;               // [ property ]
 
   void SetModulateWithSkyColor(bool bModulate); // [ property ]
   bool GetModulateWithSkyColor() const;         // [ property ]
 
-  void SetSkyDistance(float fDistance); // [ property ]
-  float GetSkyDistance() const;         // [ property ]
+  void SetSkyDistance(float fDistance);         // [ property ]
+  float GetSkyDistance() const;                 // [ property ]
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);

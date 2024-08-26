@@ -22,12 +22,12 @@ public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
-  double m_fNumber = 0.0f; // [ property ]
+  double m_fNumber = 0.0f;                      // [ property ]
 
 private:
-  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber;    // [ property ]
-  ezHashedString m_sBlackboardEntry;       // [ property ]
+  ezAnimGraphTriggerInputPin m_InActivate;      // [ property ]
+  ezAnimGraphNumberInputPin m_InNumber;         // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,8 +55,8 @@ public:
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;      // [ property ]
-  ezAnimGraphNumberOutputPin m_OutNumber; // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
+  ezAnimGraphNumberOutputPin m_OutNumber;       // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,14 +84,14 @@ public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
-  double m_fReferenceValue = 0.0;            // [ property ]
-  ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
+  double m_fReferenceValue = 0.0;               // [ property ]
+  ezEnum<ezComparisonOperator> m_Comparison;    // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;        // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;     // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;         // [ property ]
 
   struct InstanceData
   {
@@ -125,10 +125,10 @@ public:
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;        // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool;       // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
+  ezAnimGraphBoolOutputPin m_OutBool;           // [ property ]
 
   struct InstanceData
   {
@@ -160,12 +160,12 @@ public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
-  bool m_bBool = false; // [ property ]
+  bool m_bBool = false;                         // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;       // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
-  ezAnimGraphBoolInputPin m_InBool;        // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
+  ezAnimGraphTriggerInputPin m_InActivate;      // [ property ]
+  ezAnimGraphBoolInputPin m_InBool;             // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -193,8 +193,8 @@ public:
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezHashedString m_sBlackboardEntry;  // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool; // [ property ]
+  ezHashedString m_sBlackboardEntry;            // [ property ]
+  ezAnimGraphBoolOutputPin m_OutBool;           // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -219,8 +219,8 @@ protected:
   // ezOnBlackboardValuechangedAnimNode
 
 public:
-  void SetBlackboardEntry(const char* szEntry); // [ property ]
-  const char* GetBlackboardEntry() const;       // [ property ]
+  void SetBlackboardEntry(const char* szEntry);    // [ property ]
+  const char* GetBlackboardEntry() const;          // [ property ]
 
 private:
   ezHashedString m_sBlackboardEntry;               // [ property ]

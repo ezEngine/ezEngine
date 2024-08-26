@@ -38,7 +38,12 @@ public:
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
-  [[nodiscard]] static constexpr ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
+  EZ_DECLARE_IF_FLOAT_TYPE
+  [[nodiscard]] static const ezVec2Template<Type>
+  MakeNaN()
+  {
+    return ezVec2Template<Type>(ezMath::NaN<Type>());
+  }
 
   /// \brief Static function that returns a zero-vector.
   [[nodiscard]] static constexpr ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
@@ -79,10 +84,12 @@ public:
   // *** Functions dealing with length ***
 public:
   /// \brief Returns the length of the vector.
+  EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
   /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
+  EZ_DECLARE_IF_FLOAT_TYPE
   ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
@@ -91,16 +98,20 @@ public:
 
   /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
   /// Normalize.
+  EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLengthAndNormalize(); // [tested]
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
+  EZ_DECLARE_IF_FLOAT_TYPE
   const ezVec2Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
+  EZ_DECLARE_IF_FLOAT_TYPE
   void Normalize(); // [tested]
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
+  EZ_DECLARE_IF_FLOAT_TYPE
   ezResult NormalizeIfNotZero(const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0).
@@ -110,6 +121,7 @@ public:
   bool IsZero(Type fEpsilon) const; // [tested]
 
   /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
+  EZ_DECLARE_IF_FLOAT_TYPE
   bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns true, if any of x or y is NaN
@@ -176,12 +188,14 @@ public:
   ///
   /// \note This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
+  EZ_DECLARE_IF_FLOAT_TYPE
   void MakeOrthogonalTo(const ezVec2Template<Type>& vNormal); // [tested]
 
   /// \brief Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
   const ezVec2Template<Type> GetOrthogonalVector() const; // [tested]
 
   /// \brief Returns this vector reflected at vNormal.
+  EZ_DECLARE_IF_FLOAT_TYPE
   const ezVec2Template<Type> GetReflectedVector(const ezVec2Template<Type>& vNormal) const; // [tested]
 };
 

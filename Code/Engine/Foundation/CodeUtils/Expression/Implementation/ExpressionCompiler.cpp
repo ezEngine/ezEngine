@@ -155,7 +155,7 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ref_ast, ezExpressionByt
 
   EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ref_ast, sDebugAstOutputPath));
   EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ref_ast));
-  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ref_ast));
+  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime());
   EZ_SUCCEED_OR_RETURN(AssignRegisters());
   EZ_SUCCEED_OR_RETURN(GenerateByteCode(ref_ast, out_byteCode));
 
@@ -172,6 +172,7 @@ ezResult ezExpressionCompiler::TransformAndOptimizeAST(ezExpressionAST& ast, ezS
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ReplaceVectorInstructions, &ast)));
   DumpAST(ast, sDebugAstOutputPath, "_02_ReplacedVectorInst");
 
+  EZ_SUCCEED_OR_RETURN(ast.ScalarizeInputs());
   EZ_SUCCEED_OR_RETURN(ast.ScalarizeOutputs());
   EZ_SUCCEED_OR_RETURN(TransformASTPreOrder(ast, ezMakeDelegate(&ezExpressionAST::ScalarizeVectorInstructions, &ast)));
   DumpAST(ast, sDebugAstOutputPath, "_03_Scalarized");
@@ -281,7 +282,7 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast)
+ezResult ezExpressionCompiler::UpdateRegisterLifetime()
 {
   ezUInt32 uiNumInstructions = m_NodeInstructions.GetCount();
   for (ezUInt32 uiInstructionIndex = 0; uiInstructionIndex < uiNumInstructions; ++uiInstructionIndex)
@@ -315,7 +316,8 @@ ezResult ezExpressionCompiler::AssignRegisters()
   // https://www2.seas.gwu.edu/~hchoi/teaching/cs160d/linearscan.pdf
 
   // Sort register lifetime by start index
-  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b) { return a.m_uiStart < b.m_uiStart; });
+  m_LiveIntervals.Sort([](const LiveInterval& a, const LiveInterval& b)
+    { return a.m_uiStart < b.m_uiStart; });
 
   // Assign registers
   ezHybridArray<LiveInterval, 64> activeIntervals;
@@ -357,12 +359,32 @@ ezResult ezExpressionCompiler::AssignRegisters()
 
 ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {
-  auto& byteCode = out_byteCode.m_ByteCode;
+  ezHybridArray<ezExpression::StreamDesc, 8> inputs;
+  ezHybridArray<ezExpression::StreamDesc, 8> outputs;
+  ezHybridArray<ezExpression::FunctionDesc, 4> functions;
+
+  m_ByteCode.Clear();
 
   ezUInt32 uiMaxRegisterIndex = 0;
 
   m_InputToIndex.Clear();
+  for (ezUInt32 i = 0; i < ast.m_InputNodes.GetCount(); ++i)
+  {
+    auto& desc = ast.m_InputNodes[i]->m_Desc;
+    m_InputToIndex.Insert(desc.m_sName, i);
+
+    inputs.PushBack(desc);
+  }
+
   m_OutputToIndex.Clear();
+  for (ezUInt32 i = 0; i < ast.m_OutputNodes.GetCount(); ++i)
+  {
+    auto& desc = ast.m_OutputNodes[i]->m_Desc;
+    m_OutputToIndex.Insert(desc.m_sName, i);
+
+    outputs.PushBack(desc);
+  }
+
   m_FunctionToIndex.Clear();
 
   for (auto pCurrentNode : m_NodeInstructions)
@@ -396,42 +418,42 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     {
       auto pUnary = static_cast<const ezExpressionAST::UnaryOperator*>(pCurrentNode);
 
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiTargetRegister);
-      byteCode.PushBack(m_NodeToRegisterIndex[pUnary->m_pOperand]);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiTargetRegister);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pUnary->m_pOperand]);
     }
     else if (ezExpressionAST::NodeType::IsBinary(nodeType))
     {
       auto pBinary = static_cast<const ezExpressionAST::BinaryOperator*>(pCurrentNode);
 
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiTargetRegister);
-      byteCode.PushBack(m_NodeToRegisterIndex[pBinary->m_pLeftOperand]);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiTargetRegister);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pBinary->m_pLeftOperand]);
 
       if (bRightIsConstant)
       {
-        EZ_SUCCEED_OR_RETURN(GenerateConstantByteCode(static_cast<const ezExpressionAST::Constant*>(pBinary->m_pRightOperand), out_byteCode));
+        EZ_SUCCEED_OR_RETURN(GenerateConstantByteCode(static_cast<const ezExpressionAST::Constant*>(pBinary->m_pRightOperand)));
       }
       else
       {
-        byteCode.PushBack(m_NodeToRegisterIndex[pBinary->m_pRightOperand]);
+        m_ByteCode.PushBack(m_NodeToRegisterIndex[pBinary->m_pRightOperand]);
       }
     }
     else if (ezExpressionAST::NodeType::IsTernary(nodeType))
     {
       auto pTernary = static_cast<const ezExpressionAST::TernaryOperator*>(pCurrentNode);
 
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiTargetRegister);
-      byteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pFirstOperand]);
-      byteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pSecondOperand]);
-      byteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pThirdOperand]);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiTargetRegister);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pFirstOperand]);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pSecondOperand]);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pTernary->m_pThirdOperand]);
     }
     else if (ezExpressionAST::NodeType::IsConstant(nodeType))
     {
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiTargetRegister);
-      EZ_SUCCEED_OR_RETURN(GenerateConstantByteCode(static_cast<const ezExpressionAST::Constant*>(pCurrentNode), out_byteCode));
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiTargetRegister);
+      EZ_SUCCEED_OR_RETURN(GenerateConstantByteCode(static_cast<const ezExpressionAST::Constant*>(pCurrentNode)));
     }
     else if (ezExpressionAST::NodeType::IsInput(nodeType))
     {
@@ -439,32 +461,26 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
       ezUInt32 uiInputIndex = 0;
       if (!m_InputToIndex.TryGetValue(desc.m_sName, uiInputIndex))
       {
-        uiInputIndex = out_byteCode.m_Inputs.GetCount();
+        uiInputIndex = inputs.GetCount();
         m_InputToIndex.Insert(desc.m_sName, uiInputIndex);
 
-        out_byteCode.m_Inputs.PushBack(desc);
+        inputs.PushBack(desc);
       }
 
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiTargetRegister);
-      byteCode.PushBack(uiInputIndex);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiTargetRegister);
+      m_ByteCode.PushBack(uiInputIndex);
     }
     else if (ezExpressionAST::NodeType::IsOutput(nodeType))
     {
       auto pOutput = static_cast<const ezExpressionAST::Output*>(pCurrentNode);
       auto& desc = pOutput->m_Desc;
       ezUInt32 uiOutputIndex = 0;
-      if (!m_OutputToIndex.TryGetValue(desc.m_sName, uiOutputIndex))
-      {
-        uiOutputIndex = out_byteCode.m_Outputs.GetCount();
-        m_OutputToIndex.Insert(desc.m_sName, uiOutputIndex);
+      EZ_VERIFY(m_OutputToIndex.TryGetValue(desc.m_sName, uiOutputIndex), "Invalid output '{}'", desc.m_sName);
 
-        out_byteCode.m_Outputs.PushBack(desc);
-      }
-
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiOutputIndex);
-      byteCode.PushBack(m_NodeToRegisterIndex[pOutput->m_pExpression]);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiOutputIndex);
+      m_ByteCode.PushBack(m_NodeToRegisterIndex[pOutput->m_pExpression]);
     }
     else if (ezExpressionAST::NodeType::IsFunctionCall(nodeType))
     {
@@ -475,22 +491,22 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
       ezUInt32 uiFunctionIndex = 0;
       if (!m_FunctionToIndex.TryGetValue(sMangledName, uiFunctionIndex))
       {
-        uiFunctionIndex = out_byteCode.m_Functions.GetCount();
+        uiFunctionIndex = functions.GetCount();
         m_FunctionToIndex.Insert(sMangledName, uiFunctionIndex);
 
-        out_byteCode.m_Functions.PushBack(*pDesc);
-        out_byteCode.m_Functions.PeekBack().m_sName = std::move(sMangledName);
+        functions.PushBack(*pDesc);
+        functions.PeekBack().m_sName = std::move(sMangledName);
       }
 
-      byteCode.PushBack(opCode);
-      byteCode.PushBack(uiFunctionIndex);
-      byteCode.PushBack(uiTargetRegister);
+      m_ByteCode.PushBack(opCode);
+      m_ByteCode.PushBack(uiFunctionIndex);
+      m_ByteCode.PushBack(uiTargetRegister);
 
-      byteCode.PushBack(pFunctionCall->m_Arguments.GetCount());
+      m_ByteCode.PushBack(pFunctionCall->m_Arguments.GetCount());
       for (auto pArg : pFunctionCall->m_Arguments)
       {
         ezUInt32 uiArgRegister = m_NodeToRegisterIndex[pArg];
-        byteCode.PushBack(uiArgRegister);
+        m_ByteCode.PushBack(uiArgRegister);
       }
     }
     else
@@ -499,29 +515,25 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     }
   }
 
-  out_byteCode.m_uiNumInstructions = m_NodeInstructions.GetCount();
-  out_byteCode.m_uiNumTempRegisters = uiMaxRegisterIndex + 1;
-
+  out_byteCode.Init(m_ByteCode, inputs, outputs, functions, uiMaxRegisterIndex + 1, m_NodeInstructions.GetCount());
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant, ezExpressionByteCode& out_byteCode)
+ezResult ezExpressionCompiler::GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant)
 {
-  auto& byteCode = out_byteCode.m_ByteCode;
-
   if (pConstant->m_ReturnType == ezExpressionAST::DataType::Float)
   {
-    byteCode.PushBack(*reinterpret_cast<const ezUInt32*>(&pConstant->m_Value.Get<float>()));
+    m_ByteCode.PushBack(*reinterpret_cast<const ezUInt32*>(&pConstant->m_Value.Get<float>()));
     return EZ_SUCCESS;
   }
   else if (pConstant->m_ReturnType == ezExpressionAST::DataType::Int)
   {
-    byteCode.PushBack(pConstant->m_Value.Get<int>());
+    m_ByteCode.PushBack(pConstant->m_Value.Get<int>());
     return EZ_SUCCESS;
   }
   else if (pConstant->m_ReturnType == ezExpressionAST::DataType::Bool)
   {
-    byteCode.PushBack(pConstant->m_Value.Get<bool>() ? 0xFFFFFFFF : 0);
+    m_ByteCode.PushBack(pConstant->m_Value.Get<bool>() ? 0xFFFFFFFF : 0);
     return EZ_SUCCESS;
   }
 
@@ -680,5 +692,3 @@ void ezExpressionCompiler::DumpAST(const ezExpressionAST& ast, ezStringView sOut
     ezLog::Error("Failed to dump AST to: {}", sFullPath);
   }
 }
-
-

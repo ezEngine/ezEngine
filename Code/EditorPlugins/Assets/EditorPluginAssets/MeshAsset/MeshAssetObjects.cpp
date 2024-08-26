@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
     EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
+    EZ_ENUM_MEMBER_PROPERTY("VertexColorConversion", ezMeshVertexColorConversion, m_VertexColorConversion),
     EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -29,6 +30,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Cap2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
+    EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
+    EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
   EZ_END_PROPERTIES;
 }
@@ -73,7 +78,8 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
 {
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezMeshAssetProperties>())
   {
-    ezInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("PrimitiveType").ConvertTo<ezInt64>();
+    const ezInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("PrimitiveType").ConvertTo<ezInt64>();
+    const bool bSimplify = e.m_pObject->GetTypeAccessor().GetValue("SimplifyMesh").ConvertTo<bool>();
 
     auto& props = *e.m_pPropertyStates;
 
@@ -91,6 +97,11 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Invisible;
     props["NormalPrecision"].m_Visibility = ezPropertyUiState::Invisible;
     props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Invisible;
+    props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Invisible;
+
+    props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     switch (primType)
     {
@@ -101,6 +112,7 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
         props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;
         props["NormalPrecision"].m_Visibility = ezPropertyUiState::Default;
         props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Default;
+        props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezMeshPrimitive::Box:

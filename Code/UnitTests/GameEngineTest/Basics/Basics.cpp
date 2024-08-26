@@ -77,7 +77,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     }
   }
 
-  sBinPath.AppendPath("EditorProcessor.exe");
+  sBinPath.AppendPath("ezEditorProcessor.exe");
   sBinPath.MakeCleanPath();
 
   ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
@@ -95,11 +95,13 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   ezMutex mutex;
 
   ezProcessOptions opt;
-  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView) {
+  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView)
+  {
     EZ_LOCK(mutex);
     sStdout.Append(sView);
   };
-  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView) {
+  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView)
+  {
     EZ_LOCK(mutex);
     sStdout.Append(sView);
   };
@@ -108,7 +110,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("-project");
   opt.AddArgument("\"{0}\"", sProjectDir);
   opt.m_Arguments.PushBack("-transform");
-  opt.m_Arguments.PushBack("PC");
+  opt.m_Arguments.PushBack("Default");
   opt.m_Arguments.PushBack("-outputDir");
   opt.AddArgument("\"{0}\"", sOutputPath);
   opt.m_Arguments.PushBack("-noRecent");
@@ -168,7 +170,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
-EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
+EZ_CREATE_SIMPLE_TEST(00_Init, 00_TransformBase) // prefix with 00_ to ensure base data is transformed first
 {
   EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 2).Succeeded());
 }
@@ -180,12 +182,12 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 4).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 5).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
@@ -224,6 +226,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
   {
     EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Substance/ezProject", 1).Succeeded());
   }
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/ProcGen/ezProject", 6).Succeeded());
 }
 
 #endif
@@ -330,7 +337,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 
   m_pWorld->Clear();
 
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
 
   ezInt32 dim = 15;
 
@@ -390,7 +397,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
   m_pWorld->Clear();
 
   ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
 
   // Skybox
   {
@@ -551,7 +558,10 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   if (iCurFrame < 1)
     return ezTestAppRun::Continue;
 
-  EZ_TEST_IMAGE(0, 150);
+  ezStringView sRendererName = ezGALDevice::GetDefaultDevice()->GetRenderer();
+  const bool bRandomlyChangesLineThicknessOnDriverUpdate = sRendererName.IsEqual_NoCase("DX11") && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia");
+
+  EZ_TEST_LINE_IMAGE(0, bRandomlyChangesLineThicknessOnDriverUpdate ? 700 : 150);
 
   return ezTestAppRun::Quit;
 }
@@ -592,7 +602,7 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/Lighting.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
@@ -619,7 +629,7 @@ void ezGameEngineTestApplication_Basics::SubTestGoReferenceSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/GoReferences.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/GoReferences.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestGoReferenceExec(ezInt32 iCurFrame)

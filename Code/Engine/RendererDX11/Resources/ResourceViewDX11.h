@@ -5,7 +5,7 @@
 
 struct ID3D11ShaderResourceView;
 
-class ezGALResourceViewDX11 : public ezGALResourceView
+class ezGALTextureResourceViewDX11 : public ezGALTextureResourceView
 {
 public:
   EZ_ALWAYS_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
@@ -14,9 +14,30 @@ protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description);
+  ezGALTextureResourceViewDX11(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description);
 
-  ~ezGALResourceViewDX11();
+  ~ezGALTextureResourceViewDX11();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+
+  ID3D11ShaderResourceView* m_pDXResourceView = nullptr;
+};
+
+
+class ezGALBufferResourceViewDX11 : public ezGALBufferResourceView
+{
+public:
+  EZ_ALWAYS_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
+
+protected:
+  friend class ezGALDeviceDX11;
+  friend class ezMemoryUtils;
+
+  ezGALBufferResourceViewDX11(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description);
+
+  ~ezGALBufferResourceViewDX11();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 

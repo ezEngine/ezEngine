@@ -30,13 +30,18 @@ public:
     {
       auto& timingScope = s_TimingScopes.PeekFront();
 
+      ezTime beginTime;
       ezTime endTime;
-      if (e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime).Succeeded())
-      {
-        ezTime beginTime;
-        EZ_VERIFY(e.m_pDevice->GetTimestampResult(timingScope.m_BeginTimestamp, beginTime).Succeeded(),
-          "Begin timestamp should be finished before end timestamp");
+      ezEnum<ezGALAsyncResult> resBegin = e.m_pDevice->GetTimestampResult(timingScope.m_BeginTimestamp, beginTime);
+      ezEnum<ezGALAsyncResult> resEnd = e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime);
 
+      if (resBegin == ezGALAsyncResult::Expired || resEnd == ezGALAsyncResult::Expired)
+      {
+        s_TimingScopes.PopFront();
+      }
+
+      if (resBegin == ezGALAsyncResult::Ready && resEnd == ezGALAsyncResult::Ready)
+      {
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -44,7 +49,7 @@ public:
           if (warnOnRingBufferOverun && endTime < beginTime)
           {
             warnOnRingBufferOverun = false;
-            ezLog::Error("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
+            ezLog::Warning("Profiling end is before start, the DX11 timestamp ring buffer was probably overrun.");
           }
 #  endif
           ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);
@@ -63,15 +68,15 @@ public:
   static GPUTimingScope& AllocateScope() { return s_TimingScopes.ExpandAndGetRef(); }
 
 private:
-  static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
+  static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->s_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
   static void OnEngineShutdown()
   {
     s_TimingScopes.Clear();
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
+    ezGALDevice::GetDefaultDevice()->s_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
   }
 
-  static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> s_TimingScopes;
+  static ezDeque<GPUTimingScope, ezStaticsAllocatorWrapper> s_TimingScopes;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, GPUProfilingSystem);
 };
@@ -97,7 +102,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, GPUProfilingSystem)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
+ezDeque<GPUTimingScope, ezStaticsAllocatorWrapper> GPUProfilingSystem::s_TimingScopes;
 
 //////////////////////////////////////////////////////////////////////////
 

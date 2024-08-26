@@ -17,9 +17,7 @@ ezOpenXRRemoting::ezOpenXRRemoting(ezOpenXR* pOpenXR)
 {
 }
 
-ezOpenXRRemoting::~ezOpenXRRemoting()
-{
-}
+ezOpenXRRemoting::~ezOpenXRRemoting() = default;
 
 ezResult ezOpenXRRemoting::Initialize()
 {
@@ -71,15 +69,15 @@ bool ezOpenXRRemoting::IsInitialized() const
   return m_bInitialized;
 }
 
-ezResult ezOpenXRRemoting::Connect(const char* remoteHostName, uint16_t remotePort, bool enableAudio, int maxBitrateKbps)
+ezResult ezOpenXRRemoting::Connect(const char* szRemoteHostName, uint16_t remotePort, bool bEnableAudio, int iMaxBitrateKbps)
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'ezXRRemotingInterface::Initialize' first.");
   EZ_ASSERT_DEV(m_pOpenXR->IsInitialized(), "Need to call 'ezXRInterface::Initialize' first.");
 
   XrRemotingRemoteContextPropertiesMSFT contextProperties;
   contextProperties = XrRemotingRemoteContextPropertiesMSFT{static_cast<XrStructureType>(XR_TYPE_REMOTING_REMOTE_CONTEXT_PROPERTIES_MSFT)};
-  contextProperties.enableAudio = enableAudio;
-  contextProperties.maxBitrateKbps = maxBitrateKbps;
+  contextProperties.enableAudio = bEnableAudio;
+  contextProperties.maxBitrateKbps = iMaxBitrateKbps;
   contextProperties.videoCodec = XR_REMOTING_VIDEO_CODEC_ANY_MSFT;
   contextProperties.depthBufferStreamResolution = XR_REMOTING_DEPTH_BUFFER_STREAM_RESOLUTION_HALF_MSFT;
   XrResult res = m_pOpenXR->m_Extensions.pfn_xrRemotingSetContextPropertiesMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &contextProperties);
@@ -90,7 +88,7 @@ ezResult ezOpenXRRemoting::Connect(const char* remoteHostName, uint16_t remotePo
   }
 
   XrRemotingConnectInfoMSFT connectInfo{static_cast<XrStructureType>(XR_TYPE_REMOTING_CONNECT_INFO_MSFT)};
-  connectInfo.remoteHostName = remoteHostName;
+  connectInfo.remoteHostName = szRemoteHostName;
   connectInfo.remotePort = remotePort;
   connectInfo.secureConnection = false;
   res = m_pOpenXR->m_Extensions.pfn_xrRemotingConnectMSFT(m_pOpenXR->m_pInstance, m_pOpenXR->m_SystemId, &connectInfo);
@@ -102,7 +100,7 @@ ezResult ezOpenXRRemoting::Connect(const char* remoteHostName, uint16_t remotePo
     ezXRRemotingConnectionEventData data;
     data.m_connectionState = ezXRRemotingConnectionState::Connecting;
     data.m_disconnectReason = ezXRRemotingDisconnectReason::None;
-    m_event.Broadcast(data);
+    m_Event.Broadcast(data);
   }
   return EZ_SUCCESS;
 }
@@ -150,7 +148,7 @@ ezEnum<ezXRRemotingConnectionState> ezOpenXRRemoting::GetConnectionState() const
 
 ezXRRemotingConnectionEvent& ezOpenXRRemoting::GetConnectionEvent()
 {
-  return m_event;
+  return m_Event;
 }
 
 void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
@@ -158,7 +156,7 @@ void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
   if (!m_bInitialized)
     return;
 
-  switch (event.type)
+  switch ((ezUInt32)event.type)
   {
     case XR_TYPE_REMOTING_EVENT_DATA_CONNECTED_MSFT:
     {
@@ -167,7 +165,7 @@ void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
       data.m_disconnectReason = ezXRRemotingDisconnectReason::None;
 
       ezLog::Info("XR Remoting connected.");
-      m_event.Broadcast(data);
+      m_Event.Broadcast(data);
     }
     break;
     case XR_TYPE_REMOTING_EVENT_DATA_DISCONNECTED_MSFT:
@@ -181,9 +179,11 @@ void ezOpenXRRemoting::HandleEvent(const XrEventDataBuffer& event)
       ezReflectionUtils::EnumerationToString(data.m_disconnectReason, sTemp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       ezLog::Info("XR Remoting disconnected with reason: {}", sTemp);
 
-      m_event.Broadcast(data);
+      m_Event.Broadcast(data);
     }
     break;
+    default:
+      break;
   }
 }
 

@@ -3,9 +3,10 @@ ALL
 
 [PERMUTATIONS]
 
-TWO_SIDED
+RENDER_PASS
 PARTICLE_RENDER_MODE
 PARTICLE_TRAIL_POINTS
+PARTICLE_LIGHTING_MODE
 SHADING_QUALITY
 CAMERA_MODE
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
@@ -54,7 +55,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #endif
 
   VS_OUT ret;
-#if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+#if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
   ret.RenderTargetArrayIndex = InstanceID;
 #endif
 
@@ -107,12 +108,12 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
     float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * particleSize;
 
-    float4 offsetRight = float4(dirRight * QuadTexCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (QuadTexCoords[vertexSubIndex].y - 0.5), 0);
 
-    float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
+    float4 worldPosition = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
+    float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
-    ret.Position = mul(GetWorldToScreenMatrix(), position);
+    ret.Position = screenPosition;
     ret.TexCoord0.y = textureAtlasRect.x + uvCoord;
     ret.TexCoord0.x = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
 
@@ -125,7 +126,30 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     // this could be set as a sampler state, but it would not work with sub-ranges
     ret.TexCoord0.y = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.y);
 
-    ret.FogAmount = GetFogAmount(position.xyz);
+    float3 centerNormal = normalize(cross(dirRight, dirUp));
+    float3 cornerNormal = normalize(offsetUp.xyz);
+    float3 normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
+
+#if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
+    float3 diffuseLight = CalculateParticleLighting(screenPosition, worldPosition, normal);
+#else
+    float3 diffuseLight = 1;
+#endif
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+    if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
+    {
+      ret.Color0 = float4(diffuseLight * 0.5, 1);
+    }
+    else if (RenderPass == EDITOR_RENDER_PASS_PIXEL_NORMALS || RenderPass == EDITOR_RENDER_PASS_VERTEX_NORMALS)
+    {
+      ret.Color0 = float4(normal, 1);
+    }
+#else
+    ret.Color0.rgb *= diffuseLight;
+#endif
+
+    ret.FogAmount = GetFogAmount(worldPosition.xyz);
   }
 
   return ret;
@@ -133,10 +157,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 [GEOMETRYSHADER]
 
-void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
-{
-  output.FogAmount = input.FogAmount;
-}
+#define CopyCustomInterpolators(output, input) output.FogAmount = input.FogAmount;
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

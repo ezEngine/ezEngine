@@ -13,21 +13,35 @@ ezNodeCommandAccessor::~ezNodeCommandAccessor() = default;
 
 ezStatus ezNodeCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
-  if (m_pHistory->InTemporaryTransaction() == false && IsDynamicPinProperty(pObject, pProp))
+  if (m_pHistory->InTemporaryTransaction() == false)
   {
-    ezHybridArray<ConnectionInfo, 16> oldConnections;
-    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
+    auto pNodeObject = pObject;
+    auto pDynamicPinProperty = pProp;
 
-    // TODO: remap oldConnections
+    if (IsNode(pObject) == false)
+    {
+      auto pParent = pObject->GetParent();
+      if (pParent != nullptr && IsNode(pParent))
+      {
+        pNodeObject = pParent;
+        pDynamicPinProperty = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
+      }
+    }
 
-    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index));
+    if (IsDynamicPinProperty(pNodeObject, pDynamicPinProperty))
+    {
+      ezHybridArray<ConnectionInfo, 16> oldConnections;
+      EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pNodeObject, oldConnections));
 
-    return TryReconnectAllPins(pObject, oldConnections);
+      // TODO: remap oldConnections
+
+      EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index));
+
+      return TryReconnectAllPins(pNodeObject, oldConnections);
+    }
   }
-  else
-  {
-    return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
-  }
+
+  return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
 }
 
 ezStatus ezNodeCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
@@ -83,6 +97,54 @@ ezStatus ezNodeCommandAccessor::MoveValue(const ezDocumentObject* pObject, const
   }
 }
 
+ezStatus ezNodeCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+{
+  if (IsDynamicPinProperty(pParent, pParentProp))
+  {
+    ezHybridArray<ConnectionInfo, 16> oldConnections;
+    EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
+
+    // TODO: remap oldConnections
+
+    EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid));
+
+    return TryReconnectAllPins(pParent, oldConnections);
+  }
+  else
+  {
+    return ezObjectCommandAccessor::AddObject(pParent, pParentProp, index, pType, inout_objectGuid);
+  }
+}
+
+ezStatus ezNodeCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
+{
+  if (const ezDocumentObject* pParent = pObject->GetParent())
+  {
+    const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
+    if (IsDynamicPinProperty(pParent, pProp))
+    {
+      ezHybridArray<ConnectionInfo, 16> oldConnections;
+      EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
+
+      // TODO: remap oldConnections
+
+      EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::RemoveObject(pObject));
+
+      return TryReconnectAllPins(pParent, oldConnections);
+    }
+  }
+
+  return ezObjectCommandAccessor::RemoveObject(pObject);
+}
+
+
+bool ezNodeCommandAccessor::IsNode(const ezDocumentObject* pObject) const
+{
+  auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
+
+  return pManager->IsNode(pObject);
+}
+
 bool ezNodeCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
   auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
@@ -94,7 +156,8 @@ ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObjec
 {
   auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
 
-  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus {
+  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus
+  {
     for (const ezConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();

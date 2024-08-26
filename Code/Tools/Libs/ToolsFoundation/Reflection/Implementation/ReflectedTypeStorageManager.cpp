@@ -76,7 +76,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
     if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
     {
       // Value already present, update type and instances
-      storageInfo->m_Type = GetStorageType(pProperty);
+      storageInfo->m_Type = ezToolsReflectionUtils::GetStorageType(pProperty);
       storageInfo->m_DefaultValue = ezToolsReflectionUtils::GetStorageDefault(pProperty);
       UpdateInstances(storageInfo->m_uiIndex, pProperty, ref_requiresPatchingEmbeddedClass);
     }
@@ -85,7 +85,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
       const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
       // Add value, new entries are appended
-      m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, GetStorageType(pProperty), ezToolsReflectionUtils::GetStorageDefault(pProperty)));
+      m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezToolsReflectionUtils::GetStorageType(pProperty), ezToolsReflectionUtils::GetStorageDefault(pProperty)));
       AddPropertyToInstances(uiIndex, pProperty, ref_requiresPatchingEmbeddedClass);
     }
   }
@@ -100,7 +100,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
     EZ_ASSERT_DEV(uiIndex < data.GetCount(), "ezReflectedTypeStorageAccessor found with fewer properties that is should have!");
     ezVariant& value = data[uiIndex];
 
-    const auto SpecVarType = GetStorageType(pProperty);
+    const auto SpecVarType = ezToolsReflectionUtils::GetStorageType(pProperty);
 
     switch (pProperty->GetCategory())
     {
@@ -235,41 +235,6 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
       ref_requiresPatchingEmbeddedClass.Insert(it.Key()->GetOwner());
     }
   }
-}
-
-
-ezVariantType::Enum ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::GetStorageType(const ezAbstractProperty* pProperty)
-{
-  ezVariantType::Enum type = ezVariantType::Uuid;
-
-  const bool bIsValueType = ezReflectionUtils::IsValueType(pProperty);
-
-  switch (pProperty->GetCategory())
-  {
-    case ezPropertyCategory::Member:
-    {
-      if (bIsValueType)
-        type = pProperty->GetSpecificType()->GetVariantType();
-      else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-        type = ezVariantType::Int64;
-    }
-    break;
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
-    {
-      type = ezVariantType::VariantArray;
-    }
-    break;
-    case ezPropertyCategory::Map:
-    {
-      type = ezVariantType::VariantDictionary;
-    }
-    break;
-    default:
-      break;
-  }
-
-  return type;
 }
 
 ////////////////////////////////////////////////////////////////////////

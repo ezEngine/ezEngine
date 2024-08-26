@@ -48,9 +48,9 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 namespace
 {
-  thread_local ezHybridArray<ezFileChangedEvent, 2, ezStaticAllocatorWrapper> g_PostponedFiles;
+  thread_local ezHybridArray<ezFileChangedEvent, 2, ezStaticsAllocatorWrapper> g_PostponedFiles;
   thread_local bool g_bInFileBroadcast = false;
-  thread_local ezHybridArray<ezFolderChangedEvent, 2, ezStaticAllocatorWrapper> g_PostponedFolders;
+  thread_local ezHybridArray<ezFolderChangedEvent, 2, ezStaticsAllocatorWrapper> g_PostponedFolders;
   thread_local bool g_bInFolderBroadcast = false;
 } // namespace
 
@@ -477,8 +477,8 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
     if (!out_stat.m_LastModified.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical) || out_stat.m_uiHash == 0)
     {
       FILESYSTEM_PROFILE(sAbsolutePath2);
-      ezFileReader file;
-      if (file.Open(sAbsolutePath2).Failed())
+      ezFileReader modifiedFile;
+      if (modifiedFile.Open(sAbsolutePath2).Failed())
       {
         ezLog::Error("Failed to hash file '{0}', open failed", sAbsolutePath2);
         return EZ_FAILURE;
@@ -491,7 +491,7 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
         return EZ_FAILURE;
       }
       out_stat.m_LastModified = statDep.m_LastModificationTime;
-      out_stat.m_uiHash = ezFileSystemModel::HashFile(file, nullptr);
+      out_stat.m_uiHash = ezFileSystemModel::HashFile(modifiedFile, nullptr);
       out_stat.m_Status = ezFileStatus::Status::Valid;
 
       // Update state. No need to compare timestamps we hold a lock on the file via the reader.
@@ -736,7 +736,8 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   }
 
   // Delete sub-folders before parent folders.
-  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
+  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool
+    { return ezStringUtils::Compare(lhs, rhs) > 0; });
   for (ezString& sFolder : missingFolders)
   {
     ezDataDirPath path(std::move(sFolder), m_DataDirRoots, folder.GetDataDirIndex());

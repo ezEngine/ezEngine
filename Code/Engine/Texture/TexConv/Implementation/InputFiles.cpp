@@ -28,7 +28,7 @@ ezResult ezTexConvProcessor::LoadInputImages()
     ezStringBuilder tmp;
     for (ezUInt32 i = 0; i < m_Descriptor.m_InputFiles.GetCount(); ++i)
     {
-      tmp.Format("InputImage{}", ezArgI(i, 2, true));
+      tmp.SetFormat("InputImage{}", ezArgI(i, 2, true));
       m_Descriptor.m_InputFiles[i] = tmp;
     }
   }
@@ -105,5 +105,3 @@ ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, 
 
   return EZ_SUCCESS;
 }
-
-

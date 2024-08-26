@@ -130,22 +130,23 @@ void ezJoltQueryShapeActorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltQueryShapeActorComponent::SetSurfaceFile(const char* szFile)
+void ezJoltQueryShapeActorComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltQueryShapeActorComponent::GetSurfaceFile() const
+ezStringView ezJoltQueryShapeActorComponent::GetSurfaceFile() const
 {
-  if (!m_hSurface.IsValid())
-    return "";
-
   return m_hSurface.GetResourceID();
 }
 
@@ -166,4 +167,3 @@ const ezJoltMaterial* ezJoltQueryShapeActorComponent::GetJoltMaterial() const
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltQueryShapeActorComponent);
-

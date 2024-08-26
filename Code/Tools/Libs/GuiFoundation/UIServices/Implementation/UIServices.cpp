@@ -14,6 +14,10 @@
 #include <QSettings>
 #include <QUrl>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <ShlObj_core.h>
+#endif
+
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
 ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
@@ -114,9 +118,18 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
       const ezColorGammaUB color8 = svgTintColor;
 
       ezStringBuilder rep;
-      rep.Format("#{}{}{}", ezArgI((int)color8.r, 2, true, 16), ezArgI((int)color8.g, 2, true, 16), ezArgI((int)color8.b, 2, true, 16));
+      rep.SetFormat("#{}{}{}", ezArgU(color8.r, 2, true, 16), ezArgU(color8.g, 2, true, 16), ezArgU(color8.b, 2, true, 16));
 
       sContent.ReplaceAll_NoCase("#ffffff", rep);
+
+      rep.Append(";");
+      sContent.ReplaceAll_NoCase("#fff;", rep);
+      sContent.ReplaceAll_NoCase("white;", rep);
+      rep.Shrink(0, 1);
+
+      rep.Prepend("\"");
+      rep.Append("\"");
+      sContent.ReplaceAll_NoCase("\"#fff\"", rep);
     }
 
     // hash the content AFTER the color replacement, so it includes the custom color change
@@ -380,9 +393,29 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 #endif
 }
 
+void ezQtUiServices::OpenWith(const char* szPath)
+{
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+  sPath.MakePathSeparatorsNative();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringWChar wpath(sPath);
+  OPENASINFO oi;
+  oi.pcszFile = wpath.GetData();
+  oi.pcszClass = NULL;
+  oi.oaifInFlags = OAIF_EXEC;
+  SHOpenWithDialog(NULL, &oi);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED
+#endif
+}
+
 ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
 {
-  QString sVsCodeExe =
+  QString sVsCodeExe;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  sVsCodeExe =
     QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
 
   if (!QFile().exists(sVsCodeExe))
@@ -396,11 +429,20 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
       sVsCodeExe = sVsCodeExeKey.left(sVsCodeExeKey.length() - 5).replace("\\", "/").replace("\"", "");
     }
   }
+#endif
 
-  if (!QFile().exists(sVsCodeExe))
+  if (sVsCodeExe.isEmpty() || !QFile().exists(sVsCodeExe))
   {
-    return ezStatus("Installation of Visual Studio Code could not be located.\n"
-                    "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+    // Try code executable in PATH
+    if (QProcess::execute("code", {"--version"}) == 0)
+    {
+      sVsCodeExe = "code";
+    }
+    else
+    {
+      return ezStatus("Installation of Visual Studio Code could not be located.\n"
+                      "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+    }
   }
 
   QProcess proc;

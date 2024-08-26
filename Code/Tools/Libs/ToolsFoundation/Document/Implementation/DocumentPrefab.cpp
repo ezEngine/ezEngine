@@ -19,7 +19,7 @@ void ezDocument::UpdatePrefabs()
   SetModified(true);
 }
 
-void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& selection)
+void ezDocument::RevertPrefabs(ezArrayPtr<const ezDocumentObject*> selection)
 {
   if (selection.IsEmpty())
     return;
@@ -36,7 +36,7 @@ void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& selection
   pHistory->FinishTransaction();
 }
 
-void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection)
+void ezDocument::UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection)
 {
   if (selection.IsEmpty())
     return;
@@ -57,16 +57,17 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection
 
 ezStatus ezDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB)
 {
-  auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
+  ezHybridArray<ezSelectionEntry, 64> selection;
+  GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, selection);
 
-  if (Selection.IsEmpty())
+  if (selection.IsEmpty())
     return ezStatus("To create a prefab, the selection must not be empty");
 
   ezHybridArray<const ezDocumentObject*, 32> nodes;
-  nodes.Reserve(Selection.GetCount());
-  for (auto pNode : Selection)
+  nodes.Reserve(selection.GetCount());
+  for (const auto& e : selection)
   {
-    nodes.PushBack(pNode);
+    nodes.PushBack(e.m_pObject);
   }
 
   ezUuid PrefabGuid, SeedGuid;

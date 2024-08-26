@@ -8,7 +8,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum PrefabComponentFlags
 {
-  SelfDeletion = 1
+  SelfDeletion = 1, ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
 };
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
@@ -64,7 +64,7 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
             // and discard the string's value, and instead write a string that specifies the index of the serialized handle to use
 
             // local game object reference - index into GoReferences
-            tmp.Format("#!LGOR-{}", GoReferences.GetCount());
+            tmp.SetFormat("#!LGOR-{}", GoReferences.GetCount());
             var = tmp.GetData();
 
             GoReferences.PushBack(hObject);
@@ -148,7 +148,7 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
             // and stringify the handle into a 'global game object reference', ie. one that contains the internal integer data of the handle
             // a regular runtime world has a reference resolver that is capable to reverse this stringified format to a handle again
             // which will happen once 'InstantiatePrefab' passes the m_Parameters list to the newly created objects
-            tmp.Format("#!GGOR-{}", hObject.GetInternalID().m_Data);
+            tmp.SetFormat("#!GGOR-{}", hObject.GetInternalID().m_Data);
 
             // map local game object reference to global game object reference
             value = tmp.GetData();
@@ -186,27 +186,6 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
 
   ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, inout_stream);
-}
-
-void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetPrefab(hResource);
-}
-
-const char* ezPrefabReferenceComponent::GetPrefabFile() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
 }
 
 void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
@@ -254,7 +233,8 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID) {
+      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID)
+      {
         // while exporting a scene all game objects with this flag are ignored and not exported
         // set this flag on all game objects that were created by instantiating this prefab
         // instead it should be instantiated at runtime again
@@ -467,6 +447,8 @@ void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEve
 
 void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  EZ_IGNORE_UNUSED(context);
+
   for (auto hComp : m_ComponentsToUpdate)
   {
     ezPrefabReferenceComponent* pComponent;

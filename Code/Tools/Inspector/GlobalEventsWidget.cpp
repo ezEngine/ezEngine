@@ -115,17 +115,17 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
       pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
-      
-      sTemp.Format("  {0}  ", it.Key());
+
+      sTemp.SetFormat("  {0}  ", it.Key());
       TableEvents->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Event
 
-      sTemp.Format("  {0}  ", it.Value().m_uiTimesFired);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiTimesFired);
       TableEvents->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
-      sTemp.Format("  {0}  ", it.Value().m_uiNumHandlers);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiNumHandlers);
       TableEvents->setCellWidget(iRow, 3, new QLabel(sTemp.GetData()));
 
-      sTemp.Format("  {0}  ", it.Value().m_uiNumHandlersOnce);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiNumHandlersOnce);
       TableEvents->setCellWidget(iRow, 4, new QLabel(sTemp.GetData()));
 
       ++iRow;
@@ -140,13 +140,13 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
     ezInt32 iRow = 0;
     for (ezMap<ezString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
     {
-      sTemp.Format("  {0}  ", it.Value().m_uiTimesFired);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiTimesFired);
       ((QLabel*)TableEvents->cellWidget(iRow, 2))->setText(sTemp.GetData());
 
-      sTemp.Format("  {0}  ", it.Value().m_uiNumHandlers);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiNumHandlers);
       ((QLabel*)TableEvents->cellWidget(iRow, 3))->setText(sTemp.GetData());
 
-      sTemp.Format("  {0}  ", it.Value().m_uiNumHandlersOnce);
+      sTemp.SetFormat("  {0}  ", it.Value().m_uiNumHandlersOnce);
       ((QLabel*)TableEvents->cellWidget(iRow, 4))->setText(sTemp.GetData());
 
       ++iRow;

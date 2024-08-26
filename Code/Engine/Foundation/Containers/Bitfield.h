@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/Implementation/BitIterator.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/Constants.h>
 
@@ -48,6 +49,9 @@ public:
   /// \brief Clears the given bit to 0.
   void ClearBit(ezUInt32 uiBit); // [tested]
 
+  /// \brief Flips the given bit to the opposite value.
+  void FlipBit(ezUInt32 uiBit); // [tested]
+
   /// \brief Sets the given bit to 1 or 0 depending on the given value.
   void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
 
@@ -66,7 +70,60 @@ public:
   /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
+  /// \brief Flips the range starting at uiFirstBit up to (and including) uiLastBit.
+  void FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+
+  /// \brief Swaps two bitfields
+  void Swap(ezBitfield<Container>& other); // [tested]
+  struct ConstIterator
+  {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = ezUInt32;
+    using sub_iterator = ::ezBitIterator<ezUInt32, true>;
+
+    // Invalid iterator (end)
+    EZ_FORCE_INLINE ConstIterator() = default; // [tested]
+
+    // Start iterator.
+    explicit ConstIterator(const ezBitfield<Container>& bitfield); // [tested]
+
+    /// \brief Checks whether this iterator points to a valid element.
+    bool IsValid() const; // [tested]
+
+    /// \brief Returns the 'value' of the element that this iterator points to.
+    ezUInt32 Value() const; // [tested]
+
+    /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
+    void Next();                                       // [tested]
+
+    bool operator==(const ConstIterator& other) const; // [tested]
+    bool operator!=(const ConstIterator& other) const; // [tested]
+
+    /// \brief Returns 'Value()' to enable foreach.
+    ezUInt32 operator*() const; // [tested]
+
+    /// \brief Shorthand for 'Next'.
+    void operator++(); // [tested]
+
+  private:
+    void FindNextChunk(ezUInt32 uiStartChunk);
+
+  private:
+    ezUInt32 m_uiChunk = 0;
+    sub_iterator m_Iterator;
+    const ezBitfield<Container>* m_pBitfield = nullptr;
+  };
+
+  /// \brief Returns a constant iterator to the very first set bit.
+  /// Note that due to the way iterating through bits is accelerated, changes to the bitfield while iterating through the bits has undefined behaviour.
+  ConstIterator GetIterator() const; // [tested]
+
+  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  ConstIterator GetEndIterator() const; // [tested]
+
 private:
+  friend struct ConstIterator;
+
   ezUInt32 GetBitInt(ezUInt32 uiBitIndex) const;
   ezUInt32 GetBitMask(ezUInt32 uiBitIndex) const;
 
@@ -82,6 +139,32 @@ template <ezUInt32 BITS>
 using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, (BITS + 31) / 32>>;
 
 //////////////////////////////////////////////////////////////////////////
+// begin() /end() for range-based for-loop support
+template <typename Container>
+typename ezBitfield<Container>::ConstIterator begin(const ezBitfield<Container>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename Container>
+typename ezBitfield<Container>::ConstIterator cbegin(const ezBitfield<Container>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename Container>
+typename ezBitfield<Container>::ConstIterator end(const ezBitfield<Container>& container)
+{
+  return container.GetEndIterator();
+}
+
+template <typename Container>
+typename ezBitfield<Container>::ConstIterator cend(const ezBitfield<Container>& container)
+{
+  return container.GetEndIterator();
+}
+
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -90,6 +173,8 @@ class ezStaticBitfield
 {
 public:
   using StorageType = T;
+  using ConstIterator = ezBitIterator<StorageType, true, ezUInt32>;
+
   static constexpr ezUInt32 GetStorageTypeBitCount() { return ezMath::NumBits<T>(); }
 
   /// \brief Initializes the bitfield to all zero.
@@ -145,6 +230,9 @@ public:
   /// \brief Sets the raw uint that stores all bits.
   void SetValue(T value); // [tested]
 
+  /// \brief Swaps two bitfields
+  void Swap(ezStaticBitfield<T>& other); // [tested]
+
   /// \brief Modifies \a this to also contain the bits from \a rhs.
   EZ_ALWAYS_INLINE void operator|=(const ezStaticBitfield<T>& rhs) { m_Storage |= rhs.m_Storage; }
 
@@ -164,6 +252,19 @@ public:
     inout_reader >> m_Storage;
     return EZ_SUCCESS;
   }
+
+  /// \brief Returns a constant iterator to the very first set bit.
+  /// Note that due to the way iterating through bits is accelerated, changes to the bitfield while iterating through the bits has undefined behaviour.
+  ConstIterator GetIterator() const // [tested]
+  {
+    return ConstIterator(m_Storage);
+  };
+
+  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  ConstIterator GetEndIterator() const // [tested]
+  {
+    return ConstIterator();
+  };
 
 private:
   static constexpr ezTypeVersion s_Version = 1;
@@ -219,6 +320,32 @@ template <typename T>
 inline bool operator!=(ezStaticBitfield<T> lhs, ezStaticBitfield<T> rhs)
 {
   return lhs.m_Storage != rhs.m_Storage;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// begin() /end() for range-based for-loop support
+template <typename Container>
+typename ezStaticBitfield<Container>::ConstIterator begin(const ezStaticBitfield<Container>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename Container>
+typename ezStaticBitfield<Container>::ConstIterator cbegin(const ezStaticBitfield<Container>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename Container>
+typename ezStaticBitfield<Container>::ConstIterator end(const ezStaticBitfield<Container>& container)
+{
+  return container.GetEndIterator();
+}
+
+template <typename Container>
+typename ezStaticBitfield<Container>::ConstIterator cend(const ezStaticBitfield<Container>& container)
+{
+  return container.GetEndIterator();
 }
 
 using ezStaticBitfield8 = ezStaticBitfield<ezUInt8>;

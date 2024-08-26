@@ -105,6 +105,9 @@ public:
   /// \brief Launches ezInspector.
   void RunInspector();
 
+  /// \brief Launches Tracy.
+  void RunTracy();
+
   //
   //
   //

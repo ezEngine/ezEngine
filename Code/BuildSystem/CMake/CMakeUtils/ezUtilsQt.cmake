@@ -56,16 +56,12 @@ macro(ez_find_qt)
 	mark_as_advanced(FORCE WINDEPLOYQT_EXECUTABLE)
 	mark_as_advanced(FORCE QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH)
 	mark_as_advanced(FORCE QT_ADDITIONAL_PACKAGES_PREFIX_PATH)
-	
-	if(EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_CLANG)
-		# The qt6 interface compile options contain msvc specific flags which don't exist for clang.
-		set_target_properties(Qt6::Platform PROPERTIES INTERFACE_COMPILE_OPTIONS "")
-		
-		# Qt6 link options include '-NXCOMPAT' which does not exist on clang.
-		get_target_property(QtLinkOptions Qt6::PlatformCommonInternal INTERFACE_LINK_OPTIONS)
-		string(REPLACE "-NXCOMPAT;" "" QtLinkOptions "${QtLinkOptions}")
-		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS ${QtLinkOptions})
+	if (EZ_ENABLE_QT_SUPPORT)
+		if (COMMAND ez_platformhook_find_qt)
+			ez_platformhook_find_qt()
+		endif()
 	endif()
+	
 endmacro()
 
 # #####################################
@@ -75,57 +71,44 @@ function(ez_prepare_find_qt)
 	set(EZ_CACHED_QT_DIR "EZ_CACHED_QT_DIR-NOTFOUND" CACHE STRING "")
 	mark_as_advanced(EZ_CACHED_QT_DIR FORCE)
 
-	# #####################
-	# # Download Qt package
-	ez_pull_compiler_and_architecture_vars()
-	ez_pull_platform_vars()
-	ez_pull_config_vars()
+	if (EZ_ENABLE_QT_SUPPORT)
+		# #####################
+		# # Download Qt package
+		ez_pull_compiler_and_architecture_vars()
+		ez_pull_platform_vars()
+		ez_pull_config_vars()
 
-	# Currently only implemented for x64
-	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
-		# Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
-		if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
-			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
-		endif()
-	
-		if(EZ_CMAKE_ARCHITECTURE_64BIT)
-			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
-			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
+		if (COMMAND ez_platformhook_download_qt)
+			ez_platformhook_download_qt()
 		endif()
 
-		if((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR(EZ_QT_DIR STREQUAL ""))
-			ez_download_and_extract("${EZ_SDK_URL}" "${CMAKE_BINARY_DIR}" "${EZ_SDK_VERSION}")
+		# # Download Qt package
+		# #####################
+		if(NOT "${EZ_QT_DIR}" STREQUAL "${EZ_CACHED_QT_DIR}")
+			# Need to reset qt vars now so that 'find_package' is re-executed
+			set(EZ_CACHED_QT_DIR ${EZ_QT_DIR} CACHE STRING "" FORCE)
 
-			set(EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
+			message(STATUS "Qt-dir has changed, clearing cached Qt paths")
+
+			# Clear cached qt dirs
+			set(Qt6_DIR "Qt6_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6Core_DIR "Qt6Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6CoreTools_DIR "Qt6CoreTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6Gui_DIR "Qt6Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6GuiTools_DIR "Qt6GuiTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6Widgets_DIR "Qt6Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6WidgetsTools_DIR "Qt6WidgetTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6Network_DIR "Qt6Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6Svg_DIR "Qt6Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6ZlibPrivate_DIR "Qt6ZlibPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(Qt6EntryPointPrivate_DIR "Qt6EntryPointPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
+			set(WINDEPLOYQT_EXECUTABLE "WINDEPLOYQT_EXECUTABLE-NOTFOUND" CACHE FILEPATH "" FORCE)
 		endif()
-	endif()
 
-	# # Download Qt package
-	# #####################
-	if(NOT "${EZ_QT_DIR}" STREQUAL "${EZ_CACHED_QT_DIR}")
-		# Need to reset qt vars now so that 'find_package' is re-executed
-		set(EZ_CACHED_QT_DIR ${EZ_QT_DIR} CACHE STRING "" FORCE)
-
-		message(STATUS "Qt-dir has changed, clearing cached Qt paths")
-
-		# Clear cached qt dirs
-		set(Qt6_DIR "Qt6_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6Core_DIR "Qt6Core_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6CoreTools_DIR "Qt6CoreTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6Gui_DIR "Qt6Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6GuiTools_DIR "Qt6GuiTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6Widgets_DIR "Qt6Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6WidgetsTools_DIR "Qt6WidgetTools_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6Network_DIR "Qt6Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6Svg_DIR "Qt6Svg_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6ZlibPrivate_DIR "Qt6ZlibPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(Qt6EntryPointPrivate_DIR "Qt6EntryPointPrivate_DIR-NOTFOUND" CACHE PATH "" FORCE)
-		set(WINDEPLOYQT_EXECUTABLE "WINDEPLOYQT_EXECUTABLE-NOTFOUND" CACHE FILEPATH "" FORCE)
-	endif()
-
-	# force find_package to search for Qt in the correct folder
-	if(EZ_QT_DIR)
-		set(CMAKE_PREFIX_PATH ${EZ_QT_DIR} PARENT_SCOPE)
+		# force find_package to search for Qt in the correct folder
+		if(EZ_QT_DIR)
+			set(CMAKE_PREFIX_PATH ${EZ_QT_DIR} PARENT_SCOPE)
+		endif()
 	endif()
 endfunction()
 

@@ -8,8 +8,8 @@ PluginInfo
 	string %EditorPlugins{"ezEditorPluginRecast"}
 	string %EditorEnginePlugins{"ezEnginePluginRecast"}
 	string %RuntimePlugins{"ezRecastPlugin"}
-	string %PackageDependencies{}
+	string %PackageDependencies{"Recast.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
-	string %EnabledInTemplates{"General3D"}
+	string %EnabledInTemplates{""}
 }

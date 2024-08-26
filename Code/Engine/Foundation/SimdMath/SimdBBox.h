@@ -106,8 +106,8 @@ public:
   ezSimdFloat GetDistanceTo(const ezSimdVec4f& vPoint) const; // [tested]
 
 
-  bool operator==(const ezSimdBBox& rhs) const; // [tested]
-  bool operator!=(const ezSimdBBox& rhs) const; // [tested]
+  bool operator==(const ezSimdBBox& rhs) const;               // [tested]
+  bool operator!=(const ezSimdBBox& rhs) const;               // [tested]
 
 public:
   ezSimdVec4f m_Min;

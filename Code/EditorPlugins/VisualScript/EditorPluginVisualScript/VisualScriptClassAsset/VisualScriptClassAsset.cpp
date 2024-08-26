@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDef
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -82,7 +82,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   ezStringBuilder sDumpPath;
   if (GetProperties()->m_bDumpAST)
   {
-    sDumpPath.Format(":appdata/{}_AST.dgml", sScriptClassName);
+    sDumpPath.SetFormat(":appdata/{}_AST.dgml", sScriptClassName);
   }
   EZ_SUCCEED_OR_RETURN(compiler.Compile(sDumpPath));
 

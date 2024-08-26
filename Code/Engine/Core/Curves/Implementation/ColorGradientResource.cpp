@@ -1,7 +1,7 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientResource, 1, ezRTTIDefaultAllocator<ezColorGradientResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -27,6 +27,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezColorGradientResource, ezColorGradientResourc
 
 ezResourceLoadDesc ezColorGradientResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -39,7 +41,7 @@ ezResourceLoadDesc ezColorGradientResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezColorGradientResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezColorGradientResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

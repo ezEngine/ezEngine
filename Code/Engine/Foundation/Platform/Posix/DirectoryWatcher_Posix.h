@@ -197,7 +197,6 @@ ezDirectoryWatcher::ezDirectoryWatcher()
 
 ezDirectoryWatcher::~ezDirectoryWatcher()
 {
-  const int inotifyFd = m_pImpl->m_inotifyFd;
   CloseDirectory();
   EZ_DEFAULT_DELETE(m_pImpl);
 }

@@ -1,8 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
@@ -294,7 +294,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, Texture2D)
   ON_CORESYSTEMS_STARTUP 
   {
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezRenderToTexture2DResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezRenderTarget");
+        return sResourceID.HasExtension(".ezBinRenderTarget");
       });
   }
 

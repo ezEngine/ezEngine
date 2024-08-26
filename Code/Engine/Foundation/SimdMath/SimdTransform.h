@@ -32,7 +32,7 @@ public:
   ezSimdFloat GetMaxScale() const; // [tested]
 
   /// \brief Returns whether this transform contains negative scaling aka mirroring.
-  bool ContainsNegativeScale() const;
+  bool HasMirrorScaling() const;
 
   /// \brief Returns whether this transform contains uniform scaling.
   bool ContainsUniformScale() const;
@@ -49,7 +49,7 @@ public:
   ezSimdTransform GetInverse() const; // [tested]
 
   /// \brief Returns the transformation as a matrix.
-  ezSimdMat4f GetAsMat4() const; // [tested]
+  ezSimdMat4f GetAsMat4() const;                                            // [tested]
 
 public:
   [[nodiscard]] ezSimdVec4f TransformPosition(const ezSimdVec4f& v) const;  // [tested]
@@ -59,7 +59,7 @@ public:
   void operator*=(const ezSimdTransform& other); // [tested]
 
   /// \brief Multiplies \a q into the rotation component, thus rotating the entire transformation.
-  void operator*=(const ezSimdQuat& q); // [tested]
+  void operator*=(const ezSimdQuat& q);  // [tested]
 
   void operator+=(const ezSimdVec4f& v); // [tested]
   void operator-=(const ezSimdVec4f& v); // [tested]
@@ -90,8 +90,8 @@ EZ_ALWAYS_INLINE const ezSimdTransform operator-(const ezSimdTransform& t, const
 /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
 EZ_ALWAYS_INLINE const ezSimdTransform operator*(const ezSimdTransform& lhs, const ezSimdTransform& rhs); // [tested]
 
-EZ_ALWAYS_INLINE bool operator==(const ezSimdTransform& t1, const ezSimdTransform& t2); // [tested]
-EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& t1, const ezSimdTransform& t2); // [tested]
+EZ_ALWAYS_INLINE bool operator==(const ezSimdTransform& t1, const ezSimdTransform& t2);                   // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& t1, const ezSimdTransform& t2);                   // [tested]
 
 
 #include <Foundation/SimdMath/Implementation/SimdTransform_inl.h>

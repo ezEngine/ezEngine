@@ -350,7 +350,14 @@ void ezFakeRopeComponent::SendCurrentPose()
       const ezSimdVec4f p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
       ezSimdVec4f dir = p1 - p0;
 
-      dir.NormalizeIfNotZero<3>();
+      if (dir.IsZero<3>(0.0001f))
+      {
+        dir.Set(1, 0, 0, 0);
+      }
+      else
+      {
+        dir.Normalize<3>();
+      }
 
       tGlobal.m_vPosition = ezSimdConversion::ToVec3(p0);
       tGlobal.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));

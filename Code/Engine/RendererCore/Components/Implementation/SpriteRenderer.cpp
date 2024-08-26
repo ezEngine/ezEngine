@@ -11,7 +11,7 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Materials/SpriteData.h>
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerSpriteData) == 48);
+static_assert(sizeof(ezPerSpriteData) == 48);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -71,9 +71,7 @@ ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer(ezUInt32 uiBufferSize
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerSpriteData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferType = ezGALBufferType::Generic;
-  desc.m_bUseAsStructuredBuffer = true;
-  desc.m_bAllowShaderResourceView = true;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);

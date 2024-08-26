@@ -15,7 +15,7 @@ public:
   ezHybridArray(); // [tested]
 
   /// \brief Creates an empty array. Does not allocate any data yet.
-  explicit ezHybridArray(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHybridArray(ezAllocator* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other); // [tested]
@@ -24,7 +24,7 @@ public:
   explicit ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
 
   /// \brief Moves the given array.
-  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other); // [tested]
+  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other) noexcept; // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs); // [tested]

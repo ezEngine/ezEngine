@@ -184,7 +184,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     // test recursive write lock
     EZ_LOCK(world.GetWriteMarker());
 
-    ezComponentHandle handle;
+    ezTypedComponentHandle<TestComponent> handle;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pTestComponent));
 
     // Update with no components created
@@ -198,7 +198,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pTestComponent->GetHandle() == handle);
 
     TestComponent2* pTest2 = nullptr;
-    EZ_TEST_BOOL(!world.TryGetComponent(handle, pTest2));
+    EZ_TEST_BOOL(!world.TryGetComponent(ezComponentHandle(handle), pTest2));
 
     EZ_TEST_INT(pTestComponent->m_iSomeData, 1);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
@@ -278,9 +278,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     TestComponent* pComponentB = nullptr;
     TestComponent* pComponentC = nullptr;
 
-    ezComponentHandle hComponentA = TestComponent::CreateComponent(pObjectA, pComponentA);
-    ezComponentHandle hComponentB = TestComponent::CreateComponent(pObjectB, pComponentB);
-    ezComponentHandle hComponentC = TestComponent::CreateComponent(pObjectC, pComponentC);
+    ezTypedComponentHandle<TestComponent> hComponentA = TestComponent::CreateComponent(pObjectA, pComponentA);
+    ezTypedComponentHandle<TestComponent> hComponentB = TestComponent::CreateComponent(pObjectB, pComponentB);
+    ezTypedComponentHandle<TestComponent> hComponentC = TestComponent::CreateComponent(pObjectC, pComponentC);
 
     EZ_TEST_BOOL(!hComponentA.IsInvalidated());
     EZ_TEST_BOOL(!hComponentB.IsInvalidated());
@@ -321,7 +321,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
     // creating a new component should reuse memory from component B
     TestComponent* pComponentB2 = nullptr;
-    ezComponentHandle hComponentB2 = TestComponent::CreateComponent(pObjectB, pComponentB2);
+    ezTypedComponentHandle<TestComponent> hComponentB2 = TestComponent::CreateComponent(pObjectB, pComponentB2);
     EZ_TEST_BOOL(!hComponentB2.IsInvalidated());
     EZ_TEST_BOOL(pComponentB2 == pComponentB);
   }
@@ -334,7 +334,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
     for (auto it = pConstManager->GetComponents(); it.IsValid(); it.Next())
     {
-      ezComponentHandle hComponent = it->GetHandle();
+      ezTypedComponentHandle<TestComponent> hComponent = it->GetHandle();
 
       const TestComponent* pConstComponent = nullptr;
       EZ_TEST_BOOL(constWorld.TryGetComponent(hComponent, pConstComponent));

@@ -9,6 +9,8 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 
 ez_make_winmain_executable(${PROJECT_NAME})
 
+ez_add_output_ez_prefix(${PROJECT_NAME})
+
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets Network Svg)
 
 target_link_libraries(${PROJECT_NAME}
@@ -29,13 +31,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
     PRIVATE
     Shcore.lib
   )
-endif()
-
-# set all external projects as runtime dependencies of this application
-get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
-if(EXTERNAL_PROJECTS)
-  message(STATUS "External Projects: ${EXTERNAL_PROJECTS}")
-  add_dependencies(${PROJECT_NAME} ${EXTERNAL_PROJECTS})
 endif()
 
 set(EDITOR_DATA_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Tools/ezEditor")

@@ -744,13 +744,13 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     {
       ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
       ezVec3 expectedLastPos = ezVec3(0, 0, 5);
-      ezVec3 expectedPos = ezVec3(i * 10, 0, 0);
-      ezVec3 expectedLinearVelocity = ezVec3(i * 100, 0, -50);
+      ezVec3 expectedPos = ezVec3(i * 10.0f, 0, 0);
+      ezVec3 expectedLinearVelocity = ezVec3(i * 100.0f, 0, -50);
       EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
 
-      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
+      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30.0f) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
       ezVec3 angularVelocity = pObject->GetAngularVelocity();
       EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
     }
@@ -763,7 +763,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto& pObject : pObjects)
     {
       ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
-      ezVec3 expectedLastPos = ezVec3(i * 10, 0, 0);
+      ezVec3 expectedLastPos = ezVec3(i * 10.0f, 0, 0);
       ezVec3 expectedLinearVelocity = ezVec3(i * -100.0f, 0, 0);
       EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());

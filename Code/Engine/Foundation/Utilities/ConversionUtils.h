@@ -273,9 +273,17 @@ namespace ezConversionUtils
   template <typename T>
   EZ_ALWAYS_INLINE const ezStringBuilder& ToString(const T& value, ezStringBuilder& out_sResult)
   {
+    EZ_IGNORE_UNUSED(value);
     out_sResult = "N/A";
     return out_sResult;
   }
+
+  /// \brief Parses a string in the form "#RRGGBBAA" as a (gamma space) color.
+  ///
+  /// The # at the start is optional.
+  /// If fewer characters are given, e.g. only "RRGGBB" or "RRGG" or even just "R" or "RRG", the remaining values are default initialized
+  /// with black (alpha = FF).
+  EZ_FOUNDATION_DLL ezResult ConvertHexStringToColor(ezStringView sText, ezColorGammaUB& ref_color);
 
   /// \brief Returns the color with the given name.
   ///
@@ -285,7 +293,7 @@ namespace ezConversionUtils
 
   /// \brief The inverse of GetColorByName
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col); // [tested]
-};                                                             // namespace ezConversionUtils
+}; // namespace ezConversionUtils
 
 template <typename APPEND_CONTAINER_LAMBDA>
 inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append) // [tested]

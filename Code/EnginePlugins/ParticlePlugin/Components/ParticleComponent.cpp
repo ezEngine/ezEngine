@@ -48,7 +48,7 @@ void ezParticleComponentManager::UpdatePfxTransformsAndBounds()
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->UpdatePfxTransform();
+      pComponent->UpdatePfxTransformAndBounds();
 
       // This function is called in the post-transform phase so the global bounds and transform have already been calculated at this point.
       // Therefore we need to manually update the global bounds again to ensure correct bounds for culling and rendering.
@@ -85,6 +85,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
@@ -230,7 +231,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
-    UpdatePfxTransform();
+    UpdatePfxTransformAndBounds();
 
     m_bFloatParamsChanged = false;
     m_bColorParamsChanged = false;
@@ -256,7 +257,6 @@ bool ezParticleComponent::IsEffectActive() const
   return m_EffectController.IsAlive();
 }
 
-
 void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
 {
   if (ref_msg.m_bPlay)
@@ -269,6 +269,11 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
   }
 }
 
+void ezParticleComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
+{
+  InterruptEffect();
+}
+
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
   m_EffectController.Invalidate();
@@ -279,20 +284,20 @@ void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle
 }
 
 
-void ezParticleComponent::SetParticleEffectFile(const char* szFile)
+void ezParticleComponent::SetParticleEffectFile(ezStringView sFile)
 {
   ezParticleEffectResourceHandle hEffect;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(szFile);
+    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(sFile);
   }
 
   SetParticleEffect(hEffect);
 }
 
 
-const char* ezParticleComponent::GetParticleEffectFile() const
+ezStringView ezParticleComponent::GetParticleEffectFile() const
 {
   if (!m_hEffectResource.IsValid())
     return "";
@@ -408,7 +413,7 @@ void ezParticleComponent::Update()
       }
     }
 
-    m_EffectController.UpdateWindSamples();
+    m_EffectController.UpdateWindSamples(GetWorld()->GetClock().GetTimeDiff());
   }
   else
   {
@@ -418,10 +423,14 @@ void ezParticleComponent::Update()
 
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
-    [this](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* {
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+    [this](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    {
       if (uiIt < m_FloatParams.GetCount())
         return m_FloatParams[uiIt].m_sName.GetData();
       else
@@ -547,9 +556,10 @@ ezTransform ezParticleComponent::GetPfxTransform() const
   return transform;
 }
 
-void ezParticleComponent::UpdatePfxTransform()
+void ezParticleComponent::UpdatePfxTransformAndBounds()
 {
   m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
+  m_EffectController.CombineSystemBoundingVolumes();
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

@@ -144,4 +144,3 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Flies);
-

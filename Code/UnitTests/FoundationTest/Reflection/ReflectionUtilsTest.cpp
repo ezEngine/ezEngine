@@ -77,7 +77,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     ezMemoryStreamWriter FileOut(&StreamStorage);
 
     ezTestClass2 c2;
-    c2.SetText("Hallo");
+    c2.SetCharPtr("Hallo");
+    c2.SetString("World");
+    c2.SetStringView("!!!");
     c2.m_MyVector.Set(14, 16, 18);
     c2.m_Struct.m_fFloat1 = 128;
     c2.m_Struct.m_UInt8 = 234;
@@ -103,7 +105,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
 
     ezReflectionSerializer::ReadObjectPropertiesFromDDL(FileIn, *c2.GetDynamicRTTI(), &c2);
 
-    EZ_TEST_STRING(c2.GetText(), "Hallo");
+    EZ_TEST_STRING(c2.GetCharPtr(), "Hallo");
+    EZ_TEST_STRING(c2.GetString(), "World");
+    EZ_TEST_STRING(c2.GetStringView(), "!!!");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
     EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
@@ -153,7 +157,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
 
     ezTestClass2& c2 = *((ezTestClass2*)pObject);
 
-    EZ_TEST_STRING(c2.GetText(), "Hallo");
+    EZ_TEST_STRING(c2.GetCharPtr(), "Hallo");
+    EZ_TEST_STRING(c2.GetString(), "World");
+    EZ_TEST_STRING(c2.GetStringView(), "!!!");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
     EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);

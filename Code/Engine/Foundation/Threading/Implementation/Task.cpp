@@ -58,5 +58,3 @@ void ezTask::Run(ezUInt32 uiInvocation)
 
   m_iRemainingRuns.Decrement();
 }
-
-

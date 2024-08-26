@@ -279,22 +279,23 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
 }
 
-void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(const char* szFile)
+void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hFallbackWalkSurface = {};
   }
 
   if (m_hFallbackWalkSurface.IsValid())
     ezResourceManager::PreloadResource(m_hFallbackWalkSurface);
 }
 
-const char* ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
+ezStringView ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
 {
-  if (!m_hFallbackWalkSurface.IsValid())
-    return "";
-
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
@@ -453,7 +454,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
-  const float halfHeight = ezMath::Max(0.0f, m_fMaxStepDown - radius);
+  const float halfHeight = ezMath::Max(0.01f, m_fMaxStepDown - radius);
 
   JPH::CapsuleShape shape(halfHeight, radius);
 
@@ -628,7 +629,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
   ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
-  if (!m_vVelocityLateral.IsZero())
+  if (!m_vVelocityLateral.IsZero(ezMath::FloatEpsilon<float>()))
   {
     // remove the lateral velocity component from the root motion
     // to prevent root motion being amplified when both values are active

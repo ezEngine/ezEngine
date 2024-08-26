@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
@@ -50,7 +50,7 @@ ezResourceLoadDesc ezAnimationClipResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezAnimationClipResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezAnimationClipResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezAnimationClipResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -294,7 +294,7 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
 
       const auto& fallbackJoint = skeleton.GetDescriptor().m_Skeleton.GetJointByIndex(uiFallbackIdx);
 
-      const ezTransform& fallbackTransform = fallbackJoint.GetRestPoseLocalTransform();
+      const ezTransform& fallbackTransform = m_bAdditive ? ezTransform::MakeIdentity() : fallbackJoint.GetRestPoseLocalTransform();
 
       auto& dstT = dstTrack.translations[0];
       auto& dstR = dstTrack.rotations[0];
@@ -471,14 +471,14 @@ ezArrayPtr<const ezAnimationClipResourceDescriptor::KeyframeVec3> ezAnimationCli
 //{
 //  ezUInt16 jointIdx = 0;
 //
-//#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+// #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 //
 //  const ezUInt32 idx = m_JointNameToIndex.Find(ezTempHashedString("ezRootMotionTransform"));
 //  EZ_ASSERT_DEBUG(idx != ezInvalidIndex, "Animation Clip has no root motion transforms");
 //
 //  jointIdx = m_JointNameToIndex.GetValue(idx);
 //  EZ_ASSERT_DEBUG(jointIdx == 0, "The root motion joint should always be at index 0");
-//#endif
+// #endif
 //
 //  return jointIdx;
 //}

@@ -17,39 +17,29 @@ void OnLoadPlugin()
     // Menu Bar
     {
       const char* szMenuBar = "ProcGenAssetMenuBar";
+      ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
+      ezEditActions::MapActions(szMenuBar, false, false);
+    }
 
-  ezActionMapManager::RegisterActionMap(szMenuBar).IgnoreResult();
-  ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-  ezProjectActions::MapActions(szMenuBar);
-  ezDocumentActions::MapMenuActions(szMenuBar);
-  ezAssetActions::MapMenuActions(szMenuBar);
-  ezCommandHistoryActions::MapActions(szMenuBar);
-
-  ezEditActions::MapActions("ProcGenAssetMenuBar", false, false);
-}
-
-// Tool Bar
-{
-  const char* szToolBar = "ProcGenAssetToolBar";
-  ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
-  ezDocumentActions::MapToolbarActions(szToolBar);
-  ezCommandHistoryActions::MapActions(szToolBar, "");
-  ezAssetActions::MapToolBarActions(szToolBar, true);
-}
-}
-
-// Scene
-{
-  // Menu Bar
-  {
-    ezProcGenActions::RegisterActions();
-    ezProcGenActions::MapMenuActions();
+    // Tool Bar
+    {
+      const char* szToolBar = "ProcGenAssetToolBar";
+      ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
+    }
   }
 
-  // Tool Bar
+  // Scene
   {
+    // Menu Bar
+    {
+      ezProcGenActions::RegisterActions();
+      ezProcGenActions::MapMenuActions();
+    }
+
+    // Tool Bar
+    {
+    }
   }
-}
 }
 
 void OnUnloadPlugin()

@@ -92,7 +92,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Setup Permutation Vars
   ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
@@ -112,7 +112,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
   }
 
-  ezDebugRenderer::Render(renderViewContext);
+  ezDebugRenderer::RenderWorldSpace(renderViewContext);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
@@ -121,6 +121,8 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
+
+  ezDebugRenderer::RenderScreenSpace(renderViewContext);
 }
 
 ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const

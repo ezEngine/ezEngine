@@ -65,4 +65,3 @@ public:
   QAction* m_pActionShowStatIn[10];
   ezQtStatVisWidget* m_pStatHistoryWidgets[10];
 };
-

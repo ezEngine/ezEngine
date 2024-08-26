@@ -39,7 +39,7 @@ void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDe
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
       {
         ezStringBuilder tmp, tmp2;
-        tmp.Printf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
+        tmp.SetPrintf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
           sInputSlot.GetData(tmp2), it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
 
         ezLog::Warning(tmp);
@@ -155,8 +155,9 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(ezStringView sInputSlot, floa
   if (it.IsValid())
   {
     if (pValue)
-      *pValue = it.Value().m_fValue;
-
+    {
+      *pValue = s_bInputSlotResetRequired ? it.Value().m_fValue : it.Value().m_fValueOld;
+    }
     return it.Value().m_State;
   }
 
@@ -208,6 +209,7 @@ void ezInputManager::ResetInputSlotValues()
   // this is crucial for accumulating the new values and for resetting the input state later
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
+    it.Value().m_fValueOld = it.Value().m_fValue;
     it.Value().m_fValue = 0.0f;
   }
 }
@@ -404,5 +406,3 @@ ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
       return "";
   }
 }
-
-

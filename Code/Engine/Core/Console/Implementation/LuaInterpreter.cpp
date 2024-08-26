@@ -186,23 +186,23 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
       }
       else
       {
-        if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
+        if (pCVAR->GetFlags().IsAnySet(ezCVarFlags::ShowRequiresRestartMsg))
         {
           inout_state.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
-        sTemp.Format("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+        sTemp.SetFormat("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
         inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+      sTemp.SetFormat("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
       inout_state.AddOutputLine(sTemp);
 
       if (!pCVAR->GetDescription().IsEmpty())
       {
-        sTemp.Format("  Description: {0}", pCVAR->GetDescription());
+        sTemp.SetFormat("  Description: {0}", pCVAR->GetDescription());
         inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
       else
@@ -348,5 +348,3 @@ __metatable = \"Access Denied\",\n\
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-

@@ -3,27 +3,38 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Memory/Allocator.h>
-#include <Foundation/Memory/Policies/HeapAllocation.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
+#include <Foundation/Memory/Policies/AllocPolicyHeap.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && TRACY_ENABLE && TRACY_ENABLE_MEMORY_TRACKING
+#  include <tracy/tracy/Tracy.hpp>
+
+#  define EZ_TRACY_CALLSTACK_DEPTH 16
+#  define EZ_TRACY_ALLOC_CS(ptr, size, name) TracyAllocNS(ptr, size, EZ_TRACY_CALLSTACK_DEPTH, name)
+#  define EZ_TRACY_FREE_CS(ptr, name) TracyFreeNS(ptr, EZ_TRACY_CALLSTACK_DEPTH, name)
+#  define EZ_TRACY_ALLOC(ptr, size, name) TracyAllocN(ptr, size, name)
+#  define EZ_TRACY_FREE(ptr, name) TracyFreeN(ptr, name)
+#else
+#  define EZ_TRACY_ALLOC_CS(ptr, size, name)
+#  define EZ_TRACY_FREE_CS(ptr, name)
+#  define EZ_TRACY_ALLOC(ptr, size, name)
+#  define EZ_TRACY_FREE(ptr, name)
 #endif
 
 namespace
 {
   // no tracking for the tracker data itself
-  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0>;
+  using TrackerDataAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 
   struct TrackerDataAllocatorWrapper
   {
-    EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return s_pTrackerDataAllocator; }
+    EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return s_pTrackerDataAllocator; }
   };
 
 
@@ -32,11 +43,11 @@ namespace
     EZ_ALWAYS_INLINE AllocatorData() = default;
 
     ezHybridString<32, TrackerDataAllocatorWrapper> m_sName;
-    ezBitflags<ezMemoryTrackingFlags> m_Flags;
+    ezAllocatorTrackingMode m_TrackingMode;
 
     ezAllocatorId m_ParentId;
 
-    ezAllocatorBase::Stats m_Stats;
+    ezAllocator::Stats m_Stats;
 
     ezHashTable<const void*, ezMemoryTracker::AllocationInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> m_Allocations;
   };
@@ -50,8 +61,6 @@ namespace
 
     using AllocatorTable = ezIdTable<ezAllocatorId, AllocatorData, TrackerDataAllocatorWrapper>;
     AllocatorTable m_AllocatorData;
-
-    ezAllocatorId m_StaticAllocatorId;
   };
 
   static TrackerData* s_pTrackerData;
@@ -119,7 +128,7 @@ ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
   return CAST_ITER(m_pData)->Value().m_ParentId;
 }
 
-const ezAllocatorBase::Stats& ezMemoryTracker::Iterator::Stats() const
+const ezAllocator::Stats& ezMemoryTracker::Iterator::Stats() const
 {
   return CAST_ITER(m_pData)->Value().m_Stats;
 }
@@ -143,7 +152,7 @@ ezMemoryTracker::Iterator::~Iterator()
 
 
 // static
-ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
+ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezAllocatorTrackingMode mode, ezAllocatorId parentId)
 {
   Initialize();
 
@@ -151,17 +160,10 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<
 
   AllocatorData data;
   data.m_sName = sName;
-  data.m_Flags = flags;
+  data.m_TrackingMode = mode;
   data.m_ParentId = parentId;
 
-  ezAllocatorId id = s_pTrackerData->m_AllocatorData.Insert(data);
-
-  if (data.m_sName == EZ_STATIC_ALLOCATOR_NAME)
-  {
-    s_pTrackerData->m_StaticAllocatorId = id;
-  }
-
-  return id;
+  return s_pTrackerData->m_AllocatorData.Insert(data);
 }
 
 // static
@@ -172,7 +174,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
 
   ezUInt32 uiLiveAllocations = data.m_Allocations.GetCount();
-  if (uiLiveAllocations != 0)
+  if (uiLiveAllocations != 0 && data.m_TrackingMode > ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks)
   {
     for (auto it = data.m_Allocations.GetIterator(); it.IsValid(); ++it)
     {
@@ -186,14 +188,12 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
+void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezAllocatorTrackingMode mode, const void* pPtr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
 {
-  EZ_ASSERT_DEV((flags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0, "Allocation tracking is turned off, but ezMemoryTracker::AddAllocation() is called anyway.");
-
   EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
 
   ezArrayPtr<void*> stackTrace;
-  if (flags.IsSet(ezMemoryTrackingFlags::EnableStackTrace))
+  if (mode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
   {
     void* pBuffer[64];
     ezArrayPtr<void*> tempTrace(pBuffer);
@@ -212,11 +212,19 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemo
     data.m_Stats.m_uiPerFrameAllocationSize += uiSize;
     data.m_Stats.m_PerFrameAllocationTime += allocationTime;
 
-    EZ_ASSERT_DEBUG(data.m_Flags == flags, "Given flags have to be identical to allocator flags");
     auto pInfo = &data.m_Allocations[pPtr];
     pInfo->m_uiSize = uiSize;
     pInfo->m_uiAlignment = (ezUInt16)uiAlign;
     pInfo->SetStackTrace(stackTrace);
+
+    if (mode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+    {
+      EZ_TRACY_ALLOC_CS(pPtr, uiSize, data.m_sName.GetData());
+    }
+    else
+    {
+      EZ_TRACY_ALLOC(pPtr, uiSize, data.m_sName.GetData());
+    }
   }
 }
 
@@ -237,6 +245,15 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pP
       data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
 
       stackTrace = info.GetStackTrace();
+
+      if (data.m_TrackingMode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+      {
+        EZ_TRACY_FREE_CS(pPtr, data.m_sName.GetData());
+      }
+      else
+      {
+        EZ_TRACY_FREE(pPtr, data.m_sName.GetData());
+      }
     }
     else
     {
@@ -258,13 +275,30 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
     data.m_Stats.m_uiNumDeallocations++;
     data.m_Stats.m_uiAllocationSize -= info.m_uiSize;
 
+    if (data.m_TrackingMode >= ezAllocatorTrackingMode::AllocationStatsAndStacktraces)
+    {
+      for (const auto& alloc : data.m_Allocations)
+      {
+        EZ_IGNORE_UNUSED(alloc);
+        EZ_TRACY_FREE_CS(alloc.Key(), data.m_sName.GetData());
+      }
+    }
+    else
+    {
+      for (const auto& alloc : data.m_Allocations)
+      {
+        EZ_IGNORE_UNUSED(alloc);
+        EZ_TRACY_FREE(alloc.Key(), data.m_sName.GetData());
+      }
+    }
+
     EZ_DELETE_ARRAY(s_pTrackerDataAllocator, info.GetStackTrace());
   }
   data.m_Allocations.Clear();
 }
 
 // static
-void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats)
+void ezMemoryTracker::SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocator::Stats& stats)
 {
   EZ_LOCK(*s_pTrackerData);
 
@@ -293,7 +327,7 @@ ezStringView ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 }
 
 // static
-const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
+const ezAllocator::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
 
@@ -326,27 +360,24 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
   return invalidInfo;
 }
 
-
 struct LeakInfo
 {
   EZ_DECLARE_POD_TYPE();
 
   ezAllocatorId m_AllocatorId;
   size_t m_uiSize = 0;
-  const void* m_pParentLeak = nullptr;
-
-  EZ_ALWAYS_INLINE bool IsRootLeak() const { return m_pParentLeak == nullptr && m_AllocatorId != s_pTrackerData->m_StaticAllocatorId; }
+  bool m_bIsRootLeak = true;
 };
 
 // static
-void ezMemoryTracker::DumpMemoryLeaks()
+ezUInt32 ezMemoryTracker::PrintMemoryLeaks(PrintFunc printfunc)
 {
   if (s_pTrackerData == nullptr) // if both tracking and tracing is disabled there is no tracker data
-    return;
+    return 0;
+
   EZ_LOCK(*s_pTrackerData);
 
-  static ezHashTable<const void*, LeakInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> leakTable;
-  leakTable.Clear();
+  ezHashTable<const void*, LeakInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> leakTable;
 
   // first collect all leaks
   for (auto it = s_pTrackerData->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
@@ -357,7 +388,11 @@ void ezMemoryTracker::DumpMemoryLeaks()
       LeakInfo leak;
       leak.m_AllocatorId = it.Id();
       leak.m_uiSize = it2.Value().m_uiSize;
-      leak.m_pParentLeak = nullptr;
+
+      if (data.m_TrackingMode == ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks)
+      {
+        leak.m_bIsRootLeak = false;
+      }
 
       leakTable.Insert(it2.Key(), leak);
     }
@@ -379,7 +414,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
       LeakInfo* dependentLeak = nullptr;
       if (leakTable.TryGetValue(testPtr, dependentLeak))
       {
-        dependentLeak->m_pParentLeak = ptr;
+        dependentLeak->m_bIsRootLeak = false;
       }
 
       curPtr = ezMemoryUtils::AddByteOffset(curPtr, sizeof(void*));
@@ -387,40 +422,58 @@ void ezMemoryTracker::DumpMemoryLeaks()
   }
 
   // dump leaks
-  ezUInt64 uiNumLeaks = 0;
+  ezUInt32 uiNumLeaks = 0;
 
   for (auto it = leakTable.GetIterator(); it.IsValid(); ++it)
   {
     const void* ptr = it.Key();
     const LeakInfo& leak = it.Value();
 
-    if (leak.IsRootLeak())
+    if (leak.m_bIsRootLeak)
     {
-      if (uiNumLeaks == 0)
-      {
-        ezLog::Print("\n\n--------------------------------------------------------------------\n"
-                     "Memory Leak Report:"
-                     "\n--------------------------------------------------------------------\n\n");
-      }
-
       const AllocatorData& data = s_pTrackerData->m_AllocatorData[leak.m_AllocatorId];
-      ezMemoryTracker::AllocationInfo info;
-      data.m_Allocations.TryGetValue(ptr, info);
 
-      DumpLeak(info, data.m_sName.GetData());
+      if (data.m_TrackingMode != ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks)
+      {
+        if (uiNumLeaks == 0)
+        {
+          printfunc("\n\n--------------------------------------------------------------------\n"
+                    "Memory Leak Report:"
+                    "\n--------------------------------------------------------------------\n\n");
+        }
 
-      ++uiNumLeaks;
+        ezMemoryTracker::AllocationInfo info;
+        data.m_Allocations.TryGetValue(ptr, info);
+
+        DumpLeak(info, data.m_sName.GetData());
+
+        ++uiNumLeaks;
+      }
     }
   }
 
   if (uiNumLeaks > 0)
   {
-    ezLog::Printf("\n--------------------------------------------------------------------\n"
-                  "Found %llu root memory leak(s)."
-                  "\n--------------------------------------------------------------------\n\n",
+    char tmp[1024];
+    ezStringUtils::snprintf(tmp, 1024, "\n--------------------------------------------------------------------\n"
+                                       "Found %u root memory leak(s)."
+                                       "\n--------------------------------------------------------------------\n\n",
       uiNumLeaks);
 
-    EZ_REPORT_FAILURE("Found {0} root memory leak(s).", uiNumLeaks);
+    printfunc(tmp);
+  }
+
+  return uiNumLeaks;
+}
+
+// static
+void ezMemoryTracker::DumpMemoryLeaks()
+{
+  const ezUInt32 uiNumLeaks = PrintMemoryLeaks(ezLog::Print);
+
+  if (uiNumLeaks > 0)
+  {
+    EZ_REPORT_FAILURE("Found {0} root memory leak(s). See console output for details.", uiNumLeaks);
   }
 }
 
@@ -430,5 +483,3 @@ ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
   auto pInnerIt = EZ_NEW(s_pTrackerDataAllocator, TrackerData::AllocatorTable::Iterator, s_pTrackerData->m_AllocatorData.GetIterator());
   return Iterator(pInnerIt);
 }
-
-

@@ -2,6 +2,17 @@
 
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 
+ezCommandBufferPoolVulkan::ezCommandBufferPoolVulkan(ezAllocator* pAllocator)
+  : m_CommandBuffers(pAllocator)
+{
+}
+
+ezCommandBufferPoolVulkan::~ezCommandBufferPoolVulkan()
+{
+  EZ_ASSERT_DEBUG(m_CommandBuffers.IsEmpty(), "Either DeInitialize was not called or ReclaimCommandBuffer was called after DeInitialize");
+  EZ_ASSERT_DEBUG(!m_device, "DeInitialize was not called");
+}
+
 void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex)
 {
   m_device = device;

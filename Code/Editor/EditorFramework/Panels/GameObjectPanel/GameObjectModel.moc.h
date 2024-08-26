@@ -39,4 +39,3 @@ public:
   ezQtGameObjectModel(const ezDocumentObjectManager* pObjectManager, const ezUuid& root = ezUuid());
   ~ezQtGameObjectModel();
 };
-

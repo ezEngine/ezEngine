@@ -17,7 +17,8 @@
 ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
   : ezQtSceneDocumentWindowBase(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  {
     ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindowBase*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;

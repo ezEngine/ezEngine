@@ -37,7 +37,7 @@ class ezEventBase
 {
 protected:
   /// \brief Constructor.
-  ezEventBase(ezAllocatorBase* pAllocator);
+  ezEventBase(ezAllocator* pAllocator);
   ~ezEventBase();
 
 public:
@@ -177,7 +177,7 @@ class ezEvent : public ezEventBase<EventData, MutexType, EventType>
 {
 public:
   ezEvent();
-  ezEvent(ezAllocatorBase* pAllocator);
+  ezEvent(ezAllocator* pAllocator);
 };
 
 template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>

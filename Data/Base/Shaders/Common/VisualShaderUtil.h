@@ -336,4 +336,3 @@ float4 ToSameType(float4 value, float4 type)
 {
   return value;
 }
-

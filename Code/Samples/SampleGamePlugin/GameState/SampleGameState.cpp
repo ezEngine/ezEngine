@@ -24,11 +24,11 @@ void SampleGameState::ConFunc_Print(ezString sText)
 }
 // END-DOCS-CODE-SNIPPET
 
-void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void SampleGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
 // BEGIN-DOCS-CODE-SNIPPET: imgui-alloc
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
@@ -120,11 +120,6 @@ void SampleGameState::BeforeWorldUpdate()
 #endif
 }
 
-ezGameStatePriority SampleGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
-}
-
 void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
@@ -199,7 +194,7 @@ void SampleGameState::ProcessInput()
     // Here we use a path relative to the project directory.
     // We have to reference the 'transformed' file, not the source file.
     // This would break if the source asset is moved or renamed.
-    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezMesh");
+    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezBinMesh");
 
     // here we use the asset GUID to reference the transformed asset
     // we can copy the GUID from the asset browser

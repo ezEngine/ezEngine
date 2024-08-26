@@ -42,7 +42,7 @@ DVec3::DVec3(double inX, double inY, double inZ)
 	mValue = _mm256_set_pd(inZ, inZ, inY, inX); // Assure Z and W are the same
 #elif defined(JPH_USE_SSE)
 	mValue.mLow = _mm_set_pd(inY, inX);
-	mValue.mHigh = _mm_set_pd1(inZ);
+	mValue.mHigh = _mm_set1_pd(inZ);
 #elif defined(JPH_USE_NEON)
 	mValue.val[0] = vcombine_f64(vcreate_f64(*reinterpret_cast<uint64 *>(&inX)), vcreate_f64(*reinterpret_cast<uint64 *>(&inY)));
 	mValue.val[1] = vdupq_n_f64(inZ);
@@ -66,7 +66,7 @@ DVec3::DVec3(const Double3 &inV)
 	mValue = _mm256_blend_pd(xy, z, 0b1100); // Assure Z and W are the same
 #elif defined(JPH_USE_SSE)
 	mValue.mLow = _mm_loadu_pd(&inV.x);
-	mValue.mHigh = _mm_set_pd1(inV.z);
+	mValue.mHigh = _mm_set1_pd(inV.z);
 #elif defined(JPH_USE_NEON)
 	mValue.val[0] = vld1q_f64(&inV.x);
 	mValue.val[1] = vdupq_n_f64(inV.z);
@@ -610,9 +610,18 @@ DVec3 DVec3::operator - () const
 	__m128d zero = _mm_setzero_pd();
 	return DVec3({ _mm_sub_pd(zero, mValue.mLow), _mm_sub_pd(zero, mValue.mHigh) });
 #elif defined(JPH_USE_NEON)
-	return DVec3({ vnegq_f64(mValue.val[0]), vnegq_f64(mValue.val[1]) });
+	#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+		float64x2_t zero = vdupq_n_f64(0);
+		return DVec3({ vsubq_f64(zero, mValue.val[0]), vsubq_f64(zero, mValue.val[1]) });
+	#else
+		return DVec3({ vnegq_f64(mValue.val[0]), vnegq_f64(mValue.val[1]) });
+	#endif
 #else
-	return DVec3(-mF64[0], -mF64[1], -mF64[2]);
+	#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+		return DVec3(0.0 - mF64[0], 0.0 - mF64[1], 0.0 - mF64[2]);
+	#else
+		return DVec3(-mF64[0], -mF64[1], -mF64[2]);
+	#endif
 #endif
 }
 
@@ -721,11 +730,11 @@ DVec3 DVec3::Cross(DVec3Arg inV2) const
 {
 #if defined(JPH_USE_AVX2)
 	__m256d t1 = _mm256_permute4x64_pd(inV2.mValue, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
-    t1 = _mm256_mul_pd(t1, mValue);
-    __m256d t2 = _mm256_permute4x64_pd(mValue, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
-    t2 = _mm256_mul_pd(t2, inV2.mValue);
-    __m256d t3 = _mm256_sub_pd(t1, t2);
-    return _mm256_permute4x64_pd(t3, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
+	t1 = _mm256_mul_pd(t1, mValue);
+	__m256d t2 = _mm256_permute4x64_pd(mValue, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
+	t2 = _mm256_mul_pd(t2, inV2.mValue);
+	__m256d t3 = _mm256_sub_pd(t1, t2);
+	return _mm256_permute4x64_pd(t3, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
 #else
 	return DVec3(mF64[1] * inV2.mF64[2] - mF64[2] * inV2.mF64[1],
 				 mF64[2] * inV2.mF64[0] - mF64[0] * inV2.mF64[2],
@@ -737,10 +746,10 @@ double DVec3::Dot(DVec3Arg inV2) const
 {
 #if defined(JPH_USE_AVX)
 	__m256d mul = _mm256_mul_pd(mValue, inV2.mValue);
-    __m128d xy = _mm256_castpd256_pd128(mul);
+	__m128d xy = _mm256_castpd256_pd128(mul);
 	__m128d yx = _mm_shuffle_pd(xy, xy, 1);
 	__m128d sum = _mm_add_pd(xy, yx);
-    __m128d zw = _mm256_extractf128_pd(mul, 1);
+	__m128d zw = _mm256_extractf128_pd(mul, 1);
 	sum = _mm_add_pd(sum, zw);
 	return _mm_cvtsd_f64(sum);
 #elif defined(JPH_USE_SSE)
@@ -751,9 +760,9 @@ double DVec3::Dot(DVec3Arg inV2) const
 	sum = _mm_add_pd(sum, z);
 	return _mm_cvtsd_f64(sum);
 #elif defined(JPH_USE_NEON)
-    float64x2_t mul_low = vmulq_f64(mValue.val[0], inV2.mValue.val[0]);
-    float64x2_t mul_high = vmulq_f64(mValue.val[1], inV2.mValue.val[1]);
-    return vaddvq_f64(mul_low) + vgetq_lane_f64(mul_high, 0);
+	float64x2_t mul_low = vmulq_f64(mValue.val[0], inV2.mValue.val[0]);
+	float64x2_t mul_high = vmulq_f64(mValue.val[1], inV2.mValue.val[1]);
+	return vaddvq_f64(mul_low) + vgetq_lane_f64(mul_high, 0);
 #else
 	double dot = 0.0;
 	for (int i = 0; i < 3; i++)

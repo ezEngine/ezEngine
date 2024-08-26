@@ -32,18 +32,18 @@ public:
 
   struct PipelineLayoutDesc
   {
-    EZ_DECLARE_POD_TYPE();
-    vk::DescriptorSetLayout m_layout;
+    ezHybridArray<vk::DescriptorSetLayout, 4> m_layout;
+    vk::PushConstantRange m_pushConstants;
   };
 
   struct GraphicsPipelineDesc
   {
     EZ_DECLARE_POD_TYPE();
-    vk::RenderPass m_renderPass;
-    vk::PipelineLayout m_layout;
+    vk::RenderPass m_renderPass;     // Created from ezGALRenderingSetup
+    vk::PipelineLayout m_layout;     // Created from shader
     ezEnum<ezGALPrimitiveTopology> m_topology;
     ezEnum<ezGALMSAASampleCount> m_msaa;
-    ezUInt8 m_uiAttachmentCount = 0;
+    ezUInt8 m_uiAttachmentCount = 0; // DX12 requires format list for RT and DT
     const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState = nullptr;
     const ezGALBlendStateVulkan* m_pCurrentBlendState = nullptr;
     const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState = nullptr;
@@ -163,9 +163,9 @@ private:
   static vk::Device s_device;
   // We have a N to 1 mapping for ezGALRenderingSetup to vk::RenderPass as multiple ezGALRenderingSetup can share the same RenderPassDesc.
   // Thus, we have a two stage resolve to the vk::RenderPass. If a ezGALRenderingSetup is not present in s_shallowRenderPasses we create the RenderPassDesc which has a 1 to 1 relationship with vk::RenderPass and look that one up in s_renderPasses. Finally we add the entry to s_shallowRenderPasses to make sure a shallow lookup will work on the next query.
-  static ezHashTable<ezGALRenderingSetup, vk::RenderPass, ResourceCacheHash> s_shallowRenderPasses; //#TODO_VULKAN cache invalidation
+  static ezHashTable<ezGALRenderingSetup, vk::RenderPass, ResourceCacheHash> s_shallowRenderPasses; // #TODO_VULKAN cache invalidation
   static ezHashTable<RenderPassDesc, vk::RenderPass, ResourceCacheHash> s_renderPasses;
-  static ezHashTable<FramebufferKey, FrameBufferCache, ResourceCacheHash> s_frameBuffers; //#TODO_VULKAN cache invalidation
+  static ezHashTable<FramebufferKey, FrameBufferCache, ResourceCacheHash> s_frameBuffers;           // #TODO_VULKAN cache invalidation
 
   static ezHashTable<PipelineLayoutDesc, vk::PipelineLayout, ResourceCacheHash> s_pipelineLayouts;
   static GraphicsPipelineMap s_graphicsPipelines;

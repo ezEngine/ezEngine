@@ -7,7 +7,7 @@
 #  include <combaseapi.h>
 #  include <rpc.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
+static_assert(sizeof(ezUInt64) * 2 == sizeof(UUID));
 
 ezUuid ezUuid::MakeUuid()
 {
@@ -19,11 +19,10 @@ ezUuid ezUuid::MakeUuid()
   // this also works on UWP
   GUID* guid = reinterpret_cast<GUID*>(&uiUuidData[0]);
   HRESULT hr = CoCreateGuid(guid);
+  EZ_IGNORE_UNUSED(hr);
   EZ_ASSERT_DEBUG(SUCCEEDED(hr), "CoCreateGuid failed, guid might be invalid!");
 
   return ezUuid(uiUuidData[1], uiUuidData[0]);
 }
 
 #endif
-
-

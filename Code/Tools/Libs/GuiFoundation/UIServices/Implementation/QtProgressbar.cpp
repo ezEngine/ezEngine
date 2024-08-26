@@ -95,7 +95,8 @@ void ezQtProgressbar::EnsureCreated()
   if (!m_pProgress->AllowUserCancel())
     m_pDialog->setCancelButton(nullptr);
 
-  auto ClearDialog = [this]() {
+  auto ClearDialog = [this]()
+  {
     // this can happen during tests
     m_pDialog = nullptr;
   };

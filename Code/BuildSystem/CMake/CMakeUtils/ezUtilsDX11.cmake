@@ -1,4 +1,10 @@
 # #####################################
+# ## DXVK Support
+# #####################################
+
+set(EZ_BUILD_EXPERIMENTAL_DXVK OFF CACHE BOOL "Whether to emulate DX11 on Linux using DXVK-native support.")
+
+# #####################################
 # ## ez_link_target_dx11(<target>)
 # #####################################
 
@@ -9,16 +15,37 @@ function(ez_link_target_dx11 TARGET_NAME)
 
 	# only execute find_package once
 	if(NOT EZ_DX11_LIBRARY)
-		find_package(DirectX11 REQUIRED)
+	
+		if(EZ_CMAKE_PLATFORM_WINDOWS)
+			find_package(DirectX11 REQUIRED)
 
-		if(DirectX11_FOUND)
-			set_property(GLOBAL PROPERTY EZ_DX11_LIBRARY ${DirectX11_LIBRARY})
-			set_property(GLOBAL PROPERTY EZ_DX11_LIBRARIES ${DirectX11_D3D11_LIBRARIES})
-		endif()
+			if(DirectX11_FOUND)
+				set_property(GLOBAL PROPERTY EZ_DX11_LIBRARY ${DirectX11_LIBRARY})
+				set_property(GLOBAL PROPERTY EZ_DX11_LIBRARIES ${DirectX11_D3D11_LIBRARIES})
+			endif()
+
+		elseif(EZ_CMAKE_PLATFORM_LINUX AND EZ_BUILD_EXPERIMENTAL_DXVK)
+			pkg_search_module(DirectX11 REQUIRED dxvk-d3d11)
+			pkg_search_module(DirectX11GI REQUIRED dxvk-dxgi)
+			if(DirectX11_FOUND AND DirectX11GI_FOUND)
+				list(APPEND allDxLibs ${DirectX11_LINK_LIBRARIES} ${DirectX11GI_LINK_LIBRARIES})
+				list(APPEND allDxIncludes ${DirectX11_INCLUDE_DIRS} ${DirectX11GI_INCLUDE_DIRS})
+				set_property(GLOBAL PROPERTY EZ_DX11_LIBRARY "DXVK")
+				set_property(GLOBAL PROPERTY EZ_DX11_LIBRARIES ${allDxLibs})
+				set_property(GLOBAL PROPERTY EZ_DX11_INCLUDES ${allDxIncludes})
+			endif()
+		endif()		
 	endif()
 
 	get_property(EZ_DX11_LIBRARY GLOBAL PROPERTY EZ_DX11_LIBRARY)
 	get_property(EZ_DX11_LIBRARIES GLOBAL PROPERTY EZ_DX11_LIBRARIES)
+
+	if(${EZ_DX11_LIBRARY} MATCHES "DXVK")
+		# Add DXVK headers as system headers so that clang does not complain about warnings.
+		get_property(EZ_DX11_INCLUDES GLOBAL PROPERTY EZ_DX11_INCLUDES)
+		target_include_directories(${TARGET_NAME} SYSTEM PUBLIC ${EZ_DX11_INCLUDES})
+		target_compile_definitions(${TARGET_NAME} PUBLIC EZ_USE_DXVK)
+	endif()
 
 	target_link_libraries(${TARGET_NAME}
 		PRIVATE
@@ -38,7 +65,7 @@ function(ez_link_target_dx11 TARGET_NAME)
 		endif()
 	endif()
 
-	# arm dll is not provide in the windows SDK.
+	# arm dll is not provided in the windows SDK.
 	if(NOT EZ_CMAKE_ARCHITECTURE_ARM)
 		if(${EZ_DX11_LIBRARY} MATCHES "/8\\.0/")
 			set(DX11_COPY_DLLS_WINSDKVERSION "8.0")
@@ -66,5 +93,5 @@ endfunction()
 # ## ez_requires_d3d()
 # #####################################
 macro(ez_requires_d3d)
-	ez_requires_windows()
+	ez_requires_one_of(EZ_CMAKE_PLATFORM_WINDOWS EZ_BUILD_EXPERIMENTAL_DXVK)
 endmacro()

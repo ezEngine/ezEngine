@@ -155,8 +155,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezSimdVec4f) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_ALIGNMENT_OF(ezSimdVec4f) == 16);
+    static_assert(sizeof(ezSimdVec4f) == 16);
+    static_assert(EZ_ALIGNMENT_OF(ezSimdVec4f) == 16);
 #endif
 
     ezSimdVec4f vInit1F(2.0f);
@@ -439,6 +439,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(!a.IsNaN<3>());
       EZ_TEST_BOOL(a.IsValid<2>());
       EZ_TEST_BOOL(!a.IsValid<3>());
+
+      a.Set(-1.0f, -2.0f, -3.0f, -4.0f);
+      EZ_TEST_BOOL(a.IsValid<1>());
+      EZ_TEST_BOOL(a.IsValid<2>());
+      EZ_TEST_BOOL(a.IsValid<3>());
+      EZ_TEST_BOOL(a.IsValid<4>());
     }
   }
 
@@ -460,6 +466,36 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
     b = a.Get<ezSwizzle::WZYX>();
     EZ_TEST_BOOL(b.x() == 9.0f && b.y() == 7.0f && b.z() == 5.0f && b.w() == 3.0f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCombined")
+  {
+    ezSimdVec4f a(2.0f, 4.0f, 6.0f, 8.0f);
+    ezSimdVec4f b(3.0f, 5.0f, 7.0f, 9.0f);
+
+    ezSimdVec4f c = a.GetCombined<ezSwizzle::XXXX>(b);
+    EZ_TEST_BOOL(c.x() == a.x() && c.y() == a.x() && c.z() == b.x() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::YYYX>(b);
+    EZ_TEST_BOOL(c.x() == a.y() && c.y() == a.y() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::ZZZX>(b);
+    EZ_TEST_BOOL(c.x() == a.z() && c.y() == a.z() && c.z() == b.z() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::WWWX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.w() && c.z() == b.w() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::WZYX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.z() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::XYZW>(b);
+    EZ_TEST_BOOL(c.x() == a.x() && c.y() == a.y() && c.z() == b.z() && c.w() == b.w());
+
+    c = a.GetCombined<ezSwizzle::WZYX>(b);
+    EZ_TEST_BOOL(c.x() == a.w() && c.y() == a.z() && c.z() == b.y() && c.w() == b.x());
+
+    c = a.GetCombined<ezSwizzle::YYYY>(b);
+    EZ_TEST_BOOL(c.x() == a.y() && c.y() == a.y() && c.z() == b.y() && c.w() == b.y());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")

@@ -66,8 +66,10 @@ public:
 
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
+  virtual void BeforeCoreSystemsShutdown() override;
 
   void MessageFunc(const ezProcessMessage* pMsg);
+
 
 private:
   ezLogWriter::HTML m_LogHTML;

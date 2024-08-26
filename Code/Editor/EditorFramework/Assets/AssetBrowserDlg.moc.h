@@ -4,12 +4,12 @@
 #include <EditorFramework/ui_AssetBrowserDlg.h>
 #include <QDialog>
 
-class ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
 {
   Q_OBJECT
 
 public:
-  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters);
+  ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& preselectedAsset, ezStringView sVisibleFilters, ezStringView sWindowTitle = {}, ezStringView sRequiredTag = {});
   ezQtAssetBrowserDlg(QWidget* pParent, ezStringView sWindowTitle, ezStringView sPreselectedFileAbs, ezStringView sFileExtensions);
   ~ezQtAssetBrowserDlg();
 
@@ -30,6 +30,7 @@ private:
   ezString m_sSelectedAssetPathAbsolute;
   ezUuid m_SelectedAssetGuid;
   ezString m_sVisibleFilters;
+  ezString m_sRequiredTag;
 
   static bool s_bShowItemsInSubFolder;
   static bool s_bShowItemsInHiddenFolder;
@@ -38,4 +39,3 @@ private:
   static ezMap<ezString, ezString> s_PathFilter;
   static ezMap<ezString, ezString> s_TypeFilter;
 };
-

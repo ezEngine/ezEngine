@@ -1,0 +1,42 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[VERTEXSHADER]
+
+#include "Texture.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.texcoord0;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "Texture.h"
+
+Texture2D<uint4> DiffuseTexture;
+SamplerState PointClampSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float width, height, levels;
+  DiffuseTexture.GetDimensions(0, width, height, levels);
+  float4 color = DiffuseTexture.Load( int3(Input.texcoord0.x * width, Input.texcoord0.y * height, 0));
+  color /= float4(127,127,127,1);
+  // Integer readback textures store stores values between 0 and 127 (see ReadbackInt.ezShader).
+  // If we sample an int texture without an alpha channel it gets set to 1.
+  // So we just assume that any alpha value > 1 comes from an actual alpha channel and needs to be normalized.
+  // This is not correct if we would store 1 in the actual alpha channel but the test never does this so this works.
+  if (color.a > 1)
+  {
+    color.a /= 127;
+  }
+  return color;
+}

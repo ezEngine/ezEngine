@@ -45,16 +45,16 @@ Description:
     If all inputs are files, the mode is 'unpack'.
 
 Examples:
-    ArchiveTool.exe "C:/Stuff"
+    ezArchiveTool.exe "C:/Stuff"
       Packs all data in "C:/Stuff" into "C:/Stuff.ezArchive"
 
-    ArchiveTool.exe "C:/Stuff" -out "C:/MyStuff.ezArchive"
+    ezArchiveTool.exe "C:/Stuff" -out "C:/MyStuff.ezArchive"
       Packs all data in "C:/Stuff" into "C:/MyStuff.ezArchive"
 
-    ArchiveTool.exe "C:/Stuff.ezArchive"
+    ezArchiveTool.exe "C:/Stuff.ezArchive"
       Unpacks all data from the archive into "C:/Stuff"
 
-    ArchiveTool.exe "C:/Stuff.ezArchive" -out "C:/MyStuff"
+    ezArchiveTool.exe "C:/Stuff.ezArchive" -out "C:/MyStuff"
       Unpacks all data from the archive into "C:/MyStuff"
 */
 
@@ -96,16 +96,16 @@ If all inputs are files, the mode is 'unpack'.\n\
   "");
 
 ezCommandLineOptionDoc opt_Examples("_ArchiveTool", "Examples:", "", "\
-ArchiveTool.exe \"C:/Stuff\"\n\
+ezArchiveTool.exe \"C:/Stuff\"\n\
   Packs all data in \"C:/Stuff\" into \"C:/Stuff.ezArchive\"\n\
 \n\
-ArchiveTool.exe \"C:/Stuff\" -out \"C:/MyStuff.ezArchive\"\n\
+ezArchiveTool.exe \"C:/Stuff\" -out \"C:/MyStuff.ezArchive\"\n\
   Packs all data in \"C:/Stuff\" into \"C:/MyStuff.ezArchive\"\n\
 \n\
-ArchiveTool.exe \"C:/Stuff.ezArchive\"\n\
+ezArchiveTool.exe \"C:/Stuff.ezArchive\"\n\
   Unpacks all data from the archive into \"C:/Stuff\"\n\
 \n\
-ArchiveTool.exe \"C:/Stuff.ezArchive\" -out \"C:/MyStuff\"\n\
+ezArchiveTool.exe \"C:/Stuff.ezArchive\" -out \"C:/MyStuff\"\n\
   Unpacks all data from the archive into \"C:/MyStuff\"\n\
 ",
   "");
@@ -270,7 +270,7 @@ public:
   virtual void AfterCoreSystemsStartup() override
   {
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

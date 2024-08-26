@@ -1,10 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Math/Rect.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
@@ -82,7 +82,7 @@ ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezDecalAtlasResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -183,7 +183,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
   ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::HighQuality, td.m_SamplerDesc);
 
   ezStringBuilder sTexId;
-  sTexId.Format("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
+  sTexId.SetFormat("{0}_Tex{1}", GetResourceID(), s_uiDecalAtlasResources);
   ++s_uiDecalAtlasResources;
 
   out_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTexId, std::move(td));

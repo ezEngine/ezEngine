@@ -1,6 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Memory/EndianHelper.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
 {
@@ -62,5 +63,3 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
     pDataPointer = ezMemoryUtils::AddByteOffset(pDataPointer, uiStride);
   }
 }
-
-

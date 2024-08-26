@@ -2,9 +2,9 @@
 
 #include <EnginePluginRecast/NavMesh/NavMeshWorkerOp.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/Progress.h>
 
 // clang-format off

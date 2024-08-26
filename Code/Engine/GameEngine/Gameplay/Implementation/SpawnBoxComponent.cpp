@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnBoxComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(2.0f, 2.0f, 0.25f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
     EZ_ACCESSOR_PROPERTY("SpawnContinuously", GetSpawnContinuously, SetSpawnContinuously),
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiMinSpawnCount)->AddAttributes(new ezDefaultValueAttribute(10)),
@@ -52,26 +52,6 @@ void ezSpawnBoxComponent::SetHalfExtents(const ezVec3& value)
   {
     GetOwner()->UpdateLocalBounds();
   }
-}
-
-void ezSpawnBoxComponent::SetPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-  }
-
-  m_hPrefab = hResource;
-}
-
-const char* ezSpawnBoxComponent::GetPrefabFile() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
 }
 
 bool ezSpawnBoxComponent::GetSpawnAtStart() const
@@ -240,9 +220,9 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     ezTransform tLocal = ezTransform::MakeIdentity();
-    tLocal.m_vPosition.x = rnd.DoubleMinMax(-m_vHalfExtents.x, m_vHalfExtents.x);
-    tLocal.m_vPosition.y = rnd.DoubleMinMax(-m_vHalfExtents.y, m_vHalfExtents.y);
-    tLocal.m_vPosition.z = rnd.DoubleMinMax(-m_vHalfExtents.z, m_vHalfExtents.z);
+    tLocal.m_vPosition.x = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.x, m_vHalfExtents.x));
+    tLocal.m_vPosition.y = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.y, m_vHalfExtents.y));
+    tLocal.m_vPosition.z = static_cast<float>(rnd.DoubleMinMax(-m_vHalfExtents.z, m_vHalfExtents.z));
 
     if (m_MaxRotationZ.GetRadian() > 0)
     {
@@ -273,4 +253,3 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SpawnBoxComponent);
-

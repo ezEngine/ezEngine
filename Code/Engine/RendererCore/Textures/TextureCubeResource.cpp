@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureUtils.h>

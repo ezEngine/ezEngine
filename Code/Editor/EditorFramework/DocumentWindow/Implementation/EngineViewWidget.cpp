@@ -77,7 +77,8 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     if (m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg))
     {
       // Wait for engine process response
-      auto callback = [&](ezProcessMessage* pMsg) -> bool {
+      auto callback = [&](ezProcessMessage* pMsg) -> bool
+      {
         auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
         return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
       };

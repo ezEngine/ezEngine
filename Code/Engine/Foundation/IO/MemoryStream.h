@@ -80,7 +80,7 @@ class ezMemoryStreamContainerStorage : public ezMemoryStreamStorageInterface
 {
 public:
   /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve some memory up front.
-  ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
     : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);
@@ -119,7 +119,7 @@ public:
   }
 
   /// \brief The data is guaranteed to be contiguous.
-  const ezUInt8* GetData() const { return &m_Storage[0]; }
+  const ezUInt8* GetData() const { return m_Storage.GetData(); }
 
 private:
   virtual void SetInternalSize(ezUInt64 uiSize) override
@@ -144,7 +144,7 @@ private:
 class EZ_FOUNDATION_DLL ezContiguousMemoryStreamStorage : public ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>
 {
 public:
-  ezContiguousMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezContiguousMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
     : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
   {
   }
@@ -160,10 +160,10 @@ public:
 class EZ_FOUNDATION_DLL ezDefaultMemoryStreamStorage final : public ezMemoryStreamStorageInterface
 {
 public:
-  ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
   ~ezDefaultMemoryStreamStorage();
 
-  virtual void Reserve(ezUInt64 uiBytes) override; // [tested]
+  virtual void Reserve(ezUInt64 uiBytes) override;    // [tested]
 
   virtual ezUInt64 GetStorageSize64() const override; // [tested]
   virtual void Clear() override;
@@ -205,14 +205,30 @@ public:
   ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer) { m_pStorage = pContainer; }
 
   virtual ezUInt64 GetStorageSize64() const override { return m_pStorage->GetCount(); }
-  virtual void Clear() override { m_pStorage->Clear(); }
-  virtual void Compact() override { m_pStorage->Compact(); }
+  virtual void Clear() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Clear();
+    }
+  }
+  virtual void Compact() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Compact();
+    }
+  }
+
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_pStorage->GetHeapMemoryUsage(); }
 
   virtual void Reserve(ezUInt64 uiBytes) override
   {
-    EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
-    m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
+      m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    }
   }
 
   virtual ezResult CopyToStream(ezStreamWriter& inout_stream) const override
@@ -230,17 +246,27 @@ public:
 
   virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override
   {
-    if (uiStartByte >= m_pStorage->GetCount())
-      return {};
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      if (uiStartByte >= m_pStorage->GetCount())
+        return {};
 
-    return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+      return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+    }
+    else
+    {
+      return {};
+    }
   }
 
 private:
   virtual void SetInternalSize(ezUInt64 uiSize) override
   {
-    EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
-    m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
+      m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    }
   }
 
   CONTAINER* m_pStorage;
@@ -375,7 +401,7 @@ public:
   void Reset(const void* pData, ezUInt64 uiDataSize); // [tested]
 
   template <typename CONTAINER>
-  void Reset(const CONTAINER& container) // [tested]
+  void Reset(const CONTAINER& container)              // [tested]
   {
     Reset(static_cast<const ezUInt8*>(container.GetData()), container.GetCount());
   }
@@ -431,12 +457,12 @@ public:
     Reset(ref_container);
   }
 
-  ~ezRawMemoryStreamWriter(); // [tested]
+  ~ezRawMemoryStreamWriter();                   // [tested]
 
   void Reset(void* pData, ezUInt64 uiDataSize); // [tested]
 
   template <typename CONTAINER>
-  void Reset(CONTAINER& ref_container) // [tested]
+  void Reset(CONTAINER& ref_container)          // [tested]
   {
     Reset(static_cast<ezUInt8*>(ref_container.GetData()), ref_container.GetCount());
   }

@@ -104,9 +104,8 @@ void ezMessageLoop_win::WakeUp()
   }
   // wake up the loop
   BOOL res = PostQueuedCompletionStatus(m_hPort, 0, reinterpret_cast<ULONG_PTR>(this), reinterpret_cast<OVERLAPPED*>(this));
+  EZ_IGNORE_UNUSED(res);
   EZ_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", ezArgErrorCode(GetLastError()));
 }
 
 #endif
-
-

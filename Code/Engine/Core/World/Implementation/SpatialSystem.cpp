@@ -25,7 +25,8 @@ void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, const 
 
   FindObjectsInSphere(
     sphere, queryParams,
-    [&](ezGameObject* pObject) {
+    [&](ezGameObject* pObject)
+    {
       out_objects.PushBack(pObject);
 
       return ezVisitorExecution::Continue;
@@ -38,7 +39,8 @@ void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, const QueryPara
 
   FindObjectsInBox(
     box, queryParams,
-    [&](ezGameObject* pObject) {
+    [&](ezGameObject* pObject)
+    {
       out_objects.PushBack(pObject);
 
       return ezVisitorExecution::Continue;

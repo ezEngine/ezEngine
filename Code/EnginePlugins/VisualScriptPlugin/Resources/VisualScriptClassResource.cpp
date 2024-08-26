@@ -1,9 +1,9 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <VisualScriptPlugin/Resources/VisualScriptClassResource.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>
@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassResource, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptClassResource);
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(TypeScript, Resource)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, Resource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ResourceManager" 
@@ -24,7 +24,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(TypeScript, Resource)
   {
     ezResourceManager::RegisterResourceForAssetType("VisualScriptClass", ezGetStaticRTTI<ezVisualScriptClassResource>());
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezVisualScriptClassResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezVisualScriptClassBin");
+        return sResourceID.HasExtension(".ezBinVisualScriptClass");
       });
   }
 

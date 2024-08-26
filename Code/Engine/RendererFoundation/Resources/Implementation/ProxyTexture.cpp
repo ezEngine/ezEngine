@@ -28,14 +28,20 @@ const ezGALResourceBase* ezGALProxyTexture::GetParentResource() const
 
 ezResult ezGALProxyTexture::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+  EZ_IGNORE_UNUSED(pInitialData);
+
   return EZ_SUCCESS;
 }
 
 ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   return EZ_SUCCESS;
 }
 
-void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const {}
-
-
+void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const
+{
+  EZ_IGNORE_UNUSED(szName);
+}

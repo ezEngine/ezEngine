@@ -9,6 +9,17 @@
 ezFrustum::ezFrustum() = default;
 ezFrustum::~ezFrustum() = default;
 
+ezFrustum ezFrustum::MakeInvalid()
+{
+  ezFrustum frustum;
+  for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
+  {
+    frustum.m_Planes[i] = ezPlane::MakeInvalid();
+  }
+
+  return frustum;
+}
+
 const ezPlane& ezFrustum::GetPlane(ezUInt8 uiPlane) const
 {
   EZ_ASSERT_DEBUG(uiPlane < PLANE_COUNT, "Invalid plane index.");
@@ -25,29 +36,76 @@ ezPlane& ezFrustum::AccessPlane(ezUInt8 uiPlane)
 
 bool ezFrustum::IsValid() const
 {
+  // For frustums with infinite farplanes we test a finite frustum slice for validity, as the
+  // computations below don't work when 4 of the corner points are at infinity.
+  if (ezMath::Abs(m_Planes[FarPlane].m_fNegDistance) == ezMath::Infinity<float>())
+  {
+    ezFrustum finiteSlice = *this;
+    finiteSlice.m_Planes[FarPlane].m_fNegDistance = -2.f * ezMath::Abs(m_Planes[NearPlane].m_fNegDistance);
+    return finiteSlice.IsValid();
+  }
+
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
   {
-    if (!m_Planes[i].IsValid())
+    if (!m_Planes[i].IsValid() || (i != FarPlane && !ezMath::IsFinite(m_Planes[i].m_fNegDistance)))
       return false;
   }
+
+  ezVec3 corners[8];
+  if (ComputeCornerPoints(corners).Failed())
+    return false;
+
+  ezVec3 center = ezVec3::MakeZero();
+  for (ezUInt32 i = 0; i < 8; ++i)
+  {
+    center += corners[i];
+  }
+  center /= 8.0f;
+
+  if (GetObjectPosition(&center, 1) != ezVolumePosition::Inside)
+    return false;
 
   return true;
 }
 
 ezFrustum ezFrustum::MakeFromPlanes(const ezPlane* pPlanes)
 {
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromPlanes(frustum, pPlanes);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  EZ_IGNORE_UNUSED(res);
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromPlanes(ezFrustum& out_frustum , const ezPlane* pPlanes)
+{
   ezFrustum f;
 
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
     f.m_Planes[i] = pPlanes[i];
 
-  return f;
+  if (f.IsValid())
+  {
+    out_frustum  = std::move(f);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezFrustum::TransformFrustum(const ezMat4& mTransform)
 {
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
+  {
     m_Planes[i].Transform(mTransform);
+  }
+}
+
+ezFrustum ezFrustum::GetTransformedFrustum(const ezMat4& mTransform) const
+{
+  ezFrustum result = *this;
+  result.TransformFrustum(mTransform);
+  return result;
 }
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const
@@ -192,22 +250,31 @@ void ezFrustum::InvertFrustum()
     m_Planes[i].Flip();
 }
 
-void ezFrustum::ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const
+ezResult ezFrustum::ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COUNT]) const
 {
-  // clang-format off
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearTopLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearTopRight]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearBottomLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearBottomRight]).IgnoreResult();
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearTopLeft]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearTopRight]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::NearBottomLeft]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[NearPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::NearBottomRight]));
 
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarTopLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarTopRight]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarBottomLeft]).IgnoreResult();
-  ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarBottomRight]).IgnoreResult();
-  // clang-format on
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarTopLeft]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[TopPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarTopRight]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[LeftPlane], out_pPoints[FrustumCorner::FarBottomLeft]));
+  EZ_SUCCEED_OR_RETURN(ezPlane::GetPlanesIntersectionPoint(m_Planes[FarPlane], m_Planes[BottomPlane], m_Planes[RightPlane], out_pPoints[FrustumCorner::FarBottomRight]));
+
+  return EZ_SUCCESS;
 }
 
 ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
+{
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromMVP(frustum, mModelViewProjection0, depthRange, handedness);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  EZ_IGNORE_UNUSED(res);
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum , const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
 {
   ezMat4 ModelViewProjection = mModelViewProjection0;
   ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, depthRange, ezClipSpaceDepthRange::MinusOneToOne);
@@ -259,14 +326,27 @@ ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpac
     planes[FarPlane] = (-planes[NearPlane].GetAsVec3()).GetAsVec4(planes[FarPlane].w);
   }
 
-  static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
+  static_assert(sizeof(ezFrustum) == sizeof(planes));
+  if (reinterpret_cast<ezFrustum*>(planes)->IsValid())
+  {
+    static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
+    ezMemoryUtils::Copy(out_frustum .m_Planes, (ezPlane*)planes, 6);
+    return EZ_SUCCESS;
+  }
 
-  ezFrustum res;
-  ezMemoryUtils::Copy(res.m_Planes, (ezPlane*)planes, 6);
-  return res;
+  return EZ_FAILURE;
 }
 
 ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
+{
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromFOV(frustum, vPosition, vForwards, vUp, fovX, fovY, fNearPlane, fFarPlane);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  EZ_IGNORE_UNUSED(res);
+  return frustum;
+}
+
+ezResult ezFrustum::TryMakeFromFOV(ezFrustum& out_frustum, const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
 {
   EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 
@@ -331,7 +411,45 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     res.m_Planes[TopPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
-  return res;
+  if (res.IsValid())
+  {
+    out_frustum = std::move(res);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
+ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
+{
+  ezFrustum frustum;
+  const ezResult res = TryMakeFromCorners(frustum, pCorners);
+  EZ_ASSERT_DEV(res.Succeeded() && frustum.IsValid(), "Frustum is not valid after construction.");
+  EZ_IGNORE_UNUSED(res);
+  return frustum;
+}
 
+ezResult ezFrustum::TryMakeFromCorners(ezFrustum& out_frustum , const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
+{
+  ezFrustum res;
+
+  res.m_Planes[PlaneType::LeftPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::NearBottomLeft], pCorners[FrustumCorner::NearTopLeft]);
+
+  res.m_Planes[PlaneType::RightPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearTopRight], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::FarTopRight]);
+
+  res.m_Planes[PlaneType::BottomPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearBottomLeft], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::NearBottomRight]);
+
+  res.m_Planes[PlaneType::TopPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::NearTopRight], pCorners[FrustumCorner::FarTopRight]);
+
+  res.m_Planes[PlaneType::FarPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::FarTopLeft], pCorners[FrustumCorner::FarBottomRight], pCorners[FrustumCorner::FarBottomLeft]);
+
+  res.m_Planes[PlaneType::NearPlane] = ezPlane::MakeFromPoints(pCorners[FrustumCorner::NearTopLeft], pCorners[FrustumCorner::NearBottomRight], pCorners[FrustumCorner::NearTopRight]);
+
+  if (res.IsValid())
+  {
+    out_frustum  = std::move(res);
+    return EZ_SUCCESS; 
+  }
+
+  return EZ_FAILURE;
+}

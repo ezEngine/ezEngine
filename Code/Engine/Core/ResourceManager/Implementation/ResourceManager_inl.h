@@ -99,6 +99,7 @@ ezResourceManager::GetOrCreateResource(ezStringView sResourceID, DescriptorType&
 
 EZ_FORCE_INLINE ezResource* ezResourceManager::BeginAcquireResourcePointer(const ezRTTI* pType, const ezTypelessResourceHandle& hResource)
 {
+  EZ_IGNORE_UNUSED(pType);
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ezResource* pResource = (ezResource*)hResource.m_pResource;
@@ -230,12 +231,14 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 template <typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
+  EZ_IGNORE_UNUSED(pResource);
   // EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
   // pResource->m_iLockCount.Decrement();
 }
 
 EZ_FORCE_INLINE void ezResourceManager::EndAcquireResourcePointer(ezResource* pResource)
 {
+  EZ_IGNORE_UNUSED(pResource);
   // EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: {0}", (ezInt32)pResource->m_iLockCount);
   // pResource->m_iLockCount.Decrement();
 }

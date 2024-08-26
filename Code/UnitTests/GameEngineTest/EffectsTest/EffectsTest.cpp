@@ -47,14 +47,14 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack({30});
       m_ImgCompFrames.PushBack({60});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Decals.ezBinScene");
     }
 
     case SubTests::Heightfield:
     {
       m_ImgCompFrames.PushBack({20});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Heightfield.ezBinScene");
     }
 
     case SubTests::WindClothRopes:
@@ -62,28 +62,28 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack({20, 550});
       m_ImgCompFrames.PushBack({100, 600});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezBinScene");
     }
 
     case SubTests::Reflections:
     {
       m_ImgCompFrames.PushBack({30});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Reflections.ezBinScene");
     }
 
     case SubTests::StressTest:
     {
       m_ImgCompFrames.PushBack({100});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/StressTest.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/StressTest.ezBinScene");
     }
 
     case SubTests::AdvancedMeshes:
     {
       m_ImgCompFrames.PushBack({20});
 
-      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/AdvancedMeshes.ezObjectGraph");
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/AdvancedMeshes.ezBinScene");
     }
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;

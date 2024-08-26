@@ -219,10 +219,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         {
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-          ezSimdBSphere pointLightSphere =
-            ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
-          RasterizeSphere(
-            pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_GlobalTransform.m_vPosition), pPointLightRenderData->m_fRange);
+          RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           if (false)
           {
@@ -254,6 +252,13 @@ void ezClusteredDataExtractor::PostSortAndBatch(
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
+        }
+        else if (auto pFillLightRenderData = ezDynamicCast<const ezFillLightRenderData*>(it))
+        {
+          FillFillLightData(m_TempLightData.ExpandAndGetRef(), pFillLightRenderData);
+
+          ezSimdBSphere fillLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pFillLightRenderData->m_GlobalTransform.m_vPosition), pFillLightRenderData->m_fRange);
+          RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
@@ -383,8 +388,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(
             transform.m_vScale = vFullScale.CompMul(probeData.InfluenceScale.GetAsVec3());
             transform.m_vPosition += transform.m_qRotation * vFullScale.CompMul(probeData.InfluenceShift.GetAsVec3());
 
-            //const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
-            //ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
+            // const ezBoundingBox aabb(ezVec3(-1.0f), ezVec3(1.0f));
+            // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
 
             RasterizeBox(transform, uiProbeIndex, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
           }
@@ -426,9 +431,15 @@ ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
 
 namespace
 {
-  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex) { return uiDecalIndex << 10 | uiLightIndex; }
+  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex)
+  {
+    return uiDecalIndex << 10 | uiLightIndex;
+  }
 
-  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex) { return uiReflectionProbeIndex << 20 | uiData; }
+  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex)
+  {
+    return uiReflectionProbeIndex << 20 | uiData;
+  }
 } // namespace
 
 void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pData)

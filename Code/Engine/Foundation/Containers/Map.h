@@ -2,6 +2,181 @@
 
 #include <Foundation/Containers/Deque.h>
 
+template <typename KeyType, typename ValueType, typename Comparer>
+class ezMapBase;
+
+/// \brief Base class for all iterators.
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+struct ezMapBaseConstIteratorBase
+{
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, false>;
+  using difference_type = std::ptrdiff_t;
+  using pointer = ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, false>*;
+  using reference = ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, false>&;
+
+  EZ_DECLARE_POD_TYPE();
+
+  /// \brief Constructs an invalid iterator.
+  EZ_ALWAYS_INLINE ezMapBaseConstIteratorBase()
+    : m_pElement(nullptr)
+  {
+  } // [tested]
+
+  /// \brief Checks whether this iterator points to a valid element.
+  EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
+
+  /// \brief Checks whether the two iterators point to the same element.
+  EZ_ALWAYS_INLINE bool operator==(const ezMapBaseConstIteratorBase& it2) const { return (m_pElement == it2.m_pElement); }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezMapBaseConstIteratorBase&);
+
+  /// \brief Returns the 'key' of the element that this iterator points to.
+  EZ_FORCE_INLINE const KeyType& Key() const
+  {
+    EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
+    return m_pElement->m_Key;
+  } // [tested]
+
+  /// \brief Returns the 'value' of the element that this iterator points to.
+  EZ_FORCE_INLINE const ValueType& Value() const
+  {
+    EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'value' of an invalid iterator.");
+    return m_pElement->m_Value;
+  } // [tested]
+
+  /// \brief Returns '*this' to enable foreach
+  EZ_ALWAYS_INLINE ezMapBaseConstIteratorBase& operator*() { return *this; } // [tested]
+
+  /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
+  void Next(); // [tested]
+
+  /// \brief Advances the iterator to the previous element in the map. The iterator will not be valid anymore, if the end is reached.
+  void Prev(); // [tested]
+
+  /// \brief Shorthand for 'Next'
+  EZ_ALWAYS_INLINE void operator++() { Next(); } // [tested]
+
+  /// \brief Shorthand for 'Prev'
+  EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
+
+protected:
+  void Advance(const ezInt32 dir0, const ezInt32 dir1);
+
+  friend class ezMapBase<KeyType, ValueType, Comparer>;
+
+  EZ_ALWAYS_INLINE explicit ezMapBaseConstIteratorBase(typename ezMapBase<KeyType, ValueType, Comparer>::Node* pInit)
+    : m_pElement(pInit)
+  {
+  }
+
+  typename ezMapBase<KeyType, ValueType, Comparer>::Node* m_pElement;
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+public:
+  struct Pointer
+  {
+    std::pair<const KeyType&, const ValueType&> value;
+    const std::pair<const KeyType&, const ValueType&>* operator->() const { return &value; }
+  };
+
+  EZ_ALWAYS_INLINE Pointer operator->() const
+  {
+    return Pointer{.value = {Key(), Value()}};
+  }
+
+  // This function is used to return the values for structured bindings.
+  // The number and type of each slot are defined in the inl file.
+  template <std::size_t Index>
+  std::tuple_element_t<Index, ezMapBaseConstIteratorBase>& get() const
+  {
+    if constexpr (Index == 0)
+      return Key();
+    if constexpr (Index == 1)
+      return Value();
+  }
+#endif
+};
+
+/// \brief Forward Iterator to iterate over all elements in sorted order.
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+struct ezMapBaseIteratorBase : public ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>
+{
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>;
+  using difference_type = std::ptrdiff_t;
+  using pointer = ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>*;
+  using reference = ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>&;
+
+  EZ_DECLARE_POD_TYPE();
+
+  /// \brief Constructs an invalid iterator.
+  EZ_ALWAYS_INLINE ezMapBaseIteratorBase()
+    : ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>()
+  {
+  }
+
+  /// \brief Returns the 'value' of the element that this iterator points to.
+  EZ_FORCE_INLINE ValueType& Value()
+  {
+    EZ_ASSERT_DEBUG(this->IsValid(), "Cannot access the 'value' of an invalid iterator.");
+    return this->m_pElement->m_Value;
+  }
+
+  /// \brief Returns the 'value' of the element that this iterator points to.
+  EZ_FORCE_INLINE ValueType& Value() const
+  {
+    EZ_ASSERT_DEBUG(this->IsValid(), "Cannot access the 'value' of an invalid iterator.");
+    return this->m_pElement->m_Value;
+  }
+
+  /// \brief Returns '*this' to enable foreach
+  EZ_ALWAYS_INLINE ezMapBaseIteratorBase& operator*() { return *this; } // [tested]
+
+private:
+  friend class ezMapBase<KeyType, ValueType, Comparer>;
+
+  EZ_ALWAYS_INLINE explicit ezMapBaseIteratorBase(typename ezMapBase<KeyType, ValueType, Comparer>::Node* pInit)
+    : ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>(pInit)
+  {
+  }
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+public:
+  struct Pointer
+  {
+    std::pair<const KeyType&, ValueType&> value;
+    const std::pair<const KeyType&, ValueType&>* operator->() const { return &value; }
+  };
+
+  EZ_ALWAYS_INLINE Pointer operator->() const
+  {
+    return Pointer{.value = {ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Key(), Value()}};
+  }
+
+
+  // These functions are used to return the values for structured bindings.
+  // The number and type of type of each slot are defined in the inl file.
+
+  template <std::size_t Index>
+  std::tuple_element_t<Index, ezMapBaseIteratorBase>& get()
+  {
+    if constexpr (Index == 0)
+      return ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Key();
+    if constexpr (Index == 1)
+      return Value();
+  }
+
+  template <std::size_t Index>
+  std::tuple_element_t<Index, ezMapBaseIteratorBase>& get() const
+  {
+    if constexpr (Index == 0)
+      return ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Key();
+    if constexpr (Index == 1)
+      return Value();
+  }
+#endif
+};
+
 /// \brief An associative container. Similar to STL::map
 ///
 /// A map allows to store key/value pairs. This in turn allows to search for values by looking them
@@ -16,7 +191,19 @@
 template <typename KeyType, typename ValueType, typename Comparer>
 class ezMapBase
 {
+
+public:
+  using ConstIterator = ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, false>;
+  using ConstReverseIterator = ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, true>;
+
+  using Iterator = ezMapBaseIteratorBase<KeyType, ValueType, Comparer, false>;
+  using ReverseIterator = ezMapBaseIteratorBase<KeyType, ValueType, Comparer, true>;
+
 private:
+  friend ConstIterator;
+  friend ConstReverseIterator;
+  friend Iterator;
+  friend ReverseIterator;
   struct Node;
 
   /// \brief Only used by the sentinel node.
@@ -34,116 +221,12 @@ private:
     ValueType m_Value;
   };
 
-public:
-  /// \brief Base class for all iterators.
-  struct ConstIterator
-  {
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = ConstIterator;
-    using difference_type = std::ptrdiff_t;
-    using pointer = ConstIterator*;
-    using reference = ConstIterator&;
-
-    EZ_DECLARE_POD_TYPE();
-
-    /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE ConstIterator()
-      : m_pElement(nullptr)
-    {
-    } // [tested]
-
-    /// \brief Checks whether this iterator points to a valid element.
-    EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
-
-    /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator&);
-
-    /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType& Key() const
-    {
-      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
-      return m_pElement->m_Key;
-    } // [tested]
-
-    /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE const ValueType& Value() const
-    {
-      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'value' of an invalid iterator.");
-      return m_pElement->m_Value;
-    } // [tested]
-
-    /// \brief Returns '*this' to enable foreach
-    EZ_ALWAYS_INLINE ConstIterator& operator*() { return *this; } // [tested]
-
-    /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
-    void Next(); // [tested]
-
-    /// \brief Advances the iterator to the previous element in the map. The iterator will not be valid anymore, if the end is reached.
-    void Prev(); // [tested]
-
-    /// \brief Shorthand for 'Next'
-    EZ_ALWAYS_INLINE void operator++() { Next(); } // [tested]
-
-    /// \brief Shorthand for 'Prev'
-    EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
-
-  protected:
-    friend class ezMapBase<KeyType, ValueType, Comparer>;
-
-    EZ_ALWAYS_INLINE explicit ConstIterator(Node* pInit)
-      : m_pElement(pInit)
-    {
-    }
-
-    Node* m_pElement;
-  };
-
-  /// \brief Forward Iterator to iterate over all elements in sorted order.
-  struct Iterator : public ConstIterator
-  {
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = Iterator;
-    using difference_type = std::ptrdiff_t;
-    using pointer = Iterator*;
-    using reference = Iterator&;
-
-    // this is required to pull in the const version of this function
-    using ConstIterator::Value;
-
-    EZ_DECLARE_POD_TYPE();
-
-    /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator()
-      : ConstIterator()
-    {
-    }
-
-    /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE ValueType& Value()
-    {
-      EZ_ASSERT_DEBUG(this->IsValid(), "Cannot access the 'value' of an invalid iterator.");
-      return this->m_pElement->m_Value;
-    }
-
-    /// \brief Returns '*this' to enable foreach
-    EZ_ALWAYS_INLINE Iterator& operator*() { return *this; } // [tested]
-
-  private:
-    friend class ezMapBase<KeyType, ValueType, Comparer>;
-
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)
-      : ConstIterator(pInit)
-    {
-    }
-  };
-
 protected:
   /// \brief Initializes the map to be empty.
-  ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
+  ezMapBase(const Comparer& comparer, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies all key/value pairs from the given map into this one.
-  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys all elements from the map.
   ~ezMapBase(); // [tested]
@@ -164,14 +247,14 @@ public:
   /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
 
+  /// \brief Returns a ReverseIterator to the very last element.
+  ReverseIterator GetReverseIterator(); // [tested]
+
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns an Iterator to the very last element. For reverse traversal.
-  Iterator GetLastIterator(); // [tested]
-
-  /// \brief Returns a constant Iterator to the very last element. For reverse traversal.
-  ConstIterator GetLastIterator() const; // [tested]
+  /// \brief Returns a constant ReverseIterator to the very last element.
+  ConstReverseIterator GetReverseIterator() const; // [tested]
 
   /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
   template <typename CompatibleKeyType, typename CompatibleValueType>
@@ -252,7 +335,7 @@ public:
   ConstIterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
@@ -325,8 +408,8 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  explicit ezMap(ezAllocatorBase* pAllocator);
-  ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
+  explicit ezMap(ezAllocator* pAllocator);
+  ezMap(const Comparer& comparer, ezAllocator* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);
   ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other);
@@ -356,18 +439,21 @@ typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cbegin(const ezM
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator end(ezMapBase<KeyType, ValueType, Comparer>& ref_container)
 {
+  EZ_IGNORE_UNUSED(ref_container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator end(const ezMapBase<KeyType, ValueType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cend(const ezMapBase<KeyType, ValueType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator();
 }
 

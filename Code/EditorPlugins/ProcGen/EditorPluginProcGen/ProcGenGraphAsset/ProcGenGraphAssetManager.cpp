@@ -20,7 +20,7 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ProcGen_Graph");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezProcGenGraph";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinProcGenGraph";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.svg"));

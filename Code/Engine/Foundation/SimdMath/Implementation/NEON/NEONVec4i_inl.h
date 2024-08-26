@@ -4,7 +4,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   m_v = vmovq_n_u32(0xCDCDCDCD);
 #endif
 }
@@ -140,6 +140,12 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
 {
   return __builtin_shufflevector(m_v, m_v, EZ_TO_SHUFFLE(s));
+}
+
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::GetCombined(const ezSimdVec4i& other) const
+{
+  return __builtin_shufflevector(m_v, other.m_v, EZ_TO_SHUFFLE(s));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator-() const

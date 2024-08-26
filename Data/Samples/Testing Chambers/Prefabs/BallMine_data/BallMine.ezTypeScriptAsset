@@ -27,7 +27,7 @@ o
 			s{"Prefabs/BallMine_data/BallMine.ts"}
 		}
 		Uuid %DocumentID{u4{5241823859749460632,4821988286243134289}}
-		u4 %Hash{11984017658364552775}
+		u4 %Hash{6219712138336739597}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12623230698697631404,10282163719122288826}}
@@ -38,6 +38,7 @@ o
 		{
 			s{"Prefabs/BallMine_data/BallMine.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

@@ -129,6 +129,8 @@ public:
   ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
   ~ezQtPropertyEditorIntSpinboxWidget();
 
+  void SetReadOnly(bool bReadOnly = true) override;
+
 private Q_SLOTS:
   void SlotValueChanged();
   void SlotSliderValueChanged(int value);
@@ -145,6 +147,65 @@ protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtDoubleSpinBox* m_pWidget[4] = {};
   QSlider* m_pSlider = nullptr;
+};
+
+/// *** SLIDER ***
+
+class EZ_GUIFOUNDATION_DLL ezQtImageSliderWidget : public QWidget
+{
+  Q_OBJECT
+public:
+  using ImageGeneratorFunc = QImage (*)(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue);
+
+  ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent);
+
+  static ezMap<ezString, ImageGeneratorFunc> s_ImageGenerators;
+
+  double GetValue() const { return m_fValue; }
+  void SetValue(double fValue);
+
+Q_SIGNALS:
+  void valueChanged(double x);
+  void sliderReleased();
+
+protected:
+  virtual void paintEvent(QPaintEvent*) override;
+  virtual void mouseMoveEvent(QMouseEvent*) override;
+  virtual void mousePressEvent(QMouseEvent*) override;
+  virtual void mouseReleaseEvent(QMouseEvent*) override;
+
+  void UpdateImage();
+
+  ImageGeneratorFunc m_Generator = nullptr;
+  QImage m_Image;
+  double m_fValue = 0;
+  double m_fMinValue = 0;
+  double m_fMaxValue = 0;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorSliderWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorSliderWidget();
+  ~ezQtPropertyEditorSliderWidget();
+
+private Q_SLOTS:
+  void SlotSliderValueChanged(double fValue);
+  void on_EditingFinished_triggered();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  bool m_bTemporaryCommand = false;
+  ezEnum<ezVariantType> m_OriginalType;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtImageSliderWidget* m_pSlider = nullptr;
+
+  double m_fMinValue = 0;
+  double m_fMaxValue = 0;
 };
 
 /// *** QUATERNION ***
@@ -179,6 +240,8 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorLineEditWidget : public ezQtStandar
 
 public:
   ezQtPropertyEditorLineEditWidget();
+
+  void SetReadOnly(bool bReadOnly = true) override;
 
 protected Q_SLOTS:
   void on_TextChanged_triggered(const QString& value);
@@ -255,15 +318,17 @@ public:
 
 private Q_SLOTS:
   void on_CurrentEnum_changed(int iEnum);
+  void on_ButtonClicked_changed(bool checked);
 
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  QComboBox* m_pWidget;
-  ezInt64 m_iCurrentEnum;
+  QHBoxLayout* m_pLayout = nullptr;
+  QComboBox* m_pWidget = nullptr;
+  ezInt64 m_iCurrentEnum = 0;
+  QPushButton* m_pButtons[2] = {nullptr, nullptr};
 };
 
 

@@ -9,7 +9,7 @@
 #  define _WINSOCKAPI_ /* Prevent inclusion of winsock.h in windows.h */
 
 // already includes Windows.h, but defines important other things first
-//#include <winsock2.h>
+// #include <winsock2.h>
 
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN

@@ -57,5 +57,3 @@ ezTime ezStopwatch::Checkpoint()
 
   return tDiff;
 }
-
-

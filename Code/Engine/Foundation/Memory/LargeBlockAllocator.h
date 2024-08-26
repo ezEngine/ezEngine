@@ -39,7 +39,7 @@ template <ezUInt32 BlockSizeInByte>
 class ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(ezStringView sName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
+  ezLargeBlockAllocator(ezStringView sName, ezAllocator* pParent, ezAllocatorTrackingMode mode = ezAllocatorTrackingMode::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
@@ -53,17 +53,16 @@ public:
 
   ezAllocatorId GetId() const;
 
-  const ezAllocatorBase::Stats& GetStats() const;
+  const ezAllocator::Stats& GetStats() const;
 
 private:
   void* Allocate(size_t uiAlign);
   void Deallocate(void* ptr);
 
   ezAllocatorId m_Id;
-  ezBitflags<ezMemoryTrackingFlags> m_TrackingFlags;
+  ezAllocatorTrackingMode m_TrackingMode;
 
   ezMutex m_Mutex;
-  ezThreadID m_ThreadID;
 
   struct SuperBlock
   {

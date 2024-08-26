@@ -8,7 +8,10 @@ namespace ezRmlUiInternal
 {
   FileInterface::FileInterface() = default;
 
-  FileInterface::~FileInterface() { EZ_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files"); }
+  FileInterface::~FileInterface()
+  {
+    EZ_ASSERT_DEV(m_OpenFiles.IsEmpty(), "FileInterface has still open files");
+  }
 
   Rml::FileHandle FileInterface::Open(const Rml::String& sPath)
   {
@@ -25,7 +28,10 @@ namespace ezRmlUiInternal
     return m_OpenFiles.Insert(std::move(pOpenFile)).ToRml();
   }
 
-  void FileInterface::Close(Rml::FileHandle hFile) { EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(hFile)), "Invalid file handle {}", hFile); }
+  void FileInterface::Close(Rml::FileHandle hFile)
+  {
+    EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(hFile)), "Invalid file handle {}", hFile);
+  }
 
   size_t FileInterface::Read(void* pBuffer, size_t uiSize, Rml::FileHandle hFile)
   {

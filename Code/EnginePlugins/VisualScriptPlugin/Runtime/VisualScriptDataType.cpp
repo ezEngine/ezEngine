@@ -34,7 +34,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 namespace
 {
   static ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
-    ezVariantType::Invalid, // Invalid,
+    ezVariantType::Invalid,           // Invalid,
 
     ezVariantType::Bool,              // Bool,
     ezVariantType::UInt8,             // Byte,
@@ -61,7 +61,7 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
 
   static ezUInt32 s_ScriptDataTypeSizes[] = {
-    0, // Invalid,
+    0,                                      // Invalid,
 
     sizeof(bool),                           // Bool,
     sizeof(ezUInt8),                        // Byte,
@@ -88,7 +88,7 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
   static ezUInt32 s_ScriptDataTypeAlignments[] = {
-    0, // Invalid,
+    0,                                               // Invalid,
 
     EZ_ALIGNMENT_OF(bool),                           // Bool,
     EZ_ALIGNMENT_OF(ezUInt8),                        // Byte,
@@ -200,12 +200,39 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
   }
 }
 
+ezProcessingStream::DataType ezVisualScriptDataType::GetStreamDataType(Enum dataType)
+{
+  // We treat ezColor and ezVec4 as the same in the visual script <=> expression binding
+  // so ensure that they have the same size and layout
+  static_assert(sizeof(ezColor) == sizeof(ezVec4));
+  static_assert(offsetof(ezColor, r) == offsetof(ezVec4, x));
+  static_assert(offsetof(ezColor, g) == offsetof(ezVec4, y));
+  static_assert(offsetof(ezColor, b) == offsetof(ezVec4, z));
+  static_assert(offsetof(ezColor, a) == offsetof(ezVec4, w));
+
+  switch (dataType)
+  {
+    case Int:
+      return ezProcessingStream::DataType::Int;
+    case Float:
+      return ezProcessingStream::DataType::Float;
+    case Vector3:
+      return ezProcessingStream::DataType::Float3;
+    case Color:
+      return ezProcessingStream::DataType::Float4;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return ezProcessingStream::DataType::Float;
+}
+
 // static
 const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
 {
   // Define table here to prevent issues with static initialization order
   static const ezRTTI* s_Rttis[] = {
-    nullptr, // Invalid,
+    nullptr,                                    // Invalid,
 
     ezGetStaticRTTI<bool>(),                    // Bool,
     ezGetStaticRTTI<ezUInt8>(),                 // Byte,

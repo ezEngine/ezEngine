@@ -7,7 +7,7 @@
 #include <Foundation/Math/Random.h>
 
 // only works when also linking against CoreUtils
-//#define USE_EZIMAGE
+// #define USE_EZIMAGE
 
 #ifdef USE_EZIMAGE
 #  include <Texture/Image/Image.h>
@@ -286,7 +286,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
 static void SaveToImage(ezDynamicArray<ezUInt32>& ref_values, ezUInt32 uiMaxValue, const char* szFile)
 {
 #ifdef USE_EZIMAGE
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", ezDataDirUsage::AllowWrites, "Clear") == EZ_SUCCESS);
 
   ezImage img;
   img.SetWidth(Values.GetCount());

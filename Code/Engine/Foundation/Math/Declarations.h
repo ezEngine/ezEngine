@@ -10,6 +10,9 @@
 #  define EZ_NAN_ASSERT(obj)
 #endif
 
+#define EZ_DECLARE_IF_FLOAT_TYPE template <typename = typename std::enable_if<std::is_floating_point_v<Type> == true>>
+#define EZ_IMPLEMENT_IF_FLOAT_TYPE template <typename ENABLE_IF_FLOAT>
+
 /// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion
 {
@@ -129,6 +132,8 @@ using ezVec2 = ezVec2Template<float>;
 using ezVec2d = ezVec2Template<double>;
 using ezVec2I32 = ezVec2Template<ezInt32>;
 using ezVec2U32 = ezVec2Template<ezUInt32>;
+using ezVec2I64 = ezVec2Template<ezInt64>;
+using ezVec2U64 = ezVec2Template<ezUInt64>;
 
 template <typename Type>
 class ezVec3Template;
@@ -137,15 +142,19 @@ using ezVec3 = ezVec3Template<float>;
 using ezVec3d = ezVec3Template<double>;
 using ezVec3I32 = ezVec3Template<ezInt32>;
 using ezVec3U32 = ezVec3Template<ezUInt32>;
+using ezVec3I64 = ezVec3Template<ezInt64>;
+using ezVec3U64 = ezVec3Template<ezUInt64>;
 
 template <typename Type>
 class ezVec4Template;
 
 using ezVec4 = ezVec4Template<float>;
 using ezVec4d = ezVec4Template<double>;
+using ezVec4I64 = ezVec4Template<ezInt64>;
 using ezVec4I32 = ezVec4Template<ezInt32>;
 using ezVec4I16 = ezVec4Template<ezInt16>;
 using ezVec4I8 = ezVec4Template<ezInt8>;
+using ezVec4U64 = ezVec4Template<ezUInt64>;
 using ezVec4U32 = ezVec4Template<ezUInt32>;
 using ezVec4U16 = ezVec4Template<ezUInt16>;
 using ezVec4U8 = ezVec4Template<ezUInt8>;
@@ -209,6 +218,18 @@ class ezColorLinearUB;
 class ezColorGammaUB;
 
 class ezRandom;
+
+template <typename Type>
+class ezRectTemplate;
+
+using ezRectU32 = ezRectTemplate<ezUInt32>;
+using ezRectU16 = ezRectTemplate<ezUInt16>;
+using ezRectI32 = ezRectTemplate<ezInt32>;
+using ezRectI16 = ezRectTemplate<ezInt16>;
+using ezRectFloat = ezRectTemplate<float>;
+using ezRectDouble = ezRectTemplate<double>;
+
+class ezFrustum;
 
 
 /// \brief An enum that allows to select on of the six main axis (positive / negative)

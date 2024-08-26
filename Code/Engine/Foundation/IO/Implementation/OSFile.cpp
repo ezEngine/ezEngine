@@ -293,7 +293,7 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuff
 
   for (ezUInt32 i = 1; i < 100000; ++i)
   {
-    newName.Format("{}{}{}", orgName, sSuffix, i);
+    newName.SetFormat("{}{}{}", orgName, sSuffix, i);
 
     inout_sPath.ChangeFileName(newName);
     if (!ezOSFile::ExistsFile(inout_sPath))
@@ -326,6 +326,18 @@ ezResult ezOSFile::DeleteFile(ezStringView sFile)
   s_FileEvents.Broadcast(e);
 
   return Res;
+}
+
+ezStringView ezOSFile::GetApplicationDirectory()
+{
+  if (s_sApplicationPath.IsEmpty())
+  {
+    // s_sApplicationPath is filled out and cached by GetApplicationPath(), so call that first, if necessary
+    GetApplicationPath();
+  }
+
+  EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
+  return s_sApplicationPath.GetFileDirectory();
 }
 
 ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
@@ -534,7 +546,7 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
 
 #  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif // EZ_SUPPORTS_FILE_STATS
+#endif   // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
@@ -685,7 +697,10 @@ void ezFileSystemIterator::Next()
         ezStringBuilder search = m_StartFolders[m_uiCurrentStartFolder];
         search.AppendPath(m_sMultiSearchTerm);
 
-        StartSearch(search, m_Flags);
+        if (search.IsAbsolutePath())
+        {
+          StartSearch(search, m_Flags);
+        }
       }
       else
       {
@@ -717,5 +732,3 @@ void ezFileSystemIterator::SkipFolder()
 }
 
 #endif
-
-

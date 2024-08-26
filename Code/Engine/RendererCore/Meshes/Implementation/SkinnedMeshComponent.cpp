@@ -4,8 +4,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Types.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkinnedMeshRenderData, 1, ezRTTIDefaultAllocator<ezSkinnedMeshRenderData>)
@@ -47,8 +47,7 @@ void ezSkinningState::TransformsChanged()
     ezGALBufferCreationDescription BufferDesc;
     BufferDesc.m_uiStructSize = sizeof(ezShaderTransform);
     BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_Transforms.GetCount();
-    BufferDesc.m_bUseAsStructuredBuffer = true;
-    BufferDesc.m_bAllowShaderResourceView = true;
+    BufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hGpuBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_Transforms.GetArrayPtr().ToByteArray());

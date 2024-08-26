@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12847930402705578174,5226840514406773140}}
-		u4 %Hash{4551816519313525301}
+		u4 %Hash{1098391489137166478}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -42,6 +42,7 @@ o
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ cb87c3c6-1099-405d-9403-5f6ef992fb69 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -155,12 +156,13 @@ o
 {
 	Uuid %id{u4{9670859071852392323,4799142096108608081}}
 	s %t{"ezSimpleAnimationComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimationClip{"{ 75fc3a46-9e7d-443c-8620-3cf850cfcad6 }"}
 		s %AnimationMode{"ezPropertyAnimMode::Loop"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 		f %Speed{0x0000803F}
@@ -405,11 +407,12 @@ o
 {
 	Uuid %id{u4{6418962592850121093,5131226699644918357}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -582,7 +585,7 @@ o
 {
 	Uuid %id{u4{273244684283605402,5618658630072283688}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{5}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -664,7 +667,10 @@ o
 		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
+		u3 %Temperature{6550}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -773,11 +779,12 @@ o
 {
 	Uuid %id{u4{16070068124756073015,9864218720160492341}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -962,11 +969,12 @@ o
 {
 	Uuid %id{u4{2574909308969305327,14691513036919399125}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -1042,11 +1050,12 @@ o
 {
 	Uuid %id{u4{1135618272652058335,15483657517522971091}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
 	}
@@ -1096,7 +1105,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1198,7 +1207,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1487,7 +1496,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationControllerComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1793,7 +1802,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -1810,7 +1819,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o

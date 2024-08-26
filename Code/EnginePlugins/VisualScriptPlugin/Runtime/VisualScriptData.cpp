@@ -55,7 +55,32 @@ ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream
     inout_stream >> typeInfo.m_uiCount;
   }
 
+  // Validate type info
+  ezUInt32 uiOffset = 0;
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerTypeInfo); ++i)
+  {
+    auto dataType = static_cast<ezVisualScriptDataType::Enum>(i);
+    const auto& typeInfo = m_PerTypeInfo[i];
+    if (typeInfo.m_uiCount == 0)
+      continue;
+
+    uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
+    if (typeInfo.m_uiStartOffset != uiOffset)
+    {
+      ezLog::Error("VisualScriptDataDescription data offset mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
+      return EZ_FAILURE;
+    }
+
+    uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
+  }
+
   inout_stream >> m_uiStorageSizeNeeded;
+
+  if (m_uiStorageSizeNeeded != uiOffset)
+  {
+    ezLog::Error("VisualScriptDataDescription storage size mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
+    return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
@@ -114,27 +139,27 @@ void ezVisualScriptDataStorage::AllocateStorage()
     if (scriptDataType == ezVisualScriptDataType::String)
     {
       auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pStrings, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
     if (scriptDataType == ezVisualScriptDataType::HashedString)
     {
       auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pStrings, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pStrings, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Variant)
     {
       auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariants, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariants, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Array)
     {
       auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariantArrays, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantArrays, typeInfo.m_uiCount);
     }
     else if (scriptDataType == ezVisualScriptDataType::Map)
     {
       auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariantMaps, typeInfo.m_uiCount);
+      ezMemoryUtils::Construct<SkipTrivialTypes>(pVariantMaps, typeInfo.m_uiCount);
     }
   }
 }
@@ -348,8 +373,10 @@ ezTypedPointer ezVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, 
     return *reinterpret_cast<const ezTypedPointer*>(pData);
   }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTypedPointer();
+  ezTypedPointer t;
+  t.m_pObject = const_cast<ezUInt8*>(pData);
+  t.m_pType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiType));
+  return t;
 }
 
 ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType, ezUInt32 uiExecutionCounter) const

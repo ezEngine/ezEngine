@@ -23,7 +23,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 }
 
 template <typename ComponentType>
-EZ_ALWAYS_INLINE ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent)
+EZ_ALWAYS_INLINE ezTypedComponentHandle<ComponentType> ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject, ComponentType*& out_pComponent)
 {
   ezComponent* pComponent = nullptr;
   ezComponentHandle hComponent = CreateComponentNoInit(pOwnerObject, pComponent);
@@ -34,7 +34,7 @@ EZ_ALWAYS_INLINE ezComponentHandle ezComponentManagerBase::CreateComponent(ezGam
   }
 
   out_pComponent = ezStaticCast<ComponentType*>(pComponent);
-  return hComponent;
+  return ezTypedComponentHandle<ComponentType>(hComponent);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld)
   : ezComponentManagerBase(pWorld)
   , m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>

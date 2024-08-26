@@ -9,7 +9,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
 #define ezCVarValueDefault ezCVarValue::Default
 #define ezCVarValueStored ezCVarValue::Stored
-#define ezCVarValueRestart ezCVarValue::Restart
+#define ezCVarValueRestart ezCVarValue::DelayedSync
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
 #define CHECK_CVAR(var, Current, Default, Stored, Restart)      \
@@ -34,7 +34,7 @@ static void ChangedCVar(const ezCVarEvent& e)
     case ezCVarEvent::ValueChanged:
       ++iChangedValue;
       break;
-    case ezCVarEvent::RestartValueChanged:
+    case ezCVarEvent::DelayedSyncValueChanged:
       ++iChangedRestart;
       break;
     default:
@@ -54,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
   // Delete all cvar setting files
   {
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
   {
     const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
     ezStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
 
     ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
@@ -347,7 +347,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
         EZ_TEST_INT(iChangedValue, 1);
         EZ_TEST_INT(iChangedRestart, 1);
 
-        pFloat->SetToRestartValue();
+        pFloat->SetToDelayedSyncValue();
         CHECK_CVAR(pFloat, 1.2f, 1.1f, 1.1f, 1.2f);
 
         EZ_TEST_INT(iChangedValue, 2);
@@ -422,7 +422,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
         *pString = "test2_value2";
         CHECK_CVAR(pString, "test2", "test2", "test2", "test2_value2");
 
-        pString->SetToRestartValue();
+        pString->SetToDelayedSyncValue();
         CHECK_CVAR(pString, "test2_value2", "test2", "test2", "test2_value2");
       }
     }

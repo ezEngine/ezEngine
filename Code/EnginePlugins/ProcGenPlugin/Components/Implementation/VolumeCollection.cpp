@@ -31,8 +31,8 @@ namespace
   }
 } // namespace
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVolumeCollection::Sphere) == 64);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVolumeCollection::Box) == 80);
+static_assert(sizeof(ezVolumeCollection::Sphere) == 64);
+static_assert(sizeof(ezVolumeCollection::Box) == 80);
 
 void ezVolumeCollection::Shape::SetGlobalToLocalTransform(const ezSimdMat4f& t)
 {
@@ -150,9 +150,10 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
 
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
-  queryParams.m_IncludeTags = includeTags;
+  queryParams.m_pIncludeTags = &includeTags;
 
-  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject) {
+  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject)
+    {
     if (pComponentBaseType != nullptr)
     {
       ezHybridArray<const ezComponent*, 8> components;

@@ -116,6 +116,8 @@ namespace
 
   static void Random(Inputs inputs, Output output, const GlobalData& globalData)
   {
+    EZ_IGNORE_UNUSED(globalData);
+
     const Register* pPositions = inputs[0].GetPtr();
     const Register* pPositionsEnd = inputs[0].GetEndPtr();
     Register* pOutput = output.GetPtr();
@@ -155,6 +157,8 @@ namespace
 
   static void PerlinNoise(Inputs inputs, Output output, const GlobalData& globalData)
   {
+    EZ_IGNORE_UNUSED(globalData);
+
     const Register* pPosX = inputs[0].GetPtr();
     const Register* pPosY = inputs[1].GetPtr();
     const Register* pPosZ = inputs[2].GetPtr();
@@ -177,13 +181,34 @@ namespace
 } // namespace
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_RandomFunc = {
-  {ezMakeHashedString("Random"), ezMakeArrayPtr(s_RandomInputTypes), 1, RegisterType::Float},
+  {ezMakeHashedString("Random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
   &Random,
 };
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
-  {ezMakeHashedString("PerlinNoise"), ezMakeArrayPtr(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
+  {ezMakeHashedString("PerlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExpressionWidgetAttribute, 1, ezRTTIDefaultAllocator<ezExpressionWidgetAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputsProperty", m_sInputsProperty),
+    EZ_MEMBER_PROPERTY("OutputsProperty", m_sOutputsProperty),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);

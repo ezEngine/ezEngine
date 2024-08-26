@@ -185,7 +185,8 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
     {
       ezHybridArray<ezVariant, 16> keys;
       acc.GetKeys(pProperty->GetPropertyName(), keys);
-      keys.Sort([](const ezVariant& a, const ezVariant& b) { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
+      keys.Sort([](const ezVariant& a, const ezVariant& b)
+        { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
       for (const ezVariant& key : keys)
       {
         uiHash = key.ComputeHash(uiHash);

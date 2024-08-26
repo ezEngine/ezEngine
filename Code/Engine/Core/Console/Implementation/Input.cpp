@@ -235,5 +235,3 @@ void ezQuakeConsole::DoDefaultInputHandling(bool bConsoleOpen)
       ExecuteCommand(GetInputHistory()[1]);
   }
 }
-
-

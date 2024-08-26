@@ -14,18 +14,18 @@ class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T>>
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
-  explicit ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezDynamicArrayBase(ezAllocator* pAllocator);                                 // [tested]
 
-  ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
+  ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocator* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves the given array into this one.
-  ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator); // [tested]
+  ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocator* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDynamicArrayBase(); // [tested]
@@ -50,7 +50,7 @@ public:
   void Compact(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return const_cast<ezAllocatorBase*>(m_pAllocator.GetPtr()); }
+  ezAllocator* GetAllocator() const { return const_cast<ezAllocator*>(m_pAllocator.GetPtr()); }
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
@@ -65,7 +65,7 @@ private:
     External = 1
   };
 
-  ezPointerWithFlags<ezAllocatorBase, 1> m_pAllocator;
+  ezPointerWithFlags<ezAllocator, 1> m_pAllocator;
 
   enum
   {
@@ -84,7 +84,7 @@ public:
 
 
   ezDynamicArray();
-  explicit ezDynamicArray(ezAllocatorBase* pAllocator);
+  explicit ezDynamicArray(ezAllocator* pAllocator);
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
@@ -101,7 +101,7 @@ public:
   void operator=(ezDynamicArrayBase<T>&& rhs) noexcept;
 
 protected:
-  ezDynamicArray(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator)
+  ezDynamicArray(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocator* pAllocator)
     : ezDynamicArrayBase<T>(pInplaceStorage, uiCapacity, pAllocator)
   {
   }
@@ -120,6 +120,6 @@ template <typename T, typename AllocatorWrapper>
 ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& in_dynArray);
 
 
-EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
+static_assert(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/DynamicArray_inl.h>

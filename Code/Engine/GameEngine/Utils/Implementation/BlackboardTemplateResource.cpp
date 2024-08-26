@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/Utils/BlackboardTemplateResource.h>
 
 // clang-format off
@@ -29,7 +29,7 @@ ezResourceLoadDesc ezBlackboardTemplateResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezBlackboardTemplateResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezBlackboardTemplateResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezBlackboardTemplateResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -95,4 +95,3 @@ ezResult ezBlackboardTemplateResourceDescriptor::Deserialize(ezStreamReader& ino
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Utils_Implementation_BlackboardTemplateResource);
-

@@ -12,12 +12,12 @@ namespace ezRmlUiInternal
   {
     m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 
-    ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
+    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
   }
 
   Extractor::~Extractor()
   {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
+    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
 
     for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
     {
@@ -53,7 +53,7 @@ namespace ezRmlUiInternal
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(Vertex);
       desc.m_uiTotalSize = vertexStorage.GetCount() * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
 
       geometry.m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, vertexStorage.GetByteArrayPtr());
     }
@@ -63,7 +63,7 @@ namespace ezRmlUiInternal
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(ezUInt32);
       desc.m_uiTotalSize = iNum_indices * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::IndexBuffer;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
 
       geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(pIndices, iNum_indices).ToByteArray());
     }
@@ -146,7 +146,7 @@ namespace ezRmlUiInternal
     ezUInt64 uiHash = ezHashingUtils::xxHash64(pSource, uiSizeInBytes);
 
     ezStringBuilder sTextureName;
-    sTextureName.Format("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
+    sTextureName.SetFormat("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
 
     ezTexture2DResourceHandle hTexture = ezResourceManager::GetExistingResource<ezTexture2DResource>(sTextureName);
 
@@ -160,7 +160,7 @@ namespace ezRmlUiInternal
       ezTexture2DResourceDescriptor desc;
       desc.m_DescGAL.m_uiWidth = uiWidth;
       desc.m_DescGAL.m_uiHeight = uiHeight;
-      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
       hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));

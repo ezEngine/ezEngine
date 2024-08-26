@@ -72,6 +72,16 @@ protected:
   virtual void Deinitialize() override;
 };
 
+/// \brief Renders multiple instances of the same mesh.
+///
+/// This is used as an optimization to render many instances of the same (usually small mesh).
+/// For example, if you need to render 1000 pieces of grass in a small area,
+/// instead of creating 1000 game objects each with a mesh component,
+/// it is more efficient to create one game object with an instanced mesh component and give it the locations of the 1000 pieces.
+/// Due to the small area, there is no benefit in culling the instances separately.
+///
+/// However, editing instanced mesh components isn't very convenient, so usually this component would be created and configured
+/// in code, rather than by hand in the editor. For example a procedural plant placement system could use this.
 class EZ_RENDERERCORE_DLL ezInstancedMeshComponent : public ezMeshComponentBase
 {
   EZ_DECLARE_COMPONENT_TYPE(ezInstancedMeshComponent, ezMeshComponentBase, ezInstancedMeshComponentManager);
@@ -99,7 +109,6 @@ public:
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezInstancedMeshComponent

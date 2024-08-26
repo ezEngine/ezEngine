@@ -81,4 +81,3 @@ private:
   ezQtTypeWidget* m_pTypeWidget;
   QSpacerItem* m_pSpacer;
 };
-

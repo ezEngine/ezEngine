@@ -5,9 +5,16 @@
 
 ezEvent<const ezThreadEvent&, ezMutex> ezThread::s_ThreadEvents;
 
-ezThread::ezThread(const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
-  : ezOSThread(ezThreadClassEntryPoint, this, szName, uiStackSize)
-  , m_sName(szName)
+thread_local ezThread* g_pCurrentThread = nullptr;
+
+const ezThread* ezThread::GetCurrentThread()
+{
+  return g_pCurrentThread;
+}
+
+ezThread::ezThread(ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+  : ezOSThread(ezThreadClassEntryPoint, this, sName, uiStackSize)
+  , m_sName(sName)
 {
   ezThreadEvent e;
   e.m_pThread = this;
@@ -30,7 +37,8 @@ ezUInt32 RunThread(ezThread* pThread)
   if (pThread == nullptr)
     return 0;
 
-  ezProfilingSystem::SetThreadName(pThread->m_sName.GetData());
+  g_pCurrentThread = pThread;
+  ezProfilingSystem::SetThreadName(pThread->m_sName.GetView());
 
   {
     ezThreadEvent e;
@@ -57,5 +65,3 @@ ezUInt32 RunThread(ezThread* pThread)
 
   return uiReturnCode;
 }
-
-

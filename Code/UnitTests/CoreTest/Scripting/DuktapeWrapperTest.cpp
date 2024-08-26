@@ -192,9 +192,9 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Print"))) // [ Print ] / [ ]
     {
-      duk.PushString("You did it, Fry!");         // [ Print String ]
-      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
-      duk.PopStack();                             // [ ]
+      duk.PushString("You did it, Fry!");                       // [ Print String ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction());               // [ result ]
+      duk.PopStack();                                           // [ ]
     }
   }
 
@@ -215,20 +215,20 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic1"))) // [ Magic1 ]
     {
-      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
-      duk.PopStack();                             // [ ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction());                // [ result ]
+      duk.PopStack();                                            // [ ]
     }
 
     if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic2"))) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
-      duk.PopStack();                             // [ ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction());                // [ result ]
+      duk.PopStack();                                            // [ ]
     }
 
     if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic3"))) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
-      duk.PopStack();                             // [ ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction());                // [ result ]
+      duk.PopStack();                                            // [ ]
     }
   }
 

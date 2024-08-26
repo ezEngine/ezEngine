@@ -32,6 +32,12 @@ void AccumulateLight(inout AccumulatedLight result, AccumulatedLight light, floa
   result.specularLight += light.specularLight * color;
 }
 
+void AccumulateLight(inout AccumulatedLight result, AccumulatedLight light, float3 color, float specularMultiplier)
+{
+  result.diffuseLight += light.diffuseLight * color;
+  result.specularLight += (light.specularLight * color) * specularMultiplier;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 float RoughnessFromMipLevel(uint mipLevel, uint mipCount)
@@ -46,21 +52,21 @@ float MipLevelFromRoughness(float roughness, uint mipCount)
 
 float RoughnessFromPerceptualRoughness(float perceptualRoughness)
 {
-    return perceptualRoughness * perceptualRoughness;
+  return perceptualRoughness * perceptualRoughness;
 }
 
 float PerceptualRoughnessFromRoughness(float roughness)
 {
-    return sqrt(roughness);
+  return sqrt(roughness);
 }
 
-float3 DiffuseLambert( float3 diffuseColor )
+float3 DiffuseLambert(float3 diffuseColor)
 {
   return diffuseColor;
 }
 
 // divide by PI postponed
-float SpecularGGX( float roughness, float NdotH )
+float SpecularGGX(float roughness, float NdotH)
 {
   // mad friendly reformulation of:
   //
@@ -69,33 +75,33 @@ float SpecularGGX( float roughness, float NdotH )
   // PI * ((N.H)^2 * (a^2 - 1) + 1)^2
 
   float a2 = roughness * roughness;
-  float f = ( NdotH * a2 - NdotH ) * NdotH + 1.0f;
-  return a2 / ( f * f );
+  float f = (NdotH * a2 - NdotH) * NdotH + 1.0f;
+  return a2 / (f * f);
 }
 
-float VisibilitySmithCorrelated( float roughness, float NdotV, float NdotL )
+float VisibilitySmithCorrelated(float roughness, float NdotV, float NdotL)
 {
   float a2 = roughness * roughness;
   float lambdaV = NdotL * sqrt((-NdotV * a2 + NdotV) * NdotV + a2);
   float lambdaL = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
-  return 0.5f / ( lambdaV + lambdaL );
+  return 0.5f / (lambdaV + lambdaL);
 }
 
-float VisibilitySmithJointApprox( float roughness, float NdotV, float NdotL )
+float VisibilitySmithJointApprox(float roughness, float NdotV, float NdotL)
 {
   float a = roughness;
   float b = 1.0f - a;
-  float lambdaV = NdotL * ( NdotV * b + a );
-  float lambdaL = NdotV * ( NdotL * b + a );
-  return 0.5f / ( lambdaV + lambdaL );
+  float lambdaV = NdotL * (NdotV * b + a);
+  float lambdaL = NdotV * (NdotL * b + a);
+  return 0.5f / (lambdaV + lambdaL);
 }
 
-float3 FresnelSchlick( float3 specularColor, float u )
+float3 FresnelSchlick(float3 specularColor, float u)
 {
   float f = 1.0f - u;
   float ff = f * f;
   float f5 = ff * ff * f;
-  
+
   // specularColor below 2% is considered to be shadowing
   return saturate(50.0 * GetLuminance(specularColor)) * f5 + (1 - f5) * specularColor;
 }
@@ -105,10 +111,10 @@ AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
 {
   float3 N = matData.worldNormal;
   float3 H = normalize(V + L);
-  float NdotL = saturate( dot(N, L) );
-  float NdotV = max( dot(N, V), 1e-5f );
-  float NdotH = saturate( dot(N, H) );
-  float VdotH = saturate( dot(V, H) );
+  float NdotL = saturate(dot(N, L));
+  float NdotV = max(dot(N, V), 1e-5f);
+  float NdotH = saturate(dot(N, H));
+  float VdotH = saturate(dot(V, H));
 
   // Cook-Torrance microfacet BRDF
   //
@@ -116,12 +122,12 @@ AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
   //  ------------- = D * Vis * F with Vis = -------------
   //  4 * N.L * N.V                          4 * N.L * N.V
 
-  float D = SpecularGGX( matData.roughness, NdotH );
-  float Vis = VisibilitySmithJointApprox( matData.roughness, NdotV, NdotL );
-  float3 F = FresnelSchlick( matData.specularColor, VdotH );
+  float D = SpecularGGX(matData.roughness, NdotH);
+  float Vis = VisibilitySmithJointApprox(matData.roughness, NdotV, NdotL);
+  float3 F = FresnelSchlick(matData.specularColor, VdotH);
 
-  float3 diffuse = DiffuseLambert( matData.diffuseColor );
-  
+  float3 diffuse = DiffuseLambert(matData.diffuseColor);
+
   return InitializeLight(diffuse * NdotL, F * (D * Vis * NdotL));
 }
 
@@ -134,7 +140,7 @@ AccumulatedLight SubsurfaceShading(ezMaterialData matData, float3 L, float3 V)
   float inScatter = pow(saturate(dot(V, -distortedLightDir)), matData.subsurfaceScatterPower);
 
   float wrapFactor = 0.5;
-  float wrappedNdotH = saturate( ( dot(N, H) * wrapFactor + 1 - wrapFactor )) / (PI * 2);
-	
-	return InitializeLight(matData.subsurfaceColor * lerp(wrappedNdotH, 1, inScatter), 0.0);
+  float wrappedNdotH = saturate((dot(N, H) * wrapFactor + 1 - wrapFactor)) / (PI * 2);
+
+  return InitializeLight(matData.subsurfaceColor * lerp(wrappedNdotH, 1, inScatter), 0.0);
 }

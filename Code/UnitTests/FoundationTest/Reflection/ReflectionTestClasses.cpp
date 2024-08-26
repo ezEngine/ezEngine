@@ -90,7 +90,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)->AddAttributes(new ezDefaultValueAttribute("Legen")),
+    EZ_ACCESSOR_PROPERTY("CharPtr", GetCharPtr, SetCharPtr)->AddAttributes(new ezDefaultValueAttribute("AAA")),
+    EZ_ACCESSOR_PROPERTY("String", GetString, SetString)->AddAttributes(new ezDefaultValueAttribute("BBB")),
+    EZ_ACCESSOR_PROPERTY("StringView", GetStringView, SetStringView)->AddAttributes(new ezDefaultValueAttribute("CCC")),
     EZ_MEMBER_PROPERTY("Time", m_Time),
     EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
     EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
@@ -159,7 +161,7 @@ void ezTestArrays::SetValue(ezUInt32 uiIndex, double value)
 }
 void ezTestArrays::Insert(ezUInt32 uiIndex, double value)
 {
-  m_Hybrid.Insert(value, uiIndex);
+  m_Hybrid.InsertAt(uiIndex, value);
 }
 void ezTestArrays::Remove(ezUInt32 uiIndex)
 {
@@ -180,7 +182,7 @@ void ezTestArrays::SetValueChar(ezUInt32 uiIndex, const char* value)
 }
 void ezTestArrays::InsertChar(ezUInt32 uiIndex, const char* value)
 {
-  m_HybridChar.Insert(value, uiIndex);
+  m_HybridChar.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveChar(ezUInt32 uiIndex)
 {
@@ -201,7 +203,7 @@ void ezTestArrays::SetValueDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
 }
 void ezTestArrays::InsertDyn(ezUInt32 uiIndex, const ezTestStruct3& value)
 {
-  m_Dynamic.Insert(value, uiIndex);
+  m_Dynamic.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveDyn(ezUInt32 uiIndex)
 {
@@ -222,7 +224,7 @@ void ezTestArrays::SetValueDeq(ezUInt32 uiIndex, const ezTestArrays& value)
 }
 void ezTestArrays::InsertDeq(ezUInt32 uiIndex, const ezTestArrays& value)
 {
-  m_Deque.Insert(value, uiIndex);
+  m_Deque.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
 {
@@ -243,7 +245,7 @@ void ezTestArrays::SetValueCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
 }
 void ezTestArrays::InsertCustom(ezUInt32 uiIndex, ezVarianceTypeAngle value)
 {
-  m_CustomVariant.Insert(value, uiIndex);
+  m_CustomVariant.InsertAt(uiIndex, value);
 }
 void ezTestArrays::RemoveCustom(ezUInt32 uiIndex)
 {
@@ -441,7 +443,14 @@ void ezTestMaps::Remove2(const char* szKey)
 
 const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Accessor3.GetCount(); }, [this](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Accessor3[uiIt].m_Key; });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Accessor3.GetCount(); },
+    [this](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Accessor3[uiIt].m_Key; });
 }
 
 void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)

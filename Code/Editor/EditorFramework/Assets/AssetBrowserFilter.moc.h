@@ -40,6 +40,8 @@ public:
 
   void SetFileExtensionFilters(ezStringView sExtensions);
 
+  void SetRequiredTag(ezStringView sRequiredTag);
+
   /// \brief If set, the given item will be visible no matter what until any other filter is changed.
   /// This is used to ensure that newly created assets are always visible, even if they are excluded from the current filter.
   void SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath);
@@ -56,6 +58,7 @@ public:
 
 private:
   ezString m_sTypeFilter;
+  ezString m_sRequiredTag = "*"; // show all is the default for the asset browser
   ezString m_sPathFilter;
   ezString m_sTemporaryPinnedItem;
   ezSearchPatternFilter m_SearchFilter;

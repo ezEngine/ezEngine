@@ -125,7 +125,7 @@ public:
     m_sSearchDir = sSearchDir;
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     // use such a path to write to an absolute file
     // ':abs/C:/some/file.txt"
@@ -499,7 +499,7 @@ public:
     if (m_FilesToLink.Contains(sFile))
     {
       m_AllRefPoints.Insert(sFileMarker.GetData());
-      sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
+      sNewMarker.SetFormat("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
     }
 
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
@@ -561,7 +561,7 @@ public:
     // generate the code that should be inserted into this file
     // this code will reference all the other files in the library
     {
-      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY({0})\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName());
+      sNewGroupMarker.SetFormat("EZ_STATICLINK_LIBRARY({0})\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName());
 
       auto it = m_AllRefPoints.GetIterator();
 
@@ -729,6 +729,7 @@ public:
 
           bool bContainsGlobals = false;
 
+          bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_FORCE") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_BEGIN_") != nullptr);
           bContainsGlobals = bContainsGlobals || (sFileContent.FindSubString("EZ_PLUGIN_") != nullptr);

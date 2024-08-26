@@ -1,14 +1,14 @@
 #pragma once
 
 template <typename KEY, typename VALUE>
-inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator)
+inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   m_bSorted = true;
 }
 
 template <typename KEY, typename VALUE>
-inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator)
+inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocator* pAllocator)
   : m_bSorted(rhs.m_bSorted)
   , m_Data(pAllocator)
 {
@@ -306,7 +306,7 @@ ezArrayMap<KEY, VALUE, A>::ezArrayMap()
 }
 
 template <typename KEY, typename VALUE, typename A>
-ezArrayMap<KEY, VALUE, A>::ezArrayMap(ezAllocatorBase* pAllocator)
+ezArrayMap<KEY, VALUE, A>::ezArrayMap(ezAllocator* pAllocator)
   : ezArrayMapBase<KEY, VALUE>(pAllocator)
 {
 }

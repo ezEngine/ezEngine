@@ -5,6 +5,7 @@
 
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief This class provides implementations of different sorting algorithms.
 class ezSorting

@@ -209,6 +209,7 @@ ezResult ezPreprocessor::OpenFile(ezStringView sFile, const ezTokenizer** pToken
 
 ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput)
 {
+  EZ_IGNORE_UNUSED(uiDirectiveToken);
   EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   TokenStream Tokens;
@@ -298,5 +299,3 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens0, ezUInt32 uiCu
 
   return EZ_SUCCESS;
 }
-
-

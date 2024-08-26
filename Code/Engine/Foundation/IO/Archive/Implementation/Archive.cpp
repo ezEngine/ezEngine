@@ -31,6 +31,41 @@ ezUInt32 ezArchiveTOC::FindEntry(ezStringView sFile) const
   return uiIndex;
 }
 
+ezUInt32 ezArchiveTOC::AddPathString(ezStringView sPathString)
+{
+  const ezUInt32 offset = m_AllPathStrings.GetCount();
+  const ezUInt32 numNewBytesNeeded = sPathString.GetElementCount() + 1;
+  m_AllPathStrings.Reserve(m_AllPathStrings.GetCount() + numNewBytesNeeded);
+  m_AllPathStrings.PushBackRange(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(sPathString.GetStartPointer()), sPathString.GetElementCount()));
+  m_AllPathStrings.PushBackUnchecked('\0');
+  return offset;
+}
+
+void ezArchiveTOC::RebuildPathToEntryHashes()
+{
+  const ezUInt32 uiNumEntries = m_Entries.GetCount();
+  m_PathToEntryIndex.Clear();
+  m_PathToEntryIndex.Reserve(uiNumEntries);
+
+  ezStringBuilder sLowerCasePath;
+
+  for (ezUInt32 i = 0; i < uiNumEntries; i++)
+  {
+    const ezUInt32 uiSrcStringOffset = m_Entries[i].m_uiPathStringOffset;
+    ezStringView sEntryString = GetEntryPathString(i);
+    sLowerCasePath = sEntryString;
+    sLowerCasePath.ToLower();
+
+    // cut off the upper 32 bit, we don't need them here
+    const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetView()) & 0xFFFFFFFFllu);
+
+    m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
+
+    // Verify that the conversion worked
+    EZ_ASSERT_DEBUG(FindEntry(sEntryString) == i, "Hashed path retrieval did not yield inserted index");
+  }
+}
+
 ezStringView ezArchiveTOC::GetEntryPathString(ezUInt32 uiEntryIdx) const
 {
   return reinterpret_cast<const char*>(&m_AllPathStrings[m_Entries[uiEntryIdx].m_uiPathStringOffset]);
@@ -127,29 +162,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchi
     // version 3 switched to 32 bit xxHash
     // version 4 switched to 64 bit hashes
 
-    const ezUInt32 uiNumEntries = m_Entries.GetCount();
-    m_PathToEntryIndex.Clear();
-    m_PathToEntryIndex.Reserve(uiNumEntries);
-
-    ezStringBuilder sLowerCasePath;
-
-    for (ezUInt32 i = 0; i < uiNumEntries; i++)
-    {
-      const ezUInt32 uiSrcStringOffset = m_Entries[i].m_uiPathStringOffset;
-
-      ezStringView sEntryString = GetEntryPathString(i);
-
-      sLowerCasePath = sEntryString;
-      sLowerCasePath.ToLower();
-
-      // cut off the upper 32 bit, we don't need them here
-      const ezUInt32 uiLowerCaseHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sLowerCasePath.GetView()) & 0xFFFFFFFFllu);
-
-      m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
-
-      // Verify that the conversion worked
-      EZ_ASSERT_DEBUG(FindEntry(sEntryString) == i, "Hashed path retrieval did not yield inserted index");
-    }
+    RebuildPathToEntryHashes();
   }
 
   // path strings mustn't be empty and must be zero-terminated
@@ -185,5 +198,3 @@ ezResult ezArchiveEntry::Deserialize(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
-
-

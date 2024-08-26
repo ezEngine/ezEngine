@@ -184,7 +184,7 @@ void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
 
 const ezDocumentObject* ezSelectionManager::GetCurrentObject() const
 {
-  return m_pSelectionStorage->m_SelectionList.IsEmpty() ? nullptr : m_pSelectionStorage->m_SelectionList[m_pSelectionStorage->m_SelectionList.GetCount() - 1];
+  return m_pSelectionStorage->m_SelectionList.IsEmpty() ? nullptr : m_pSelectionStorage->m_SelectionList.PeekBack();
 }
 
 bool ezSelectionManager::IsSelected(const ezDocumentObject* pObject) const
@@ -224,7 +224,9 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
   m_pSelectionStorage = pNewStorage;
 
   m_pSelectionStorage->m_pObjectManager->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this), m_ObjectStructureUnsubscriber);
-  m_pSelectionStorage->m_Events.AddEventHandler([this](const ezSelectionManagerEvent& e) { m_Events.Broadcast(e); }, m_EventsUnsubscriber);
+  m_pSelectionStorage->m_Events.AddEventHandler([this](const ezSelectionManagerEvent& e)
+    { m_Events.Broadcast(e); },
+    m_EventsUnsubscriber);
 
   return retVal;
 }
@@ -232,10 +234,13 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
 struct ezObjectHierarchyComparor
 {
   using Tree = ezHybridArray<const ezDocumentObject*, 4>;
-  ezObjectHierarchyComparor(ezDeque<const ezDocumentObject*>& ref_items)
+
+  ezObjectHierarchyComparor(ezArrayPtr<ezSelectionEntry> items)
   {
-    for (const ezDocumentObject* pObject : ref_items)
+    for (const ezSelectionEntry& e : items)
     {
+      const ezDocumentObject* pObject = e.m_pObject;
+
       Tree& tree = lookup[pObject];
       while (pObject)
       {
@@ -246,10 +251,10 @@ struct ezObjectHierarchyComparor
     }
   }
 
-  EZ_ALWAYS_INLINE bool Less(const ezDocumentObject* lhs, const ezDocumentObject* rhs) const
+  EZ_ALWAYS_INLINE bool Less(const ezSelectionEntry& lhs, const ezSelectionEntry& rhs) const
   {
-    const Tree& A = *lookup.GetValue(lhs);
-    const Tree& B = *lookup.GetValue(rhs);
+    const Tree& A = *lookup.GetValue(lhs.m_pObject);
+    const Tree& B = *lookup.GetValue(rhs.m_pObject);
 
     const ezUInt32 minSize = ezMath::Min(A.GetCount(), B.GetCount());
     for (ezUInt32 i = 0; i < minSize; i++)
@@ -266,32 +271,38 @@ struct ezObjectHierarchyComparor
     return A.GetCount() < B.GetCount();
   }
 
-  EZ_ALWAYS_INLINE bool Equal(const ezDocumentObject* lhs, const ezDocumentObject* rhs) const { return lhs == rhs; }
+  EZ_ALWAYS_INLINE bool Equal(const ezSelectionEntry& lhs, const ezSelectionEntry& rhs) const { return lhs.m_pObject == rhs.m_pObject; }
 
   ezMap<const ezDocumentObject*, Tree> lookup;
 };
 
-const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection() const
+void ezSelectionManager::GetTopLevelSelection(ezDynamicArray<ezSelectionEntry>& out_entries) const
 {
-  ezDeque<const ezDocumentObject*> items;
+  out_entries.Clear();
+  out_entries.Reserve(m_pSelectionStorage->m_SelectionList.GetCount());
+
+  ezUInt32 order = 0;
 
   for (const auto* pObj : m_pSelectionStorage->m_SelectionList)
   {
     if (!IsParentSelected(pObj))
     {
-      items.PushBack(pObj);
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_pObject = pObj;
+      e.m_uiSelectionOrder = order++;
     }
   }
 
-  ezObjectHierarchyComparor c(items);
-  items.Sort(c);
-
-  return items;
+  ezObjectHierarchyComparor c(out_entries);
+  out_entries.Sort(c);
 }
 
-const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase) const
+void ezSelectionManager::GetTopLevelSelectionOfType(const ezRTTI* pBase, ezDynamicArray<ezSelectionEntry>& out_entries) const
 {
-  ezDeque<const ezDocumentObject*> items;
+  out_entries.Clear();
+  out_entries.Reserve(m_pSelectionStorage->m_SelectionList.GetCount());
+
+  ezUInt32 order = 0;
 
   for (const auto* pObj : m_pSelectionStorage->m_SelectionList)
   {
@@ -300,12 +311,12 @@ const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(
 
     if (!IsParentSelected(pObj))
     {
-      items.PushBack(pObj);
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_pObject = pObj;
+      e.m_uiSelectionOrder = order++;
     }
   }
 
-  ezObjectHierarchyComparor c(items);
-  items.Sort(c);
-
-  return items;
+  ezObjectHierarchyComparor c(out_entries);
+  out_entries.Sort(c);
 }

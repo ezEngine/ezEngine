@@ -27,6 +27,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
     EZ_ENUM_MEMBER_PROPERTY("Orientation", ezQuadParticleOrientation, m_Orientation),
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(90))),
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
+    EZ_ENUM_MEMBER_PROPERTY("LightingMode", ezParticleLightingMode, m_LightingMode),
+    EZ_MEMBER_PROPERTY("NormalCurvature", m_fNormalCurvature)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
+    EZ_MEMBER_PROPERTY("LightDirectionality", m_fLightDirectionality)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
@@ -64,6 +67,9 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   pType->m_fDistortionStrength = m_fDistortionStrength;
   pType->m_TextureAtlasType = m_TextureAtlasType;
   pType->m_fStretch = m_fStretch;
+  pType->m_LightingMode = m_LightingMode;
+  pType->m_fNormalCurvature = m_fNormalCurvature;
+  pType->m_fLightDirectionality = m_fLightDirectionality;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -79,6 +85,7 @@ enum class TypeQuadVersion
   Version_3, // distortion
   Version_4, // added texture atlas type
   Version_5, // added particle stretch
+  Version_6, // added particle lighting
 
   // insert new version numbers above
   Version_Count,
@@ -103,6 +110,11 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
 
   // Version 5
   inout_stream << m_fStretch;
+
+  // Version 6
+  inout_stream << m_LightingMode;
+  inout_stream << m_fNormalCurvature;
+  inout_stream << m_fLightDirectionality;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
@@ -144,6 +156,13 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
   if (uiVersion >= 5)
   {
     inout_stream >> m_fStretch;
+  }
+
+  if (uiVersion >= 6)
+  {
+    inout_stream >> m_LightingMode;
+    inout_stream >> m_fNormalCurvature;
+    inout_stream >> m_fLightDirectionality;
   }
 }
 
@@ -280,20 +299,23 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
 
   AllocateParticleData(numParticles, bNeedsBillboardData, bNeedsTangentData);
 
-  auto SetBaseData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetBaseData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_BaseParticleData[uiDstIdx].Size = pSize[uiSrcIdx];
     m_BaseParticleData[uiDstIdx].Color = pColor[uiSrcIdx].ToLinearFloat() * tintColor;
     m_BaseParticleData[uiDstIdx].Life = pLifeTime[uiSrcIdx].x * pLifeTime[uiSrcIdx].y;
     m_BaseParticleData[uiDstIdx].Variation = (pVariation != nullptr) ? pVariation[uiSrcIdx] : 0;
   };
 
-  auto SetBillboardData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetBillboardData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_BillboardParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_BillboardParticleData[uiDstIdx].RotationOffset = pRotationOffset[uiSrcIdx];
     m_BillboardParticleData[uiDstIdx].RotationSpeed = pRotationSpeed[uiSrcIdx];
   };
 
-  auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     ezMat3 mRotation = ezMat3::MakeAxisRotation(vEmitterDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
@@ -301,7 +323,8 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     m_TangentParticleData[uiDstIdx].TangentZ = vEmitterDir;
   };
 
-  auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     const ezVec3 vDirToParticle = (pPosition[uiSrcIdx].GetAsVec3() - vEmitterPos);
     ezVec3 vOrthoDir = vEmitterDir.CrossRH(vDirToParticle);
     vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
@@ -313,7 +336,8 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     m_TangentParticleData[uiDstIdx].TangentZ = mRotation * vEmitterDir;
   };
 
-  auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     EZ_ASSERT_DEBUG(pAxis != nullptr, "Axis must be valid");
     ezVec3 vNormal = pAxis[uiSrcIdx];
     vNormal.Normalize();
@@ -329,13 +353,15 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     m_TangentParticleData[uiDstIdx].TangentZ = vTangentX.CrossRH(vNormal);
   };
 
-  auto SetTangentDataAligned_Emitter = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataAligned_Emitter = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = vEmitterDir;
     m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
   };
 
-  auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     const ezVec3 vCurPos = pPosition[uiSrcIdx].GetAsVec3();
     const ezVec3 vLastPos = pLastPosition[uiSrcIdx];
     const ezVec3 vDir = vCurPos - vLastPos;
@@ -389,6 +415,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     }
     else if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
     {
+      EZ_ASSERT_DEBUG(pLastPosition != nullptr, "FixedAxis_ParticleDir needs the last position attribute");
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataAligned_ParticleDir(p, redirect(p, pSorted));
@@ -422,6 +449,9 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
   pRenderData->m_hDistortionTexture = m_hDistortionTexture;
   pRenderData->m_fDistortionStrength = m_fDistortionStrength;
+  pRenderData->m_LightingMode = m_LightingMode;
+  pRenderData->m_fNormalCurvature = m_fNormalCurvature;
+  pRenderData->m_fLightDirectionality = m_fLightDirectionality;
 
   switch (m_Orientation)
   {

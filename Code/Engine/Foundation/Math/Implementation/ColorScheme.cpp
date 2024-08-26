@@ -279,7 +279,7 @@ ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsa
   if (sCategory.IsEqual_NoCase("Construction"))
     return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
 
-  if (sCategory.IsEqual_NoCase("Custom"))
+  if (sCategory.IsEqual_NoCase("Custom") || sCategory.IsEqual_NoCase("Game"))
     return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
 
   if (sCategory.IsEqual_NoCase("Effects"))
@@ -324,5 +324,3 @@ ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsa
   ezLog::Warning("Color for category '{}' is undefined.", sCategory);
   return ezColor::MakeZero();
 }
-
-

@@ -5,7 +5,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 {
   BeginFrame();
-  BeginPass("BlendStates");
+  BeginCommands("BlendStates");
   ezGALBlendStateHandle hState;
 
   ezGALBlendStateCreationDescription StateDesc;
@@ -37,13 +37,13 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   hState = m_pDevice->CreateBlendState(StateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
 
-  ezRenderContext::GetDefaultInstance()->GetRenderCommandEncoder()->SetBlendState(hState);
+  ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetBlendState(hState);
 
   RenderObjects(ezShaderBindFlags::NoBlendState);
 
   EZ_TEST_IMAGE(m_iFrame, 150);
   EndRendering();
-  EndPass();
+  EndCommands();
   EndFrame();
 
   m_pDevice->DestroyBlendState(hState);

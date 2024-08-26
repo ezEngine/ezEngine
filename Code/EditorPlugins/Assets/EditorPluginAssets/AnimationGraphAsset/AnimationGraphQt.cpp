@@ -75,7 +75,7 @@ void ezQtAnimationGraphNode::UpdateState()
         if (val.IsValid())
         {
 
-          tmp.Format("{}", val);
+          tmp.SetFormat("{}", val);
 
           if (ezConversionUtils::IsStringUuid(tmp))
           {

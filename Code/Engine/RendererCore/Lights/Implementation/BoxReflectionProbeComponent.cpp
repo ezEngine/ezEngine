@@ -38,7 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 2, ezComponentMode::Stati
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Lighting"),
+    new ezCategoryAttribute("Rendering/Reflections"),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue)),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxReflectionProbeVisualizerAttribute("Extents", "InfluenceScale", "InfluenceShift"),

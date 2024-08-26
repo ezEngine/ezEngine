@@ -1,7 +1,7 @@
 
 /// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
-#define EZ_GALDEVICE_LOCK_AND_CHECK()                                                                                                                \
-  EZ_LOCK(m_Mutex);                                                                                                                                  \
+#define EZ_GALDEVICE_LOCK_AND_CHECK() \
+  EZ_LOCK(m_Mutex);                   \
   VerifyMultithreadedAccess()
 
 EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescription() const
@@ -9,14 +9,38 @@ EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescripti
   return &m_Description;
 }
 
-EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result)
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetCurrentFrame() const
 {
-  return GetTimestampResultPlatform(hTimestamp, ref_result);
+  return GetCurrentFramePlatform();
 }
 
-EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetSafeFrame() const
 {
-  return GetTimestampPlatform();
+  return GetSafeFramePlatform();
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+{
+  if (hTimestamp.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetTimestampResultPlatform(hTimestamp, out_result);
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+{
+  if (hOcclusion.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
+{
+  if (hFence == 0)
+    return ezGALAsyncResult::Ready;
+
+  return GetFenceResultPlatform(hFence, timeout);
 }
 
 template <typename IdTableType, typename ReturnType>
@@ -74,9 +98,14 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
-inline const ezGALResourceView* ezGALDevice::GetResourceView(ezGALResourceViewHandle hResourceView) const
+inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const
 {
-  return Get<ResourceViewTable, ezGALResourceView>(hResourceView, m_ResourceViews);
+  return Get<TextureResourceViewTable, ezGALTextureResourceView>(hResourceView, m_TextureResourceViews);
+}
+
+inline const ezGALBufferResourceView* ezGALDevice::GetResourceView(ezGALBufferResourceViewHandle hResourceView) const
+{
+  return Get<BufferResourceViewTable, ezGALBufferResourceView>(hResourceView, m_BufferResourceViews);
 }
 
 inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
@@ -84,14 +113,14 @@ inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRender
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
 }
 
-inline const ezGALUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const
+inline const ezGALTextureUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const
 {
-  return Get<UnorderedAccessViewTable, ezGALUnorderedAccessView>(hUnorderedAccessView, m_UnorderedAccessViews);
+  return Get<TextureUnorderedAccessViewTable, ezGALTextureUnorderedAccessView>(hUnorderedAccessView, m_TextureUnorderedAccessViews);
 }
 
-inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
+inline const ezGALBufferUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const
 {
-  return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);
+  return Get<BufferUnorderedAccessViewTable, ezGALBufferUnorderedAccessView>(hUnorderedAccessView, m_BufferUnorderedAccessViews);
 }
 
 // static
@@ -144,4 +173,9 @@ EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
   EZ_ASSERT_DEV(m_Capabilities.m_bMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
+}
+
+inline ezAllocator* ezGALDevice::GetAllocator()
+{
+  return &m_Allocator;
 }

@@ -77,9 +77,9 @@ public:
   /// ie key down and key released events are ignored.
   float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const; // [ scriptable ]
 
-  ezString m_sInputSet;                            // [ property ]
-  ezEnum<ezInputMessageGranularity> m_Granularity; // [ property ]
-  bool m_bForwardToBlackboard = false;             // [ property ]
+  ezString m_sInputSet;                                                                      // [ property ]
+  ezEnum<ezInputMessageGranularity> m_Granularity;                                           // [ property ]
+  bool m_bForwardToBlackboard = false;                                                       // [ property ]
 
 protected:
   void Update();

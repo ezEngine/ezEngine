@@ -55,7 +55,7 @@ public:
     Iterator(const ezBlockStorage<T, BlockSizeInByte, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
   };
 
-  ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocatorBase* pAllocator);
+  ezBlockStorage(ezLargeBlockAllocator<BlockSizeInByte>* pBlockAllocator, ezAllocator* pAllocator);
   ~ezBlockStorage();
 
   void Clear();

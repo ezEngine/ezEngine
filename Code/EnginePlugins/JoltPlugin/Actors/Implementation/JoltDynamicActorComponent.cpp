@@ -85,12 +85,13 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 3, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 4, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
+      EZ_MEMBER_PROPERTY("AllowSleeping", m_bAllowSleeping)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("Mass", m_fInitialMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -151,6 +152,7 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << GetUseCustomCoM();
   s << m_vCenterOfMass;
   s << m_bStartAsleep;
+  s << m_bAllowSleeping;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -181,6 +183,11 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
   if (uiVersion >= 3)
   {
     s >> m_bStartAsleep;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bAllowSleeping;
   }
 }
 
@@ -283,6 +290,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   bodyCfg.mMotionType = m_bKinematic ? JPH::EMotionType::Kinematic : JPH::EMotionType::Dynamic;
   bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Dynamic);
   bodyCfg.mMotionQuality = m_bCCD ? JPH::EMotionQuality::LinearCast : JPH::EMotionQuality::Discrete;
+  bodyCfg.mAllowSleeping = m_bAllowSleeping;
   bodyCfg.mLinearDamping = m_fLinearDamping;
   bodyCfg.mAngularDamping = m_fAngularDamping;
   bodyCfg.mMassPropertiesOverride.mMass = m_fInitialMass;
@@ -328,8 +336,9 @@ void ezJoltDynamicActorComponent::OnDeactivated()
     GetWorld()->GetOrCreateComponentManager<ezJoltDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }
 
-  ezDynamicArray<ezComponentHandle> allConstraints;
-  allConstraints.Swap(m_Constraints);
+  auto allConstraints = m_Constraints;
+  m_Constraints.Clear();
+  m_Constraints.Compact();
 
   ezJoltMsgDisconnectConstraints msg;
   msg.m_pActor = this;
@@ -436,18 +445,22 @@ const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
   return nullptr;
 }
 
-void ezJoltDynamicActorComponent::SetSurfaceFile(const char* szFile)
+void ezJoltDynamicActorComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltDynamicActorComponent::GetSurfaceFile() const
+ezStringView ezJoltDynamicActorComponent::GetSurfaceFile() const
 {
   if (!m_hSurface.IsValid())
     return "";

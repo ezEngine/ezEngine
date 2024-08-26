@@ -20,6 +20,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   ON_CORESYSTEMS_STARTUP
   {
+    if (ezStartup::HasApplicationTag("NoTaskSystem"))
+      return;
+
     ezTaskSystem::Startup();
   }
 
@@ -45,6 +48,9 @@ void ezTaskSystem::Startup()
 
 void ezTaskSystem::Shutdown()
 {
+  if (s_pThreadState == nullptr)
+    return;
+
   StopWorkerThreads();
 
   s_pState.Clear();

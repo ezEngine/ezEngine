@@ -19,7 +19,7 @@ JPH_NAMESPACE_BEGIN
 
 struct CompoundShape::CastRayVisitor
 {
-	JPH_INLINE 			CastRayVisitor(const RayCast &inRay, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) :
+	JPH_INLINE			CastRayVisitor(const RayCast &inRay, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) :
 		mRay(inRay),
 		mHit(ioHit),
 		mSubShapeIDCreator(inSubShapeIDCreator),
@@ -64,7 +64,7 @@ struct CompoundShape::CastRayVisitor
 
 struct CompoundShape::CastRayVisitorCollector
 {
-	JPH_INLINE 			CastRayVisitorCollector(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) :
+	JPH_INLINE			CastRayVisitorCollector(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) :
 		mRay(inRay),
 		mCollector(ioCollector),
 		mSubShapeIDCreator(inSubShapeIDCreator),
@@ -175,7 +175,7 @@ struct CompoundShape::CastShapeVisitor
 		return mCollector.ShouldEarlyOut();
 	}
 
-	/// Tests the shape cast against 4 boundign boxes, returns the distance along the shape cast where the shape first enters the bounding box
+	/// Tests the shape cast against 4 bounding boxes, returns the distance along the shape cast where the shape first enters the bounding box
 	JPH_INLINE Vec4		TestBounds(Vec4Arg inBoundsMinX, Vec4Arg inBoundsMinY, Vec4Arg inBoundsMinZ, Vec4Arg inBoundsMaxX, Vec4Arg inBoundsMaxY, Vec4Arg inBoundsMaxZ) const
 	{
 		// Scale the bounding boxes
@@ -225,7 +225,7 @@ struct CompoundShape::CastShapeVisitor
 
 struct CompoundShape::CollectTransformedShapesVisitor
 {
-	JPH_INLINE 			CollectTransformedShapesVisitor(const AABox &inBox, const CompoundShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) :
+	JPH_INLINE			CollectTransformedShapesVisitor(const AABox &inBox, const CompoundShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) :
 		mBox(inBox),
 		mLocalBox(Mat44::sInverseRotationTranslation(inRotation, inPositionCOM), inBox),
 		mPositionCOM(inPositionCOM),
@@ -271,8 +271,8 @@ struct CompoundShape::CollectTransformedShapesVisitor
 		inSubShape.mShape->CollectTransformedShapes(mBox, position, rotation, inSubShape.TransformScale(mScale), sub_shape_id, mCollector, mShapeFilter);
 	}
 
-	AABox 							mBox;
-	OrientedBox 					mLocalBox;
+	AABox							mBox;
+	OrientedBox						mLocalBox;
 	Vec3							mPositionCOM;
 	Quat							mRotation;
 	Vec3							mScale;

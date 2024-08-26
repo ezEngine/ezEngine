@@ -70,7 +70,8 @@ public:
           m_sOutput.Append("Warning: ");
           break;
         case ezPreprocessor::ProcessingEvent::BeginExpansion:
-          m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
+          if (event.m_pToken != nullptr)
+            m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
           break;
         case ezPreprocessor::ProcessingEvent::EndExpansion:
           break;
@@ -94,8 +95,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
+  EZ_TEST_BOOL(ezFileSystem::DetectSdkRootDirectory() == EZ_SUCCESS);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
+  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   ezTokenizedFileCache SharedCache;
 
@@ -228,12 +230,13 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ").IgnoreResult();
         pp.AddCustomDefine("PP_FUNC(a) a").IgnoreResult();
-        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
+        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool
+          { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
-          fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);
-          fileNameExp.Format("Preprocessor/{0} - Expected.txt", TestSettings[i].m_szFileName);
-          fileNameOut.Format(":output/Preprocessor/{0} - Result.txt", TestSettings[i].m_szFileName);
+          fileName.SetFormat("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);
+          fileNameExp.SetFormat("Preprocessor/{0} - Expected.txt", TestSettings[i].m_szFileName);
+          fileNameOut.SetFormat(":output/Preprocessor/{0} - Result.txt", TestSettings[i].m_szFileName);
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName), "File does not exist: '%s'", fileName.GetData());
 

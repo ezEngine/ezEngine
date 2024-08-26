@@ -67,7 +67,6 @@ protected:
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
   ezEventSubscriptionID m_ExecutionEventsId = 0;
 
-  ezWorld* m_pWorld = nullptr;
   ezCamera* m_pCameraToSynchronize = nullptr;
   ezEnum<ezXRStageSpace> m_StageSpace = ezXRStageSpace::Seated;
 

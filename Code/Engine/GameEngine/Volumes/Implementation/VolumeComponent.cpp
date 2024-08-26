@@ -13,7 +13,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)
   {
     EZ_ACCESSOR_PROPERTY("Type", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
-    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Template", GetTemplate, SetTemplate)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
   }
   EZ_END_PROPERTIES;
@@ -53,26 +53,6 @@ void ezVolumeComponent::OnDeactivated()
   RemoveReloadFunction();
 
   GetOwner()->UpdateLocalBounds();
-}
-
-void ezVolumeComponent::SetTemplateFile(const char* szFile)
-{
-  ezBlackboardTemplateResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezBlackboardTemplateResource>(szFile);
-  }
-
-  SetTemplate(hResource);
-}
-
-const char* ezVolumeComponent::GetTemplateFile() const
-{
-  if (!m_hTemplateResource.IsValid())
-    return "";
-
-  return m_hTemplateResource.GetResourceID();
 }
 
 void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hResource)
@@ -169,10 +149,14 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 const ezRangeView<const ezString&, ezUInt32> ezVolumeComponent::Reflection_GetKeys() const
 {
-  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_OverwrittenValues.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const ezString& { return m_OverwrittenValues[uiIt].GetString(); });
+  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_OverwrittenValues.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const ezString&
+    { return m_OverwrittenValues[uiIt].GetString(); });
 }
 
 bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value) const
@@ -224,7 +208,8 @@ void ezVolumeComponent::InitializeFromTemplate()
   if (m_bReloadFunctionAdded == false)
   {
     GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
-      [](const ezWorld::ResourceReloadContext& context) {
+      [](const ezWorld::ResourceReloadContext& context)
+      {
         ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
       });
 
@@ -299,7 +284,7 @@ void ezVolumeSphereComponent::SetRadius(float fRadius)
 
 void ezVolumeSphereComponent::SetFalloff(float fFalloff)
 {
-  m_fFalloff = fFalloff;
+  m_fFalloff = ezMath::Max(fFalloff, 0.0001f);
 }
 
 void ezVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -371,7 +356,7 @@ void ezVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
 
 void ezVolumeBoxComponent::SetFalloff(const ezVec3& vFalloff)
 {
-  m_vFalloff = vFalloff;
+  m_vFalloff = vFalloff.CompMax(ezVec3(0.0001f));
 }
 
 void ezVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -401,4 +386,3 @@ void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeComponent);
-

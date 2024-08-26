@@ -44,7 +44,7 @@ public:
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_sUniqueID; }
+  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_sUniqueID; }
 
   /// \brief Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
@@ -56,6 +56,11 @@ public:
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
   /// ID.
   const ezString& GetResourceDescription() const { return m_sResourceDescription; }
+
+  /// \brief The returns the resource description, if available, otherwise the resource ID.
+  ///
+  /// This is mainly for logging, where you want the more user friendly description, but the ID, if no description is available.
+  const ezString& GetResourceIdOrDescription() const { return m_sResourceDescription.IsEmpty() ? m_sUniqueID : m_sResourceDescription; }
 
   /// \brief Returns the current state in which this resource is in.
   EZ_ALWAYS_INLINE ezResourceState GetLoadingState() const { return m_LoadingState; }

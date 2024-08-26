@@ -70,4 +70,3 @@ private:
   ezMap<ezString, StatData> m_Stats;
   ezSet<ezString> m_Favorites;
 };
-

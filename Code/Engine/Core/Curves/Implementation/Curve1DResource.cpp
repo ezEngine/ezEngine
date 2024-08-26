@@ -1,7 +1,7 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DResource, 1, ezRTTIDefaultAllocator<ezCurve1DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -27,6 +27,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor)
 
 ezResourceLoadDesc ezCurve1DResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -39,7 +41,7 @@ ezResourceLoadDesc ezCurve1DResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezCurve1DResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezCurve1DResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezCurve1DResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

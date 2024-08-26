@@ -1,6 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 // static
 ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
@@ -197,8 +198,13 @@ ezUInt32 ezHashingUtils::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
   return static_cast<ezUInt32>(uiCRC32 ^ 0xFFFFFFFF);
 }
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_CLANG("-Wunused-function")
+
 #define XXH_INLINE_ALL
 #include <Foundation/ThirdParty/xxHash/xxhash.h>
+
+EZ_WARNING_POP()
 
 // static
 ezUInt32 ezHashingUtils::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
@@ -211,5 +217,3 @@ ezUInt64 ezHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt6
 {
   return XXH64(pKey, uiSizeInByte, uiSeed);
 }
-
-

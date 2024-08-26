@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
+#include "../Common/Platforms.h"
 
 CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 {
-	MAT4(ObjectToWorldMatrix);
+  MAT4(ObjectToWorldMatrix);
 
   // random variations, can be combined with flipbook animations
   UINT1(TextureAtlasVariationFramesX);
@@ -21,8 +21,13 @@ CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 
   // heat haze distortion (pixel offset in screen-space)
   FLOAT1(DistortionStrength);
-  
+
   // use this instead of world clock for determinism
   FLOAT1(TotalEffectLifeTime);
-};
 
+  // lighting params
+  FLOAT1(NormalCurvature);
+  FLOAT1(LightDirectionality);
+
+  INT2(ParticlePadding);
+};

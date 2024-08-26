@@ -14,14 +14,21 @@ o
 			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		}
 		Uuid %DocumentID{u4{1759241519081547676,5340131629297921404}}
-		u4 %Hash{13901596029909216227}
+		u4 %Hash{14323076005765964764}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 6a46e9a1-4838-4bdf-b5ea-d9a5cbd4595a }"}
 			s{"{ c1b1074f-2763-45bc-84c9-1dd3da5d0f60 }"}
 		}
+		VarArray %References
+		{
+			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
+			s{"{ 6a46e9a1-4838-4bdf-b5ea-d9a5cbd4595a }"}
+			s{"{ c1b1074f-2763-45bc-84c9-1dd3da5d0f60 }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -45,16 +52,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ 6a46e9a1-4838-4bdf-b5ea-d9a5cbd4595a }"}
 		b %ImportMaterials{1}
 		VarArray %Materials
 		{
 			Uuid{u4{4394022486567805323,5607602575115178775}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Quaternius/Monsters/glTF/Ghost.gltf"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -90,6 +103,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

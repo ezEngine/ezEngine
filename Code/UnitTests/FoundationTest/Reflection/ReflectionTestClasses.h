@@ -212,12 +212,23 @@ class ezTestClass2 : public ezTestClass1
   EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
 
 public:
-  ezTestClass2() { m_sText = "Legen"; }
+  ezTestClass2()
+  {
+    m_sCharPtr = "AAA";
+    m_sString = "BBB";
+    m_sStringView = "CCC";
+  }
 
-  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sText == rhs.m_sText; }
+  bool operator==(const ezTestClass2& rhs) const { return m_Time == rhs.m_Time && m_enumClass == rhs.m_enumClass && m_bitflagsClass == rhs.m_bitflagsClass && m_array == rhs.m_array && m_Variant == rhs.m_Variant && m_sCharPtr == rhs.m_sCharPtr && m_sString == rhs.m_sString && m_sStringView == rhs.m_sStringView; }
 
-  const char* GetText() const { return m_sText.GetData(); }
-  void SetText(const char* szSz) { m_sText = szSz; }
+  const char* GetCharPtr() const { return m_sCharPtr.GetData(); }
+  void SetCharPtr(const char* szSz) { m_sCharPtr = szSz; }
+
+  const ezString& GetString() const { return m_sString; }
+  void SetString(const ezString& sStr) { m_sString = sStr; }
+
+  ezStringView GetStringView() const { return m_sStringView.GetView(); }
+  void SetStringView(ezStringView sStrView) { m_sStringView = sStrView; }
 
   ezTime m_Time;
   ezEnum<ezExampleEnum> m_enumClass;
@@ -226,20 +237,22 @@ public:
   ezVariant m_Variant;
 
 private:
-  ezString m_sText;
+  ezString m_sCharPtr;
+  ezString m_sString;
+  ezString m_sStringView;
 };
 
 
 struct ezTestClass2Allocator : public ezRTTIAllocator
 {
-  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override
   {
     ++m_iAllocs;
 
     return EZ_DEFAULT_NEW(ezTestClass2);
   }
 
-  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator) override
+  virtual void Deallocate(void* pObject, ezAllocator* pAllocator) override
   {
     ++m_iDeallocs;
 

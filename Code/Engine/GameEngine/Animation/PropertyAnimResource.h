@@ -7,21 +7,22 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <GameEngine/GameEngineDLL.h>
 
+/// \brief What data type an animation modifies.
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Number,
-    VectorX,
-    VectorY,
-    VectorZ,
-    VectorW,
-    RotationX,
-    RotationY,
-    RotationZ,
-    Color,
+    Number,    ///< A single value.
+    VectorX,   ///< The x coordinate of a vector.
+    VectorY,   ///< The y coordinate of a vector.
+    VectorZ,   ///< The z coordinate of a vector.
+    VectorW,   ///< The w coordinate of a vector.
+    RotationX, ///< The x coordinate of a rotation.
+    RotationY, ///< The y coordinate of a rotation.
+    RotationZ, ///< The z coordinate of a rotation.
+    Color,     ///< A color.
 
     Default = Number,
   };
@@ -31,15 +32,16 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimTarget);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Describes how an animation should be played back.
 struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Once,
-    Loop,
-    BackAndForth,
+    Once,         ///< Play the animation once from start to end and then stop.
+    Loop,         ///< Play the animation from start to end, then loop back to the start and repeat indefinitely.
+    BackAndForth, ///< Play the animation from start to end, then reverse direction and play from end to start, then repeat indefinitely.
 
     Default = Loop,
   };

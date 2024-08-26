@@ -83,33 +83,33 @@ public:
 
   physx::PxRigidDynamic* GetPxActor() const { return m_pActor; }
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);                               // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);                                   // [ message ]
 
-  bool GetKinematic() const { return m_bKinematic; } // [ property ]
-  void SetKinematic(bool b);                         // [ property ]
+  bool GetKinematic() const { return m_bKinematic; }                                   // [ property ]
+  void SetKinematic(bool b);                                                           // [ property ]
 
-  bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
-  void SetDisableGravity(bool b);                              // [ property ]
+  bool GetDisableGravity() const { return m_bDisableGravity; }                         // [ property ]
+  void SetDisableGravity(bool b);                                                      // [ property ]
 
-  bool GetContinuousCollisionDetection() const { return m_bCCD; } // [ property ]
-  void SetContinuousCollisionDetection(bool b);                   // [ property ]
+  bool GetContinuousCollisionDetection() const { return m_bCCD; }                      // [ property ]
+  void SetContinuousCollisionDetection(bool b);                                        // [ property ]
 
-  float GetMass() const { return m_fMass; } // [ property ]
-  void SetMass(float fMass);                // [ property ]
+  float GetMass() const { return m_fMass; }                                            // [ property ]
+  void SetMass(float fMass);                                                           // [ property ]
 
-  float m_fDensity = 1.0f;                 // [ property ]
-  float m_fLinearDamping = 0.1f;           // [ property ]
-  float m_fAngularDamping = 0.05f;         // [ property ]
-  float m_fMaxContactImpulse = 1000000.0f; // [ property ]
+  float m_fDensity = 1.0f;                                                             // [ property ]
+  float m_fLinearDamping = 0.1f;                                                       // [ property ]
+  float m_fAngularDamping = 0.05f;                                                     // [ property ]
+  float m_fMaxContactImpulse = 1000000.0f;                                             // [ property ]
 
-  ezVec3 GetLocalCenterOfMass() const;  // [ scriptable ]
-  ezVec3 GetGlobalCenterOfMass() const; // [ scriptable ]
+  ezVec3 GetLocalCenterOfMass() const;                                                 // [ scriptable ]
+  ezVec3 GetGlobalCenterOfMass() const;                                                // [ scriptable ]
 
-  void AddLinearForce(const ezVec3& vForce);      // [ scriptable ]
-  void AddLinearImpulse(const ezVec3& vImpulse);  // [ scriptable ]
-  void AddAngularForce(const ezVec3& vForce);     // [ scriptable ]
-  void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
+  void AddLinearForce(const ezVec3& vForce);                                           // [ scriptable ]
+  void AddLinearImpulse(const ezVec3& vImpulse);                                       // [ scriptable ]
+  void AddAngularForce(const ezVec3& vForce);                                          // [ scriptable ]
+  void AddAngularImpulse(const ezVec3& vImpulse);                                      // [ scriptable ]
 
   void SetLockingFlags(ezBitflags<ezPxActorLockingFlags> flags);                       // [ property ]
   ezBitflags<ezPxActorLockingFlags> GetLockingFlags() const { return m_LockingFlags; } // [ property ]

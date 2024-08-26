@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
@@ -8,11 +9,13 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
+#include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
+class ezView;
 
 namespace JPH
 {
@@ -71,11 +74,11 @@ public:
 
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const override;
-
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
+
+  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const override;
 
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
@@ -84,7 +87,14 @@ public:
   const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
   ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
 
-  void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
+  /// \brief Returns a uint32 that can be queried for completion with IsBodyStillQueuedToAdd().
+  ezUInt32 QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
+
+  /// \brief Checks whether the last QueueBodyToAdd() has been processed already, or not.
+  ///
+  /// Bodies that aren't added to Jolt yet, may not get locked (they are not in the broadphase).
+  /// If this is still the case, skip operations that wouldn't have an effect anyway.
+  bool IsBodyStillQueuedToAdd(ezUInt32 uiBodiesAddCounter) const { return uiBodiesAddCounter == m_uiBodiesAddCounter; }
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
@@ -104,6 +114,7 @@ public:
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
 
+  void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -122,6 +133,46 @@ private:
   void UpdateConstraints();
 
   ezTime CalculateUpdateSteps();
+
+  void DebugDrawGeometry();
+  void DebugDrawGeometry(const ezVec3& vCenter, float fRadius, ezPhysicsShapeType::Enum shapeType, const ezTag& tag);
+
+  struct DebugGeo
+  {
+    ezGameObjectHandle m_hObject;
+    ezUInt32 m_uiLastSeenCounter = 0;
+    bool m_bMutableGeometry = false;
+  };
+
+  struct DebugGeoShape
+  {
+    ezDynamicMeshBufferResourceHandle m_hMesh;
+    ezBoundingBox m_Bounds;
+    ezUInt32 m_uiLastSeenCounter = 0;
+  };
+
+  struct DebugBodyShapeKey
+  {
+    ezUInt32 m_uiBodyID;
+    const void* m_pShapePtr;
+
+    bool operator<(const DebugBodyShapeKey& rhs) const
+    {
+      if (m_uiBodyID == rhs.m_uiBodyID)
+        return m_pShapePtr < rhs.m_pShapePtr;
+
+      return m_uiBodyID < rhs.m_uiBodyID;
+    }
+
+    bool operator==(const DebugBodyShapeKey& rhs) const
+    {
+      return (m_uiBodyID == rhs.m_uiBodyID) && (m_pShapePtr == rhs.m_pShapePtr);
+    }
+  };
+
+  ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
+  ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
+  ezMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
 
   ezUInt32 m_uiNextObjectFilterID = 1;
   ezDynamicArray<ezUInt32> m_FreeObjectFilterIDs;
@@ -156,9 +207,26 @@ private:
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
+  ezUInt32 m_uiBodiesAddCounter = 1; // increased every time bodies get added, can be used to check whether a queued body is still queued
   ezDeque<ezUInt32> m_BodiesToAdd;
   ezDeque<ezUInt32> m_BodiesToAddAndActivate;
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+};
+
+/// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry
+/// from which to generate a navmesh.
+class EZ_JOLTPLUGIN_DLL ezJoltNavmeshGeoWorldModule : public ezNavmeshGeoWorldModuleInterface
+{
+  EZ_DECLARE_WORLD_MODULE();
+  EZ_ADD_DYNAMIC_REFLECTION(ezJoltNavmeshGeoWorldModule, ezNavmeshGeoWorldModuleInterface);
+
+public:
+  ezJoltNavmeshGeoWorldModule(ezWorld* pWorld);
+
+  virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const override;
+
+private:
+  ezJoltWorldModule* m_pJoltModule = nullptr;
 };

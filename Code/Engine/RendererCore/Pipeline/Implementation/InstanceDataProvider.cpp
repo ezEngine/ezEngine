@@ -73,9 +73,7 @@ void ezInstanceData::CreateBuffer(ezUInt32 uiSize)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerInstanceData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiSize;
-  desc.m_BufferType = ezGALBufferType::Generic;
-  desc.m_bUseAsStructuredBuffer = true;
-  desc.m_bAllowShaderResourceView = true;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   m_hInstanceDataBuffer = pDevice->CreateBuffer(desc);

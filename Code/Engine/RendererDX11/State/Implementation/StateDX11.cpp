@@ -113,6 +113,8 @@ ezResult ezGALBlendStateDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXBlendState);
   return EZ_SUCCESS;
 }
@@ -162,6 +164,8 @@ ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALDepthStencilStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXDepthStencilState);
   return EZ_SUCCESS;
 }
@@ -246,6 +250,8 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALRasterizerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXRasterizerState);
   return EZ_SUCCESS;
 }
@@ -321,10 +327,10 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALSamplerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXSamplerState);
   return EZ_SUCCESS;
 }
 
 
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_State_Implementation_StateDX11);

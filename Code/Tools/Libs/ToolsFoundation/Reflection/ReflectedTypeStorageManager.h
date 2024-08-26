@@ -48,8 +48,6 @@ private:
     void UpdateInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
     void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& ref_requiresPatchingEmbeddedClass);
 
-    ezVariantType::Enum GetStorageType(const ezAbstractProperty* pProperty);
-
     ezSet<ezReflectedTypeStorageAccessor*> m_Instances;
     ezHashTable<ezString, StorageInfo> m_PathToStorageInfoTable;
   };

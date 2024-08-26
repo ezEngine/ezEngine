@@ -37,6 +37,25 @@ namespace ezDataDirectory
     m_File.Close();
   }
 
+  ezUInt64 FolderReader::Skip(ezUInt64 uiBytes)
+  {
+    if (uiBytes == 0)
+    {
+      return 0;
+    }
+
+    const ezUInt64 fileSize = m_File.GetFileSize();
+    const ezUInt64 origFilePosition = m_File.GetFilePosition();
+    EZ_ASSERT_DEBUG(origFilePosition <= fileSize, "");
+
+    const ezUInt64 newFilePosition = ezMath::Min(fileSize, origFilePosition + uiBytes);
+    m_File.SetFilePosition(newFilePosition, ezFileSeekMode::FromStart);
+    EZ_ASSERT_DEBUG(newFilePosition == m_File.GetFilePosition(), "");
+
+    EZ_ASSERT_DEBUG(newFilePosition >= origFilePosition, "");
+    return newFilePosition - origFilePosition;
+  }
+
   ezUInt64 FolderReader::Read(void* pBuffer, ezUInt64 uiBytes)
   {
     return m_File.Read(pBuffer, uiBytes);
@@ -70,8 +89,12 @@ namespace ezDataDirectory
     return m_File.GetFileSize();
   }
 
-  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
+  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
   {
+    EZ_IGNORE_UNUSED(sGroup);
+    EZ_IGNORE_UNUSED(sRootName);
+    EZ_IGNORE_UNUSED(usage);
+
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 
     if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
@@ -182,6 +205,8 @@ namespace ezDataDirectory
 
   bool FolderType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFile, sRedirectedAsset);
 
@@ -192,6 +217,8 @@ namespace ezDataDirectory
 
   ezResult FolderType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFileOrFolder, sRedirectedAsset);
 
@@ -268,6 +295,8 @@ namespace ezDataDirectory
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
   {
+    EZ_IGNORE_UNUSED(bSpecificallyThisDataDir);
+
     ezStringBuilder sFileToOpen;
     ResolveAssetRedirection(sFile, sFileToOpen);
 

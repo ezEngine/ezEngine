@@ -220,6 +220,7 @@ struct EZ_TEXTURE_DLL ezImageFormat
 
     // Planar formats
     NV12,
+    P010,
 
     NUM_FORMATS,
 

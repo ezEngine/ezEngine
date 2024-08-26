@@ -40,15 +40,16 @@ private:
   void Update(const ezWorldModule::UpdateContext& context);
 };
 
+/// \brief With which pose a ragdoll should start.
 struct ezJoltRagdollStartMode
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    WithBindPose,
-    WithNextAnimPose,
-    WithCurrentMeshPose,
+    WithBindPose,        ///< The ragdoll uses the bind pose (or rest pose) to start with.
+    WithNextAnimPose,    ///< The ragdoll waits for a new pose and then starts simulating with that.
+    WithCurrentMeshPose, ///< The ragdoll retrieves the current pose from the animated mesh and starts simulating with that.
     Default = WithBindPose
   };
 };
@@ -57,6 +58,19 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollStartMode);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Creates a physics ragdoll for an animated mesh and creates animation poses from the physics simulation.
+///
+/// By activating this component on an animated mesh, the component creates the necessary physics shapes to simulate a falling body.
+/// The component queries the bone transforms from the physics engine and sends ezMsgAnimationPoseUpdated with new poses.
+///
+/// Once this component is active on an animated mesh, no other pose generating component should be active anymore, otherwise
+/// multiple components generate conflicting animation poses.
+/// The typical way to use this, is to have the component created and configured, but in an inactive state. Once an NPC dies, the component is activated and all other components that generate animation poses should be deactivated.
+///
+/// The ragdoll shapes are configured through the ezSkeletonResource.
+///
+/// Ragdolls are also used to create fake "breakable" objects. This is achieved by building a skinned object out of several pieces
+/// and giving every piece a bone that has no constraint (joint), so that the object just breaks apart.
 class EZ_JOLTPLUGIN_DLL ezJoltRagdollComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltRagdollComponent, ezComponent, ezJoltRagdollComponentManager);
@@ -79,22 +93,32 @@ public:
   ezJoltRagdollComponent();
   ~ezJoltRagdollComponent();
 
+  /// \brief Returns the object ID used for all bodies in the ragdoll. This can be used to ignore the entire ragdoll during raycasts and such.
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);      // [ msg handler ]
-  void OnMsgAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg); // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;      // [ msg handler ]
-
-  float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
+  /// \brief Adjusts how strongly gravity affects the ragdoll.
+  ///
+  /// Set this to zero to fully disable gravity.
   void SetGravityFactor(float fFactor);                       // [ property ]
+  float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  bool m_bSelfCollision = false;   // [ property ]
+  /// \brief If true, the ragdoll pieces collide with each other.
+  /// This produces more realistic ragdoll behavior, but requires that the ragdoll shapes are well set up.
+  /// It may produce jittering and also cost more performance.
+  /// Another option is to set up the joint limits such that the ragdoll can't easily intersect itself.
+  bool m_bSelfCollision = false; // [ property ]
+
+  /// \brief How easily the joints move. Note that scaling the ragdoll up or down affects the forces and thus stiffness needs to be adjusted as well.
   float m_fStiffnessFactor = 1.0f; // [ property ]
-  float m_fMass = 50.0f;           // [ property ]
 
+  /// \brief The total weight of the ragdoll. It is distributed across the individual shapes.
+  float m_fMass = 50.0f; // [ property ]
+
+  /// \brief Sets with which pose the ragdoll should start simulating.
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
   ezEnum<ezJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
 
+  /// \brief Applies a force to a specific part of the ragdoll.
   void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
 
   /// \brief Applies an impulse to a specific part of the ragdoll.
@@ -119,14 +143,40 @@ public:
   void AddInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength); // [ scriptable ]
 
   /// \brief How much of the owner object's velocity to transfer to the new ragdoll bodies.
-  float m_fOwnerVelocityScale = 1.0f;              // [ property ]
-  float m_fCenterVelocity = 0.0f;                  // [ property ]
-  float m_fCenterAngularVelocity = 0.0f;           // [ property ]
-  ezVec3 m_vCenterPosition = ezVec3::MakeZero();   // [ property ]
+  float m_fOwnerVelocityScale = 1.0f; // [ property ]
 
+  /// If non-zero, when the ragdoll starts, all pieces start out with an outward velocity with this speed.
+  ///
+  /// This can be used to create breakable objects that should "break apart". Once the ragdoll starts, the bodies will fly
+  /// away outward from their center (plus m_vCenterPosition).
+  float m_fCenterVelocity = 0.0f; // [ property ]
+
+  /// Similar to m_fCenterVelocity but sets a rotational velocity, so that objects also spin.
+  float m_fCenterAngularVelocity = 0.0f; // [ property ]
+
+  /// If center velocity is used, this adds an offset to the object's position to define where the center position should be.
+  ezVec3 m_vCenterPosition = ezVec3::MakeZero(); // [ property ]
+
+  /// \brief Allows to override the type of joint to be used for a bone.
+  ///
+  /// This has to be called before the component is activated.
+  /// Its intended use case is to make certain joints either stiff (by setting the joints to 'fixed'),
+  /// or to break pieces off (by setting the type to 'None').
+  ///
+  /// For example a breakable object could be made up of 10 pieces, but when breaking it, a random number of joints
+  /// can be set to 'fixed' or 'none', so that the exact shape of the broken pieces has more variety.
+  ///
+  /// Similarly, on a animated mesh that is specifically authored to have separable pieces (like an arm on a robot),
+  /// one can separate limbs by setting their joint to 'none'.
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
+
 protected:
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                      // [ property ]
+  float m_fGravityFactor = 1.0f;                                   // [ property ]
+
   struct Limb
   {
     ezUInt16 m_uiPartIndex = ezInvalidJointIndex;
@@ -159,9 +209,6 @@ protected:
   virtual void ApplyPartInitialVelocity();
   void ApplyBodyMass();
   void ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse);
-
-  ezEnum<ezJoltRagdollStartMode> m_StartMode; // [ property ]
-  float m_fGravityFactor = 1.0f;              // [ property ]
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezDynamicArray<ezMat4> m_CurrentLimbTransforms;

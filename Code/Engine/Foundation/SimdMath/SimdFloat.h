@@ -33,7 +33,7 @@ public:
   [[nodiscard]] static ezSimdFloat MakeZero(); // [tested]
 
   /// \brief Creates an ezSimdFloat that is initialized to Not-A-Number (NaN).
-  [[nodiscard]] static ezSimdFloat MakeNaN(); // [tested]
+  [[nodiscard]] static ezSimdFloat MakeNaN();        // [tested]
 
 public:
   ezSimdFloat operator+(const ezSimdFloat& f) const; // [tested]
@@ -41,35 +41,35 @@ public:
   ezSimdFloat operator*(const ezSimdFloat& f) const; // [tested]
   ezSimdFloat operator/(const ezSimdFloat& f) const; // [tested]
 
-  ezSimdFloat& operator+=(const ezSimdFloat& f); // [tested]
-  ezSimdFloat& operator-=(const ezSimdFloat& f); // [tested]
-  ezSimdFloat& operator*=(const ezSimdFloat& f); // [tested]
-  ezSimdFloat& operator/=(const ezSimdFloat& f); // [tested]
+  ezSimdFloat& operator+=(const ezSimdFloat& f);     // [tested]
+  ezSimdFloat& operator-=(const ezSimdFloat& f);     // [tested]
+  ezSimdFloat& operator*=(const ezSimdFloat& f);     // [tested]
+  ezSimdFloat& operator/=(const ezSimdFloat& f);     // [tested]
 
   bool IsEqual(const ezSimdFloat& rhs, const ezSimdFloat& fEpsilon) const;
 
-  bool operator==(const ezSimdFloat& f) const; // [tested]
-  bool operator!=(const ezSimdFloat& f) const; // [tested]
-  bool operator>(const ezSimdFloat& f) const;  // [tested]
-  bool operator>=(const ezSimdFloat& f) const; // [tested]
-  bool operator<(const ezSimdFloat& f) const;  // [tested]
-  bool operator<=(const ezSimdFloat& f) const; // [tested]
+  bool operator==(const ezSimdFloat& f) const;               // [tested]
+  bool operator!=(const ezSimdFloat& f) const;               // [tested]
+  bool operator>(const ezSimdFloat& f) const;                // [tested]
+  bool operator>=(const ezSimdFloat& f) const;               // [tested]
+  bool operator<(const ezSimdFloat& f) const;                // [tested]
+  bool operator<=(const ezSimdFloat& f) const;               // [tested]
 
-  bool operator==(float f) const; // [tested]
-  bool operator!=(float f) const; // [tested]
-  bool operator>(float f) const;  // [tested]
-  bool operator>=(float f) const; // [tested]
-  bool operator<(float f) const;  // [tested]
-  bool operator<=(float f) const; // [tested]
-
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetReciprocal() const; // [tested]
+  bool operator==(float f) const;                            // [tested]
+  bool operator!=(float f) const;                            // [tested]
+  bool operator>(float f) const;                             // [tested]
+  bool operator>=(float f) const;                            // [tested]
+  bool operator<(float f) const;                             // [tested]
+  bool operator<=(float f) const;                            // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetSqrt() const; // [tested]
+  ezSimdFloat GetReciprocal() const;                         // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetInvSqrt() const; // [tested]
+  ezSimdFloat GetSqrt() const;                               // [tested]
+
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
+  ezSimdFloat GetInvSqrt() const;                            // [tested]
 
   [[nodiscard]] ezSimdFloat Max(const ezSimdFloat& f) const; // [tested]
   [[nodiscard]] ezSimdFloat Min(const ezSimdFloat& f) const; // [tested]

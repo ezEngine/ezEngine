@@ -1,13 +1,13 @@
 #pragma once
 
 #if SHADING_QUALITY != SHADING_QUALITY_NORMAL
-#error "Functions in Lighting.h are only for QUALITY_NORMAL shading quality. Todo: Split up file"
+#  error "Functions in Lighting.h are only for QUALITY_NORMAL shading quality. Todo: Split up file"
 #endif
 
-#include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Common/LightData.h>
 #include <Shaders/Common/AmbientCubeBasis.h>
 #include <Shaders/Common/BRDF.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/LightData.h>
 
 Texture2DArray SSAOTexture;
 
@@ -111,8 +111,7 @@ float SampleSSAO(float3 screenPosition)
   float totalSSAO = 0.0f;
   float totalWeight = 0.0f;
 
-  [unroll]
-  for (int i = 0; i < 5; ++i)
+  [unroll] for (int i = 0; i < 5; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * ViewportSize.zw;
     float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, float3(samplePos, s_ActiveCameraEyeIndex), 0.0f).rg;
@@ -172,8 +171,11 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 #endif
 }
 
-float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float distanceToLight, uint type,
-  uint shadowDataOffset, float noise, float2x2 randomRotation, out float subsurfaceShadow, out float3 debugColor)
+// Enable to only sample the last cascade for directional lights (which will always enclose the whole shadow range)
+// #define SHADOW_FORCE_LAST_CASCADE
+
+float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 lightVector, float distanceToLight, uint type,
+  uint shadowDataOffset, float noise, float2x2 randomRotation, float extraPenumbraScale, inout float subsurfaceShadow, out float3 debugColor)
 {
   float3 debugColors[] = {
     float3(1, 0, 0),
@@ -186,10 +188,12 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
   float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_INDEX(shadowDataOffset)];
 
+  float viewDistance = length(GetCameraPosition() - worldPosition);
+
   // normal offset bias
   float normalOffsetBias = shadowParams.x * distanceToLight;
-  float normalOffsetScale = normalOffsetBias - dot(matData.vertexNormal, lightVector) * normalOffsetBias;
-  float3 worldPosition = matData.worldPosition + matData.vertexNormal * normalOffsetScale;
+  float normalOffsetScale = normalOffsetBias - dot(vertexNormal, lightVector) * normalOffsetBias;
+  worldPosition += vertexNormal * normalOffsetScale;
 
   float constantBias = shadowParams.y;
   float penumbraSize = shadowParams.z;
@@ -197,8 +201,7 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
   float4 shadowPosition;
 
-  [branch]
-  if (type == LIGHT_TYPE_DIR)
+  [branch] if (type == LIGHT_TYPE_DIR)
   {
     uint matrixIndex = GET_WORLD_TO_LIGHT_MATRIX_INDEX(shadowDataOffset, 0);
 
@@ -208,14 +211,23 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
     shadowPosition.xyz += shadowDataBuffer[matrixIndex + 2].xyz * worldPosition.z;
     shadowPosition.w = 1.0f;
 
+    uint lastCascadeIndex = asuint(shadowParams.w);
+    float4 shadowParams2 = shadowDataBuffer[GET_SHADOW_PARAMS2_INDEX(shadowDataOffset)];
+
+#if defined(SHADOW_FORCE_LAST_CASCADE)
+    uint cascadeIndex = lastCascadeIndex;
+    float4 cascadeScale = shadowDataBuffer[GET_CASCADE_SCALE_INDEX(shadowDataOffset, cascadeIndex - 1)];
+    float4 cascadeOffset = shadowDataBuffer[GET_CASCADE_OFFSET_INDEX(shadowDataOffset, cascadeIndex - 1)];
+    shadowPosition.xyz = shadowPosition.xyz * cascadeScale.xyz + cascadeOffset.xyz;
+    float penumbraSizeScale = cascadeScale.x;
+
+#else
     float4 firstCascadePosition = shadowPosition;
     float penumbraSizeScale = 1.0f;
 
-    float4 shadowParams2 = shadowDataBuffer[GET_SHADOW_PARAMS2_INDEX(shadowDataOffset)];
     float2 threshold = float2(shadowParams2.x, 1.0f) - shadowParams2.yz * noise;
 
     uint cascadeIndex = 0;
-    uint lastCascadeIndex = asuint(shadowParams.w);
     while (cascadeIndex < lastCascadeIndex)
     {
       if (all(abs(shadowPosition.xyz) < threshold.xxy))
@@ -228,19 +240,22 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
       ++cascadeIndex;
     }
+#endif
 
     constantBias /= penumbraSizeScale;
-    float viewDistance = length(GetCameraPosition() - matData.worldPosition);
     penumbraSize = (penumbraSize + shadowParams2.w * viewDistance) * penumbraSizeScale;
 
     if (cascadeIndex == lastCascadeIndex)
     {
       float4 fadeOutParams = shadowDataBuffer[GET_FADE_OUT_PARAMS_INDEX(shadowDataOffset)];
       float xyMax = max(abs(shadowPosition.x), abs(shadowPosition.y));
-      float xyFadeOut = saturate(xyMax * fadeOutParams.x + fadeOutParams.y);
-      float zFadeOut = saturate(shadowPosition.z * fadeOutParams.z + fadeOutParams.w);
+      float2 xyScaleOffset = RG16FToFloat2(asuint(fadeOutParams.x));
+      float2 zScaleOffset = RG16FToFloat2(asuint(fadeOutParams.y));
+      float xyFadeOut = saturate(xyMax * xyScaleOffset.x + xyScaleOffset.y);
+      float zFadeOut = saturate(shadowPosition.z * zScaleOffset.x + zScaleOffset.y);
+      float distanceFadeOut = saturate(viewDistance * fadeOutParams.z + fadeOutParams.w);
 
-      fadeOut = min(xyFadeOut, zFadeOut);
+      fadeOut = max(min(xyFadeOut, zFadeOut), distanceFadeOut);
     }
     else
     {
@@ -270,15 +285,14 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
     debugColor = debugColors[matrixIndex];
   }
 
-  [branch]
-  if (fadeOut > 0.0f)
+  [branch] if (fadeOut > 0.0f)
   {
     // constant bias
     shadowPosition.z -= constantBias;
 
     shadowPosition.xyz /= shadowPosition.w;
 
-    float shadowTerm = SampleShadow(shadowPosition.xyz, randomRotation, penumbraSize);
+    float shadowTerm = SampleShadow(shadowPosition.xyz, randomRotation, penumbraSize * extraPenumbraScale);
 
     // fade out
     shadowTerm = lerp(1.0f, shadowTerm, fadeOut);
@@ -344,8 +358,8 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
       float3 probeInfluencePosition = probeProjectionPosition;
       probeInfluencePosition -= probeData.InfluenceShift.xyz;
       probeInfluencePosition /= probeData.InfluenceScale.xyz;
-      //return probeInfluencePosition;
-      // Boundary clamp. For spheres projection and influence space are identical.
+      // return probeInfluencePosition;
+      //  Boundary clamp. For spheres projection and influence space are identical.
       float dist = length(probeInfluencePosition);
       if (dist > 1.0f)
         continue;
@@ -452,21 +466,76 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
   return ref.rgb;
 }
 
+// Returns unsaturated NdotL
+float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, out float3 lightVector, out float attenuation, out float distanceToLight)
+{
+  float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0 - 1.0);
+  lightVector = lightDir;
+  attenuation = 1.0;
+  distanceToLight = 1.0;
+
+  [branch] if (type <= LIGHT_TYPE_SPOT)
+  {
+    lightVector = lightData.position - worldPosition;
+    float sqrDistance = dot(lightVector, lightVector);
+
+    attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
+
+    distanceToLight = sqrDistance * lightData.invSqrAttRadius;
+    lightVector *= rsqrt(sqrDistance);
+
+    if (type == LIGHT_TYPE_SPOT)
+    {
+      float2 spotParams = RG16FToFloat2(lightData.spotOrFillParams);
+      attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+    }
+  }
+
+  float NdotL = dot(worldNormal, lightVector);
+  return NdotL;
+}
+
+void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseColor, float directionality, ezPerLightData lightData, uint type, inout float3 diffuseLight, inout float3 indirectLightModulation)
+{
+  float distanceToLight = 1.0f;
+  float3 lightVector = NormalizeAndGetLength(lightData.position - worldPosition, distanceToLight);
+
+  float attenuation = saturate(1.0 - distanceToLight * lightData.invSqrAttRadius);
+
+  float2 fillParams = RG16FToFloat2(lightData.spotOrFillParams);
+  attenuation = pow(attenuation, fillParams.x);
+
+  directionality = min(directionality, fillParams.y);
+  float NdotL = dot(worldNormal, lightVector);
+  attenuation *= saturate(lerp(1.0, NdotL, directionality));
+
+  float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+  if (type == LIGHT_TYPE_FILL_ADDITIVE)
+  {
+    diffuseLight += diffuseColor * lightColor * (lightData.intensity * attenuation);
+  }
+  else if (type == LIGHT_TYPE_FILL_MODULATE_INDIRECT)
+  {
+    indirectLightModulation *= max(lerp(1.0, lightColor * lightData.intensity, attenuation), 0.0);
+  }
+}
+
 AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
 
   AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
+  float3 indirectLightModulation = 1.0f;
 
   float noise = InterleavedGradientNoise(screenPosition.xy);
-  float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
+  float2 randomAngle;
+  sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
   float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_LIGHT_INDEX(clusterData.counts);
 
-  [loop]
-  for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  [loop] for (uint i = firstItemIndex; i < lastItemIndex; ++i)
   {
     uint itemIndex = clusterItemBuffer[i];
     uint lightIndex = GET_LIGHT_INDEX(itemIndex);
@@ -474,68 +543,53 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     ezPerLightData lightData = perLightDataBuffer[lightIndex];
     uint type = (lightData.colorAndType >> 24) & 0xFF;
 
-    float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0f - 1.0f);
-    float3 lightVector = lightDir;
-    float attenuation = 1.0f;
-    float distanceToLight = 1.0f;
-
-    [branch]
-    if (type != LIGHT_TYPE_DIR)
+    [branch] if (type <= LIGHT_TYPE_DIR)
     {
-      lightVector = lightData.position - matData.worldPosition;
-      float sqrDistance = dot(lightVector, lightVector);
+      float3 lightVector;
+      float attenuation = 1.0;
+      float distanceToLight = 1.0;
+      float NdotL = saturate(EvaluatePBRLight(matData.worldPosition, matData.worldNormal, lightData, type, lightVector, attenuation, distanceToLight));
 
-      attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
-
-      distanceToLight = sqrDistance * lightData.invSqrAttRadius;
-      lightVector *= rsqrt(sqrDistance);
-
-      [branch]
-      if (type == LIGHT_TYPE_SPOT)
+#if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
+      [branch] if (attenuation * NdotL > 0.0f)
+#endif
       {
-        float2 spotParams = RG16FToFloat2(lightData.spotParams);
-        attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+        attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
+
+        float3 debugColor = 1.0f;
+        float shadowTerm = 1.0;
+        float subsurfaceShadow = 1.0;
+
+        [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
+        {
+          uint shadowDataOffset = lightData.shadowDataOffset;
+          float extraPenumbraScale = 1.0;
+
+          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type,
+            shadowDataOffset, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+        }
+
+        attenuation *= lightData.intensity;
+        float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+
+        // debug cascade or point face selection
+#if 0
+        lightColor = lerp(1.0f, debugColor, 0.5f);
+#endif
+
+        AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
+
+#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
+        AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));
+#endif
       }
     }
-
-    float NdotL = saturate(dot(matData.worldNormal, lightVector));
-
-  #if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
-    [branch]
-    if (attenuation * NdotL > 0.0f)
-  #endif
+    else // Fill Light
     {
-      attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
-
-      float3 debugColor = 1.0f;
-      float shadowTerm = 1.0;
-      float subsurfaceShadow = 1.0;
-
-      [branch]
-      if (lightData.shadowDataOffset != 0xFFFFFFFF)
-      {
-        uint shadowDataOffset = lightData.shadowDataOffset;
-
-        shadowTerm = CalculateShadowTerm(matData, lightVector, distanceToLight, type,
-          shadowDataOffset, noise, randomRotation, subsurfaceShadow, debugColor);
-      }
-
-      attenuation *= lightData.intensity;
-      float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
-
-      // debug cascade or point face selection
-      #if 0
-        lightColor = lerp(1.0f, debugColor, 0.5f);
-      #endif
-
-      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm));
-
-      #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
-        AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));        
-      #endif
+      EvaluateFillLight(matData.worldPosition, matData.worldNormal, matData.diffuseColor, 1.0, lightData, type, totalLight.diffuseLight, indirectLightModulation);
     }
   }
-  
+
   // normalize brdf
   totalLight.diffuseLight *= (1.0f / PI);
   totalLight.specularLight *= (1.0f / PI);
@@ -550,11 +604,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
   // sky light in ambient cube basis
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
-  totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
-  
+  totalLight.diffuseLight += matData.diffuseColor * indirectLightModulation * skyLight * occlusion;
+
   // indirect specular
-  totalLight.specularLight += matData.specularColor * ComputeReflection(matData, viewVector, clusterData) * occlusion;
-  //totalLight.specularLight += ComputeReflection(matData, viewVector, clusterData);
+  totalLight.specularLight += matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion;
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
@@ -571,12 +624,11 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
   uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
 
   uint applyOnlyToId = (gameObjectId & (1 << 31)) ? gameObjectId : 0;
-  
+
   float3 worldPosDdx = ddx(matData.worldPosition);
   float3 worldPosDdy = ddy(matData.worldPosition);
 
-  [loop]
-  for (uint i = firstItemIndex; i < lastItemIndex; ++i)
+  [loop] for (uint i = firstItemIndex; i < lastItemIndex; ++i)
   {
     uint itemIndex = clusterItemBuffer[i];
     uint decalIndex = GET_DECAL_INDEX(itemIndex);
@@ -600,7 +652,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
     fade *= fade;
 
     float3 borderFade = 1.0f - decalPosition * decalPosition;
-    //fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
+    // fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
     fade *= borderFade.z;
 
     if (fade > 0.0f)
@@ -610,10 +662,10 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         decalPosition.xy += decalNormal.xy * decalPosition.z;
         decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
       }
-      
+
       float2 decalPositionDdx = mul((float3x3)worldToDecalMatrix, worldPosDdx).xy;
       float2 decalPositionDdy = mul((float3x3)worldToDecalMatrix, worldPosDdy).xy;
-      
+
       float3 decalWorldNormal;
       if (decalFlags & DECAL_USE_NORMAL)
       {
@@ -622,14 +674,13 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 normalAtlasUv = decalPosition.xy * normalAtlasScale + normalAtlasOffset;
         float2 normalAtlasDdx = decalPositionDdx * normalAtlasScale;
         float2 normalAtlasDdy = decalPositionDdy * normalAtlasScale;
-        
+
         float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.SampleGrad(DecalAtlasSampler, normalAtlasUv, normalAtlasDdx, normalAtlasDdy));
-        
-        [branch]
-        if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
+
+        [branch] if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
         {
           float3 xAxis = normalize(cross(worldToDecalMatrix._m10_m11_m12, matData.vertexNormal));
-          decalWorldNormal = decalTangentNormal.x * xAxis;          
+          decalWorldNormal = decalTangentNormal.x * xAxis;
           decalWorldNormal += decalTangentNormal.y * cross(matData.vertexNormal, xAxis);
           decalWorldNormal += decalTangentNormal.z * matData.vertexNormal;
         }
@@ -640,7 +691,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
           decalWorldNormal -= decalTangentNormal.z * normalize(worldToDecalMatrix._m20_m21_m22);
         }
       }
-      
+
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseColorAtlasOffset);
       float2 baseAtlasUv = decalPosition.xy * baseAtlasScale + baseAtlasOffset;
@@ -650,12 +701,12 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float4 decalBaseColor = RGBA8ToFloat4(decalData.baseColor);
       decalBaseColor *= DecalAtlasBaseColorTexture.SampleGrad(DecalAtlasSampler, baseAtlasUv, baseAtlasDdx, baseAtlasDdy);
       fade *= decalBaseColor.a;
-      
+
       if (decalFlags & DECAL_USE_NORMAL)
       {
         matData.worldNormal = lerp(matData.worldNormal, decalWorldNormal, fade);
       }
-      
+
       float decalMetallic = 0.0f;
       if (decalFlags & DECAL_USE_ORM)
       {
@@ -664,14 +715,14 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 ormAtlasUv = decalPosition.xy * ormAtlasScale + ormAtlasOffset;
         float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
         float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
-        
+
         float3 decalORM = DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb;
-        
+
         matData.occlusion = lerp(matData.occlusion, decalORM.r, fade);
         matData.roughness = lerp(matData.roughness, decalORM.g, fade);
         decalMetallic = decalORM.b;
       }
-      
+
       float3 decalDiffuseColor = lerp(decalBaseColor.rgb, 0.0f, decalMetallic);
       if (decalFlags & DECAL_BLEND_MODE_COLORIZE)
       {
@@ -681,12 +732,12 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       {
         matData.diffuseColor = lerp(matData.diffuseColor, decalDiffuseColor, fade);
       }
-      
+
       float3 decalSpecularColor = lerp(0.04f, decalBaseColor.rgb, decalMetallic);
       matData.specularColor = lerp(matData.specularColor, decalSpecularColor, fade);
-      
+
       float3 decalEmissiveColor = RGBA16FToFloat4(decalData.emissiveColorRG, decalData.emissiveColorBA).rgb;
-      
+
       if (decalFlags & DECAL_USE_EMISSIVE)
       {
         float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
@@ -694,15 +745,15 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 ormAtlasUv = decalPosition.xy * ormAtlasScale + ormAtlasOffset;
         float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
         float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
-        
+
         decalEmissiveColor *= SrgbToLinear(DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb);
       }
       matData.emissiveColor += decalEmissiveColor * fade;
-      
-      matData.opacity = max(matData.opacity, fade);      
+
+      matData.opacity = max(matData.opacity, fade);
     }
   }
-  
+
   matData.worldNormal = normalize(matData.worldNormal);
 }
 
@@ -757,7 +808,7 @@ float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
     float mipLevel = saturate(1.0 - distance * FogInvSkyDistance) * NUM_REFLECTION_MIPS;
     fogColor *= ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb * 2.0;
   }
-  
+
   return lerp(fogColor, color, fogAmount);
 }
 

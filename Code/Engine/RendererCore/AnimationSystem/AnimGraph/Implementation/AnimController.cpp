@@ -31,7 +31,7 @@ void ezAnimController::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rota
   ref_rotationZ = m_RootRotationZ;
 }
 
-void ezAnimController::Update(ezTime diff, ezGameObject* pTarget)
+void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
 {
   if (!m_hSkeleton.IsValid())
     return;
@@ -49,7 +49,7 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget)
   m_RootRotationY = {};
   m_RootRotationZ = {};
 
-  m_pPoseGenerator->Reset(pSkeleton.GetPointer());
+  m_pPoseGenerator->Reset(pSkeleton.GetPointer(), pTarget);
 
   m_PinDataBoneWeights.Clear();
   m_PinDataLocalTransforms.Clear();
@@ -64,7 +64,15 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget)
 
   GenerateLocalResultProcessors(pSkeleton.GetPointer());
 
-  if (auto newPose = GetPoseGenerator().GeneratePose(pTarget); !newPose.IsEmpty())
+  {
+    ezMsgAnimationPoseGeneration poseGenMsg;
+    poseGenMsg.m_pGenerator = &GetPoseGenerator();
+    pTarget->SendMessageRecursive(poseGenMsg);
+  }
+
+  GetPoseGenerator().UpdatePose(bEnableIK);
+
+  if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
   {
     ezMsgAnimationPoseUpdated msg;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
@@ -165,7 +173,8 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
     if (pw.GetCount() > m_uiMaxPoses)
     {
-      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
+        { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
       pw.SetCount(m_uiMaxPoses);
     }
 
@@ -271,8 +280,7 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
     ezAngle rootRotationZ;
     GetRootMotion(rootMotion, rootRotationX, rootRotationY, rootRotationZ);
 
-    auto& cmd = GetPoseGenerator().AllocCommandModelPoseToOutput();
-    cmd.m_Inputs.PushBack(pModelTransform->m_CommandID);
+    GetPoseGenerator().SetFinalCommand(pModelTransform->m_CommandID);
 
     if (pModelTransform->m_bUseRootMotion)
     {
@@ -353,5 +361,3 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
 
   return it.Value();
 }
-
-

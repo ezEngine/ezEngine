@@ -186,7 +186,7 @@ ezResult ezProjectExport::CreateExportFilterFile(const char* szExpectedFile, con
 ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter, ezPathPatternFilter& out_BinariesFilter, const ezPlatformProfile* pPlatformProfile)
 {
   ezStringBuilder sDefine;
-  sDefine.Format("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
+  sDefine.SetFormat("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
   sDefine.ToUpper();
 
   ezHybridArray<ezString, 1> ppDefines;
@@ -303,7 +303,7 @@ ezResult ezProjectExport::ScanDataDirectories(DirectoryMapping& mapping, const e
     }
     else
     {
-      sDstPath.Format("Data/Extra{}", uiDataDirNumber);
+      sDstPath.SetFormat("Data/Extra{}", uiDataDirNumber);
       ++uiDataDirNumber;
 
       ddInfo.m_sTargetDirPath = sDstPath;
@@ -361,10 +361,10 @@ ezResult ezProjectExport::CreateLaunchConfig(const ezDynamicArray<ezString>& sce
   for (const auto& sf : sceneFiles)
   {
     ezStringBuilder cmd;
-    cmd.Format("start Bin/Player.exe -project \"Data/project\" -scene \"{}\"", sf);
+    cmd.SetFormat("start Bin/ezPlayer.exe -project \"Data/project\" -scene \"{}\"", sf);
 
     ezStringBuilder bat;
-    bat.Format("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
+    bat.SetFormat("{}/Launch {}.bat", szTargetDirectory, ezPathUtils::GetFileName(sf));
 
     ezOSFile file;
     if (file.Open(bat, ezFileOpenMode::Write).Failed())

@@ -48,10 +48,10 @@ struct EZ_CORE_DLL ezInputActionConfig
   /// m_fFilterYMaxValue. Otherwise this action will not be triggered.
   ezString m_sFilterByInputSlotY[MaxInputSlotAlternatives];
 
-  float m_fFilterXMinValue; ///< =0; see m_sFilterByInputSlotX
-  float m_fFilterXMaxValue; ///< =1; see m_sFilterByInputSlotX
-  float m_fFilterYMinValue; ///< =0; see m_sFilterByInputSlotY
-  float m_fFilterYMaxValue; ///< =1; see m_sFilterByInputSlotY
+  float m_fFilterXMinValue;  ///< =0; see m_sFilterByInputSlotX
+  float m_fFilterXMaxValue;  ///< =1; see m_sFilterByInputSlotX
+  float m_fFilterYMinValue;  ///< =0; see m_sFilterByInputSlotY
+  float m_fFilterYMaxValue;  ///< =1; see m_sFilterByInputSlotY
 
   float m_fFilteredPriority; ///< =large negative value; For Input Areas: If two input actions overlap and they have different priorities,
                              ///< the one with the larger priority will be triggered. Otherwise both are triggered.
@@ -68,10 +68,10 @@ struct EZ_CORE_DLL ezInputActionConfig
   /// filtering enter the valid ranges.
   enum OnEnterArea
   {
-    ActivateImmediately, ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots
-                         ///< are already pressed for some time.
-    RequireKeyUp,        ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots
-                         ///< that are used for filtering are actually within valid ranges.
+    ActivateImmediately,     ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots
+                             ///< are already pressed for some time.
+    RequireKeyUp,            ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots
+                             ///< that are used for filtering are actually within valid ranges.
   };
 
   OnLeaveArea m_OnLeaveArea; ///< =LoseFocus
@@ -282,6 +282,7 @@ private:
 
     ezString m_sDisplayName;                  ///< The display name. Use this to present input slots in UIs.
     float m_fValue;                           ///< The current value.
+    float m_fValueOld = 0.0f;                 ///< The previous value. Needed so that GetInputSlotState can be called during input update phase.
     ezKeyState::Enum m_State;                 ///< The current state.
     float m_fDeadZone;                        ///< The dead zone. Unless the value exceeds this, it reports a zero value.
     ezBitflags<ezInputSlotFlags> m_SlotFlags; ///< Describes the capabilities of the slot.
@@ -294,8 +295,8 @@ private:
 
     ezInputActionConfig m_Config; ///< The configuration that was specified by the user.
 
-    float m_fValue;           ///< The current value. This is the maximum of all input slot values that trigger this action.
-    ezKeyState::Enum m_State; ///< The current state. Derived from m_fValue.
+    float m_fValue;               ///< The current value. This is the maximum of all input slot values that trigger this action.
+    ezKeyState::Enum m_State;     ///< The current state. Derived from m_fValue.
 
     ezInt8 m_iTriggeredViaAlternative;
   };

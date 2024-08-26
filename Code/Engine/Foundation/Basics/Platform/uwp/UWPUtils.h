@@ -105,7 +105,8 @@ namespace ezUwpUtils
   HRESULT ezWinRtPutCompleted(ObjectType& object, Callback callback)
   {
     object->put_Completed(Microsoft::WRL::Callback<ABI::Windows::Foundation::IAsyncOperationCompletedHandler<AsyncCompletedType>>(
-      [callback](ABI::Windows::Foundation::IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status) {
+      [callback](ABI::Windows::Foundation::IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status)
+      {
         if (status != ABI::Windows::Foundation::AsyncStatus::Completed)
           return S_OK;
 

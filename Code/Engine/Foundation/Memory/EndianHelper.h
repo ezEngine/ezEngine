@@ -65,7 +65,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   template <typename T>
   static void SwitchInPlace(T* pValue) // [tested]
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(
+    static_assert(
       (sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8), "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
 
     if (sizeof(T) == 2)
@@ -123,7 +123,9 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
 #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/) {}
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/)
+  {
+  }
 
   static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* /*pWords*/, ezUInt32 /*uiCount*/) {}
 
@@ -149,7 +151,10 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
 #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
+  {
+    SwitchWords(pWords, uiCount);
+  }
 
   static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 

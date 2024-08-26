@@ -316,7 +316,7 @@ void ezFileserveClient::ComputeDataDirMountPoint(ezStringView sDataDir, ezString
   EZ_ASSERT_DEV(sDataDir.IsEmpty() || sDataDir.EndsWith("/"), "Invalid path");
 
   const ezUInt32 uiMountPoint = ezHashingUtils::xxHash32String(sDataDir);
-  out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
+  out_sMountPoint.SetFormat("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 
 void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
@@ -367,6 +367,21 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
   if (msg.GetMessageID() == 'UACK')
   {
     m_bWaitingForUploadFinished = false;
+    return;
+  }
+
+  if (msg.GetMessageID() == 'INVC')
+  {
+    // invalidate caches, so that next read will go to the server
+
+    for (auto& dd : m_MountedDataDirs)
+    {
+      for (auto& it : dd.m_CacheStatus)
+      {
+        it.Value().m_LastCheck = ezTime::MakeZero();
+      }
+    }
+
     return;
   }
 
@@ -499,7 +514,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
   ezUInt16 uiFoundInDataDir = 0;
   msg.GetReader() >> uiFoundInDataDir;
 
-  if (uiFoundInDataDir == 0xffff) // file does not exist on server in any data dir
+  if (uiFoundInDataDir == 0xffff)         // file does not exist on server in any data dir
   {
     m_FileDataDir[m_sCurFileRequest] = 0; // placeholder
 
@@ -762,7 +777,8 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg) {
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg)
+    {
     switch (ref_msg.GetMessageID())
     {
       case ' YES':
@@ -854,7 +870,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::MakeFro
     ezStringBuilder sAddress;
     for (auto& ip : sServerIPs)
     {
-      sAddress.Format("{0}:{1}", ip, uiPort);
+      sAddress.SetFormat("{0}:{1}", ip, uiPort);
 
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 

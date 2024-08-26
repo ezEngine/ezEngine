@@ -3,11 +3,7 @@
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QCheckBox>
-#include <QHBoxLayout>
-#include <QMenu>
-#include <QPushButton>
-#include <QWidgetAction>
+
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>

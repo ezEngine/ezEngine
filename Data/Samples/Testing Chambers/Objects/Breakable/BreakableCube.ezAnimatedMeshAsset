@@ -14,7 +14,7 @@ o
 			s{"Assets/BreakableCube.glb"}
 		}
 		Uuid %DocumentID{u4{11467864308164704397,5180657745186677858}}
-		u4 %Hash{5188054746900495152}
+		u4 %Hash{11738869680150850266}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ 8a494b19-157a-438e-874d-1fe2c3641a96 }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -51,16 +52,22 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ 8a494b19-157a-438e-874d-1fe2c3641a96 }"}
 		b %ImportMaterials{1}
 		VarArray %Materials
 		{
 			Uuid{u4{6414642945147856786,4904025972577524420}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Assets/BreakableCube.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -96,6 +103,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

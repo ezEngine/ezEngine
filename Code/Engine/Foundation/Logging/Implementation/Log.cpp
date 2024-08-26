@@ -7,14 +7,17 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Platform/Win/ETWProvider_Win.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <Foundation/Logging/ETWWriter.h>
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
 #endif
 
 #include <stdarg.h>
+
+// Comment in to log into ezLog::Print any message that is output while no logger is registered.
+// #define DEBUG_STARTUP_LOGGING
 
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezLog::PrintFunction ezLog::s_CustomPrintFunction = nullptr;
@@ -86,6 +89,14 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
     if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
       s_uiMessageCount[ThisType].Increment();
 
+#ifdef DEBUG_STARTUP_LOGGING
+    if (s_LoggingEvent.IsEmpty())
+    {
+      ezStringBuilder stmp = le.m_sText;
+      stmp.Append("\n");
+      ezLog::Print(stmp);
+    }
+#endif
     s_LoggingEvent.Broadcast(le);
   }
 }
@@ -238,8 +249,8 @@ void ezLog::Print(const char* szText)
 {
   printf("%s", szText);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezETWProvider::GetInstance().LogMessge(ezLogMsgType::ErrorMsg, 0, szText);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+  ezLogWriter::ETW::LogMessage(ezLogMsgType::ErrorMsg, 0, szText);
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringW(ezStringWChar(szText).GetData());
@@ -308,13 +319,13 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_
   switch (mode)
   {
     case TimestampMode::Numeric:
-      ref_sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      ref_sTimestampOut.SetFormat("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
       break;
     case TimestampMode::TimeOnly:
-      ref_sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
+      ref_sTimestampOut.SetFormat("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
       break;
     case TimestampMode::Textual:
-      ref_sTimestampOut.Format(
+      ref_sTimestampOut.SetFormat(
         "[{}] ", ezArgDateTime(dateTime, ezArgDateTime::TextualDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
       break;
     default:
@@ -440,5 +451,3 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
 
   return true;
 }
-
-

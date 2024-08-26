@@ -31,17 +31,17 @@ public:
   ezPxDistanceJointComponent();
   ~ezPxDistanceJointComponent();
 
-  float GetMinDistance() const { return m_fMinDistance; } // [ property ]
-  void SetMinDistance(float value);                       // [ property ]
+  float GetMinDistance() const { return m_fMinDistance; }         // [ property ]
+  void SetMinDistance(float value);                               // [ property ]
 
-  float GetMaxDistance() const { return m_fMaxDistance; } // [ property ]
-  void SetMaxDistance(float value);                       // [ property ]
+  float GetMaxDistance() const { return m_fMaxDistance; }         // [ property ]
+  void SetMaxDistance(float value);                               // [ property ]
 
   void SetSpringStiffness(float value);                           // [ property ]
   float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
 
-  void SetSpringDamping(float value);                         // [ property ]
-  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
+  void SetSpringDamping(float value);                             // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; }     // [ property ]
 
   void SetSpringTolerance(float value);                           // [ property ]
   float GetSpringTolerance() const { return m_fSpringTolerance; } // [ property ]

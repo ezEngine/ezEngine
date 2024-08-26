@@ -106,7 +106,7 @@ private:
     };
   };
 
-  //EZ_DECLARE_FLAGS_OPERATORS(ezProbeMappingFlags);
+  // EZ_DECLARE_FLAGS_OPERATORS(ezProbeMappingFlags);
 
   struct SortedProbes
   {

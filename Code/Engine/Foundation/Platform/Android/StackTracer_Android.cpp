@@ -36,6 +36,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
   Backtrace backtrace;
   backtrace.trace = trace;
   _Unwind_Reason_Code res = _Unwind_Backtrace(BacktraceCallback, &backtrace);
+  EZ_IGNORE_UNUSED(res);
   return backtrace.uiPos;
 }
 
@@ -62,5 +63,3 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 }
 
 #endif
-
-

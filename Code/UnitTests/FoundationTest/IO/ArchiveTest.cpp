@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   ezOSFile::DeleteFolder(sOutputFolder).IgnoreResult();
   ezOSFile::CreateDirectoryStructure(sOutputFolder).IgnoreResult();
 
-  if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites).Succeeded()))
+  if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezDataDirUsage::AllowWrites).Succeeded()))
     return;
 
   const char* szTestData = "TestData";
@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   // write a couple of files for packaging
   const char* szFileList[] = {
     "File1.txt",
-    "FolderA/File2.jpg", // should get stored uncompressed
+    "FolderA/File2.jpg",         // should get stored uncompressed
     "FolderB/File3.txt",
     "FolderA/FolderC/File4.zip", // should get stored uncompressed
     "FolderA/FolderD/File5.txt",
@@ -68,8 +68,10 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   ezStringBuilder pathToArchiveTool = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
   pathToArchiveTool.PathParentDirectory();
-  pathToArchiveTool.AppendPath("ArchiveTool.exe");
-
+  pathToArchiveTool.AppendPath("ezArchiveTool");
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  pathToArchiveTool.Append(".exe");
+#  endif
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Create a Package")
   {
 
@@ -123,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mount as Data Dir")
   {
-    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezFileSystem::ReadOnly) == EZ_SUCCESS))
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezDataDirUsage::ReadOnly) == EZ_SUCCESS))
       return;
 
     ezStringBuilder sFileSrc;
@@ -149,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
     }
 
     // mount a second time
-    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezFileSystem::ReadOnly) == EZ_SUCCESS))
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezDataDirUsage::ReadOnly) == EZ_SUCCESS))
       return;
   }
 

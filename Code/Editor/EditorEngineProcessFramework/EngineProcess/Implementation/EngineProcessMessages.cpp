@@ -48,6 +48,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("PluginConfig", m_PluginConfig),
     EZ_MEMBER_PROPERTY("FileserveAddress", m_sFileserveAddress),
     EZ_MEMBER_PROPERTY("Platform", m_sAssetProfile),
+    EZ_MEMBER_PROPERTY("DevicePixelRatio", m_fDevicePixelRatio),
   }
   EZ_END_PROPERTIES;
 }

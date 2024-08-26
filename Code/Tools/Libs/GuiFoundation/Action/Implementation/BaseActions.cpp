@@ -78,7 +78,8 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
 
   ezHybridArray<ItemWithOrder, 16> unsortedItems;
 
-  auto appendToOutput = [&]() {
+  auto appendToOutput = [&]()
+  {
     if (unsortedItems.IsEmpty())
       return;
 

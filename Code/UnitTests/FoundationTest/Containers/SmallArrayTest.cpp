@@ -321,6 +321,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     EZ_TEST_BOOL(a1 == a2);
 
     EZ_TEST_BOOL((a1 != a2) == false);
+
+    EZ_TEST_BOOL((a1 < a2) == false);
+    a2.PushBack(100);
+    EZ_TEST_BOOL(a1 < a2);
+    a1.PushBack(99);
+    EZ_TEST_BOOL(a1 < a2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
@@ -468,7 +474,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
 
     // always inserts at the front
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Insert(i, 0);
+      a1.InsertAt(0, i);
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], 99 - i);
@@ -496,7 +502,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     ezSmallArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAndSwap(9);
     a1.RemoveAndSwap(7);
@@ -515,7 +521,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     ezSmallArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndCopy(9);
     a1.RemoveAtAndCopy(7);
@@ -534,7 +540,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     ezSmallArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndSwap(9);
     a1.RemoveAtAndSwap(7);
@@ -605,7 +611,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
       a1.PushBack(ezConstructionCounter(1));
       EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(ezConstructionCounter(2), 0);
+      a1.InsertAt(0, ezConstructionCounter(2));
       EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
@@ -713,9 +719,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
-    list.Insert(4, 3);
-    list.Insert(0, 1);
-    list.Insert(0, 5);
+    list.InsertAt(3, 4);
+    list.InsertAt(1, 0);
+    list.InsertAt(5, 0);
 
     EZ_TEST_BOOL(list[0].a == 1);
     EZ_TEST_BOOL(list[1].a == 0);

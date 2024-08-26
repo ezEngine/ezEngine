@@ -33,7 +33,7 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Decal");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezDecalStub";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinDecal";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
@@ -50,7 +50,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(ezStringView sDataDirec
 
   if (projectDir.StartsWith_NoCase(sDataDirectory))
   {
-    addEntry("{ ProjectDecalAtlas }", "PC/Decals.ezTextureAtlas", "Decal Atlas");
+    addEntry("{ ProjectDecalAtlas }", "Default/Decals.ezBinTextureAtlas", "Decal Atlas");
   }
 }
 
@@ -284,7 +284,7 @@ ezString ezDecalAssetDocumentManager::GetDecalTexturePath(const ezPlatformProfil
 {
   const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
   ezStringBuilder result = "Decals";
-  GenerateOutputFilename(result, pAssetProfile, "ezTextureAtlas", true);
+  GenerateOutputFilename(result, pAssetProfile, "ezBinTextureAtlas", true);
 
   return result;
 }
@@ -306,11 +306,11 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.Format("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.Format("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -331,7 +331,7 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

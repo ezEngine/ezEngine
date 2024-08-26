@@ -35,11 +35,11 @@ Texture2DArray Input;
 float4 main(PS_IN input) : SV_Target
 {
   #if CAMERA_MODE == CAMERA_MODE_STEREO
-    s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+    s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
   #endif
 
-  float width, height, levels;
-  Input.GetDimensions(0, width, height, levels);
+  uint width, height, elements, levels;
+  Input.GetDimensions(0, width, height, elements, levels);
   float2 vPixelSize = float2(1.0f / width, 1.0f / height);
 
   // TODO I know this is stupid, give me a break ;-)

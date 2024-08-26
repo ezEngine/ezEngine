@@ -14,7 +14,7 @@ o
 			s{"Objects/IceCube_data/IceCube.fbx"}
 		}
 		Uuid %DocumentID{u4{7908617062709053631,5434481180408353840}}
-		u4 %Hash{11383636490396953445}
+		u4 %Hash{16231257408622399816}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Objects/IceCube_data/IceCube.fbx"}
 			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -49,6 +50,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -61,7 +63,9 @@ o
 		{
 			Uuid{u4{17002884613404279779,4954079281355528873}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Objects/IceCube_data/IceCube.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -69,6 +73,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

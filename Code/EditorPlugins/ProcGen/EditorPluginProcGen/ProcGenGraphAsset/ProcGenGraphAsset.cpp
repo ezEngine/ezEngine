@@ -18,7 +18,7 @@ namespace
     ast.PrintGraph(dgmlGraph);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
+    sFileName.SetFormat(":appdata/{0}_{1}_AST.dgml", sAssetName, sOutputName);
 
     ezDGMLGraphWriter dgmlGraphWriter;
     EZ_IGNORE_UNUSED(dgmlGraphWriter);
@@ -82,7 +82,7 @@ struct ezProcGenGraphAssetDocument::GenerateContext
 
 ////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentPath)
@@ -123,7 +123,8 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
 
   ezExpressionCompiler compiler;
 
-  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) {
+  auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) -> ezStatus
+  {
     context.m_GraphContext.m_VolumeTagSetIndices.Clear();
 
     if (pOutputNode->GetType()->IsDerivedFrom<ezProcGen_PlacementOutput>())
@@ -159,7 +160,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
       return ezStatus("Compilation failed");
     }
 
-    byteCode.Save(chunk);
+    EZ_SUCCEED_OR_RETURN(byteCode.Save(chunk));
 
     return ezStatus(EZ_SUCCESS);
   };
@@ -200,7 +201,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
         return ezStatus("Debug Compilation failed");
       }
 
-      byteCode.Save(chunk);
+      EZ_SUCCEED_OR_RETURN(byteCode.Save(chunk));
 
       m_pDebugNode->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
       m_pDebugNode->Save(chunk);
@@ -502,7 +503,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
     byteCode.Disassemble(sDisassembly);
 
     ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
+    sFileName.SetFormat(":appdata/{0}_{1}_ByteCode.txt", sAssetName, sOutputName);
 
     ezFileWriter fileWriter;
     if (fileWriter.Open(sFileName).Succeeded())

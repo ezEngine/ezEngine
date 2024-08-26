@@ -12,13 +12,22 @@ namespace ezRmlUiInternal
     static_cast<ezRmlUiContext*>(ref_event.GetTargetElement()->GetContext())->ProcessEvent(m_sIdentifier, ref_event);
   }
 
-  void EventListener::OnDetach(Rml::Element* pElement) { s_pInstancer->ReturnToPool(*this); }
+  void EventListener::OnDetach(Rml::Element* pElement)
+  {
+    s_pInstancer->ReturnToPool(*this);
+  }
 
   //////////////////////////////////////////////////////////////////////////
 
-  EventListenerInstancer::EventListenerInstancer() { s_pInstancer = this; }
+  EventListenerInstancer::EventListenerInstancer()
+  {
+    s_pInstancer = this;
+  }
 
-  EventListenerInstancer::~EventListenerInstancer() { s_pInstancer = nullptr; }
+  EventListenerInstancer::~EventListenerInstancer()
+  {
+    s_pInstancer = nullptr;
+  }
 
   Rml::EventListener* EventListenerInstancer::InstanceEventListener(const Rml::String& value, Rml::Element* pElement)
   {
@@ -40,6 +49,9 @@ namespace ezRmlUiInternal
     return pListener;
   }
 
-  void EventListenerInstancer::ReturnToPool(EventListener& ref_listener) { m_EventListenerFreelist.PushBack(ref_listener.m_uiIndex); }
+  void EventListenerInstancer::ReturnToPool(EventListener& ref_listener)
+  {
+    m_EventListenerFreelist.PushBack(ref_listener.m_uiIndex);
+  }
 
 } // namespace ezRmlUiInternal

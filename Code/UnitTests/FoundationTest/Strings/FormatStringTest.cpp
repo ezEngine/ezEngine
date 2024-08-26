@@ -193,7 +193,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{}", ezTime()), "0ns");
     TestFormat(ezFmt("{}", ezTime::MakeFromNanoseconds(999)), "999ns");
     TestFormat(ezFmt("{}", ezTime::MakeFromNanoseconds(999.1)), "999.1ns");
-    TestFormat(ezFmt("{}", ezTime::MakeFromMicroseconds(999)), (const char*)u8"999\u00B5s"); // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::MakeFromMicroseconds(999)), (const char*)u8"999\u00B5s");     // Utf-8 encoding for the microsecond sign
     TestFormat(ezFmt("{}", ezTime::MakeFromMicroseconds(999.2)), (const char*)u8"999.2\u00B5s"); // Utf-8 encoding for the microsecond sign
     TestFormat(ezFmt("{}", ezTime::MakeFromMilliseconds(-999)), "-999ms");
     TestFormat(ezFmt("{}", ezTime::MakeFromMilliseconds(-999.3)), "-999.3ms");
@@ -245,10 +245,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
     ezStringBuilder fmt;
 
-    fmt.Format("Password: {}", ezArgSensitive("hunter2", "pwd"));
+    fmt.SetFormat("Password: {}", ezArgSensitive("hunter2", "pwd"));
     EZ_TEST_STRING(fmt, "Password: sud:pwd#96d66ce6($7)");
 
-    fmt.Format("Password: {}", ezArgSensitive("hunter2"));
+    fmt.SetFormat("Password: {}", ezArgSensitive("hunter2"));
     EZ_TEST_STRING(fmt, "Password: sud:#96d66ce6($7)");
   }
 }

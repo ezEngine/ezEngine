@@ -217,45 +217,45 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MousePositionY, "Mouse Position Y", ezInputSlotFlags::IsMouseAxisPosition);
 
 
-  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 0", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 0 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 0 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
 
-  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 10", ezInputSlotFlags::IsTouchPoint);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 10 Position X", ezInputSlotFlags::IsTouchPosition);
-  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
 void ezStandardInputDevice::ResetInputSlotValues()
@@ -301,6 +301,12 @@ void ezStandardInputDevice::UpdateInputSlotValues()
         --m_uiMouseButtonReceivedDown[i];
         m_InputSlotValues[slotDown[i]] = 1.0f;
       }
+      // This is a workaround for a win32 bug: Double clicking on a title bar maximizes a window but only fires a single mouse up event. If that happens, no further clicks would be recognized because the balance between up and down events is broken. So if the slot is not signaled and there is no down event but an up event instead, we just consume it.
+      else if (m_uiMouseButtonReceivedUp[i] > 0)
+      {
+        --m_uiMouseButtonReceivedUp[i];
+        m_InputSlotValues[slotDown[i]] = 0;
+      }
     }
   }
 
@@ -344,9 +350,9 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMi
     POINT mp;
     if (GetCursorPos(&mp))
     {
-      // make sure the position is inside the window rect
-      mp.x = ezMath::Clamp(mp.x, r.left, r.right);
-      mp.y = ezMath::Clamp(mp.y, r.top, r.bottom);
+      // center the position inside the window rect
+      mp.x = r.left + (r.right - r.left) / 2;
+      mp.y = r.top + (r.bottom - r.top) / 2;
 
       r.top = mp.y;
       r.bottom = mp.y;
@@ -374,12 +380,23 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
-void ezStandardInputDevice::WindowMessage(
-  ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
 #endif
+
+  if (m_bFirstWndMsg)
+  {
+    // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
+
+    m_bFirstWndMsg = false;
+    ApplyClipRect(m_ClipCursorMode, hWnd);
+
+    RECT r;
+    GetWindowRect(ezMinWindows::ToNative(hWnd), &r);
+    SetCursorPos(ezMath::Lerp(r.left, r.right, 0.5f), ezMath::Lerp(r.bottom, r.top, 0.5f));
+  }
 
   switch (msg)
   {
@@ -442,13 +459,13 @@ void ezStandardInputDevice::WindowMessage(
       // see https://docs.microsoft.com/windows/win32/inputdev/wm-lbuttondblclk
       // this would add lag and hide single clicks when the user double clicks
       // therefore it is not used
-      //case WM_LBUTTONDBLCLK:
+      // case WM_LBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
       //  return;
-      //case WM_RBUTTONDBLCLK:
+      // case WM_RBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
       //  return;
-      //case WM_MBUTTONDBLCLK:
+      // case WM_MBUTTONDBLCLK:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
       //  return;
 
@@ -466,6 +483,8 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_LBUTTONUP:
       m_uiMouseButtonReceivedUp[0]++;
+      m_bApplyClipRect |= m_bFirstClick;
+      m_bFirstClick = false;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
@@ -485,6 +504,7 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
+      m_bApplyClipRect |= m_bFirstClick;
       ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
@@ -504,6 +524,9 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_MBUTTONUP:
       m_uiMouseButtonReceivedUp[2]++;
+
+      m_bApplyClipRect |= m_bFirstClick;
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -542,7 +565,7 @@ void ezStandardInputDevice::WindowMessage(
 #else
 
     case WM_LBUTTONUP:
-      ApplyClipRect(m_bClipCursor, hWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
       return;
 
 #endif
@@ -603,11 +626,6 @@ void ezStandardInputDevice::WindowMessage(
           sInputSlotName = ezInputSlot_KeyPrint;
 
         bWasStupidLeftShift = false;
-
-        int iRequest = raw->data.keyboard.MakeCode << 16;
-
-        if (raw->data.keyboard.Flags & RI_KEY_E0)
-          iRequest |= 1 << 24;
 
         const bool bPressed = !(raw->data.keyboard.Flags & 0x01);
 
@@ -693,7 +711,6 @@ void ezStandardInputDevice::WindowMessage(
           else
           {
             static int iTouchPoint = 0;
-            static bool bTouchPointDown = false;
 
             ezStringView sSlot = ezInputManager::GetInputSlotTouchPoint(iTouchPoint);
             ezStringView sSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
@@ -704,13 +721,11 @@ void ezStandardInputDevice::WindowMessage(
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
             {
-              bTouchPointDown = true;
               m_InputSlotValues[sSlot] = 1.0f;
             }
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
             {
-              bTouchPointDown = false;
               m_InputSlotValues[sSlot] = 0.0f;
             }
           }
@@ -821,17 +836,17 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(67, false, ezInputSlot_KeyF9);
   SetKeyNameForScanCode(68, false, ezInputSlot_KeyF10);
 
-  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock); // Prints 'Pause' if it is not 'extended'
-  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll); // This overlaps with Pause
+  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock);       // Prints 'Pause' if it is not 'extended'
+  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll);       // This overlaps with Pause
 
-  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7); // This overlaps with Home
-  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8); // This overlaps with Arrow Up
-  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9); // This overlaps with Page Up
+  SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7);      // This overlaps with Home
+  SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8);      // This overlaps with Arrow Up
+  SetKeyNameForScanCode(73, false, ezInputSlot_KeyNumpad9);      // This overlaps with Page Up
   SetKeyNameForScanCode(74, false, ezInputSlot_KeyNumpadMinus);
 
-  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4); // This overlaps with Arrow Left
+  SetKeyNameForScanCode(75, false, ezInputSlot_KeyNumpad4);      // This overlaps with Arrow Left
   SetKeyNameForScanCode(76, false, ezInputSlot_KeyNumpad5);
-  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6); // This overlaps with Arrow Right
+  SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6);      // This overlaps with Arrow Right
   SetKeyNameForScanCode(78, false, ezInputSlot_KeyNumpadPlus);
 
   SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1);      // This overlaps with End

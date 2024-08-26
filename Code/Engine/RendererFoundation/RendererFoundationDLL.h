@@ -16,9 +16,11 @@
 #  define EZ_RENDERERFOUNDATION_DLL
 #endif
 
-// Necessary array sizes
+// #TODO_SHADER obsolete, DX11 only
 #define EZ_GAL_MAX_CONSTANT_BUFFER_COUNT 16
 #define EZ_GAL_MAX_SAMPLER_COUNT 16
+
+// Necessary array sizes
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
 
@@ -34,11 +36,12 @@ struct ezGALDepthStencilStateCreationDescription;
 struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
-struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
-struct ezGALResourceViewCreationDescription;
+struct ezGALTextureResourceViewCreationDescription;
+struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
-struct ezGALUnorderedAccessViewCreationDescription;
+struct ezGALTextureUnorderedAccessViewCreationDescription;
+struct ezGALBufferUnorderedAccessViewCreationDescription;
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -51,16 +54,14 @@ class ezGALBlendState;
 class ezGALRasterizerState;
 class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
-class ezGALQuery;
 class ezGALSamplerState;
-class ezGALResourceView;
+class ezGALTextureResourceView;
+class ezGALBufferResourceView;
 class ezGALRenderTargetView;
-class ezGALUnorderedAccessView;
+class ezGALTextureUnorderedAccessView;
+class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
-class ezGALPass;
 class ezGALCommandEncoder;
-class ezGALRenderCommandEncoder;
-class ezGALComputeCommandEncoder;
 
 // Basic enums
 struct ezGALPrimitiveTopology
@@ -98,9 +99,12 @@ private:
   static const ezUInt8 s_Size[ezGALIndexType::ENUM_COUNT];
 };
 
-
+/// \brief The stage of a shader. A complete shader can consist of multiple stages.
+/// \sa ezGALShaderStageFlags, ezGALShaderCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
+  using StorageType = ezUInt8;
+
   enum Enum : ezUInt8
   {
     VertexShader,
@@ -108,14 +112,68 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
     DomainShader,
     GeometryShader,
     PixelShader,
-
     ComputeShader,
-
-    ENUM_COUNT
+    /*
+    // #TODO_SHADER: Future work:
+    TaskShader,
+    MeshShader,
+    RayGenShader,
+    RayAnyHitShader,
+    RayClosestHitShader,
+    RayMissShader,
+    RayIntersectionShader,
+    */
+    ENUM_COUNT,
+    Default = VertexShader
   };
 
   static const char* Names[ENUM_COUNT];
 };
+
+/// \brief A set of shader stages.
+/// \sa ezGALShaderStage, ezShaderResourceBinding
+struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
+{
+  using StorageType = ezUInt16;
+
+  enum Enum : ezUInt16
+  {
+    VertexShader = EZ_BIT(0),
+    HullShader = EZ_BIT(1),
+    DomainShader = EZ_BIT(2),
+    GeometryShader = EZ_BIT(3),
+    PixelShader = EZ_BIT(4),
+    ComputeShader = EZ_BIT(5),
+    /*
+    // #TODO_SHADER: Future work:
+    TaskShader = EZ_BIT(6),
+    MeshShader = EZ_BIT(7),
+    RayGenShader = EZ_BIT(8),
+    RayAnyHitShader = EZ_BIT(9),
+    RayClosestHitShader = EZ_BIT(10),
+    RayMissShader = EZ_BIT(11),
+    RayIntersectionShader = EZ_BIT(12),
+    */
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType VertexShader : 1;
+    StorageType HullShader : 1;
+    StorageType DomainShader : 1;
+    StorageType GeometryShader : 1;
+    StorageType PixelShader : 1;
+    StorageType ComputeShader : 1;
+  };
+
+  inline static ezGALShaderStageFlags::Enum MakeFromShaderStage(ezGALShaderStage::Enum stage)
+  {
+    return static_cast<ezGALShaderStageFlags::Enum>(EZ_BIT(stage));
+  }
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezGALShaderStageFlags);
+
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
 {
@@ -155,6 +213,8 @@ struct ezGALTextureType
 
 struct ezGALBlend
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Zero = 0,
@@ -171,12 +231,16 @@ struct ezGALBlend
     BlendFactor,
     InvBlendFactor,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = One
   };
 };
 
 struct ezGALBlendOp
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Add = 0,
@@ -185,7 +249,8 @@ struct ezGALBlendOp
     Min,
     Max,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+    Default = Add
   };
 };
 
@@ -269,9 +334,23 @@ struct ezGALUpdateMode
 {
   enum Enum
   {
-    Discard,
-    NoOverwrite,
-    CopyToTempStorage
+    Discard,          ///< Buffer must be completely overwritten. No old data will be read. Data will not persist across frames.
+    NoOverwrite,      ///< User is responsible for synchronizing access between GPU and CPU.
+    CopyToTempStorage ///< Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
+  };
+};
+
+/// \brief The current state of an async operations in the renderer
+struct ezGALAsyncResult
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Ready,   ///< The async operation has finished and the result is ready.
+    Pending, ///< The async operation is still running, retry later.
+    Expired, ///< The async operation is too old and the result was thrown away. Pending results should be queried every frame until they are ready.
+    Default = Expired
   };
 };
 
@@ -311,6 +390,7 @@ namespace ezGAL
   using ez16_16Id = ezGenericId<16, 16>;
   using ez18_14Id = ezGenericId<18, 14>;
   using ez20_12Id = ezGenericId<20, 12>;
+  using ez20_44Id = ezGenericId<20, 44>;
 } // namespace ezGAL
 
 class ezGALSwapChainHandle
@@ -341,16 +421,30 @@ class ezGALBufferHandle
   friend class ezGALDevice;
 };
 
-class ezGALResourceViewHandle
+class ezGALTextureResourceViewHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALResourceViewHandle, ezGAL::ez18_14Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALTextureResourceViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
 
-class ezGALUnorderedAccessViewHandle
+class ezGALBufferResourceViewHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALUnorderedAccessViewHandle, ezGAL::ez18_14Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALBufferResourceViewHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALTextureUnorderedAccessViewHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALTextureUnorderedAccessViewHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALBufferUnorderedAccessViewHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBufferUnorderedAccessViewHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
@@ -397,20 +491,10 @@ class ezGALVertexDeclarationHandle
   friend class ezGALDevice;
 };
 
-class ezGALQueryHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALQueryHandle, ezGAL::ez20_12Id);
-
-  friend class ezGALDevice;
-};
-
-struct ezGALTimestampHandle
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezUInt64 m_uiIndex;
-  ezUInt64 m_uiFrameCounter;
-};
+using ezGALPoolHandle = ezGAL::ez20_44Id;
+using ezGALTimestampHandle = ezGALPoolHandle;
+using ezGALOcclusionHandle = ezGALPoolHandle;
+using ezGALFenceHandle = ezUInt64;
 
 namespace ezGAL
 {

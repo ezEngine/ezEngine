@@ -75,7 +75,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
   if (pUpdateContentTask == nullptr)
   {
     ezStringBuilder s;
-    s.Format("Resource Content Updater {0}", ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount());
+    s.SetFormat("Resource Content Updater {0}", ezResourceManager::s_pState->m_WorkerTasksUpdateContent.GetCount());
 
     auto& td = ezResourceManager::s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
@@ -101,7 +101,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     // restart the next loading task (this one is about to finish)
     ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
-    ezResourceManager::RunWorkerTask(nullptr);
+    ezResourceManager::RunWorkerTask();
 
     pCustomLoader.Clear();
   }
@@ -159,5 +159,3 @@ void ezResourceManagerWorkerUpdateContent::Execute()
   m_pLoader = nullptr;
   m_pResourceToLoad = nullptr;
 }
-
-

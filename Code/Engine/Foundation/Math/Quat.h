@@ -89,6 +89,12 @@ public:
   /// \brief Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).
   void Normalize(); // [tested]
 
+  /// \brief Returns the data as an array.
+  const Type* GetData() const { return &x; }
+
+  /// \brief Returns the data as an array.
+  Type* GetData() { return &x; }
+
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
   void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
@@ -128,6 +134,9 @@ public:
   /// \brief Returns the dot-product of the two quaternions (commutative, order does not matter).
   Type Dot(const ezQuatTemplate& rhs) const; // [tested]
 
+  /// \brief Returns v rotated by the quaternion. Same as operator*.
+  ezVec3Template<Type> Rotate(const ezVec3Template<Type>& v) const;
+
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles
@@ -146,9 +155,9 @@ template <typename Type>
 const ezQuatTemplate<Type> operator*(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
 
 template <typename Type>
-bool operator==(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
+bool operator==(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2);                      // [tested]
 
 template <typename Type>
-bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
+bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2);                      // [tested]
 
 #include <Foundation/Math/Implementation/Quat_inl.h>

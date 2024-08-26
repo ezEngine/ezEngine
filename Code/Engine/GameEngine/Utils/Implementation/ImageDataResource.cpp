@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
@@ -35,7 +35,7 @@ ezResourceLoadDesc ezImageDataResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezImageDataResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezImageDataResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -53,7 +53,7 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
 
   ezImageDataResourceDescriptor desc;
 
-  if (sAbsFilePath.HasExtension("ezImageData"))
+  if (sAbsFilePath.HasExtension("ezBinImageData"))
   {
     ezAssetFileHeader AssetHash;
     if (AssetHash.Read(*Stream).Failed())

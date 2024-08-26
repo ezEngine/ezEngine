@@ -13,7 +13,12 @@ struct ezMsgExtractRenderData;
 class ezGeometry;
 class ezMeshResourceDescriptor;
 
-/// \brief A beam component
+/// \brief Renders a thick line from its own location to the position of another game object.
+///
+/// This is meant for simple effects, like laser beams. The geometry is very low resolution and won't look good close up.
+/// When possible, use a highly emissive material without any pattern, where the bloom will hide the simple geometry.
+///
+/// For doing dynamic laser beams, you can combine it with the ezRaycastComponent, which will move the target component.
 class EZ_RENDERERCORE_DLL ezBeamComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezBeamComponent, ezRenderComponent, ezBeamComponentManager);
@@ -43,22 +48,24 @@ public:
   ezBeamComponent();
   ~ezBeamComponent();
 
+  /// \brief Sets the GUID of the target object to which to draw the beam.
   void SetTargetObject(const char* szReference); // [ property ]
 
+  /// \brief How wide to make the beam geometry
   void SetWidth(float fWidth); // [ property ]
   float GetWidth() const;      // [ property ]
 
+  /// \brief How many world units the texture coordinates should take up, for using a repeatable texture for the beam.
   void SetUVUnitsPerWorldUnit(float fUVUnitsPerWorldUnit); // [ property ]
   float GetUVUnitsPerWorldUnit() const;                    // [ property ]
 
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
-
   ezMaterialResourceHandle GetMaterial() const;
 
+  /// \brief The object to which to draw the beam.
   ezGameObjectHandle m_hTargetObject; // [ property ]
 
-  ezColor m_Color; // [ property ]
+  /// \brief Optional color to tint the beam.
+  ezColor m_Color = ezColor::White; // [ property ]
 
 protected:
   void Update();
@@ -68,11 +75,11 @@ protected:
   float m_fWidth = 0.1f;               // [ property ]
   float m_fUVUnitsPerWorldUnit = 1.0f; // [ property ]
 
+  /// \brief Which material asset to use for rendering the beam geometry.
   ezMaterialResourceHandle m_hMaterial; // [ property ]
 
   const float m_fDistanceUpdateEpsilon = 0.02f;
 
-  // State
   ezMeshResourceHandle m_hMesh;
 
   ezVec3 m_vLastOwnerPosition = ezVec3::MakeZero();

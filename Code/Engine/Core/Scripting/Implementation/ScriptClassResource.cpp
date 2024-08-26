@@ -73,4 +73,3 @@ void ezScriptClassResource::DeleteAllScriptCoroutineTypes()
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptClassResource);
-

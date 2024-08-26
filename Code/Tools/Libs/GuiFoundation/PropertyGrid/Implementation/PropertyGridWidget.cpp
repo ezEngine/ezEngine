@@ -1,21 +1,23 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#include <Foundation/Algorithm/HashingUtils.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Types/VarianceTypes.h>
-#include <Foundation/Types/VariantTypeRegistry.h>
+#include <GuiFoundation/PropertyGrid/Implementation/ExpressionPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
+
 #include <ToolsFoundation/Document/Document.h>
 
+#include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
-#include <QLayout>
-#include <QScrollArea>
+#include <Foundation/Types/VarianceTypes.h>
+#include <Foundation/Types/VariantTypeRegistry.h>
+
 
 ezRttiMappedObjectFactory<ezQtPropertyWidget> ezQtPropertyGridWidget::s_Factory;
 
@@ -91,6 +93,7 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
       return new ezQtPropertyEditorIntSpinboxWidget(1, 0, 2147483645);
 
     case ezVariant::Type::String:
+    case ezVariant::Type::StringView:
       return new ezQtPropertyEditorLineEditWidget();
 
     case ezVariant::Type::Color:
@@ -134,6 +137,11 @@ static ezQtPropertyWidget* Curve1DTypeCreator(const ezRTTI* pRtti)
   return new ezQtPropertyEditorCurve1DWidget();
 }
 
+static ezQtPropertyWidget* ExpressionTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtPropertyEditorExpressionWidget();
+}
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
@@ -166,6 +174,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt64>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezConstCharPtr>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezStringView>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGammaUB>(), StandardTypeCreator);
@@ -180,8 +189,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSingleCurveData>(), Curve1DTypeCreator);
-
-
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExpressionWidgetAttribute>(), ExpressionTypeCreator);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -209,6 +217,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezUInt64>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezConstCharPtr>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezString>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezStringView>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezTime>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezColor>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezColorGammaUB>());
@@ -220,6 +229,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezSingleCurveData>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExpressionWidgetAttribute>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

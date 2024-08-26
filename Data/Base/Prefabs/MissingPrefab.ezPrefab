@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8866705325096395918,5045814042450016507}}
-		u4 %Hash{12085553776543756210}
+		u4 %Hash{7829278742394753624}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6260322975900899627,3647404401962759201}}
@@ -30,13 +30,14 @@ o
 		VarArray %PackageDeps
 		{
 			s{"Materials/Common/MissingPrefab.ezMaterial"}
-			s{"Meshes/MissingMesh.ezMesh"}
+			s{"Meshes/MissingMesh.ezBinMesh"}
 		}
 		VarArray %References
 		{
 			s{"Materials/Common/MissingPrefab.ezMaterial"}
-			s{"Meshes/MissingMesh.ezMesh"}
+			s{"Meshes/MissingMesh.ezBinMesh"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -51,11 +52,13 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"Materials/Common/MissingPrefab.ezMaterial"}
 		}
-		s %Mesh{"Meshes/MissingMesh.ezMesh"}
+		s %Mesh{"Meshes/MissingMesh.ezBinMesh"}
+		f %SortingDepthOffset{0}
 	}
 }
 o
@@ -179,6 +182,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7605758958972330253,6687734095884105025}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -191,7 +211,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -293,6 +313,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }

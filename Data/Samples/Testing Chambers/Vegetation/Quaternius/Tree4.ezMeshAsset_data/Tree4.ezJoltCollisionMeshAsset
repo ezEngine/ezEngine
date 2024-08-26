@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Tree4.fbx"}
 		}
 		Uuid %DocumentID{u4{2195652096918748553,5559804039650000066}}
-		u4 %Hash{17509887694611259252}
+		u4 %Hash{18360544003207964038}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 		{
 			s{"Vegetation/Quaternius/Tree4.fbx"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -50,16 +51,20 @@ o
 	u3 %v{1}
 	p
 	{
+		b %AggressiveSimplification{0}
 		s %ConvexMeshType{"ezJoltConvexCollisionMeshType::ConvexHull"}
 		u1 %Detail{1}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{0}
 		u2 %MaxConvexPieces{2}
+		u1 %MaxSimplificationError{20}
 		s %MeshFile{"Vegetation/Quaternius/Tree4.fbx"}
+		u1 %MeshSimplification{50}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
-		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightDir{"ezBasisAxis::PositiveZ"}
+		b %SimplifyMesh{0}
 		s %Surface{""}
 		VarArray %Surfaces
 		{

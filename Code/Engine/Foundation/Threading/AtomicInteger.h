@@ -10,13 +10,25 @@ struct ezAtomicStorageType
 };
 
 template <>
-struct ezAtomicStorageType<0>
+struct ezAtomicStorageType<1>
 {
   using Type = ezInt32;
 };
 
 template <>
-struct ezAtomicStorageType<1>
+struct ezAtomicStorageType<2>
+{
+  using Type = ezInt32;
+};
+
+template <>
+struct ezAtomicStorageType<4>
+{
+  using Type = ezInt32;
+};
+
+template <>
+struct ezAtomicStorageType<8>
 {
   using Type = ezInt64;
 };
@@ -25,7 +37,7 @@ struct ezAtomicStorageType<1>
 template <typename T>
 class ezAtomicInteger
 {
-  using UnderlyingType = typename ezAtomicStorageType<sizeof(T) / 32>::Type;
+  using UnderlyingType = typename ezAtomicStorageType<sizeof(T)>::Type;
 
 public:
   EZ_DECLARE_POD_TYPE();
@@ -55,17 +67,17 @@ public:
   T PostIncrement(); // [tested]
 
   /// \brief Decrements the internal value and returns the value immediately before the decrement
-  T PostDecrement(); // [tested]
+  T PostDecrement();  // [tested]
 
   void Add(T x);      // [tested]
   void Subtract(T x); // [tested]
 
-  void And(T x); // [tested]
-  void Or(T x);  // [tested]
-  void Xor(T x); // [tested]
+  void And(T x);      // [tested]
+  void Or(T x);       // [tested]
+  void Xor(T x);      // [tested]
 
-  void Min(T x); // [tested]
-  void Max(T x); // [tested]
+  void Min(T x);      // [tested]
+  void Max(T x);      // [tested]
 
   /// \brief Sets the internal value to x and returns the original internal value.
   T Set(T x); // [tested]
@@ -77,7 +89,7 @@ public:
   /// the modification.
   T CompareAndSwap(T expected, T x); // [tested]
 
-  operator T() const; // [tested]
+  operator T() const;                // [tested]
 
 private:
   UnderlyingType m_Value;
@@ -122,3 +134,5 @@ private:
 
 using ezAtomicInteger32 = ezAtomicInteger<ezInt32>; // [tested]
 using ezAtomicInteger64 = ezAtomicInteger<ezInt64>; // [tested]
+static_assert(sizeof(ezAtomicInteger32) == sizeof(ezInt32));
+static_assert(sizeof(ezAtomicInteger64) == sizeof(ezInt64));

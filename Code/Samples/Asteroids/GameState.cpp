@@ -43,11 +43,11 @@ AsteroidGameState::AsteroidGameState()
   m_pLevel = nullptr;
 }
 
-void AsteroidGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void AsteroidGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   CreateGameLevel();
 }
@@ -85,10 +85,10 @@ void AsteroidGameState::ConfigureInputActions()
     for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
     {
       ezStringBuilder sAction;
-      sAction.Format("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
+      sAction.SetFormat("Player{0}_{1}", iPlayer, szPlayerActions[iAction]);
 
       ezStringBuilder sKey;
-      sKey.Format("controller{0}_{1}", iPlayer, szControlerKeys[iAction]);
+      sKey.SetFormat("controller{0}_{1}", iPlayer, szControlerKeys[iAction]);
 
       RegisterInputAction("Game", sAction.GetData(), sKey.GetData());
     }
@@ -112,17 +112,12 @@ void AsteroidGameState::CreateGameLevel()
   ezWorldDesc desc("Asteroids - World");
   m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, desc));
 
-  ChangeMainWorld(m_pLevel->GetWorld());
+  ChangeMainWorld(m_pLevel->GetWorld(), {}, ezTransform::MakeIdentity());
 }
 
 void AsteroidGameState::DestroyLevel()
 {
   m_pLevel = nullptr;
-}
-
-ezGameStatePriority AsteroidGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
 }
 
 void AsteroidGameState::ProcessInput()

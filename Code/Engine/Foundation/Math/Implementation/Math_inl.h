@@ -13,7 +13,8 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1)
+                                  : 0);
   }
 
   template <typename T>
@@ -61,6 +62,8 @@ namespace ezMath
   template <typename Type>
   constexpr Type Invert(Type f)
   {
+    static_assert(std::is_floating_point_v<Type>);
+
     return ((Type)1) / f;
   }
 
@@ -100,7 +103,7 @@ namespace ezMath
       returnCode = _BitScanForward(&uiIndex, upper);
       if (returnCode > 0) // Only can happen in Release build when EZ_ASSERT_DEBUG(value != 0) would fail.
       {
-        uiIndex += 32; // Add length of lower to index.
+        uiIndex += 32;    // Add length of lower to index.
       }
     }
 #  endif
@@ -241,6 +244,12 @@ namespace ezMath
     return (T)(f1 + (fFactor * (f2 - f1)));
   }
 
+  template <typename T>
+  EZ_FORCE_INLINE constexpr float Unlerp(T fMin, T fMax, T fValue)
+  {
+    return static_cast<float>(fValue - fMin) / static_cast<float>(fMax - fMin);
+  }
+
   ///  Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   constexpr EZ_FORCE_INLINE T Step(T value, T edge)
@@ -305,19 +314,27 @@ namespace ezMath
 
     if (divider == (Type)0)
     {
-      if (x >= edge2)
-        return (Type)1;
-      return (Type)0;
+      return (x >= edge2) ? 1 : 0;
     }
 
-    x = (x - edge1) / divider;
-
-    if (x <= (Type)0)
-      return (Type)0;
-    if (x >= (Type)1)
-      return (Type)1;
+    x = Saturate((x - edge1) / divider);
 
     return (x * x * ((Type)3 - ((Type)2 * x)));
+  }
+
+  template <typename Type>
+  inline Type SmootherStep(Type x, Type edge1, Type edge2)
+  {
+    const Type divider = edge2 - edge1;
+
+    if (divider == (Type)0)
+    {
+      return (x >= edge2) ? 1 : 0;
+    }
+
+    x = Saturate((x - edge1) / divider);
+
+    return (x * x * x * (x * ((Type)6 * x - (Type)15) + (Type)10));
   }
 
   inline ezUInt8 ColorFloatToByte(float value)
@@ -476,3 +493,40 @@ EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
   return uiValue;
 }
 #endif
+
+EZ_ALWAYS_INLINE constexpr ezUInt32 ezMath::WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue)
+{
+  return uiValue % uiExcludedMaxValue;
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue)
+{
+  const ezInt32 wrapped = (iValue % static_cast<ezInt32>(uiExcludedMaxValue));
+  return wrapped >= 0 ? wrapped : (wrapped + uiExcludedMaxValue);
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue)
+{
+  EZ_ASSERT_DEBUG(iMinValue < iExcludedMaxValue, "Invalid range to wrap integer around.");
+  return iMinValue + WrapInt(iValue - iMinValue, static_cast<ezUInt32>(iExcludedMaxValue - iMinValue));
+}
+
+EZ_ALWAYS_INLINE float ezMath::WrapFloat01(float fValue)
+{
+  if (fValue < 0.0f)
+  {
+    return fValue + Ceil(-fValue);
+  }
+  else if (fValue > 1.0f)
+  {
+    return fValue - Ceil(fValue - 1.0f);
+  }
+
+  return fValue;
+}
+
+EZ_ALWAYS_INLINE float ezMath::WrapFloat(float fValue, float fMinValue, float fMaxValue)
+{
+  const float range = fMaxValue - fMinValue;
+  return fMinValue + WrapFloat01((fValue - fMinValue) / range) * range;
+}

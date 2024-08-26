@@ -255,7 +255,8 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pExposedParams->m_Parameters.PushBack(param);
   }
 
-  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto recurse) -> void {
+  auto Traverse = [&](ezEditableSkeletonJoint* pJoint, const char* szParent, auto recurse) -> void
+  {
     ezExposedBone bone;
     bone.m_sName = pJoint->GetName();
     bone.m_sParent = szParent;
@@ -366,7 +367,8 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
 
   // map all old joints by name
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void
+    {
       prevJoints[pJoint->GetName()] = pJoint;
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -383,7 +385,8 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
 
   // copy old properties to new skeleton
   {
-    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& root, ezTransform origin) -> void {
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint, const ezTransform& root, ezTransform origin) -> void
+    {
       auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
@@ -445,7 +448,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -456,11 +459,13 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezSkeletonAssetDocument* pAssetDoc = ezDynamicCast<ezSkeletonAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezSkeletonAssetDocument* pAssetDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("File", sInputFileRel.GetView());

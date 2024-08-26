@@ -123,7 +123,7 @@ public:
   bool HasExtension(ezStringView sExtension) const; // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  ezStringView GetFileExtension() const; // [tested]
+  ezStringView GetFileExtension(bool bFullExtension = false) const; // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///
@@ -161,6 +161,31 @@ public:
   /// ":/MyRoot\folder" -> "MyRoot"
   /// Returns an empty string, if the path is not rooted.
   ezStringView GetRootedPathRootName() const; // [tested]
+
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+  /// \brief Returns a std::string_view to this string.
+  EZ_ALWAYS_INLINE std::string_view GetAsStdView() const
+  {
+    return std::string_view(InternalGetData(), static_cast<size_t>(InternalGetElementCount()));
+  }
+  /// \brief Returns a std::string copy of this string.
+  EZ_ALWAYS_INLINE std::string GetAsStdString() const
+  {
+    return std::string(GetAsStdView());
+  }
+
+  /// \brief Returns a std::string_view to this string.
+  EZ_ALWAYS_INLINE operator std::string_view() const
+  {
+    return GetAsStdView();
+  }
+
+  /// \brief Returns a std::string copy of this string.
+  EZ_ALWAYS_INLINE operator std::string() const
+  {
+    return std::string(GetAsStdView());
+  }
+#endif
 
 private:
   const char* InternalGetData() const;

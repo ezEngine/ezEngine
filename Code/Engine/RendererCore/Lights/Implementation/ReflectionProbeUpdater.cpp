@@ -45,7 +45,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
   {
     m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
 
-    sName.Format("Reflection Cubemap Proxy {}", i);
+    sName.SetFormat("Reflection Cubemap Proxy {}", i);
     pDevice->GetTexture(m_hCubemapProxies[i])->SetDebugName(sName);
   }
 }
@@ -230,7 +230,7 @@ void ezReflectionProbeUpdater::ScheduleUpdateSteps()
   }
   m_bUpdateStepsFlushed = true;
 
-  //#TODO: would like to do that in the ctor but then the renderer tests assert that don't have the base asset directory set up.
+  // #TODO: would like to do that in the ctor but then the renderer tests assert that don't have the base asset directory set up.
   CreateReflectionViewsAndResources();
 
   // Iterate in reverse as ResetProbeUpdateInfo will move the current index to the back of the array.
@@ -297,7 +297,7 @@ void ezReflectionProbeUpdater::CreateViews(
     {
       auto& renderView = views.ExpandAndGetRef();
 
-      sName.Format("Reflection Probe {} {}", szNameSuffix, i);
+      sName.SetFormat("Reflection Probe {} {}", szNameSuffix, i);
 
       ezView* pView = nullptr;
       renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
@@ -415,7 +415,7 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
         if (updateInfo.m_flags.IsSet(ezReflectionProbeUpdaterFlags::HasCustomCubeMap))
         {
           ezResourceLock<ezTextureCubeResource> pTexture(updateInfo.m_sourceTexture, ezResourceAcquireMode::BlockTillLoaded);
-          //#TODO Currently even in static mode we render the 6 sides and only change the filter stage to point to the static texture if available. Rendering the 6 sides is intended only in the editor as a preview for non-baked probes. We will need to find a way to quickly determine if we need to do this fallback at a much earlier stage.
+          // #TODO Currently even in static mode we render the 6 sides and only change the filter stage to point to the static texture if available. Rendering the 6 sides is intended only in the editor as a preview for non-baked probes. We will need to find a way to quickly determine if we need to do this fallback at a much earlier stage.
           if (pTexture->GetLoadingState() == ezResourceState::Loaded && pTexture->GetResourceHandle() == updateInfo.m_sourceTexture)
           {
             hSourceTexture = pTexture->GetGALTexture();

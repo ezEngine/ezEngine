@@ -21,4 +21,3 @@ public:
 
   ezQtAssetPropertyWidget* m_pOwner = nullptr;
 };
-

@@ -41,4 +41,3 @@ private:
   ezUInt32 m_uiHighlightSlots = 0;
   QPointer<QTimer> m_pHighlightTimer;
 };
-

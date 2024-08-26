@@ -292,7 +292,7 @@ const ezString ezToolsProject::GetProjectName(bool bSanitize) const
   if (!bAnyAscii)
   {
     const ezUInt32 uiHash = ezHashingUtils::xxHash32String(sTemp);
-    sTemp.Format("Project{}", uiHash);
+    sTemp.SetFormat("Project{}", uiHash);
   }
 
   if (sTemp.IsEmpty())

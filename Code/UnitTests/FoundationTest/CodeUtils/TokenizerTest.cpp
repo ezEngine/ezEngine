@@ -1,7 +1,7 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
-#include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
+#include <Foundation/CodeUtils/Tokenizer.h>
 
 namespace
 {

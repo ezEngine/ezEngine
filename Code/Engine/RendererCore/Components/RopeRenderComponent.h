@@ -13,6 +13,11 @@ class ezShaderTransform;
 
 using ezRopeRenderComponentManager = ezComponentManager<class ezRopeRenderComponent, ezBlockStorageType::Compact>;
 
+/// \brief Used to render a rope or cable.
+///
+/// This is needed to visualize the ezFakeRopeComponent or ezJoltRopeComponent.
+/// The component handles the message ezMsgRopePoseUpdated to generate an animated mesh and apply the pose.
+/// The component has to be attached to the same object as the rope simulation component.
 class EZ_RENDERERCORE_DLL ezRopeRenderComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRopeRenderComponent, ezRenderComponent, ezRopeRenderComponentManager);
@@ -42,34 +47,34 @@ public:
   ezRopeRenderComponent();
   ~ezRopeRenderComponent();
 
-  ezColor m_Color = ezColor::White; // [ property ]
+  ezColor m_Color = ezColor::White;                                                        // [ property ]
 
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
 
-  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
-  ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; } // [ property ]
+  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }              // [ property ]
 
+  /// \brief Changes how thick the rope visualization is. This is independent of the simulated rope thickness.
   void SetThickness(float fThickness);                // [ property ]
   float GetThickness() const { return m_fThickness; } // [ property ]
 
+  /// \brief Sets how round the rope shall be.
   void SetDetail(ezUInt32 uiDetail);                // [ property ]
   ezUInt32 GetDetail() const { return m_uiDetail; } // [ property ]
 
+  /// \brief If enabled, the rendered mesh will be slightly more detailed along the rope.
   void SetSubdivide(bool bSubdivide);                // [ property ]
   bool GetSubdivide() const { return m_bSubdivide; } // [ property ]
 
-  void SetUScale(float fUScale);                // [ property ]
-  float GetUScale() const { return m_fUScale; } // [ property ]
+  /// \brief How often to repeat the U texture coordinate along the rope's length.
+  void SetUScale(float fUScale);                            // [ property ]
+  float GetUScale() const { return m_fUScale; }             // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
 
 private:
-  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg); // [ msg handler ]
-
+  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg);        // [ msg handler ]
   void GenerateRenderMesh(ezUInt32 uiNumRopePieces);
-
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
 
   ezBoundingBoxSphere m_LocalBounds;

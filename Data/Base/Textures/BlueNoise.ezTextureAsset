@@ -14,7 +14,7 @@ o
 			s{"Textures/BlueNoise.dds"}
 		}
 		Uuid %DocumentID{u4{9906524041035189418,5366930873287527804}}
-		u4 %Hash{13766282176655917091}
+		u4 %Hash{8342718404431817118}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -25,6 +25,7 @@ o
 		{
 			s{"Textures/BlueNoise.dds"}
 		}
+		s %Tags{""}
 	}
 }
 }

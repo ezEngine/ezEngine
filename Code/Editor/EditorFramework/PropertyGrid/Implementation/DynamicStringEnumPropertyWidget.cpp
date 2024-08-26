@@ -12,6 +12,7 @@ ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget()
   setLayout(m_pLayout);
 
   m_pWidget = new QComboBox(this);
+  m_pWidget->installEventFilter(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
 

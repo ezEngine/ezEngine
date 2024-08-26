@@ -402,8 +402,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
     // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
     // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
     // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
-    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f) + 1.f / (1.f - fFarZ / fNearZ);
-    //res.Element(3, 2) = 2.f / (1.f / fFarZ - 1.f / fNearZ);
+    // res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f) + 1.f / (1.f - fFarZ / fNearZ);
+    // res.Element(3, 2) = 2.f / (1.f / fFarZ - 1.f / fNearZ);
     if (!ezMath::IsFinite(fNearZ))
     {
       res.Element(2, 2) = 1.f;
@@ -428,8 +428,8 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrix(float fLeft, float fRi
     // Algebraically reordering the z-row fractions from the above source in a way so infinite fNearZ or fFarZ will zero out
     // instead of producing NaNs due to inf/inf divisions will yield these generalized formulas which could be used instead
     // of the branching below. Insert infinity for either fNearZ or fFarZ to see that these will yield exactly these simplifications:
-    //res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f);
-    //res.Element(3, 2) = 1.f / (1.f / fFarZ - 1.f / fNearZ);
+    // res.Element(2, 2) = 1.f / (fNearZ / fFarZ - 1.f);
+    // res.Element(3, 2) = 1.f / (1.f / fFarZ - 1.f / fNearZ);
     if (!ezMath::IsFinite(fNearZ))
     {
       res.Element(2, 2) = 0.f;
@@ -661,5 +661,3 @@ ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates
 
   return EZ_SUCCESS;
 }
-
-

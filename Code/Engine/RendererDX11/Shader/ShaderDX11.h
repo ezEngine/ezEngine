@@ -15,7 +15,7 @@ struct ID3D11ComputeShader;
 class EZ_RENDERERDX11_DLL ezGALShaderDX11 : public ezGALShader
 {
 public:
-  void SetDebugName(const char* szName) const override;
+  void SetDebugName(ezStringView sName) const override;
 
   EZ_ALWAYS_INLINE ID3D11VertexShader* GetDXVertexShader() const;
 
@@ -28,7 +28,6 @@ public:
   EZ_ALWAYS_INLINE ID3D11PixelShader* GetDXPixelShader() const;
 
   EZ_ALWAYS_INLINE ID3D11ComputeShader* GetDXComputeShader() const;
-
 
 protected:
   friend class ezGALDeviceDX11;

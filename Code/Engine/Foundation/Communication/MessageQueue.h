@@ -28,10 +28,10 @@ public:
 
 protected:
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(ezAllocatorBase* pAllocator); // [tested]
+  ezMessageQueueBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pAllocator);
+  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocator* pAllocator);
 
   /// \brief Destructor.
   ~ezMessageQueueBase(); // [tested]
@@ -97,7 +97,7 @@ class ezMessageQueue : public ezMessageQueueBase<MetaDataType>
 {
 public:
   ezMessageQueue();
-  ezMessageQueue(ezAllocatorBase* pAllocator);
+  ezMessageQueue(ezAllocator* pAllocator);
 
   ezMessageQueue(const ezMessageQueue<MetaDataType, AllocatorWrapper>& rhs);
   ezMessageQueue(const ezMessageQueueBase<MetaDataType>& rhs);

@@ -171,7 +171,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     return;
 
   ezRenderContext* pRenderContext = renderContext.m_pRenderContext;
-  ezGALRenderCommandEncoder* pCommandEncoder = pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pCommandEncoder = pRenderContext->GetCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
   const auto& textures = ezImgui::GetSingleton()->m_Textures;
@@ -220,9 +220,10 @@ void ezImguiRenderer::SetupRenderer()
   // Create the vertex buffer
   {
     ezGALBufferCreationDescription desc;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+
     desc.m_uiStructSize = sizeof(ezImguiVertex);
     desc.m_uiTotalSize = s_uiVertexBufferSize * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::VertexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
@@ -233,7 +234,7 @@ void ezImguiRenderer::SetupRenderer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ImDrawIdx);
     desc.m_uiTotalSize = s_uiIndexBufferSize * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::IndexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

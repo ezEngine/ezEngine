@@ -2,7 +2,6 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Foundation/Configuration/CVar.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
@@ -43,11 +42,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSpotLightComponent::ezSpotLightComponent()
-{
-  m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
-}
-
+ezSpotLightComponent::ezSpotLightComponent() = default;
 ezSpotLightComponent::~ezSpotLightComponent() = default;
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -99,37 +94,37 @@ ezAngle ezSpotLightComponent::GetOuterSpotAngle() const
   return m_OuterSpotAngle;
 }
 
-void ezSpotLightComponent::SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture)
-{
-  m_hProjectedTexture = hProjectedTexture;
-
-  InvalidateCachedRenderData();
-}
-
-const ezTexture2DResourceHandle& ezSpotLightComponent::GetProjectedTexture() const
-{
-  return m_hProjectedTexture;
-}
-
-void ezSpotLightComponent::SetProjectedTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hProjectedTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hProjectedTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetProjectedTexture(hProjectedTexture);
-}
-
-const char* ezSpotLightComponent::GetProjectedTextureFile() const
-{
-  if (!m_hProjectedTexture.IsValid())
-    return "";
-
-  return m_hProjectedTexture.GetResourceID();
-}
+// void ezSpotLightComponent::SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture)
+//{
+//   m_hProjectedTexture = hProjectedTexture;
+//
+//   InvalidateCachedRenderData();
+// }
+//
+// const ezTexture2DResourceHandle& ezSpotLightComponent::GetProjectedTexture() const
+//{
+//   return m_hProjectedTexture;
+// }
+//
+// void ezSpotLightComponent::SetProjectedTextureFile(const char* szFile)
+//{
+//   ezTexture2DResourceHandle hProjectedTexture;
+//
+//   if (!ezStringUtils::IsNullOrEmpty(szFile))
+//   {
+//     hProjectedTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
+//   }
+//
+//   SetProjectedTexture(hProjectedTexture);
+// }
+//
+// const char* ezSpotLightComponent::GetProjectedTextureFile() const
+//{
+//   if (!m_hProjectedTexture.IsValid())
+//     return "";
+//
+//   return m_hProjectedTexture.GetResourceID();
+// }
 
 void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
@@ -140,30 +135,30 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f || m_OuterSpotAngle.GetRadian() <= 0.0f)
     return;
 
-  ezTransform t = GetOwner()->GetGlobalTransform();
-  ezBoundingSphere bs = CalculateBoundingSphere(t, m_fEffectiveRange * 0.5f);
+  const ezTransform t = GetOwner()->GetGlobalTransform();
+  const ezBoundingSphere bs = CalculateBoundingSphere(t, m_fEffectiveRange * 0.5f);
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
+  const float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingLightingVisScreenSpaceSize)
   {
-    ezStringBuilder sb;
-    sb.Format("{0}", fScreenSpaceSize);
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, t.m_vPosition, ezColor::Olive);
-    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, ezColor::Olive);
+    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
+    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
+    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
   }
 #endif
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner());
 
   pRenderData->m_GlobalTransform = t;
-  pRenderData->m_LightColor = m_LightColor;
+  pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
+  pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
-  pRenderData->m_hProjectedTexture = m_hProjectedTexture;
+  // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize, msg.m_pView) : ezInvalidIndex;
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
@@ -181,7 +176,7 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fRange;
   s << m_InnerSpotAngle;
   s << m_OuterSpotAngle;
-  s << GetProjectedTextureFile();
+  s << ""; // GetProjectedTextureFile();
 }
 
 void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -190,13 +185,15 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
+  ezTexture2DResourceHandle m_hProjectedTexture;
+
   s >> m_fRange;
   s >> m_InnerSpotAngle;
   s >> m_OuterSpotAngle;
 
   ezStringBuilder temp;
   s >> temp;
-  SetProjectedTextureFile(temp);
+  // SetProjectedTextureFile(temp);
 }
 
 ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform& t, float fRange) const

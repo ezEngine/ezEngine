@@ -8,7 +8,7 @@ set(EZ_BUILD_EMBREE OFF CACHE BOOL "Whether support for Intel Embree should be a
 # ## ez_requires_embree()
 # #####################################
 macro(ez_requires_embree)
-	ez_requires_windows()
+	ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 	ez_requires(EZ_BUILD_EMBREE)
 endmacro()
 

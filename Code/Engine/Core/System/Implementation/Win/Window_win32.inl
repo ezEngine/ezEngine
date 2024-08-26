@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/System/SystemInformation.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -30,7 +31,9 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
       case WM_SIZE:
       {
         ezSizeU32 size(LOWORD(lparam), HIWORD(lparam));
-        pWindow->OnResize(size);
+        pWindow->OnVisibleChange(wparam != SIZE_MINIMIZED);
+        if (size.width > 0 && size.height > 0)
+          pWindow->OnResize(size);
       }
       break;
 
@@ -113,6 +116,14 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
+  if (m_CreationDescription.m_bSetForegroundOnInit && !ezSystemInformation::IsDebuggerAttached())
+  {
+    // use WS_EX_TOPMOST to force that the window shows up on top
+    // this is the only thing that seems to be working reliably
+    // but to prevent the window from staying on top, we need to remove this flag later again (see SetWindowPos)
+    dwExStyle |= WS_EX_TOPMOST;
+  }
+
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution || m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)
   {
     ezLog::Dev("Window is not fullscreen.");
@@ -167,9 +178,9 @@ ezResult ezWindow::Initialize()
 
 
   // create window
-  ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
-  const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
+  ezStringWChar sTitleWChar(m_CreationDescription.m_Title.GetData());
+  const wchar_t* sTitleWCharRaw = sTitleWChar.GetData();
+  m_hWindowHandle = ezMinWindows::FromNative(CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitleWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr));
 
   if (m_hWindowHandle == INVALID_HANDLE_VALUE)
   {
@@ -195,7 +206,9 @@ ezResult ezWindow::Initialize()
   GetClientRect(windowHandle, &r);
 
   // Force size change to the desired size if CreateWindowExW 'fixed' the size to fit into your current monitor.
-  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution && (m_CreationDescription.m_Resolution.width != r.right - r.left || m_CreationDescription.m_Resolution.height != r.bottom - r.top))
+  if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution &&
+      (m_CreationDescription.m_Resolution.width != ezUInt32(r.right - r.left) ||
+        m_CreationDescription.m_Resolution.height != ezUInt32(r.bottom - r.top)))
   {
     ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, iWidth, iHeight, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
     GetClientRect(windowHandle, &r);
@@ -293,6 +306,14 @@ void ezWindow::ProcessWindowMessages()
 
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
+  }
+
+  if (m_CreationDescription.m_bSetForegroundOnInit)
+  {
+    // remove the WS_EX_TOPMOST flag again
+    m_CreationDescription.m_bSetForegroundOnInit = false;
+    HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
+    SetWindowPos(hWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
 }
 

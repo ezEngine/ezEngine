@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-struct ezScriptBaseClassAttribute_Function;
+struct ezNodePropertyValue;
 class ezVisualScriptPin;
 
 class ezVisualScriptNodeRegistry
@@ -23,6 +23,7 @@ public:
     ezEnum<ezVisualScriptDataType> m_ScriptDataType;
     bool m_bRequired = false;
     bool m_bSplitExecution = false;
+    bool m_bReplaceWithArray = false;
 
     EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == ezVisualScriptDataType::Invalid; }
     EZ_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != ezVisualScriptDataType::Invalid; }
@@ -49,7 +50,7 @@ public:
     void AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
     void AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString(), bool bSplitExecution = false);
 
-    void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
+    void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr, bool bReplaceWithArray = false);
     void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
 
     EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_DeductTypeFunc != nullptr; }
@@ -59,9 +60,21 @@ public:
   ~ezVisualScriptNodeRegistry();
 
   const ezRTTI* GetNodeBaseType() const { return m_pBaseType; }
+  const ezRTTI* GetVariableSetterType() const { return m_pSetVariableType; }
+  const ezRTTI* GetVariableGetterType() const { return m_pGetVariableType; }
   const NodeDesc* GetNodeDescForType(const ezRTTI* pRtti) const { return m_TypeToNodeDescs.GetValue(pRtti); }
 
-  const ezMap<const ezRTTI*, NodeDesc>& GetAllNodeTypes() const { return m_TypeToNodeDescs; }
+  struct NodeCreationTemplate
+  {
+    const ezRTTI* m_pType = nullptr;
+    ezStringView m_sTypeName;
+    ezHashedString m_sCategory;
+    ezUInt32 m_uiPropertyValuesStart;
+    ezUInt32 m_uiPropertyValuesCount;
+  };
+
+  const ezArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
+  const ezArrayPtr<const ezNodePropertyValue> GetPropertyValues() const { return m_PropertyValues; }
 
   static constexpr const char* s_szTypeNamePrefix = "VisualScriptNode_";
   static constexpr ezUInt32 s_uiTypeNamePrefixLength = ezStringUtils::GetStringElementCount(s_szTypeNamePrefix);
@@ -83,16 +96,26 @@ private:
 
   void CreateBuiltinTypes();
   void CreateGetOwnerNodeType(const ezRTTI* pRtti);
-  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
+  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezHashedString& sCategory, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
   void CreateCoroutineNodeType(const ezRTTI* pRtti);
   void CreateMessageNodeTypes(const ezRTTI* pRtti);
   void CreateEnumNodeTypes(const ezRTTI* pRtti);
 
-  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride = ezStringView(), const ezColorGammaUB* pColorOverride = nullptr);
-  void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, ezStringView sCategory, const ezColorGammaUB& color);
+  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, const ezColorGammaUB* pColorOverride = nullptr);
+  void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, const ezColorGammaUB& color);
+
+  const ezRTTI* RegisterNodeType(ezReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const ezHashedString& sCategory);
 
   const ezRTTI* m_pBaseType = nullptr;
+  const ezRTTI* m_pSetPropertyType = nullptr;
+  const ezRTTI* m_pGetPropertyType = nullptr;
+  const ezRTTI* m_pSetVariableType = nullptr;
+  const ezRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
   ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
   ezHashSet<const ezRTTI*> m_EnumTypes;
+
+  ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
+  ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  ezDeque<ezString> m_PropertyNodeTypeNames;
 };

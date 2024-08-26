@@ -76,7 +76,8 @@ void ezQtVisualScriptWindow::SelectionEventHandler(const ezSelectionManagerEvent
   {
     // delayed execution
     QTimer::singleShot(1,
-      [this]() {
+      [this]()
+      {
         auto pDocument = GetDocument();
         auto pSelectionManager = pDocument->GetSelectionManager();
 

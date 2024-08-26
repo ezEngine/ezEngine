@@ -103,13 +103,19 @@ ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorl
 {
 }
 
+void ezScriptInstance::SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters)
+{
+  for (auto it : parameters)
+  {
+    SetInstanceVariable(it.key, it.value);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // static
-ezAllocatorBase* ezScriptAllocator::GetAllocator()
+ezAllocator* ezScriptAllocator::GetAllocator()
 {
   static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
   return &s_ScriptAllocator;
 }
-
-

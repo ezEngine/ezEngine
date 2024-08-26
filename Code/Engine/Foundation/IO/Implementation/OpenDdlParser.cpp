@@ -652,7 +652,7 @@ void ezOpenDdlParser::ReadString()
         default:
         {
           ezStringBuilder s;
-          s.Format("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
+          s.SetFormat("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
           ParsingError(s, false);
         }
         break;
@@ -866,7 +866,7 @@ void ezOpenDdlParser::ContinueBool()
       if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
       {
         ezStringBuilder s;
-        s.Format("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
+        s.SetFormat("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
 
@@ -1108,7 +1108,7 @@ void ezOpenDdlParser::ContinueFloat()
     if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], dValue) == EZ_FAILURE)
     {
       ezStringBuilder s;
-      s.Format("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
+      s.SetFormat("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
       ParsingError(s.GetData(), true);
     }
 
@@ -1219,5 +1219,3 @@ ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
 
   return value;
 }
-
-

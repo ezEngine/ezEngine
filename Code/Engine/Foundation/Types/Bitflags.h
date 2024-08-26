@@ -3,6 +3,7 @@
 /// \file
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Implementation/BitIterator.h>
 #include <Foundation/Types/Enum.h>
 
 /// \brief The ezBitflags class allows you to work with type-safe bitflags.
@@ -85,6 +86,8 @@ private:
   using StorageType = typename T::StorageType;
 
 public:
+  using ConstIterator = ezBitIterator<Enum, false>;
+
   /// \brief Constructor. Initializes the flags to the default value.
   EZ_ALWAYS_INLINE ezBitflags()
     : m_Value(T::Default) // [tested]
@@ -216,6 +219,19 @@ public:
     return m_Value != 0;
   }
 
+  /// \brief Returns a constant iterator to the very first set bit.
+  /// Note that due to the way iterating through bits is accelerated, changes to the bitflags will not affect the iterator after creation.
+  EZ_ALWAYS_INLINE ConstIterator GetIterator() const // [tested]
+  {
+    return ConstIterator((Enum)m_Value);
+  }
+
+  /// \brief Returns an invalid iterator. Needed to support range based for loops.
+  EZ_ALWAYS_INLINE ConstIterator GetEndIterator() const // [tested]
+  {
+    return ConstIterator();
+  }
+
 private:
   EZ_ALWAYS_INLINE explicit ezBitflags(StorageType flags)
     : m_Value(flags)
@@ -229,6 +245,31 @@ private:
   };
 };
 
+//////////////////////////////////////////////////////////////////////////
+// begin() /end() for range-based for-loop support
+template <typename T>
+typename ezBitflags<T>::ConstIterator begin(const ezBitflags<T>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename T>
+typename ezBitflags<T>::ConstIterator cbegin(const ezBitflags<T>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename T>
+typename ezBitflags<T>::ConstIterator end(const ezBitflags<T>& container)
+{
+  return container.GetEndIterator();
+}
+
+template <typename T>
+typename ezBitflags<T>::ConstIterator cend(const ezBitflags<T>& container)
+{
+  return container.GetEndIterator();
+}
 
 /// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
@@ -264,7 +305,7 @@ private:
 #define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...) \
   struct BitflagsTypeName                                                                       \
   {                                                                                             \
-    static constexpr ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
+    static constexpr ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                              \
     using StorageType = InternalStorageType;                                                    \
     enum Enum                                                                                   \
     {                                                                                           \

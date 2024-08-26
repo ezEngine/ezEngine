@@ -35,13 +35,20 @@ ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() = default;
 void ezEditorShapeIconsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
+  ezFrustum frustum;
+  view.ComputeCullingFrustum(frustum);
+
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   /// \todo Once we have a solution for objects that only have a shape icon we can switch this loop to use visibleObjects instead.
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;
-    if (FilterByViewTags(view, pObject))
+    if (!pObject->IsActive() || FilterByViewTags(view, pObject))
+      continue;
+
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
+    if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
       continue;
 
     ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
@@ -56,7 +63,11 @@ void ezEditorShapeIconsExtractor::Extract(
       const ezGameObject* pObject = nullptr;
       if (view.GetWorld()->TryGetObject(hObject, pObject))
       {
-        if (FilterByViewTags(view, pObject))
+        if (!pObject->IsActive() || FilterByViewTags(view, pObject))
+          continue;
+
+        ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pObject->GetGlobalPosition(), 0.1f);
+        if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
           continue;
 
         ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::Selection);
@@ -126,7 +137,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       pRenderData->m_BlendMode = ezSpriteBlendMode::ShapeIcon;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent);
+      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent);
 
       // prefer color gamma properties
       if (pShapeIconInfo->m_pColorGammaProperty != nullptr)
@@ -190,7 +201,8 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
   ezStringBuilder sPath;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
 
       if (ezFileSystem::ExistsFile(sPath))

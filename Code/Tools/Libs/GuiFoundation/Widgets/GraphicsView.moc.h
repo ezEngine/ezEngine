@@ -43,4 +43,3 @@ protected:
   float m_fZoom;
   QPoint m_LastGlobalMouseMovePos;
 };
-

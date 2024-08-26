@@ -76,6 +76,8 @@ ezResult ezTexConvProcessor::Process()
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
 
+      EZ_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
+
       EZ_SUCCEED_OR_RETURN(DilateColor2D(assembledImg));
     }
     else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)

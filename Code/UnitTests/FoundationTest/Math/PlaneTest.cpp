@@ -319,43 +319,68 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(Mat3)")
   {
-    ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
+    const float matrixScale[] = {1, 2, 99};
 
-    ezMat3T m;
-    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(90));
+    for (ezUInt32 loopIndex = 0; loopIndex < EZ_ARRAY_SIZE(matrixScale); ++loopIndex)
+    {
+      ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-    p.Transform(m);
+      ezMat3T m;
+      {
+        m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(90));
 
-    EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
-    EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
+        ezMat3T rot = ezMat3T::MakeScaling(ezVec3(1) * matrixScale[loopIndex]);
+        m = m * rot;
+      }
+
+      p.Transform(m);
+
+      EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
+      EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f * matrixScale[loopIndex], 0.0001f);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(Mat4)")
   {
+    const float matrixScale[] = {1, 2, 99};
+
+    for (ezUInt32 loopIndex = 0; loopIndex < EZ_ARRAY_SIZE(matrixScale); ++loopIndex)
     {
-      ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
+      {
+        ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-      ezMat4T m;
-      m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
-      m.SetTranslationVector(ezVec3T(0, 5, 0));
+        ezMat4T m;
+        {
+          m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+          m.SetTranslationVector(ezVec3T(0, 5, 0));
 
-      p.Transform(m);
+          ezMat4T rot = ezMat4T::MakeScaling(ezVec3(1) * matrixScale[loopIndex]);
+          m = m * rot;
+        }
 
-      EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
-      EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
-    }
+        p.Transform(m);
 
-    {
-      ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
+        EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
+        EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f * matrixScale[loopIndex], 0.0001f);
+      }
 
-      ezMat4T m;
-      m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
-      m.SetTranslationVector(ezVec3T(0, 0, 5));
+      {
+        ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-      p.Transform(m);
+        ezMat4T m;
+        {
+          m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+          m.SetTranslationVector(ezVec3T(0, 0, 5));
 
-      EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
-      EZ_TEST_FLOAT(p.m_fNegDistance, -15.0f, 0.0001f);
+          ezMat4T rot = ezMat4T::MakeScaling(ezVec3(1) * matrixScale[loopIndex]);
+          m = m * rot;
+        }
+
+        p.Transform(m);
+
+        EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 0, 1), 0.0001f);
+        EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f * matrixScale[loopIndex] - 5.0f, 0.0001f);
+      }
     }
   }
 
@@ -544,7 +569,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezRandom randomGenerator;
     randomGenerator.Initialize(0x83482343);
 
-    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T {
+    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T
+    {
       const float extent = 1000.f;
       const ezVec3T v(randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent));
       return v.GetLength() > 0.001f ? v : ezVec3T::MakeAxisX();

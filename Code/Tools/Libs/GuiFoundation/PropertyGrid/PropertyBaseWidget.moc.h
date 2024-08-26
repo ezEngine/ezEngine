@@ -61,6 +61,9 @@ public:
   ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
+  /// \brief By default disables the widget, but can be overridden to make a widget more interactable (for example to be able to copy text from it).
+  virtual void SetReadOnly(bool bReadOnly = true);
+
 public:
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
   static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette);
@@ -88,7 +91,7 @@ protected:
   bool m_bIsDefault; ///< Whether the variable that the widget represents is currently set to the default value or has been modified.
 
 private:
-  bool m_bUndead; ///< Widget is being destroyed
+  bool m_bUndead;    ///< Widget is being destroyed
 };
 
 
@@ -185,9 +188,9 @@ protected:
   virtual void DoPrepareToDie() override;
 
 protected:
-  QHBoxLayout* m_pLayout;
+  QVBoxLayout* m_pLayout;
   ezQtGroupBoxBase* m_pGroup;
-  QHBoxLayout* m_pGroupLayout;
+  QVBoxLayout* m_pGroupLayout;
   ezQtTypeWidget* m_pTypeWidget;
 };
 

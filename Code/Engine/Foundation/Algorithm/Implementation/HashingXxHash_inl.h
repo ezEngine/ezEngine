@@ -14,8 +14,14 @@ namespace ezInternal
   constexpr ezUInt64 PRIME64_4 = 0x85EBCA77C2B2AE63ULL;
   constexpr ezUInt64 PRIME64_5 = 0x27D4EB2F165667C5ULL;
 
-  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 uiAmount) { return (value << uiAmount) | (value >> (32 - uiAmount)); }
-  constexpr ezUInt64 ezRotLeft(ezUInt64 value, ezUInt64 uiAmount) { return (value << uiAmount) | (value >> (64 - uiAmount)); }
+  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 uiAmount)
+  {
+    return (value << uiAmount) | (value >> (32 - uiAmount));
+  }
+  constexpr ezUInt64 ezRotLeft(ezUInt64 value, ezUInt64 uiAmount)
+  {
+    return (value << uiAmount) | (value >> (64 - uiAmount));
+  }
 
   template <size_t N>
   constexpr ezUInt32 CompileTimeXxHash32(const char (&str)[N], ezUInt32 uiSeed)

@@ -7,7 +7,7 @@ ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 
 {
   EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", sFile);
 
-  uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
+  uiCacheSize = ezMath::Min<ezUInt32>(uiCacheSize, 1024 * 1024 * 32);
 
   m_pDataDirReader = GetFileReader(sFile, fileShareMode, bAllowFileEvents);
 
@@ -17,8 +17,8 @@ ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 
   m_Cache.SetCountUninitialized(uiCacheSize);
 
   m_uiCacheReadPosition = 0;
-  m_uiBytesCached = m_pDataDirReader->Read(&m_Cache[0], m_Cache.GetCount());
-  m_bEOF = m_uiBytesCached > 0 ? false : true;
+  m_uiBytesCached = 0;
+  m_bEOF = false;
 
   return EZ_SUCCESS;
 }
@@ -30,6 +30,40 @@ void ezFileReader::Close()
 
   m_pDataDirReader = nullptr;
   m_bEOF = true;
+}
+
+ezUInt64 ezFileReader::SkipBytes(ezUInt64 uiBytesToSkip)
+{
+  EZ_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
+  if (m_bEOF)
+    return 0;
+
+  ezUInt64 uiSkipPosition = 0; // how much was skipped, yet
+
+  // if any data is still in the cache, skip that first
+  {
+    const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
+    const ezUInt64 uiBytesSkippedFromCache = ezMath::Min(uiCachedBytesLeft, uiBytesToSkip);
+    uiSkipPosition += uiBytesSkippedFromCache;
+    m_uiCacheReadPosition += uiBytesSkippedFromCache;
+    uiBytesToSkip -= uiBytesSkippedFromCache;
+  }
+
+  // skip bytes on disk
+  const ezUInt64 uiBytesMeantToSkipFromDisk = uiBytesToSkip;
+  const ezUInt64 uiBytesSkippedFromDisk = m_pDataDirReader->Skip(uiBytesToSkip);
+  uiSkipPosition += uiBytesSkippedFromDisk;
+  uiBytesToSkip -= uiBytesSkippedFromDisk;
+
+  // mark end of file if suitable
+  const bool endOfCacheReached = m_uiCacheReadPosition == m_uiBytesCached;
+  const bool endOfDiskDataReached = uiBytesSkippedFromDisk < uiBytesMeantToSkipFromDisk;
+  if (endOfCacheReached && endOfDiskDataReached)
+  {
+    m_bEOF = true;
+  }
+
+  return uiSkipPosition;
 }
 
 ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
@@ -45,19 +79,23 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   {
     // if any data is still in the cache, use that first
     const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
-
     if (uiCachedBytesLeft > 0)
     {
       ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiCachedBytesLeft);
+      uiBufferPosition += uiCachedBytesLeft;
+      m_uiCacheReadPosition += uiCachedBytesLeft;
+      uiBytesToRead -= uiCachedBytesLeft;
     }
 
-    uiBufferPosition += uiCachedBytesLeft;
-    m_uiCacheReadPosition += uiCachedBytesLeft;
-    uiBytesToRead -= uiCachedBytesLeft;
+    // read remaining data from disk
+    ezUInt64 uiBytesReadFromDisk = 0;
+    if (uiBytesToRead > 0)
+    {
+      uiBytesReadFromDisk = m_pDataDirReader->Read(&pBuffer[uiBufferPosition], uiBytesToRead);
+      uiBufferPosition += uiBytesReadFromDisk;
+    }
 
-    const ezUInt64 uiBytesReadFromDisk = m_pDataDirReader->Read(&pBuffer[uiBufferPosition], uiBytesToRead);
-    uiBufferPosition += uiBytesReadFromDisk;
-
+    // mark eof if we're already there
     if (uiBytesReadFromDisk == 0)
     {
       m_bEOF = true;
@@ -73,12 +111,14 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 
       const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
       if (uiCachedBytesLeft < uiBytesToRead)
+      {
         uiChunkSize = uiCachedBytesLeft;
+      }
 
+      // copy data into the buffer
+      // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
       if (uiChunkSize > 0)
       {
-        // copy data into the buffer
-        // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
         ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiChunkSize);
 
         // store how much was read and how much is still left to read
@@ -86,7 +126,6 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
         m_uiCacheReadPosition += uiChunkSize;
         uiBytesToRead -= uiChunkSize;
       }
-
 
       // if the cache is depleted, refill it
       // this will even be triggered if EXACTLY the amount of available bytes was read
@@ -110,5 +149,3 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   // return how much was read
   return uiBufferPosition;
 }
-
-

@@ -200,8 +200,8 @@ private:
   mutable ezMutex m_FilesMutex;
   ezAtomicBool m_bInitialized = false;
 
-  FilesMap m_ReferencedFiles;     // Absolute path to stat map
-  FoldersMap m_ReferencedFolders; // Absolute path to status map
+  FilesMap m_ReferencedFiles;                     // Absolute path to stat map
+  FoldersMap m_ReferencedFolders;                 // Absolute path to status map
   ezSet<ezString> m_LockedFiles;
   ezMap<ezString, ezFileStatus> m_TransiendFiles; // Absolute path to stat for files outside the data directories.
 };

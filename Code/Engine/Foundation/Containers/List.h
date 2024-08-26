@@ -30,7 +30,7 @@ private:
     }
     explicit ListElement(const T& data);
 
-    T m_Data;
+    T m_Data = {};
   };
 
   /// \brief base-class for all iterators
@@ -113,10 +113,10 @@ public:
 
 protected:
   /// \brief Initializes the list to be empty.
-  explicit ezListBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezListBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Initializes the list with a copy from another list.
-  ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys the list and all its content.
   ~ezListBase(); // [tested]
@@ -149,8 +149,8 @@ public:
   /// \brief Returns the very last element in the list.
   T& PeekBack(); // [tested]
 
-  /// \brief Appends a default-constructed element to the list.
-  void PushBack(); // [tested]
+  /// \brief Appends a default-constructed element to the list and returns a reference to it.
+  T& PushBack(); // [tested]
 
   /// \brief Appends a copy of the given element to the list.
   void PushBack(const T& element); // [tested]
@@ -158,8 +158,8 @@ public:
   /// \brief Removes the very last element from the list.
   void PopBack(); // [tested]
 
-  /// \brief Appends a default-constructed element to the front of the list.
-  void PushFront(); // [tested]
+  /// \brief Appends a default-constructed element to the front of the list and returns a reference to it.
+  T& PushFront(); // [tested]
 
   /// \brief Appends a copy of the given element to the front of the list.
   void PushFront(const T& element); // [tested]
@@ -176,6 +176,9 @@ public:
   /// \brief Inserts the range defined by [first;last) after pos.
   void Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last);
 
+  /// \brief Inserts a default constructed element before the position defined by the iterator.
+  Iterator Insert(const Iterator& pos);
+
   /// \brief Erases the element pointed to by the iterator.
   Iterator Remove(const Iterator& pos); // [tested]
 
@@ -185,23 +188,17 @@ public:
   /// \brief Returns an iterator to the first list-element.
   Iterator GetIterator(); // [tested]
 
-  /// \brief Returns an iterator to the last list-element. Can be used for reverse iteration.
-  Iterator GetLastIterator(); // [tested]
-
   /// \brief Returns an iterator pointing behind the last element. Necessary if one wants to insert elements at the end of a list.
   Iterator GetEndIterator(); // [tested]
 
   /// \brief Returns a const-iterator to the first list-element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// \brief Returns a const-iterator to the last list-element. Can be used for reverse iteration.
-  ConstIterator GetLastIterator() const; // [tested]
-
   /// \brief Returns a const-iterator pointing behind the last element. Necessary if one wants to insert elements at the end of a list.
   ConstIterator GetEndIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezListBase<T>& rhs) const; // [tested]
@@ -223,8 +220,8 @@ private:
   /// \brief The number of active elements in the list.
   ezUInt32 m_uiCount;
 
-  /// \brief Acquires and initializes one node.
-  ListElement* AcquireNode(const T& data);
+  /// \brief Acquires and initializes one default constructed node.
+  ListElement* AcquireNode();
 
   /// \brief Destructs one node and puts it into the free-list.
   void ReleaseNode(ListElement* pNode);
@@ -242,7 +239,7 @@ class ezList : public ezListBase<T>
 {
 public:
   ezList();
-  explicit ezList(ezAllocatorBase* pAllocator);
+  explicit ezList(ezAllocator* pAllocator);
 
   ezList(const ezList<T, AllocatorWrapper>& other);
   ezList(const ezListBase<T>& other);

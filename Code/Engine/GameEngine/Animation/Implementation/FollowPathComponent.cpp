@@ -339,4 +339,3 @@ bool ezFollowPathComponent::IsDirectionForwards() const
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_FollowPathComponent);
-

@@ -1,5 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Interfaces/RemoteToolingInterface.h>
+#include <Foundation/Communication/RemoteInterface.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -73,7 +76,7 @@ namespace
 
         for (const auto& ev : enumValues)
         {
-          sTemp.Format("{1} {2}", szName, ev.m_sValueName, ev.m_iValueValue);
+          sTemp.SetFormat("{1} {2}", szName, ev.m_sValueName, ev.m_iValueValue);
           out_defines.PushBack(sTemp);
         }
 
@@ -157,8 +160,63 @@ ezResult ezShaderCompiler::FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<e
   return EZ_SUCCESS;
 }
 
+void ezShaderCompiler::ShaderCompileMsg(ezRemoteMessage& msg)
+{
+  if (msg.GetMessageID() == 'CRES')
+  {
+    m_bCompilingShaderRemote = false;
+    m_RemoteShaderCompileResult = EZ_SUCCESS;
+
+    bool success = false;
+    msg.GetReader() >> success;
+    m_RemoteShaderCompileResult = success ? EZ_SUCCESS : EZ_FAILURE;
+
+    ezStringBuilder log;
+    msg.GetReader() >> log;
+
+    if (!success)
+    {
+      ezLog::Error("Shader compilation failed:\n{}", log);
+    }
+  }
+}
+
 ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform)
 {
+  if (ezRemoteToolingInterface* pTooling = ezSingletonRegistry::GetSingletonInstance<ezRemoteToolingInterface>())
+  {
+    auto pNet = pTooling->GetRemoteInterface();
+
+    if (pNet && pNet->IsConnectedToServer())
+    {
+      m_bCompilingShaderRemote = true;
+
+      pNet->SetMessageHandler('SHDR', ezMakeDelegate(&ezShaderCompiler::ShaderCompileMsg, this));
+
+      ezRemoteMessage msg('SHDR', 'CMPL');
+      msg.GetWriter() << sFile;
+      msg.GetWriter() << sPlatform;
+      msg.GetWriter() << permutationVars.GetCount();
+      for (auto& pv : permutationVars)
+      {
+        msg.GetWriter() << pv.m_sName;
+        msg.GetWriter() << pv.m_sValue;
+      }
+
+      pNet->Send(ezRemoteTransmitMode::Reliable, msg);
+
+      while (m_bCompilingShaderRemote)
+      {
+        pNet->UpdateRemoteInterface();
+        pNet->ExecuteAllMessageHandlers();
+      }
+
+      pNet->SetMessageHandler('SHDR', {});
+
+      return m_RemoteShaderCompileResult;
+    }
+  }
+
   ezStringBuilder sFileContent, sTemp;
 
   {
@@ -261,7 +319,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   // try out every compiler that we can find
   ezResult result = EZ_SUCCESS;
   ezRTTI::ForEachDerivedType<ezShaderProgramCompiler>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       ezUniquePtr<ezShaderProgramCompiler> pCompiler = pRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
 
       if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog).Failed())
@@ -292,7 +351,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
     EZ_LOG_BLOCK(pLog, "Platform", Platforms[p]);
 
-    ezShaderProgramCompiler::ezShaderProgramData spd;
+    ezShaderProgramData spd;
     spd.m_sSourceFile = sFile;
     spd.m_sPlatform = Platforms[p];
 
@@ -330,7 +389,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
 
       bool bFoundUndefinedVars = false;
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+        {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
@@ -354,10 +414,10 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
     }
 
+    // Shader Preprocessing
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum)stage;
-      spd.m_StageBinary[stage].m_uiSourceHash = 0;
+      spd.m_uiSourceHash[stage] = 0;
 
       if (m_ShaderData.m_ShaderStageSource[stage].IsEmpty())
         continue;
@@ -371,7 +431,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+        {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
@@ -385,7 +446,6 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
         EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(define));
       }
 
-      ezUInt32 uiSourceStringLen = 0;
       if (pp.Process(m_StageSourceFile[stage], sProcessed[stage], true, true, true).Failed() || bFoundUndefinedVars)
       {
         sProcessed[stage].Clear();
@@ -397,19 +457,37 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       else
       {
         spd.m_sShaderSource[stage] = sProcessed[stage];
-        uiSourceStringLen = sProcessed[stage].GetElementCount();
       }
+    }
 
-      spd.m_StageBinary[stage].m_uiSourceHash = ezHashingUtils::xxHash32(spd.m_sShaderSource[stage].GetStartPointer(), uiSourceStringLen);
+    // Let the shader compiler make any modifications to the source code before we hash and compile the shader.
+    if (pCompiler->ModifyShaderSource(spd, pLog).Failed())
+    {
+      WriteFailedShaderSource(spd, pLog);
+      return EZ_FAILURE;
+    }
 
-      if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
+    // Load shader cache
+    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      ezUInt32 uiSourceStringLen = spd.m_sShaderSource[stage].GetElementCount();
+      spd.m_uiSourceHash[stage] = uiSourceStringLen == 0 ? 0u : ezHashingUtils::xxHash32(spd.m_sShaderSource[stage].GetData(), uiSourceStringLen);
+
+      if (spd.m_uiSourceHash[stage] != 0)
       {
-        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_StageBinary[stage].m_uiSourceHash);
+        ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum)stage, spd.m_uiSourceHash[stage], sPlatform);
 
         if (pBinary)
         {
-          spd.m_StageBinary[stage] = *pBinary;
-          spd.m_bWriteToDisk[stage] = pBinary->GetByteCode().IsEmpty();
+          spd.m_ByteCode[stage] = pBinary->m_pGALByteCode;
+          spd.m_bWriteToDisk[stage] = false;
+        }
+        else
+        {
+          // Can't find shader with given hash on disk, create a new ezGALShaderByteCode and let the compiler build it.
+          spd.m_ByteCode[stage] = EZ_DEFAULT_NEW(ezGALShaderByteCode);
+          spd.m_ByteCode[stage]->m_Stage = (ezGALShaderStage::Enum)stage;
+          spd.m_ByteCode[stage]->m_bWasCompiledWithDebug = spd.m_Flags.IsSet(ezShaderCompilerFlags::Debug);
         }
       }
     }
@@ -417,7 +495,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
     // copy the source hashes
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      shaderPermutationBinary.m_uiShaderStageHashes[stage] = spd.m_StageBinary[stage].m_uiSourceHash;
+      shaderPermutationBinary.m_uiShaderStageHashes[stage] = spd.m_uiSourceHash[stage];
     }
 
     // if compilation failed, the stage binary for the source hash will simply not exist and therefore cannot be loaded
@@ -430,15 +508,18 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
+      if (spd.m_uiSourceHash[stage] != 0 && spd.m_bWriteToDisk[stage])
       {
-        spd.m_StageBinary[stage].m_bWasCompiledWithDebug = spd.m_Flags.IsSet(ezShaderCompilerFlags::Debug);
+        ezShaderStageBinary bin;
+        bin.m_uiSourceHash = spd.m_uiSourceHash[stage];
+        bin.m_pGALByteCode = spd.m_ByteCode[stage];
 
-        if (spd.m_StageBinary[stage].WriteStageBinary(pLog).Failed())
+        if (bin.WriteStageBinary(pLog, sPlatform).Failed())
         {
           ezLog::Error(pLog, "Writing stage {0} binary failed", stage);
           return EZ_FAILURE;
         }
+        ezShaderStageBinary::s_ShaderStageBinaries[stage].Insert(bin.m_uiSourceHash, bin);
       }
     }
 
@@ -477,21 +558,21 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 }
 
 
-void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShaderProgramData& spd, ezLogInterface* pLog)
+void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramData& spd, ezLogInterface* pLog)
 {
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
+    if (spd.m_uiSourceHash[stage] != 0 && spd.m_bWriteToDisk[stage])
     {
       ezStringBuilder sShaderStageFile = ezShaderManager::GetCacheDirectory();
 
       sShaderStageFile.AppendPath(ezShaderManager::GetActivePlatform());
-      sShaderStageFile.AppendFormat("/_Failed_{0}_{1}.ezShaderSource", ezGALShaderStage::Names[stage], ezArgU(spd.m_StageBinary[stage].m_uiSourceHash, 8, true, 16, true));
+      sShaderStageFile.AppendFormat("/_Failed_{0}_{1}.ezShaderSource", ezGALShaderStage::Names[stage], ezArgU(spd.m_uiSourceHash[stage], 8, true, 16, true));
 
       ezFileWriter StageFileOut;
       if (StageFileOut.Open(sShaderStageFile).Succeeded())
       {
-        StageFileOut.WriteBytes(spd.m_sShaderSource[stage].GetStartPointer(), spd.m_sShaderSource[stage].GetElementCount()).AssertSuccess();
+        StageFileOut.WriteBytes(spd.m_sShaderSource[stage].GetData(), spd.m_sShaderSource[stage].GetElementCount()).AssertSuccess();
         ezLog::Info(pLog, "Failed shader source written to '{0}'", sShaderStageFile);
       }
     }

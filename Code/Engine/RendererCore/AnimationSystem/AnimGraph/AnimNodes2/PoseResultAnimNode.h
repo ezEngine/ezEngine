@@ -26,19 +26,19 @@ public:
 private:
   ezTime m_FadeDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
 
-  ezAnimGraphLocalPoseInputPin m_InPose;         // [ property ]
-  ezAnimGraphNumberInputPin m_InTargetWeight;    // [ property ]
-  ezAnimGraphNumberInputPin m_InFadeDuration;    // [ property ]
-  ezAnimGraphBoneWeightsInputPin m_InWeights;    // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFadedOut;   // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFadedIn;    // [ property ]
-  ezAnimGraphNumberOutputPin m_OutCurrentWeight; // [ property ]
+  ezAnimGraphLocalPoseInputPin m_InPose;                     // [ property ]
+  ezAnimGraphNumberInputPin m_InTargetWeight;                // [ property ]
+  ezAnimGraphNumberInputPin m_InFadeDuration;                // [ property ]
+  ezAnimGraphBoneWeightsInputPin m_InWeights;                // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFadedOut;               // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFadedIn;                // [ property ]
+  ezAnimGraphNumberOutputPin m_OutCurrentWeight;             // [ property ]
 
   struct InstanceData
   {
-    float m_fStartWeight = 1.0f;
-    float m_fEndWeight = 1.0f;
-    ezTime m_PlayTime;
-    ezTime m_EndTime;
+    float m_fStartWeight = 0.0f;
+    float m_fEndWeight = 0.0f;
+    ezTime m_PlayTime = ezTime::MakeZero();
+    ezTime m_EndTime = ezTime::MakeZero();
   };
 };

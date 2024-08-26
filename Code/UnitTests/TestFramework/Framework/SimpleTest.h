@@ -56,11 +56,11 @@ private:
   ezSimpleTestGroup::SimpleTestFunc m_Func;
 };
 
-#define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_STRINGIZE(GroupName));
+#define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_PP_STRINGIFY(GroupName));
 
-#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                                                   \
-  extern ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName);                                                                                \
-  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                                      \
-  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                                            \
-    &EZ_CONCAT(g_SimpleTestGroup__, GroupName), EZ_STRINGIZE(TestName), ezSimpleTestFunction__##GroupName##_##TestName);                             \
+#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                             \
+  extern ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName);                                                       \
+  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                \
+  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                      \
+    &EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName), EZ_PP_STRINGIFY(TestName), ezSimpleTestFunction__##GroupName##_##TestName); \
   static void ezSimpleTestFunction__##GroupName##_##TestName()

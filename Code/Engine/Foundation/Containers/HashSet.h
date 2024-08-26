@@ -34,7 +34,7 @@ public:
     const KeyType& Key() const; // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); } // [tested]
+    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -56,13 +56,13 @@ public:
 
 protected:
   /// \brief Creates an empty hashset. Does not allocate any data yet.
-  explicit ezHashSetBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezHashSetBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given hashset.
-  ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHashSetBase(const ezHashSetBase<KeyType, Hasher>& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Moves data from an existing hashtable into this one.
-  ezHashSetBase(ezHashSetBase<KeyType, Hasher>&& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHashSetBase(ezHashSetBase<KeyType, Hasher>&& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHashSetBase(); // [tested]
@@ -132,13 +132,17 @@ public:
   ConstIterator GetEndIterator() const;
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const;
+  ezAllocator* GetAllocator() const;
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
   /// \brief Swaps this map with the other one.
   void Swap(ezHashSetBase<KeyType, Hasher>& other); // [tested]
+
+  /// \brief Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
+  template <typename CompatibleKeyType>
+  ConstIterator Find(const CompatibleKeyType& key) const;
 
 private:
   KeyType* m_pEntries;
@@ -147,7 +151,7 @@ private:
   ezUInt32 m_uiCount;
   ezUInt32 m_uiCapacity;
 
-  ezAllocatorBase* m_pAllocator;
+  ezAllocator* m_pAllocator;
 
   enum
   {
@@ -187,7 +191,7 @@ class ezHashSet : public ezHashSetBase<KeyType, Hasher>
 {
 public:
   ezHashSet();
-  explicit ezHashSet(ezAllocatorBase* pAllocator);
+  explicit ezHashSet(ezAllocator* pAllocator);
 
   ezHashSet(const ezHashSet<KeyType, Hasher, AllocatorWrapper>& other);
   ezHashSet(const ezHashSetBase<KeyType, Hasher>& other);

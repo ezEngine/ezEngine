@@ -120,10 +120,27 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="InsertEventButton">
+       <property name="toolTip">
+        <string>Add event at current position</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Flag_Green.svg</normaloff>:/GuiFoundation/Icons/Flag_Green.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="ComboType"/>
      </item>
      <item>
       <widget class="QPushButton" name="AddEventButton">
+       <property name="toolTip">
+        <string>Create new event type</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -155,5 +172,4 @@
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>

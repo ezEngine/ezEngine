@@ -2,32 +2,34 @@
 
 // ***** Definition of types *****
 
-using ezUInt8 = unsigned char;
-using ezUInt16 = unsigned short;
-using ezUInt32 = unsigned int;
+#include <cstdint>
+
+using ezUInt8 = uint8_t;
+using ezUInt16 = uint16_t;
+using ezUInt32 = uint32_t;
 using ezUInt64 = unsigned long long;
 
-using ezInt8 = signed char;
-using ezInt16 = short;
-using ezInt32 = int;
+using ezInt8 = int8_t;
+using ezInt16 = int16_t;
+using ezInt32 = int32_t;
 using ezInt64 = long long;
 
 // no float-types, since those are well portable
 
 // Do some compile-time checks on the types
-EZ_CHECK_AT_COMPILETIME(sizeof(bool) == 1);
-EZ_CHECK_AT_COMPILETIME(sizeof(char) == 1);
-EZ_CHECK_AT_COMPILETIME(sizeof(float) == 4);
-EZ_CHECK_AT_COMPILETIME(sizeof(double) == 8);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezInt8) == 1);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezInt16) == 2);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezInt32) == 4);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezInt64) == 8); // must be defined in the specific compiler header
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt8) == 1);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt16) == 2);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == 4);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specific compiler header
-EZ_CHECK_AT_COMPILETIME(sizeof(long long int) == 8);
+static_assert(sizeof(bool) == 1);
+static_assert(sizeof(char) == 1);
+static_assert(sizeof(float) == 4);
+static_assert(sizeof(double) == 8);
+static_assert(sizeof(ezInt8) == 1);
+static_assert(sizeof(ezInt16) == 2);
+static_assert(sizeof(ezInt32) == 4);
+static_assert(sizeof(ezInt64) == 8); // must be defined in the specific compiler header
+static_assert(sizeof(ezUInt8) == 1);
+static_assert(sizeof(ezUInt16) == 2);
+static_assert(sizeof(ezUInt32) == 4);
+static_assert(sizeof(ezUInt64) == 8); // must be defined in the specific compiler header
+static_assert(sizeof(long long int) == 8);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 #  define EZ_ALIGNMENT_MINIMUM 8
@@ -37,7 +39,8 @@ EZ_CHECK_AT_COMPILETIME(sizeof(long long int) == 8);
 #  error "Unknown pointer size."
 #endif
 
-EZ_CHECK_AT_COMPILETIME(sizeof(void*) == EZ_ALIGNMENT_MINIMUM);
+static_assert(sizeof(void*) == EZ_ALIGNMENT_MINIMUM);
+static_assert(alignof(void*) == EZ_ALIGNMENT_MINIMUM);
 
 /// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 enum ezResultEnum
@@ -97,32 +100,33 @@ EZ_ALWAYS_INLINE ezResult ezToResult(ezResult result)
   } while (false)
 
 /// \brief Like EZ_SUCCEED_OR_RETURN, but with error logging.
-#define EZ_SUCCEED_OR_RETURN_LOG(code)                                    \
-  do                                                                      \
-  {                                                                       \
-    auto s = (code);                                                      \
-    if (ezToResult(s).Failed())                                           \
-    {                                                                     \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), s); \
-      return s;                                                           \
-    }                                                                     \
+#define EZ_SUCCEED_OR_RETURN_LOG(code)                                       \
+  do                                                                         \
+  {                                                                          \
+    auto s = (code);                                                         \
+    if (ezToResult(s).Failed())                                              \
+    {                                                                        \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), s); \
+      return s;                                                              \
+    }                                                                        \
   } while (false)
 
 /// \brief Like EZ_SUCCEED_OR_RETURN, but with custom error logging.
-#define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                          \
-  do                                                                        \
-  {                                                                         \
-    auto s = (code);                                                        \
-    if (ezToResult(s).Failed())                                             \
-    {                                                                       \
-      ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), log); \
-      return s;                                                             \
-    }                                                                       \
+#define EZ_SUCCEED_OR_RETURN_CUSTOM_LOG(code, log)                             \
+  do                                                                           \
+  {                                                                            \
+    auto s = (code);                                                           \
+    if (ezToResult(s).Failed())                                                \
+    {                                                                          \
+      ezLog::Error("Call '{0}' failed with: {1}", EZ_PP_STRINGIFY(code), log); \
+      return s;                                                                \
+    }                                                                          \
   } while (false)
 
 //////////////////////////////////////////////////////////////////////////
 
 class ezRTTI;
+class ezAllocator;
 
 /// \brief Dummy type to pass to templates and macros that expect a base type for a class that has no base.
 class ezNoBase

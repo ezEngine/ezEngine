@@ -38,4 +38,3 @@ private:
   ezHybridArray<ezGameAppInputConfig, 32> m_Actions;
   ezDynamicArray<ezString> m_AllInputSlots;
 };
-

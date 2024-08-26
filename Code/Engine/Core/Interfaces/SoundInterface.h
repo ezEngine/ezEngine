@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Basics.h>
 
-class ezSoundInterface
+class EZ_CORE_DLL ezSoundInterface
 {
 public:
   /// \brief Can be called before startup to load the configs from a different file.
@@ -33,7 +33,7 @@ public:
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance' or 'Speech'.
-  /// Note that the Fmod strings banks are never loaded, so the given string must be a GUID (Fmod Studio -> Copy GUID).
+  /// Note that the FMOD strings banks are never loaded, so the given string must be a GUID (FMOD Studio -> Copy GUID).
   virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) = 0;
   virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const = 0;
 
@@ -66,5 +66,5 @@ public:
   ///
   /// Also by default a pitch of 1 is always used. If the game speed is not 1 (ezWorld clock), a custom pitch would need to be provided,
   /// if the sound should play at the same speed.
-  EZ_CORE_DLL static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
+  static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };

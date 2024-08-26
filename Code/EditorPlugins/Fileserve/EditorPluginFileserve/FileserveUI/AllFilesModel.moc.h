@@ -31,4 +31,3 @@ private:
   ezMap<ezString, ezUInt32> m_AllFiles;
   ezDeque<ezMap<ezString, ezUInt32>::Iterator> m_IndexedFiles;
 };
-

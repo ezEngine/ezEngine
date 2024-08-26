@@ -36,8 +36,8 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 ezJoltMaterial* ezJoltCore::s_pDefaultMaterial = nullptr;
 std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
-
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
+ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
 
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
@@ -48,7 +48,7 @@ static void JoltTraceFunc(const char* szText, ...)
 
   va_list args;
   va_start(args, szText);
-  tmp.PrintfArgs(szText, args);
+  tmp.SetPrintfArgs(szText, args);
   va_end(args);
 
   ezLog::Dev("Jolt: {}", tmp);
@@ -79,7 +79,7 @@ void ezJoltCore::DebugDraw(ezWorld* pWorld)
 
 void* ezJoltCore::JoltMalloc(size_t inSize)
 {
-  return ezJoltCore::s_pAllocator->Allocate(inSize, 16);
+  return ezJoltCore::s_pAllocator->Allocate(inSize, 8);
 }
 
 void ezJoltCore::JoltFree(void* inBlock)
@@ -87,24 +87,38 @@ void ezJoltCore::JoltFree(void* inBlock)
   ezJoltCore::s_pAllocator->Deallocate(inBlock);
 }
 
+void* ezJoltCore::JoltReallocate(void* inBlock, size_t inOldSize, size_t inNewSize)
+{
+  if (inBlock == nullptr)
+  {
+    return JoltMalloc(inNewSize);
+  }
+  else
+  {
+    return ezJoltCore::s_pAllocator->Reallocate(inBlock, inOldSize, inNewSize, 8);
+  }
+}
+
 void* ezJoltCore::JoltAlignedMalloc(size_t inSize, size_t inAlignment)
 {
-  return ezJoltCore::s_pAllocator->Allocate(inSize, inAlignment);
+  return ezJoltCore::s_pAllocatorAligned->Allocate(inSize, inAlignment);
 }
 
 void ezJoltCore::JoltAlignedFree(void* inBlock)
 {
-  ezJoltCore::s_pAllocator->Deallocate(inBlock);
+  ezJoltCore::s_pAllocatorAligned->Deallocate(inBlock);
 }
 
 void ezJoltCore::Startup()
 {
-  s_pAllocator = EZ_DEFAULT_NEW(ezProxyAllocator, "Jolt-Core", ezFoundation::GetAlignedAllocator());
+  s_pAllocator = EZ_DEFAULT_NEW(ezProxyAllocator, "Jolt-Core", ezFoundation::GetDefaultAllocator());
+  s_pAllocatorAligned = EZ_DEFAULT_NEW(ezProxyAllocator, "Jolt-Core-Aligned", ezFoundation::GetAlignedAllocator());
 
   JPH::Trace = JoltTraceFunc;
   JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = JoltAssertFailed);
   JPH::Allocate = ezJoltCore::JoltMalloc;
   JPH::Free = ezJoltCore::JoltFree;
+  JPH::Reallocate = ezJoltCore::JoltReallocate;
   JPH::AlignedAllocate = ezJoltCore::JoltAlignedMalloc;
   JPH::AlignedFree = ezJoltCore::JoltAlignedFree;
 
@@ -147,6 +161,7 @@ void ezJoltCore::Shutdown()
   JPH::Trace = nullptr;
 
   s_pAllocator.Clear();
+  s_pAllocatorAligned.Clear();
 
   ezSurfaceResource::s_Events.RemoveEventHandler(&ezJoltCore::SurfaceResourceEventHandler);
 }
@@ -179,4 +194,3 @@ void ezJoltCore::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltCore);
-

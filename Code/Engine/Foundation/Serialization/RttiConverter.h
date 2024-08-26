@@ -100,8 +100,6 @@ private:
   ezRttiConverterContext* m_pContext = nullptr;
   ezAbstractObjectGraph* m_pGraph = nullptr;
   FilterFunction m_Filter;
-  bool m_bSerializeReadOnly = false;
-  bool m_bSerializeOwnerPtrs = false;
 };
 
 class EZ_FOUNDATION_DLL ezRttiConverterReader

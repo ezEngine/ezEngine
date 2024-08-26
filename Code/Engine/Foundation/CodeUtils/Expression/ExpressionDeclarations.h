@@ -3,6 +3,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/SmallArray.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Types/Variant.h>
@@ -69,8 +70,10 @@ namespace ezExpression
   /// \brief Describes an expression function and its signature, e.g. how many input parameter it has and their type
   struct FunctionDesc
   {
+    using TypeList = ezSmallArray<ezEnum<ezExpression::RegisterType>, 8>;
+
     ezHashedString m_sName;
-    ezSmallArray<ezEnum<ezExpression::RegisterType>, 8> m_InputTypes;
+    TypeList m_InputTypes;
     ezUInt8 m_uiNumRequiredInputs = 0;
     ezEnum<ezExpression::RegisterType> m_OutputType;
 
@@ -111,4 +114,28 @@ struct EZ_FOUNDATION_DLL ezDefaultExpressionFunctions
 {
   static ezExpressionFunction s_RandomFunc;
   static ezExpressionFunction s_PerlinNoiseFunc;
+};
+
+/// \brief Add this attribute a string property that should be interpreted as expression source.
+///
+/// The Inputs/Outputs property reference another array property on the same object that contains objects
+/// with a name and a type property that can be used for real time error checking of the expression source.
+class EZ_FOUNDATION_DLL ezExpressionWidgetAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExpressionWidgetAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezExpressionWidgetAttribute() = default;
+  ezExpressionWidgetAttribute(const char* szInputsProperty, const char* szOutputProperty)
+    : m_sInputsProperty(szInputsProperty)
+    , m_sOutputsProperty(szOutputProperty)
+  {
+  }
+
+  const char* GetInputsProperty() const { return m_sInputsProperty; }
+  const char* GetOutputsProperty() const { return m_sOutputsProperty; }
+
+private:
+  ezUntrackedString m_sInputsProperty;
+  ezUntrackedString m_sOutputsProperty;
 };

@@ -1,9 +1,12 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <GameEngine/GameState/FallbackGameState.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
 #include <RtsGamePlugin/RtsGamePluginDLL.h>
+#include <Utilities/DataStructures/ObjectSelection.h>
 
 class RtsGameMode;
 using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
@@ -16,9 +19,9 @@ enum class RtsActiveGameMode
   EditLevelMode,
 };
 
-class EZ_RTSGAMEPLUGIN_DLL RtsGameState : public ezFallbackGameState
+class EZ_RTSGAMEPLUGIN_DLL RtsGameState : public ezGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(RtsGameState, ezFallbackGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(RtsGameState, ezGameState);
 
   static RtsGameState* s_pSingleton;
 
@@ -30,10 +33,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
-
 private:
-  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   void PreloadAssets();
 
@@ -54,6 +55,8 @@ public:
 
 protected:
   virtual void ConfigureMainCamera() override;
+
+  virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Game Mode

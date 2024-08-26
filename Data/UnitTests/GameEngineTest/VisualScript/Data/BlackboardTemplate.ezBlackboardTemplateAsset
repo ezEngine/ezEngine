@@ -11,11 +11,12 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15520582706181066116,5504299230033368524}}
-		u4 %Hash{15214522190967175483}
+		u4 %Hash{2248709851329305340}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }

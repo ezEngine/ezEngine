@@ -136,9 +136,64 @@ void ezQtNodeView::resizeEvent(QResizeEvent* event)
   UpdateView();
 }
 
+void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
+{
+  QGraphicsView::drawBackground(painter, r);
+
+  if (m_ViewScale.manhattanLength() > 1.0)
+  {
+    QPen pfine(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 0)), 1.0);
+
+    painter->setPen(pfine);
+    DrawGrid(painter, 15);
+  }
+
+  if (m_ViewScale.manhattanLength() > 0.1)
+  {
+    double scale = m_ViewScale.manhattanLength() < 0.25 ? 150.0 : 300.0;
+
+    QPen p(ezToQtColor(ezColorScheme::GetColor(ezColorScheme::Gray, 1)), 1.0);
+
+    painter->setPen(p);
+    DrawGrid(painter, scale);
+  }
+
+  // Only force constant redraws when doing the debug animation.
+  if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtNodeScene::ConnectionDecorationFlags::DrawDebugging))
+  {
+    UpdateView();
+  }
+}
+
 void ezQtNodeView::UpdateView()
 {
   QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
   setSceneRect(sceneRect);
   fitInView(sceneRect, Qt::KeepAspectRatio);
+}
+
+void ezQtNodeView::DrawGrid(QPainter* painter, const double gridStep)
+{
+  const QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
+  const QPointF topLeft = sceneRect.topLeft();
+  const QPointF bottomRight = sceneRect.bottomRight();
+
+  const double left = ezMath::Floor(topLeft.x() / gridStep - 0.5);
+  const double right = ezMath::Floor(bottomRight.x() / gridStep + 1.0);
+  const double bottom = ezMath::Floor(topLeft.y() / gridStep - 0.5);
+  const double top = ezMath::Floor(bottomRight.y() / gridStep + 1.0);
+
+  // vertical lines
+  for (int xi = static_cast<int>(left); xi <= static_cast<int>(right); ++xi)
+  {
+    QLineF line(xi * gridStep, bottom * gridStep, xi * gridStep, top * gridStep);
+    painter->drawLine(line);
+  }
+
+  // horizontal lines
+  for (int yi = static_cast<int>(bottom); yi <= static_cast<int>(top); ++yi)
+  {
+    QLineF line(left * gridStep, yi * gridStep, right * gridStep, yi * gridStep);
+    painter->drawLine(line);
+  }
 }

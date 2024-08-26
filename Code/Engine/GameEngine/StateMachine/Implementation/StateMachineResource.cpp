@@ -1,6 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 // clang-format off
@@ -41,7 +41,7 @@ ezResourceLoadDesc ezStateMachineResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezStateMachineResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezStateMachineResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezStateMachineResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -63,14 +63,14 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
   if (m_Transpiler.PushLocalObject("ts").Failed()) // [ global ts ]
   {
     ezLog::Error("'ts' object does not exist");
-    duk.PopStack(2); // [ ]
+    duk.PopStack(2);                               // [ ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_FAILURE, 0);
   }
 
   if (m_Transpiler.PrepareObjectFunctionCall("transpile").Failed()) // [ global ts transpile ]
   {
     ezLog::Error("'ts.transpile' function does not exist");
-    duk.PopStack(3); // [ ]
+    duk.PopStack(3);                                                // [ ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_FAILURE, 0);
   }
 
@@ -78,12 +78,12 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
   if (m_Transpiler.CallPreparedFunction().Failed()) // [ global ts result ]
   {
     ezLog::Error("String could not be transpiled");
-    duk.PopStack(3); // [ ]
+    duk.PopStack(3);                                // [ ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_FAILURE, 0);
   }
 
   out_sResult = m_Transpiler.GetStringValue(-1); // [ global ts result ]
-  m_Transpiler.PopStack(3);                     // [ ]
+  m_Transpiler.PopStack(3);                      // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, EZ_SUCCESS, 0);
 }
@@ -163,7 +163,7 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
     }
 
     ezStringBuilder sHashHeader;
-    sHashHeader.Format("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
+    sHashHeader.SetFormat("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
     out_sResult.Prepend(sHashHeader);
 
     EZ_SUCCEED_OR_RETURN(fileOut.WriteBytes(out_sResult.GetData(), out_sResult.GetElementCount()));

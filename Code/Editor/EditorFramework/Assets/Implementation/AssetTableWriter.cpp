@@ -52,7 +52,8 @@ ezResult ezAssetTable::WriteAssetTable()
   ezDeferredFileWriter file;
   file.SetOutput(m_sTargetFile);
 
-  auto Write = [](const ezString& sGuid, const ezString& sPath, ezDeferredFileWriter& ref_file) {
+  auto Write = [](const ezString& sGuid, const ezString& sPath, ezDeferredFileWriter& ref_file)
+  {
     ref_file.WriteBytes(sGuid.GetData(), sGuid.GetElementCount()).IgnoreResult();
     ref_file.WriteBytes(";", 1).IgnoreResult();
     ref_file.WriteBytes(sPath.GetData(), sPath.GetElementCount()).IgnoreResult();
@@ -270,7 +271,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
   const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
   switch (e.m_Type)
   {
-    //#TODO Are asset table entries static or do they change with the asset?
+    // #TODO Are asset table entries static or do they change with the asset?
     /*case ezAssetCuratorEvent::Type::AssetUpdated:
       if (e.m_pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformState::Unknown)
         return;

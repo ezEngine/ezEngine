@@ -38,7 +38,7 @@ ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer impleme
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
-  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.m_sName, ".ezAidlt");
+  const ezStringBuilder sAssetRedirFile("AssetCache/", m_PlatformProfile.GetConfigName(), ".ezAidlt");
 
   // which redirection table to search
   ezDataDirectory::FolderType::s_sRedirectionFile = sAssetRedirFile;
@@ -143,7 +143,7 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMeshResource, ezMeshBufferResource>();
 
-    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
     ezResourceManager::SetResourceTypeMissingFallback<ezMeshResource>(hMissingMesh);
   }
 
@@ -153,7 +153,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     // ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab,
     // "MissingPrefabResource");
 
-    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
+    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezBinPrefab");
     ezResourceManager::SetResourceTypeMissingFallback<ezPrefabResource>(hMissingPrefab);
   }
 
@@ -254,7 +254,7 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     {
       ezStringView sRendererName = GetRendererNameFromCommandLine();
       pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
+      EZ_ASSERT_DEV(pDevice != nullptr, "Device implementation for '{}' not found", sRendererName);
     }
 
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
@@ -304,5 +304,3 @@ void ezGameApplication::Deinit_ShutdownGraphicsDevice()
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);
 }
-
-

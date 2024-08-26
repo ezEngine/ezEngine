@@ -50,9 +50,9 @@ struct ezCurveFunction
     EaseOutCirc,
     EaseInOutCirc,
 
-    EaseInBack,    ///< Values exceed the 0-1 range briefly
-    EaseOutBack,   ///< Values exceed the 0-1 range briefly
-    EaseInOutBack, ///< Values exceed the 0-1 range briefly
+    EaseInBack,       ///< Values exceed the 0-1 range briefly
+    EaseOutBack,      ///< Values exceed the 0-1 range briefly
+    EaseInOutBack,    ///< Values exceed the 0-1 range briefly
 
     EaseInElastic,    ///< Values exceed the 0-1 range briefly
     EaseOutElastic,   ///< Values exceed the 0-1 range briefly

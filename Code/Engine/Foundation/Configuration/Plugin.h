@@ -11,19 +11,19 @@ struct ezPluginEvent
 {
   enum Type
   {
-    BeforeLoading,          ///< Sent shortly before a new plugin is loaded.
-    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins).
-    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized.
-    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded.
-    StartupShutdown,        ///< Used by the startup system for automatic shutdown.
-    AfterStartupShutdown,   ///< Used by the ResourceManager to unload now unreferenced resources after the startup system shutdown is through.
-    AfterUnloading,         ///< Sent after a plugin has been unloaded.
-    BeforePluginChanges,    ///< Sent (once) before any (group) plugin changes (load/unload) are done.
-    AfterPluginChanges,     ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
+    BeforeLoading,              ///< Sent shortly before a new plugin is loaded.
+    AfterLoadingBeforeInit,     ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins).
+    AfterLoading,               ///< Sent after a new plugin has been loaded and initialized.
+    BeforeUnloading,            ///< Sent before a plugin is going to be unloaded.
+    StartupShutdown,            ///< Used by the startup system for automatic shutdown.
+    AfterStartupShutdown,       ///< Used by the ResourceManager to unload now unreferenced resources after the startup system shutdown is through.
+    AfterUnloading,             ///< Sent after a plugin has been unloaded.
+    BeforePluginChanges,        ///< Sent (once) before any (group) plugin changes (load/unload) are done.
+    AfterPluginChanges,         ///< Sent (once) after all (group) plugin changes (unload/load) are finished.
   };
 
-  Type m_EventType;                       ///< Which type of event this is.
-  ezStringView m_sPluginBinary;           ///< The file name of the affected plugin.
+  Type m_EventType;             ///< Which type of event this is.
+  ezStringView m_sPluginBinary; ///< The file name of the affected plugin.
 };
 
 /// \brief Flags for loading a plugin.
@@ -127,6 +127,9 @@ public:
   /// \internal Determines the plugin paths.
   static void GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber);
 
+  /// \internal determines if a plugin copy is required for hot reloading for plugin code
+  static bool PlatformNeedsPluginCopy();
+
 private:
   ezPlugin() = delete;
 };
@@ -138,7 +141,7 @@ private:
 ///
 /// That instructs the ezPlugin system to make sure that Plugin1 gets loaded and initialized before Plugin2 is initialized.
 #define EZ_PLUGIN_DEPENDENCY(PluginName) \
-  ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
+  ezPlugin::Init EZ_PP_CONCAT(EZ_PP_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
 
 /// \brief Creates a function that is executed when the plugin gets loaded.
 ///

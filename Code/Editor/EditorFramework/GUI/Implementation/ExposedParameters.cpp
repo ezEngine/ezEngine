@@ -51,6 +51,7 @@ ezExposedParameters::~ezExposedParameters()
 const ezExposedParameter* ezExposedParameters::Find(const char* szParamName) const
 {
   const ezExposedParameter* const* pParam =
-    std::find_if(cbegin(m_Parameters), cend(m_Parameters), [szParamName](const ezExposedParameter* pParam) { return pParam->m_sName == szParamName; });
+    std::find_if(cbegin(m_Parameters), cend(m_Parameters), [szParamName](const ezExposedParameter* pParam)
+      { return pParam->m_sName == szParamName; });
   return pParam != cend(m_Parameters) ? *pParam : nullptr;
 }

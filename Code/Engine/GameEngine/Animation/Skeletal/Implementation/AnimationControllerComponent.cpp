@@ -12,14 +12,15 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimGraph", GetAnimGraphFile, SetAnimGraphFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimGraph", m_hAnimGraph)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
   EZ_END_PROPERTIES;
 
@@ -43,6 +44,7 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
   s << m_hAnimGraph;
   s << m_RootMotionMode;
   s << m_InvisibleUpdateRate;
+  s << m_bEnableIK;
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -58,27 +60,11 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   {
     s >> m_InvisibleUpdateRate;
   }
-}
 
-void ezAnimationControllerComponent::SetAnimGraphFile(const char* szFile)
-{
-  ezAnimGraphResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (uiVersion >= 3)
   {
-    hResource = ezResourceManager::LoadResource<ezAnimGraphResource>(szFile);
+    s >> m_bEnableIK;
   }
-
-  m_hAnimGraph = hResource;
-}
-
-
-const char* ezAnimationControllerComponent::GetAnimGraphFile() const
-{
-  if (!m_hAnimGraph.IsValid())
-    return "";
-
-  return m_hAnimGraph.GetResourceID();
 }
 
 void ezAnimationControllerComponent::OnSimulationStarted()
@@ -116,7 +102,7 @@ void ezAnimationControllerComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner());
+  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK);
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 translation;

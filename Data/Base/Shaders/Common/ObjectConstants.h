@@ -13,6 +13,7 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 
   INT1(Reserved);
   COLOR4F(Color);
+  FLOAT4(CustomData);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
@@ -22,13 +23,13 @@ StructuredBuffer<ezPerInstanceData> perInstanceData;
 StructuredBuffer<Transform> skinningTransforms;
 #  endif
 
-Buffer<uint> perInstanceVertexColors;
+Buffer<float4> perInstanceVertexColors;
 
 #else // C++
 
 EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
+static_assert(sizeof(ezPerInstanceData) == 144);
 #endif
 
 CONSTANT_BUFFER(ezObjectConstants, 2)
@@ -56,11 +57,11 @@ uint GetNumInstanceVertexColorsHelper(uint accessData)
   return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
 }
 
-uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
+float4 GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
 {
   uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
   uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
-  return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
+  return (colorIndex < numColorsPerVertex) ? perInstanceVertexColors[offset] : 0;
 }
 
 #  define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)

@@ -14,7 +14,7 @@ o
 			s{"Kenney.nl/Weapons/shotgun.fbx"}
 		}
 		Uuid %DocumentID{u4{1552201445441894318,5403206603764999046}}
-		u4 %Hash{12912039240998531312}
+		u4 %Hash{17691018683342164851}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -32,6 +32,7 @@ o
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -44,6 +45,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -60,7 +62,9 @@ o
 			Uuid{u4{8191748094312233136,5144029865962315174}}
 			Uuid{u4{13672330729765713303,5563309998214205911}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Kenney.nl/Weapons/shotgun.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -68,6 +72,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

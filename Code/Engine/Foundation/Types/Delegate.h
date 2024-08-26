@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 
 /// \brief Base class for ezDelegate
 class ezDelegateBase

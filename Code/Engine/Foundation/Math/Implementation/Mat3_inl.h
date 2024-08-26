@@ -1,9 +1,11 @@
 #pragma once
 
+#include <Foundation/Memory/MemoryUtils.h>
+
 template <typename Type>
 ezMat3Template<Type>::ezMat3Template()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   for (ezUInt32 i = 0; i < 9; ++i)

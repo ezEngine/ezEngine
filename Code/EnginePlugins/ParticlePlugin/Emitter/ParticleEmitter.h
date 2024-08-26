@@ -30,7 +30,7 @@ enum class ezParticleEmitterState
   Active,
   Finished,
   OnlyReacting, //< Doesn't do anything, unless there are events that trigger it. That means it is considered finished, when all other emitters are
-                //finished.
+                // finished.
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's

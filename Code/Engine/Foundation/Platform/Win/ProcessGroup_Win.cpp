@@ -45,7 +45,7 @@ void ezProcessGroupImpl::Initialize()
     // configure the job object such that it kill all processes once this job object is cleaned up
     // ie. either when all job object handles are closed, or the application crashes
 
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION exinfo = {0};
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION exinfo = {};
     exinfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
     if (SetInformationJobObject(m_hJobObject, JobObjectExtendedLimitInformation, &exinfo, sizeof(exinfo)) == FALSE)
     {
@@ -213,5 +213,3 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 }
 
 #endif
-
-

@@ -199,7 +199,8 @@ ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWr
 
   // sort animation tracks by object path for better cache reuse at runtime
   {
-    desc.m_FloatAnimations.Sort([](const ezFloatPropertyAnimEntry& lhs, const ezFloatPropertyAnimEntry& rhs) -> bool {
+    desc.m_FloatAnimations.Sort([](const ezFloatPropertyAnimEntry& lhs, const ezFloatPropertyAnimEntry& rhs) -> bool
+      {
       const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
       if (res < 0)
         return true;
@@ -208,7 +209,8 @@ ezTransformStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWr
 
       return lhs.m_sComponentType < rhs.m_sComponentType; });
 
-    desc.m_ColorAnimations.Sort([](const ezColorPropertyAnimEntry& lhs, const ezColorPropertyAnimEntry& rhs) -> bool {
+    desc.m_ColorAnimations.Sort([](const ezColorPropertyAnimEntry& lhs, const ezColorPropertyAnimEntry& rhs) -> bool
+      {
       const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
       if (res < 0)
         return true;
@@ -231,9 +233,11 @@ void ezPropertyAnimAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation
   m_pMirror = EZ_DEFAULT_NEW(ezIPCObjectMirrorEditor);
   // Filter needs to be set before base class init as that one sends the doc.
   // (Local mirror ignores temporaries, i.e. only mirrors the asset itself)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   // (Remote IPC mirror only sends temporaries, i.e. the context)
-  m_pMirror->SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_pMirror->SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   // Important to do these after base class init as we want our subscriptions to happen after the mirror of the base class.
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));

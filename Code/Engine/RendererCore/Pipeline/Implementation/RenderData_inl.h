@@ -59,7 +59,7 @@ EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, 
 template <typename T>
 static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
 {
-  EZ_CHECK_AT_COMPILETIME(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
+  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
 
   T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
 

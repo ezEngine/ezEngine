@@ -20,27 +20,36 @@ ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& inout_owner, ez
   }
 }
 
-void ezVisualScriptInstance::ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters)
+void ezVisualScriptInstance::SetInstanceVariable(const ezHashedString& sName, const ezVariant& value)
 {
   if (m_pInstanceDataMapping == nullptr)
     return;
 
-  for (auto it : parameters)
+  ezVisualScriptInstanceData* pInstanceData = nullptr;
+  if (m_pInstanceDataMapping->m_Content.TryGetValue(sName, pInstanceData) == false)
+    return;
+
+  ezResult conversionStatus = EZ_FAILURE;
+  ezVariantType::Enum targetType = ezVisualScriptDataType::GetVariantType(pInstanceData->m_DataOffset.GetType());
+
+  ezVariant convertedValue = value.ConvertTo(targetType, &conversionStatus);
+  if (conversionStatus.Failed())
   {
-    ezVisualScriptInstanceData* pInstanceData = nullptr;
-    if (m_pInstanceDataMapping->m_Content.TryGetValue(it.key, pInstanceData))
-    {
-      ezResult conversionStatus = EZ_FAILURE;
-      ezVariantType::Enum targetType = ezVisualScriptDataType::GetVariantType(pInstanceData->m_DataOffset.GetType());
-
-      ezVariant convertedValue = it.value.ConvertTo(targetType, &conversionStatus);
-      if (conversionStatus.Failed())
-      {
-        ezLog::Error("Can't apply script parameter '{}' because the given value of type '{}' can't be converted the expected target type '{}'", it.key, it.value.GetType(), targetType);
-        continue;
-      }
-
-      m_pInstanceDataStorage->SetDataFromVariant(pInstanceData->m_DataOffset, convertedValue, 0);
-    }
+    ezLog::Error("Can't apply instance variable '{}' because the given value of type '{}' can't be converted the expected target type '{}'", sName, value.GetType(), targetType);
+    return;
   }
+
+  m_pInstanceDataStorage->SetDataFromVariant(pInstanceData->m_DataOffset, convertedValue, 0);
+}
+
+ezVariant ezVisualScriptInstance::GetInstanceVariable(const ezHashedString& sName)
+{
+  if (m_pInstanceDataMapping == nullptr)
+    return ezVariant();
+
+  ezVisualScriptInstanceData* pInstanceData = nullptr;
+  if (m_pInstanceDataMapping->m_Content.TryGetValue(sName, pInstanceData) == false)
+    return ezVariant();
+
+  return m_pInstanceDataStorage->GetDataAsVariant(pInstanceData->m_DataOffset, nullptr, 0);
 }

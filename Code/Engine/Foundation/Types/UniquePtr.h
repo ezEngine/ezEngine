@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 
 /// \brief A Unique ptr manages an object and destroys that object when it goes out of scope. It is ensure that only one unique ptr can
 /// manage the same object.
@@ -22,7 +23,7 @@ public:
   /// \brief Creates a unique ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique
   /// ptr goes out of scope.
   template <typename U>
-  ezUniquePtr(U* pInstance, ezAllocatorBase* pAllocator);
+  ezUniquePtr(U* pInstance, ezAllocator* pAllocator);
 
   /// \brief Move constructs a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one
   /// unique ptr managing the same object.
@@ -52,7 +53,7 @@ public:
 
   /// \brief Releases the managed object without destroying it. The unique ptr will be empty afterwards. Also returns the allocator that
   /// should be used to destroy the object.
-  T* Release(ezAllocatorBase*& out_pAllocator);
+  T* Release(ezAllocator*& out_pAllocator);
 
   /// \brief Borrows the managed object. The unique ptr stays unmodified.
   T* Borrow() const;
@@ -90,7 +91,7 @@ private:
   friend class ezUniquePtr;
 
   T* m_pInstance = nullptr;
-  ezAllocatorBase* m_pAllocator = nullptr;
+  ezAllocator* m_pAllocator = nullptr;
 };
 
 #include <Foundation/Types/Implementation/UniquePtr_inl.h>

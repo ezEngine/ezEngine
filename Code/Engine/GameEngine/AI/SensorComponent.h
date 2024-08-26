@@ -48,20 +48,23 @@ public:
   virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const = 0;
   virtual void DebugDrawSensorShape() const = 0;
 
-  void SetSpatialCategory(const char* szCategory); // [ property ]
-  const char* GetSpatialCategory() const;          // [ property ]
+  void SetSpatialCategory(const char* szCategory);            // [ property ]
+  const char* GetSpatialCategory() const;                     // [ property ]
 
-  bool m_bTestVisibility = true;  // [ property ]
-  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  bool m_bTestVisibility = true;                              // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                             // [ property ]
 
   void SetUpdateRate(const ezEnum<ezUpdateRate>& updateRate); // [ property ]
   const ezEnum<ezUpdateRate>& GetUpdateRate() const;          // [ property ]
 
-  void SetShowDebugInfo(bool bShow); // [ property ]
-  bool GetShowDebugInfo() const;     // [ property ]
+  void SetShowDebugInfo(bool bShow);                          // [ property ]
+  bool GetShowDebugInfo() const;                              // [ property ]
 
-  void SetColor(ezColorGammaUB color); // [ property ]
-  ezColorGammaUB GetColor() const;     // [ property ]
+  void SetColor(ezColorGammaUB color);                        // [ property ]
+  ezColorGammaUB GetColor() const;                            // [ property ]
+
+  ezTagSet m_IncludeTags;                                     // [ property ]
+  ezTagSet m_ExcludeTags;                                     // [ property ]
 
   /// \brief Returns the list of objects that this sensor has detected during its last update
   ezArrayPtr<const ezGameObjectHandle> GetLastDetectedObjects() const { return m_LastDetectedObjects; }
@@ -192,8 +195,8 @@ public:
   ezSensorConeComponent();
   ~ezSensorConeComponent();
 
-  float m_fNearDistance = 0.0f;             // [ property ]
-  float m_fFarDistance = 10.0f;             // [ property ]
+  float m_fNearDistance = 0.0f;                     // [ property ]
+  float m_fFarDistance = 10.0f;                     // [ property ]
   ezAngle m_Angle = ezAngle::MakeFromDegree(90.0f); // [ property ]
 };
 

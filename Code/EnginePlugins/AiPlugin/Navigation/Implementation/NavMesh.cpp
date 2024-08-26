@@ -17,23 +17,23 @@ ezAiNavMeshSector::ezAiNavMeshSector()
 
 ezAiNavMeshSector::~ezAiNavMeshSector() = default;
 
-ezAiNavMesh::ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig)
+ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
 {
-  m_uiNumSectorsX = uiNumSectorsX;
-  m_uiNumSectorsY = uiNumSectorsY;
-  m_fSectorMetersXY = fSectorMetersXY;
-  m_fInvSectorMetersXY = 1.0f / fSectorMetersXY;
+  m_uiNumSectorsX = navmeshConfig.m_uiNumSectorsX;
+  m_uiNumSectorsY = navmeshConfig.m_uiNumSectorsY;
+  m_fSectorMetersXY = navmeshConfig.m_fSectorSize;
+  m_fInvSectorMetersXY = 1.0f / navmeshConfig.m_fSectorSize;
   m_NavmeshConfig = navmeshConfig;
 
   m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
 
   dtNavMeshParams np;
-  np.tileWidth = fSectorMetersXY;
-  np.tileHeight = fSectorMetersXY;
-  np.orig[0] = -(uiNumSectorsX * 0.5f) * fSectorMetersXY;
+  np.tileWidth = navmeshConfig.m_fSectorSize;
+  np.tileHeight = navmeshConfig.m_fSectorSize;
+  np.orig[0] = -(navmeshConfig.m_uiNumSectorsX * 0.5f) * navmeshConfig.m_fSectorSize;
   np.orig[1] = 0.0f;
-  np.orig[2] = -(uiNumSectorsY * 0.5f) * fSectorMetersXY;
-  np.maxTiles = uiNumSectorsX * uiNumSectorsY;
+  np.orig[2] = -(navmeshConfig.m_uiNumSectorsY * 0.5f) * navmeshConfig.m_fSectorSize;
+  np.maxTiles = navmeshConfig.m_uiNumSectorsX * navmeshConfig.m_uiNumSectorsY;
   np.maxPolys = 1 << 16;
 
   m_pNavMesh->init(&np);
@@ -115,20 +115,47 @@ bool ezAiNavMesh::RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtent
   return res;
 }
 
-// void ezNavMesh::InvalidateSector(SectorID sectorID)
-//{
-//   auto it = m_Sectors.Find(sectorID);
-//   if (!it.IsValid())
-//     return;
-//
-//   auto& sector = it.Value();
-//
-//   if (sector.m_FlagInvalidate == 0 && (sector.m_FlagUsable == 1 || sector.m_FlagUpdateAvailable == 1))
-//   {
-//     sector.m_FlagInvalidate = 1;
-//     m_InvalidatedSectors.PushBack(sectorID);
-//   }
-// }
+void ezAiNavMesh::InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible)
+{
+  ezVec2I32 coordMin = CalculateSectorCoord(vCenter.x - vHalfExtents.x, vCenter.y - vHalfExtents.y);
+  ezVec2I32 coordMax = CalculateSectorCoord(vCenter.x + vHalfExtents.x, vCenter.y + vHalfExtents.y);
+
+  coordMin.x = ezMath::Clamp<ezInt32>(coordMin.x, 0, m_uiNumSectorsX - 1);
+  coordMax.x = ezMath::Clamp<ezInt32>(coordMax.x, 0, m_uiNumSectorsX - 1);
+  coordMin.y = ezMath::Clamp<ezInt32>(coordMin.y, 0, m_uiNumSectorsY - 1);
+  coordMax.y = ezMath::Clamp<ezInt32>(coordMax.y, 0, m_uiNumSectorsY - 1);
+
+  for (ezInt32 y = coordMin.y; y <= coordMax.y; ++y)
+  {
+    for (ezInt32 x = coordMin.x; x <= coordMax.x; ++x)
+    {
+      InvalidateSector(CalculateSectorID(ezVec2I32(x, y)), bRebuildAsSoonAsPossible);
+    }
+  }
+}
+
+void ezAiNavMesh::InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible)
+{
+  auto it = m_Sectors.Find(sectorID);
+  if (!it.IsValid())
+    return;
+
+  auto& sector = it.Value();
+
+  if (sector.m_FlagInvalidate == 0 && (sector.m_FlagUsable == 1 || sector.m_FlagUpdateAvailable == 1))
+  {
+    if (bRebuildAsSoonAsPossible)
+    {
+      sector.m_FlagInvalidate = 1;
+      m_RequestedSectors.PushBack(sectorID);
+    }
+    else
+    {
+      sector.m_FlagRequested = 0;
+      m_UnloadingSectors.PushBack(sectorID);
+    }
+  }
+}
 
 void ezAiNavMesh::FinalizeSectorUpdates()
 {
@@ -174,8 +201,8 @@ void ezAiNavMesh::FinalizeSectorUpdates()
     }
     else
     {
-        ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
-        sector.m_FlagUsable = 1;
+      ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
+      sector.m_FlagUsable = 1;
     }
 
     sector.m_FlagInvalidate = 0;
@@ -184,6 +211,35 @@ void ezAiNavMesh::FinalizeSectorUpdates()
   }
 
   m_UpdatingSectors.Clear();
+
+  for (auto sectorID : m_UnloadingSectors)
+  {
+    auto& sector = m_Sectors[sectorID];
+
+    // Sector has been requested since then, don't unload it.
+    if (sector.m_FlagRequested == 1)
+      continue;
+
+    if (!sector.m_NavmeshDataCur.IsEmpty())
+    {
+      const auto res = m_pNavMesh->removeTile(sector.m_TileRef, nullptr, nullptr);
+
+      if (res != DT_SUCCESS)
+      {
+        ezLog::Error("NavMesh removeTile error: {}", res);
+      }
+
+      sector.m_NavmeshDataCur.Clear();
+      sector.m_NavmeshDataCur.Compact();
+    }
+
+    sector.m_FlagRequested = 0;
+    sector.m_FlagInvalidate = 0;
+    sector.m_FlagUpdateAvailable = 0;
+    sector.m_FlagUsable = 0;
+  }
+
+  m_UnloadingSectors.Clear();
 }
 
 ezAiNavMesh::SectorID ezAiNavMesh::RetrieveRequestedSector()

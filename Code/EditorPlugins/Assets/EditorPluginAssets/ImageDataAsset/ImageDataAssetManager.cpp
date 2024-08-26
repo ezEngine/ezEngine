@@ -21,7 +21,7 @@ ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
   m_DocTypeDesc.m_sAssetCategory = "Utilities";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezImageDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
-  m_DocTypeDesc.m_sResourceFileExtension = "ezImageData";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinImageData";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_2D");
 }

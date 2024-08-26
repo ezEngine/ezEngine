@@ -1,11 +1,11 @@
 #include <EditorPluginSubstance/EditorPluginSubstancePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAsset.h>
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 #include <qsettings.h>
 #include <qxmlstream.h>
@@ -65,7 +65,7 @@ namespace
   }
 
   static const char* s_szSubstanceUsageMapping[] = {
-    "", // Unknown,
+    "",                 // Unknown,
 
     "baseColor",        // BaseColor,
     "emissive",         // Emissive,
@@ -414,7 +414,7 @@ namespace
     arguments << "--output-path";
     arguments << szOutputPath;
 
-    sTmp.Format("$outputsize@{},{}", uiOutputWidth, uiOutputHeight);
+    sTmp.SetFormat("$outputsize@{},{}", uiOutputWidth, uiOutputHeight);
     arguments << "--set-value";
     arguments << sTmp.GetData();
 
@@ -448,6 +448,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSubstanceGraphOutput, ezNoBase, 1, ezRTTIDefaul
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezSubstanceUsage, m_Usage),
     EZ_MEMBER_PROPERTY("NumChannels", m_uiNumChannels)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 4)),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode)->AddAttributes(new ezDefaultValueAttribute(ezTexConvCompressionMode::High)),
+    EZ_ENUM_MEMBER_PROPERTY("MipmapMode", ezTexConvMipmapMode, m_MipmapMode),
     EZ_MEMBER_PROPERTY("PreserveAlphaCoverage", m_bPreserveAlphaCoverage),
     EZ_MEMBER_PROPERTY("Uuid", m_Uuid)->AddAttributes(new ezHiddenAttribute()),
   }
@@ -705,6 +706,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
           newOutput.m_bEnabled = existingOutput.m_bEnabled;
           newOutput.m_CompressionMode = existingOutput.m_CompressionMode;
           newOutput.m_uiNumChannels = existingOutput.m_uiNumChannels;
+          newOutput.m_MipmapMode = existingOutput.m_MipmapMode;
           newOutput.m_bPreserveAlphaCoverage = existingOutput.m_bPreserveAlphaCoverage;
           newOutput.m_Usage = existingOutput.m_Usage;
           newOutput.m_sLabel = existingOutput.m_sLabel;
@@ -733,7 +735,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
 }
 
 static const char* s_szTexConvUsageMapping[] = {
-  "Auto", // Unknown,
+  "Auto",      // Unknown,
 
   "Color",     // BaseColor,
   "Color",     // Emissive,
@@ -756,6 +758,14 @@ static const char* s_szTexConvCompressionMapping[] = {
 
 static_assert(EZ_ARRAY_SIZE(s_szTexConvCompressionMapping) == ezTexConvCompressionMode::High + 1);
 
+static const char* s_szTexConvMipMapMapping[] = {
+  "None",
+  "Linear",
+  "Kaiser",
+};
+
+static_assert(EZ_ARRAY_SIZE(s_szTexConvMipMapMapping) == ezTexConvMipmapMode::Kaiser + 1);
+
 ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, const char* szTargetFile, const ezAssetFileHeader& assetHeader, const ezSubstanceGraphOutput& graphOutput, ezStringView sThumbnailFile, const ezTextureAssetProfileConfig* pAssetConfig)
 {
   QStringList arguments;
@@ -773,11 +783,11 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.Format("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.Format("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -803,6 +813,9 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
 
   arguments << "-compression";
   arguments << s_szTexConvCompressionMapping[graphOutput.m_CompressionMode];
+
+  arguments << "-mipmaps";
+  arguments << s_szTexConvMipMapMapping[graphOutput.m_MipmapMode];
 
   arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
 
@@ -839,7 +852,7 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
     arguments << "0.5";
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (sThumbnailFile.IsEmpty() == false)
   {

@@ -37,28 +37,29 @@ public:
   void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
   ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
 
-  void SetIntensity(float fIntensity); // [ property ]
-  float GetIntensity() const;          // [ property ]
+  void SetIntensity(float fIntensity);                             // [ property ]
+  float GetIntensity() const;                                      // [ property ]
 
-  void SetSaturation(float fSaturation); // [ property ]
-  float GetSaturation() const;           // [ property ]
+  void SetSaturation(float fSaturation);                           // [ property ]
+  float GetSaturation() const;                                     // [ property ]
 
-  const ezTagSet& GetIncludeTags() const;   // [ property ]
-  void InsertIncludeTag(const char* szTag); // [ property ]
-  void RemoveIncludeTag(const char* szTag); // [ property ]
+  const ezTagSet& GetIncludeTags() const;                          // [ property ]
+  void InsertIncludeTag(const char* szTag);                        // [ property ]
+  void RemoveIncludeTag(const char* szTag);                        // [ property ]
 
-  const ezTagSet& GetExcludeTags() const;   // [ property ]
-  void InsertExcludeTag(const char* szTag); // [ property ]
-  void RemoveExcludeTag(const char* szTag); // [ property ]
+  const ezTagSet& GetExcludeTags() const;                          // [ property ]
+  void InsertExcludeTag(const char* szTag);                        // [ property ]
+  void RemoveExcludeTag(const char* szTag);                        // [ property ]
 
-  void SetShowDebugInfo(bool bShowDebugInfo); // [ property ]
-  bool GetShowDebugInfo() const;              // [ property ]
+  void SetShowDebugInfo(bool bShowDebugInfo);                      // [ property ]
+  bool GetShowDebugInfo() const;                                   // [ property ]
 
-  void SetShowMipMaps(bool bShowMipMaps); // [ property ]
-  bool GetShowMipMaps() const;            // [ property ]
+  void SetShowMipMaps(bool bShowMipMaps);                          // [ property ]
+  bool GetShowMipMaps() const;                                     // [ property ]
 
-  void SetCubeMapFile(const char* szFile); // [ property ]
-  const char* GetCubeMapFile() const;      // [ property ]
+  void SetCubeMapFile(ezStringView sFile);                         // [ property ]
+  ezStringView GetCubeMapFile() const;                             // [ property ]
+
   ezTextureCubeResourceHandle GetCubeMap() const
   {
     return m_hCubeMap;
@@ -67,8 +68,8 @@ public:
   float GetNearPlane() const { return m_Desc.m_fNearPlane; } // [ property ]
   void SetNearPlane(float fNearPlane);                       // [ property ]
 
-  float GetFarPlane() const { return m_Desc.m_fFarPlane; } // [ property ]
-  void SetFarPlane(float fFarPlane);                       // [ property ]
+  float GetFarPlane() const { return m_Desc.m_fFarPlane; }   // [ property ]
+  void SetFarPlane(float fFarPlane);                         // [ property ]
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);

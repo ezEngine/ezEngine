@@ -157,6 +157,9 @@ void ezQtVisualScriptNode::UpdateState()
       else if (val.IsA<ezString>() || val.IsA<ezHashedString>())
       {
         sVal = val.ConvertTo<ezString>();
+        sVal.ReplaceAll("\n", " ");
+        sVal.ReplaceAll("\t", " ");
+
         if (sVal.GetCharacterCount() > 16)
         {
           sVal.Shrink(0, sVal.GetCharacterCount() - 13);

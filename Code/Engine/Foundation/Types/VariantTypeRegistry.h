@@ -82,6 +82,6 @@ class ezVariantTypeInfoT : public ezVariantTypeInfo
 /// Macros should be placed in any cpp. Note that once a custom type is defined, it is considered a value type and will be passed by value. It must be linked into every editor and engine dll to allow serialization. Thus it should only be used for common types in base libraries.
 /// Limitations: Currently only member variables are supported on custom types, no arrays, set, maps etc. For best performance, any custom type smaller than 16 bytes should be POD so it can be inlined into the ezVariant.
 /// \sa EZ_DECLARE_CUSTOM_VARIANT_TYPE, ezVariantTypeRegistry, ezVariant
-#define EZ_DEFINE_CUSTOM_VARIANT_TYPE(TYPE)                                                                                                                                       \
-  EZ_CHECK_AT_COMPILETIME_MSG(ezVariantTypeDeduction<TYPE>::value == ezVariantType::TypedObject, "EZ_DECLARE_CUSTOM_VARIANT_TYPE needs to be added to the header defining TYPE"); \
+#define EZ_DEFINE_CUSTOM_VARIANT_TYPE(TYPE)                                                                                                                         \
+  static_assert(ezVariantTypeDeduction<TYPE>::value == ezVariantType::TypedObject, "EZ_DECLARE_CUSTOM_VARIANT_TYPE needs to be added to the header defining TYPE"); \
   ezVariantTypeInfoT<TYPE> g_ezVariantTypeInfoT_##TYPE;

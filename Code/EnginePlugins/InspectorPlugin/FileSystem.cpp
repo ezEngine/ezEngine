@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
 static ezInt32 s_iDataDirCounter = 0;
-static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> s_KnownDataDirs;
+static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticsAllocatorWrapper> s_KnownDataDirs;
 
 static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
 {
@@ -22,7 +22,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
       }
 
       ezStringBuilder sName;
-      sName.Format("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
 
       ezStats::SetStat(sName.GetData(), e.m_sFileOrDirectory);
     }
@@ -36,7 +36,7 @@ static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
         break;
 
       ezStringBuilder sName;
-      sName.Format("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
+      sName.SetFormat("IO/DataDirs/Dir{0}", ezArgI(it.Value(), 2, true));
 
       ezStats::RemoveStat(sName.GetData());
     }

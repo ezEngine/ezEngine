@@ -11,10 +11,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("ScriptClass", GetScriptClassFile, SetScriptClassFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetScriptVariable, In, "Name", In, "Value"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetScriptVariable, In, "Name"),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Scripting"),
@@ -111,16 +117,22 @@ void ezScriptComponent::OnSimulationStarted()
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
 }
 
-bool ezScriptComponent::SendEventMessage(ezMessage& inout_msg)
+void ezScriptComponent::SetScriptVariable(const ezHashedString& sName, const ezVariant& value)
 {
-  auto& sender = FindSender(inout_msg);
-  return sender.SendEventMessage(inout_msg, this, GetOwner());
+  if (m_pInstance != nullptr)
+  {
+    m_pInstance->SetInstanceVariable(sName, value);
+  }
 }
 
-void ezScriptComponent::PostEventMessage(ezMessage& inout_msg, ezTime delay)
+ezVariant ezScriptComponent::GetScriptVariable(const ezHashedString& sName) const
 {
-  auto& sender = FindSender(inout_msg);
-  sender.PostEventMessage(inout_msg, this, GetOwner(), delay);
+  if (m_pInstance != nullptr)
+  {
+    return m_pInstance->GetInstanceVariable(sName);
+  }
+
+  return ezVariant();
 }
 
 void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScript)
@@ -139,23 +151,6 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
   {
     InstantiateScript(IsActiveAndInitialized());
   }
-}
-
-void ezScriptComponent::SetScriptClassFile(const char* szFile)
-{
-  ezScriptClassResourceHandle hScript;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hScript = ezResourceManager::LoadResource<ezScriptClassResource>(szFile);
-  }
-
-  SetScriptClass(hScript);
-}
-
-const char* ezScriptComponent::GetScriptClassFile() const
-{
-  return m_hScriptClass.IsValid() ? m_hScriptClass.GetResourceID().GetData() : "";
 }
 
 void ezScriptComponent::SetUpdateInterval(ezTime interval)
@@ -228,7 +223,7 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load script '{}'", GetScriptClassFile());
+    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceID());
     return;
   }
 
@@ -245,7 +240,7 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   m_pInstance = pScript->Instantiate(*this, GetWorld());
   if (m_pInstance != nullptr)
   {
-    m_pInstance->ApplyParameters(m_Parameters);
+    m_pInstance->SetInstanceVariables(m_Parameters);
   }
 
   GetWorld()->AddResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr,
@@ -335,27 +330,4 @@ void ezScriptComponent::ReloadScript()
   InstantiateScript(IsActiveAndInitialized());
 }
 
-ezEventMessageSender<ezMessage>& ezScriptComponent::FindSender(ezMessage& inout_msg)
-{
-  const ezRTTI* pType = inout_msg.GetDynamicRTTI();
-  if (pType->IsDerivedFrom<ezEventMessage>())
-  {
-    static_cast<ezEventMessage&>(inout_msg).FillFromSenderComponent(this);
-  }
-
-  for (auto& sender : m_EventSenders)
-  {
-    if (sender.m_pMsgType == pType)
-    {
-      return sender.m_Sender;
-    }
-  }
-
-  auto& sender = m_EventSenders.ExpandAndGetRef();
-  sender.m_pMsgType = pType;
-  return sender.m_Sender;
-}
-
-
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptComponent);
-

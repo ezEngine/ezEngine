@@ -75,5 +75,3 @@ float ezCoordinateSystemConversion::ConvertTargetLength(float fLength) const
 {
   return fLength * m_fTargetToSourceScale;
 }
-
-

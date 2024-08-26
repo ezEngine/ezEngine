@@ -129,6 +129,11 @@ ezUInt32 ezWorldReader::GetComponentTypeVersion(const ezRTTI* pRtti) const
   return uiVersion;
 }
 
+bool ezWorldReader::HasComponentOfType(const ezRTTI* pRtti) const
+{
+  return m_ComponentTypeVersions.Contains(pRtti);
+}
+
 void ezWorldReader::ClearAndCompact()
 {
   m_IndexToGameObjectHandle.Clear();
@@ -243,7 +248,8 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents)
+  {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -665,8 +671,6 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::DeserializeComponents");
 
-  ezStreamReader& s = *m_WorldReader.m_pStream;
-
   for (; m_uiCurrentComponentTypeIndex < m_WorldReader.m_ComponentTypes.GetCount(); ++m_uiCurrentComponentTypeIndex)
   {
     auto& compTypeInfo = m_WorldReader.m_ComponentTypes[m_uiCurrentComponentTypeIndex];
@@ -705,8 +709,6 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
 {
   EZ_PROFILE_SCOPE("ezWorldReader::AddComponentsToBatch");
 
-  ezUInt32 uiInitializedComponents = 0;
-
   if (!m_hComponentInitBatch.IsInvalidated())
   {
     m_WorldReader.m_pWorld->BeginAddingComponentsToInitBatch(m_hComponentInitBatch);
@@ -724,7 +726,6 @@ bool ezWorldReader::InstantiationContext::AddComponentsToBatch(ezTime endTime)
       if (m_WorldReader.m_pWorld->TryGetComponent(compTypeInfo.m_ComponentIndexToHandle[m_uiCurrentIndex++], pComponent))
       {
         pComponent->GetOwningManager()->InitializeComponent(pComponent);
-        ++uiInitializedComponents;
 
         ++m_uiCurrentNumComponentsProcessed;
 
@@ -784,5 +785,3 @@ void ezWorldReader::InstantiationContext::SetSubProgressCompletion(double fCompl
     m_pSubProgressRange->SetCompletion(fCompletion);
   }
 }
-
-

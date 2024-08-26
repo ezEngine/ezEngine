@@ -14,7 +14,8 @@ void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
   m_bImageAcquired = true;
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
 
-  auto AquireAndWait = [](Swapchain& swapchain) {
+  auto AquireAndWait = [](Swapchain& swapchain)
+  {
     XrSwapchainImageAcquireInfo acquireInfo{XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO};
     XR_SUCCEED_OR_RETURN_LOG(xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &swapchain.imageIndex));
 
@@ -225,7 +226,8 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
 
   m_CurrentSize = {swapchainCreateInfo.width, swapchainCreateInfo.height};
 
-  auto CreateSwapChain = [this](const XrSwapchainCreateInfo& swapchainCreateInfo, Swapchain& swapchain, SwapchainType type) -> XrResult {
+  auto CreateSwapChain = [this](const XrSwapchainCreateInfo& swapchainCreateInfo, Swapchain& swapchain, SwapchainType type) -> XrResult
+  {
     XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_pSession, &swapchainCreateInfo, &swapchain.handle), voidFunction);
     XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, 0, &swapchain.imageCount, nullptr), voidFunction);
     CreateSwapchainImages(swapchain, type);
@@ -280,7 +282,8 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
   m_hColorRT.Invalidate();
   m_hDepthRT.Invalidate();
 
-  auto DeleteSwapchain = [](Swapchain& swapchain) {
+  auto DeleteSwapchain = [](Swapchain& swapchain)
+  {
     if (swapchain.handle != XR_NULL_HANDLE)
     {
       xrDestroySwapchain(swapchain.handle);

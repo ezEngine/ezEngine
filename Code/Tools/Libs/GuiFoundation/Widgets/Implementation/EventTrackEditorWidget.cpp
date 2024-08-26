@@ -17,6 +17,9 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
 
   EventTrackEdit->SetGridBarWidget(GridBarWidget);
 
+  // make sure the track is visible and not completely squashed
+  EventTrackEdit->setMinimumHeight(50);
+
   connect(EventTrackEdit, &ezQtEventTrackWidget::DeleteControlPointsEvent, this, &ezQtEventTrackEditorWidget::onDeleteControlPoints);
   connect(EventTrackEdit, &ezQtEventTrackWidget::DoubleClickEvent, this, &ezQtEventTrackEditorWidget::onDoubleClick);
   connect(EventTrackEdit, &ezQtEventTrackWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
@@ -78,6 +81,14 @@ void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
   }
 }
 
+void ezQtEventTrackEditorWidget::on_InsertEventButton_clicked()
+{
+  int curveIdx = 0, cpIdx = 0;
+  double posX = ezMath::Max(EventTrackEdit->GetScrubberPosition(), 0.0);
+
+  Q_EMIT InsertCpEvent(m_pData->TickFromTime(ezTime::MakeFromSeconds(posX)), ComboType->currentText().toUtf8().data());
+}
+
 void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 {
   ezHybridArray<ezUInt32, 32> selection;
@@ -90,7 +101,8 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 
   Q_EMIT BeginCpChangesEvent("Delete Events");
 
-  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool { return lhs > rhs; });
+  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool
+    { return lhs > rhs; });
 
   // delete sorted from back to front to prevent point indices becoming invalidated
   for (ezUInt32 pt : selection)
@@ -186,7 +198,8 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   m.addSeparator();
 
-  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]() { FrameCurve(); });
+  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]()
+    { FrameCurve(); });
 
   m.exec(pos);
 }

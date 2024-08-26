@@ -213,10 +213,10 @@ public:
   const T& Get() const; // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
-  T Get() const; // [tested]
+  T Get() const;        // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::TypedObject, int> = 0>
-  const T Get() const; // [tested]
+  const T Get() const;  // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
   const T& Get() const; // [tested]
@@ -226,13 +226,13 @@ public:
   ezTypedPointer GetWriteAccess(); // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int> = 0>
-  T& GetWritable(); // [tested]
+  T& GetWritable();                // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::PointerCast, int> = 0>
-  T GetWritable(); // [tested]
+  T GetWritable();                 // [tested]
 
   template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int> = 0>
-  T& GetWritable(); // [tested]
+  T& GetWritable();                // [tested]
 
 
   /// \brief Returns a const void* to the internal data.

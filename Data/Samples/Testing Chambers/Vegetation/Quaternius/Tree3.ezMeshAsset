@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Tree3.fbx"}
 		}
 		Uuid %DocumentID{u4{10389358600809159309,4903644711178026853}}
-		u4 %Hash{10654472831123671138}
+		u4 %Hash{17621592905784385397}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,6 +28,7 @@ o
 			s{"{ 662596b0-e9ef-4cf0-8e7b-25bd390c147d }"}
 			s{"{ b089eecd-3b2e-4c99-b72f-9f874dc0b448 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -51,6 +52,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -64,7 +66,9 @@ o
 			Uuid{u4{7777558213602359463,4702944914144906242}}
 			Uuid{u4{14736480978623650194,5370393448208805973}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Vegetation/Quaternius/Tree3.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -72,6 +76,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

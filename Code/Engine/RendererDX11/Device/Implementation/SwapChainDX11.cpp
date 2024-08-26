@@ -4,7 +4,7 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <d3d11.h>
@@ -16,6 +16,7 @@
 
 void ezGALSwapChainDX11::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
 }
 
 void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
@@ -25,13 +26,13 @@ void ezGALSwapChainDX11::PresentRenderTarget(ezGALDevice* pDevice)
   // If there is a "actual backbuffer" (see it's documentation for detailed explanation), copy to it.
   if (!this->m_hActualBackBufferTexture.IsInvalidated())
   {
-    pDXDevice->GetRenderCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
+    pDXDevice->GetCommandEncoder()->CopyTexture(this->m_hActualBackBufferTexture, this->m_hBackBufferTexture);
   }
 
   HRESULT result = m_pDXSwapChain->Present(m_CurrentPresentMode == ezGALPresentMode::VSync ? 1 : 0, 0);
   if (FAILED(result))
   {
-    ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);
+    ezLog::Error("Swap chain PresentImage failed with {0}", (ezUInt32)result);
     return;
   }
 
@@ -141,10 +142,10 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.BufferCount = m_WindowDesc.m_bDoubleBuffered ? 2 : 1;
   SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
   SwapChainDesc.SampleDesc.Count = m_WindowDesc.m_SampleCount;
-  SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_WindowDesc
+  SwapChainDesc.SampleDesc.Quality = 0;                         /// \todo Get from MSAA value of the m_WindowDesc
   SwapChainDesc.OutputWindow = ezMinWindows::ToNative(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // The FLIP models are more efficient but only supported in Win8+. See
-                                                       // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;          // The FLIP models are more efficient but only supported in Win8+. See
+                                                                // https://msdn.microsoft.com/en-us/library/windows/desktop/bb173077(v=vs.85).aspx#DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
   SwapChainDesc.Windowed = m_WindowDesc.m_pWindow->IsFullscreenWindow(true) ? FALSE : TRUE;
 
   /// \todo Get from enumeration of available modes
@@ -295,5 +296,3 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_SwapChainDX11);

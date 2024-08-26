@@ -11,7 +11,7 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -197,8 +197,6 @@ void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 
   auto& s = inout_stream.GetStream();
 
-  // s << m_fBreakForce;
-  // s << m_fBreakTorque;
   s << m_bPairCollision;
 
   inout_stream.WriteGameObjectHandle(m_hActorA);
@@ -208,18 +206,18 @@ void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_LocalFrameB;
 
   inout_stream.WriteGameObjectHandle(m_hActorBAnchor);
+
+  s << m_fBreakForce;
+  s << m_fBreakTorque;
 }
 
 void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
-  // s >> m_fBreakForce;
-  // s >> m_fBreakTorque;
   s >> m_bPairCollision;
 
   m_hActorA = inout_stream.ReadGameObjectHandle();
@@ -229,6 +227,12 @@ void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_LocalFrameB;
 
   m_hActorBAnchor = inout_stream.ReadGameObjectHandle();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fBreakForce;
+    s >> m_fBreakTorque;
+  }
 }
 
 void ezJoltConstraintComponent::SetParentActorReference(const char* szReference)

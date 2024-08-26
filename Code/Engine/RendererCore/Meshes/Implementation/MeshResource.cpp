@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
@@ -98,7 +98,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
   {
     s_uiMeshBufferNameSuffix++;
     ezStringBuilder sMbName;
-    sMbName.Format("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_uiMeshBufferNameSuffix, 4, true, 16, true));
+    sMbName.SetFormat("{0}  [MeshBuffer {1}]", GetResourceID(), ezArgU(s_uiMeshBufferNameSuffix, 4, true, 16, true));
 
     // note: this gets move'd, might be invalid afterwards
     ezMeshBufferResourceDescriptor& mb = descriptor.MeshBufferDesc();

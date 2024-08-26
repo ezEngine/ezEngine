@@ -1,6 +1,11 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
+#include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>
 
 #include <Core/Console/QuakeConsole.h>
@@ -9,15 +14,14 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <shellscalingapi.h>
 #endif
-#include <Foundation/Profiling/ProfilingUtils.h>
+
 
 // Will forward assert messages and crash handler messages to the log system and then to the editor.
 // Note that this is unsafe as in some crash situation allocating memory will not be possible but it's better to have some logs compared to none.
@@ -72,6 +76,8 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 #endif
 
   WaitForDebugger();
+
+  ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
 
   DisableErrorReport();
 
@@ -209,6 +215,8 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     TerminateProcess(GetCurrentProcess(), 0);
 #endif
 
+    ezLog::SeriousWarning("Host process no longer alive, exiting engine process.");
+
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
     ezSetAssertHandler(EmptyAssertHandler);
@@ -245,7 +253,8 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 
   ezSet<const ezRTTI*> types;
   ezRTTI::ForEachType(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false)
       {
         types.Insert(pRtti);
@@ -327,6 +336,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       ezStartup::StartupHighLevelSystems();
 
       ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
+      ezDebugRenderer::SetTextScale(pMsg->m_fDevicePixelRatio);
     }
 
     // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection
@@ -357,7 +367,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
 
-      m_PlatformProfile.m_sName = pMsg1->m_sPayload;
+      m_PlatformProfile.SetConfigName(pMsg1->m_sPayload);
       Init_PlatformProfile_LoadForRuntime();
 
       ezResourceManager::ReloadAllResources(false);
@@ -509,7 +519,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
   if (pDocumentContext == nullptr)
   {
     ezRTTI::ForEachDerivedType<ezEngineProcessDocumentContext>(
-      [&](const ezRTTI* pRtti) {
+      [&](const ezRTTI* pRtti)
+      {
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
@@ -559,7 +570,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool
+    {
     const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
     const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
 
@@ -588,14 +600,15 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
 
   // make sure these directories exist
-  ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
-  ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
+  ezFileSystem::CreateDirectoryStructure(sAppDir).AssertSuccess();
+  ezFileSystem::CreateDirectoryStructure(sUserData).AssertSuccess();
+  ezFileSystem::CreateDirectoryStructure(">sdk/Output/").AssertSuccess();
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).IgnoreResult();                   // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).IgnoreResult();            // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").IgnoreResult();                             // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).IgnoreResult();      // for writing app user data
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezDataDirUsage::AllowWrites).AssertSuccess();                       // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezDataDirUsage::ReadOnly).AssertSuccess();                // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess(); // for shader files
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                 // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();        // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 
@@ -603,7 +616,7 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
     // We need the file system before we can start the html logger.
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
     ezStringBuilder sLogFile;
-    sLogFile.Format(":appdata/Log_{0}.htm", uiProcessID);
+    sLogFile.SetFormat(":appdata/Log_{0}.htm", uiProcessID);
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }
@@ -637,6 +650,7 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
 
   ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 

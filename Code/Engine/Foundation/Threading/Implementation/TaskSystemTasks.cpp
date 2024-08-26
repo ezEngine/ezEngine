@@ -412,5 +412,3 @@ void ezTaskSystem::FinishFrameTasks()
     }
   }
 }
-
-

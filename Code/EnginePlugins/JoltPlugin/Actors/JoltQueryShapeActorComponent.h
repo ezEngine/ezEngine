@@ -38,6 +38,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+protected:
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
 
@@ -47,10 +48,10 @@ public:
   ezJoltQueryShapeActorComponent();
   ~ezJoltQueryShapeActorComponent();
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetSurfaceFile() const;     // [ property ]
 
-  ezSurfaceResourceHandle m_hSurface; // [ property ]
+  ezSurfaceResourceHandle m_hSurface;      // [ property ]
 
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;

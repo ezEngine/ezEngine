@@ -56,12 +56,14 @@ void ezDuktapeContext::DestroyContext()
   m_pContext = nullptr;
 
   const auto stats = m_Allocator.GetStats();
+  EZ_IGNORE_UNUSED(stats);
   EZ_ASSERT_DEBUG(stats.m_uiAllocationSize == 0, "Duktape did not free all data");
   EZ_ASSERT_DEBUG(stats.m_uiNumAllocations == stats.m_uiNumDeallocations, "Duktape did not free all data");
 }
 
 void ezDuktapeContext::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
+  EZ_IGNORE_UNUSED(pUserData);
   // unfortunately it is not possible to do a stack trace here
   ezLog::Error("DukTape: {}", szMsg);
   EZ_ASSERT_ALWAYS(false, "Duktape fatal error {}", szMsg);
@@ -111,5 +113,3 @@ void ezDuktapeContext::DukFree(void* pUserData, void* pPointer)
 }
 
 #endif
-
-

@@ -36,7 +36,6 @@ ezAiNavigation::ezAiNavigation()
 {
   m_uiCurrentPositionChangedBit = 0;
   m_uiTargetPositionChangedBit = 0;
-  m_uiEnvironmentChangedBit = 0;
   m_uiReinitQueryBit = 0;
 
   m_PathCorridor.init(MaxPathNodes);
@@ -221,20 +220,21 @@ void ezAiNavigation::SetCurrentPosition(const ezVec3& vPosition)
 
 void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition)
 {
-  if (m_vTargetPosition == vPosition)
-    return;
-
   m_vTargetPosition = vPosition;
   m_uiTargetPositionChangedBit = 1;
 }
 
-void ezAiNavigation::SetNavmesh(ezAiNavMesh& ref_navmesh)
+const ezVec3& ezAiNavigation::GetTargetPosition() const
 {
-  if (m_pNavmesh == &ref_navmesh)
+  return m_vTargetPosition;
+}
+
+void ezAiNavigation::SetNavmesh(ezAiNavMesh* pNavmesh)
+{
+  if (m_pNavmesh == pNavmesh)
     return;
 
-  m_pNavmesh = &ref_navmesh;
-  m_uiEnvironmentChangedBit = 1;
+  m_pNavmesh = pNavmesh;
   m_uiReinitQueryBit = 1;
 }
 
@@ -244,7 +244,6 @@ void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
     return;
 
   m_pFilter = &filter;
-  m_uiEnvironmentChangedBit = 1;
 }
 
 void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const
@@ -262,7 +261,7 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) 
 
   out_waypoints.SetCountUninitialized((ezUInt32)straightLen);
 
-  for (ezUInt32 i = 0; i < straightLen; ++i)
+  for (int i = 0; i < straightLen; ++i)
   {
     out_waypoints[i] = straightPath[i]; // automatically swaps Y and Z
   }
@@ -365,73 +364,84 @@ bool ezAiNavigation::UpdatePathSearch()
     m_uiOptimizeVisibilityCounter = 0;
   }
 
+  // Replan if path has become invalid due to navmesh modifications
+  if (m_State == State::FullPathFound || m_State == State::PartialPathFound)
+  {
+    constexpr ezInt32 PathLookahead = 10;
+
+    dtPolyRef currentPoly = m_PathCorridor.getFirstPoly();
+    if (!m_Query.isValidPolyRef(currentPoly, m_pFilter) || !m_Query.isValidPolyRef(m_PathSearchTargetPoly, m_pFilter) || !m_PathCorridor.isValid(PathLookahead, &m_Query, m_pFilter))
+    {
+      CancelNavigation();
+      m_State = State::StartNewSearch;
+      return false;
+    }
+  }
+
   return true;
 }
 
-void ezAiNavigation::DebugDraw(const ezDebugRendererContext& context, ezColor tilesColor, ezColor straightLineColor, float fPolyRenderOffsetZ, float fLineRenderOffsetZ)
+void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context, ezColor tilesColor, float fPolyRenderOffsetZ)
 {
   const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
   const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
 
-  if (tilesColor != ezColor::MakeZero())
+  ezHybridArray<ezDebugRenderer::Triangle, 64> tris;
+
+  const auto pNavmesh = m_Query.getAttachedNavMesh();
+
+  for (ezUInt32 c = 0; c < uiCorrLen; ++c)
   {
-    ezHybridArray<ezDebugRenderer::Triangle, 64> tris;
+    dtPolyRef poly = pCorrArr[c];
 
-    const auto pNavmesh = m_Query.getAttachedNavMesh();
+    const dtMeshTile* pTile;
+    const dtPoly* pPoly;
+    pNavmesh->getTileAndPolyByRef(poly, &pTile, &pPoly);
 
-    for (ezUInt32 c = 0; c < uiCorrLen; ++c)
+    for (ezUInt32 i = 2; i < pPoly->vertCount; ++i)
     {
-      dtPolyRef poly = pCorrArr[c];
+      ezRcPos rcPos[3];
+      rcPos[0] = &(pTile->verts[pPoly->verts[0] * 3]);
+      rcPos[1] = &(pTile->verts[pPoly->verts[i - 1] * 3]);
+      rcPos[2] = &(pTile->verts[pPoly->verts[i] * 3]);
 
-      const dtMeshTile* pTile;
-      const dtPoly* pPoly;
-      pNavmesh->getTileAndPolyByRef(poly, &pTile, &pPoly);
+      auto& tri = tris.ExpandAndGetRef();
+      tri.m_position[0] = ezVec3(rcPos[0]);
+      tri.m_position[2] = ezVec3(rcPos[1]);
+      tri.m_position[1] = ezVec3(rcPos[2]);
 
-      for (ezUInt32 i = 2; i < pPoly->vertCount; ++i)
-      {
-        ezRcPos rcPos[3];
-        rcPos[0] = &(pTile->verts[pPoly->verts[0] * 3]);
-        rcPos[1] = &(pTile->verts[pPoly->verts[i - 1] * 3]);
-        rcPos[2] = &(pTile->verts[pPoly->verts[i] * 3]);
-
-        auto& tri = tris.ExpandAndGetRef();
-        tri.m_position[0] = ezVec3(rcPos[0]);
-        tri.m_position[2] = ezVec3(rcPos[1]);
-        tri.m_position[1] = ezVec3(rcPos[2]);
-
-        tri.m_position[0].z += fPolyRenderOffsetZ;
-        tri.m_position[1].z += fPolyRenderOffsetZ;
-        tri.m_position[2].z += fPolyRenderOffsetZ;
-      }
+      tri.m_position[0].z += fPolyRenderOffsetZ;
+      tri.m_position[1].z += fPolyRenderOffsetZ;
+      tri.m_position[2].z += fPolyRenderOffsetZ;
     }
-
-    ezDebugRenderer::DrawSolidTriangles(context, tris, tilesColor);
   }
 
-  if (straightLineColor != ezColor::MakeZero())
+  ezDebugRenderer::DrawSolidTriangles(context, tris, tilesColor);
+}
+
+void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ)
+{
+  ezHybridArray<ezDebugRenderer::Line, 64> lines;
+  ezHybridArray<ezVec3, 64> waypoints;
+  ComputeAllWaypoints(waypoints);
+
+  if (!waypoints.IsEmpty())
   {
-    ezHybridArray<ezDebugRenderer::Line, 64> lines;
-    ezHybridArray<ezVec3, 64> waypoints;
-    ComputeAllWaypoints(waypoints);
+    ezVec3 vStart = m_vCurrentPosition;
+    vStart.z += fLineRenderOffsetZ;
 
-    if (!waypoints.IsEmpty())
+    for (ezUInt32 i = 0; i < waypoints.GetCount(); ++i)
     {
-      ezVec3 vStart = m_vCurrentPosition;
-      vStart.z += fLineRenderOffsetZ;
+      ezVec3 vthis = waypoints[i];
+      vthis.z += fLineRenderOffsetZ;
 
-      for (ezUInt32 i = 0; i < waypoints.GetCount(); ++i)
-      {
-        ezVec3 vthis = waypoints[i];
-        vthis.z += fLineRenderOffsetZ;
-
-        auto& line = lines.ExpandAndGetRef();
-        line.m_start = vStart;
-        line.m_end = vthis;
-        vStart = vthis;
-      }
-
-      ezDebugRenderer::DrawLines(context, lines, straightLineColor);
+      auto& line = lines.ExpandAndGetRef();
+      line.m_start = vStart;
+      line.m_end = vthis;
+      vStart = vthis;
     }
+
+    ezDebugRenderer::DrawLines(context, lines, straightLineColor);
   }
 }
 
@@ -511,10 +521,42 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec
     {
       const ezVec3 vNextPt = straightPath[idx];
       ezVec2 vNextDir = (vNextPt - out_info.m_vNextWaypoint).GetAsVec2();
-      vNextDir.Normalize();
-
-      ezAngle absDir = vNextDir.GetAngleBetween(out_info.m_vDirectionTowardsWaypoint);
-      out_info.m_MaxAbsRotationAfterWaypoint = ezMath::Max(absDir, out_info.m_MaxAbsRotationAfterWaypoint);
+      if (vNextDir.NormalizeIfNotZero(ezVec2::MakeZero()).Succeeded())
+      {
+        ezAngle absDir = vNextDir.GetAngleBetween(out_info.m_vDirectionTowardsWaypoint);
+        out_info.m_MaxAbsRotationAfterWaypoint = ezMath::Max(absDir, out_info.m_MaxAbsRotationAfterWaypoint);
+      }
     }
+  }
+}
+
+void ezAiNavigation::DebugDrawState(const ezDebugRendererContext& context, const ezVec3& vPosition) const
+{
+  switch (m_State)
+  {
+    case ezAiNavigation::State::Idle:
+      ezDebugRenderer::Draw3DText(context, "Idle", vPosition, ezColor::Grey);
+      break;
+    case ezAiNavigation::State::StartNewSearch:
+      ezDebugRenderer::Draw3DText(context, "Starting Search...", vPosition, ezColor::Yellow);
+      break;
+    case ezAiNavigation::State::InvalidCurrentPosition:
+      ezDebugRenderer::Draw3DText(context, "Invalid Start Position", vPosition, ezColor::Black);
+      break;
+    case ezAiNavigation::State::InvalidTargetPosition:
+      ezDebugRenderer::Draw3DText(context, "Invalid Target Position", vPosition, ezColor::IndianRed);
+      break;
+    case ezAiNavigation::State::NoPathFound:
+      ezDebugRenderer::Draw3DText(context, "No Path Found", vPosition, ezColor::White);
+      break;
+    case ezAiNavigation::State::PartialPathFound:
+      ezDebugRenderer::Draw3DText(context, "Partial Path Found", vPosition, ezColor::Turquoise);
+      break;
+    case ezAiNavigation::State::FullPathFound:
+      ezDebugRenderer::Draw3DText(context, "Full Path Found", vPosition, ezColor::LawnGreen);
+      break;
+    case ezAiNavigation::State::Searching:
+      ezDebugRenderer::Draw3DText(context, "Searching...", vPosition, ezColor::Yellow);
+      break;
   }
 }

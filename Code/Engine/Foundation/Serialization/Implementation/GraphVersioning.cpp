@@ -295,7 +295,8 @@ void ezGraphVersioning::UpdatePatches()
     pInstance = pInstance->GetNextInstance();
   }
 
-  m_GraphPatches.Sort([](const ezGraphPatch* a, const ezGraphPatch* b) -> bool { return a->GetTypeVersion() < b->GetTypeVersion(); });
+  m_GraphPatches.Sort([](const ezGraphPatch* a, const ezGraphPatch* b) -> bool
+    { return a->GetTypeVersion() < b->GetTypeVersion(); });
 }
 
 ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) const

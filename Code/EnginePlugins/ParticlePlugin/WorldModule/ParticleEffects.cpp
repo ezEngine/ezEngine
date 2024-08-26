@@ -34,7 +34,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
   EZ_LOCK(m_Mutex);
 
   ezStringBuilder fullName;
-  fullName.Format("{{0}}-{{1}}[{2}]", szSharedName, hResource.GetResourceID(), uiRandomSeed);
+  fullName.SetFormat("{{0}}-{{1}}[{2}]", szSharedName, hResource.GetResourceID(), uiRandomSeed);
 
   bool bExisted = false;
   auto it = m_SharedEffects.FindOrAdd(fullName, &bExisted);

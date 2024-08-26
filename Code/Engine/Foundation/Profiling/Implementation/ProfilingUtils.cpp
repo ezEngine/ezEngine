@@ -13,8 +13,8 @@ ezResult ezProfilingUtils::SaveProfilingCapture(ezStringView sCapturePath)
   {
     ezProfilingSystem::ProfilingData profilingData;
     ezProfilingSystem::Capture(profilingData);
-    // Set sort index to -1 so that the editor is always on top when opening the trace.
-    profilingData.m_uiProcessSortIndex = -1;
+    // Set sort index to ezInvalidIndex so that the runtime process is always at the bottom and editor is always on top when opening the trace.
+    profilingData.m_uiProcessSortIndex = ezInvalidIndex;
     if (profilingData.Write(fileWriter).Failed())
     {
       ezLog::Error("Failed to write profiling capture: {0}.", sCapturePath);
@@ -74,5 +74,3 @@ ezResult ezProfilingUtils::MergeProfilingCaptures(ezStringView sCapturePath1, ez
   ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
   return EZ_SUCCESS;
 }
-
-

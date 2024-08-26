@@ -165,50 +165,50 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
     // test how far it skips ahead
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz);
+    ezUnicodeUtils::MoveToNextUtf8(sz).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[12]);
 
     sz = s.GetData();
     const char* szEnd = s.GetView().GetEndPointer();
 
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd);
+    ezUnicodeUtils::MoveToNextUtf8(sz, szEnd).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[12]);
   }
 
@@ -222,28 +222,28 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
     // test how far it skips ahead
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[12]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[11]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[8]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[6]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[4]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[2]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[1]);
 
-    ezUnicodeUtils::MoveToPriorUtf8(sz);
+    ezUnicodeUtils::MoveToPriorUtf8(sz, s.GetData()).AssertSuccess();
     EZ_TEST_BOOL(sz == &s.GetData()[0]);
   }
 

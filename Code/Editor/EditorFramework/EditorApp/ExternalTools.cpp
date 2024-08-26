@@ -18,24 +18,35 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  bool bFolders[2] = {false, true};
+  ezHybridArray<ezString, 3> sFolders;
 
   if (pPref->m_bUsePrecompiledTools)
   {
-    ezMath::Swap(bFolders[0], bFolders[1]);
+    if (!pPref->m_sCustomPrecompiledToolsFolder.IsEmpty() && ezOSFile::ExistsDirectory(pPref->m_sCustomPrecompiledToolsFolder))
+    {
+      ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
+      customToolsFolder.MakeCleanPath();
+      sFolders.PushBack(customToolsFolder);
+    }
+
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+  }
+  else
+  {
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
   }
 
-  ezStringBuilder sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[0]);
-  sTool.AppendPath(szToolName);
+  ezStringBuilder sTool;
+  for (auto& folder : sFolders)
+  {
+    sTool = folder;
+    sTool.AppendPath(szToolName);
 
-  if (ezFileSystem::ExistsFile(sTool))
-    return sTool;
-
-  sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[1]);
-  sTool.AppendPath(szToolName);
-
-  if (ezFileSystem::ExistsFile(sTool))
-    return sTool;
+    if (ezOSFile::ExistsFile(sTool))
+      return sTool;
+  }
 
   // just try the one in the same folder as the editor
   return szToolName;
@@ -179,19 +190,19 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
 
 ezString ezQtEditorApp::BuildFileserveCommandLine() const
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   ezStringBuilder params;
 
   ezStringBuilder cmd;
-  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\" -fs_start");
+  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\"");
 
   return cmd;
 }
 
 void ezQtEditorApp::RunFileserve()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezFileserve");
   const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
 
   QStringList args;
@@ -203,8 +214,20 @@ void ezQtEditorApp::RunFileserve()
 
 void ezQtEditorApp::RunInspector()
 {
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Inspector");
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezInspector");
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);
+}
+
+void ezQtEditorApp::RunTracy()
+{
+#if BUILDSYSTEM_ENABLE_TRACY_SUPPORT == 0
+  ezQtUiServices::MessageBoxInformation("<html>This build of EZ was compiled without support for Tracy profiling.<br><br>See <a href='https://ezengine.net/pages/docs/debugging/tracy.html'>the documentation</a> for how to enable it.</html>");
+#else
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("tracy-profiler");
+  QStringList args;
+
+  QProcess::startDetached(sToolPath.GetData(), args);
+#endif
 }

@@ -121,4 +121,3 @@ void ezLineToComponentManager::Update(const ezWorldModule::UpdateContext& contex
     }
   }
 }
-

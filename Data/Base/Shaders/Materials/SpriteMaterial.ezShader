@@ -56,7 +56,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   };
 
   VS_OUT Output;
-  #if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
     Output.RenderTargetArrayIndex = InstanceID;
   #else
     Output.InstanceID = InstanceID;
@@ -104,10 +104,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 [GEOMETRYSHADER]
 
-void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
-{
-  output.GameObjectID = input.GameObjectID;
-}
+#define CopyCustomInterpolators(output, input) output.GameObjectID = input.GameObjectID;
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

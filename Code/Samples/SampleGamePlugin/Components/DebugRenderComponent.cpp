@@ -23,8 +23,12 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
   {
     EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
+
+    // BEGIN-DOCS-CODE-SNIPPET: customdata-property
+    EZ_RESOURCE_MEMBER_PROPERTY("CustomData", m_hCustomData)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_CustomData", "SampleCustomData")),
+    // END-DOCS-CODE-SNIPPET
   }
   EZ_END_PROPERTIES;
 
@@ -63,6 +67,7 @@ void DebugRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_Color;
   s << m_hTexture;
   s << m_RenderTypes;
+  s << m_hCustomData;
 }
 
 void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -76,36 +81,7 @@ void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_Color;
   s >> m_hTexture;
   s >> m_RenderTypes;
-}
-
-void DebugRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
-{
-  m_hTexture = hTexture;
-}
-
-const ezTexture2DResourceHandle& DebugRenderComponent::GetTexture() const
-{
-  return m_hTexture;
-}
-
-void DebugRenderComponent::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetTexture(hTexture);
-}
-
-const char* DebugRenderComponent::GetTextureFile(void) const
-{
-  if (m_hTexture.IsValid())
-    return m_hTexture.GetResourceID();
-
-  return nullptr;
+  s >> m_hCustomData;
 }
 
 void DebugRenderComponent::OnSetColor(ezMsgSetColor& ref_msg)
@@ -183,5 +159,20 @@ void DebugRenderComponent::Update()
     }
 
     ezDebugRenderer::DrawTexturedTriangles(GetWorld(), triangles, m_Color, m_hTexture);
+  }
+
+  // accessing custom data resources
+  if (m_hCustomData.IsValid())
+  {
+    // BEGIN-DOCS-CODE-SNIPPET: customdata-access
+    ezResourceLock<SampleCustomDataResource> pCustomDataResource(m_hCustomData, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+    if (pCustomDataResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      const SampleCustomData* pCustomData = pCustomDataResource->GetData();
+
+      ezDebugRenderer::Draw3DText(GetWorld(), ezFmt(pCustomData->m_sText), GetOwner()->GetGlobalPosition(), pCustomData->m_Color, pCustomData->m_iSize);
+    }
+    // END-DOCS-CODE-SNIPPET
   }
 }

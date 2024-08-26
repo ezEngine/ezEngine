@@ -218,4 +218,3 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Mesh_ParticleTypeMesh);
-

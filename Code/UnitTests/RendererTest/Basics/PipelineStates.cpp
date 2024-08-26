@@ -8,6 +8,7 @@
 
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
+#include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestPushConstants.h>
 
 EZ_DEFINE_AS_POD_TYPE(ezTestShaderData);
 
@@ -88,18 +89,21 @@ namespace
 
 } // namespace
 
-
-
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
   {
-    m_bTimestampsValid = false;
+    m_iDelay = 0;
     m_CPUTime[0] = {};
     m_CPUTime[1] = {};
     m_GPUTime[0] = {};
     m_GPUTime[1] = {};
     m_timestamps[0] = {};
     m_timestamps[1] = {};
+    m_queries[0] = {};
+    m_queries[1] = {};
+    m_queries[2] = {};
+    m_queries[3] = {};
+    m_hFence = {};
   }
 
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
@@ -107,6 +111,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hMostBasicTriangleShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/MostBasicTriangle.ezShader");
   m_hNDCPositionOnlyShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/NDCPositionOnly.ezShader");
   m_hConstantBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ConstantBuffer.ezShader");
+  m_hPushConstantsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/PushConstants.ezShader");
   m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Instancing.ezShader");
 
   {
@@ -131,7 +136,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   }
   {
     ezGeometry geom;
-    geom.AddSphere(0.5f, 16, 16);
+    geom.AddStackedSphere(0.5f, 16, 16);
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -139,6 +144,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
   }
+  m_hTestPerFrameConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPerFrame>();
   m_hTestColorsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestColors>();
   m_hTestPositionsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPositions>();
 
@@ -146,9 +152,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTestShaderData);
     desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.
@@ -156,7 +160,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALBufferResourceViewCreationDescription viewDesc;
     viewDesc.m_hBuffer = m_hInstancingData;
     viewDesc.m_uiFirstElement = 8;
     viewDesc.m_uiNumElements = 4;
@@ -210,7 +214,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_hTexture2D = m_pDevice->CreateTexture(desc, initialData);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMostDetailedMipLevel = 0;
     viewDesc.m_uiMipLevelsToUse = 1;
@@ -251,7 +255,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_hTexture2DArray = m_pDevice->CreateTexture(desc, initialData);
 
-    ezGALResourceViewCreationDescription viewDesc;
+    ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2DArray;
     viewDesc.m_uiMipLevelsToUse = 1;
     viewDesc.m_uiFirstArraySlice = 0;
@@ -303,8 +307,15 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DArray.ezShader");
     }
     break;
+    case SubTests::ST_PushConstants:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_SetsSlots:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SetsSlots.ezShader");
+      break;
     case SubTests::ST_Timestamps:
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::Timestamps_MaxWaitTime);
+    case SubTests::ST_OcclusionQueries:
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -322,8 +333,10 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hMostBasicTriangleShader.Invalidate();
   m_hNDCPositionOnlyShader.Invalidate();
   m_hConstantBufferShader.Invalidate();
+  m_hPushConstantsShader.Invalidate();
   m_hInstancingShader.Invalidate();
 
+  m_hTestPerFrameConstantBuffer.Invalidate();
   m_hTestColorsConstantBuffer.Invalidate();
   m_hTestPositionsConstantBuffer.Invalidate();
 
@@ -350,6 +363,12 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTexture2D_Mip2.Invalidate();
   m_hTexture2D_Mip3.Invalidate();
   m_hShader.Invalidate();
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+  {
+    m_queries[i] = {};
+  }
+  m_hFence = {};
 
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
@@ -391,9 +410,26 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
     case SubTests::ST_GenerateMipMaps:
       GenerateMipMaps();
       break;
-    case SubTests::ST_Timestamps:
-      Timestamps();
+    case SubTests::ST_PushConstants:
+      PushConstantsTest();
       break;
+    case SubTests::ST_SetsSlots:
+      SetsSlotsTest();
+      break;
+    case SubTests::ST_Timestamps:
+    {
+      auto res = Timestamps();
+      EndFrame();
+      return res;
+    }
+    break;
+    case SubTests::ST_OcclusionQueries:
+    {
+      auto res = OcclusionQueries();
+      EndFrame();
+      return res;
+    }
+    break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -410,9 +446,9 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
 
 void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
-  BeginPass("MostBasicTriangle");
+  BeginCommands("MostBasicTriangle");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
     {
 
       if (mesh.IsValid())
@@ -436,7 +472,7 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
     EndRendering();
   }
 
-  EndPass();
+  EndCommands();
 }
 
 
@@ -484,14 +520,83 @@ void ezRendererTestPipelineStates::IndexBufferTest()
   RenderBlock(m_hSphereMesh, ezColor::Orange);
 }
 
+void ezRendererTestPipelineStates::PushConstantsTest()
+{
+  const ezUInt32 uiColumns = 4;
+  const ezUInt32 uiRows = 2;
+
+  BeginCommands("PushConstantsTest");
+  {
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+    {
+      pContext->BindShader(m_hPushConstantsShader);
+      pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+      for (ezUInt32 x = 0; x < uiColumns; ++x)
+      {
+        for (ezUInt32 y = 0; y < uiRows; ++y)
+        {
+          ezTestData constants;
+          ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
+          constants.Vertex0 = (t * ezVec3(1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.Vertex1 = (t * ezVec3(-1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.Vertex2 = (t * ezVec3(-0.f, 1.f, 0.0f)).GetAsVec4(1.0f);
+          constants.VertexColor = ezColorScheme::LightUI(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
+
+          pContext->SetPushConstants("ezTestData", constants);
+          pContext->DrawMeshBuffer(1).AssertSuccess();
+        }
+      }
+    }
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
+    EndRendering();
+  }
+  EndCommands();
+}
+
+void ezRendererTestPipelineStates::SetsSlotsTest()
+{
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = 2;
+  const ezUInt32 uiRows = 2;
+  const float fElementWidth = fWidth / uiColumns;
+  const float fElementHeight = fHeight / uiRows;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+
+  auto constants = ezRenderContext::GetConstantBufferData<ezTestPerFrame>(m_hTestPerFrameConstantBuffer);
+  constants->Time = 1.0f;
+  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+  pContext->BindConstantBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
+
+  BeginCommands("SetsSlots");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    m_bCaptureImage = true;
+    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+  }
+  EndCommands();
+}
+
 void ezRendererTestPipelineStates::ConstantBufferTest()
 {
   const ezUInt32 uiColumns = 4;
   const ezUInt32 uiRows = 2;
 
-  BeginPass("ConstantBufferTest");
+  BeginCommands("ConstantBufferTest");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindConstantBuffer("ezTestColors", m_hTestColorsConstantBuffer);
@@ -524,16 +629,16 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 
 void ezRendererTestPipelineStates::StructuredBufferTest()
 {
-  BeginPass("InstancingTest");
+  BeginCommands("InstancingTest");
   {
 
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Discard)
     {
       // Discard previous buffer.
@@ -582,7 +687,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
     }
     EndRendering();
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::Texture2D()
@@ -596,7 +701,7 @@ void ezRendererTestPipelineStates::Texture2D()
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
 
-  BeginPass("Texture2D");
+  BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
@@ -608,7 +713,7 @@ void ezRendererTestPipelineStates::Texture2D()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::Texture2DArray()
@@ -622,7 +727,7 @@ void ezRendererTestPipelineStates::Texture2DArray()
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
 
-  BeginPass("Texture2DArray");
+  BeginCommands("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DArray_Layer0_Mip0);
@@ -634,7 +739,7 @@ void ezRendererTestPipelineStates::Texture2DArray()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer1_Mip1);
   }
-  EndPass();
+  EndCommands();
 }
 
 void ezRendererTestPipelineStates::GenerateMipMaps()
@@ -647,10 +752,10 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   const float fElementHeight = fHeight / uiRows;
 
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
-  BeginPass("GenerateMipMaps");
+  BeginCommands("GenerateMipMaps");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
     pCommandEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
     EndRendering();
 
@@ -663,14 +768,14 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
-  EndPass();
+  EndCommands();
 }
 
-void ezRendererTestPipelineStates::Timestamps()
+ezTestAppRun ezRendererTestPipelineStates::Timestamps()
 {
-  BeginPass("Timestamps");
+  BeginCommands("Timestamps");
   {
-    ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
 
     if (m_iFrame == 2)
     {
@@ -683,29 +788,149 @@ void ezRendererTestPipelineStates::Timestamps()
 
     if (m_iFrame == 2)
       m_timestamps[1] = pCommandEncoder->InsertTimestamp();
+
     EndRendering();
-  }
-  EndPass();
 
-
-  if (m_iFrame > 2 && !m_bTimestampsValid)
-  {
-    if ((m_bTimestampsValid = m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]).Succeeded() && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]).Succeeded()))
+    if (m_iFrame == 2)
     {
-      m_CPUTime[1] = ezTime::Now();
-      EZ_TEST_BOOL_MSG(m_CPUTime[0] <= m_GPUTime[0], "%.6f < %.6f", m_CPUTime[0].GetSeconds(), m_GPUTime[0].GetSeconds());
-      EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.6f < %.6f", m_GPUTime[0].GetSeconds(), m_GPUTime[1].GetSeconds());
-      EZ_TEST_BOOL_MSG(m_GPUTime[1] <= m_CPUTime[1], "%.6f < %.6f", m_GPUTime[1].GetSeconds(), m_CPUTime[1].GetSeconds());
-      ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames and %.3f seconds.", m_iFrame, (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
-      m_ImgCompFrames.Clear();
+      m_hFence = pCommandEncoder->InsertFence();
+      pCommandEncoder->Flush();
     }
   }
-  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
-  if (m_iFrame > 2 && (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds() > 10.0f)
+  EndCommands();
+
+
+  if (m_iFrame >= 2)
   {
-    EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");
-    m_ImgCompFrames.Clear();
+    // #TODO_VULKAN Our CPU / GPU timestamp calibration is not precise enough to allow comparing between zones reliably. Need to implement VK_KHR_calibrated_timestamps.
+    const ezTime epsilon = ezTime::MakeFromMilliseconds(16);
+    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_hFence);
+    if (fenceResult == ezGALAsyncResult::Ready)
+    {
+      if (m_pDevice->GetTimestampResult(m_timestamps[0], m_GPUTime[0]) == ezGALAsyncResult::Ready && m_pDevice->GetTimestampResult(m_timestamps[1], m_GPUTime[1]) == ezGALAsyncResult::Ready)
+      {
+        m_CPUTime[1] = ezTime::Now();
+        EZ_TEST_BOOL_MSG(m_CPUTime[0] <= (m_GPUTime[0] + epsilon), "%.4f < %.4f", m_CPUTime[0].GetMilliseconds(), m_GPUTime[0].GetMilliseconds());
+        EZ_TEST_BOOL_MSG(m_GPUTime[0] <= m_GPUTime[1], "%.4f < %.4f", m_GPUTime[0].GetMilliseconds(), m_GPUTime[1].GetMilliseconds());
+        EZ_TEST_BOOL_MSG(m_GPUTime[1] <= (m_CPUTime[1] + epsilon), "%.4f < %.4f", m_GPUTime[1].GetMilliseconds(), m_CPUTime[1].GetMilliseconds());
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Timestamp results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 2, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_iDelay);
+        return ezTestAppRun::Quit;
+      }
+      else
+      {
+        m_iDelay++;
+      }
+    }
   }
+
+  if (m_iFrame >= 100)
+  {
+    ezLog::Error("Timestamp results did not complete in 100 frames / {} seconds", (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
+    return ezTestAppRun::Quit;
+  }
+  return ezTestAppRun::Continue;
+}
+
+ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
+{
+  BeginCommands("OcclusionQueries");
+  {
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
+
+    // #TODO_VULKAN Vulkan will assert if we don't render something bogus here. The reason is that occlusion queries must be started and stopped within the same render pass. However, as we start the render pass lazily within ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges, the BeginOcclusionQuery call is actually still outside the render pass.
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hNDCPositionOnlyShader);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hTriangleMesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_iFrame == 2)
+    {
+      EZ_TEST_BOOL(m_queries[0].IsInvalidated());
+      m_queries[0] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::NumSamplesPassed);
+      EZ_TEST_BOOL(!m_queries[0].IsInvalidated());
+      pCommandEncoder->EndOcclusionQuery(m_queries[0]);
+
+      EZ_TEST_BOOL(m_queries[1].IsInvalidated());
+      m_queries[1] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::AnySamplesPassed);
+      EZ_TEST_BOOL(!m_queries[1].IsInvalidated());
+      pCommandEncoder->EndOcclusionQuery(m_queries[1]);
+
+      m_queries[2] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::NumSamplesPassed);
+    }
+    else if (m_iFrame == 3)
+    {
+      m_queries[3] = pCommandEncoder->BeginOcclusionQuery(ezGALQueryType::AnySamplesPassed);
+    }
+
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphereMesh);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    if (m_iFrame == 2)
+    {
+      pCommandEncoder->EndOcclusionQuery(m_queries[2]);
+    }
+    else if (m_iFrame == 3)
+    {
+      pCommandEncoder->EndOcclusionQuery(m_queries[3]);
+    }
+    EndRendering();
+
+    if (m_iFrame == 3)
+    {
+      m_CPUTime[0] = ezTime::Now();
+      m_hFence = pCommandEncoder->InsertFence();
+      pCommandEncoder->Flush();
+    }
+  }
+  EndCommands();
+
+  if (m_iFrame >= 3)
+  {
+    ezEnum<ezGALAsyncResult> fenceResult = m_pDevice->GetFenceResult(m_hFence);
+    if (fenceResult == ezGALAsyncResult::Ready)
+    {
+      ezEnum<ezGALAsyncResult> queryResults[4];
+      ezUInt64 queryValues[4];
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+      {
+        queryResults[i] = m_pDevice->GetOcclusionQueryResult(m_queries[i], queryValues[i]);
+        if (!EZ_TEST_BOOL(queryResults[i] != ezGALAsyncResult::Expired))
+        {
+          return ezTestAppRun::Quit;
+        }
+      }
+
+      bool bAllReady = true;
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
+      {
+        if (queryResults[i] != ezGALAsyncResult::Ready)
+          bAllReady = false;
+      }
+
+      if (bAllReady)
+      {
+        ezTestFramework::GetInstance()->Output(ezTestOutput::Message, "Occlusion query results received after %d frames or %.2f ms (%d frames after fence)", m_iFrame - 3, (ezTime::Now() - m_CPUTime[0]).GetMilliseconds(), m_iDelay);
+
+        EZ_TEST_INT(queryValues[0], 0);
+        EZ_TEST_INT(queryValues[1], 0);
+
+        EZ_TEST_BOOL(queryValues[2] >= 1);
+        EZ_TEST_BOOL(queryValues[3] >= 1);
+        return ezTestAppRun::Quit;
+      }
+      else
+      {
+        m_iDelay++;
+      }
+    }
+  }
+
+  if (m_iFrame >= 100)
+  {
+    ezLog::Error("Occlusion query results did not complete in 100 frames / {} seconds", (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds());
+    return ezTestAppRun::Quit;
+  }
+
+  return ezTestAppRun::Continue;
 }
 
 static ezRendererTestPipelineStates g_PipelineStatesTest;

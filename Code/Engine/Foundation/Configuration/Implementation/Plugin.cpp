@@ -18,6 +18,12 @@
 ezResult UnloadPluginModule(ezPluginModule& ref_pModule, ezStringView sPluginFile);
 ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule, ezStringView sPluginFile);
 
+ezDynamicArray<ezString>& GetStaticPlugins()
+{
+  static ezDynamicArray<ezString> s_StaticPlugins;
+  return s_StaticPlugins;
+}
+
 struct ModuleData
 {
   ezPluginModule m_hModule = 0;
@@ -48,7 +54,23 @@ void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
 
 void ezPlugin::InitializeStaticallyLinkedPlugins()
 {
-  g_StaticModule.Initialize();
+  if (!g_StaticModule.m_bCalledOnLoad)
+  {
+    // We need to trigger the ezPlugin events to make sure the sub-systems are initialized at least once.
+    ezPlugin::BeginPluginChanges();
+    EZ_SCOPE_EXIT(ezPlugin::EndPluginChanges());
+    g_StaticModule.Initialize();
+
+#if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
+    EZ_LOG_BLOCK("Initialize Statically Linked Plugins");
+    // Merely add dummy entries so plugins can be enumerated etc.
+    for (ezStringView sPlugin : GetStaticPlugins())
+    {
+      g_LoadedModules.FindOrAdd(sPlugin);
+      ezLog::Debug("Plugin '{0}' statically linked.", sPlugin);
+    }
+#endif
+  }
 }
 
 void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& ref_infos)
@@ -168,6 +190,7 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   }
 
   // delete the plugin copy that we had loaded
+  if (ezPlugin::PlatformNeedsPluginCopy())
   {
     ezStringBuilder sOriginalFile, sCopiedFile;
     ezPlugin::GetPluginPaths(sPluginFile, sOriginalFile, sCopiedFile, g_LoadedModules[sPluginFile].m_uiFileNumber);
@@ -189,6 +212,8 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   return EZ_SUCCESS;
 }
 
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+
 static ezResult LoadPluginInternal(ezStringView sPluginFile, ezBitflags<ezPluginLoadFlags> flags)
 {
   ezUInt8 uiFileNumber = 0;
@@ -202,7 +227,7 @@ static ezResult LoadPluginInternal(ezStringView sPluginFile, ezBitflags<ezPlugin
     return EZ_FAILURE;
   }
 
-  if (flags.IsSet(ezPluginLoadFlags::LoadCopy))
+  if (ezPlugin::PlatformNeedsPluginCopy() && flags.IsSet(ezPluginLoadFlags::LoadCopy))
   {
     // create a copy of the original plugin file
     const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(s_uiMaxParallelInstances);
@@ -277,6 +302,8 @@ success:
   return EZ_SUCCESS;
 }
 
+#endif
+
 bool ezPlugin::ExistsPluginFile(ezStringView sPluginFile)
 {
   ezStringBuilder sOriginalFile, sCopiedFile;
@@ -287,15 +314,10 @@ bool ezPlugin::ExistsPluginFile(ezStringView sPluginFile)
 
 ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadFlags> flags /*= ezPluginLoadFlags::Default*/)
 {
-  if (flags.IsSet(ezPluginLoadFlags::PluginIsOptional))
-  {
-    // early out without logging an error
-
-    if (!ExistsPluginFile(sPluginFile))
-      return EZ_FAILURE;
-  }
-
   EZ_LOG_BLOCK("Loading Plugin", sPluginFile);
+
+  // make sure this is done first
+  InitializeStaticallyLinkedPlugins();
 
   if (g_LoadedModules.Find(sPluginFile).IsValid())
   {
@@ -303,8 +325,17 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
     return EZ_SUCCESS;
   }
 
-  // make sure this is done first
-  InitializeStaticallyLinkedPlugins();
+#if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
+  // #TODO EZ_COMPILE_ENGINE_AS_DLL and being able to load plugins are not necessarily the same thing.
+  return EZ_FAILURE;
+#else
+
+  if (flags.IsSet(ezPluginLoadFlags::PluginIsOptional))
+  {
+    // early out without logging an error
+    if (!ExistsPluginFile(sPluginFile))
+      return EZ_FAILURE;
+  }
 
   ezLog::Debug("Plugin to load: \"{0}\"", sPluginFile);
 
@@ -324,6 +355,7 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
   }
 
   return res;
+#endif
 }
 
 void ezPlugin::UnloadAllPlugins()
@@ -375,4 +407,12 @@ ezPlugin::Init::Init(const char* szAddPluginDependency)
   pMD->m_sPluginDependencies.PushBack(szAddPluginDependency);
 }
 
-
+#if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
+ezPluginRegister::ezPluginRegister(const char* szAddPlugin)
+{
+  if (g_pCurrentlyLoadingModule == nullptr)
+  {
+    GetStaticPlugins().PushBack(szAddPlugin);
+  }
+}
+#endif

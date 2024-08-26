@@ -29,9 +29,29 @@ public:
 
   /// \brief Conversion to ezUInt8*
   ezUInt8* GetData() { return &r; }
+
+  /// \brief Packs the 4 color values into a single uint32 with A in the least significant bits and R in the most significant ones.
+  [[nodiscard]] ezUInt32 ToRGBA8() const
+  {
+    // RGBA (A at lowest address, R at highest)
+    return (static_cast<ezUInt32>(r) << 24) +
+           (static_cast<ezUInt32>(g) << 16) +
+           (static_cast<ezUInt32>(b) << 8) +
+           (static_cast<ezUInt32>(a) << 0);
+  }
+
+  /// \brief Packs the 4 color values into a single uint32 with R in the least significant bits and A in the most significant ones.
+  [[nodiscard]] ezUInt32 ToABGR8() const
+  {
+    // RGBA (A at highest address, R at lowest)
+    return (static_cast<ezUInt32>(a) << 24) +
+           (static_cast<ezUInt32>(b) << 16) +
+           (static_cast<ezUInt32>(g) << 8) +
+           (static_cast<ezUInt32>(r) << 0);
+  }
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorBaseUB) == 4);
+static_assert(sizeof(ezColorBaseUB) == 4);
 
 /// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in linear space.
 ///
@@ -58,9 +78,18 @@ public:
 
   /// \brief Converts this color to ezColor.
   ezColor ToLinearFloat() const; // [tested]
+
+  /// \brief Extracts the values from a uint32 with R at the least significant bits, then G, then B and A at the most significant bits.
+  static ezColorLinearUB MakeFromABGR8(ezUInt32 value)
+  {
+    return ezColorLinearUB(static_cast<ezUInt8>(value >> 0) & 0xFF,
+      static_cast<ezUInt8>(value >> 8) & 0xFF,
+      static_cast<ezUInt8>(value >> 16) & 0xFF,
+      static_cast<ezUInt8>(value >> 24) & 0xFF);
+  }
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorLinearUB) == 4);
+static_assert(sizeof(ezColorLinearUB) == 4);
 
 /// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in gamma space.
 ///
@@ -89,7 +118,7 @@ public:
   ezColor ToLinearFloat() const;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorGammaUB) == 4);
+static_assert(sizeof(ezColorGammaUB) == 4);
 
 
 #include <Foundation/Math/Implementation/Color8UNorm_inl.h>

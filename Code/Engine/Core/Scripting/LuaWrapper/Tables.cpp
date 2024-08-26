@@ -64,5 +64,3 @@ void ezLuaWrapper::CloseAllTables()
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-

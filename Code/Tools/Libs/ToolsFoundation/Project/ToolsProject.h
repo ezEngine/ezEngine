@@ -44,7 +44,7 @@ struct ezToolsProjectRequest
   bool m_bCanClose;                        ///< When the event is sent, interested code can set this to false to prevent closing.
   ezDynamicArray<ezDocument*> m_Documents; ///< In case of 'CanCloseDocuments', these will be the documents in question.
   ezInt32
-    m_iContainerWindowUniqueIdentifier; ///< In case of 'SuggestContainerWindow', the ID of the container to be used for the docs in m_Documents.
+    m_iContainerWindowUniqueIdentifier;    ///< In case of 'SuggestContainerWindow', the ID of the container to be used for the docs in m_Documents.
 
   ezUuid m_documentGuid;
   ezStringBuilder m_sAbsDocumentPath;

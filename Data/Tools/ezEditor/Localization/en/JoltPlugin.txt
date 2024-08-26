@@ -30,6 +30,7 @@ ezJoltHitboxComponent;Hitboxes (Jolt);;https://ezengine.net/pages/docs/physics/j
 ezJoltCharacterControllerComponent;Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltDefaultCharacterComponent;Default Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltGrabObjectComponent;Grab Object (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html
+ezJoltClothSheetComponent;Cloth Sheet (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-cloth-sheet-component.html
 
 # UI
 

@@ -11,10 +11,10 @@ public:
   /// When adding new data types the GetDataTypeSize() of ezProcessingStream needs to be updated.
   enum class DataType : ezUInt8
   {
-    Half,  // ezFloat16
-    Half2, // 2x ezFloat16
-    Half3, // 3x ezFloat16
-    Half4, // 4x ezFloat16
+    Half,   // ezFloat16
+    Half2,  // 2x ezFloat16
+    Half3,  // 3x ezFloat16
+    Half4,  // 4x ezFloat16
 
     Float,  // float
     Float2, // 2x float, e.g. ezVec2

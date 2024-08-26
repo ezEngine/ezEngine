@@ -42,6 +42,7 @@ private:
   ezShaderResourceHandle m_hUVColorDepthShader;
   ezShaderResourceHandle m_hTexture2DShader;
   ezShaderResourceHandle m_hTexture2DIntShader;
+  ezShaderResourceHandle m_hTexture2DUIntShader;
   ezGALTextureHandle m_hTexture2DReadback;
   ezGALTextureHandle m_hTexture2DUpload;
   mutable ezImage m_ReadBackResult;

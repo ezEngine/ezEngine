@@ -18,7 +18,7 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Triangle");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezJoltMesh";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinJoltTriangleMesh";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Jolt_Colmesh_Convex";
@@ -30,7 +30,7 @@ ezJoltCollisionMeshAssetDocumentManager::ezJoltCollisionMeshAssetDocumentManager
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Triangle"); // convex meshes can also be used as triangle meshes (concave)
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Jolt_Colmesh_Convex");
 
-  m_DocTypeDesc2.m_sResourceFileExtension = "ezJoltMesh";
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezBinJoltConvexMesh";
   m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 

@@ -6,4 +6,5 @@ WindowDesc
 	bool %ClipMouseCursor{true}
 	bool %ShowMouseCursor{false}
 	bool %SetForegroundOnInit{true}
+	bool %CenterWindowOnDisplay{true}
 }

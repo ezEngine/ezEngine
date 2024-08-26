@@ -20,9 +20,9 @@ static const char* GALSemanticToDX11[] = {"POSITION", "NORMAL", "TANGENT", "COLO
 
 static UINT GALSemanticToIndexDX11[] = {0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
 
-EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(GALSemanticToDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+static_assert(EZ_ARRAY_SIZE(GALSemanticToDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
   "GALSemanticToDX11 array size does not match vertex attribute semantic count");
-EZ_CHECK_AT_COMPILETIME_MSG(EZ_ARRAY_SIZE(GALSemanticToIndexDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
+static_assert(EZ_ARRAY_SIZE(GALSemanticToIndexDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
   "GALSemanticToIndexDX11 array size does not match vertex attribute semantic count");
 
 EZ_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
@@ -65,7 +65,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
   }
 
 
-  const ezScopedRefPointer<ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
+  const ezSharedPtr<const ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(
         &DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
@@ -80,10 +80,10 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALVertexDeclarationDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXInputLayout);
   return EZ_SUCCESS;
 }
 
 
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Shader_Implementation_VertexDeclarationDX11);

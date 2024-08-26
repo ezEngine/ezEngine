@@ -31,11 +31,17 @@ public:
   /// \brief Initializes x and y with zero, width and height with the given values.
   ezRectTemplate(Type width, Type height);
 
+  /// \brief Initializes x and y from pos, width and height from vSize.
+  ezRectTemplate<Type>(const ezVec2Template<Type>& vTopLeftPosition, const ezVec2Template<Type>& vSize);
+
   /// \brief Creates an 'invalid' rect.
   ///
   /// IsValid() will return false.
   /// It is possible to make an invalid rect valid using ExpandToInclude().
   [[nodiscard]] static ezRectTemplate<Type> MakeInvalid();
+
+  /// \brief Creates a rect that is located at the origin and has zero size. This is a 'valid' rect.
+  [[nodiscard]] static ezRectTemplate<Type> MakeZero();
 
   /// \brief Creates a rect that is the intersection of the two provided rects.
   ///
@@ -72,6 +78,24 @@ public:
   /// The larger value along y. Same as Bottom().
   Type GetY2() const { return y + height; }
 
+  /// \brief Returns the minimum corner position. Same as GetTopLeft().
+  ezVec2Template<Type> GetMinCorner() const { return ezVec2Template<Type>(x, y); }
+
+  /// \brief Returns the maximum corner position. Same as GetBottomRight().
+  ezVec2Template<Type> GetMaxCorner() const { return ezVec2Template<Type>(x + width, y + height); }
+
+  /// \brief Returns the top left corner. Same as GetMinCorner().
+  ezVec2Template<Type> GetTopLeft() const { return ezVec2Template<Type>(x, y); }
+
+  /// \brief Returns the top right corner.
+  ezVec2Template<Type> GetTopRight() const { return ezVec2Template<Type>(x + width, y); }
+
+  /// \brief Returns the bottom left corner.
+  ezVec2Template<Type> GetBottomLeft() const { return ezVec2Template<Type>(x, y + height); }
+
+  /// \brief Returns the bottom right corner. Same as GetMaxCorner().
+  ezVec2Template<Type> GetBottomRight() const { return ezVec2Template<Type>(x + width, y + height); }
+
   /// \brief Returns the center point of the rectangle.
   ezVec2Template<Type> GetCenter() const { return ezVec2Template<Type>(x + width / 2, y + height / 2); }
 
@@ -86,22 +110,23 @@ public:
 
   // *** Common Functions ***
 public:
-  bool operator==(const ezRectTemplate<Type>& rhs) const;
-
-  bool operator!=(const ezRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator==(const ezRectTemplate<Type>& rhs) const;
+  [[nodiscard]] bool operator!=(const ezRectTemplate<Type>& rhs) const;
 
   /// \brief Checks whether the position and size contain valid values.
-  bool IsValid() const;
+  [[nodiscard]] bool IsValid() const;
 
   /// \brief Returns true if the area of the rectangle is non zero
-  bool HasNonZeroArea() const;
+  [[nodiscard]] bool HasNonZeroArea() const;
 
   /// \brief Returns true if the rectangle contains the provided point
-  bool Contains(const ezVec2Template<Type>& vPoint) const;
+  [[nodiscard]] bool Contains(const ezVec2Template<Type>& vPoint) const;
+
+  [[nodiscard]] bool Contains(const ezRectTemplate<Type>& r) const;
 
   /// \brief Returns true if the rectangle overlaps the provided rectangle.
   /// Also returns true if the rectangles are contained within each other completely(no intersecting edges).
-  bool Overlaps(const ezRectTemplate<Type>& other) const;
+  [[nodiscard]] bool Overlaps(const ezRectTemplate<Type>& other) const;
 
   /// \brief Extends this rectangle so that the provided rectangle is completely contained within it.
   void ExpandToInclude(const ezRectTemplate<Type>& other);
@@ -116,7 +141,20 @@ public:
   /// possible distance to the original point.
   [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
 
-  /// \brief Moves the rectangle
+  /// \brief Clamps the given rect to the area of this rect and returns it.
+  ///
+  /// If the input rect is entirely outside this rect, the result will be reduced to a point or a line closest to the input rect.
+  [[nodiscard]] const ezRectTemplate<Type> GetClampedRect(const ezRectTemplate<Type>& r) const
+  {
+    const ezVec2Template<Type> vNewMin = GetClampedPoint(r.GetMinCorner());
+    const ezVec2Template<Type> vNewMax = GetClampedPoint(r.GetMaxCorner());
+    return ezRectTemplate<Type>(vNewMin, vNewMax - vNewMin);
+  }
+
+  /// \brief Sets the center of the rectangle.
+  void SetCenter(Type tX, Type tY);
+
+  /// \brief Moves the rectangle.
   void Translate(Type tX, Type tY);
 
   /// \brief Scales width and height, and moves the position as well.

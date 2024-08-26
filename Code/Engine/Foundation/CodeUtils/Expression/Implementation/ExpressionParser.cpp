@@ -56,6 +56,9 @@ namespace
     {"%"_ezsv, ezExpressionAST::NodeType::Modulo, 5},
   };
 
+  static ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>> s_KnownTypes;
+  static ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> s_BuiltinFunctions;
+
 } // namespace
 
 using namespace ezTokenParseUtils;
@@ -67,6 +70,22 @@ ezExpressionParser::ezExpressionParser()
 }
 
 ezExpressionParser::~ezExpressionParser() = default;
+
+// static
+const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>>& ezExpressionParser::GetKnownTypes()
+{
+  RegisterKnownTypes();
+
+  return s_KnownTypes;
+}
+
+// static
+const ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>>& ezExpressionParser::GetBuiltinFunctions()
+{
+  RegisterBuiltinFunctions();
+
+  return s_BuiltinFunctions;
+}
 
 void ezExpressionParser::RegisterFunction(const ezExpression::FunctionDesc& funcDesc)
 {
@@ -123,17 +142,21 @@ ezResult ezExpressionParser::Parse(ezStringView sCode, ezArrayPtr<ezExpression::
   return EZ_SUCCESS;
 }
 
+// static
 void ezExpressionParser::RegisterKnownTypes()
 {
-  m_KnownTypes.Insert(ezMakeHashedString("var"), ezExpressionAST::DataType::Unknown);
+  if (s_KnownTypes.IsEmpty() == false)
+    return;
 
-  m_KnownTypes.Insert(ezMakeHashedString("vec2"), ezExpressionAST::DataType::Float2);
-  m_KnownTypes.Insert(ezMakeHashedString("vec3"), ezExpressionAST::DataType::Float3);
-  m_KnownTypes.Insert(ezMakeHashedString("vec4"), ezExpressionAST::DataType::Float4);
+  s_KnownTypes.Insert(ezMakeHashedString("var"), ezExpressionAST::DataType::Unknown);
 
-  m_KnownTypes.Insert(ezMakeHashedString("vec2i"), ezExpressionAST::DataType::Int2);
-  m_KnownTypes.Insert(ezMakeHashedString("vec3i"), ezExpressionAST::DataType::Int3);
-  m_KnownTypes.Insert(ezMakeHashedString("vec4i"), ezExpressionAST::DataType::Int4);
+  s_KnownTypes.Insert(ezMakeHashedString("vec2"), ezExpressionAST::DataType::Float2);
+  s_KnownTypes.Insert(ezMakeHashedString("vec3"), ezExpressionAST::DataType::Float3);
+  s_KnownTypes.Insert(ezMakeHashedString("vec4"), ezExpressionAST::DataType::Float4);
+
+  s_KnownTypes.Insert(ezMakeHashedString("vec2i"), ezExpressionAST::DataType::Int2);
+  s_KnownTypes.Insert(ezMakeHashedString("vec3i"), ezExpressionAST::DataType::Int3);
+  s_KnownTypes.Insert(ezMakeHashedString("vec4i"), ezExpressionAST::DataType::Int4);
 
   ezStringBuilder sTypeName;
   for (ezUInt32 type = ezExpressionAST::DataType::Bool; type < ezExpressionAST::DataType::Count; ++type)
@@ -144,54 +167,59 @@ void ezExpressionParser::RegisterKnownTypes()
     ezHashedString sTypeNameHashed;
     sTypeNameHashed.Assign(sTypeName);
 
-    m_KnownTypes.Insert(sTypeNameHashed, static_cast<ezExpressionAST::DataType::Enum>(type));
+    s_KnownTypes.Insert(sTypeNameHashed, static_cast<ezExpressionAST::DataType::Enum>(type));
   }
 }
 
 void ezExpressionParser::RegisterBuiltinFunctions()
 {
+  if (s_BuiltinFunctions.IsEmpty() == false)
+    return;
+
   // Unary
-  m_BuiltinFunctions.Insert(ezMakeHashedString("abs"), ezExpressionAST::NodeType::Absolute);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("saturate"), ezExpressionAST::NodeType::Saturate);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("sqrt"), ezExpressionAST::NodeType::Sqrt);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("exp"), ezExpressionAST::NodeType::Exp);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("ln"), ezExpressionAST::NodeType::Ln);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("log2"), ezExpressionAST::NodeType::Log2);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("log10"), ezExpressionAST::NodeType::Log10);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("pow2"), ezExpressionAST::NodeType::Pow2);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("sin"), ezExpressionAST::NodeType::Sin);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("cos"), ezExpressionAST::NodeType::Cos);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("tan"), ezExpressionAST::NodeType::Tan);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("asin"), ezExpressionAST::NodeType::ASin);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("acos"), ezExpressionAST::NodeType::ACos);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("atan"), ezExpressionAST::NodeType::ATan);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("radToDeg"), ezExpressionAST::NodeType::RadToDeg);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("rad_to_deg"), ezExpressionAST::NodeType::RadToDeg);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("degToRad"), ezExpressionAST::NodeType::DegToRad);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("deg_to_rad"), ezExpressionAST::NodeType::DegToRad);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("round"), ezExpressionAST::NodeType::Round);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("floor"), ezExpressionAST::NodeType::Floor);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("ceil"), ezExpressionAST::NodeType::Ceil);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("trunc"), ezExpressionAST::NodeType::Trunc);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("frac"), ezExpressionAST::NodeType::Frac);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("length"), ezExpressionAST::NodeType::Length);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("normalize"), ezExpressionAST::NodeType::Normalize);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("all"), ezExpressionAST::NodeType::All);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("any"), ezExpressionAST::NodeType::Any);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("abs"), ezExpressionAST::NodeType::Absolute);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("saturate"), ezExpressionAST::NodeType::Saturate);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("sqrt"), ezExpressionAST::NodeType::Sqrt);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("exp"), ezExpressionAST::NodeType::Exp);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("ln"), ezExpressionAST::NodeType::Ln);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("log2"), ezExpressionAST::NodeType::Log2);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("log10"), ezExpressionAST::NodeType::Log10);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("pow2"), ezExpressionAST::NodeType::Pow2);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("sin"), ezExpressionAST::NodeType::Sin);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("cos"), ezExpressionAST::NodeType::Cos);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("tan"), ezExpressionAST::NodeType::Tan);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("asin"), ezExpressionAST::NodeType::ASin);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("acos"), ezExpressionAST::NodeType::ACos);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("atan"), ezExpressionAST::NodeType::ATan);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("radToDeg"), ezExpressionAST::NodeType::RadToDeg);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("rad_to_deg"), ezExpressionAST::NodeType::RadToDeg);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("degToRad"), ezExpressionAST::NodeType::DegToRad);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("deg_to_rad"), ezExpressionAST::NodeType::DegToRad);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("round"), ezExpressionAST::NodeType::Round);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("floor"), ezExpressionAST::NodeType::Floor);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("ceil"), ezExpressionAST::NodeType::Ceil);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("trunc"), ezExpressionAST::NodeType::Trunc);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("frac"), ezExpressionAST::NodeType::Frac);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("length"), ezExpressionAST::NodeType::Length);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("normalize"), ezExpressionAST::NodeType::Normalize);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("all"), ezExpressionAST::NodeType::All);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("any"), ezExpressionAST::NodeType::Any);
 
   // Binary
-  m_BuiltinFunctions.Insert(ezMakeHashedString("mod"), ezExpressionAST::NodeType::Modulo);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("log"), ezExpressionAST::NodeType::Log);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("pow"), ezExpressionAST::NodeType::Pow);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("dot"), ezExpressionAST::NodeType::Dot);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("cross"), ezExpressionAST::NodeType::Cross);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("reflect"), ezExpressionAST::NodeType::Reflect);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("mod"), ezExpressionAST::NodeType::Modulo);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("log"), ezExpressionAST::NodeType::Log);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("pow"), ezExpressionAST::NodeType::Pow);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("min"), ezExpressionAST::NodeType::Min);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("max"), ezExpressionAST::NodeType::Max);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("dot"), ezExpressionAST::NodeType::Dot);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("cross"), ezExpressionAST::NodeType::Cross);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("reflect"), ezExpressionAST::NodeType::Reflect);
 
   // Ternary
-  m_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
-  m_BuiltinFunctions.Insert(ezMakeHashedString("lerp"), ezExpressionAST::NodeType::Lerp);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("clamp"), ezExpressionAST::NodeType::Clamp);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("lerp"), ezExpressionAST::NodeType::Lerp);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("smoothstep"), ezExpressionAST::NodeType::SmoothStep);
+  s_BuiltinFunctions.Insert(ezMakeHashedString("smootherstep"), ezExpressionAST::NodeType::SmootherStep);
 }
 
 void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs)
@@ -201,6 +229,7 @@ void ezExpressionParser::SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> 
   for (auto& inputDesc : inputs)
   {
     auto pInput = m_pAST->CreateInput(inputDesc);
+    m_pAST->m_InputNodes.PushBack(pInput);
     m_KnownVariables.Insert(inputDesc.m_sName, pInput);
   }
 
@@ -243,7 +272,7 @@ ezResult ezExpressionParser::ParseStatement()
 ezResult ezExpressionParser::ParseType(ezStringView sTypeName, ezEnum<ezExpressionAST::DataType>& out_type)
 {
   ezTempHashedString sTypeNameHashed(sTypeName);
-  if (m_KnownTypes.TryGetValue(sTypeNameHashed, out_type))
+  if (s_KnownTypes.TryGetValue(sTypeNameHashed, out_type))
   {
     return EZ_SUCCESS;
   }
@@ -540,7 +569,8 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
       return nullptr;
   }
 
-  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult {
+  auto CheckArgumentCount = [&](ezUInt32 uiExpectedArgumentCount) -> ezResult
+  {
     if (arguments.GetCount() != uiExpectedArgumentCount)
     {
       ReportError(pFunctionToken, ezFmt("Invalid argument count for '{}'. Expected {} but got {}", sFunctionName, uiExpectedArgumentCount, arguments.GetCount()));
@@ -553,7 +583,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   sHashedFuncName.Assign(sFunctionName);
 
   ezEnum<ezExpressionAST::DataType> dataType;
-  if (m_KnownTypes.TryGetValue(sHashedFuncName, dataType))
+  if (s_KnownTypes.TryGetValue(sHashedFuncName, dataType))
   {
     ezUInt32 uiElementCount = ezExpressionAST::DataType::GetElementCount(dataType);
     if (arguments.GetCount() > uiElementCount)
@@ -566,7 +596,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   }
 
   ezEnum<ezExpressionAST::NodeType> builtinType;
-  if (m_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
+  if (s_BuiltinFunctions.TryGetValue(sHashedFuncName, builtinType))
   {
     if (ezExpressionAST::NodeType::IsUnary(builtinType))
     {
@@ -645,7 +675,8 @@ bool ezExpressionParser::AcceptOperator(ezStringView sName)
 
   for (ezUInt32 charIndex = 0; charIndex < uiOperatorLength; ++charIndex)
   {
-    if (m_TokenStream[m_uiCurrentToken + charIndex]->m_DataView.GetCharacter() != sName.GetStartPointer()[charIndex])
+    const ezUInt32 c = sName.GetStartPointer()[charIndex];
+    if (m_TokenStream[m_uiCurrentToken + charIndex]->m_DataView.GetCharacter() != c)
     {
       return false;
     }
@@ -740,5 +771,3 @@ ezResult ezExpressionParser::CheckOutputs()
 
   return EZ_SUCCESS;
 }
-
-

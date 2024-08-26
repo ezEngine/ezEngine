@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Math/Math.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <stdarg.h>
 
@@ -25,7 +26,7 @@
 //  Small values (bytes / shorts) don't get any larger by this, I don't see anything that could be done
 //  differently knowing these values are supposed to be bytes or shorts.
 
-//#define USE_STRICT_SPECIFICATION
+// #define USE_STRICT_SPECIFICATION
 
 struct sprintfFlags
 {
@@ -874,7 +875,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
   va_list args;
   va_copy(args, szArgs0);
 
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
 
   // make sure the last character is a \0
   if ((szOutputBuffer) && (uiBufferSize > 0))
@@ -1089,5 +1090,3 @@ void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBuffer
   OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
     false, bScientific, bRemoveTrailingZeroes);
 }
-
-

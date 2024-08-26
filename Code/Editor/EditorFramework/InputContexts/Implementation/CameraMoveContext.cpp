@@ -256,8 +256,8 @@ ezEditorInput ezCameraMoveContext::DoKeyPressEvent(QKeyEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInput::MayBeHandledByOthers;
 
-  //if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
-  //  return ezEditorInput::MayBeHandledByOthers;
+  // if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
+  //   return ezEditorInput::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
 
@@ -373,9 +373,13 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
       m_bMoveCamera = false;
 
       if ((e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0)
+      {
         m_bOrbitCamera = true;
-      else
+      }
+      else if (!e->modifiers().testAnyFlags(Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::ShiftModifier))
+      {
         m_bMoveCamera = true;
+      }
 
       m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[0] = false;
@@ -394,8 +398,10 @@ ezEditorInput ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
       {
         m_bPanOrbitPoint = true;
       }
-      else
+      else if (!e->modifiers().testAnyFlags(Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::ShiftModifier))
+      {
         m_bMoveCameraInPlane = true;
+      }
 
       m_vLastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
       m_bDidMoveMouse[2] = false;
@@ -723,12 +729,31 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   }
 }
 
+void ezCameraMoveContext::OnActivated()
+{
+  m_LastUpdate = ezTime::Now();
+}
+
 ezEditorInput ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
 {
-  if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
-    return ezEditorInput::WasExclusivelyHandled; // ignore it, but others should not handle it either
-
   const ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+
+  if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
+  {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    if (e->angleDelta().y() > 0)
+#else
+    if (e->delta() > 0)
+#endif
+    {
+      SetMoveSpeed(pPreferences->GetCameraSpeed() + 1);
+    }
+    else
+    {
+      SetMoveSpeed(pPreferences->GetCameraSpeed() - 1);
+    }
+    return ezEditorInput::WasExclusivelyHandled; // ignore it, but others should not handle it either
+  }
 
   if (m_pCamera->IsOrthographic())
   {

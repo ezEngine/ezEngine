@@ -325,6 +325,7 @@ bool ezDecalComponent::GetMapNormalToGeometry() const
 
 void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
+  m_Decals.EnsureCount(uiIndex + 1);
   m_Decals[uiIndex] = hDecal;
 
   TriggerLocalBoundsUpdate();
@@ -414,7 +415,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize) {
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize)
+      {
         ezVec4 result;
         result.x = (float)layerRect.width / vTextureSize.x * 0.5f;
         result.y = (float)layerRect.height / vTextureSize.y * 0.5f;
@@ -596,30 +598,27 @@ ezUInt32 ezDecalComponent::DecalFile_GetCount() const
   return m_Decals.GetCount();
 }
 
-const char* ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
+ezString ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
 {
-  if (!m_Decals[uiIndex].IsValid())
-    return "";
-
   return m_Decals[uiIndex].GetResourceID();
 }
 
-void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
+void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, ezString sFile)
 {
   ezDecalResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezDecalResource>(sFile);
   }
 
   SetDecal(uiIndex, hResource);
 }
 
-void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
+void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, ezString sFile)
 {
-  m_Decals.Insert(ezDecalResourceHandle(), uiIndex);
-  DecalFile_Set(uiIndex, szFile);
+  m_Decals.InsertAt(uiIndex, ezDecalResourceHandle());
+  DecalFile_Set(uiIndex, sFile);
 }
 
 void ezDecalComponent::DecalFile_Remove(ezUInt32 uiIndex)

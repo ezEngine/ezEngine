@@ -52,7 +52,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
     if (false)
     {
       ezStringBuilder sOut;
-      sOut.Format("D:/atlas_{}.dds", layerIdx);
+      sOut.SetFormat("D:/atlas_{}.dds", layerIdx);
 
       ezFileWriter fOut;
       if (fOut.Open(sOut).Succeeded())
@@ -344,5 +344,3 @@ ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreatio
 
   return EZ_SUCCESS;
 }
-
-

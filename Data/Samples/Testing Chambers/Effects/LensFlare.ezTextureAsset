@@ -25,6 +25,7 @@ o
 		{
 			s{"Effects/LensFlare.png"}
 		}
+		s %Tags{""}
 	}
 }
 }

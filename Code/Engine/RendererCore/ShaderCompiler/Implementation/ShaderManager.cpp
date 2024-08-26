@@ -1,7 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/Shader/ShaderHelper.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -18,10 +18,10 @@ namespace
   {
     ezHashedString m_sName;
     ezVariant m_DefaultValue;
-    ezDynamicArray<ezShaderParser::EnumValue, ezStaticAllocatorWrapper> m_EnumValues;
+    ezDynamicArray<ezShaderParser::EnumValue, ezStaticsAllocatorWrapper> m_EnumValues;
   };
 
-  static ezDeque<PermutationVarConfig, ezStaticAllocatorWrapper> s_PermutationVarConfigsStorage;
+  static ezDeque<PermutationVarConfig, ezStaticsAllocatorWrapper> s_PermutationVarConfigsStorage;
   static ezHashTable<ezHashedString, PermutationVarConfig*> s_PermutationVarConfigs;
   static ezMutex s_PermutationVarConfigsMutex;
 
@@ -112,14 +112,12 @@ namespace
 
 void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
-  s_sShaderCacheDirectory = szShaderCacheDirectory;
-  s_sPermVarSubDir = szPermVarSubDirectory;
-
   ezStringBuilder s = szActivePlatform;
   s.ToUpper();
-
-  s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
   s_sPlatform = s;
+  s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
+  s_sShaderCacheDirectory = szShaderCacheDirectory;
+  s_sPermVarSubDir = szPermVarSubDirectory;
 }
 
 void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)
@@ -132,7 +130,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   }
 
   ezStringBuilder sPath;
-  sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
+  sPath.SetFormat("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
 
   ezStringBuilder sTemp = s_sPlatform;
   sTemp.Append(" 1");
@@ -328,7 +326,7 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(ezStringView sResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)ezHashingUtils::StringHashTo32(uiResourceIdHash) << 32 | uiPermutationHash;
 
@@ -337,7 +335,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
   {
     ezStringBuilder sShaderFile = GetCacheDirectory();
     sShaderFile.AppendPath(GetActivePlatform().GetData());
-    sShaderFile.AppendPath(szResourceId);
+    sShaderFile.AppendPath(sResourceId);
     sShaderFile.ChangeFileExtension("");
     if (sShaderFile.EndsWith("."))
       sShaderFile.Shrink(0, 1);
@@ -360,5 +358,3 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
 
   return hShaderPermutation;
 }
-
-

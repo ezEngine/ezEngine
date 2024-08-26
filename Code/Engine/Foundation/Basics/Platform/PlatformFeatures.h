@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_GLFW_SUPPORT
+#  define EZ_SUPPORTS_GLFW EZ_ON
+#else
+#  define EZ_SUPPORTS_GLFW EZ_OFF
+#endif
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/PlatformFeatures_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
@@ -11,7 +17,6 @@
 #else
 #  error "Undefined platform!"
 #endif
-
 
 // now check that the defines for each feature are set (either to 1 or 0, but they must be defined)
 

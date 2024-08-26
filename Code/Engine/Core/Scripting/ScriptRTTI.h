@@ -71,7 +71,9 @@ public:
   ezReflectedClass& GetOwner() { return m_Owner; }
   ezWorld* GetWorld() { return m_pWorld; }
 
-  virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) = 0;
+  virtual void SetInstanceVariables(const ezArrayMap<ezHashedString, ezVariant>& parameters);
+  virtual void SetInstanceVariable(const ezHashedString& sName, const ezVariant& value) = 0;
+  virtual ezVariant GetInstanceVariable(const ezHashedString& sName) = 0;
 
 private:
   ezReflectedClass& m_Owner;
@@ -80,7 +82,7 @@ private:
 
 struct EZ_CORE_DLL ezScriptAllocator
 {
-  static ezAllocatorBase* GetAllocator();
+  static ezAllocator* GetAllocator();
 };
 
 /// \brief creates a new instance of type using the script allocator

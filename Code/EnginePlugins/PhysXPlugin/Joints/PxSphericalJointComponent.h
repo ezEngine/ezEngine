@@ -35,17 +35,17 @@ public:
   void SetLimitMode(ezPxJointLimitMode::Enum mode);                     // [ property ]
   ezPxJointLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
-  ezAngle GetConeLimitY() const { return m_ConeLimitY; } // [ property ]
-  void SetConeLimitY(ezAngle v);                         // [ property ]
+  ezAngle GetConeLimitY() const { return m_ConeLimitY; }                // [ property ]
+  void SetConeLimitY(ezAngle v);                                        // [ property ]
 
-  ezAngle GetConeLimitZ() const { return m_ConeLimitZ; } // [ property ]
-  void SetConeLimitZ(ezAngle v);                         // [ property ]
+  ezAngle GetConeLimitZ() const { return m_ConeLimitZ; }                // [ property ]
+  void SetConeLimitZ(ezAngle v);                                        // [ property ]
 
-  void SetSpringStiffness(float f);                               // [ property ]
-  float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
+  void SetSpringStiffness(float f);                                     // [ property ]
+  float GetSpringStiffness() const { return m_fSpringStiffness; }       // [ property ]
 
-  void SetSpringDamping(float f);                             // [ property ]
-  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
+  void SetSpringDamping(float f);                                       // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; }           // [ property ]
 
   virtual void ApplySettings() final override;
 

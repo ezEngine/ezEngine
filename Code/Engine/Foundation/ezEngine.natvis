@@ -11,24 +11,23 @@
 		<StringView>m_Data.m_pElements,s8</StringView>
 		<Expand>
 			<Item Name="String">m_Data.m_pElements,s8</Item>
-			<Item Name="CharacterCount">m_uiCharacterCount</Item>
 			<Item Name="ElementCount">m_Data.m_uiCount</Item>
 		</Expand>
 	</Type>
 
-	<Type Name="ezStringView">
-		<DisplayString Condition="m_pStart != 0">{m_pStart,[m_pEnd - m_pStart]s8}</DisplayString>
-		<DisplayString Condition="m_pStart == 0">&lt;Invalid String&gt;</DisplayString>
-		<StringView>m_pStart,[m_pEnd - m_pStart]s8</StringView>
-		<Expand>
-			<Item Name="String" Condition="m_pStart != 0">m_pStart,[m_pEnd - m_pStart]s8</Item>
-			<Item Name="ElementCount" Condition="m_pStart != 0">m_pEnd - m_pStart</Item>
-			<Item Name="Valid">m_pStart != 0</Item>
-			<Item Name="ZeroTerminated" Condition="m_pEnd != 0">m_pEnd[0] == 0</Item>
-		</Expand>
-	</Type>	
-	
-	<Type Name="ezStringIterator">
+    <Type Name="ezStringView">
+        <DisplayString Condition="m_pStart != 0">{m_pStart,[m_uiElementCount]}</DisplayString>
+        <DisplayString Condition="m_pStart == 0">&lt;Invalid String&gt;</DisplayString>
+        <StringView>m_pStart,[m_uiElementCount]</StringView>
+        <Expand>
+            <Item Name="String" Condition="m_pStart != 0">m_pStart,[m_uiElementCount]</Item>
+            <Item Name="ElementCount">m_uiElementCount</Item>
+            <Item Name="Valid">m_pStart != 0</Item>
+            <Item Name="ZeroTerminated" Condition="m_pStart != 0">m_pStart[m_uiElementCount] == 0</Item>
+        </Expand>
+    </Type>
+
+    <Type Name="ezStringIterator">
 		<AlternativeType Name="ezStringReverseIterator" />
 		<DisplayString Condition="m_pElement == 0">&lt;Invalid Iterator&gt;</DisplayString>
 		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) != 0x80">{m_pElement,[1]s8}</DisplayString>

@@ -1,10 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -497,7 +497,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
   ezStringBuilder sAbsFilePath;
   (*pOuterStream) >> sAbsFilePath;
 
-  if (sAbsFilePath.HasExtension("ezMaterialBin"))
+  if (sAbsFilePath.HasExtension("ezBinMaterial"))
   {
     ezStringBuilder sTemp, sTemp2;
 
@@ -506,7 +506,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
 
     ezUInt8 uiVersion = 0;
     (*pOuterStream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Unknown ezMaterialBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Unknown ezBinMaterial version {0}", uiVersion);
 
     ezUInt8 uiCompressionMode = 0;
     if (uiVersion >= 6)
@@ -662,7 +662,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
         m_mDesc.m_RenderDataCategory = ezRenderData::FindCategory(sCategoryNameHashed);
         if (m_mDesc.m_RenderDataCategory == ezInvalidRenderDataCategory)
         {
-          ezLog::Error("Material '{}' uses an invalid render data category '{}'", GetResourceDescription(), sRenderDataCategoryName);
+          ezLog::Error("Material '{}' uses an invalid render data category '{}'", GetResourceIdOrDescription(), sRenderDataCategoryName);
         }
       }
     }
@@ -697,8 +697,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
       }
     }
   }
-
-  if (sAbsFilePath.HasExtension("ezMaterial"))
+  else if (sAbsFilePath.HasExtension("ezMaterial"))
   {
     ezOpenDdlReader reader;
 
@@ -785,6 +784,10 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
         }
       }
     }
+  }
+  else
+  {
+    ezLog::Error("Unknown material file type: '{}'", sAbsFilePath);
   }
 
   if (m_mDesc.m_hBaseMaterial.IsValid())
@@ -891,13 +894,13 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
   if (pShaderPermutation == nullptr)
     return;
 
-  ezTempHashedString sConstantBufferName("ezMaterialConstants");
-  const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
-  if (pBinding == nullptr)
-  {
-    pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
-  }
+  const ezGALShader* pShader = ezGALDevice::GetDefaultDevice()->GetShader(pShaderPermutation->GetGALShader());
+  if (pShader == nullptr)
+    return;
 
+  ezTempHashedString sConstantBufferName("ezMaterialConstants");
+
+  const ezShaderResourceBinding* pBinding = pShader->GetShaderResourceBinding(sConstantBufferName);
   const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout : nullptr;
   if (pLayout == nullptr)
     return;
@@ -925,7 +928,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
 
     for (auto& constant : pLayout->m_Constants)
     {
-      if (constant.m_uiOffset + ezShaderConstantBufferLayout::Constant::s_TypeSize[constant.m_Type.GetValue()] <= data.GetCount())
+      if (constant.m_uiOffset + ezShaderConstant::s_TypeSize[constant.m_Type.GetValue()] <= data.GetCount())
       {
         ezUInt8* pDest = &data[constant.m_uiOffset];
 
@@ -1054,7 +1057,7 @@ namespace
     ezUInt64 m_uiFrame;
   };
 
-  static ezDynamicArray<FreeCacheEntry, ezStaticAllocatorWrapper> s_FreeMaterialCacheEntries;
+  static ezDynamicArray<FreeCacheEntry, ezStaticsAllocatorWrapper> s_FreeMaterialCacheEntries;
 } // namespace
 
 void ezMaterialResource::CachedValues::Reset()

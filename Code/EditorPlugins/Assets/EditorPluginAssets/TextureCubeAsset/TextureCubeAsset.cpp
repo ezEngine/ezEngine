@@ -42,11 +42,11 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.Format("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.Format("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -72,7 +72,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   if (pProp->m_TextureUsage == ezTexConvUsage::Hdr)
   {
     arguments << "-hdrExposure";
-    temp.Format("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
+    temp.SetFormat("{0}", ezArgF(pProp->m_fHdrExposureBias, 2));
     arguments << temp.GetData();
   }
 
@@ -145,12 +145,12 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
     if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
       break;
 
-    temp.Format("-in{0}", i);
+    temp.SetFormat("-in{0}", i);
     arguments << temp.GetData();
     arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
   }
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -195,7 +195,6 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
 
 ezTransformStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
   ezTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
@@ -263,7 +262,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputF
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -274,11 +273,13 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezTextureCubeAssetDocument* pAssetDoc = ezDynamicCast<ezTextureCubeAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezTextureCubeAssetDocument* pAssetDoc = ezDynamicCast<ezTextureCubeAssetDocument*>(pDoc);
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", sInputFileRel.GetView());

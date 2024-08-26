@@ -27,7 +27,7 @@ template <class T> class RefConst;
 /// some responsibility to the programmer. The most notable point is that you cannot
 /// have one object reference another and have the other reference the first one
 /// back, because this way the reference count of both objects will never become
-/// lower than 1, resulting in a memory leak. By carefully designing your classses
+/// lower than 1, resulting in a memory leak. By carefully designing your classes
 /// (and particularly identifying who owns who in the class hierarchy) you can avoid
 /// these problems.
 template <class T>
@@ -62,7 +62,7 @@ public:
 		// Releasing a reference must use release semantics...
 		if (mRefCount.fetch_sub(1, memory_order_release) == 1)
 		{
-			// ... so that we can use aquire to ensure that we see any updates from other threads that released a ref before deleting the object
+			// ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before deleting the object
 			atomic_thread_fence(memory_order_acquire);
 			delete static_cast<const T *>(this);
 		}
@@ -108,7 +108,7 @@ public:
 	inline					~Ref()											{ Release(); }
 
 	/// Assignment operators
-	inline Ref<T> &			operator = (T *inRHS) 							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline Ref<T> &			operator = (T *inRHS)							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (Ref<T> &&inRHS) noexcept			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
 
@@ -116,7 +116,7 @@ public:
 	inline					operator T *() const							{ return mPtr; }
 
 	/// Access like a normal pointer
-	inline T * 				operator -> () const							{ return mPtr; }
+	inline T *				operator -> () const							{ return mPtr; }
 	inline T &				operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -126,7 +126,7 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline T * 				GetPtr() const									{ return mPtr; }
+	inline T *				GetPtr() const									{ return mPtr; }
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return reinterpret_cast<void **>(&mPtr); }
@@ -160,7 +160,7 @@ public:
 	inline					~RefConst()										{ Release(); }
 
 	/// Assignment operators
-	inline RefConst<T> &	operator = (const T * inRHS) 					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline RefConst<T> &	operator = (const T * inRHS)					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (const RefConst<T> &inRHS)			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (RefConst<T> &&inRHS) noexcept		{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
 	inline RefConst<T> &	operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
@@ -170,7 +170,7 @@ public:
 	inline					operator const T * () const						{ return mPtr; }
 
 	/// Access like a normal pointer
-	inline const T * 	 	operator -> () const							{ return mPtr; }
+	inline const T *		operator -> () const							{ return mPtr; }
 	inline const T &		operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -182,7 +182,7 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline const T * 		GetPtr() const									{ return mPtr; }
+	inline const T *		GetPtr() const									{ return mPtr; }
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return const_cast<void **>(reinterpret_cast<const void **>(&mPtr)); }

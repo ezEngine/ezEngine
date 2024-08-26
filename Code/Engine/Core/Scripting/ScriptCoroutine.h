@@ -72,7 +72,7 @@ public:
     ezTime m_MaxDelay = ezTime::MakeZero();
   };
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) = 0;
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) = 0;
   virtual void Stop() {}
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) = 0;
 
@@ -104,7 +104,7 @@ private:
     static_cast<Derived*>(this)->Start(ezVariantAdapter<typename getArgument<I, Args...>::Type>(arguments[I])...);
   }
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) override
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override
   {
     StartImpl(arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
@@ -157,8 +157,18 @@ public:
   virtual const ezRTTI* GetReturnType() const override { return nullptr; }
   virtual ezBitflags<ezPropertyFlags> GetReturnFlags() const override { return ezPropertyFlags::Void; }
   virtual ezUInt32 GetArgumentCount() const override { return 0; }
-  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override { return nullptr; }
-  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override { return ezPropertyFlags::Void; }
+
+  virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override
+  {
+    EZ_IGNORE_UNUSED(uiParamIndex);
+    return nullptr;
+  }
+
+  virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override
+  {
+    EZ_IGNORE_UNUSED(uiParamIndex);
+    return ezPropertyFlags::Void;
+  }
 
   virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override;
 
@@ -192,5 +202,16 @@ struct ezHashHelper<ezScriptCoroutineHandle>
 };
 
 /// \brief Currently not implemented as it is not needed for coroutine handles.
-EZ_ALWAYS_INLINE void operator<<(ezStreamWriter& inout_stream, const ezScriptCoroutineHandle& hValue) {}
-EZ_ALWAYS_INLINE void operator>>(ezStreamReader& inout_stream, ezScriptCoroutineHandle& ref_hValue) {}
+EZ_ALWAYS_INLINE void operator<<(ezStreamWriter& inout_stream, const ezScriptCoroutineHandle& hValue)
+{
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(hValue);
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+EZ_ALWAYS_INLINE void operator>>(ezStreamReader& inout_stream, ezScriptCoroutineHandle& ref_hValue)
+{
+  EZ_IGNORE_UNUSED(inout_stream);
+  EZ_IGNORE_UNUSED(ref_hValue);
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}

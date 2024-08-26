@@ -27,7 +27,12 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 
   return message;
 }
+#else
 
+#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
+
+EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
+{
+  return "NOT_SUPPORTED";
+}
 #endif
-
-

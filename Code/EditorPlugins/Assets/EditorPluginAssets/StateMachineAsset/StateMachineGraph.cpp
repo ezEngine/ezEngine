@@ -2,8 +2,7 @@
 
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraphQt.moc.h>
-#include <GameEngine/StateMachine/StateMachine.h>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <SharedPluginAssets/StateMachineAsset/StateMachineGraphTypes.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
@@ -41,83 +40,34 @@ ezStateMachinePin::ezStateMachinePin(Type type, const ezDocumentObject* pObject)
 
 //////////////////////////////////////////////////////////////////////////
 
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineConnection, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Type", m_pType)->AddFlags(ezPropertyFlags::PointerOwner)
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineNodeBase, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineNode, 1, ezRTTINoAllocator)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDefaultValueAttribute(ezStringView("State"))), // wrap in ezStringView to prevent a memory leak report
-    EZ_MEMBER_PROPERTY("Type", m_pType)->AddFlags(ezPropertyFlags::PointerOwner),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineNodeAny, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
+constexpr const char* s_szIsInitialState = "IsInitialState";
 
 ezStateMachineNodeManager::ezStateMachineNodeManager()
 {
-  m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::ObjectHandler, this));
+  m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::StructureEventHandler, this));
 }
 
 ezStateMachineNodeManager::~ezStateMachineNodeManager()
 {
-  m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::ObjectHandler, this));
+  m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezStateMachineNodeManager::StructureEventHandler, this));
 }
 
-void ezStateMachineNodeManager::SetInitialState(const ezDocumentObject* pObject)
+bool ezStateMachineNodeManager::IsInitialState(const ezDocumentObject* pObject) const
 {
-  if (m_pInitialStateObject == pObject)
-    return;
+  return pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == true;
+}
 
-  EZ_ASSERT_DEV(IsAnyState(pObject) == false, "'Any State' can't be initial state");
-
-  auto BroadcastEvent = [this](const ezDocumentObject* pObject) {
-    if (pObject != nullptr)
+const ezDocumentObject* ezStateMachineNodeManager::GetInitialState() const
+{
+  for (auto pObject : GetRootObject()->GetChildren())
+  {
+    if (IsNode(pObject) && IsInitialState(pObject))
     {
-      ezDocumentObjectPropertyEvent e;
-      e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertySet;
-      e.m_pObject = pObject;
-
-      m_PropertyEvents.Broadcast(e);
+      return pObject;
     }
-  };
+  }
 
-  const ezDocumentObject* pOldInitialStateObject = m_pInitialStateObject;
-  m_pInitialStateObject = pObject;
-
-  // Broadcast after the initial state object has been changed since the qt node will query it from the manager
-  BroadcastEvent(pOldInitialStateObject);
-  BroadcastEvent(m_pInitialStateObject);
+  return nullptr;
 }
 
 bool ezStateMachineNodeManager::IsAnyState(const ezDocumentObject* pObject) const
@@ -174,14 +124,25 @@ const ezRTTI* ezStateMachineNodeManager::GetConnectionType() const
   return ezGetStaticRTTI<ezStateMachineConnection>();
 }
 
-void ezStateMachineNodeManager::ObjectHandler(const ezDocumentObjectEvent& e)
+void ezStateMachineNodeManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectEvent::Type::AfterObjectCreated && IsNode(e.m_pObject))
+  if (IsNode(e.m_pObject) == false || IsAnyState(e.m_pObject))
+    return;
+
+  auto pCommandHistory = GetDocument()->GetCommandHistory();
+  if (pCommandHistory == nullptr || pCommandHistory->IsInTransaction() == false)
+    return;
+
+  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded &&
+      e.m_pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == false &&
+      GetInitialState() == nullptr)
   {
-    if (m_pInitialStateObject == nullptr && IsAnyState(e.m_pObject) == false)
-    {
-      SetInitialState(e.m_pObject);
-    }
+    ezSetObjectPropertyCommand propCmd;
+    propCmd.m_Object = e.m_pObject->GetGuid();
+    propCmd.m_sProperty = s_szIsInitialState;
+    propCmd.m_NewValue = ezVariant(true);
+
+    EZ_VERIFY(pCommandHistory->AddCommand(propCmd).Succeeded(), "");
   }
 }
 
@@ -208,11 +169,19 @@ ezStatus ezStateMachine_SetInitialStateCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
-    m_pNewInitialStateObject = pManager->GetObject(m_NewInitialStateObject);
-    m_pOldInitialStateObject = pManager->GetInitialState();
+    if (m_NewInitialStateObject.IsValid())
+      m_pNewInitialStateObject = pManager->GetObject(m_NewInitialStateObject);
+
+    if (auto pOldInitialStateObject = pManager->GetInitialState())
+      m_pOldInitialStateObject = pManager->GetObject(pOldInitialStateObject->GetGuid());
   }
 
-  pManager->SetInitialState(m_pNewInitialStateObject);
+  if (m_pNewInitialStateObject)
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, ezVariant(true)));
+
+  if (m_pOldInitialStateObject)
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, ezVariant(false)));
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -221,6 +190,11 @@ ezStatus ezStateMachine_SetInitialStateCommand::UndoInternal(bool bFireEvents)
   ezDocument* pDocument = GetDocument();
   auto pManager = static_cast<ezStateMachineNodeManager*>(pDocument->GetObjectManager());
 
-  pManager->SetInitialState(m_pOldInitialStateObject);
+  if (m_pNewInitialStateObject)
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pNewInitialStateObject, s_szIsInitialState, ezVariant(false)));
+
+  if (m_pOldInitialStateObject)
+    EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->SetValue(m_pOldInitialStateObject, s_szIsInitialState, ezVariant(true)));
+
   return ezStatus(EZ_SUCCESS);
 }

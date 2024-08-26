@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(const ezInternal::NewInstance<U>& i
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr(U* pInstance, ezAllocator* pAllocator)
 {
   m_pInstance = pInstance;
   m_pAllocator = pAllocator;
@@ -295,6 +295,7 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
     if (m_pInstance->ReleaseRef() == 0)
     {
       auto pNonConstInstance = const_cast<typename ezTypeTraits<T>::NonConstType*>(m_pInstance);
+      EZ_ASSERT_DEV(m_pAllocator != nullptr, "Fake shared pointers should never be released");
       EZ_DELETE(m_pAllocator, pNonConstInstance);
     }
 

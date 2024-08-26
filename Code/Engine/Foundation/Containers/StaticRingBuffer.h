@@ -9,7 +9,7 @@ template <typename T, ezUInt32 Capacity>
 class ezStaticRingBuffer
 {
 public:
-  EZ_CHECK_AT_COMPILETIME_MSG(Capacity > 1, "ORLY?");
+  static_assert(Capacity > 1, "ORLY?");
 
   /// \brief Constructs an empty ring-buffer.
   ezStaticRingBuffer(); // [tested]

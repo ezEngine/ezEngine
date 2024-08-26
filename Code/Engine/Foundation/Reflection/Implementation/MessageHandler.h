@@ -69,6 +69,7 @@ namespace ezInternal
 
       static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
       {
+        EZ_IGNORE_UNUSED(pSelf);
         Class* pTargetInstance = static_cast<Class*>(pInstance);
         (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));
       }
@@ -92,6 +93,7 @@ namespace ezInternal
       /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
       static void Dispatch(ezAbstractMessageHandler* pSelf, const void* pInstance, ezMessage& ref_msg)
       {
+        EZ_IGNORE_UNUSED(pSelf);
         const Class* pTargetInstance = static_cast<const Class*>(pInstance);
         (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));
       }

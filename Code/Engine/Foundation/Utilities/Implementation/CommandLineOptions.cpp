@@ -305,7 +305,7 @@ ezCommandLineOptionInt::ezCommandLineOptionInt(ezStringView sSortingGroup, ezStr
 
 void ezCommandLineOptionInt::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut.Format("{}", m_iDefaultValue);
+  ref_sOut.SetFormat("{}", m_iDefaultValue);
 }
 
 
@@ -317,7 +317,7 @@ void ezCommandLineOptionInt::GetParamShortDesc(ezStringBuilder& ref_sOut) const
   }
   else
   {
-    ref_sOut.Format("<int> [{} .. {}]", m_iMinValue, m_iMaxValue);
+    ref_sOut.SetFormat("<int> [{} .. {}]", m_iMinValue, m_iMaxValue);
   }
 }
 
@@ -345,7 +345,7 @@ int ezCommandLineOptionInt::GetOptionValue(LogMode logMode, const ezCommandLineU
 
   if (ShouldLog(logMode, bSpecified))
   {
-    tmp.Format("{}", result);
+    tmp.SetFormat("{}", result);
     LogOption(sOption, tmp, bSpecified);
   }
 
@@ -368,7 +368,7 @@ ezCommandLineOptionFloat::ezCommandLineOptionFloat(ezStringView sSortingGroup, e
 
 void ezCommandLineOptionFloat::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  ref_sOut.Format("{}", m_fDefaultValue);
+  ref_sOut.SetFormat("{}", m_fDefaultValue);
 }
 
 void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& ref_sOut) const
@@ -379,7 +379,7 @@ void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& ref_sOut) cons
   }
   else
   {
-    ref_sOut.Format("<float> [{} .. {}]", m_fMinValue, m_fMaxValue);
+    ref_sOut.SetFormat("<float> [{} .. {}]", m_fMinValue, m_fMaxValue);
   }
 }
 
@@ -407,7 +407,7 @@ float ezCommandLineOptionFloat::GetOptionValue(LogMode logMode, const ezCommandL
 
   if (ShouldLog(logMode, bSpecified))
   {
-    tmp.Format("{}", result);
+    tmp.SetFormat("{}", result);
     LogOption(sOption, tmp, bSpecified);
   }
 
@@ -597,5 +597,3 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
     eVal++;
   }
 }
-
-

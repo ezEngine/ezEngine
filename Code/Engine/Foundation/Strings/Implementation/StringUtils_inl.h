@@ -44,11 +44,13 @@ EZ_ALWAYS_INLINE void ezStringUtils::UpdateStringEnd(const T* pStringStart, cons
 template <typename T>
 constexpr ezUInt32 ezStringUtils::GetStringElementCount(const T* pString)
 {
-  if (IsNullOrEmpty(pString))
+  // can't use strlen here as long as it's not constexpr (C++ 23)
+
+  if (pString == nullptr)
     return 0;
 
   ezUInt32 uiCount = 0;
-  while ((*pString != '\0'))
+  while (*pString != '\0')
   {
     ++pString;
     ++uiCount;
@@ -95,8 +97,7 @@ inline ezUInt32 ezStringUtils::GetCharacterCount(const char* szUtf8, const char*
   return uiCharacters;
 }
 
-inline void ezStringUtils::GetCharacterAndElementCount(
-  const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount, const char* pStringEnd)
+inline void ezStringUtils::GetCharacterAndElementCount(const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount, const char* pStringEnd)
 {
   ref_uiCharacterCount = 0;
   ref_uiElementCount = 0;

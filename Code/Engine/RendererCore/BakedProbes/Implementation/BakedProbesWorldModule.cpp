@@ -129,7 +129,7 @@ ezAmbientCube<float> ezBakedProbesWorldModule::GetSkyVisibility(const ProbeIndex
 void ezBakedProbesWorldModule::SetProbeTreeResourcePrefix(const ezHashedString& prefix)
 {
   ezStringBuilder sResourcePath;
-  sResourcePath.Format("{}_Global.ezProbeTreeSector", prefix);
+  sResourcePath.SetFormat("{}_Global.ezProbeTreeSector", prefix);
 
   m_hProbeTree = ezResourceManager::LoadResource<ezProbeTreeSectorResource>(sResourcePath);
 }

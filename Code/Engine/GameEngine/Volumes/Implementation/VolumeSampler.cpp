@@ -17,10 +17,10 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   {
     // Reach 90% of target value after interpolation duration:
     // Lerp factor for exponential moving average:
-    // y = 1-(1-f)^t
+    // y = 1-f^t
     // solve for f with y = 0.9:
-    // f = 1 - 10^(-1 / t)
-    value.m_fInterpolationFactor = 1.0 - ezMath::Pow(10.0, -1.0 / interpolationDuration.GetSeconds());
+    // f = 10^(-1 / t)
+    value.m_fInterpolationFactor = ezMath::Pow(10.0, -1.0 / interpolationDuration.GetSeconds());
   }
   else
   {
@@ -59,7 +59,8 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
 
   ezHybridArray<ComponentInfo, 16> componentInfos;
-  world.GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, [&](ezGameObject* pObject) {
+  world.GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, [&](ezGameObject* pObject)
+    {
       ezVolumeComponent* pComponent = nullptr;
       if (pObject->TryGetComponentOfBaseType(pComponent))
       {
@@ -76,7 +77,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
           const ezSimdVec4f absLocalPos = globalToLocalTransform.TransformPosition(vPos).Abs();
           if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
           {
-            ezSimdVec4f vAlpha = (ezSimdVec4f(1.0f) - absLocalPos).CompDiv(ezSimdConversion::ToVec3(pBoxComponent->GetFalloff().CompMax(ezVec3(0.0001f))));
+            ezSimdVec4f vAlpha = (ezSimdVec4f(1.0f) - absLocalPos).CompDiv(ezSimdConversion::ToVec3(pBoxComponent->GetFalloff()));
             vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
             info.m_fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
           }
@@ -140,7 +141,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
 
     if (value.m_fInterpolationFactor > 0.0)
     {
-      double f = 1.0 - ezMath::Pow(1.0 - value.m_fInterpolationFactor, deltaTime.GetSeconds());
+      double f = 1.0 - ezMath::Pow(value.m_fInterpolationFactor, deltaTime.GetSeconds());
       value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, value.m_TargetValue, f);
     }
     else
@@ -157,5 +158,3 @@ ezUInt32 ezVolumeSampler::ComputeSortingKey(float fSortOrder, float fMaxScale)
   uiSortingKey = (uiSortingKey << 16) | (0xFFFF - ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF));
   return uiSortingKey;
 }
-
-

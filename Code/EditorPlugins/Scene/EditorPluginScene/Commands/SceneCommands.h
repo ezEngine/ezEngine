@@ -13,9 +13,9 @@ class ezDuplicateObjectsCommand : public ezCommand
 public:
   ezDuplicateObjectsCommand();
 
-public: // Properties
+public:                        // Properties
   ezString m_sGraphTextFormat;
-  ezString m_sParentNodes; /// A stringyfied map in format "uuidObj1=uuidParent1;..." that defines the previous parents of all top level objects
+  ezString m_sParentNodes;     /// A stringyfied map in format "uuidObj1=uuidParent1;..." that defines the previous parents of all top level objects
 
   ezUInt32 m_uiNumberOfCopies; /// if set to 0 (the default), all the 'advanced' duplication code is skipped and only a single straight copy is made
 
@@ -51,6 +51,7 @@ private:
     ezDocumentObject* m_pParent;
     ezString m_sParentProperty;
     ezVariant m_Index;
+    ezUInt32 m_uiSelectionOrder = 0;
   };
 
   ezDeque<const ezDocumentObject*> m_OriginalSelection;

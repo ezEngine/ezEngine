@@ -40,8 +40,8 @@ public:
   void SetInitialShapeId(ezUInt32 uiId);
   ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
-  ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
-  ezBitflags<ezOnPhysXContact> m_OnContact; // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;                     // [ property ]
+  ezBitflags<ezOnPhysXContact> m_OnContact;           // [ property ]
   ezSurfaceResourceHandle m_hSurface;
 
 protected:

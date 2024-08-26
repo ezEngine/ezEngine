@@ -136,7 +136,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32, &exportInfoWin32};
         vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0, &exportInfo};
         vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
-        m_SharedSemaphore = device.createSemaphore(semCreateInfo);
+        VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createSemaphore(&semCreateInfo, nullptr, &m_SharedSemaphore));
 
         HANDLE semaphoreHandle = 0;
         vk::SemaphoreGetWin32HandleInfoKHR getSemaphoreWin32Info{m_SharedSemaphore, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32};
@@ -350,6 +350,11 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     pVulkanDevice->DeleteLater(m_image, m_allocInfo.m_deviceMemory);
     pVulkanDevice->DeleteLater(m_SharedSemaphore);
   }
+  else if (m_SharedType == ezGALSharedTextureType::Exported)
+  {
+    pVulkanDevice->DeleteLater(m_image, m_alloc);
+    pVulkanDevice->DeleteLater(m_SharedSemaphore);
+  }
 
   auto res = SUPER::DeInitPlatform(pDevice);
 
@@ -384,5 +389,3 @@ void ezGALSharedTextureVulkan::SignalSemaphoreGPU(ezUInt64 uiValue) const
   // TODO, transition texture into GENERAL layout
   m_pDevice->GetCurrentPipelineBarrier().EnsureImageLayout(this, GetPreferredLayout(), GetUsedByPipelineStage(), GetAccessMask());
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_SharedTextureVulkan);

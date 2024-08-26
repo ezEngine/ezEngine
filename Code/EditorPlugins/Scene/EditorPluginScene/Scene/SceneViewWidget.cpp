@@ -25,7 +25,7 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumen
 
   if (ezDynamicCast<ezScene2Document*>(pOwnerWindow->GetDocument()))
   {
-    //#TODO Not the cleanest solution but this replaces the default selection context of the base class.
+    // #TODO Not the cleanest solution but this replaces the default selection context of the base class.
     const ezUInt32 uiSelectionIndex = m_InputContexts.IndexOf(m_pSelectionContext);
     EZ_DEFAULT_DELETE(m_pSelectionContext);
     m_pSelectionContext = EZ_DEFAULT_NEW(ezSceneSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
@@ -51,7 +51,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   {
     s_bContextMenuInitialized = true;
 
-    ezActionMapManager::RegisterActionMap("SceneViewContextMenu").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
 
     ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");

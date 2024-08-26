@@ -88,8 +88,36 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(podClass.GetBool() == false);
     VariantToPropertyTest(&podClass, pRttiPOD, "Color", ezVariant::Type::Color);
     EZ_TEST_BOOL(podClass.GetColor() == ezColor(1.0f, 1.0f, 1.0f, 1.0f));
+
+    VariantToPropertyTest(&podClass, pRttiPOD, "CharPtr", ezVariant::Type::String);
+    EZ_TEST_STRING(podClass.GetCharPtr(), "");
+
     VariantToPropertyTest(&podClass, pRttiPOD, "String", ezVariant::Type::String);
     EZ_TEST_STRING(podClass.GetString(), "");
+
+    // An ezStringView is special, ezReflectionUtils::GetMemberPropertyValue will return an ezString as that is the default assignment behaviour of ezStringView to ezVariant. However, ezReflectionUtils::GetDefaultValue will still return an ezStringView.
+    {
+      const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiPOD, "StringView");
+      EZ_TEST_BOOL(pProp != nullptr);
+      if (pProp)
+      {
+        ezVariant oldValue = ezReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
+        EZ_TEST_BOOL(oldValue.IsValid());
+        EZ_TEST_BOOL(oldValue.GetType() == ezVariant::Type::String);
+
+        ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+        EZ_TEST_BOOL(defaultValue.GetType() == ezVariant::Type::StringView);
+        ezReflectionUtils::SetMemberPropertyValue(pProp, &podClass, defaultValue);
+
+        ezVariant newValue = ezReflectionUtils::GetMemberPropertyValue(pProp, &podClass);
+        EZ_TEST_BOOL(newValue.IsValid());
+        EZ_TEST_BOOL(newValue.GetType() == ezVariant::Type::String);
+        EZ_TEST_BOOL(newValue == defaultValue);
+        EZ_TEST_BOOL(newValue != oldValue);
+      }
+      EZ_TEST_STRING(podClass.GetStringView(), "");
+    }
+
     VariantToPropertyTest(&podClass, pRttiPOD, "Buffer", ezVariant::Type::DataBuffer);
     EZ_TEST_BOOL(podClass.GetBuffer() == ezDataBuffer());
     VariantToPropertyTest(&podClass, pRttiPOD, "VarianceAngle", ezVariant::Type::TypedObject);
@@ -142,7 +170,7 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* sz
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
   const ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
-  ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
+  ezVariant defaultValue = ezToolsReflectionUtils::GetStorageDefault(pProp);
   EZ_TEST_BOOL(defaultValue.GetType() == type);
   bool bSetSuccess = ref_accessor.SetValue(szProperty, defaultValue);
   EZ_TEST_BOOL(bSetSuccess);
@@ -156,7 +184,10 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* sz
 ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ezRTTI* pType)
 {
   ezUInt32 uiPropertiesSet = 0;
-  EZ_TEST_BOOL(pType != nullptr);
+  if (!EZ_TEST_BOOL(pType != nullptr))
+    return 0;
+
+  EZ_ANALYSIS_ASSUME(pType != nullptr);
 
   // Call for base class
   if (pType->GetParentType() != nullptr)
@@ -188,7 +219,8 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ez
         }
         else if (bIsValueType)
         {
-          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), pProp3->GetSpecificType()->GetVariantType());
+          ezVariantType::Enum storageType = ezToolsReflectionUtils::GetStorageType(pProp);
+          AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), storageType);
           uiPropertiesSet++;
         }
         else // ezPropertyFlags::Class
@@ -224,7 +256,8 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor)
 static ezUInt32 GetTypeCount()
 {
   ezUInt32 uiCount = 0;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { uiCount++; });
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+    { uiCount++; });
   return uiCount;
 }
 
@@ -268,12 +301,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiPOD);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 18);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 20);
       manager.DestroyObject(pObject);
     }
     {
       ezDocumentObject* pObject = manager.CreateObject(pRttiMath);
-      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 27);
+      EZ_TEST_INT(AccessorPropertiesTest(pObject->GetTypeAccessor()), 29);
       manager.DestroyObject(pObject);
     }
     {

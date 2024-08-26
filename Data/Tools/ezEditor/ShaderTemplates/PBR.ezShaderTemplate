@@ -45,6 +45,7 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 // SYSTEM permutations
 
 [MATERIALPARAMETER]
@@ -149,11 +150,12 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
   FLOAT1(MaskThreshold);
 %endif
   BOOL1(UseBaseTexture);
-  BOOL1(UseMetallicTexture);
   BOOL1(UseNormalTexture);
   BOOL1(UseRoughnessTexture);
+  BOOL1(UseMetallicTexture);
   BOOL1(UseEmissiveTexture);
   BOOL1(UseOcclusionTexture);
+  BOOL1(UseOrmTexture);
 };
 
 [VERTEXSHADER]
@@ -171,7 +173,7 @@ VS_OUT main(VS_IN Input)
   
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
   // Fetch the procedural vertex colors from the per instance vertex color buffer
-  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  float4 instanceVertexColor0 = GetInstanceVertexColors(0);
   Output.ProcColor = instanceVertexColor0;
 %endif
 

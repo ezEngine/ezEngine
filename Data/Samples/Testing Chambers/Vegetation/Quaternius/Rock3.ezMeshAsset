@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Rock3.fbx"}
 		}
 		Uuid %DocumentID{u4{5289117737575498664,4629284292884712963}}
-		u4 %Hash{12804090667137657305}
+		u4 %Hash{14437898823939221854}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Vegetation/Quaternius/Rock3.fbx"}
 			s{"{ dc75a413-f2bf-453d-86ab-65539bdf6971 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -38,6 +39,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -50,7 +52,9 @@ o
 		{
 			Uuid{u4{2516706346502823814,4993713276728241996}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Vegetation/Quaternius/Rock3.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -58,6 +62,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

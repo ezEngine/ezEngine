@@ -116,8 +116,8 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
   }
 
-  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < pPins.GetCount(), "Invalid pose index");
-  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < pPins.GetCount(), "Invalid pose index");
+  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (ezInt32)pPins.GetCount(), "Invalid pose index");
+  EZ_ASSERT_DEBUG(pInstance->m_iTransitionToIndex >= 0 && pInstance->m_iTransitionToIndex < (ezInt32)pPins.GetCount(), "Invalid pose index");
 
   ezInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
   ezInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
@@ -181,4 +181,3 @@ bool ezSwitchPoseAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) con
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SwitchPoseAnimNode);
-

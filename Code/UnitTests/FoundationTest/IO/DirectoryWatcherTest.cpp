@@ -2,6 +2,7 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/IO/DirectoryWatcher.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Threading/ThreadUtils.h>
@@ -37,7 +38,8 @@ namespace DirectoryWatcherTestHelpers
   }
 } // namespace DirectoryWatcherTestHelpers
 
-EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+
+void DirectoryWatcherTest()
 {
   using namespace DirectoryWatcherTestHelpers;
 
@@ -45,10 +47,12 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
   ezStringBuilder sTestRootPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
   sTestRootPath.AppendPath("DirectoryWatcher/");
 
-  auto CheckExpectedEvents = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events) {
+  auto CheckExpectedEvents = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events)
+  {
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
-    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+      {
       tmp = sPath;
       tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
       firedEvents.PushBack({tmp, action, type});
@@ -63,24 +67,26 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
-  auto CheckExpectedEventsUnordered = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events) {
+  auto CheckExpectedEventsUnordered = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events)
+  {
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
     ezDynamicArray<bool> eventFired;
     eventFired.SetCount(events.GetCount());
-    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-      tmp = sPath;
-      tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
-      firedEvents.PushBack({tmp, action, type});
-      auto index = events.IndexOf({tmp, action, type});
-      EZ_TEST_BOOL_MSG(index != ezInvalidIndex, "Event %d (%s, %d, %d) not found in expected events list", i, tmp.GetData(), (int)action, (int)type);
-      if (index != ezInvalidIndex)
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
       {
-        eventFired[index] = true;
-      }
-      i++;
-      //
-    },
+        tmp = sPath;
+        tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
+        firedEvents.PushBack({tmp, action, type});
+        auto index = events.IndexOf({tmp, action, type});
+        EZ_TEST_BOOL_MSG(index != ezInvalidIndex, "Event %d (%s, %d, %d) not found in expected events list", i, tmp.GetData(), (int)action, (int)type);
+        if (index != ezInvalidIndex)
+        {
+          eventFired[index] = true;
+        }
+        i++;
+        //
+      },
       ezTime::MakeFromMilliseconds(100));
     for (auto& fired : eventFired)
     {
@@ -89,11 +95,13 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
-  auto CheckExpectedEventsMultiple = [&](ezArrayPtr<ezDirectoryWatcher*> watchers, ezArrayPtr<ExpectedEvent> events) {
+  auto CheckExpectedEventsMultiple = [&](ezArrayPtr<ezDirectoryWatcher*> watchers, ezArrayPtr<ExpectedEvent> events)
+  {
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
     ezDirectoryWatcher::EnumerateChanges(
-      watchers, [&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      watchers, [&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+      {
         tmp = sPath;
         tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
         firedEvents.PushBack({tmp, action, type});
@@ -110,7 +118,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
-  auto CreateFile = [&](const char* szRelPath) {
+  auto CreateFile = [&](const char* szRelPath)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szRelPath);
 
@@ -119,7 +128,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL(file.Write("Hello World", 11).Succeeded());
   };
 
-  auto ModifyFile = [&](const char* szRelPath) {
+  auto ModifyFile = [&](const char* szRelPath)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szRelPath);
 
@@ -128,19 +138,22 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL(file.Write("Hello World", 11).Succeeded());
   };
 
-  auto DeleteFile = [&](const char* szRelPath) {
+  auto DeleteFile = [&](const char* szRelPath)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szRelPath);
     EZ_TEST_BOOL(ezOSFile::DeleteFile(tmp).Succeeded());
   };
 
-  auto CreateDirectory = [&](const char* szRelPath) {
+  auto CreateDirectory = [&](const char* szRelPath)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szRelPath);
     EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(tmp).Succeeded());
   };
 
-  auto Rename = [&](const char* szFrom, const char* szTo) {
+  auto Rename = [&](const char* szFrom, const char* szTo)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szFrom);
 
@@ -150,7 +163,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     EZ_TEST_BOOL(ezOSFile::MoveFileOrDirectory(tmp, tmp2).Succeeded());
   };
 
-  auto DeleteDirectory = [&](const char* szRelPath, bool bTest = true) {
+  auto DeleteDirectory = [&](const char* szRelPath, bool bTest = true)
+  {
     tmp = sTestRootPath;
     tmp.AppendPath(szRelPath);
     tmp.MakeCleanPath();
@@ -164,6 +178,30 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       ezOSFile::DeleteFolder(tmp).IgnoreResult();
     }
   };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "git")
+  {
+    ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
+    EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sTestRootPath).Succeeded());
+
+    CreateFile("index");
+
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("index.lock");
+    DeleteFile("index");
+    Rename("index.lock", "index");
+
+    ExpectedEvent expectedEvents[] = {
+      {"index.lock", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+      {"index.lock", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::File},
+
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple Create File")
   {
@@ -745,5 +783,20 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
 
   ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
 }
+
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+{
+  DirectoryWatcherTest();
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcherNonNTFS)
+{
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("DirectoryWatcher.ForceNonNTFS"));
+  *pForceNonNTFS = true;
+  DirectoryWatcherTest();
+  *pForceNonNTFS = false;
+}
+#  endif
 
 #endif

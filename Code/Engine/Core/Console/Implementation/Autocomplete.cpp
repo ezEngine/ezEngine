@@ -12,7 +12,7 @@ void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezS
   {
     if (pCVar->GetName().StartsWith_NoCase(sVariable))
     {
-      sText.Format("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
+      sText.SetFormat("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
 
       ezConsoleString cs;
       cs.m_sText = sText;
@@ -35,7 +35,7 @@ void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque
   {
     if (pFunc->GetName().StartsWith_NoCase(sVariable))
     {
-      sText.Format("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
+      sText.SetFormat("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
 
       ezConsoleString cs;
       cs.m_sText = sText;
@@ -59,7 +59,7 @@ const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
     case ezCVarType::Int:
     {
       ezCVarInt* pInt = static_cast<ezCVarInt*>(pCVar);
-      s.Format("{0}", pInt->GetValue());
+      s.SetFormat("{0}", pInt->GetValue());
     }
     break;
 
@@ -76,14 +76,14 @@ const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
     case ezCVarType::String:
     {
       ezCVarString* pString = static_cast<ezCVarString*>(pCVar);
-      s.Format("\"{0}\"", pString->GetValue());
+      s.SetFormat("\"{0}\"", pString->GetValue());
     }
     break;
 
     case ezCVarType::Float:
     {
       ezCVarFloat* pFloat = static_cast<ezCVarFloat*>(pCVar);
-      s.Format("{0}", ezArgF(pFloat->GetValue(), 3));
+      s.SetFormat("{0}", ezArgF(pFloat->GetValue(), 3));
     }
     break;
 
@@ -98,7 +98,7 @@ ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
 {
   ezStringBuilder s = GetValueAsString(pCVar);
 
-  const bool bAnyFlags = pCVar->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart | ezCVarFlags::Save);
+  const bool bAnyFlags = pCVar->GetFlags().IsAnySet(ezCVarFlags::Save | ezCVarFlags::ShowRequiresRestartMsg);
 
   if (bAnyFlags)
     s.Append(" [ ");
@@ -106,7 +106,7 @@ ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
   if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
     s.Append("SAVE ");
 
-  if (pCVar->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
+  if (pCVar->GetFlags().IsAnySet(ezCVarFlags::ShowRequiresRestartMsg))
     s.Append("RESTART ");
 
   if (bAnyFlags)
@@ -192,5 +192,3 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
     inout_state.m_sInput.Append(FindCommonString(AutoCompleteOptions).GetData());
   }
 }
-
-

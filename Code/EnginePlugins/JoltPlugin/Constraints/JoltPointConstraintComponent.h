@@ -4,10 +4,12 @@
 
 using ezJoltPointConstraintComponentManager = ezComponentManager<class ezJoltPointConstraintComponent, ezBlockStorageType::Compact>;
 
+/// \brief Implements a physics constraint that allows rotation around one point.
+///
+/// The joined actors can freely rotate around the constraint position.
 class EZ_JOLTPLUGIN_DLL ezJoltPointConstraintComponent : public ezJoltConstraintComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltPointConstraintComponent, ezJoltConstraintComponent, ezJoltPointConstraintComponentManager);
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent

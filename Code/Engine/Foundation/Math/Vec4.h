@@ -33,7 +33,9 @@ public:
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
-  [[nodiscard]] static ezVec4Template<Type> MakeNaN() { return ezVec4Template<Type>(ezMath::NaN<Type>()); }
+  EZ_DECLARE_IF_FLOAT_TYPE
+  [[nodiscard]] static ezVec4Template<Type>
+  MakeNaN() { return ezVec4Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec4Template<Type> MakeZero() { return ezVec4Template<Type>(0); } // [tested]
@@ -74,6 +76,7 @@ public:
   // *** Functions dealing with length ***
 public:
   /// \brief Returns the length of the vector.
+  EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
   /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
@@ -82,16 +85,20 @@ public:
 
   /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
   /// Normalize.
+  EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLengthAndNormalize(); // [tested]
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
+  EZ_DECLARE_IF_FLOAT_TYPE
   const ezVec4Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
+  EZ_DECLARE_IF_FLOAT_TYPE
   void Normalize(); // [tested]
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
+  EZ_DECLARE_IF_FLOAT_TYPE
   ezResult NormalizeIfNotZero(const ezVec4Template<Type>& vFallback = ezVec4Template<Type>(1, 0, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0, 0, 0).
@@ -101,6 +108,7 @@ public:
   bool IsZero(Type fEpsilon) const; // [tested]
 
   /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
+  EZ_DECLARE_IF_FLOAT_TYPE
   bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns true, if any of x, y, z or w is NaN.

@@ -102,5 +102,3 @@ ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 }
 
 #endif
-
-

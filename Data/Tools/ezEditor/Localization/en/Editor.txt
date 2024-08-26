@@ -3,6 +3,7 @@
 Editor.OpenDashboard;Show Dash&board...
 Editor.LaunchFileserve;Launch Fileserve...;Launches the ezFileServe application.
 Editor.LaunchInspector;Launch Inspector...;Launches the ezInspector application.
+Editor.LaunchTracy;Launch Tracy...;Launches the Tracy profiler application.
 Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
 Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
 Editor.Preferences;Preferences...;Opens the preferences dialog
@@ -45,9 +46,9 @@ Project.RecentDocuments.Menu;&Recently Opened
 Project.Close;Close Project
 G.Project.Cpp;C++ Project
 Project.SetupCppProject;&Setup C++ Plugin...
-Project.OpenCppProject;&Open Solution
+Project.OpenCppProject;&Open in IDE
 Project.CompileCppProject;&Compile Plugin
-Project.RegenerateCppSolution;&Regenerate C++ Solution
+Project.RegenerateCppSolution;&Regenerate C++ Project
 Project.ExportProject;&Export Project...
 Project.PluginSelection;Plugin Selection...
 Project.DataDirectories;D&ata Directories...
@@ -166,9 +167,11 @@ Selection.Attach;Attach to This
 Selection.Detach;Detach
 Selection.CopyReference;Copy Object Reference
 
-ezRenderPipelineProfileConfig;Render Pipelines
+# Profile Configs
 
+ezRenderPipelineProfileConfig;Render Pipelines
 ezTextureAssetProfileConfig;Texture Assets
+ezCoreRenderProfileConfig;Rendering Options
 
 # Gizmo
 
@@ -265,3 +268,8 @@ ezVariantType::Time;Time
 ezVariantType::Uuid;Uuid
 ezVariantType::Angle;Angle
 ezVariantType::ColorGamma;ColorGamma
+
+# Compiler Preferences
+
+ezCppProject::CppIDE;C++ IDE
+ezCompilerPreferences::CppCompiler;C++ Compiler

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/StringView.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
+#endif
 
 class ezStringBuilder;
 class ezVariant;
@@ -132,7 +133,6 @@ struct ezArgFileSize : public ezArgHumanReadable
   const char* const m_ByteSuffixes[6] = {"B", "KB", "MB", "GB", "TB", "PB"};
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 /// \brief Converts a windows HRESULT into an error code and a human-readable error message.
 /// Pass in `GetLastError()` function or an HRESULT from another error source. Be careful when printing multiple values, a function could clear `GetLastError` as a side-effect so it is best to store it in a temp variable before printing a complex error message.
 /// \sa https://learn.microsoft.com/en-gb/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
@@ -147,9 +147,8 @@ struct ezArgErrorCode
 };
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg);
 
-#endif
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 /// \brief Many Linux APIs will fill out error on failure. This converts the error into an error code and a human-readable error message.
 /// Pass in the linux `errno` symbol. Be careful when printing multiple values, a function could clear `errno` as a side-effect so it is best to store it in a temp variable before printing a complex error message.
 /// You may have to include #include <errno.h> use this.

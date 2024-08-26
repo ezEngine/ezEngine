@@ -30,4 +30,3 @@ private:
   ezFmodAssetProfiles m_ConfigsOld;
   ezFmodAssetProfiles m_Configs;
 };
-

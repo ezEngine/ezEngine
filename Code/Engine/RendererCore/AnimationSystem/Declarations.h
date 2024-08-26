@@ -10,6 +10,8 @@ class ezAnimationPose;
 struct ezSkeletonResourceDescriptor;
 class ezEditableSkeletonJoint;
 struct ezAnimationClipResourceDescriptor;
+class ezAnimPoseGenerator;
+class ezGameObject;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
@@ -20,6 +22,7 @@ namespace ozz::animation
   class Skeleton;
 }
 
+/// \brief What shape is used to approximate a bone's geometry
 struct ezSkeletonJointGeometryType
 {
   using StorageType = ezUInt8;
@@ -30,7 +33,7 @@ struct ezSkeletonJointGeometryType
     Capsule,
     Sphere,
     Box,
-    ConvexMesh,
+    ConvexMesh, ///< A convex mesh is extracted from the mesh file.
 
     Default = None
   };
@@ -48,6 +51,19 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
   ezArrayPtr<ozz::math::SoaTransform> m_LocalTransforms;
 };
 
+/// \brief Sent to objects when a parent component is generating an animation pose, to inject additional pose commands, for instance to apply inverse kinematics (IK).
+///
+/// The message contains the ezAnimPoseGenerator that is currently being built.
+/// Usually it has already been executed once and generated a pose (in model space), which can be queried to build upon.
+/// Additional commands can then be added to modify the pose.
+/// This is mainly meant for inverse kinematics use cases.
+struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseGeneration : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseGeneration, ezMessage);
+
+  ezAnimPoseGenerator* m_pGenerator = nullptr;
+};
+
 /// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.
 ///
 /// This can be used by child nodes/components to synchronize their state to the new animation pose.
@@ -60,16 +76,6 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   static void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezMat4& ref_mFullTransform, ezQuat& ref_qRotationOnly);
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform) const;
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform, ezQuat& ref_qRotationOnly) const;
-
-  const ezTransform* m_pRootTransform = nullptr;
-  const ezSkeleton* m_pSkeleton = nullptr;
-  ezArrayPtr<const ezMat4> m_ModelTransforms;
-  bool m_bContinueAnimating = true;
-};
-
-struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseProposal : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseProposal, ezMessage);
 
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;
@@ -125,16 +131,17 @@ struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
   ezMap<ezString, ezTransform> m_BoneTransforms;
 };
 
+/// \brief What type of physics constraint to use for a bone.
 struct ezSkeletonJointType
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    None,
-    Fixed,
+    None,  ///< The bone is not constrained, at all. It will not be connected to another bone and fall down separately.
+    Fixed, ///< The bone is joined to the parent bone by a fixed joint type and can't move, at all.
     //  Hinge,
-    SwingTwist,
+    SwingTwist, ///< The bone is joined to the parent bone and can swing and twist relative to it in limited fashion.
 
     Default = None,
   };
@@ -145,6 +152,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointType);
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief What to do when an animated object is not visible.
+///
+/// It is often important to still update animated meshes, so that animation events get handled.
+/// Also even though a mesh may be invisible itself, its shadow or reflection may still be visible.
 struct EZ_RENDERERCORE_DLL ezAnimationInvisibleUpdateRate
 {
   using StorageType = ezUInt8;

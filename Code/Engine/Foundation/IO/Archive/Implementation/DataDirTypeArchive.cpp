@@ -25,8 +25,12 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
 
-ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
+ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
 {
+  EZ_IGNORE_UNUSED(sGroup);
+  EZ_IGNORE_UNUSED(sRootName);
+  EZ_IGNORE_UNUSED(usage);
+
   ArchiveType* pDataDir = EZ_DEFAULT_NEW(ArchiveType);
 
   if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
@@ -38,9 +42,12 @@ ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDir
 
 ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
+  EZ_IGNORE_UNUSED(bSpecificallyThisDataDir);
+
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
+  sArchivePath.MakeCleanPath();
 
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
@@ -49,7 +56,7 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView
 
   const ezArchiveEntry* pEntry = &toc.m_Entries[uiEntryIndex];
 
-  ArchiveReaderUncompressed* pReader = nullptr;
+  ArchiveReaderCommon* pReader = nullptr;
 
   {
     EZ_LOCK(m_ReaderMutex);
@@ -87,6 +94,22 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView
         break;
       }
 #endif
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+      case ezArchiveCompressionMode::Compressed_zip:
+      {
+        if (!m_FreeReadersZip.IsEmpty())
+        {
+          pReader = m_FreeReadersZip.PeekBack();
+          m_FreeReadersZip.PopBack();
+        }
+        else
+        {
+          m_ReadersZip.PushBack(EZ_DEFAULT_NEW(ArchiveReaderZip, 2));
+          pReader = m_ReadersZip.PeekBack().Borrow();
+        }
+        break;
+      }
+#endif
 
       default:
         EZ_REPORT_FAILURE("Compression mode {} is unknown (or not compiled in)", (ezUInt8)pEntry->m_CompressionMode);
@@ -116,16 +139,23 @@ void ezDataDirectory::ArchiveType::RemoveDataDirectory()
 
 bool ezDataDirectory::ArchiveType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
+  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFile);
+  sArchivePath.MakeCleanPath();
   return m_ArchiveReader.GetArchiveTOC().FindEntry(sArchivePath) != ezInvalidIndex;
 }
 
 ezResult ezDataDirectory::ArchiveType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
+  EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
   sArchivePath.AppendPath(sFileOrFolder);
+  // We might be called with paths like AAA/../BBB which we won't find in the toc unless we clean the path first.
+  sArchivePath.MakeCleanPath();
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
   if (uiEntryIndex == ezInvalidIndex)
@@ -158,8 +188,12 @@ ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(ezStringV
   bool bSupported = false;
   ezStringBuilder sArchivePath;
 
-  ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
+  ezHybridArray<ezString, 4, ezStaticsAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  extensions.PushBack("zip");
+  extensions.PushBack("apk");
+#endif
 
   for (const auto& ext : extensions)
   {
@@ -223,31 +257,49 @@ void ezDataDirectory::ArchiveType::OnReaderWriterClose(ezDataDirectoryReaderWrit
   }
 #endif
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  if (pClosed->GetDataDirUserData() == 2)
+  {
+    m_FreeReadersZip.PushBack(static_cast<ArchiveReaderZip*>(pClosed));
+    return;
+  }
+#endif
 
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
+ezDataDirectory::ArchiveReaderCommon::ArchiveReaderCommon(ezInt32 iDataDirUserData)
   : ezDataDirectoryReader(iDataDirUserData)
 {
 }
 
-ezDataDirectory::ArchiveReaderUncompressed::~ArchiveReaderUncompressed() = default;
+ezUInt64 ezDataDirectory::ArchiveReaderCommon::GetFileSize() const
+{
+  return m_uiUncompressedSize;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezDataDirectory::ArchiveReaderUncompressed::ArchiveReaderUncompressed(ezInt32 iDataDirUserData)
+  : ArchiveReaderCommon(iDataDirUserData)
+{
+}
+
+ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Skip(ezUInt64 uiBytes)
+{
+  return m_MemStreamReader.SkipBytes(uiBytes);
+}
 
 ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::Read(void* pBuffer, ezUInt64 uiBytes)
 {
   return m_MemStreamReader.ReadBytes(pBuffer, uiBytes);
 }
 
-ezUInt64 ezDataDirectory::ArchiveReaderUncompressed::GetFileSize() const
-{
-  return m_uiUncompressedSize;
-}
-
 ezResult ezDataDirectory::ArchiveReaderUncompressed::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
+  EZ_IGNORE_UNUSED(FileShareMode);
   EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   // nothing to do
@@ -264,11 +316,9 @@ void ezDataDirectory::ArchiveReaderUncompressed::InternalClose()
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
 ezDataDirectory::ArchiveReaderZstd::ArchiveReaderZstd(ezInt32 iDataDirUserData)
-  : ArchiveReaderUncompressed(iDataDirUserData)
+  : ArchiveReaderCommon(iDataDirUserData)
 {
 }
-
-ezDataDirectory::ArchiveReaderZstd::~ArchiveReaderZstd() = default;
 
 ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiBytes)
 {
@@ -277,16 +327,44 @@ ezUInt64 ezDataDirectory::ArchiveReaderZstd::Read(void* pBuffer, ezUInt64 uiByte
 
 ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen(ezFileShareMode::Enum FileShareMode)
 {
+  EZ_IGNORE_UNUSED(FileShareMode);
   EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
 
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader);
   return EZ_SUCCESS;
 }
 
+void ezDataDirectory::ArchiveReaderZstd::InternalClose()
+{
+  // nothing to do
+}
 #endif
 
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
+ezDataDirectory::ArchiveReaderZip::ArchiveReaderZip(ezInt32 iDataDirUserData)
+  : ArchiveReaderUncompressed(iDataDirUserData)
+{
+}
+
+ezDataDirectory::ArchiveReaderZip::~ArchiveReaderZip() = default;
+
+ezUInt64 ezDataDirectory::ArchiveReaderZip::Read(void* pBuffer, ezUInt64 uiBytes)
+{
+  return m_CompressedStreamReader.ReadBytes(pBuffer, uiBytes);
+}
+
+ezResult ezDataDirectory::ArchiveReaderZip::InternalOpen(ezFileShareMode::Enum FileShareMode)
+{
+  EZ_IGNORE_UNUSED(FileShareMode);
+  EZ_ASSERT_DEBUG(FileShareMode != ezFileShareMode::Exclusive, "Archives only support shared reading of files. Exclusive access cannot be guaranteed.");
+
+  m_CompressedStreamReader.SetInputStream(&m_MemStreamReader, m_uiCompressedSize);
+  return EZ_SUCCESS;
+}
+
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_DataDirTypeArchive);

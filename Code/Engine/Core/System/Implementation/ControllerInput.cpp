@@ -1,7 +1,6 @@
 #include <Core/CorePCH.h>
 
 #include <Core/System/ControllerInput.h>
-#include <Foundation/System/PlatformFeatures.h>
 
 namespace
 {
@@ -26,5 +25,3 @@ void ezControllerInput::SetDevice(ezInputDeviceController* pDevice)
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <Core/System/Implementation/glfw/ControllerInput_glfw.inl>
 #endif
-
-

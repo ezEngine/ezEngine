@@ -36,6 +36,7 @@ struct ezSubstanceGraphOutput
   ezEnum<ezTexConvCompressionMode> m_CompressionMode = ezTexConvCompressionMode::High;
   ezEnum<ezSubstanceUsage> m_Usage;
   ezUInt8 m_uiNumChannels = 1;
+  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
   bool m_bPreserveAlphaCoverage = false;
   ezString m_sName;
   ezString m_sLabel;
@@ -47,6 +48,7 @@ struct ezSubstanceGraphOutput
            m_CompressionMode == other.m_CompressionMode &&
            m_Usage == other.m_Usage &&
            m_uiNumChannels == other.m_uiNumChannels &&
+           m_MipmapMode == other.m_MipmapMode &&
            m_bPreserveAlphaCoverage == other.m_bPreserveAlphaCoverage &&
            m_sName == other.m_sName &&
            m_sLabel == other.m_sLabel &&
@@ -63,7 +65,7 @@ struct ezSubstanceGraph
 
   ezString m_sName;
 
-  ezUInt8 m_uiOutputWidth = 0; ///< In base 2, e.g. 8 = 2^8 = 256
+  ezUInt8 m_uiOutputWidth = 0;  ///< In base 2, e.g. 8 = 2^8 = 256
   ezUInt8 m_uiOutputHeight = 0; ///< In base 2
 
   ezHybridArray<ezSubstanceGraphOutput, 8> m_Outputs;

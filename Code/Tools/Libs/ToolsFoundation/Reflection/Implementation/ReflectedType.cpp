@@ -68,7 +68,7 @@ void ezAttributeHolder::SetValue(ezUInt32 uiIndex, const ezPropertyAttribute* va
 
 void ezAttributeHolder::Insert(ezUInt32 uiIndex, const ezPropertyAttribute* value)
 {
-  m_Attributes.Insert(value, uiIndex);
+  m_Attributes.InsertAt(uiIndex, value);
 }
 
 void ezAttributeHolder::Remove(ezUInt32 uiIndex)

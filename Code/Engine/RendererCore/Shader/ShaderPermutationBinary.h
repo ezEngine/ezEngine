@@ -18,6 +18,7 @@ struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
   ezUInt32 CalculateHash() const;
 };
 
+/// \brief Serialized state of a shader permutation used by ezShaderPermutationResourceLoader to convert into a ezShaderPermutationResource.
 class EZ_RENDERERCORE_DLL ezShaderPermutationBinary
 {
 public:
@@ -26,6 +27,7 @@ public:
   ezResult Write(ezStreamWriter& inout_stream);
   ezResult Read(ezStreamReader& inout_stream, bool& out_bOldVersion);
 
+  // Actual binary will be loaded from the hash via ezShaderStageBinary::LoadStageBinary to produce ezShaderStageBinary
   ezUInt32 m_uiShaderStageHashes[ezGALShaderStage::ENUM_COUNT];
 
   ezDependencyFile m_DependencyFile;

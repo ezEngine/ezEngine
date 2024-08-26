@@ -99,8 +99,8 @@ void ezControllerInputGlfw::RegisterControllerButton(const char* szButton, const
 
   for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
-    s.Format("controller{0}_{1}", i, szButton);
-    s2.Format("Cont {0}: {1}", i + 1, szName);
+    s.SetFormat("controller{0}_{1}", i, szButton);
+    s2.SetFormat("Cont {0}: {1}", i + 1, szName);
     RegisterInputSlot(s.GetData(), s2.GetData(), SlotFlags);
   }
 }
@@ -111,14 +111,14 @@ void ezControllerInputGlfw::SetDeadZone(const char* szButton)
 
   for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
-    s.Format("controller{0}_{1}", i, szButton);
+    s.SetFormat("controller{0}_{1}", i, szButton);
     ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
   }
 }
 
 void ezControllerInputGlfw::SetControllerValue(ezStringBuilder& tmp, ezUInt8 controllerIndex, const char* inputSlotName, float value)
 {
-  tmp.Format("controller{0}_{1}", controllerIndex, inputSlotName);
+  tmp.SetFormat("controller{0}_{1}", controllerIndex, inputSlotName);
   m_InputSlotValues[tmp] = value;
 }
 
@@ -130,7 +130,7 @@ void ezControllerInputGlfw::InitializeDevice()
   // Check for errors during the previous call
   const char* desc;
   int errorCode = glfwGetError(&desc);
-  if(errorCode != GLFW_NO_ERROR)
+  if (errorCode != GLFW_NO_ERROR)
   {
     ezLog::Warning("glfw joystick and gamepad input not avaiable: {} - {}", errorCode, desc);
     return;
@@ -140,7 +140,7 @@ void ezControllerInputGlfw::InitializeDevice()
 
 void ezControllerInputGlfw::UpdateInputSlotValues()
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return;
   }
@@ -195,7 +195,7 @@ void ezControllerInputGlfw::ResetInputSlotValues()
 
 void ezControllerInputGlfw::RegisterInputSlots()
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return;
   }
@@ -241,7 +241,7 @@ void ezControllerInputGlfw::RegisterInputSlots()
 
 bool ezControllerInputGlfw::IsControllerConnected(ezUInt8 uiPhysical) const
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
   {
     return false;
   }

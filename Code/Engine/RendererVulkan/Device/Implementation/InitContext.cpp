@@ -12,16 +12,18 @@
 ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
 {
-  ezProxyAllocator& allocator = m_pDevice->GetAllocator();
-  m_pPipelineBarrier = EZ_NEW(&allocator, ezPipelineBarrierVulkan);
-  m_pCommandBufferPool = EZ_NEW(&allocator, ezCommandBufferPoolVulkan);
+  ezAllocator* pAllocator = m_pDevice->GetAllocator();
+  m_pPipelineBarrier = EZ_NEW(pAllocator, ezPipelineBarrierVulkan, pAllocator);
+  m_pCommandBufferPool = EZ_NEW(pAllocator, ezCommandBufferPoolVulkan, pAllocator);
   m_pCommandBufferPool->Initialize(m_pDevice->GetVulkanDevice(), m_pDevice->GetGraphicsQueue().m_uiQueueFamily);
-  m_pStagingBufferPool = EZ_NEW(&allocator, ezStagingBufferPoolVulkan);
+  m_pStagingBufferPool = EZ_NEW(pAllocator, ezStagingBufferPoolVulkan);
   m_pStagingBufferPool->Initialize(m_pDevice);
 }
 
 ezInitContextVulkan::~ezInitContextVulkan()
 {
+  EZ_ASSERT_DEBUG(!m_currentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
+
   m_pCommandBufferPool->DeInitialize();
   m_pStagingBufferPool->DeInitialize();
 }

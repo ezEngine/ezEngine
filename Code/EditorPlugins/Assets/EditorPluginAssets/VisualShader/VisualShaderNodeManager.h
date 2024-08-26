@@ -25,10 +25,9 @@ class ezVisualShaderNodeManager : public ezDocumentNodeManager
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
 
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
-  virtual ezStringView GetTypeCategory(const ezRTTI* pRtti) const override;
 
 private:
   virtual ezStatus InternalCanAdd(

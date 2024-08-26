@@ -16,17 +16,9 @@ public:
 
   // ************************************* PROPERTIES ***********************************
 
-  void SetColorGradient(const ezColorGradientResourceHandle& hResource) { m_hGradient = hResource; }
-  EZ_ALWAYS_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
-
-  void SetColorGradientFile(const char* szFile);
-  const char* GetColorGradientFile() const;
-
   ezEnum<ezParticleColorGradientMode> m_GradientMode;
   float m_fMaxSpeed = 1.0f;
   ezColor m_TintColor = ezColor::White;
-
-private:
   ezColorGradientResourceHandle m_hGradient;
 };
 

@@ -18,7 +18,7 @@ public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
   ezCompressedStreamReaderZstd(ezStreamReader* pInputStream); // [tested]
 
-  ~ezCompressedStreamReaderZstd(); // [tested]
+  ~ezCompressedStreamReaderZstd();                            // [tested]
 
   /// \brief Configures the reader to decompress the data from the given input stream.
   ///

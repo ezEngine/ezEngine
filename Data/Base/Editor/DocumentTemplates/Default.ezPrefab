@@ -11,19 +11,20 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2920325690362896519,5128321439156194886}}
-		u4 %Hash{15876521683149008668}
+		u4 %Hash{17654819411279948814}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{11350417277513919656,15935983041589108641}}
+			Uuid{u4{9642252232022214744,7408486039025055184}}
 		}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 o
 {
-	Uuid %id{u4{11350417277513919656,15935983041589108641}}
+	Uuid %id{u4{9642252232022214744,7408486039025055184}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
@@ -70,7 +71,7 @@ o
 }
 o
 {
-	Uuid %id{u4{8221144114749658163,6937315010754014048}}
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
 	u3 %v{2}
 	s %n{"ObjectTree"}

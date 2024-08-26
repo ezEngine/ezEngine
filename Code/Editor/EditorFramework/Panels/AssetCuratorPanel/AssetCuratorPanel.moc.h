@@ -49,4 +49,3 @@ private:
   ezQtAssetCuratorFilter* m_pFilter;
   QPersistentModelIndex m_SelectedIndex;
 };
-

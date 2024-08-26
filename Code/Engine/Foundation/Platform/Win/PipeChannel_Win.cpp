@@ -72,6 +72,7 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
     HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
+    EZ_IGNORE_UNUSED(port);
     EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
   }
   return true;
@@ -316,6 +317,8 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 
 void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfered, DWORD uiError)
 {
+  EZ_IGNORE_UNUSED(uiError);
+
   EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
   bool bRes = true;
   if (pContext == &m_InputState.Context)
@@ -349,5 +352,3 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
   }
 }
 #endif
-
-

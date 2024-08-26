@@ -276,7 +276,7 @@ bool ezRcAgentComponent::IsPositionVisible(const ezVec3& vPos) const
 {
   ezRcPos endPos = vPos;
 
-  dtRaycastHit hit;
+  dtRaycastHit hit{};
   if (dtStatusFailed(m_pQuery->raycast(m_pCorridor->getFirstPoly(), m_pCorridor->getPos(), endPos, &m_QueryFilter, 0, &hit)))
     return false;
 

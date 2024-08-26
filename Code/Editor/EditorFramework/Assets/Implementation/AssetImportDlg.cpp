@@ -87,4 +87,3 @@ void ezQtAssetImportDlg::on_ButtonImport_clicked()
 
   accept();
 }
-

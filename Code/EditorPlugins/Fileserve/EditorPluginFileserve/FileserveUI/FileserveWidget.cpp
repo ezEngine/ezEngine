@@ -78,7 +78,7 @@ ezQtFileserveWidget::ezQtFileserveWidget(QWidget* pParent /*= nullptr*/)
 
   UpdateSpecialDirectoryUI();
 
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_start"))
+  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_nostart"))
   {
     QTimer::singleShot(100, this, &ezQtFileserveWidget::on_StartServerButton_clicked);
   }
@@ -400,6 +400,12 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
       LogActivity("Client searching for Server", ezFileserveActivityType::Other);
     }
     break;
+
+    case ezFileserverEvent::Type::LogCustomActivity:
+    {
+      LogActivity(e.m_szName, ezFileserveActivityType::Other);
+    }
+    break;
   }
 }
 
@@ -510,7 +516,7 @@ void ezQtFileserveWidget::UpdateClientList()
   {
     QTreeWidgetItem* pClient = new QTreeWidgetItem();
 
-    sName.Format("Client: {0}", it.Key());
+    sName.SetFormat("Client: {0}", it.Key());
     pClient->setText(0, sName.GetData());
     pClient->setText(1, it.Value().m_bConnected ? "connected" : "disconnected");
 

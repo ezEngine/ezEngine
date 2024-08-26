@@ -75,12 +75,24 @@ ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
   return DoMouseMoveEvent(e);
 }
 
+
+void ezEditorInputContext::SetActiveInputContext(ezEditorInputContext* pContext)
+{
+  if (s_pActiveInputContext)
+    s_pActiveInputContext->OnDeactivated();
+
+  s_pActiveInputContext = pContext;
+
+  if (s_pActiveInputContext)
+    s_pActiveInputContext->OnActivated();
+}
+
 void ezEditorInputContext::MakeActiveInputContext(bool bActive /*= true*/)
 {
   if (bActive)
-    s_pActiveInputContext = this;
+    SetActiveInputContext(this);
   else
-    s_pActiveInputContext = nullptr;
+    SetActiveInputContext(nullptr);
 }
 
 void ezEditorInputContext::UpdateActiveInputContext()

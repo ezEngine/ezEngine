@@ -24,8 +24,7 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (!pInfo->m_bMainAsset)
     return true;
 
-  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency &&
-      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+  if ((pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingPackageDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError))
   {
     return true;
   }
@@ -35,6 +34,19 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
     {
       for (auto& ref : pInfo->m_pAssetInfo->m_MissingThumbnailDeps)
+      {
+        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
+    {
+      for (auto& ref : pInfo->m_pAssetInfo->m_MissingPackageDeps)
       {
         if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
         {
@@ -170,7 +182,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
       ezStringBuilder sTmp;
-      sTmp.Format("{} - u4{{},{}}", sDep, uiLow, uiHigh);
+      sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
 
       return sTmp;
     }
@@ -186,8 +198,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     ezLog::Error(&logger, "Missing Transform Dependency:");
     for (const ezString& dep : pAssetInfo->m_MissingTransformDeps)
     {
-      ezStringBuilder sNiceName = getNiceName(dep);
-      ezLog::Error(&logger, "{0}", sNiceName);
+      ezStringBuilder m_sNiceName = getNiceName(dep);
+      ezLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
   else if (pAssetInfo->m_TransformState == ezAssetInfo::CircularDependency)
@@ -195,8 +207,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     ezLog::Error(&logger, "Circular Dependency:");
     for (const ezString& ref : pAssetInfo->m_CircularDependencies)
     {
-      ezStringBuilder sNiceName = getNiceName(ref);
-      ezLog::Error(&logger, "{0}", sNiceName);
+      ezStringBuilder m_sNiceName = getNiceName(ref);
+      ezLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
   else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
@@ -204,8 +216,17 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     ezLog::Error(&logger, "Missing Thumbnail Dependency:");
     for (const ezString& ref : pAssetInfo->m_MissingThumbnailDeps)
     {
-      ezStringBuilder sNiceName = getNiceName(ref);
-      ezLog::Error(&logger, "{0}", sNiceName);
+      ezStringBuilder m_sNiceName = getNiceName(ref);
+      ezLog::Error(&logger, "{0}", m_sNiceName);
+    }
+  }
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
+  {
+    ezLog::Error(&logger, "Missing Package Dependency:");
+    for (const ezString& ref : pAssetInfo->m_MissingPackageDeps)
+    {
+      ezStringBuilder m_sNiceName = getNiceName(ref);
+      ezLog::Error(&logger, "{0}", m_sNiceName);
     }
   }
   else if (pAssetInfo->m_TransformState == ezAssetInfo::TransformError)

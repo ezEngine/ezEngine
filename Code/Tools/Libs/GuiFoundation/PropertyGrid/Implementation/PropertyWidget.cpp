@@ -513,7 +513,6 @@ void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 
 /// *** INT SPINBOX ***
 
-
 ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue)
   : ezQtStandardPropertyWidget()
 {
@@ -544,8 +543,21 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   }
 }
 
-
 ezQtPropertyEditorIntSpinboxWidget::~ezQtPropertyEditorIntSpinboxWidget() = default;
+
+void ezQtPropertyEditorIntSpinboxWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    if (m_pWidget[i])
+      m_pWidget[i]->setReadOnly(bReadOnly);
+  }
+
+  if (m_pSlider)
+  {
+    m_pSlider->setDisabled(bReadOnly);
+  }
+}
 
 void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
@@ -817,6 +829,200 @@ void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
   m_bTemporaryCommand = false;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezMap<ezString, ezQtImageSliderWidget::ImageGeneratorFunc> ezQtImageSliderWidget::s_ImageGenerators;
+
+ezQtImageSliderWidget::ezQtImageSliderWidget(ImageGeneratorFunc generator, double fMinValue, double fMaxValue, QWidget* pParent)
+  : QWidget(pParent)
+{
+  m_Generator = generator;
+  m_fMinValue = fMinValue;
+  m_fMaxValue = fMaxValue;
+
+  setAutoFillBackground(false);
+}
+
+void ezQtImageSliderWidget::SetValue(double fValue)
+{
+  if (m_fValue == fValue)
+    return;
+
+  m_fValue = fValue;
+  update();
+}
+
+void ezQtImageSliderWidget::paintEvent(QPaintEvent* event)
+{
+  QPainter painter(this);
+  painter.setRenderHint(QPainter::RenderHint::Antialiasing);
+
+  const QRect area = rect();
+
+  if (area.width() != m_Image.width())
+    UpdateImage();
+
+  painter.drawTiledPixmap(area, QPixmap::fromImage(m_Image));
+
+  const float factor = ezMath::Unlerp(m_fMinValue, m_fMaxValue, m_fValue);
+
+  const double pos = (int)(factor * area.width()) + 0.5f;
+
+  const double top = area.top() + 0.5;
+  const double bot = area.bottom() + 0.5;
+  const double len = 5.0;
+  const double wid = 2.0;
+
+  const QColor col = qRgb(80, 80, 80);
+
+  painter.setPen(col);
+  painter.setBrush(col);
+
+  {
+    QPainterPath path;
+    path.moveTo(QPointF(pos - wid, top));
+    path.lineTo(QPointF(pos, top + len));
+    path.lineTo(QPointF(pos + wid, top));
+    path.closeSubpath();
+
+    painter.drawPath(path);
+  }
+
+  {
+    QPainterPath path;
+    path.moveTo(QPointF(pos - wid, bot));
+    path.lineTo(QPointF(pos, bot - len));
+    path.lineTo(QPointF(pos + wid, bot));
+    path.closeSubpath();
+
+    painter.drawPath(path);
+  }
+}
+
+void ezQtImageSliderWidget::UpdateImage()
+{
+  const int width = rect().width();
+
+  if (m_Generator)
+  {
+    m_Image = m_Generator(rect().width(), rect().height(), m_fMinValue, m_fMaxValue);
+  }
+  else
+  {
+    m_Image = QImage(width, 1, QImage::Format::Format_RGB32);
+
+    ezColorGammaUB cg = ezColor::HotPink;
+    for (int x = 0; x < width; ++x)
+    {
+      m_Image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));
+    }
+  }
+}
+
+void ezQtImageSliderWidget::mouseMoveEvent(QMouseEvent* event)
+{
+  if (event->buttons().testFlag(Qt::LeftButton))
+  {
+    const int width = rect().width();
+    const int height = rect().height();
+
+    QPoint coord = event->pos();
+    const int x = ezMath::Clamp(coord.x(), 0, width - 1);
+
+    const double fx = (double)x / (width - 1);
+    const double val = ezMath::Lerp(m_fMinValue, m_fMaxValue, fx);
+
+    valueChanged(val);
+  }
+
+  event->accept();
+}
+
+void ezQtImageSliderWidget::mousePressEvent(QMouseEvent* event)
+{
+  mouseMoveEvent(event);
+  event->accept();
+}
+
+void ezQtImageSliderWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton)
+  {
+    Q_EMIT sliderReleased();
+  }
+  event->accept();
+}
+
+/// *** SLIDER ***
+
+ezQtPropertyEditorSliderWidget::ezQtPropertyEditorSliderWidget()
+  : ezQtStandardPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pLayout);
+}
+
+ezQtPropertyEditorSliderWidget::~ezQtPropertyEditorSliderWidget() = default;
+
+void ezQtPropertyEditorSliderWidget::OnInit()
+{
+  const ezImageSliderUiAttribute* pSliderAttr = m_pProp->GetAttributeByType<ezImageSliderUiAttribute>();
+  const ezClampValueAttribute* pRange = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  EZ_ASSERT_DEV(pRange != nullptr, "ezImageSliderUiAttribute always has to be compined with ezClampValueAttribute to specify the valid range.");
+  EZ_ASSERT_DEV(pRange->GetMinValue().IsValid() && pRange->GetMaxValue().IsValid(), "The min and max values used with ezImageSliderUiAttribute both have to be valid.");
+
+  m_fMinValue = pRange->GetMinValue().ConvertTo<double>();
+  m_fMaxValue = pRange->GetMaxValue().ConvertTo<double>();
+
+  m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], m_fMinValue, m_fMaxValue, this);
+
+  m_pLayout->insertWidget(0, m_pSlider);
+  connect(m_pSlider, SIGNAL(valueChanged(double)), this, SLOT(SlotSliderValueChanged(double)));
+  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
+
+  if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  {
+    ezQtScopedBlockSignals bs(m_pSlider);
+
+    if (pDefault->GetValue().CanConvertTo<double>())
+    {
+      m_pSlider->SetValue(pDefault->GetValue().ConvertTo<double>());
+    }
+  }
+}
+
+void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtScopedBlockSignals bs(m_pSlider);
+
+  m_OriginalType = value.GetType();
+
+  m_pSlider->SetValue(value.ConvertTo<double>());
+}
+
+void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  BroadcastValueChanged(ezVariant(fValue).ConvertTo(m_OriginalType));
+
+  m_pSlider->SetValue(fValue);
+}
+
+void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
 
 /// *** QUATERNION ***
 
@@ -928,12 +1134,16 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
 }
 
+void ezQtPropertyEditorLineEditWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  m_pWidget->setReadOnly(bReadOnly);
+}
+
 void ezQtPropertyEditorLineEditWidget::OnInit()
 {
   if (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     setEnabled(true);
-
     ezQtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);
@@ -1115,22 +1325,16 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
-
-  m_pWidget = new QComboBox(this);
-  m_pWidget->installEventFilter(this);
-  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_pLayout->addWidget(m_pWidget);
-
-  connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
 }
 
 void ezQtPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* pType = m_pProp->GetSpecificType();
 
-  ezQtScopedBlockSignals bs(m_pWidget);
+  const ezUInt32 uiCount = pType->GetProperties().GetCount();
 
-  ezUInt32 uiCount = pType->GetProperties().GetCount();
+  ezHybridArray<const ezAbstractProperty*, 16> props;
+
   // Start at 1 to skip default value.
   for (ezUInt32 i = 1; i < uiCount; ++i)
   {
@@ -1139,34 +1343,101 @@ void ezQtPropertyEditorEnumWidget::OnInit()
     if (pProp->GetCategory() != ezPropertyCategory::Constant)
       continue;
 
-    const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+    props.PushBack(pProp);
+  }
 
-    m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+  // this code path implements using multiple buttons in a row instead of a combobox, for small number of entries
+  // it works for 2 elements, but often already looks bad with 3 elements
+  // but even with 2 elements, it just adds visual clutter (unused values are now visible)
+  // so I'm not going to enable it, but keep it in, in case we want to try it again in the future
+  constexpr bool bUseButtons = false;
+
+  if (bUseButtons && props.GetCount() <= EZ_ARRAY_SIZE(m_pButtons))
+  {
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pButtons[i] = new QPushButton(this);
+      m_pButtons[i]->setText(ezMakeQString(ezTranslate(pConstant->GetPropertyName())));
+      m_pButtons[i]->setCheckable(true);
+      m_pButtons[i]->setProperty("value", pConstant->GetConstant().ConvertTo<ezInt64>());
+
+      connect(m_pButtons[i], SIGNAL(clicked(bool)), this, SLOT(on_ButtonClicked_changed(bool)));
+
+      m_pLayout->addWidget(m_pButtons[i]);
+    }
+  }
+  else
+  {
+    m_pWidget = new QComboBox(this);
+    m_pWidget->installEventFilter(this);
+    m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    m_pLayout->addWidget(m_pWidget);
+
+    connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
+
+    ezQtScopedBlockSignals bs(m_pWidget);
+
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
 
-  if (value.IsValid())
+  if (m_pWidget)
   {
-    ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
-    EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    ezInt32 iIndex = -1;
+    if (value.IsValid())
+    {
+      iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
+      EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    }
+
+    ezQtScopedBlockSignals b(m_pWidget);
     m_pWidget->setCurrentIndex(iIndex);
   }
   else
   {
-    m_pWidget->setCurrentIndex(-1);
+    const ezInt64 iValue = value.ConvertTo<ezInt64>();
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_pButtons); ++i)
+    {
+      if (m_pButtons[i])
+      {
+        const ezInt64 iButtonValue = m_pButtons[i]->property("value").toLongLong();
+
+        ezQtScopedBlockSignals b(m_pButtons[i]);
+        m_pButtons[i]->setChecked(iButtonValue == iValue);
+      }
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 {
-  ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
+  const ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
   BroadcastValueChanged(iValue);
 }
 
+void ezQtPropertyEditorEnumWidget::on_ButtonClicked_changed(bool checked)
+{
+  if (QPushButton* pButton = qobject_cast<QPushButton*>(sender()))
+  {
+    const ezInt64 iValue = pButton->property("value").toLongLong();
+    BroadcastValueChanged(iValue);
+  }
+}
 
 /// *** BITFLAGS COMBOBOX ***
 

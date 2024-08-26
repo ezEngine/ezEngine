@@ -3,7 +3,7 @@
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
@@ -46,13 +46,13 @@ EZ_ALWAYS_INLINE void ezVec2Template<Type>::SetZero()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength() const
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength() const
 {
   return (ezMath::Sqrt(GetLengthSquared()));
 }
 
 template <typename Type>
-ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec2Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
     return EZ_FAILURE;
@@ -68,7 +68,7 @@ EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
 }
 
 template <typename Type>
-EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthAndNormalize()
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthAndNormalize()
 {
   const Type fLength = GetLength();
   *this /= fLength;
@@ -76,7 +76,7 @@ EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthAndNormalize()
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetNormalized() const
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetNormalized() const
 {
   const Type fLen = GetLength();
 
@@ -85,13 +85,13 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetNormalized()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec2Template<Type>::Normalize()
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE void ezVec2Template<Type>::Normalize()
 {
   *this /= GetLength();
 }
 
 template <typename Type>
-inline ezResult ezVec2Template<Type>::NormalizeIfNotZero(const ezVec2Template<Type>& vFallback, Type fEpsilon)
+EZ_IMPLEMENT_IF_FLOAT_TYPE inline ezResult ezVec2Template<Type>::NormalizeIfNotZero(const ezVec2Template<Type>& vFallback, Type fEpsilon)
 {
   EZ_NAN_ASSERT(&vFallback);
 
@@ -111,7 +111,7 @@ inline ezResult ezVec2Template<Type>::NormalizeIfNotZero(const ezVec2Template<Ty
   length is between a lower and upper limit.
 */
 template <typename Type>
-inline bool ezVec2Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
+EZ_IMPLEMENT_IF_FLOAT_TYPE inline bool ezVec2Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLengthSquared();
   return ezMath::IsEqual(t, (Type)(1), fEpsilon);
@@ -191,16 +191,23 @@ EZ_FORCE_INLINE void ezVec2Template<Type>::operator*=(Type f)
 template <typename Type>
 EZ_FORCE_INLINE void ezVec2Template<Type>::operator/=(Type f)
 {
-  const Type f_inv = ezMath::Invert(f);
-
-  x *= f_inv;
-  y *= f_inv;
+  if constexpr (std::is_floating_point_v<Type>)
+  {
+    const Type f_inv = ezMath::Invert(f);
+    x *= f_inv;
+    y *= f_inv;
+  }
+  else
+  {
+    x /= f;
+    y /= f;
+  }
 
   EZ_NAN_ASSERT(this);
 }
 
 template <typename Type>
-inline void ezVec2Template<Type>::MakeOrthogonalTo(const ezVec2Template<Type>& vNormal)
+EZ_IMPLEMENT_IF_FLOAT_TYPE inline void ezVec2Template<Type>::MakeOrthogonalTo(const ezVec2Template<Type>& vNormal)
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The normal must be normalized.");
 
@@ -218,7 +225,7 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetOrthogonalVe
 }
 
 template <typename Type>
-inline const ezVec2Template<Type> ezVec2Template<Type>::GetReflectedVector(const ezVec2Template<Type>& vNormal) const
+EZ_IMPLEMENT_IF_FLOAT_TYPE inline const ezVec2Template<Type> ezVec2Template<Type>::GetReflectedVector(const ezVec2Template<Type>& vNormal) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
@@ -336,9 +343,16 @@ EZ_FORCE_INLINE const ezVec2Template<Type> operator/(const ezVec2Template<Type>&
 {
   EZ_NAN_ASSERT(&v);
 
-  // multiplication is much faster than division
-  const Type f_inv = ezMath::Invert(f);
-  return ezVec2Template<Type>(v.x * f_inv, v.y * f_inv);
+  if constexpr (std::is_floating_point_v<Type>)
+  {
+    // multiplication is much faster than division
+    const Type f_inv = ezMath::Invert(f);
+    return ezVec2Template<Type>(v.x * f_inv, v.y * f_inv);
+  }
+  else
+  {
+    return ezVec2Template<Type>(v.x / f, v.y / f);
+  }
 }
 
 template <typename Type>

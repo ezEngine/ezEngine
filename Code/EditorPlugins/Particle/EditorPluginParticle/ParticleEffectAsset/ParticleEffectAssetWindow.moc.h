@@ -64,4 +64,3 @@ private:
   ezMap<ezString, ezDocumentObject*> m_ParticleSystems;
   bool m_bDoLiveResourceUpdate = true;
 };
-

@@ -1,0 +1,45 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[SHADER]
+
+
+#include "TestPushConstants.h"
+
+[VERTEXSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+VS_OUT main(uint vertexId : SV_VertexID)
+{
+  VS_OUT RetVal;
+  RetVal.Position = GET_PUSH_CONSTANT(ezTestData, Vertex0);
+  if (vertexId == 1)
+	  RetVal.Position = GET_PUSH_CONSTANT(ezTestData, Vertex1);
+  else if (vertexId == 2)
+	  RetVal.Position = GET_PUSH_CONSTANT(ezTestData, Vertex2);
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return GET_PUSH_CONSTANT(ezTestData, VertexColor);
+}
+

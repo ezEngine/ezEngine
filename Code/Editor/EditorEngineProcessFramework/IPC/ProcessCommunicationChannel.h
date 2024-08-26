@@ -23,6 +23,7 @@ public:
   using WaitForMessageCallback = ezDelegate<bool(ezProcessMessage*)>;
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack = nullptr);
   ezResult WaitForConnection(ezTime timeout);
+  bool IsConnected() const;
 
   /// \brief Returns true if any message was processed
   bool ProcessMessages();

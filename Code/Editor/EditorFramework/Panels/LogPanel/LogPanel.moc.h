@@ -38,4 +38,3 @@ private:
   ezUInt32 m_uiKnownNumErrors = 0;
   ezUInt32 m_uiKnownNumWarnings = 0;
 };
-

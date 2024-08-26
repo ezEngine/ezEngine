@@ -14,7 +14,7 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{1502793621205532301,5668305227750489386}}
-		u4 %Hash{9460754411325589458}
+		u4 %Hash{10424763916164472919}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -32,6 +32,7 @@ o
 			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 			s{"{ e38196a3-7908-479c-b317-c88a52287ad9 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -66,6 +67,8 @@ o
 	u3 %v{2}
 	p
 	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
 		s %DefaultSkeleton{"{ e38196a3-7908-479c-b317-c88a52287ad9 }"}
 		b %ImportMaterials{0}
 		VarArray %Materials
@@ -74,10 +77,14 @@ o
 			Uuid{u4{7964498404575261878,4913100658956055885}}
 			Uuid{u4{1535286956836320922,5295718672056374915}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Animations/Turret/Turret.glb"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
 		b %RecalculateNormals{1}
 		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 	}
 }
@@ -124,6 +131,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
 	}
 }
 o

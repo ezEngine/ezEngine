@@ -3,11 +3,11 @@
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <KrautGenerator/Description/Physics.h>
 #include <KrautGenerator/Lod/TreeStructureLod.h>
 #include <KrautGenerator/Lod/TreeStructureLodGenerator.h>
@@ -254,7 +254,8 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   // store spheres for a 'cheap' ambient occlusion computation
   GenerateAmbientOcclusionSpheres(octree, bbox2, occlusionSpheres, treeStructure);
 
-  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& vPos) -> float {
+  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& vPos) -> float
+  {
     constexpr float fCluster = 4.0f;
     constexpr float fDivCluster = 1.0f / fCluster;
 

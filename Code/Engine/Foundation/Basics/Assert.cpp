@@ -76,7 +76,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     ++iHideCursor;
 #  endif
 
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && defined(_DEBUG)
 
   ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
@@ -136,5 +136,3 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   ezStringBuilder tmp;
   return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetTextCStr(tmp));
 }
-
-

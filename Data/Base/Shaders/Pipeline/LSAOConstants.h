@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
+#include "../Common/Platforms.h"
 
 // Total number of directions in the sweep pass.
-#define NUM_SWEEP_DIRECTIONS_PER_FRAME 36  // No temporal filtering, so this is also the total number of dirs!
+#define NUM_SWEEP_DIRECTIONS_PER_FRAME 36 // No temporal filtering, so this is also the total number of dirs!
 // Information about a direction.
 struct DirectionInfo
 {
@@ -19,8 +19,8 @@ struct DirectionInfo
 // Information about a single line.
 struct LineInstruction
 {
-  FLOAT2(FirstSamplePos); // Screen pixel at which this line starts.
-  UINT1(LineDirIndex_NumSamples);    // Packed half half: Index that identifies the direction of this sample, number of samples this line has
+  FLOAT2(FirstSamplePos);             // Screen pixel at which this line starts.
+  UINT1(LineDirIndex_NumSamples);     // Packed half half: Index that identifies the direction of this sample, number of samples this line has
   UINT1(LineSweepOutputBufferOffset); // Index of the first output sample this line should write to.
 };
 

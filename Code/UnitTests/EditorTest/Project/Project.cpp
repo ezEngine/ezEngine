@@ -90,6 +90,7 @@ ezTestAppRun ezEditorTestProject::CreateDocuments()
 
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingTransformDependency], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingPackageDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingThumbnailDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::CircularDependency], 0);
   }
@@ -104,7 +105,6 @@ ezTestAppRun ezEditorTestProject::CreateCppSolution()
   EZ_TEST_BOOL(!ezCppProject::ExistsSolution(cpp));
 
   cpp.m_sPluginName = "TestPlugin";
-  cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
 
   EZ_TEST_RESULT(cpp.Save());
   EZ_TEST_RESULT(ezCppProject::CleanBuildDir(cpp));

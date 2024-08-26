@@ -178,7 +178,7 @@ ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
 
 static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStringBuilder& ref_sTemp)
 {
-  ref_sTemp.Format(szString, uiNumber);
+  ref_sTemp.SetFormat(szString, uiNumber);
   return ref_sTemp.GetData();
 }
 
@@ -465,5 +465,3 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 
   return EZ_SUCCESS;
 }
-
-

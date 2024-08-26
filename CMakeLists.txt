@@ -21,6 +21,10 @@ if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
 	set(EZ_SUBMODULE_MODE FALSE)
 else()
 	set(EZ_SUBMODULE_MODE TRUE)
+
+	if (NOT DEFINED EZ_SUBMODULE_ROOT_IDE_FOLDER)
+		set(EZ_SUBMODULE_ROOT_IDE_FOLDER "ezEngine")
+	endif()
 endif()
 
 set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
@@ -44,6 +48,8 @@ if(NOT EZ_SUBMODULE_MODE)
 		LANGUAGES ${EZ_LANGUAGES})
 endif()
 
+include("ezPlatform")
+
 ez_set_build_types()
 ez_check_build_type()
 ez_write_configuration_txt()
@@ -54,8 +60,6 @@ if(EZ_CUSTOM_TOOLCHAIN_FILE)
 endif()
 
 ez_pull_all_vars()
-
-include("ezPlatformVars")
 
 set(EZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code")
 
@@ -77,6 +81,15 @@ if(NOT EZ_SUBMODULE_MODE)
 	if(TARGET Editor)
 		# sets the Editor project as the default startup project in Visual Studio
 		set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
+
+		get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
+		if(EXTERNAL_PROJECTS)
+		  message(STATUS "External Projects (ezEditor): ${EXTERNAL_PROJECTS}")
+		  add_dependencies(Editor ${EXTERNAL_PROJECTS})
+
+		  message(STATUS "External Projects (ezPlayer): ${EXTERNAL_PROJECTS}")
+		  add_dependencies(Player ${EXTERNAL_PROJECTS})
+		  endif()		
 	endif()
 endif()
 
@@ -88,7 +101,8 @@ ez_finalize_projects()
 endif()
 
 get_property(EXPORT_PROJECTS GLOBAL PROPERTY "EXPORT_PROJECTS")
-export(TARGETS ${EXPORT_PROJECTS} FILE "${EZ_OUTPUT_DIRECTORY_DLL}/ezExport.cmake")
+ez_get_export_location(EZ_EXPORT_LOCATION)
+export(TARGETS ${EXPORT_PROJECTS} FILE "${EZ_EXPORT_LOCATION}")
 
 set(EXPORT_INFO "
 set(EXPINP_OUTPUT_DIRECTORY_DLL ${EZ_OUTPUT_DIRECTORY_DLL})

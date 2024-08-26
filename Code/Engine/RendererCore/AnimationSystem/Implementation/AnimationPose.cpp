@@ -2,7 +2,7 @@
 
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
-#include <RendererCore/Shader/Types.h>
+#include <RendererFoundation/Shader/Types.h>
 
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPosePreparing);
@@ -16,8 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPosePreparing, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseGeneration);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseGeneration, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseGeneration>)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -27,8 +27,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseProposal);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseProposal, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseProposal>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationPoseUpdated);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationPoseUpdated, 1, ezRTTIDefaultAllocator<ezMsgAnimationPoseUpdated>)
 {
   EZ_BEGIN_ATTRIBUTES
   {

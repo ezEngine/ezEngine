@@ -71,7 +71,8 @@ void ezScriptCoroutine::Deinitialize()
 // static
 const ezAbstractFunctionProperty* ezScriptCoroutine::GetUpdateFunctionProperty()
 {
-  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty* {
+  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty*
+  {
     const ezRTTI* pType = ezGetStaticRTTI<ezScriptCoroutine>();
     auto functions = pType->GetFunctions();
     for (auto pFunc : functions)
@@ -129,6 +130,8 @@ ezScriptCoroutineFunctionProperty::~ezScriptCoroutineFunctionProperty() = defaul
 
 void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
 {
+  EZ_IGNORE_UNUSED(out_returnValue);
+
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
   auto pScriptInstance = static_cast<ezScriptInstance*>(pInstance);
 
@@ -199,4 +202,3 @@ void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, 
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptCoroutine);
-

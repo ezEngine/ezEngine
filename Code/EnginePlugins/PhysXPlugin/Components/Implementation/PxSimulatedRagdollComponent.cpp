@@ -141,5 +141,5 @@ void ezPxSimulatedRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, co
   pJoint->setTangentialDamping(25.0f);
 
   // TODO ?
-  //pJoint->setDamping(25.0f);
+  // pJoint->setDamping(25.0f);
 }

@@ -73,4 +73,3 @@ protected:
   ezColor m_InitialColor;
   ezColor m_NewColor;
 };
-

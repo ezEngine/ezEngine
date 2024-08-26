@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_NestedStateMachine, 1, ezRTT
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
     EZ_MEMBER_PROPERTY("KeepCurrentStateOnExit", m_bKeepCurrentStateOnExit),
   }
@@ -36,7 +36,7 @@ void ezStateMachineState_NestedStateMachine::OnEnter(ezStateMachineInstance& ref
     ezResourceLock<ezStateMachineResource> pStateMachineResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pStateMachineResource.GetAcquireResult() != ezResourceAcquireResult::Final)
     {
-      ezLog::Error("Failed to load state machine '{}'", GetResourceFile());
+      ezLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
       return;
     }
 
@@ -102,27 +102,6 @@ bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezInstanceDataD
 void ezStateMachineState_NestedStateMachine::SetResource(const ezStateMachineResourceHandle& hResource)
 {
   m_hResource = hResource;
-}
-
-void ezStateMachineState_NestedStateMachine::SetResourceFile(const char* szFile)
-{
-  ezStateMachineResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezStateMachineResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetResource(hResource);
-}
-
-const char* ezStateMachineState_NestedStateMachine::GetResourceFile() const
-{
-  if (!m_hResource.IsValid())
-    return "";
-
-  return m_hResource.GetResourceID();
 }
 
 void ezStateMachineState_NestedStateMachine::SetInitialState(const char* szName)

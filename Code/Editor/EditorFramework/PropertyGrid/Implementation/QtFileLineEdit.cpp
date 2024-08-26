@@ -1,8 +1,8 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/QtFileLineEdit.moc.h>
 
 ezQtFileLineEdit::ezQtFileLineEdit(ezQtFilePropertyWidget* pParent)
   : QLineEdit(pParent)

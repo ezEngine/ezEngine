@@ -89,8 +89,10 @@ public:
   bool IsValidCellCoordinate(const ezVec2I32& vCoord) const;
 
   /// \brief Casts a world space ray through the grid and determines which cell is hit (if any).
-  /// \note The picked cell is determined from where the ray hits the 'ground plane', ie. the plane that goes through the world space
-  /// origin.
+  ///
+  /// \note The picked cell is determined from where the ray hits the 'ground plane', ie. the plane that goes through the world space origin.
+  /// \note Returns true, if the ray would hit the ground, at all. The returned cell coordinate may not be valid (outside the valid range).
+  ///       Call IsValidCellCoordinate() to check.
   bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_pCellCoord, ezVec3* out_pIntersection = nullptr) const;
 
   /// \brief Returns the lower left corner position in world space of the grid
@@ -109,6 +111,11 @@ public:
   /// \brief Tests whether a ray would hit the grid bounding box, if it were expanded by a constant.
   bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
     float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const;
+
+  void ComputeWorldSpaceCorners(ezVec3* pCorners) const;
+
+  ezResult Serialize(ezStreamWriter& ref_stream) const;
+  ezResult Deserialize(ezStreamReader& ref_stream);
 
 private:
   ezUInt16 m_uiGridSizeX;

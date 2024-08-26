@@ -42,10 +42,10 @@ namespace ezJoltCollisionFiltering
     switch (broadphase)
     {
       case ezJoltBroadphaseLayer::Static:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Dynamic:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Query:
         // query shapes never interact with anything in the simulation
@@ -57,13 +57,16 @@ namespace ezJoltCollisionFiltering
         return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character);
 
       case ezJoltBroadphaseLayer::Character:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character);
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Ragdoll:
-        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth);
 
       case ezJoltBroadphaseLayer::Rope:
         return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
+
+      case ezJoltBroadphaseLayer::Cloth:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll);
 
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
@@ -109,6 +112,9 @@ const char* ezJoltObjectToBroadphaseLayer::GetBroadPhaseLayerName(JPH::BroadPhas
     case Rope:
       return "Rope";
 
+    case Cloth:
+      return "Cloth";
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 }
@@ -122,6 +128,7 @@ static_assert(ezPhysicsShapeType::Trigger == EZ_BIT((ezUInt32)ezJoltBroadphaseLa
 static_assert(ezPhysicsShapeType::Character == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character));
 static_assert(ezPhysicsShapeType::Ragdoll == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll));
 static_assert(ezPhysicsShapeType::Rope == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope));
+static_assert(ezPhysicsShapeType::Cloth == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Cloth));
 static_assert(ezPhysicsShapeType::Count == (ezUInt32)ezJoltBroadphaseLayer::ENUM_COUNT);
 
 bool ezJoltObjectLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer) const

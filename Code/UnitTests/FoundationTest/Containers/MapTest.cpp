@@ -16,7 +16,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     // EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 499);
 
-    auto itfound = std::find_if(begin(m), end(m), [](ezMap<ezUInt32, ezUInt32>::ConstIterator val) { return val.Value() == 500; });
+    auto itfound = std::find_if(begin(m), end(m), [](ezMap<ezUInt32, ezUInt32>::ConstIterator val)
+      { return val.Value() == 500; });
 
     // EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
 
@@ -382,40 +383,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration")
-  {
-    ezMap<ezUInt32, ezUInt32> m;
-
-    for (ezInt32 i = 0; i < 1000; ++i)
-      m[i] = i * 10;
-
-    ezInt32 i = 1000 - 1;
-    for (ezMap<ezUInt32, ezUInt32>::Iterator it = m.GetLastIterator(); it.IsValid(); --it)
-    {
-      EZ_TEST_INT(it.Key(), i);
-      EZ_TEST_INT(it.Value(), i * 10);
-      --i;
-    }
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration (const)")
-  {
-    ezMap<ezUInt32, ezUInt32> m;
-
-    for (ezInt32 i = 0; i < 1000; ++i)
-      m[i] = i * 10;
-
-    const ezMap<ezUInt32, ezUInt32> m2(m);
-
-    ezInt32 i = 1000 - 1;
-    for (ezMap<ezUInt32, ezUInt32>::ConstIterator it = m2.GetLastIterator(); it.IsValid(); --it)
-    {
-      EZ_TEST_INT(it.Key(), i);
-      EZ_TEST_INT(it.Value(), i * 10);
-      --i;
-    }
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LowerBound")
   {
     ezMap<ezInt32, ezInt32> m, m2;
@@ -601,10 +568,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map1[tmp] = i;
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       map2[tmp] = i;
     }
 
@@ -612,11 +579,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       EZ_TEST_BOOL(map2.Contains(tmp));
       EZ_TEST_INT(map2[tmp], i);
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       EZ_TEST_BOOL(map1.Contains(tmp));
       EZ_TEST_INT(map1[tmp], i);
     }
@@ -637,10 +604,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map1->Insert(tmp, i);
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       map2->Insert(tmp, i);
     }
 
@@ -649,11 +616,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     // test swapped elements
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       EZ_TEST_BOOL(map2->Contains(tmp));
       EZ_TEST_INT((*map2)[tmp], i);
 
-      tmp.Format("{0}{0}{0}", i);
+      tmp.SetFormat("{0}{0}{0}", i);
       EZ_TEST_BOOL(map1->Contains(tmp));
       EZ_TEST_INT((*map1)[tmp], i);
     }
@@ -694,7 +661,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       map1->Insert(tmp, i);
     }
 
@@ -707,7 +674,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     // test swapped elements
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      tmp.Format("stuff{}bla", i);
+      tmp.SetFormat("stuff{}bla", i);
       EZ_TEST_BOOL(map2->Contains(tmp));
     }
 
@@ -721,5 +688,39 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     map2->~ezMap<ezString, ezInt32>();
     ezMemoryUtils::PatternFill(map2Mem, 0xBA, uiMapSize);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetReverseIterator")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m[i] = i * 10;
+
+    ezInt32 i = 1000 - 1;
+    for (ezMap<ezUInt32, ezUInt32>::ReverseIterator it = m.GetReverseIterator(); it.IsValid(); ++it)
+    {
+      EZ_TEST_INT(it.Key(), i);
+      EZ_TEST_INT(it.Value(), i * 10);
+      --i;
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetReverseIterator (const)")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m[i] = i * 10;
+
+    const ezMap<ezUInt32, ezUInt32> m2(m);
+
+    ezInt32 i = 1000 - 1;
+    for (ezMap<ezUInt32, ezUInt32>::ConstReverseIterator it = m2.GetReverseIterator(); it.IsValid(); ++it)
+    {
+      EZ_TEST_INT(it.Key(), i);
+      EZ_TEST_INT(it.Value(), i * 10);
+      --i;
+    }
   }
 }

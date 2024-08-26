@@ -12,6 +12,11 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 using ezPluginModule = HMODULE;
 
+bool ezPlugin::PlatformNeedsPluginCopy()
+{
+  return true;
+}
+
 void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
   ref_sOriginalFile = ezOSFile::GetApplicationDirectory();

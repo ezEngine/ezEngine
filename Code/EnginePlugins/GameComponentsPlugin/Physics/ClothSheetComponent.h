@@ -62,20 +62,21 @@ protected:
   ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };
 
+/// \brief Flags for how a piece of cloth should be simulated.
 struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
 {
   using StorageType = ezUInt16;
 
   enum Enum
   {
-    FixedCornerTopLeft = EZ_BIT(0),
-    FixedCornerTopRight = EZ_BIT(1),
-    FixedCornerBottomRight = EZ_BIT(2),
-    FixedCornerBottomLeft = EZ_BIT(3),
-    FixedEdgeTop = EZ_BIT(4),
-    FixedEdgeRight = EZ_BIT(5),
-    FixedEdgeBottom = EZ_BIT(6),
-    FixedEdgeLeft = EZ_BIT(7),
+    FixedCornerTopLeft = EZ_BIT(0),     ///< This corner can't move.
+    FixedCornerTopRight = EZ_BIT(1),    ///< This corner can't move.
+    FixedCornerBottomRight = EZ_BIT(2), ///< This corner can't move.
+    FixedCornerBottomLeft = EZ_BIT(3),  ///< This corner can't move.
+    FixedEdgeTop = EZ_BIT(4),           ///< This entire edge can't move.
+    FixedEdgeRight = EZ_BIT(5),         ///< This entire edge can't move.
+    FixedEdgeBottom = EZ_BIT(6),        ///< This entire edge can't move.
+    FixedEdgeLeft = EZ_BIT(7),          ///< This entire edge can't move.
 
     Default = FixedEdgeTop
   };
@@ -95,6 +96,12 @@ struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezClothSheetFlags);
 
+/// \brief Simulates a rectangular piece of cloth.
+///
+/// The cloth doesn't interact with the environment and doesn't collide with any geometry.
+/// The component samples the wind simulation and applies wind forces to the cloth.
+///
+/// Cloth sheets can be used as decorative elements like flags that blow in the wind.
 class EZ_GAMECOMPONENTS_DLL ezClothSheetComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezClothSheetComponent, ezRenderComponent, ezClothSheetComponentManager);
@@ -106,6 +113,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+protected:
   virtual void OnActivated() override;
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
@@ -126,26 +134,37 @@ public:
   ezClothSheetComponent();
   ~ezClothSheetComponent();
 
+  /// Sets the world-space size of the cloth.
   void SetSize(ezVec2 vVal);                 // [ property ]
   ezVec2 GetSize() const { return m_vSize; } // [ property ]
 
-  void SetSlack(ezVec2 vVal);                  // [ property ]
-  ezVec2 GetSlack() const { return m_vSlack; } // [ property ]
-
+  /// Sets of how many pieces the cloth is made up.
+  ///
+  /// More pieces cost more performance to simulate the cloth.
+  /// A size of 32x32 is already quite performance intensive. USe as few segments as possible.
+  /// For many cases 8x8 or 12x12 should already be good enough.
+  /// Also the more segments there are, the more the cloth will sag.
   void SetSegments(ezVec2U32 vVal);                     // [ property ]
   ezVec2U32 GetSegments() const { return m_vSegments; } // [ property ]
 
-  float m_fWindInfluence = 0.3f;    // [ property ]
-  float m_fDamping = 0.5f;          // [ property ]
+  /// How much sag the cloth should have along each axis.
+  void SetSlack(ezVec2 vVal);                  // [ property ]
+  ezVec2 GetSlack() const { return m_vSlack; } // [ property ]
+
+  /// A factor to tweak how strong the wind can push the cloth.
+  float m_fWindInfluence = 0.3f; // [ property ]
+
+  /// Damping slows down cloth movement over time. Higher values make it stop sooner and also improve performance.
+  float m_fDamping = 0.5f; // [ property ]
+
+  /// Tint color for the cloth material.
   ezColor m_Color = ezColor::White; // [ property ]
 
+  /// Sets where the cloth is attached to the world.
   void SetFlags(ezBitflags<ezClothSheetFlags> flags);                // [ property ]
   ezBitflags<ezClothSheetFlags> GetFlags() const { return m_Flags; } // [ property ]
 
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
-
-  ezMaterialResourceHandle m_hMaterial; // [ property ]
+  ezMaterialResourceHandle m_hMaterial;                              // [ property ]
 
 private:
   void Update();

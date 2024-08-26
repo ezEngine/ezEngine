@@ -109,10 +109,6 @@ ezCVar::ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView s
   , m_sDescription(sDescription)
   , m_Flags(Flags)
 {
-  // 'RequiresRestart' only works together with 'Save'
-  if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
-    m_Flags.Add(ezCVarFlags::Save);
-
   EZ_ASSERT_DEV(!m_sDescription.IsEmpty(), "Please add a useful description for CVar '{}'.", sName);
 }
 
@@ -122,7 +118,7 @@ ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 
   while (pCVar)
   {
-    if (pCVar->GetName() == sName)
+    if (pCVar->GetName().IsEqual_NoCase(sName))
       return pCVar;
 
     pCVar = pCVar->GetNextInstance();
@@ -190,7 +186,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
+    sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
     SaveCVarsToFileInternal(sTemp, it.Value());
 
@@ -215,25 +211,25 @@ void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezC
         case ezCVarType::Int:
         {
           ezCVarInt* pInt = (ezCVarInt*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::DelayedSync));
         }
         break;
         case ezCVarType::Bool:
         {
           ezCVarBool* pBool = (ezCVarBool*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::DelayedSync) ? "true" : "false");
         }
         break;
         case ezCVarType::Float:
         {
           ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
-          sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::DelayedSync));
         }
         break;
         case ezCVarType::String:
         {
           ezCVarString* pString = (ezCVarString*)pCVar;
-          sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
+          sTemp.SetFormat("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::DelayedSync));
         }
         break;
         default:
@@ -336,9 +332,9 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
     while (it.IsValid())
     {
       // create the plugin specific file
-      sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
+      sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bSetAsCurrentValue, pOutCVars);
 
       // continue with the next plugin
       ++it;
@@ -364,10 +360,10 @@ void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetA
     pCVar->m_bHasNeverBeenLoaded = false;
   }
 
-  LoadCVarsFromFileInternal(sPath, allCVars, bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+  LoadCVarsFromFileInternal(sPath, allCVars, bSetAsCurrentValue, pOutCVars);
 }
 
-void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
 {
   ezFileReader File;
   ezStringBuilder sTemp;
@@ -453,7 +449,7 @@ void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<e
         }
 
         if (bSetAsCurrentValue)
-          pCVar->SetToRestartValue();
+          pCVar->SetToDelayedSyncValue();
       }
     }
   }
@@ -535,7 +531,7 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
       }
 
       if (bSetAsCurrentValue)
-        pCVar->SetToRestartValue();
+        pCVar->SetToDelayedSyncValue();
     }
   }
 }

@@ -482,5 +482,3 @@ void ezStartup::ReinitToCurrentState()
   if (s_CurrentState != ezStartupStage::None)
     Startup(s_CurrentState);
 }
-
-

@@ -19,7 +19,7 @@ void ezLogWriter::HTML::BeginLog(ezStringView sFile, ezStringView sAppTitle)
     {
       const ezStringBuilder sName = ezPathUtils::GetFileName(sFile);
 
-      sNewName.Format("{0}_{1}", sName, i);
+      sNewName.SetFormat("{0}_{1}", sName, i);
 
       ezStringBuilder sPath = sFile;
       sPath.ChangeFileName(sNewName);
@@ -36,7 +36,7 @@ void ezLogWriter::HTML::BeginLog(ezStringView sFile, ezStringView sAppTitle)
   }
 
   ezStringBuilder sText;
-  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", sAppTitle);
+  sText.SetFormat("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", sAppTitle);
 
   m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
 }
@@ -53,7 +53,7 @@ void ezLogWriter::HTML::EndLog()
   WriteString("", 0);
 
   ezStringBuilder sText;
-  sText.Format("</BODY></HTML>");
+  sText.SetFormat("</BODY></HTML>");
 
   m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount()).IgnoreResult();
 
@@ -103,51 +103,51 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
       break;
 
     case ezLogMsgType::BeginGroup:
-      sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td "
-                   "width=10></td><td width=*>\n",
+      sText.SetFormat("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td "
+                      "width=10></td><td width=*>\n",
         sOriginalText, sTag);
       break;
 
     case ezLogMsgType::EndGroup:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
+      sText.SetFormat("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
 #else
-      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
+      sText.SetFormat("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
 #endif
       break;
 
     case ezLogMsgType::ErrorMsg:
       bFlushWriteCache = true;
-      sText.Format("{0}<font color=\"#FF0000\"><b><u>Error:</u> {1}</b></font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#FF0000\"><b><u>Error:</u> {1}</b></font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::SeriousWarningMsg:
       bFlushWriteCache = true;
-      sText.Format("{0}<font color=\"#FF4000\"><b><u>Seriously:</u> {1}</b></font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#FF4000\"><b><u>Seriously:</u> {1}</b></font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::WarningMsg:
-      sText.Format("{0}<font color=\"#FF8000\"><u>Warning:</u> {1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#FF8000\"><u>Warning:</u> {1}</font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::SuccessMsg:
-      sText.Format("{0}<font color=\"#009000\">{1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#009000\">{1}</font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::InfoMsg:
-      sText.Format("{0}<font color=\"#000000\">{1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#000000\">{1}</font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::DevMsg:
-      sText.Format("{0}<font color=\"#3030F0\">{1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#3030F0\">{1}</font><br>\n", sTimestamp, sOriginalText);
       break;
 
     case ezLogMsgType::DebugMsg:
-      sText.Format("{0}<font color=\"#A000FF\">{1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#A000FF\">{1}</font><br>\n", sTimestamp, sOriginalText);
       break;
 
     default:
-      sText.Format("{0}<font color=\"#A0A0A0\">{1}</font><br>\n", sTimestamp, sOriginalText);
+      sText.SetFormat("{0}<font color=\"#A0A0A0\">{1}</font><br>\n", sTimestamp, sOriginalText);
 
       ezLog::Warning("Unknown Message Type {1}", eventData.m_EventType);
       break;
@@ -167,9 +167,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 void ezLogWriter::HTML::WriteString(ezStringView sText, ezUInt32 uiColor)
 {
   ezStringBuilder sTemp;
-  sTemp.Format("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), sText);
+  sTemp.SetFormat("<font color=\"#{0}\">{1}</font>", ezArgU(uiColor, 1, false, 16, true), sText);
 
   m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount()).IgnoreResult();
 }
-
-

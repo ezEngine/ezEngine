@@ -174,15 +174,16 @@ public:
 ///
 /// \sa ezProfilingScope
 /// \sa EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_SCOPE(szScopeName) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
-
+#  define EZ_PROFILE_SCOPE(ScopeName) \
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
 
 /// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
 ///
 /// This can be used to log an error or save a callstack, etc. when a scope exceeds an expected amount of time.
-/// 
+///
 /// \sa ezProfilingSystem::SetScopeTimeoutCallback()
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szScopeName, EZ_SOURCE_FUNCTION, Timeout)
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout) \
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout)
 
 /// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
 ///
@@ -195,23 +196,26 @@ public:
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) \
-    ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
+#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName) \
+    ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_SCOPE
-#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) ezProfilingListScope::StartNextSection(szNextSectionName)
+#  define EZ_PROFILE_LIST_NEXT_SECTION(NextSectionName) \
+    ezProfilingListScope::StartNextSection(NextSectionName)
+
+/// \brief Used to indicate that a frame is finished and another starts.
+#  define EZ_PROFILER_FRAME_MARKER()
 
 #else
-
-#  define EZ_PROFILE_SCOPE(Name) /*empty*/
-
-#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(szScopeName, Timeout) /*empty*/
-
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName) /*empty*/
-
-#  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) /*empty*/
-
+#  define EZ_PROFILE_SCOPE(ScopeName)
+#  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout)
+#  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)
+#  define EZ_PROFILE_LIST_NEXT_SECTION(NextSectionName)
+#  define EZ_PROFILER_FRAME_MARKER()
 #endif
+
+// Let Tracy override the macros.
+#include <Foundation/Profiling/Profiling_Tracy.h>

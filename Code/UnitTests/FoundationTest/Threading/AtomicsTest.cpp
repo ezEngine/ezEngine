@@ -301,16 +301,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_BOOL(g_iSetVariable64 > 0);
 
     EZ_TEST_BOOL(g_iTestAndSetVariable64 > 0);
-    EZ_TEST_INT(g_iTestAndSetCounter64, 1); // only one thread should have set the variable
+    EZ_TEST_INT(g_iTestAndSetCounter64, 1);      // only one thread should have set the variable
 
     EZ_TEST_BOOL(g_pTestAndSetPointer != nullptr);
     EZ_TEST_INT(g_iTestAndSetPointerCounter, 1); // only one thread should have set the variable
 
     EZ_TEST_BOOL(g_iCompareAndSwapVariable32 > 0);
-    EZ_TEST_INT(g_iCompareAndSwapCounter32, 1); // only one thread should have set the variable
+    EZ_TEST_INT(g_iCompareAndSwapCounter32, 1);  // only one thread should have set the variable
 
     EZ_TEST_BOOL(g_iCompareAndSwapVariable64 > 0);
-    EZ_TEST_INT(g_iCompareAndSwapCounter64, 1); // only one thread should have set the variable
+    EZ_TEST_INT(g_iCompareAndSwapCounter64, 1);  // only one thread should have set the variable
 
     g_iDecVariable = 0;
     EZ_TEST_INT(g_iDecVariable.Decrement(), -1);

@@ -1,6 +1,5 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#include "Foundation/Logging/Log.h"
 #include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/Dialogs/CppProjectDlg.moc.h>
@@ -8,7 +7,10 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/System/Process.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+
 
 ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   : QDialog(pParent)
@@ -24,16 +26,12 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
     PluginName->setText(m_CppSettings.m_sPluginName.GetData());
   }
 
+  if (ezStatus compilerTestResult = ezCppProject::TestCompiler(); compilerTestResult.Failed())
   {
-    ezQtScopedBlockSignals _1(Generator);
-    Generator->addItem("None");
-    Generator->addItem("Visual Studio 2022");
-    Generator->setCurrentIndex(0);
-
-    if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2022)
-    {
-      Generator->setCurrentIndex(1);
-    }
+    // TODO: how do I color the ErrorText label in Red (or whatever error color is configured?)
+    ezStringBuilder fmt;
+    ErrorText->setText(ezMakeQString(ezFmt("<html><b>Error:</b> {}<br>Please go to preferences and configure the C & C++ compiler.", compilerTestResult.m_sMessage).GetText(fmt)));
+    GenerateSolution->setDisabled(true);
   }
 
   UpdateUI();
@@ -54,26 +52,11 @@ void ezQtCppProjectDlg::on_OpenBuildFolder_clicked()
   ezQtUiServices::OpenInExplorer(BuildFolder->text().toUtf8().data(), false);
 }
 
-void ezQtCppProjectDlg::on_Generator_currentIndexChanged(int)
-{
-  switch (Generator->currentIndex())
-  {
-    case 0:
-      m_CppSettings.m_Compiler = ezCppSettings::Compiler::None;
-      break;
-    case 1:
-      m_CppSettings.m_Compiler = ezCppSettings::Compiler::Vs2022;
-      break;
-  }
-
-  UpdateUI();
-}
-
 void ezQtCppProjectDlg::on_OpenSolution_clicked()
 {
-  if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(m_CppSettings)))
+  if (auto result = ezCppProject::OpenSolution(m_CppSettings); result.Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("Opening the solution failed.");
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(result.m_sMessage.GetView());
   }
 }
 
@@ -96,7 +79,6 @@ void ezQtCppProjectDlg::UpdateUI()
   PluginLocation->setText(ezCppProject::GetTargetSourceDir().GetData());
   BuildFolder->setText(ezCppProject::GetBuildDir(m_CppSettings).GetData());
 
-  GenerateSolution->setEnabled(m_CppSettings.m_Compiler != ezCppSettings::Compiler::None);
   OpenPluginLocation->setEnabled(ezOSFile::ExistsDirectory(PluginLocation->text().toUtf8().data()));
   OpenBuildFolder->setEnabled(ezOSFile::ExistsDirectory(BuildFolder->text().toUtf8().data()));
   OpenSolution->setEnabled(ezCppProject::ExistsSolution(m_CppSettings));
@@ -172,10 +154,12 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 
   m_OldCppSettings.Load().IgnoreResult();
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (ezSystemInformation::IsDebuggerAttached())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, CMake usually fails with the error that no C/C++ compiler can be found.\n\nDetach the debugger now, then press OK to continue.");
   }
+#endif
 
   OutputLog->clear();
 

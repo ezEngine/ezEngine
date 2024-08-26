@@ -121,11 +121,8 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetResourceFile(const char* szFile);
-  const char* GetResourceFile() const;
-
-  void SetResource(const ezProcGenGraphResourceHandle& hResource);
-  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
+  void SetResource(const ezProcGenGraphResourceHandle& hResource);                // [ property ]
+  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
@@ -174,6 +171,8 @@ private:
     ezHashTable<ezUInt64, TileIndexAndAge> m_TileIndices;
 
     ezSharedPtr<ezProcGenInternal::FindPlacementTilesTask> m_pUpdateTilesTask;
+
+    bool IsValid() const { return m_pOutput != nullptr && m_pUpdateTilesTask != nullptr; }
   };
 
   ezDynamicArray<OutputContext> m_OutputContexts;

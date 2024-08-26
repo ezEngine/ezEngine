@@ -30,18 +30,19 @@ private:
 
 public:
   /// \brief Base class for all iterators.
-  struct Iterator
+  template <bool REVERSE>
+  struct IteratorBase
   {
     using iterator_category = std::forward_iterator_tag;
-    using value_type = Iterator;
+    using value_type = IteratorBase<REVERSE>;
     using difference_type = std::ptrdiff_t;
-    using pointer = Iterator*;
-    using reference = Iterator&;
+    using pointer = IteratorBase<REVERSE>*;
+    using reference = IteratorBase<REVERSE>&;
 
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator()
+    EZ_ALWAYS_INLINE IteratorBase()
       : m_pElement(nullptr)
     {
     } // [tested]
@@ -50,8 +51,8 @@ public:
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    EZ_ALWAYS_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
-    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezSetBase<KeyType, Comparer>::Iterator&);
+    EZ_ALWAYS_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>& it2) const { return (m_pElement == it2.m_pElement); }
+    EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const typename ezSetBase<KeyType, Comparer>::IteratorBase<REVERSE>&);
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType& Key() const
@@ -61,7 +62,7 @@ public:
     } // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
+    EZ_ALWAYS_INLINE const KeyType& operator*() const { return Key(); }
 
     /// \brief Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -76,9 +77,11 @@ public:
     EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
 
   protected:
+    void Advance(ezInt32 dir0, ezInt32 dir1);
+
     friend class ezSetBase<KeyType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)
+    EZ_ALWAYS_INLINE explicit IteratorBase(Node* pInit)
       : m_pElement(pInit)
     {
     }
@@ -86,12 +89,15 @@ public:
     Node* m_pElement;
   };
 
+  using Iterator = IteratorBase<false>;
+  using ReverseIterator = IteratorBase<true>;
+
 protected:
   /// \brief Initializes the set to be empty.
-  ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
+  ezSetBase(const Comparer& comparer, ezAllocator* pAllocator); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
-  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
+  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destroys all elements in the set.
   ~ezSetBase(); // [tested]
@@ -112,8 +118,8 @@ public:
   /// \brief Returns a constant Iterator to the very first element.
   Iterator GetIterator() const; // [tested]
 
-  /// \brief Returns a constant Iterator to the very last element. For reverse traversal.
-  Iterator GetLastIterator() const; // [tested]
+  /// \brief Returns a constant ReverseIterator to the very last element.
+  ReverseIterator GetReverseIterator() const; // [tested]
 
   /// \brief Inserts the key into the tree and returns an Iterator to it. O(log n) operation.
   template <typename CompatibleKeyType>
@@ -157,7 +163,7 @@ public:
   void Intersection(const ezSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
   /// \brief Comparison operator
   bool operator==(const ezSetBase<KeyType, Comparer>& rhs) const; // [tested]
@@ -232,8 +238,8 @@ class ezSet : public ezSetBase<KeyType, Comparer>
 {
 public:
   ezSet();
-  explicit ezSet(ezAllocatorBase* pAllocator);
-  ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator);
+  explicit ezSet(ezAllocator* pAllocator);
+  ezSet(const Comparer& comparer, ezAllocator* pAllocator);
 
   ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
   ezSet(const ezSetBase<KeyType, Comparer>& other);
@@ -264,18 +270,21 @@ typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& ref_container)
 {
+  EZ_IGNORE_UNUSED(ref_container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container)
 {
+  EZ_IGNORE_UNUSED(container);
   return typename ezSetBase<KeyType, Comparer>::Iterator();
 }
 

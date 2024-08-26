@@ -11,11 +11,12 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{3239165117611803519}
+		u4 %Hash{6656870612682875785}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }
@@ -37,28 +38,15 @@ o
 }
 o
 {
-	Uuid %id{u4{644435269119950011,4689646747377648928}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{16291092880260122269,4789264107521213203}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
-		s %Connection::SourcePin{"FilteredSpecular"}
-		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
-		s %Connection::TargetPin{"Color0"}
-	}
-}
-o
-{
-	Uuid %id{u4{17164636511711599802,4877187546486140270}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
-		s %Connection::SourcePin{"IrradianceData"}
-		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
-		s %Connection::TargetPin{"Color2"}
+		Uuid %Source{u4{4121618234579671715,5033433658973113555}}
+		s %SourcePin{"AvgLuminance"}
+		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
+		s %TargetPin{"Color1"}
 	}
 }
 o
@@ -104,15 +92,28 @@ o
 }
 o
 {
-	Uuid %id{u4{3174646992828454035,5607735692444891926}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{7713987405840942507,5300729465912272990}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{4121618234579671715,5033433658973113555}}
-		s %Connection::SourcePin{"AvgLuminance"}
-		Uuid %Connection::Target{u4{15271478301052053888,5056921536712069061}}
-		s %Connection::TargetPin{"Color1"}
+		Uuid %Source{u4{4121618234579671715,5033433658973113555}}
+		s %SourcePin{"IrradianceData"}
+		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
+		s %TargetPin{"Color2"}
+	}
+}
+o
+{
+	Uuid %id{u4{14402937996557607562,5390487638887318611}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{4121618234579671715,5033433658973113555}}
+		s %SourcePin{"FilteredSpecular"}
+		Uuid %Target{u4{15271478301052053888,5056921536712069061}}
+		s %TargetPin{"Color0"}
 	}
 }
 o
@@ -134,9 +135,9 @@ o
 		{
 			Uuid{u4{15271478301052053888,5056921536712069061}}
 			Uuid{u4{4121618234579671715,5033433658973113555}}
-			Uuid{u4{644435269119950011,4689646747377648928}}
-			Uuid{u4{3174646992828454035,5607735692444891926}}
-			Uuid{u4{17164636511711599802,4877187546486140270}}
+			Uuid{u4{14402937996557607562,5390487638887318611}}
+			Uuid{u4{7713987405840942507,5300729465912272990}}
+			Uuid{u4{16291092880260122269,4789264107521213203}}
 		}
 	}
 }
@@ -242,7 +243,7 @@ o
 }
 o
 {
-	Uuid %id{u4{1988646526571382668,10729334715299371304}}
+	Uuid %id{u4{8636592190291312350,8842102502527186654}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -250,10 +251,10 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezPropertyAttribute"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"DocumentNodeManager_DefaultConnection"}
+		s %TypeName{"ezHiddenAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -276,6 +277,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16010827031939946249,13383519467893930609}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -288,6 +306,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12475066012725324296,14434929982913778195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -322,6 +357,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionFilterPass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
 		u3 %TypeVersion{1}
 	}
 }

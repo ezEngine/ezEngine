@@ -57,11 +57,11 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
     const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
     const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
 
-    temp.Format("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashLow32, 8, true, 16, true));
     arguments << "-assetHashLow";
     arguments << temp.GetData();
 
-    temp.Format("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
+    temp.SetFormat("{0}", ezArgU(uiHashHigh32, 8, true, 16, true));
     arguments << "-assetHashHigh";
     arguments << temp.GetData();
   }
@@ -117,7 +117,7 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
   arguments << "-rgba";
   arguments << "in0.rgba";
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {

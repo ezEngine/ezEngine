@@ -1,3 +1,13 @@
 MoodColor
 MoodStrength
 TouchingGround
+RotateLeft
+RotateRight
+MoveBackwards
+Aim
+StrafeLeft
+MoveForwards
+Use
+Shoot
+StrafeRight
+Wave

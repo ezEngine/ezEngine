@@ -68,9 +68,9 @@ public:
       EZ_LOCK(m_Mutex);
       if (m_ReceivedMessages.GetCount() > 0)
       {
-        auto res = m_ReceivedMessages.PeekFront();
+        auto res2 = m_ReceivedMessages.PeekFront();
         m_ReceivedMessages.PopFront();
-        return res;
+        return res2;
       }
     }
     return {};
@@ -86,7 +86,8 @@ private:
 
 void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcChannel* pClient, ChannelTester* pClientTester)
 {
-  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool {
+  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool
+  {
     ezStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
     return sTemp == sReference;
   };

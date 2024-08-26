@@ -20,7 +20,10 @@ private:
     ST_Texture2D,
     ST_Texture2DArray,
     ST_GenerateMipMaps,
+    ST_PushConstants,
+    ST_SetsSlots,
     ST_Timestamps,
+    ST_OcclusionQueries,
   };
 
   enum ImageCaptureFrames
@@ -44,7 +47,10 @@ private:
     AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
     AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
     AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
-    //AddSubTest("10 - Timestamps", SubTests::ST_Timestamps);
+    AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
+    AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
+    AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
+    AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -62,38 +68,45 @@ private:
   void Texture2D();
   void Texture2DArray();
   void GenerateMipMaps();
-  void Timestamps();
+  void PushConstantsTest();
+  void SetsSlotsTest();
+  ezTestAppRun Timestamps();
+  ezTestAppRun OcclusionQueries();
 
 private:
-
   ezShaderResourceHandle m_hMostBasicTriangleShader;
   ezShaderResourceHandle m_hNDCPositionOnlyShader;
   ezShaderResourceHandle m_hConstantBufferShader;
+  ezShaderResourceHandle m_hPushConstantsShader;
   ezShaderResourceHandle m_hInstancingShader;
 
   ezMeshBufferResourceHandle m_hTriangleMesh;
   ezMeshBufferResourceHandle m_hSphereMesh;
 
+  ezConstantBufferStorageHandle m_hTestPerFrameConstantBuffer;
   ezConstantBufferStorageHandle m_hTestColorsConstantBuffer;
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
   ezGALBufferHandle m_hInstancingData;
-  ezGALResourceViewHandle m_hInstancingDataView_8_4;
-  ezGALResourceViewHandle m_hInstancingDataView_12_4;
+  ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
+  ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALResourceViewHandle m_hTexture2D_Mip0;
-  ezGALResourceViewHandle m_hTexture2D_Mip1;
-  ezGALResourceViewHandle m_hTexture2D_Mip2;
-  ezGALResourceViewHandle m_hTexture2D_Mip3;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip2;
+  ezGALTextureResourceViewHandle m_hTexture2D_Mip3;
   ezGALTextureHandle m_hTexture2DArray;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
-  ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
+  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
-  bool m_bTimestampsValid = false;
+  // Timestamps / Occlusion Queries test
+  ezInt32 m_iDelay = 0;
   ezTime m_CPUTime[2];
   ezTime m_GPUTime[2];
   ezGALTimestampHandle m_timestamps[2];
+  ezGALOcclusionHandle m_queries[4];
+  ezGALFenceHandle m_hFence = {};
 };

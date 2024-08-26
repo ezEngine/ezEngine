@@ -16,7 +16,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -26,7 +26,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -34,6 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetCustomData, OnMsgSetCustomData),
   } EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
@@ -55,6 +57,8 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   s << m_Color;
   s << m_hMaterial;
+
+  s << m_vCustomData;
 }
 
 void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -71,6 +75,11 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     ezUInt32 uiCategory = 0;
     s >> uiCategory;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_vCustomData;
   }
 }
 
@@ -95,7 +104,7 @@ ezDynamicMeshBufferResourceHandle ezCustomMeshComponent::CreateMeshResource(ezGA
   desc.m_bColorStream = true;
 
   ezStringBuilder sGuid;
-  sGuid.Format("CustomMesh_{}", s_iCustomMeshResources.Increment());
+  sGuid.SetFormat("CustomMesh_{}", s_iCustomMeshResources.Increment());
 
   m_hDynamicMesh = ezResourceManager::CreateResource<ezDynamicMeshBufferResource>(sGuid, std::move(desc));
 
@@ -127,26 +136,6 @@ ezMaterialResourceHandle ezCustomMeshComponent::GetMaterial() const
   return m_hMaterial;
 }
 
-void ezCustomMeshComponent::SetMaterialFile(const char* szMaterial)
-{
-  ezMaterialResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szMaterial))
-  {
-    hResource = ezResourceManager::LoadResource<ezMaterialResource>(szMaterial);
-  }
-
-  m_hMaterial = hResource;
-}
-
-const char* ezCustomMeshComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
-}
-
 void ezCustomMeshComponent::SetColor(const ezColor& color)
 {
   m_Color = color;
@@ -159,6 +148,18 @@ const ezColor& ezCustomMeshComponent::GetColor() const
   return m_Color;
 }
 
+void ezCustomMeshComponent::SetCustomData(const ezVec4& vData)
+{
+  m_vCustomData = vData;
+
+  InvalidateCachedRenderData();
+}
+
+const ezVec4& ezCustomMeshComponent::GetCustomData() const
+{
+  return m_vCustomData;
+}
+
 void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 {
   SetMaterial(ref_msg.m_hMaterial);
@@ -167,6 +168,13 @@ void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 void ezCustomMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
   ref_msg.ModifyColor(m_Color);
+
+  InvalidateCachedRenderData();
+}
+
+void ezCustomMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
+{
+  m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
@@ -191,6 +199,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_hMesh = m_hDynamicMesh;
     pRenderData->m_hMaterial = m_hMaterial;
     pRenderData->m_Color = m_Color;
+    pRenderData->m_vCustomData = m_vCustomData;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
     pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
     pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
@@ -207,6 +216,8 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
 void ezCustomMeshComponent::OnActivated()
 {
+  SUPER::OnActivated();
+
   if (false)
   {
     ezGeometry geo;
@@ -258,7 +269,7 @@ void ezCustomMeshRenderData::FillBatchIdAndSortingKey()
 {
   const ezUInt32 uiAdditionalBatchData = 0;
 
-  m_uiFlipWinding = m_GlobalTransform.ContainsNegativeScale() ? 1 : 0;
+  m_uiFlipWinding = m_GlobalTransform.HasMirrorScaling() ? 1 : 0;
   m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
 
   const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());
@@ -331,6 +342,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
     instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
     instanceData[0].Color = pRenderData->m_Color;
+    instanceData[0].CustomData = pRenderData->m_vCustomData;
     instanceData[0].ObjectToWorld = pRenderData->m_GlobalTransform;
 
     if (pRenderData->m_uiUniformScale)

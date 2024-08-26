@@ -2,17 +2,15 @@
 
 #include <Foundation/Strings/StringConversion.h>
 
-inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 }
 
 inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
   : m_Data(rhs.GetAllocator())
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;
@@ -21,40 +19,36 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
 inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
   : m_Data(rhs.GetAllocator())
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = std::move(rhs);
 }
 
-inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = pWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
-  m_uiCharacterCount = 0;
   AppendTerminator();
 
   *this = rhs;
 }
 
-EZ_ALWAYS_INLINE ezAllocatorBase* ezStringBuilder::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocator* ezStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
 }
@@ -73,13 +67,11 @@ EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* pWChar)
 
 EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
 {
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = rhs.m_Data;
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs) noexcept
 {
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
 
@@ -90,12 +82,11 @@ EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetElementCount() const
 
 EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
 {
-  return m_uiCharacterCount;
+  return ezStringUtils::GetCharacterCount(m_Data.GetData());
 }
 
 EZ_FORCE_INLINE void ezStringBuilder::Clear()
 {
-  m_uiCharacterCount = 0;
   m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
 }
@@ -115,7 +106,6 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
     m_Data[uiOldCount + i] = szChar[i];
   }
   m_Data[uiOldCount + uiCharLen] = '\0';
-  ++m_uiCharacterCount;
 }
 
 inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
@@ -127,8 +117,7 @@ inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
   Prepend(szChar);
 }
 
-inline void ezStringBuilder::Append(
-  const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -142,8 +131,7 @@ inline void ezStringBuilder::Append(
   Append(s1.GetView(), s2.GetView(), s3.GetView(), s4.GetView(), s5.GetView(), s6.GetView());
 }
 
-inline void ezStringBuilder::Prepend(
-  const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -204,11 +192,6 @@ inline void ezStringBuilder::ChangeCharacter(iterator& ref_it, ezUInt32 uiCharac
   }
 
   ChangeCharacterNonASCII(ref_it, uiCharacter);
-}
-
-EZ_ALWAYS_INLINE bool ezStringBuilder::IsPureASCII() const
-{
-  return m_uiCharacterCount + 1 == m_Data.GetCount();
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)

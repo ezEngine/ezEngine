@@ -110,9 +110,9 @@ private:
 
       EZ_TEST_BOOL(m_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
-      float posInf = +ezMath::Infinity<float>();
-      float negInf = -ezMath::Infinity<float>();
-      float NaN = ezMath::NaN<float>();
+      const float posInf = +ezMath::Infinity<float>();
+      const float negInf = -ezMath::Infinity<float>();
+      const float NaN = ezMath::NaN<float>();
 
       for (ezUInt32 y = 0; y < m_Image.GetHeight(); ++y)
       {
@@ -201,7 +201,7 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
     // On linux we use CPU based BC6 and BC7 compression, which sometimes gives slightly different results from the GPU compression on Windows.

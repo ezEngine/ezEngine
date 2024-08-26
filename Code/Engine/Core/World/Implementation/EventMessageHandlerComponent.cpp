@@ -17,7 +17,7 @@ namespace
     auto globalEventHandler = s_GlobalEventHandlerPerWorld[uiWorldIndex];
     if (globalEventHandler == nullptr)
     {
-      globalEventHandler = EZ_NEW(ezStaticAllocatorWrapper::GetAllocator(), ezDynamicArray<ezComponentHandle>);
+      globalEventHandler = EZ_NEW(ezStaticsAllocatorWrapper::GetAllocator(), ezDynamicArray<ezComponentHandle>);
 
       s_GlobalEventHandlerPerWorld[uiWorldIndex] = globalEventHandler;
     }

@@ -18,6 +18,7 @@ using namespace DirectX;
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
+// EZ_STATICLINK_FORCE
 ezWicFileFormat g_wicFormat;
 
 namespace
@@ -314,3 +315,5 @@ bool ezWicFileFormat::CanWriteFileType(ezStringView sExtension) const
 #endif
 
 
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_WicFileFormat);

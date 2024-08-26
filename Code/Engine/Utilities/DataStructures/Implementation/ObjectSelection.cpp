@@ -9,7 +9,7 @@ ezObjectSelection::ezObjectSelection()
 
 void ezObjectSelection::SetWorld(ezWorld* pWorld)
 {
-  EZ_ASSERT_DEV((m_pWorld == nullptr) || (m_pWorld == pWorld) || m_Objects.IsEmpty(), "You cannot change the world for this selection.");
+  EZ_ASSERT_DEV((m_pWorld == pWorld) || m_Objects.IsEmpty(), "The selection has to be empty to change the world.");
 
   m_pWorld = pWorld;
 }
@@ -30,6 +30,7 @@ void ezObjectSelection::RemoveDeadObjects()
 
 void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice)
 {
+  EZ_IGNORE_UNUSED(bDontAddTwice);
   EZ_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
 
   // only insert valid objects
@@ -62,5 +63,3 @@ void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
   // ensures invalid objects don't get added
   AddObject(hObject);
 }
-
-

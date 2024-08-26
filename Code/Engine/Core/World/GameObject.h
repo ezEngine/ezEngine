@@ -145,6 +145,7 @@ public:
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
   ezStringView GetName() const;
+  const ezHashedString& GetNameHashed() const;
   bool HasName(const ezTempHashedString& sName) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
@@ -387,15 +388,23 @@ public:
 
 
   /// \brief Sends a message to all components of this object.
+  ///
+  /// Returns true, if there was any recipient for this type of message.
   bool SendMessage(ezMessage& ref_msg);
 
   /// \brief Sends a message to all components of this object.
+  ///
+  /// Returns true, if there was any recipient for this type of message.
   bool SendMessage(ezMessage& ref_msg) const;
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
+  ///
+  /// Returns true, if there was any recipient for this type of message.
   bool SendMessageRecursive(ezMessage& ref_msg);
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
+  ///
+  /// Returns true, if there was any recipient for this type of message.
   bool SendMessageRecursive(ezMessage& ref_msg) const;
 
 

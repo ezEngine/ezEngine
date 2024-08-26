@@ -2,6 +2,7 @@
 
 #include <FileservePlugin/FileservePluginDLL.h>
 
+#include <Core/Interfaces/RemoteToolingInterface.h>
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -24,13 +25,18 @@ namespace ezDataDirectory
 /// The timeout for connecting to the server can be configured through the command line option "-fs_timeout seconds"
 /// The server to connect to can be configured through command line option "-fs_server address".
 /// The default address is "localhost:1042".
-class EZ_FILESERVEPLUGIN_DLL ezFileserveClient
+class EZ_FILESERVEPLUGIN_DLL ezFileserveClient : public ezRemoteToolingInterface
 {
-  EZ_DECLARE_SINGLETON(ezFileserveClient);
+  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezFileserveClient, ezRemoteToolingInterface);
 
 public:
   ezFileserveClient();
   ~ezFileserveClient();
+
+  /// ezRemoteToolingInterface
+
+  /// \brief Returns the network connection interface.
+  ezRemoteInterface* GetRemoteInterface() override { return m_pNetwork.Borrow(); }
 
   /// \brief Can be called at startup to go through multiple sources and search for a valid server address
   ///

@@ -51,13 +51,13 @@ ezMutex ezBlackboard::s_GlobalBlackboardsMutex;
 ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> ezBlackboard::s_GlobalBlackboards;
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboard::Create(ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+ezSharedPtr<ezBlackboard> ezBlackboard::Create(ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
   return EZ_NEW(pAllocator, ezBlackboard, false);
 }
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboard::GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+ezSharedPtr<ezBlackboard> ezBlackboard::GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
   EZ_LOCK(s_GlobalBlackboardsMutex);
 
@@ -130,10 +130,14 @@ void ezBlackboard::ImplSetEntryValue(const ezHashedString& sName, Entry& entry, 
       e.m_OldValue = entry.m_Value;
       e.m_pEntry = &entry;
 
+      entry.m_Value = value;
+
       m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
     }
-
-    entry.m_Value = value;
+    else
+    {
+      entry.m_Value = value;
+    }
   }
 }
 

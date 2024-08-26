@@ -1,0 +1,725 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{1220456451756548754,5622165920806732408}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"ProcGen Graph"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{1220456451756548754,5622165920806732408}}
+		u4 %Hash{36988570623741652}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{17521401117680027241,441807742102349316}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{9456215279697295837,1816994205222812370}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14472571998582166014,2760248233664078485}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5294467343562052867,3431118339946475075}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{16003831935084021401,4669084131024075838}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{5201557601430375009,9668230039902915593}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{10023524557396395427,5682335019921962048}}
+		s %TargetPin{"A"}
+	}
+}
+o
+{
+	Uuid %id{u4{10820931396902585267,4723848224288746920}}
+	s %t{"ezProcGen_PerlinNoise"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xF3475843,0xEBCD0744}}
+		u3 %NumOctaves{3}
+		Vec3 %Offset{f{0,0,0}}
+		f %OutputMax{0x00000040}
+		f %OutputMin{0x000000C0}
+		Vec3 %Scale{f{0x00002041,0x00002041,0x00002041}}
+		Uuid %Value{u4{3711219071390411997,16527195637233523023}}
+	}
+}
+o
+{
+	Uuid %id{u4{12118130827455226432,4772459159260454939}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14793005501245580970,4978451896957019744}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{6957035936242609421,15114126349167316328}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{2945393453614288042,5390783404339050785}}
+		s %TargetPin{"A"}
+	}
+}
+o
+{
+	Uuid %id{u4{15042813205685587866,5001606614377471071}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10820931396902585267,4723848224288746920}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{342095875946641030,5421125739052978393}}
+		s %TargetPin{"B"}
+	}
+}
+o
+{
+	Uuid %id{u4{17586911133254550419,5134354839049849607}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{11444012862197459022,11011150086986021294}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{2945393453614288042,5390783404339050785}}
+		s %TargetPin{"B"}
+	}
+}
+o
+{
+	Uuid %id{u4{9864249981000045738,5139601401010002611}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2945393453614288042,5390783404339050785}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{342095875946641030,5421125739052978393}}
+		s %TargetPin{"G"}
+	}
+}
+o
+{
+	Uuid %id{u4{12808211957416743302,5250457825341558367}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10023524557396395427,5682335019921962048}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{342095875946641030,5421125739052978393}}
+		s %TargetPin{"R"}
+	}
+}
+o
+{
+	Uuid %id{u4{2945393453614288042,5390783404339050785}}
+	s %t{"ezProcGen_Blend"}
+	u3 %v{2}
+	p
+	{
+		Uuid %A{u4{17521401117680027241,441807742102349316}}
+		Uuid %B{u4{1608655639253813773,6490696632020468518}}
+		b %ClampOutput{0}
+		f %InputA{0x0000803F}
+		f %InputB{0x0000803F}
+		Vec2 %Node::Pos{f{0xF3ED9C43,0x8A82AA43}}
+		s %Operator{"ezProcGenBinaryOperator::Multiply"}
+		Uuid %Value{u4{5294467343562052867,3431118339946475075}}
+	}
+}
+o
+{
+	Uuid %id{u4{342095875946641030,5421125739052978393}}
+	s %t{"ezProcGen_VertexColorOutput"}
+	u3 %v{1}
+	p
+	{
+		Uuid %A{u4{14472571998582166014,2760248233664078485}}
+		b %Active{1}
+		Uuid %B{u4{17522699080515542605,18402352706211993469}}
+		Uuid %G{u4{9011841811324516834,17768838923983251743}}
+		s %Name{"Test"}
+		Vec2 %Node::Pos{f{0xB61B3B44,0x16679843}}
+		Uuid %R{u4{13351991985909145303,6869070022817575531}}
+	}
+}
+o
+{
+	Uuid %id{u4{10260784414438394512,5507833223779971367}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{16478836058832875187,5524890956166479462}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{14917836346521151125,5537552663114141131}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{10023524557396395427,5682335019921962048}}
+		s %TargetPin{"B"}
+	}
+}
+o
+{
+	Uuid %id{u4{14917836346521151125,5537552663114141131}}
+	s %t{"ezProcGen_ApplyVolumes"}
+	u3 %v{1}
+	p
+	{
+		s %ImageVolumeMode{"ezProcVolumeImageMode::ReferenceColor"}
+		Uuid %In{u4{12118130827455226432,4772459159260454939}}
+		VarArray %IncludeTags
+		{
+			s{"Damage"}
+		}
+		f %InputValue{0}
+		Vec2 %Node::Pos{f{0x3F00A942,0xA6DB1043}}
+		ColorGamma %RefColor{u1{255,255,255,255}}
+		Uuid %Value{u4{10260784414438394512,5507833223779971367}}
+	}
+}
+o
+{
+	Uuid %id{u4{10023524557396395427,5682335019921962048}}
+	s %t{"ezProcGen_Blend"}
+	u3 %v{2}
+	p
+	{
+		Uuid %A{u4{14580786603178494323,15144210912277205967}}
+		Uuid %B{u4{11708211384522589888,12522568163438974212}}
+		b %ClampOutput{0}
+		f %InputA{0x0000803F}
+		f %InputB{0x0000803F}
+		Vec2 %Node::Pos{f{0xDE77A343,0x1D34CB42}}
+		s %Operator{"ezProcGenBinaryOperator::Multiply"}
+		Uuid %Value{u4{9456215279697295837,1816994205222812370}}
+	}
+}
+o
+{
+	Uuid %id{u4{8449231564324983608,5758774532480775068}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{342095875946641030,5421125739052978393}}
+			Uuid{u4{10820931396902585267,4723848224288746920}}
+			Uuid{u4{15042813205685587866,5001606614377471071}}
+			Uuid{u4{14917836346521151125,5537552663114141131}}
+			Uuid{u4{11444012862197459022,11011150086986021294}}
+			Uuid{u4{5201557601430375009,9668230039902915593}}
+			Uuid{u4{10023524557396395427,5682335019921962048}}
+			Uuid{u4{16478836058832875187,5524890956166479462}}
+			Uuid{u4{16003831935084021401,4669084131024075838}}
+			Uuid{u4{12808211957416743302,5250457825341558367}}
+			Uuid{u4{6957035936242609421,15114126349167316328}}
+			Uuid{u4{2945393453614288042,5390783404339050785}}
+			Uuid{u4{14793005501245580970,4978451896957019744}}
+			Uuid{u4{17586911133254550419,5134354839049849607}}
+			Uuid{u4{9864249981000045738,5139601401010002611}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1608655639253813773,6490696632020468518}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{13351991985909145303,6869070022817575531}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5201557601430375009,9668230039902915593}}
+	s %t{"ezProcGen_PerlinNoise"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x6180FD42,0x8BD58C42}}
+		u3 %NumOctaves{3}
+		Vec3 %Offset{f{0,0,0}}
+		f %OutputMax{0x0000C03F}
+		f %OutputMin{0x0000003F}
+		Vec3 %Scale{f{0x0000A040,0x0000A040,0x0000A040}}
+		Uuid %Value{u4{1035535276037114550,16128473190473222569}}
+	}
+}
+o
+{
+	Uuid %id{u4{11444012862197459022,11011150086986021294}}
+	s %t{"ezProcGen_ApplyVolumes"}
+	u3 %v{1}
+	p
+	{
+		s %ImageVolumeMode{"ezProcVolumeImageMode::ReferenceColor"}
+		Uuid %In{u4{2296832639584408612,16568667488266848175}}
+		VarArray %IncludeTags
+		{
+			s{"Moss"}
+		}
+		f %InputValue{0}
+		Vec2 %Node::Pos{f{0xDE24C142,0xDD24C143}}
+		ColorGamma %RefColor{u1{255,255,255,255}}
+		Uuid %Value{u4{14901563730465414786,18144275521823172911}}
+	}
+}
+o
+{
+	Uuid %id{u4{11708211384522589888,12522568163438974212}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{6957035936242609421,15114126349167316328}}
+	s %t{"ezProcGen_PerlinNoise"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x2071F342,0x236A9A43}}
+		u3 %NumOctaves{3}
+		Vec3 %Offset{f{0x00004040,0x00008040,0x0000A040}}
+		f %OutputMax{0x0000C03F}
+		f %OutputMin{0x0000003F}
+		Vec3 %Scale{f{0x0000E040,0x0000E040,0x0000E040}}
+		Uuid %Value{u4{8449231564324983608,5758774532480775068}}
+	}
+}
+o
+{
+	Uuid %id{u4{14580786603178494323,15144210912277205967}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{1035535276037114550,16128473190473222569}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{3711219071390411997,16527195637233523023}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2296832639584408612,16568667488266848175}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{9011841811324516834,17768838923983251743}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{14901563730465414786,18144275521823172911}}
+	s %t{"ezRenderPipelineNodeOutputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{17522699080515542605,18402352706211993469}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{400848087410642112,719675424515093785}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_PerlinNoise"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{612392181161098119,4924088055133934390}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTitleAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{877898746071678167,5219608750413080699}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodeInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13349019949574173965,7065873685849658259}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenOutput"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_VertexColorOutput"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{66403006278044598,7740869544171155176}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenOutput"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1691224086308231451,8752305838249795763}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_Blend"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{8636592190291312350,8842102502527186654}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezHiddenAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9793470930718626776,9409031361117168720}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcVolumeImageMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7358685044210760069,10249588493079334335}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezProcGenNodeBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGen_ApplyVolumes"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7477604368529695417,10886045161693512195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenBinaryOperator"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15359102829867228026,11118511090857846425}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcGenNodeBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5542183663418081810,15339814270034028823}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodeOutputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4715616898552901881,17964090804382331328}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodePin"}
+		u3 %TypeVersion{1}
+	}
+}
+}

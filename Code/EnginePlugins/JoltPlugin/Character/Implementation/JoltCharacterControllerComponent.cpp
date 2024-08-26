@@ -94,6 +94,8 @@ void ezJoltCharacterControllerComponent::OnDeactivated()
     m_pCharacter = nullptr;
   }
 
+  RemovePresenceBody();
+
   SUPER::OnDeactivated();
 }
 
@@ -189,75 +191,6 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
   GetOwner()->SetGlobalPosition(ezJoltConversionUtils::ToSimdVec3(m_pCharacter->GetPosition()));
 }
 
-// float ezJoltCharacterControllerComponent::ClampedRawMoveIntoDirection(const ezVec3& vDirection)
-//{
-//   float fMaxDistance = vDirection.GetLength();
-//
-//   if (fMaxDistance <= 0.0f)
-//     return 0.0f;
-//
-//   const ezVec3 vDirNormal = vDirection / fMaxDistance;
-//   const ezVec3 vShapePos = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetCenterOfMassTransform().GetTranslation());
-//
-//   ezHybridArray<ContactPoint, 32> contacts;
-//   CollectCastContacts(contacts, GetJoltCharacter()->GetShape(), vShapePos, ezQuat::MakeIdentity(), vDirection /*+ vDirNormal*/);
-//
-//   ezDebugRenderer::DrawCross(GetWorld(), vShapePos, 0.2f, ezColor::GreenYellow);
-//
-//
-//   const float fPadding = GetJoltCharacter()->GetCharacterPadding();
-//   float fMoveDistance = fMaxDistance;
-//
-//   if (!contacts.IsEmpty())
-//   {
-//     // float fFraction = 1.0f;
-//
-//     ezQuat rot;
-//     ezUInt32 uiClosestContact = 0;
-//     float fClosestContact = 1.1f;
-//
-//     for (ezUInt32 c = 0; c < contacts.GetCount(); ++c)
-//     {
-//       if (contacts[c].m_fCastFraction < fClosestContact)
-//       {
-//         uiClosestContact = c;
-//         fClosestContact = contacts[c].m_fCastFraction;
-//       }
-//     }
-//
-//     const ContactPoint& cont = contacts[uiClosestContact];
-//     const ezAngle alpha = ezMath::ACos(cont.m_vContactNormal.Dot(-vDirNormal));
-//     const float sinAlpha = ezMath::Sin(alpha);
-//     const float gegenKath = fPadding;
-//     const float fHypoth = gegenKath / sinAlpha;
-//
-//     // for (const ContactPoint& contact : contacts)
-//     //{
-//     //   // ignore contacts that we are moving away from or parallel to
-//     //   if (contact.m_vContactNormal.Dot(vDirNormal) >= 0.0f)
-//     //   {
-//     //     rot.SetShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
-//     //     ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::DimGrey, ezTransform(contact.m_vPosition, rot));
-//     //     continue;
-//     //   }
-//
-//     //  fFraction = ezMath::Min(contact.m_fCastFraction, fFraction);
-//     fMoveDistance = ezMath::Min((fMaxDistance /*+ 1.0f*/) * cont.m_fCastFraction, fMaxDistance) - fHypoth;
-//
-//     //  {
-//     //    rot.SetShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
-//     //    ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::Black, ezTransform(contact.m_vPosition, rot));
-//     //  }
-//     //}
-//   }
-//
-//   if (fMoveDistance > 0.0)
-//   {
-//     RawMoveIntoDirection(vDirNormal * fMoveDistance, false);
-//   }
-//
-//   return fMaxDistance;
-// }
 
 void ezJoltCharacterControllerComponent::RawMoveIntoDirection(const ezVec3& vDirection)
 {
@@ -441,102 +374,6 @@ void ezJoltCharacterControllerComponent::SpawnContactInteraction(const ContactPo
   }
 }
 
-// ezBitflags<ezJoltCharacterControllerComponent::ShapeContacts> ezJoltCharacterControllerComponent::ClassifyContacts(const ezDynamicArray<ContactPoint>& contacts, ezAngle maxSlopeAngle, const ezVec3& vCenterPos, ezUInt32* out_pBestGroundContact)
-//{
-//   ezBitflags<ShapeContacts> flags;
-//
-//   if (contacts.IsEmpty())
-//     return flags;
-//
-//   const float fMaxSlopeAngleCos = ezMath::Cos(maxSlopeAngle);
-//
-//   float fFlattestContactCos = -2.0f;    // overall flattest contact point
-//   float fClosestContactFraction = 2.0f; // closest contact point that is flat enough
-//
-//   if (out_pBestGroundContact)
-//     *out_pBestGroundContact = ezInvalidIndex;
-//
-//   for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
-//   {
-//     const auto& contact = contacts[idx];
-//
-//     const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
-//
-//     if (contact.m_vPosition.z > vCenterPos.z) // contact above
-//     {
-//       if (fContactAngleCos < -fMaxSlopeAngleCos)
-//       {
-//         // TODO: have dedicated max angle value
-//         flags.Add(ShapeContacts::Ceiling);
-//       }
-//     }
-//     else // contact below
-//     {
-//       if (fContactAngleCos > fMaxSlopeAngleCos) // is contact flat enough to stand on?
-//       {
-//         flags.Add(ShapeContacts::FlatGround);
-//
-//         if (out_pBestGroundContact && contact.m_fCastFraction < fClosestContactFraction) // contact closer than previous one?
-//         {
-//           fClosestContactFraction = contact.m_fCastFraction;
-//           *out_pBestGroundContact = idx;
-//         }
-//       }
-//       else
-//       {
-//         flags.Add(ShapeContacts::SteepGround);
-//
-//         if (out_pBestGroundContact && fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
-//         {
-//           fFlattestContactCos = fContactAngleCos;
-//
-//           if (!flags.IsSet(ShapeContacts::FlatGround))
-//           {
-//             *out_pBestGroundContact = idx;
-//           }
-//         }
-//       }
-//     }
-//   }
-//
-//   if (flags.IsSet(ShapeContacts::FlatGround))
-//   {
-//     flags.Remove(ShapeContacts::SteepGround);
-//   }
-//
-//   if (flags.IsSet(ShapeContacts::SteepGround))
-//   {
-//     return flags;
-//   }
-//
-//   return flags;
-// }
-//
-// ezUInt32 ezJoltCharacterControllerComponent::FindFlattestContact(const ezDynamicArray<ContactPoint>& contacts, const ezVec3& vNormal, ContactFilter filter)
-//{
-//   ezUInt32 uiBestIdx = ezInvalidIndex;
-//
-//   float fFlattestContactCos = -2.0f; // overall flattest contact point
-//
-//   for (ezUInt32 idx = 0; idx < contacts.GetCount(); ++idx)
-//   {
-//     const auto& contact = contacts[idx];
-//
-//     if (filter.IsValid() && !filter(contact))
-//       continue;
-//
-//     const float fContactAngleCos = contact.m_vSurfaceNormal.Dot(ezVec3(0, 0, 1));
-//
-//     if (fContactAngleCos > fFlattestContactCos) // is contact flatter than previous one?
-//     {
-//       fFlattestContactCos = fContactAngleCos;
-//       uiBestIdx = idx;
-//     }
-//   }
-//
-//   return uiBestIdx;
-// }
-
 void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& contact, const ezColor& color) const
 {
   ezTransform trans;
@@ -593,7 +430,7 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
   m_uiPresenceBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody, true);
+  m_uiPresenceBodyAddCounter = pModule->QueueBodyToAdd(pBody, true);
 }
 
 void ezJoltCharacterControllerComponent::RemovePresenceBody()
@@ -630,6 +467,10 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
     return;
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+
+  if (pModule->IsBodyStillQueuedToAdd(m_uiPresenceBodyAddCounter))
+    return;
+
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 
@@ -642,4 +483,3 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltCharacterControllerComponent);
-

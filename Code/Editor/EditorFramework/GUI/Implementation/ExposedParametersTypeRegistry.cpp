@@ -94,7 +94,7 @@ const ezRTTI* ezExposedParametersTypeRegistry::GetExposedParametersType(const ch
 void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& data, const ezExposedParameters& params)
 {
   ezStringBuilder name;
-  name.Format("ezExposedParameters_{0}", data.m_SubAssetGuid);
+  name.SetFormat("ezExposedParameters_{0}", data.m_SubAssetGuid);
   EZ_LOG_BLOCK("Updating Type", name.GetData());
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = name;

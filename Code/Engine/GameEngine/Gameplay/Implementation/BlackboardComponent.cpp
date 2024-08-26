@@ -78,7 +78,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezBlackboardComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Template", m_hTemplate)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
   }
   EZ_END_PROPERTIES;
@@ -202,28 +202,6 @@ void ezBlackboardComponent::SetShowDebugInfo(bool bShow)
 bool ezBlackboardComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(BCFlags::ShowDebugInfo);
-}
-
-void ezBlackboardComponent::SetTemplateFile(const char* szName)
-{
-  ezBlackboardTemplateResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szName))
-  {
-    hResource = ezResourceManager::LoadResource<ezBlackboardTemplateResource>(szName);
-  }
-
-  m_hTemplate = hResource;
-}
-
-const char* ezBlackboardComponent::GetTemplateFile() const
-{
-  if (m_hTemplate.IsValid())
-  {
-    return m_hTemplate.GetResourceID();
-  }
-
-  return "";
 }
 
 void ezBlackboardComponent::SetEntryValue(const char* szName, const ezVariant& value)
@@ -456,7 +434,7 @@ void ezLocalBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlac
 
 void ezLocalBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
 {
-  m_InitialEntries.Insert(entry, uiIndex);
+  m_InitialEntries.InsertAt(uiIndex, entry);
 
   m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();

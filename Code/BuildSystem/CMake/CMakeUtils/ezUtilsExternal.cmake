@@ -6,7 +6,7 @@ macro(ez_include_ezExport)
 	# Create a modified version of the ezExport.cmake file,
 	# where the absolute paths to the original locations are replaced
 	# with the absolute paths to this installation
-	set(EXP_FILE "${EZ_OUTPUT_DIRECTORY_DLL}/ezExport.cmake")
+	ez_get_export_location(EXP_FILE)
 	set(IMP_FILE "${CMAKE_BINARY_DIR}/ezExport.cmake")
 	set(EXPINFO_FILE "${EZ_OUTPUT_DIRECTORY_DLL}/ezExportInfo.cmake")
 

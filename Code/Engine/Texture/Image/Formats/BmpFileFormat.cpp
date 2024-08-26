@@ -6,6 +6,7 @@
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
 
+// EZ_STATICLINK_FORCE
 ezBmpFileFormat g_bmpFormat;
 
 enum ezBmpCompression
@@ -72,11 +73,11 @@ struct ezBmpFileInfoHeaderV4
   ezUInt32 m_gammaBlue = 0;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
+static_assert(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
 
 // just to be on the safe side
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
+static_assert(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
 #endif
 
 struct ezBmpFileInfoHeaderV5
@@ -503,6 +504,8 @@ namespace
 
 ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
   ezBmpFileHeader fileHeader;
@@ -516,6 +519,8 @@ ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
 ezResult ezBmpFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
   ezBmpFileHeader fileHeader;
@@ -774,3 +779,5 @@ bool ezBmpFileFormat::CanWriteFileType(ezStringView sExtension) const
 }
 
 
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_BmpFileFormat);

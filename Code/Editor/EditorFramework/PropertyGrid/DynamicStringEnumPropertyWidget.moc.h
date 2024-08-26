@@ -28,4 +28,3 @@ protected:
   ezDynamicStringEnum* m_pEnum = nullptr;
   ezInt32 m_iLastIndex = -1;
 };
-

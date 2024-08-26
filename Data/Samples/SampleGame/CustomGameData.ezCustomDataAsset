@@ -1,0 +1,237 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{10498571075609237400,5049694128292722158}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"CustomData"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10498571075609237400,5049694128292722158}}
+		u4 %Hash{16204627510520298525}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{";SampleCustomData;"}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{7100790526133820050,5134152520940903961}}
+	s %t{"ezCustomDataAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Type{u4{3241778076120659616,5673689820281836738}}
+	}
+}
+o
+{
+	Uuid %id{u4{3241778076120659616,5673689820281836738}}
+	s %t{"SampleCustomData"}
+	u3 %v{1}
+	p
+	{
+		Color %Color{f{0x3DE6C53C,0x17DAC53E,0xB896273D,0x0000803F}}
+		i3 %Size{22}
+		s %Text{"This text is brought to you by custom data."}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7100790526133820050,5134152520940903961}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{176259361441464479,4786523098790941309}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{42}
+	}
+}
+o
+{
+	Uuid %id{u4{12689203509576609513,6436756971116515618}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Max{64}
+		i3 %Min{16}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4960955211173655338,10277464524933829622}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x097F023E,0xE2E0993E,0xB3CC583F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{6683608279510723223,12256402302872072023}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4960955211173655338,10277464524933829622}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Color"}
+		s %Type{"ezColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{6962576678154634058,12759017937139297795}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezCustomDataAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13891388168652843717,15635630607797700938}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Text"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{11051007206241942527,16548989557782406791}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezCustomData"}
+		s %PluginName{"ezSampleGamePlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{13891388168652843717,15635630607797700938}}
+			Uuid{u4{14440115385259777211,17303352439373963029}}
+			Uuid{u4{6683608279510723223,12256402302872072023}}
+		}
+		s %TypeName{"SampleCustomData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14440115385259777211,17303352439373963029}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{176259361441464479,4786523098790941309}}
+			Uuid{u4{12689203509576609513,6436756971116515618}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Size"}
+		s %Type{"ezInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{17983981199330542960,17587962291013355816}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCustomData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

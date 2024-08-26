@@ -35,11 +35,11 @@ ezETWProvider::~ezETWProvider()
   TraceLoggingUnregister(g_ezETWLogProvider);
 }
 
-void ezETWProvider::LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText)
+void ezETWProvider::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText)
 {
   const ezStringBuilder sTemp = sText;
 
-  TraceLoggingWrite(g_ezETWLogProvider, "LogMessge", TraceLoggingValue((int)eventType, "Type"), TraceLoggingValue(uiIndentation, "Indentation"),
+  TraceLoggingWrite(g_ezETWLogProvider, "LogMessage", TraceLoggingValue((int)eventType, "Type"), TraceLoggingValue(uiIndentation, "Indentation"),
     TraceLoggingValue(sTemp.GetData(), "Text"));
 }
 
@@ -49,5 +49,3 @@ ezETWProvider& ezETWProvider::GetInstance()
   return instance;
 }
 #endif
-
-

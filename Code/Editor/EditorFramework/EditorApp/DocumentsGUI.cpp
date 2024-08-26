@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
@@ -53,7 +54,11 @@ void ezQtEditorApp::GuiCreateDocument()
 
 void ezQtEditorApp::GuiOpenDocument()
 {
-  GuiCreateOrOpenDocument(false);
+  ezQtAssetBrowserDlg dlg(QApplication::activeWindow(), ezUuid(), "", "");
+  if (dlg.exec() == 0)
+    return;
+
+  ezQtEditorApp::GetSingleton()->OpenDocument(dlg.GetSelectedAssetPathAbsolute(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
 }
 
 

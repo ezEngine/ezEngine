@@ -18,52 +18,50 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
-  D3D11_BUFFER_DESC BufferDesc;
+  D3D11_BUFFER_DESC BufferDesc = {};
 
-  switch (m_Description.m_BufferType)
+  for (ezGALBufferUsageFlags::Enum flag : m_Description.m_BufferFlags)
   {
-    case ezGALBufferType::ConstantBuffer:
-      BufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-      break;
-    case ezGALBufferType::IndexBuffer:
-      BufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-      m_IndexFormat = m_Description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
-
-      break;
-    case ezGALBufferType::VertexBuffer:
-      BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-      break;
-    case ezGALBufferType::Generic:
-      BufferDesc.BindFlags = 0;
-      break;
-    default:
-      ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
-      return EZ_FAILURE;
+    switch (flag)
+    {
+      case ezGALBufferUsageFlags::ConstantBuffer:
+        BufferDesc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
+        break;
+      case ezGALBufferUsageFlags::IndexBuffer:
+        BufferDesc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
+        m_IndexFormat = m_Description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+        break;
+      case ezGALBufferUsageFlags::VertexBuffer:
+        BufferDesc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
+        break;
+      case ezGALBufferUsageFlags::TexelBuffer:
+        break;
+      case ezGALBufferUsageFlags::StructuredBuffer:
+        BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+        break;
+      case ezGALBufferUsageFlags::ByteAddressBuffer:
+        BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+        break;
+      case ezGALBufferUsageFlags::ShaderResource:
+        BufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+        break;
+      case ezGALBufferUsageFlags::UnorderedAccess:
+        BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+        break;
+      case ezGALBufferUsageFlags::DrawIndirect:
+        BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+        break;
+      default:
+        ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
+        return EZ_FAILURE;
+    }
   }
-
-  if (m_Description.m_bAllowShaderResourceView)
-    BufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-
-  if (m_Description.m_bAllowUAV)
-    BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
   BufferDesc.ByteWidth = m_Description.m_uiTotalSize;
   BufferDesc.CPUAccessFlags = 0;
-  BufferDesc.MiscFlags = 0;
-
-  if (m_Description.m_bUseForIndirectArguments)
-    BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
-
-  if (m_Description.m_bAllowRawViews)
-    BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
-
-  if (m_Description.m_bUseAsStructuredBuffer)
-    BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-
   BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
 
-  if (m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
+  if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
   {
     BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -79,7 +77,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
     }
     else
     {
-      if (m_Description.m_bAllowUAV) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
+      if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
       {
         BufferDesc.Usage = D3D11_USAGE_DEFAULT;
       }
@@ -108,6 +106,8 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
 
 ezResult ezGALBufferDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXBuffer);
 
   return EZ_SUCCESS;
@@ -122,5 +122,3 @@ void ezGALBufferDX11::SetDebugNamePlatform(const char* szName) const
     m_pDXBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
 }
-
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_BufferDX11);

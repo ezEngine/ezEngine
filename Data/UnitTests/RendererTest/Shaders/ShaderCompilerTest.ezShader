@@ -1,0 +1,171 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[SHADER]
+
+#include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
+
+BEGIN_PUSH_CONSTANTS(SimpleColorPushConstants)
+{
+  FLOAT4(Color);
+}
+END_PUSH_CONSTANTS(SimpleColorPushConstants)
+
+CONSTANT_BUFFER2(PerFrame, 0, 0)
+{
+  float time;
+};
+
+CONSTANT_BUFFER2(PerObject, 1, 0)
+{
+  float4x4 mvp : packoffset(c0);
+  float4 ObjectColor : packoffset(c4);
+};
+
+// All Vertex shader input types
+struct VS_IN
+{
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float2 tangent : TANGENT;
+  float color0 : COLOR0;
+  uint4 color7 : COLOR7;
+  uint3 texcoord0 : TEXCOORD0;
+  uint2 texcoord9 : TEXCOORD9;
+  uint BiTangent : BITANGENT;
+  int4 BoneWeights0 : BONEWEIGHTS0;
+  int3 BoneWeights1 : BONEWEIGHTS1;
+  int2 BoneIndices0 : BONEINDICES0;
+  int BoneIndices1 : BONEINDICES1;
+};
+
+struct VS_OUT
+{
+  float4 pos : SV_Position;
+  float2 texcoord0 : TEXCOORD0;
+};
+
+
+typedef VS_OUT PS_IN;
+
+[VERTEXSHADER]
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos.xyz, 1.0));
+  RetVal.texcoord0 = Input.texcoord0.xy;
+  RetVal.texcoord0.x += Input.normal.x;
+  RetVal.texcoord0.x += Input.tangent.x;
+  RetVal.texcoord0.x += Input.color0.x;
+  RetVal.texcoord0.x += Input.color7.x;
+  RetVal.texcoord0.x += Input.texcoord9.x;
+  RetVal.texcoord0.x += Input.BiTangent.x;
+  RetVal.texcoord0.x += Input.BoneWeights0.x;
+  RetVal.texcoord0.x += Input.BoneWeights1.x;
+  RetVal.texcoord0.x += Input.BoneIndices0.x;
+  RetVal.texcoord0.x += Input.BoneIndices1.x;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
+
+struct EZ_SHADER_STRUCT ezPerInstanceData
+{
+  TRANSFORM(ObjectToWorld);
+  TRANSFORM(ObjectToWorldNormal);
+  FLOAT1(BoundingSphereRadius);
+  UINT1(GameObjectID);
+  UINT1(VertexColorAccessData);
+
+  INT1(Reserved);
+  COLOR4F(Color);
+};
+
+struct EZ_SHADER_STRUCT ezAppendData
+{
+  FLOAT2(Value);
+};
+
+//Samplers
+SamplerState PointClampSampler;
+
+// Constant Buffer
+// cbuffer PerFrame defined in SHADER block
+
+
+// SRV
+Texture1D RES_Texture1D;
+Texture1DArray RES_Texture1DArray;
+Texture2D RES_Texture2D;
+Texture2DArray RES_Texture2DArray;
+Texture2DMS<float4> RES_Texture2DMS;
+Texture2DMSArray<float4> RES_Texture2DMSArray;
+Texture3D RES_Texture3D;
+TextureCube RES_TextureCube;
+TextureCubeArray RES_TextureCubeArray;
+Buffer<uint> RES_Buffer;
+StructuredBuffer<ezPerInstanceData> RES_StructuredBuffer;
+ByteAddressBuffer RES_ByteAddressBuffer;
+
+// UAV
+RWTexture1D<float> RES_RWTexture1D;
+RWTexture1DArray<float2> RES_RWTexture1DArray;
+RWTexture2D<float3> RES_RWTexture2D;
+RWTexture2DArray<float4> RES_RWTexture2DArray;
+RWTexture3D<uint> RES_RWTexture3D;
+RWBuffer<uint> RES_RWBuffer;
+RWStructuredBuffer<ezPerInstanceData> RES_RWStructuredBuffer;
+RWByteAddressBuffer RES_RWByteAddressBuffer;
+
+AppendStructuredBuffer<ezAppendData> RES_AppendStructuredBuffer;
+ConsumeStructuredBuffer<ezAppendData> RES_ConsumeStructuredBuffer;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  // Constant Buffer
+  float temp = time;
+
+  // Push Constants, degrades to constant buffer if not supported.
+  temp += GET_PUSH_CONSTANT(SimpleColorPushConstants, Color.r);
+
+  // SRV + Sampler
+  temp += RES_Texture1D.Sample(PointClampSampler, Input.texcoord0.x).r;
+  temp += RES_Texture1DArray.Sample(PointClampSampler, Input.texcoord0.xy).r;
+  temp += RES_Texture2D.Sample(PointClampSampler, Input.texcoord0).r;
+  temp += RES_Texture2DArray.Sample(PointClampSampler, Input.texcoord0.xyy).r;
+  temp += RES_Texture2DMS.Load(int2(Input.texcoord0.xy), 0).r;
+  temp += RES_Texture2DMSArray.Load(int3(Input.texcoord0.xyy), 0).r;
+  temp += RES_Texture3D.Sample(PointClampSampler, Input.texcoord0.xyy).r;
+  temp += RES_TextureCube.SampleLevel(PointClampSampler, Input.texcoord0.xyy, 0).r;
+  temp += RES_TextureCubeArray.SampleLevel(PointClampSampler, Input.texcoord0.xxyy, 0).r;
+  temp += (float)RES_Buffer[0];
+  temp += RES_StructuredBuffer[0].BoundingSphereRadius;
+  temp += (float)RES_ByteAddressBuffer.Load4(0).x;
+
+  // UAV
+  temp += RES_RWTexture1D[0].x;
+  temp += RES_RWTexture1DArray[uint2(0, 0)].x;
+  temp += RES_RWTexture2D[uint2(0, 0)].x;
+  temp += RES_RWTexture2DArray[uint3(0, 0, 0)].x;
+  temp += RES_RWTexture3D[uint3(0, 0, 0)].x;
+  temp += (float)RES_RWBuffer[0];
+  temp += RES_RWStructuredBuffer[0].BoundingSphereRadius;
+  temp += (float)RES_RWByteAddressBuffer.Load4(0).x;
+
+  // UAV - Append
+  ezAppendData v = (ezAppendData)0;
+  v.Value = float2(0, 0);
+  RES_AppendStructuredBuffer.Append(v);
+
+  // UAV - Consume
+  temp += RES_ConsumeStructuredBuffer.Consume().Value.x;
+
+  return float4(temp, temp, temp, temp);
+}

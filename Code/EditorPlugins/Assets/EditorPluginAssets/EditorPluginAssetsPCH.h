@@ -23,9 +23,9 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Texture/Image/ImageConversion.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/World/GameObject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>

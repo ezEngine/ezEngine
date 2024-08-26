@@ -59,50 +59,50 @@ public:
 
   ezBreakableSheetComponent& operator=(ezBreakableSheetComponent&& other);
 
-  void SetWidth(float fWidth); // [ property ]
-  float GetWidth() const;      // [ property ]
+  void SetWidth(float fWidth);                               // [ property ]
+  float GetWidth() const;                                    // [ property ]
 
-  void SetHeight(float fHeight); // [ property ]
-  float GetHeight() const;       // [ property ]
+  void SetHeight(float fHeight);                             // [ property ]
+  float GetHeight() const;                                   // [ property ]
 
-  void SetThickness(float fThickness); // [ property ]
-  float GetThickness() const;          // [ property ]
+  void SetThickness(float fThickness);                       // [ property ]
+  float GetThickness() const;                                // [ property ]
 
-  void SetDensity(float fDensity); // [ property ]
-  float GetDensity() const;        // [ property ]
+  void SetDensity(float fDensity);                           // [ property ]
+  float GetDensity() const;                                  // [ property ]
 
   void SetBreakImpulseStrength(float fBreakImpulseStrength); // [ property ]
   float GetBreakImpulseStrength() const;                     // [ property ]
 
-  void SetDisappearTimeout(ezTime disappearTimeout);  // [ property ]
-  ezTime GetDisappearTimeout() const;                 // [ property ]
+  void SetDisappearTimeout(ezTime disappearTimeout);         // [ property ]
+  ezTime GetDisappearTimeout() const;                        // [ property ]
 
-  void SetFixedBorder(bool bFixedBorder); // [ property ]
-  bool GetFixedBorder() const;            // [ property ]
+  void SetFixedBorder(bool bFixedBorder);                    // [ property ]
+  bool GetFixedBorder() const;                               // [ property ]
 
-  void SetFixedRandomSeed(ezUInt32 uiFixedRandomSeed); // [ property ]
-  ezUInt32 GetFixedRandomSeed() const;                 // [ property ]
+  void SetFixedRandomSeed(ezUInt32 uiFixedRandomSeed);       // [ property ]
+  ezUInt32 GetFixedRandomSeed() const;                       // [ property ]
 
-  void SetNumPieces(ezUInt32 uiNumPieces); // [ property ]
-  ezUInt32 GetNumPieces() const;           // [ property ]
+  void SetNumPieces(ezUInt32 uiNumPieces);                   // [ property ]
+  ezUInt32 GetNumPieces() const;                             // [ property ]
 
-  void SetMaterialFile(const char* szFile); // [ property ]
-  const char* GetMaterialFile() const;      // [ property ]
+  void SetMaterialFile(const char* szFile);                  // [ property ]
+  const char* GetMaterialFile() const;                       // [ property ]
 
-  void SetBrokenMaterialFile(const char* szFile); // [ property ]
-  const char* GetBrokenMaterialFile() const;      // [ property ]
+  void SetBrokenMaterialFile(const char* szFile);            // [ property ]
+  const char* GetBrokenMaterialFile() const;                 // [ property ]
 
-  ezUInt8 m_uiCollisionLayerUnbroken = 0;     // [ property ]
-  ezUInt8 m_uiCollisionLayerBrokenPieces = 0; // [ property ]
-  bool m_bIncludeInNavmesh = true;            // [ property ]
+  ezUInt8 m_uiCollisionLayerUnbroken = 0;                    // [ property ]
+  ezUInt8 m_uiCollisionLayerBrokenPieces = 0;                // [ property ]
+  bool m_bIncludeInNavmesh = true;                           // [ property ]
 
   ezMaterialResourceHandle GetMaterial() const;
   ezMaterialResourceHandle GetBrokenMaterial() const;
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);          // [ msg handler ]
 
-  void Break();                               // [ scriptable ]
-  bool IsBroken() const { return m_bBroken; } // [ scriptable ]
+  void Break();                                                   // [ scriptable ]
+  bool IsBroken() const { return m_bBroken; }                     // [ scriptable ]
 
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 

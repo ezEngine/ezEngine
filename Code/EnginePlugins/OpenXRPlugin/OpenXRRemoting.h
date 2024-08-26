@@ -22,7 +22,7 @@ public:
   virtual ezResult Deinitialize() override;
   virtual bool IsInitialized() const override;
 
-  virtual ezResult Connect(const char* remoteHostName, uint16_t remotePort, bool enableAudio, int maxBitrateKbps) override;
+  virtual ezResult Connect(const char* szRemoteHostName, uint16_t remotePort, bool bEnableAudio, int iMaxBitrateKbps) override;
   virtual ezResult Disconnect() override;
   virtual ezEnum<ezXRRemotingConnectionState> GetConnectionState() const override;
   virtual ezXRRemotingConnectionEvent& GetConnectionEvent() override;
@@ -36,6 +36,6 @@ private:
   bool m_bInitialized = false;
   ezString m_sPreviousRuntime;
   ezOpenXR* m_pOpenXR = nullptr;
-  ezXRRemotingConnectionEvent m_event;
+  ezXRRemotingConnectionEvent m_Event;
 };
 #endif

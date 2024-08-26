@@ -10,7 +10,7 @@ namespace
   void WriteOutProfilingCapture(const char* szFilePath)
   {
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezFileWriter fileWriter;
     if (fileWriter.Open(szFilePath) == EZ_SUCCESS)

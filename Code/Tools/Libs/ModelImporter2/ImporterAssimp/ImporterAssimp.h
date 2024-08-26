@@ -33,6 +33,8 @@ namespace ezModelImporter2
 
     ezResult ImportBoneColliders(ezEditableSkeletonJoint* pJoint);
 
+    void SimplifyAiMesh(aiMesh* pMesh);
+
     Assimp::Importer m_Importer;
     const aiScene* m_pScene = nullptr;
     ezUInt32 m_uiTotalMeshVertices = 0;
@@ -45,6 +47,8 @@ namespace ezModelImporter2
     };
 
     ezMap<ezUInt32, ezHybridArray<MeshInstance, 4>> m_MeshInstances;
+
+    ezSet<aiMesh*> m_OptimizedMeshes;
   };
 
   extern ezColor ConvertAssimpType(const aiColor3D& value, bool bInvert = false);

@@ -102,7 +102,7 @@ void ezScriptWorldModule::StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezA
   ezUniquePtr<ezScriptCoroutine>* pCoroutine = nullptr;
   if (m_RunningScriptCoroutines.TryGetValue(hCoroutine.GetInternalID(), pCoroutine))
   {
-    (*pCoroutine)->Start(arguments);
+    (*pCoroutine)->StartWithVarargs(arguments);
     (*pCoroutine)->UpdateAndSchedule();
   }
 }
@@ -157,6 +157,8 @@ bool ezScriptWorldModule::IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine
 
 void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
 {
+  EZ_IGNORE_UNUSED(context);
+
   ezWorld* pWorld = GetWorld();
 
   ezTime deltaTime;
@@ -170,7 +172,8 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
   }
 
   m_Scheduler.Update(deltaTime,
-    [this](const FunctionContext& context, ezTime deltaTime) {
+    [this](const FunctionContext& context, ezTime deltaTime)
+    {
       if (GetWorld()->GetWorldSimulationEnabled() || context.m_pFunctionAndFlags.GetFlags() == FunctionContext::Flags::None)
       {
         ezVariant args[] = {deltaTime};
@@ -200,4 +203,3 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptWorldModule);
-

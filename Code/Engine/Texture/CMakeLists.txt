@@ -11,12 +11,16 @@ if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /wd4005)
 endif()
 
+if(EZ_CMAKE_COMPILER_CLANG)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unknown-pragmas -Wno-unused-const-variable)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
     Foundation
 
   PRIVATE
-    stb_image
+    stb
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
@@ -24,10 +28,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
 if(EZ_CMAKE_PLATFORM_LINUX)
   set(THIRDPARTY_DIR "${EZ_ROOT}/Code/ThirdParty")
   target_include_directories(${PROJECT_NAME} PRIVATE "${THIRDPARTY_DIR}/DirectXMath/include" "${THIRDPARTY_DIR}/sal")
+  target_link_libraries(${PROJECT_NAME} PRIVATE bc7enc_rdo)
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  # CMake is stupid
-else()
-  target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
+if(EZ_3RDPARTY_TINYEXR_SUPPORT)
+  if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    # CMake is stupid
+  else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
+  endif()
 endif()

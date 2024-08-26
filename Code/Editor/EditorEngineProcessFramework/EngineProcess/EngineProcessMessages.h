@@ -44,6 +44,7 @@ public:
   ezApplicationPluginConfig m_PluginConfig;
   ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
   ezString m_sAssetProfile;
+  float m_fDevicePixelRatio = 1.0f;
 };
 
 /// \brief Sent to remote processes to shut them down.

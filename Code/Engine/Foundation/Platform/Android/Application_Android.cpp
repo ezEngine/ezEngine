@@ -4,6 +4,7 @@
 
 #  include <Foundation/Application/Application.h>
 #  include <Foundation/Application/Implementation/Android/Application_android.h>
+#  include <Foundation/Logging/Log.h>
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 
@@ -26,7 +27,7 @@ ezAndroidApplication::ezAndroidApplication(struct android_app* pApp, ezApplicati
   pApp->userData = this;
   pApp->onAppCmd = ezAndroidHandleCmd;
   pApp->onInputEvent = ezAndroidHandleInput;
-  //#TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
+  // #TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
 }
 
 ezAndroidApplication::~ezAndroidApplication() {}
@@ -46,6 +47,11 @@ void ezAndroidApplication::AndroidRun()
 
       HandleIdent(iIdent);
     }
+
+    // APP_CMD_INIT_WINDOW has not triggered yet. Engine is not yet started.
+    if (!m_bStarted)
+      continue;
+
     if (bRun && m_pEzApp->Run() != ezApplication::Execution::Continue)
     {
       bRun = false;
@@ -60,28 +66,50 @@ void ezAndroidApplication::AndroidRun()
 
 void ezAndroidApplication::HandleCmd(int32_t cmd)
 {
-  //#TODO:
+  switch (cmd)
+  {
+    case APP_CMD_INIT_WINDOW:
+      if (m_pApp->window != nullptr)
+      {
+        EZ_VERIFY(ezRun_Startup(m_pEzApp).Succeeded(), "Failed to startup engine");
+        m_bStarted = true;
+
+        int width = ANativeWindow_getWidth(m_pApp->window);
+        int height = ANativeWindow_getHeight(m_pApp->window);
+        ezLog::Info("Init Window: {}x{}", width, height);
+      }
+      break;
+    case APP_CMD_TERM_WINDOW:
+      m_pEzApp->RequestQuit();
+      break;
+    default:
+      break;
+  }
+  ezAndroidUtils::s_AppCommandEvent.Broadcast(cmd);
 }
 
 int32_t ezAndroidApplication::HandleInput(AInputEvent* pEvent)
 {
-  //#TODO:
-  return 0;
+  ezAndroidInputEvent event;
+  event.m_pEvent = pEvent;
+  event.m_bHandled = false;
+
+  ezAndroidUtils::s_InputEvent.Broadcast(event);
+  return event.m_bHandled ? 1 : 0;
 }
 
 void ezAndroidApplication::HandleIdent(ezInt32 iIdent)
 {
-  //#TODO:
+  // #TODO:
 }
 
 EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEzApp)
 {
   ezAndroidApplication androidApp(pApp, pEzApp);
 
-  if (ezRun_Startup(pEzApp).Succeeded())
-  {
-    androidApp.AndroidRun();
-  }
+  // This call will loop until APP_CMD_INIT_WINDOW is emitted which triggers ezRun_Startup
+  androidApp.AndroidRun();
+
   ezRun_Shutdown(pEzApp);
 
   const int iReturnCode = pEzApp->GetReturnCode();
@@ -94,5 +122,3 @@ EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEz
 }
 
 #endif
-
-

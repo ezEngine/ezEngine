@@ -144,6 +144,8 @@ void ezDataTransfer::Initialize()
 
 void ezDataTransfer::TelemetryMessage(void* pPassThrough)
 {
+  EZ_IGNORE_UNUSED(pPassThrough);
+
   ezTelemetryMessage Msg;
 
   while (ezTelemetry::RetrieveMessage('DTRA', Msg) == EZ_SUCCESS)
@@ -194,5 +196,3 @@ void ezDataTransfer::SendAllDataTransfers()
     it.Key()->SendStatus();
   }
 }
-
-

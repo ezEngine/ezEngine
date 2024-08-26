@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonPoseComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezSkeletonPoseMode, GetPoseMode, SetPoseMode),
     EZ_MEMBER_PROPERTY("EditBones", m_fDummy),
     EZ_MAP_ACCESSOR_PROPERTY("Bones", GetBones, GetBone, SetBone, RemoveBone)->AddAttributes(new ezExposedParametersAttribute("Skeleton"), new ezContainerAttribute(false, true, false)),
@@ -125,26 +125,6 @@ void ezSkeletonPoseComponent::OnSimulationStarted()
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezSkeletonPoseComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
 void ezSkeletonPoseComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
@@ -171,10 +151,14 @@ void ezSkeletonPoseComponent::ResendPose()
 
 const ezRangeView<const char*, ezUInt32> ezSkeletonPoseComponent::GetBones() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Bones.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* { return m_Bones.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Bones.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Bones.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)

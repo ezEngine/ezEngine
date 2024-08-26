@@ -10,7 +10,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpenXRInputDevice, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-  // clang-format on
+// clang-format on
 
 
 #define XR_Trigger "trigger_value"
@@ -390,7 +390,8 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   // This function is triggered by the XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED event.
   // Unfortunately it does not seem to provide any info in regards to what top level path is affected
   // so we check both controllers again.
-  auto GetActiveControllerProfile = [this](ezUInt32 uiSide) -> XrPath {
+  auto GetActiveControllerProfile = [this](ezUInt32 uiSide) -> XrPath
+  {
     XrInteractionProfileState state{XR_TYPE_INTERACTION_PROFILE_STATE};
     XrResult res = xrGetCurrentInteractionProfile(m_pSession, m_SubActionPath[uiSide], &state);
     if (res == XR_SUCCESS)
@@ -522,7 +523,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       m_SupportedFeatures[uiControllerId].AddOrRemove(action.m_Feature, state.isActive);
     }
 
-    auto UpdatePose = [](ezVec3& vPosition, ezQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene) {
+    auto UpdatePose = [](ezVec3& vPosition, ezQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene)
+    {
       if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
           (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
       {

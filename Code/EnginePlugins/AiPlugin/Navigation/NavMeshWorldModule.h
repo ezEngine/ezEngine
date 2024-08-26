@@ -22,11 +22,14 @@ public:
   ~ezAiNavMeshWorldModule();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   ezAiNavMesh* GetNavMesh(ezStringView sName);
   const ezAiNavMesh* GetNavMesh(ezStringView sName) const;
 
   const dtQueryFilter& GetPathSearchFilter(ezStringView sName) const;
+
+  const ezAiNavigationConfig& GetConfig() const { return m_Config; }
 
 private:
   void Update(const UpdateContext& ctxt);

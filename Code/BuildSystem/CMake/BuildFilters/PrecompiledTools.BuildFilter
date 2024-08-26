@@ -26,9 +26,11 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
 	mikktspace
 	Utilities
 	ads
+	stb
 	tinyexr
     DependencyAnalysis
     Lua
     Duktape
     Imgui
+	zlib
 )

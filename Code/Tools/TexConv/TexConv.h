@@ -1,8 +1,22 @@
 #pragma once
 
 #include <Foundation/Application/Application.h>
+#include <Texture/TexConv/TexComparer.h>
 
 class ezStreamWriter;
+
+struct ezTexConvMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Convert,
+    Compare,
+
+    Default = Convert
+  };
+};
 
 class ezTexConv : public ezApplication
 {
@@ -30,6 +44,8 @@ public:
   virtual void BeforeCoreSystemsShutdown() override;
 
   ezResult ParseCommandLine();
+  ezResult ParseMode();
+  ezResult ParseCompareMode();
   ezResult ParseOutputType();
   ezResult DetectOutputFormat();
   ezResult ParseInputFiles();
@@ -71,5 +87,11 @@ private:
   bool m_bOutputSupportsFiltering = false;
   bool m_bOutputSupportsCompression = false;
 
+  ezEnum<ezTexConvMode> m_Mode;
   ezTexConvProcessor m_Processor;
+
+  // Comparer specific
+
+  ezTexComparer m_Comparer;
+  ezString m_sHtmlTitle;
 };

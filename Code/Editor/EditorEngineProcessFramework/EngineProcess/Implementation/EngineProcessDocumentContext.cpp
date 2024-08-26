@@ -10,9 +10,8 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
@@ -298,7 +297,8 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
 void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
-  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects[pSync->GetGuid()] = pSync;
 }
@@ -404,7 +404,7 @@ void ezEngineProcessDocumentContext::OnDeinitialize() {}
 
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
-  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
+  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
   return m_pThumbnailViewContext != nullptr || pState != nullptr;
 }
 
@@ -417,15 +417,6 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     {
       if (pView)
         pView->Redraw(false);
-    }
-  }
-
-  {
-    // If we have a running game state we always want to render it (e.g. play the game).
-    auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
-    if (pState != nullptr)
-    {
-      pState->ScheduleRendering();
     }
   }
 
@@ -446,13 +437,13 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
       // Download image
       {
-        auto pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass("Thumbnail Readback");
-        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+        auto pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("Thumbnail Readback");
+        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndCommands(pCommandEncoder));
 
-        auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
-        EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+        pCommandEncoder->BeginRendering(ezGALRenderingSetup());
+        EZ_SCOPE_EXIT(pCommandEncoder->EndRendering());
 
-        pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
+        pCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
         const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
         const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
 
@@ -476,7 +467,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         ezGALTextureSubresource sourceSubResource;
         ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
 
-        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
+        pCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
 
         ezImage imageSwap;
         ezImage* pImage = &image;
@@ -514,7 +505,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
-  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
+  static_assert((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;

@@ -89,9 +89,9 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     ezSimpleAnimationComponent* pAnimController;
     if (pWorld->TryGetComponent(m_hAnimControllerComponent, pAnimController))
     {
-      if (pAnimController->GetAnimationClip().IsValid())
+      if (pAnimController->m_hAnimationClip.IsValid())
       {
-        ezResourceLock<ezAnimationClipResource> pResource(pAnimController->GetAnimationClip(), ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+        ezResourceLock<ezAnimationClipResource> pResource(pAnimController->m_hAnimationClip, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
 
         if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
         {

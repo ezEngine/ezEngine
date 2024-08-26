@@ -6,6 +6,8 @@
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
 int lua_SetColor(lua_State* s)
 {
   ezLuaWrapper lua(s);
@@ -42,6 +44,8 @@ int lua_SetDisabledColor(lua_State* s)
   return lua.ReturnToScript();
 }
 
+#endif
+
 void ezQtEditorApp::SetStyleSheet()
 {
   QPalette palette;
@@ -66,16 +70,16 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Window, QColor(42, 42, 42));                 // window borders, toolbars
   palette.setColor(QPalette::Shadow, QColor(70, 70, 70));                 // background color for arrays in property grids
   palette.setColor(QPalette::Highlight, ezToQtColor(highlightColor));     // selected items
-  palette.setColor(QPalette::HighlightedText, QColor(0, 0, 0));           // text of selected items
+  palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));     // text of selected items
   palette.setColor(QPalette::Link, QColor(104, 205, 254));                // manipulator links in property grid
   palette.setColor(QPalette::LinkVisited, ezToQtColor(linkVisitedColor)); // manipulator links in property grid when active
   palette.setColor(QPalette::AlternateBase, QColor(49, 49, 49));          // second base color, mainly used for alternate row colors
   palette.setColor(QPalette::PlaceholderText, QColor(142, 142, 142));     // text in search fields
 
-  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));       // unused ?
-  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));  // unused ?
-  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));    // unused / not working ?
-  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221)); // unused / not working ?
+  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));               // unused ?
+  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));          // unused ?
+  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));            // unused / not working ?
+  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221));         // unused / not working ?
 
   palette.setColor(QPalette::Disabled, QPalette::Window, QColor(25, 25, 25));
   palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(128, 128, 128));
@@ -84,6 +88,7 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
   palette.setColor(QPalette::Disabled, QPalette::Highlight, ezToQtColor(highlightColorDisabled));
 
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   if (false)
   {
     // when enabled, you can edit the palette with a Lua file
@@ -127,13 +132,14 @@ void ezQtEditorApp::SetStyleSheet()
       lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
     }
   }
+#endif
 
   QApplication::setPalette(palette);
 }
 
 static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& sQMsg)
 {
-  QByteArray localMsg = sQMsg.toLocal8Bit();
+  QByteArray localMsg = sQMsg.toUtf8();
   ezStringBuilder sMsg = localMsg.constData();
 
   switch (type)

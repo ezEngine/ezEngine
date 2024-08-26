@@ -22,8 +22,7 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& objectTransform, ezTime effectLifeTime,
-  ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
+void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength, float fNormalCurvature, float fLightDirectionality)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.TextureAtlasVariationFramesX = uiNumVariationsX;
@@ -32,6 +31,9 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform
   cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
   cb.DistortionStrength = fDistortionStrength;
   cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
+  cb.NormalCurvature = fNormalCurvature;
+  cb.LightDirectionality = fLightDirectionality;
+  cb.ParticlePadding.SetZero();
 
   if (bApplyObjectTransform)
     cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
@@ -62,9 +64,7 @@ void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuff
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiDataTypeSize;
     desc.m_uiTotalSize = uiNumParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     inout_hBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);

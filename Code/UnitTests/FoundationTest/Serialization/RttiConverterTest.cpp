@@ -235,7 +235,9 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_array.PushBack(40.0f);
     t1.m_array.PushBack(-1.5f);
     t1.m_Variant = ezVec4(1, 2, 3, 4);
-    t1.SetText("LALALALA");
+    t1.SetCharPtr("Hello");
+    t1.SetString("World");
+    t1.SetStringView("!!!");
     TestSerialize(&t1);
 
     {

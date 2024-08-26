@@ -137,14 +137,21 @@ void ezGALTextureVulkan::ComputeCreateInfo(ezGALDeviceVulkan* m_pDevice, const e
     createInfo.usage |= vk::ImageUsageFlagBits::eSampled;
     m_stages |= m_pDevice->GetSupportedStages();
     m_access |= vk::AccessFlagBits::eShaderRead;
-    m_preferredLayout = bIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
+    m_preferredLayout = ezConversionUtilsVulkan::GetDefaultLayout(createInfo.format);
   }
   // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
+  if (bIsDepth)
+  {
+    // This looks wrong but apparently, even if you don't intend to render to a depth texture, you need to set the eDepthStencilAttachment flag.
+    // VUID-VkImageMemoryBarrier-oldLayout-01210: https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkImageMemoryBarrier-oldLayout-01210
+    // If srcQueueFamilyIndex and dstQueueFamilyIndex define a queue family ownership transfer or oldLayout and newLayout define an image layout transition, and oldLayout or newLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL then image must have been created with VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+    createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+  }
+
   if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
   {
     if (bIsDepth)
     {
-      createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
       m_stages |= vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
       m_access |= vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
       m_preferredLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
@@ -306,12 +313,11 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
   if (m_stagingMode == StagingMode::Buffer || m_stagingMode == StagingMode::TextureAndBuffer)
   {
     ezGALBufferCreationDescription stagingBuffer;
-    stagingBuffer.m_BufferType = ezGALBufferType::Generic;
-
+    stagingBuffer.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer;
     ezHybridArray<SubResourceOffset, 8> subResourceSizes;
     stagingBuffer.m_uiTotalSize = ComputeSubResourceOffsets(subResourceSizes);
     stagingBuffer.m_uiStructSize = 1;
-    stagingBuffer.m_bAllowRawViews = true;
+
     stagingBuffer.m_ResourceAccess.m_bImmutable = false;
 
     m_hStagingBuffer = m_pDevice->CreateBufferInternal(stagingBuffer, {}, true);
@@ -363,5 +369,3 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 }
 
 
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_TextureVulkan);

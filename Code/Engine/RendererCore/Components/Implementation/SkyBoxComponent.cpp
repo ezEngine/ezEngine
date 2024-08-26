@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
     EZ_ACCESSOR_PROPERTY("UseFog", GetUseFog, SetUseFog)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -45,7 +45,7 @@ void ezSkyBoxComponent::Initialize()
   if (!hMeshBuffer.IsValid())
   {
     ezGeometry geom;
-    geom.AddRectXY(ezVec2(2.0f));
+    geom.AddRect(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -179,22 +179,6 @@ void ezSkyBoxComponent::SetVirtualDistance(float fVirtualDistance)
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetCubeMapFile(const char* szFile)
-{
-  ezTextureCubeResourceHandle hCubeMap;
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
-  }
-
-  SetCubeMap(hCubeMap);
-}
-
-const char* ezSkyBoxComponent::GetCubeMapFile() const
-{
-  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID().GetData() : "";
-}
-
 void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
 {
   m_hCubeMap = hCubeMap;
@@ -233,8 +217,8 @@ void ezSkyBoxComponent::UpdateMaterials()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
 {

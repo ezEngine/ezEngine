@@ -1,7 +1,6 @@
 ez_cmake_init()
 
-
-ez_requires_windows()
+ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
 
 ez_requires_physx()
 

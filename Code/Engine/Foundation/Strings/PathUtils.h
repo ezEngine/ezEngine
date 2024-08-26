@@ -35,17 +35,28 @@ public:
   /// \brief Checks whether the given path has any file extension
   static bool HasAnyExtension(ezStringView sPath); // [tested]
 
-  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
-  /// it will work without a '.' too.
+  /// \brief Checks whether the path ends with the given file extension.
+  /// szExtension may or may not start with a dot.
+  /// The check is case insensitive.
+  ///
+  ///   HasExtension("file.txt", "txt") -> true
+  ///   HasExtension("file.txt", ".txt") -> true
+  ///   HasExtension("file.a.b", ".b") -> true
+  ///   HasExtension("file.a.b", "a.b") -> true
+  ///   HasExtension("file.a.b", ".a.b") -> true
+  ///   HasExtension("file.a.b", "file.a.b") -> false
   static bool HasExtension(ezStringView sPath, ezStringView sExtension); // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension. The dot (.) is not included.
-  static ezStringView GetFileExtension(ezStringView sPath); // [tested]
+  ///
+  /// If bFullExtension is false, a file named "file.a.b.c" will return "c".
+  /// If bFullExtension is true, a file named "file.a.b.c" will return "a.b.c".
+  static ezStringView GetFileExtension(ezStringView sPath, bool bFullExtension = false); // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
-  static ezStringView GetFileName(ezStringView sPath); // [tested]
+  static ezStringView GetFileName(ezStringView sPath, bool bRemoveFullExtension = false); // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
   ///

@@ -17,15 +17,16 @@ using namespace ozz::animation;
 using namespace ozz::math;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimationClip", m_hAnimationClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
   EZ_END_PROPERTIES;
 
@@ -51,6 +52,7 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream)
   s << m_hAnimationClip;
   s << m_RootMotionMode;
   s << m_InvisibleUpdateRate;
+  s << m_bEnableIK;
 }
 
 void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -68,6 +70,11 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& inout_strea
   {
     s >> m_InvisibleUpdateRate;
   }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bEnableIK;
+  }
 }
 
 void ezSimpleAnimationComponent::OnSimulationStarted()
@@ -78,36 +85,6 @@ void ezSimpleAnimationComponent::OnSimulationStarted()
   GetOwner()->SendMessage(msg);
 
   m_hSkeleton = msg.m_hSkeleton;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
-{
-  m_hAnimationClip = hResource;
-}
-
-const ezAnimationClipResourceHandle& ezSimpleAnimationComponent::GetAnimationClip() const
-{
-  return m_hAnimationClip;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  SetAnimationClip(hResource);
-}
-
-const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
-{
-  if (!m_hAnimationClip.IsValid())
-    return "";
-
-  return m_hAnimationClip.GetResourceID();
 }
 
 void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
@@ -176,7 +153,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   ezAnimPoseGenerator poseGen;
-  poseGen.Reset(pSkeleton.GetPointer());
+  poseGen.Reset(pSkeleton.GetPointer(), GetOwner());
 
   auto& cmdSample = poseGen.AllocCommandSampleTrack(0);
   cmdSample.m_hAnimationClip = m_hAnimationClip;
@@ -202,11 +179,11 @@ void ezSimpleAnimationComponent::Update()
       cmdL2M.m_Inputs.PushBack(cmdSample.GetCommandID());
     }
 
-    auto& cmdOut = poseGen.AllocCommandModelPoseToOutput();
-    cmdOut.m_Inputs.PushBack(cmdL2M.GetCommandID());
+    ezAnimPoseGeneratorCommandID prevCmdID = cmdL2M.GetCommandID();
+    poseGen.SetFinalCommand(prevCmdID);
   }
 
-  auto pose = poseGen.GeneratePose(GetOwner());
+  poseGen.UpdatePose(m_bEnableIK);
 
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
@@ -222,33 +199,23 @@ void ezSimpleAnimationComponent::Update()
     ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
   }
 
-  if (pose.IsEmpty())
+  if (poseGen.GetCurrentPose().IsEmpty())
     return;
 
   // inform child nodes/components that a new pose is available
   {
-    ezMsgAnimationPoseProposal msg1;
-    msg1.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-    msg1.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg1.m_ModelTransforms = pose;
+    ezMsgAnimationPoseUpdated msg2;
+    msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+    msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+    msg2.m_ModelTransforms = poseGen.GetCurrentPose();
 
-    GetOwner()->SendMessage(msg1);
+    // recursive, so that objects below the mesh can also listen in on these changes
+    // for example bone attachments
+    GetOwner()->SendMessageRecursive(msg2);
 
-    if (msg1.m_bContinueAnimating)
+    if (msg2.m_bContinueAnimating == false)
     {
-      ezMsgAnimationPoseUpdated msg2;
-      msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
-      msg2.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-      msg2.m_ModelTransforms = pose;
-
-      // recursive, so that objects below the mesh can also listen in on these changes
-      // for example bone attachments
-      GetOwner()->SendMessageRecursive(msg2);
-
-      if (msg2.m_bContinueAnimating == false)
-      {
-        SetActiveFlag(false);
-      }
+      SetActiveFlag(false);
     }
   }
 }

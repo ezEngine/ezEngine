@@ -32,26 +32,26 @@ public:
   void SetLimitMode(ezPxJointLimitMode::Enum mode);                     // [ property ]
   ezPxJointLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
-  void SetLowerLimitAngle(ezAngle f);                         // [ property ]
-  ezAngle GetLowerLimitAngle() const { return m_LowerLimit; } // [ property ]
+  void SetLowerLimitAngle(ezAngle f);                                   // [ property ]
+  ezAngle GetLowerLimitAngle() const { return m_LowerLimit; }           // [ property ]
 
-  void SetUpperLimitAngle(ezAngle f);                         // [ property ]
-  ezAngle GetUpperLimitAngle() const { return m_UpperLimit; } // [ property ]
+  void SetUpperLimitAngle(ezAngle f);                                   // [ property ]
+  ezAngle GetUpperLimitAngle() const { return m_UpperLimit; }           // [ property ]
 
-  void SetSpringStiffness(float f);                               // [ property ]
-  float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
+  void SetSpringStiffness(float f);                                     // [ property ]
+  float GetSpringStiffness() const { return m_fSpringStiffness; }       // [ property ]
 
-  void SetSpringDamping(float f);                             // [ property ]
-  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
+  void SetSpringDamping(float f);                                       // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; }           // [ property ]
 
   void SetDriveMode(ezPxJointDriveMode::Enum mode);                     // [ property ]
   ezPxJointDriveMode::Enum GetDriveMode() const { return m_DriveMode; } // [ property ]
 
-  void SetDriveVelocity(float f);                             // [ property ]
-  float GetDriveVelocity() const { return m_fDriveVelocity; } // [ property ]
+  void SetDriveVelocity(float f);                                       // [ property ]
+  float GetDriveVelocity() const { return m_fDriveVelocity; }           // [ property ]
 
-  void SetDriveTorque(float f);                              // [ property ]
-  float GetDriveTorque() const { return m_fMaxDriveTorque; } // [ property ]
+  void SetDriveTorque(float f);                                         // [ property ]
+  float GetDriveTorque() const { return m_fMaxDriveTorque; }            // [ property ]
 
   virtual void ApplySettings() final override;
 

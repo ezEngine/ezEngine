@@ -45,6 +45,7 @@ void ezProcPlacementComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PreparePlace, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -52,6 +53,7 @@ void ezProcPlacementComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PlaceObjects, this);
     desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -91,12 +93,13 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
     auto outputs = pResource->GetPlacementOutputs();
 
     pComponent->m_OutputContexts.Clear();
+    pComponent->m_OutputContexts.SetCount(outputs.GetCount());
     for (ezUInt32 uiIndex = 0; uiIndex < outputs.GetCount(); ++uiIndex)
     {
       const auto& pOutput = outputs[uiIndex];
       if (pOutput->IsValid())
       {
-        auto& outputContext = pComponent->m_OutputContexts.ExpandAndGetRef();
+        auto& outputContext = pComponent->m_OutputContexts[uiIndex];
         outputContext.m_pOutput = pOutput;
         outputContext.m_pUpdateTilesTask = EZ_DEFAULT_NEW(FindPlacementTilesTask, pComponent, uiIndex);
       }
@@ -110,30 +113,40 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
     return;
   }
 
-  // Schedule find tiles tasks
-  m_UpdateTilesTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-
-  for (auto& visibleComponent : m_VisibleComponents)
+  if (GetWorldSimulationEnabled())
   {
-    ezProcPlacementComponent* pComponent = nullptr;
-    if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
-    {
-      continue;
-    }
+    // Schedule find tiles tasks
+    m_UpdateTilesTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-    auto& outputContexts = pComponent->m_OutputContexts;
-    for (auto& outputContext : outputContexts)
+    for (auto& visibleComponent : m_VisibleComponents)
     {
-      outputContext.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
-
-      if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
+      ezProcPlacementComponent* pComponent = nullptr;
+      if (!TryGetComponent(visibleComponent.m_hComponent, pComponent))
       {
-        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
+        continue;
+      }
+
+      auto& outputContexts = pComponent->m_OutputContexts;
+      for (auto& outputContext : outputContexts)
+      {
+        if (outputContext.IsValid() == false)
+          continue;
+
+        outputContext.m_pUpdateTilesTask->AddCameraPosition(visibleComponent.m_vCameraPosition);
+
+        if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
+        {
+          ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
+        }
       }
     }
-  }
 
-  ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
+    ezTaskSystem::StartTaskGroup(m_UpdateTilesTaskGroupID);
+  }
+  else
+  {
+    ClearVisibleComponents();
+  }
 }
 
 void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateContext& context)
@@ -156,6 +169,9 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       auto& outputContexts = pComponent->m_OutputContexts;
       for (auto& outputContext : outputContexts)
       {
+        if (outputContext.IsValid() == false)
+          continue;
+
         auto oldTiles = outputContext.m_pUpdateTilesTask->GetOldTiles();
         for (ezUInt64 uiOldTileKey : oldTiles)
         {
@@ -205,7 +221,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB) { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB)
+        { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -215,7 +232,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   if (cvar_ProcGenVisTiles)
   {
     ezStringBuilder sb;
-    sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
+    sb.SetFormat("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
     ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
     ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
@@ -258,39 +275,36 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   const ezWorld* pWorld = GetWorld();
 
   // Update processing tasks
-  if (GetWorldSimulationEnabled())
   {
+    EZ_PROFILE_SCOPE("Prepare processing tasks");
+
+    ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+
+    for (auto& processingTask : m_ProcessingTasks)
     {
-      EZ_PROFILE_SCOPE("Prepare processing tasks");
+      if (!processingTask.IsValid() || processingTask.IsScheduled())
+        continue;
 
-      ezTaskGroupID prepareTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+      auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+      activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
 
-      for (auto& processingTask : m_ProcessingTasks)
-      {
-        if (!processingTask.IsValid() || processingTask.IsScheduled())
-          continue;
-
-        auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-        activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
-
-        ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
-      }
-
-      ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
-      ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+      ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
     }
 
+    ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
+    ezTaskSystem::WaitForGroup(prepareTaskGroupID);
+  }
+
+  {
+    EZ_PROFILE_SCOPE("Kickoff placement tasks");
+
+    for (auto& processingTask : m_ProcessingTasks)
     {
-      EZ_PROFILE_SCOPE("Kickoff placement tasks");
+      if (!processingTask.IsValid() || processingTask.IsScheduled())
+        continue;
 
-      for (auto& processingTask : m_ProcessingTasks)
-      {
-        if (!processingTask.IsValid() || processingTask.IsScheduled())
-          continue;
-
-        processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-        processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
-      }
+      processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
+      processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
     }
   }
 }
@@ -305,7 +319,8 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB) { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB)
+    { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
@@ -376,7 +391,7 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
   ezStringBuilder sb;
   if (uiQueueIndex != ezInvalidIndex)
   {
-    sb.Format("Queue Index: {}\n", uiQueueIndex);
+    sb.SetFormat("Queue Index: {}\n", uiQueueIndex);
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
   ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
@@ -444,10 +459,10 @@ ezUInt32 ezProcPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTile
     newTask.m_pData = EZ_DEFAULT_NEW(PlacementData);
 
     ezStringBuilder sName;
-    sName.Format("Prepare Task {}", uiNewTaskIndex);
+    sName.SetFormat("Prepare Task {}", uiNewTaskIndex);
     newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, newTask.m_pData.Borrow(), sName);
 
-    sName.Format("Placement Task {}", uiNewTaskIndex);
+    sName.SetFormat("Placement Task {}", uiNewTaskIndex);
     newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, newTask.m_pData.Borrow(), sName);
   }
 
@@ -519,7 +534,7 @@ void ezProcPlacementComponentManager::RemoveTilesForComponent(ezProcPlacementCom
 
 void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading || resourceEvent.m_pResource->GetReferenceCount() == 0)
     return;
 
   if (auto pResource = ezDynamicCast<const ezProcGenGraphResource*>(resourceEvent.m_pResource))
@@ -538,11 +553,16 @@ void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& res
 
 void ezProcPlacementComponentManager::AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const
 {
+  if (!GetWorldSimulationEnabled())
+    return;
+
   EZ_LOCK(m_VisibleComponentsMutex);
 
   for (auto& visibleComponent : m_VisibleComponents)
   {
-    if (visibleComponent.m_hComponent == hComponent && visibleComponent.m_vCameraPosition == cameraPosition && visibleComponent.m_vCameraDirection == cameraDirection)
+    if (visibleComponent.m_hComponent == hComponent &&
+        visibleComponent.m_vCameraPosition.IsEqual(cameraPosition, ezMath::LargeEpsilon<float>()) &&
+        visibleComponent.m_vCameraDirection.IsEqual(cameraDirection, ezMath::LargeEpsilon<float>()))
     {
       return;
     }
@@ -585,7 +605,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcPlacementComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ProcGen_Graph")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ProcGen_Graph")),
     EZ_ARRAY_ACCESSOR_PROPERTY("BoxExtents", BoxExtents_GetCount, BoxExtents_GetValue, BoxExtents_SetValue, BoxExtents_Insert, BoxExtents_Remove),
   }
   EZ_END_PROPERTIES;
@@ -622,27 +642,6 @@ void ezProcPlacementComponent::OnDeactivated()
 
   auto pManager = static_cast<ezProcPlacementComponentManager*>(GetOwningManager());
   pManager->RemoveComponent(this);
-}
-
-void ezProcPlacementComponent::SetResourceFile(const char* szFile)
-{
-  ezProcGenGraphResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetResource(hResource);
-}
-
-const char* ezProcPlacementComponent::GetResourceFile() const
-{
-  if (!m_hResource.IsValid())
-    return "";
-
-  return m_hResource.GetResourceID();
 }
 
 void ezProcPlacementComponent::SetResource(const ezProcGenGraphResourceHandle& hResource)
@@ -682,23 +681,23 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_m
 
 void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const
 {
+  if (ref_msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
+      ref_msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+    return;
+
   // Don't extract render data for selection or in shadow views.
   if (ref_msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || ref_msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
-  {
-    const ezCamera* pCamera = ref_msg.m_pView->GetCullingCamera();
+  if (m_hResource.IsValid() == false)
+    return;
 
-    ezVec3 cameraPosition = pCamera->GetCenterPosition();
-    ezVec3 cameraDirection = pCamera->GetCenterDirForwards();
+  const ezCamera* pCamera = ref_msg.m_pView->GetCullingCamera();
+  const ezVec3 cameraPosition = pCamera->GetCenterPosition();
+  const ezVec3 cameraDirection = pCamera->GetCenterDirForwards();
 
-    if (m_hResource.IsValid())
-    {
-      auto pManager = static_cast<const ezProcPlacementComponentManager*>(GetOwningManager());
-      pManager->AddVisibleComponent(GetHandle(), cameraPosition, cameraDirection);
-    }
-  }
+  auto pManager = static_cast<const ezProcPlacementComponentManager*>(GetOwningManager());
+  pManager->AddVisibleComponent(GetHandle(), cameraPosition, cameraDirection);
 }
 
 void ezProcPlacementComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -741,7 +740,7 @@ void ezProcPlacementComponent::BoxExtents_SetValue(ezUInt32 uiIndex, const ezPro
 
 void ezProcPlacementComponent::BoxExtents_Insert(ezUInt32 uiIndex, const ezProcGenBoxExtents& value)
 {
-  m_BoxExtents.Insert(value, uiIndex);
+  m_BoxExtents.InsertAt(uiIndex, value);
 
   UpdateBoundsAndTiles();
 }

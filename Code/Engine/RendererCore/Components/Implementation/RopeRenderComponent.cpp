@@ -11,8 +11,8 @@
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Shader/Types.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Types.h>
 
 ezCVarBool cvar_FeatureRopesVisBones("Feature.Ropes.VisBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
 
@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 16)),
@@ -101,7 +101,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
+  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().HasMirrorScaling() ? 1 : 0;
   const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
@@ -173,26 +173,6 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     ezDebugRenderer::DrawLines(msg.m_pView->GetHandle(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
   }
-}
-
-void ezRopeRenderComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezRopeRenderComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
 }
 
 void ezRopeRenderComponent::SetThickness(float fThickness)
@@ -299,7 +279,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("Rope-Mesh:{}{}-d{}-u{}", uiNumRopePieces, m_bSubdivide ? "Sub" : "", m_uiDetail, m_fUScale);
+  sResourceName.SetFormat("Rope-Mesh:{}{}-d{}-u{}", uiNumRopePieces, m_bSubdivide ? "Sub" : "", m_uiDetail, m_fUScale);
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResourceName);
   if (m_hMesh.IsValid())
@@ -310,7 +290,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
-  auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding) {
+  auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding)
+  {
     ezVec4U16 boneIndices(uiBoneIndex, 0, 0, 0);
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), vNormal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
@@ -337,7 +318,8 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
     }
   };
 
-  auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons) {
+  auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons)
+  {
     ezAngle deg = ezAngle::MakeFromRadian(0);
     float fU = x * m_fUScale;
     float fV = 0;

@@ -53,7 +53,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   };
 
   VS_OUT Output;
-  #if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
     Output.RenderTargetArrayIndex = InstanceID;
   #else
     Output.InstanceID = InstanceID;
@@ -71,6 +71,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   float3 worldPosition = data.WorldSpacePosition;
 
   float3 cameraDir = normalize(worldPosition - GetCameraPosition());
+  if (dot(cameraDir, GetCameraDirForwards()) < 0)
+  {
+	return (VS_OUT)0;
+  }
+  
   worldPosition += cameraDir * data.DepthOffset;
 
   float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
@@ -143,6 +148,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     }
     fade *= (visibility / 32);
   }
+  
+  if (fade <= 0)
+  {
+	return (VS_OUT)0;
+  }
 
   float2 screenSize = scale * (data.Size / screenPosition.w);
   if (data.MaxScreenSize > 0.0)
@@ -168,15 +178,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 [GEOMETRYSHADER]
 
-void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
-{
-  output.Flags = input.Flags;
-}
+#define CopyCustomInterpolators(output, input) output.Flags = input.Flags;
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 
+#include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Materials/LensFlareData.h>
 

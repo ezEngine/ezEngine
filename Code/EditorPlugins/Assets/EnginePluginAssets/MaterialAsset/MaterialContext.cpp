@@ -91,7 +91,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
-        geom.AddSphere(0.1f, 64, 64, opt);
+        geom.AddStackedSphere(0.1f, 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -181,7 +181,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90));
-        geom.AddRectXY(ezVec2(0.2f), 64, 64, opt);
+        geom.AddRect(ezVec2(0.2f), 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -209,7 +209,7 @@ void ezMaterialContext::OnInitialize()
   }
 
   {
-    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezMesh");
+    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezBinMesh");
   }
 
   auto pWorld = m_pWorld;

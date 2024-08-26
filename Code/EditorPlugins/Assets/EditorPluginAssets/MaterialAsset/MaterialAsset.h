@@ -92,6 +92,7 @@ public:
   ezString m_sBaseMaterial;
   ezString m_sSurface;
   ezString m_sShader;
+  ezString m_sAssetFilterTags;
 
   ezMap<ezString, ezVariant> m_CachedProperties;
   ezMaterialAssetDocument* m_pDocument = nullptr;

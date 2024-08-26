@@ -1,9 +1,9 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Physics/Collision/Shape/CompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -128,7 +128,7 @@ static void AddStats(ezStreamReader& inout_stream, ezUInt32& ref_uiVertices, ezU
 
 ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezJoltMeshResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezJoltMeshResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -483,7 +483,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
     }
 
 
-    EZ_ASSERT_DEBUG(materials.GetCount() <= 1, "Convex meshes should only have a single material. '{}' has {}", GetResourceDescription(), materials.GetCount());
+    EZ_ASSERT_DEBUG(materials.GetCount() <= 1, "Convex meshes should only have a single material. '{}' has {}", GetResourceIdOrDescription(), materials.GetCount());
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());
 
 
@@ -511,4 +511,3 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Resources_JoltMeshResource);
-

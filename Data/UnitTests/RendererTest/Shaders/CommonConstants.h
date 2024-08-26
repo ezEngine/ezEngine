@@ -1,8 +1,3 @@
-cbuffer PerFrame : register(b0)
-{
-  float time;
-};
-
 cbuffer PerObject : register(b1)
 {
   float4x4 mvp : packoffset(c0);

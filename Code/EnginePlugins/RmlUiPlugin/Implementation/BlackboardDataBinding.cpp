@@ -41,8 +41,10 @@ namespace ezRmlUiInternal
     {
       constructor.BindFunc(
         wrapper.m_sName.GetData(),
-        [&](Rml::Variant& out_value) { wrapper.GetValue(out_value); },
-        [&](const Rml::Variant& value) { wrapper.SetValue(value); });
+        [&](Rml::Variant& out_value)
+        { wrapper.GetValue(out_value); },
+        [&](const Rml::Variant& value)
+        { wrapper.SetValue(value); });
     }
 
     m_hDataModel = constructor.GetModelHandle();

@@ -55,10 +55,10 @@ public:
 
   enum class EndChunkFileMode
   {
-    SkipToEnd, ///< Makes sure all data is properly read, so that the stream read position is after the chunk file data. Useful if the chunk file is
-               ///< embedded in another file stream.
-    JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all
-               ///< underlying streams.
+    SkipToEnd,                                                                   ///< Makes sure all data is properly read, so that the stream read position is after the chunk file data. Useful if the chunk file is
+                                                                                 ///< embedded in another file stream.
+    JustClose                                                                    ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all
+                                                                                 ///< underlying streams.
   };
 
   void SetEndChunkFileMode(EndChunkFileMode mode) { m_EndChunkFileMode = mode; } // [tested]

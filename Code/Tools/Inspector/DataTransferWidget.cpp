@@ -236,7 +236,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   else
   {
     ezStringBuilder sText;
-    sText.Format("Cannot display data of Mime-Type '{0}'", sMime);
+    sText.SetFormat("Cannot display data of Mime-Type '{0}'", sMime);
 
     LabelImage->setText(sText.GetData());
   }

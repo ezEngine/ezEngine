@@ -77,7 +77,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     const ezVec3T vOp1(-4.0, 4.0f, -2.0f);
     const ezVec3T compArray[3] = {ezVec3T(1.0f, 0.0f, 0.0f), ezVec3T(0.0f, 1.0f, 0.0f), ezVec3T(0.0f, 0.0f, 1.0f)};
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLength") { EZ_TEST_FLOAT(vOp1.GetLength(), 6.0f, ezMath::SmallEpsilon<ezMathTestType>()); }
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLength")
+    {
+      EZ_TEST_FLOAT(vOp1.GetLength(), 6.0f, ezMath::SmallEpsilon<ezMathTestType>());
+    }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLength")
     {
@@ -89,7 +92,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST_FLOAT(vSetLength.GetLength(), 4.0f, ezMath::SmallEpsilon<ezMathTestType>());
     }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthSquared") { EZ_TEST_FLOAT(vOp1.GetLengthSquared(), 36.0f, ezMath::SmallEpsilon<ezMathTestType>()); }
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthSquared")
+    {
+      EZ_TEST_FLOAT(vOp1.GetLengthSquared(), 36.0f, ezMath::SmallEpsilon<ezMathTestType>());
+    }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthAndNormalize")
     {

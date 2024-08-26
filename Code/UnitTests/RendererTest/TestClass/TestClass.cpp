@@ -70,11 +70,11 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites)); // for shader files
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sBaseDir, "Base"));
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites));
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites));
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData"));
 
@@ -94,12 +94,15 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
   ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
   ezShaderManager::Configure(szShaderModel, true);
-  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+  if (ezPlugin::LoadPlugin(szShaderCompiler).Failed())
+    ezLog::Warning("Shader compiler '{}' plugin not found", szShaderCompiler);
 
   // Create a device
   {
     ezGALDeviceCreationDescription DeviceInit;
-    DeviceInit.m_bDebugDevice = false;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    DeviceInit.m_bDebugDevice = true;
+#endif
     out_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
     if (out_pDevice->Init().Failed())
       return EZ_FAILURE;
@@ -121,7 +124,7 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     }
     else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
     {
-      // Line rendering is different on AMD and requires separate images for tests rendering lines.
+      // Line rendering is different on Nvidia and requires separate images for tests rendering lines.
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Nvidia");
     }
     else
@@ -134,6 +137,10 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
     {
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
+    }
+    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("SwiftShader"))
+    {
+      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_SwiftShader");
     }
     else
     {
@@ -259,10 +266,10 @@ void ezGraphicsTest::DestroyWindow()
   }
 }
 
-void ezGraphicsTest::BeginFrame(const char* szPipe)
+void ezGraphicsTest::BeginFrame()
 {
+  m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
   m_pDevice->BeginFrame(m_iFrame);
-  m_pDevice->BeginPipeline(szPipe, m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()
@@ -270,7 +277,6 @@ void ezGraphicsTest::EndFrame()
   m_pWindow->ProcessWindowMessages();
 
   ezRenderContext::GetDefaultInstance()->ResetContextState();
-  m_pDevice->EndPipeline(m_hSwapChain);
 
   m_pDevice->EndFrame();
 
@@ -278,21 +284,21 @@ void ezGraphicsTest::EndFrame()
 }
 
 
-void ezGraphicsTest::BeginPass(const char* szPassName)
+void ezGraphicsTest::BeginCommands(const char* szPassName)
 {
-  EZ_ASSERT_DEV(m_pPass == nullptr, "Call EndPass first before calling BeginPass again");
-  m_pPass = m_pDevice->BeginPass(szPassName);
+  EZ_ASSERT_DEV(m_pEncoder == nullptr, "Call EndCommands first before calling BeginCommands again");
+  m_pEncoder = m_pDevice->BeginCommands(szPassName);
 }
 
 
-void ezGraphicsTest::EndPass()
+void ezGraphicsTest::EndCommands()
 {
-  EZ_ASSERT_DEV(m_pPass != nullptr, "Call BeginPass first before calling EndPass");
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EZ_ASSERT_DEV(m_pEncoder != nullptr, "Call BeginCommands first before calling EndCommands");
+  m_pDevice->EndCommands(m_pEncoder);
+  m_pEncoder = nullptr;
 }
 
-ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
+ezGALCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
@@ -312,12 +318,14 @@ ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ez
     viewport = *pViewport;
   }
 
-  ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+  ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
   ezRectU32 scissor = ezRectU32(0, 0, m_pWindow->GetClientAreaSize().width, m_pWindow->GetClientAreaSize().height);
   if (pScissor)
   {
     scissor = *pScissor;
   }
+
+  auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
   pCommandEncoder->SetScissorRect(scissor);
 
   SetClipSpace();
@@ -339,9 +347,9 @@ void ezGraphicsTest::SetClipSpace()
   ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable(sClipSpaceFlipped, clipSpace == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
 }
 
-void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV)
+void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV)
 {
-  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+  ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
@@ -422,7 +430,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
   geom.AddGeodesicSphere(fRadius, static_cast<ezUInt8>(iSubDivs));
 
   ezStringBuilder sName;
-  sName.Format("Sphere_{0}", iSubDivs);
+  sName.SetFormat("Sphere_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -433,7 +441,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
   geom.AddTorus(fInnerRadius, fOuterRadius, static_cast<ezUInt16>(iSubDivs), static_cast<ezUInt16>(iSubDivs), true);
 
   ezStringBuilder sName;
-  sName.Format("Torus_{0}", iSubDivs);
+  sName.SetFormat("Torus_{0}", iSubDivs);
 
   return CreateMesh(geom, sName);
 }
@@ -444,7 +452,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
   geom.AddBox(ezVec3(fWidth, fHeight, fDepth), false);
 
   ezStringBuilder sName;
-  sName.Format("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
+  sName.SetFormat("Box_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }
@@ -455,7 +463,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHe
   geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth));
 
   ezStringBuilder sName;
-  sName.Format("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
+  sName.SetFormat("LineBox_{0}_{1}_{2}", ezArgF(fWidth, 1), ezArgF(fHeight, 1), ezArgF(fDepth, 1));
 
   return CreateMesh(geom, sName);
 }

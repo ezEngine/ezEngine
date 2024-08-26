@@ -171,7 +171,9 @@ template <typename Derived>
 const char* ezStringBase<Derived>::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
 {
   const char* pos = InternalGetData();
-  ezUnicodeUtils::MoveToNextUtf8(pos, InternalGetDataEnd(), uiCharacterIndex);
+  if (ezUnicodeUtils::MoveToNextUtf8(pos, InternalGetDataEnd(), uiCharacterIndex).Failed())
+    return nullptr;
+
   return pos;
 }
 
@@ -226,6 +228,22 @@ EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const char
 }
 
 #endif
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+
+template <typename DerivedLhs, typename DerivedRhs>
+EZ_ALWAYS_INLINE std::strong_ordering operator<=>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs)
+{
+  return lhs.Compare(rhs) <=> 0;
+}
+
+template <typename DerivedLhs, typename DerivedRhs>
+EZ_ALWAYS_INLINE std::strong_ordering operator<=>(const ezStringBase<DerivedLhs>& lhs, const char* rhs)
+{
+  return lhs.Compare(rhs) <=> 0;
+}
+
+#else
 
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
@@ -299,6 +317,8 @@ EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char
   return lhs.Compare(rhs) >= 0;
 }
 
+#endif
+
 template <typename DerivedLhs>
 EZ_ALWAYS_INLINE ezStringBase<DerivedLhs>::operator ezStringView() const
 {
@@ -361,9 +381,9 @@ ezStringView ezStringBase<Derived>::GetFileName() const
 }
 
 template <typename Derived>
-ezStringView ezStringBase<Derived>::GetFileExtension() const
+ezStringView ezStringBase<Derived>::GetFileExtension(bool bFullExtension) const
 {
-  return GetView().GetFileExtension();
+  return GetView().GetFileExtension(bFullExtension);
 }
 
 template <typename Derived>

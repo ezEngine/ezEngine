@@ -136,9 +136,11 @@ VS_OUT FillVertexData(VS_IN Input)
 
   Output.InstanceID = Input.InstanceID;
 
-#if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && defined(CAMERA_MODE)
+#if defined(CAMERA_MODE)
 #  if CAMERA_MODE == CAMERA_MODE_STEREO
+#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
   Output.RenderTargetArrayIndex = Input.InstanceID % 2;
+#    endif
 #  endif
 #endif
 

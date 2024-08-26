@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7962049223207265704,5190859084399954250}}
-		u4 %Hash{14566754950806228439}
+		u4 %Hash{3951886181546498919}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -38,6 +38,7 @@ o
 			s{"{ bfdc9c4a-b7d9-41f1-81e2-8d971b6db0ef }"}
 			s{"{ da29b8ad-f9eb-473a-9fe6-4b03992f69c6 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -177,6 +178,19 @@ o
 }
 o
 {
+	Uuid %id{u4{8579834033488924861,4611759950079417508}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2734683811502562969,5010830573041923448}}
+		s %SourcePin{"OutPose"}
+		Uuid %Target{u4{15741840558564454075,4641472390056780183}}
+		s %TargetPin{"InPoses[0]"}
+	}
+}
+o
+{
 	Uuid %id{u4{15741840558564454075,4641472390056780183}}
 	s %t{"ezSwitchPoseAnimNode"}
 	u3 %v{1}
@@ -234,15 +248,15 @@ o
 }
 o
 {
-	Uuid %id{u4{7030246240700577185,4762369339504304911}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{1365319357742232739,4816624594227310637}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{2675782915013961040,10608794109094721365}}
-		s %Connection::SourcePin{"OutNumber"}
-		Uuid %Connection::Target{u4{9935331133970955147,5089951012536680898}}
-		s %Connection::TargetPin{"a"}
+		Uuid %Source{u4{2675782915013961040,10608794109094721365}}
+		s %SourcePin{"OutNumber"}
+		Uuid %Target{u4{9935331133970955147,5089951012536680898}}
+		s %TargetPin{"a"}
 	}
 }
 o
@@ -260,6 +274,19 @@ o
 		Uuid %OutOnFalse{u4{8984837769136233886,2907999887719546830}}
 		Uuid %OutOnTrue{u4{7276631382958229959,18897174470448627}}
 		d %ReferenceValue{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12068705382021930388,4979178204395497506}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{1650067913865424796,4822974463014194831}}
+		s %SourcePin{"OutIsTrue"}
+		Uuid %Target{u4{2734683811502562969,5010830573041923448}}
+		s %TargetPin{"InLoop"}
 	}
 }
 o
@@ -291,54 +318,15 @@ o
 }
 o
 {
-	Uuid %id{u4{2554161715259134597,5020111040264954463}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{6899309517094005160,5043893460551939543}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{3995774333473445949,10586704402952631853}}
-		s %Connection::SourcePin{"OutNumber"}
-		Uuid %Connection::Target{u4{9935331133970955147,5089951012536680898}}
-		s %Connection::TargetPin{"b"}
-	}
-}
-o
-{
-	Uuid %id{u4{18406884597970750108,5033356525534478459}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{440481059679114640,5454752280545177635}}
-		s %Connection::SourcePin{"OutPose"}
-		Uuid %Connection::Target{u4{15741840558564454075,4641472390056780183}}
-		s %Connection::TargetPin{"InPoses[1]"}
-	}
-}
-o
-{
-	Uuid %id{u4{9765141686967368343,5043150113655419378}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{2713623461079553187,5424346584421867869}}
-		s %Connection::SourcePin{"OutNumber"}
-		Uuid %Connection::Target{u4{15741840558564454075,4641472390056780183}}
-		s %Connection::TargetPin{"InIndex"}
-	}
-}
-o
-{
-	Uuid %id{u4{7826080873154286742,5043808718883723841}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{1650067913865424796,4822974463014194831}}
-		s %Connection::SourcePin{"OutIsTrue"}
-		Uuid %Connection::Target{u4{2734683811502562969,5010830573041923448}}
-		s %Connection::TargetPin{"InLoop"}
+		Uuid %Source{u4{15741840558564454075,4641472390056780183}}
+		s %SourcePin{"OutPose"}
+		Uuid %Target{u4{7153180625155201692,4760453574745285272}}
+		s %TargetPin{"InPose"}
 	}
 }
 o
@@ -356,19 +344,6 @@ o
 		Uuid %b{u4{14469020654468980344,12376371946258373780}}
 		Uuid %c{u4{5437988681542041415,6743029085701061588}}
 		Uuid %d{u4{12063224328185705635,15147592820579972050}}
-	}
-}
-o
-{
-	Uuid %id{u4{6163250197552567716,5098336894463934118}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{5844195836758983912,15848290381356432023}}
-		s %Connection::SourcePin{"OutNumber"}
-		Uuid %Connection::Target{u4{17415332031052603665,10290179647079318344}}
-		s %Connection::TargetPin{"a"}
 	}
 }
 o
@@ -406,28 +381,15 @@ o
 }
 o
 {
-	Uuid %id{u4{6748772806078531983,5137258847283033734}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{9725886492695944320,5174215844416811583}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{15741840558564454075,4641472390056780183}}
-		s %Connection::SourcePin{"OutPose"}
-		Uuid %Connection::Target{u4{7153180625155201692,4760453574745285272}}
-		s %Connection::TargetPin{"InPose"}
-	}
-}
-o
-{
-	Uuid %id{u4{6953168574494624913,5156269360607986245}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{9935331133970955147,5089951012536680898}}
-		s %Connection::SourcePin{"Result"}
-		Uuid %Connection::Target{u4{440481059679114640,5454752280545177635}}
-		s %Connection::TargetPin{"X"}
+		Uuid %Source{u4{9935331133970955147,5089951012536680898}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{440481059679114640,5454752280545177635}}
+		s %TargetPin{"X"}
 	}
 }
 o
@@ -439,6 +401,32 @@ o
 	{
 		s %Clip{"{ 0ac0f62a-fa62-4c45-a718-6bb843cb6148 }"}
 		s %ClipName{"Walk_Right"}
+	}
+}
+o
+{
+	Uuid %id{u4{11844423420785382819,5232803968782973805}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{5844195836758983912,15848290381356432023}}
+		s %SourcePin{"OutNumber"}
+		Uuid %Target{u4{17415332031052603665,10290179647079318344}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{5857105526633486760,5233388496669096459}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{3995774333473445949,10586704402952631853}}
+		s %SourcePin{"OutNumber"}
+		Uuid %Target{u4{9935331133970955147,5089951012536680898}}
+		s %TargetPin{"b"}
 	}
 }
 o
@@ -465,19 +453,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3572311943547326642,5272836289890517442}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{17415332031052603665,10290179647079318344}}
-		s %Connection::SourcePin{"Result"}
-		Uuid %Connection::Target{u4{440481059679114640,5454752280545177635}}
-		s %Connection::TargetPin{"Y"}
-	}
-}
-o
-{
 	Uuid %id{u4{4884837639665478308,5278766483972670667}}
 	s %t{"ezAnimationClipMapping"}
 	u3 %v{1}
@@ -485,19 +460,6 @@ o
 	{
 		s %Clip{"{ b25c3cfb-241b-4ef4-9848-d19e341c84d3 }"}
 		s %ClipName{"Walk_Back"}
-	}
-}
-o
-{
-	Uuid %id{u4{8733823726513693589,5288235062836357103}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{2734683811502562969,5010830573041923448}}
-		s %Connection::SourcePin{"OutPose"}
-		Uuid %Connection::Target{u4{15741840558564454075,4641472390056780183}}
-		s %Connection::TargetPin{"InPoses[0]"}
 	}
 }
 o
@@ -559,19 +521,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17178662882918686382,5442960108160755010}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{1650067913865424796,4822974463014194831}}
-		s %Connection::SourcePin{"OutOnTrue"}
-		Uuid %Connection::Target{u4{2734683811502562969,5010830573041923448}}
-		s %Connection::TargetPin{"InStart"}
-	}
-}
-o
-{
 	Uuid %id{u4{440481059679114640,5454752280545177635}}
 	s %t{"ezSampleBlendSpace2DAnimNode"}
 	u3 %v{1}
@@ -597,7 +546,7 @@ o
 		Uuid %OutOnFinished{u4{1798417472709671007,5888172613877216456}}
 		Uuid %OutOnStarted{u4{18262870130581425111,2041568809116489337}}
 		Uuid %OutPose{u4{8447260086510130232,4020950847954567614}}
-		f %PlaybackSpeed{0x00000040}
+		f %PlaybackSpeed{0x0000803F}
 		Uuid %X{u4{7795588119844767947,3753908229838548775}}
 		Uuid %Y{u4{15555883950077611145,5575751364534997207}}
 	}
@@ -637,15 +586,28 @@ o
 }
 o
 {
-	Uuid %id{u4{10577521865667457193,5546956585557436980}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{7789919545879155606,5549846769118762245}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{7164187255218468821,15826200675214342511}}
-		s %Connection::SourcePin{"OutNumber"}
-		Uuid %Connection::Target{u4{17415332031052603665,10290179647079318344}}
-		s %Connection::TargetPin{"b"}
+		Uuid %Source{u4{440481059679114640,5454752280545177635}}
+		s %SourcePin{"OutPose"}
+		Uuid %Target{u4{15741840558564454075,4641472390056780183}}
+		s %TargetPin{"InPoses[1]"}
+	}
+}
+o
+{
+	Uuid %id{u4{1396905337218427035,5559235225992760559}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2713623461079553187,5424346584421867869}}
+		s %SourcePin{"OutNumber"}
+		Uuid %Target{u4{15741840558564454075,4641472390056780183}}
+		s %TargetPin{"InIndex"}
 	}
 }
 o
@@ -672,6 +634,19 @@ o
 }
 o
 {
+	Uuid %id{u4{5197587318862857915,5590444606301681243}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{17415332031052603665,10290179647079318344}}
+		s %SourcePin{"Result"}
+		Uuid %Target{u4{440481059679114640,5454752280545177635}}
+		s %TargetPin{"Y"}
+	}
+}
+o
+{
 	Uuid %id{u4{9228466424846209967,5646647252097642100}}
 	s %t{"ezAnimationClip2D"}
 	u3 %v{1}
@@ -690,6 +665,32 @@ o
 	{
 		s %Clip{"{ da29b8ad-f9eb-473a-9fe6-4b03992f69c6 }"}
 		s %ClipName{"Jump_Loop"}
+	}
+}
+o
+{
+	Uuid %id{u4{15281654855394593964,5740776745372826806}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{1650067913865424796,4822974463014194831}}
+		s %SourcePin{"OutOnTrue"}
+		Uuid %Target{u4{2734683811502562969,5010830573041923448}}
+		s %TargetPin{"InStart"}
+	}
+}
+o
+{
+	Uuid %id{u4{11394963297976364221,5759046767087133048}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{7164187255218468821,15826200675214342511}}
+		s %SourcePin{"OutNumber"}
+		Uuid %Target{u4{17415332031052603665,10290179647079318344}}
+		s %TargetPin{"b"}
 	}
 }
 o
@@ -730,25 +731,25 @@ o
 			Uuid{u4{440481059679114640,5454752280545177635}}
 			Uuid{u4{2713623461079553187,5424346584421867869}}
 			Uuid{u4{1650067913865424796,4822974463014194831}}
-			Uuid{u4{17178662882918686382,5442960108160755010}}
-			Uuid{u4{7826080873154286742,5043808718883723841}}
 			Uuid{u4{9935331133970955147,5089951012536680898}}
 			Uuid{u4{17415332031052603665,10290179647079318344}}
-			Uuid{u4{6953168574494624913,5156269360607986245}}
-			Uuid{u4{3572311943547326642,5272836289890517442}}
 			Uuid{u4{2675782915013961040,10608794109094721365}}
 			Uuid{u4{3995774333473445949,10586704402952631853}}
 			Uuid{u4{5844195836758983912,15848290381356432023}}
 			Uuid{u4{7164187255218468821,15826200675214342511}}
-			Uuid{u4{7030246240700577185,4762369339504304911}}
-			Uuid{u4{2554161715259134597,5020111040264954463}}
-			Uuid{u4{6163250197552567716,5098336894463934118}}
-			Uuid{u4{10577521865667457193,5546956585557436980}}
 			Uuid{u4{15741840558564454075,4641472390056780183}}
-			Uuid{u4{9765141686967368343,5043150113655419378}}
-			Uuid{u4{6748772806078531983,5137258847283033734}}
-			Uuid{u4{8733823726513693589,5288235062836357103}}
-			Uuid{u4{18406884597970750108,5033356525534478459}}
+			Uuid{u4{1365319357742232739,4816624594227310637}}
+			Uuid{u4{5857105526633486760,5233388496669096459}}
+			Uuid{u4{7789919545879155606,5549846769118762245}}
+			Uuid{u4{1396905337218427035,5559235225992760559}}
+			Uuid{u4{12068705382021930388,4979178204395497506}}
+			Uuid{u4{11844423420785382819,5232803968782973805}}
+			Uuid{u4{6899309517094005160,5043893460551939543}}
+			Uuid{u4{9725886492695944320,5174215844416811583}}
+			Uuid{u4{5197587318862857915,5590444606301681243}}
+			Uuid{u4{8579834033488924861,4611759950079417508}}
+			Uuid{u4{15281654855394593964,5740776745372826806}}
+			Uuid{u4{11394963297976364221,5759046767087133048}}
 		}
 	}
 }
@@ -1169,6 +1170,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16403872241539775284,4440863261315351728}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1198,6 +1216,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphBoneWeightsInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{612392181161098119,4924088055133934390}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTitleAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1356,23 +1391,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1988646526571382668,10729334715299371304}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{1897382235142393358,12026011136871732484}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1385,6 +1403,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphTriggerInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1436,6 +1471,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSampleBlendSpace2DAnimNode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12475066012725324296,14434929982913778195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1555,6 +1607,23 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationGraphAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
 		u3 %TypeVersion{1}
 	}
 }

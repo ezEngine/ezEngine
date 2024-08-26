@@ -101,7 +101,7 @@ EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator T
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(
-  ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocatorBase* pAllocator)
+  ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocator* pAllocator)
   : m_pBlockAllocator(pBlockAllocator)
   , m_Blocks(pAllocator)
 
@@ -181,7 +181,7 @@ T* ezBlockStorage<T, BlockSize, StorageType>::Create()
     ++m_uiCount;
   }
 
-  ezMemoryUtils::Construct(pNewObject, 1);
+  ezMemoryUtils::Construct<SkipTrivialTypes>(pNewObject, 1);
 
   if (StorageType == ezBlockStorageType::FreeList)
   {

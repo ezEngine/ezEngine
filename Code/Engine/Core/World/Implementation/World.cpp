@@ -13,6 +13,9 @@ ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
+  EZ_IGNORE_UNUSED(hThis);
+  EZ_IGNORE_UNUSED(sProperty);
+
   const char* szRef = reinterpret_cast<const char*>(pData);
 
   if (ezStringUtils::IsNullOrEmpty(szRef))
@@ -317,6 +320,7 @@ ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatch
 void ezWorld::DeleteComponentInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   auto& pInitBatch = m_Data.m_InitBatches[hBatch.GetInternalID()];
+  EZ_IGNORE_UNUSED(pInitBatch);
   EZ_ASSERT_DEV(pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty(), "Init batch has not been completely processed");
   m_Data.m_InitBatches.Remove(hBatch.GetInternalID());
 }
@@ -330,6 +334,7 @@ void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle&
 void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   EZ_ASSERT_DEV(m_Data.m_InitBatches[hBatch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", hBatch.GetInternalID().m_Data);
+  EZ_IGNORE_UNUSED(hBatch);
   m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
 }
 
@@ -348,13 +353,34 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hB
   {
     if (pInitBatch->m_ComponentsToInitialize.IsEmpty())
     {
-      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
-      *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      if (m_Data.m_bSimulateWorld)
+      {
+        double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
+        *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = 1.0;
+
+        EZ_ASSERT_DEV(m_Data.m_pDefaultInitBatch != pInitBatch, "");
+
+        m_Data.m_pDefaultInitBatch->m_ComponentsToStartSimulation.PushBackRange(pInitBatch->m_ComponentsToStartSimulation);
+        pInitBatch->m_ComponentsToStartSimulation.Clear();
+        return true;
+      }
     }
     else
     {
       double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
-      *pCompletionFactor = fInitCompletion * 0.5;
+
+      if (m_Data.m_bSimulateWorld)
+      {
+        *pCompletionFactor = fInitCompletion * 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = fInitCompletion;
+      }
     }
   }
 
@@ -447,7 +473,7 @@ void ezWorld::Update()
 
   {
     ezStringBuilder sStatName;
-    sStatName.Format("World Update/{0}/Game Object Count", m_Data.m_sName);
+    sStatName.SetFormat("World Update/{0}/Game Object Count", m_Data.m_sName);
 
     ezStringBuilder sStatValue;
     ezStats::SetStat(sStatName, GetObjectCount());
@@ -571,7 +597,15 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
     pModule->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
-    m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+
+    if (m_Data.m_bSimulateWorld)
+    {
+      pModule->OnSimulationStarted();
+    }
+    else
+    {
+      m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+    }
   }
 
   return pModule;
@@ -1325,7 +1359,7 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunc
     ++uiInsertionIndex;
   }
 
-  updateFunctions.Insert(newFunction, uiInsertionIndex);
+  updateFunctions.InsertAt(uiInsertionIndex, newFunction);
 
   return EZ_SUCCESS;
 }

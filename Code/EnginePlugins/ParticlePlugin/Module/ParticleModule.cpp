@@ -9,4 +9,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Module_ParticleModule);
-

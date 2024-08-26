@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
+#include "ParticleSystemConstants.h"
 
 struct EZ_SHADER_STRUCT ezBillboardQuadParticleShaderData
 {
@@ -16,7 +16,6 @@ StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardQuadParticleShaderData) == 16);
+static_assert(sizeof(ezBillboardQuadParticleShaderData) == 16);
 
 #endif
-

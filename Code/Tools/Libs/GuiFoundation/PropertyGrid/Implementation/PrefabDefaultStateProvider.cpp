@@ -170,22 +170,24 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
     // We create a sub-graph of only the parent node in both re-mapped prefab as well as from the actually object. We limit the graph to only the container property.
     auto pNode = pGraph->GetNode(objectPrefabGuid);
     ezAbstractObjectGraph prefabSubGraph;
-    pGraph->Clone(prefabSubGraph, pNode, [pRootNode = pNode, pRootProp = pProp](const ezAbstractObjectNode* pNode, const ezAbstractObjectNode::Property* pProp) {
-      if (pNode == pRootNode && pProp->m_sPropertyName != pRootProp->GetPropertyName())
-        return false;
+    pGraph->Clone(prefabSubGraph, pNode, [pRootNode = pNode, pRootProp = pProp](const ezAbstractObjectNode* pNode, const ezAbstractObjectNode::Property* pProp)
+      {
+        if (pNode == pRootNode && pProp->m_sPropertyName != pRootProp->GetPropertyName())
+          return false;
 
-      return true; //
-    });
+        return true; //
+      });
 
     prefabSubGraph.ReMapNodeGuids(m_PrefabSeedGuid);
 
     ezAbstractObjectGraph instanceSubGraph;
-    ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp) {
-      if (pObject == pRootObject && pProp != pRootProp)
-        return false;
+    ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+      {
+        if (pObject == pRootObject && pProp != pRootProp)
+          return false;
 
-      return true; //
-    });
+        return true; //
+      });
 
     writer.AddObjectToGraph(pObject);
 

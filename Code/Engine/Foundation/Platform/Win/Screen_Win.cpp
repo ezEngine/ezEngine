@@ -3,11 +3,13 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#  include <Foundation/System/PlatformFeatures.h>
 #  include <Foundation/System/Screen.h>
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
+  EZ_IGNORE_UNUSED(pHdcMonitor);
+  EZ_IGNORE_UNUSED(pLprcMonitor);
+
   ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)data;
 
   MONITORINFOEXW info;
@@ -38,7 +40,7 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprc
   return TRUE;
 }
 
-ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
+ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens)
 {
   out_screens.Clear();
   if (EnumDisplayMonitors(nullptr, nullptr, ezMonitorEnumProc, (LPARAM)&out_screens) == FALSE)
@@ -51,5 +53,3 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_screens)
 }
 
 #endif
-
-

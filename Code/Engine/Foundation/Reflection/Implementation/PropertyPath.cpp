@@ -128,20 +128,20 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const
   return EZ_SUCCESS;
 }
 
-ezResult ezPropertyPath::WriteToLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+ezResult ezPropertyPath::WriteToLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
 {
   EZ_ASSERT_DEBUG(
     m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
-  return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr(), true, func);
+  return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), true, func);
 }
 
-ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
+ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI* pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const
 {
   EZ_ASSERT_DEBUG(
     m_PathSteps.IsEmpty() || m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::Class),
     "To resolve the leaf object the path needs to be empty or end in a class.");
-  return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr(), false, func);
+  return ResolvePath(pRootObject, pType, m_PathSteps.GetArrayPtr(), false, func);
 }
 
 ezResult ezPropertyPath::WriteProperty(
@@ -149,7 +149,8 @@ ezResult ezPropertyPath::WriteProperty(
 {
   EZ_ASSERT_DEBUG(!m_PathSteps.IsEmpty(), "Call InitializeFromPath before WriteToObject");
   return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr().GetSubArray(0, m_PathSteps.GetCount() - 1), true,
-    [this, &func](void* pLeafObject, const ezRTTI& leafType) {
+    [this, &func](void* pLeafObject, const ezRTTI& leafType)
+    {
       auto& lastStep = m_PathSteps[m_PathSteps.GetCount() - 1];
       func(pLeafObject, leafType, lastStep.m_pProperty, lastStep.m_Index);
     });
@@ -160,7 +161,8 @@ ezResult ezPropertyPath::ReadProperty(
 {
   EZ_ASSERT_DEBUG(m_bIsValid, "Call InitializeFromPath before WriteToObject");
   return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr().GetSubArray(0, m_PathSteps.GetCount() - 1), false,
-    [this, &func](void* pLeafObject, const ezRTTI& leafType) {
+    [this, &func](void* pLeafObject, const ezRTTI& leafType)
+    {
       auto& lastStep = m_PathSteps[m_PathSteps.GetCount() - 1];
       func(pLeafObject, leafType, lastStep.m_pProperty, lastStep.m_Index);
     });
@@ -172,7 +174,10 @@ void ezPropertyPath::SetValue(void* pRootObject, const ezRTTI& type, const ezVar
   //                    value.CanConvertTo(m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetVariantType()),
   //                "The given value does not match the type at the given path.");
 
-  WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index) {
+  WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
+    {
+      EZ_IGNORE_UNUSED(type);
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
@@ -187,8 +192,8 @@ void ezPropertyPath::SetValue(void* pRootObject, const ezRTTI& type, const ezVar
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
         break;
-    }
-  }).IgnoreResult();
+    } })
+    .IgnoreResult();
 }
 
 void ezPropertyPath::GetValue(void* pRootObject, const ezRTTI& type, ezVariant& out_value) const
@@ -198,7 +203,10 @@ void ezPropertyPath::GetValue(void* pRootObject, const ezRTTI& type, ezVariant& 
   //                "The property path of value {} cannot be stored in an ezVariant.", m_PathSteps[m_PathSteps.GetCount() -
   //                1].m_pProperty->GetSpecificType()->GetTypeName());
 
-  ReadProperty(pRootObject, type, [&out_value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index) {
+  ReadProperty(pRootObject, type, [&out_value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index)
+    {
+      EZ_IGNORE_UNUSED(type);
+
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
@@ -213,8 +221,8 @@ void ezPropertyPath::GetValue(void* pRootObject, const ezRTTI& type, ezVariant& 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
         break;
-    }
-  }).IgnoreResult();
+    } })
+    .IgnoreResult();
 }
 
 ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, const ezArrayPtr<const ResolvedStep> path, bool bWriteToObject,

@@ -49,5 +49,6 @@ ezSampleAnimClipSequenceAnimNode;Sample Clip Sequence
 ezRestPoseAnimNode;Rest Pose
 
 ezBoolToNumberAnimNode;Bool To Number
+ezBoolToTriggerAnimNode;Bool To Trigger
 
 ezRootRotationAnimNode;Root Rotation

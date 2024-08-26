@@ -13,6 +13,9 @@ class ezAbstractObjectGraph;
 class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
 {
 public:
+  /// \brief Returns the type under which the property is stored on the editor side.
+  static ezVariantType::Enum GetStorageType(const ezAbstractProperty* pProperty);
+
   /// \brief Returns the default value for the entire property as it is stored on the editor side.
   static ezVariant GetStorageDefault(const ezAbstractProperty* pProperty);
 

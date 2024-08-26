@@ -192,7 +192,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'{0}'", sProjectFile);
+    s.SetFormat("Failed to open project:\n'{0}'", sProjectFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return EZ_FAILURE;
@@ -304,24 +304,39 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background))
       {
-        if (ezCppProject::IsBuildRequired())
+        if (ezCppProject::ExistsProjectCMakeListsTxt())
         {
-          const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
+          ezStatus compilerStatus = ezCppProject::TestCompiler();
+          if (compilerStatus.Failed())
+          {
+            ezQtUiServices::MessageBoxWarning(ezFmt("<html>The compiler preferences are invalid.<br><br>\
+              This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code.<br><br>\
+              The compiler set in the preferences does not appear to work, as a result the plugin cannot be compiled <br><br><b>Error:</b> {}</html>",
+              compilerStatus.m_sMessage.GetView()));
+            break;
+          }
+          else if (ezCppProject::IsBuildRequired())
+          {
+            const auto clicked = ezQtUiServices::MessageBoxQuestion("<html>Compile this project's C++ plugin?<br><br>\
 Explanation: This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code. The plugin is currently not compiled and therefore the project won't fully work and certain assets will fail to transform.<br><br>\
 It is advised to compile the plugin now, but you can also do so later.</html>",
-            QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
+              QMessageBox::StandardButton::Apply | QMessageBox::StandardButton::Ignore, QMessageBox::StandardButton::Apply);
 
-          if (clicked == QMessageBox::StandardButton::Ignore)
-            break;
+            if (clicked == QMessageBox::StandardButton::Ignore)
+              break;
 
-          QTimer::singleShot(1000, this, [this]() { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
+            QTimer::singleShot(1000, this, [this]()
+              { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
+          }
         }
+
 
         ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(2000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+          QTimer::singleShot(2000, this, [this]()
+            { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -336,7 +351,8 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(2000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default).IgnoreResult(); });
+          QTimer::singleShot(2000, this, [this]()
+            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default).IgnoreResult(); });
         }
       }
 

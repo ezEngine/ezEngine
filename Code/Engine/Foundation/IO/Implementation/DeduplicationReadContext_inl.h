@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezResult ezDeduplicationReadContext::ReadObjectInplace(ezStream
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T& obj, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T& obj, ezAllocator* pAllocator)
 {
   bool bIsRealObject;
   inout_stream >> bIsRealObject;
@@ -23,13 +23,14 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T&
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T*& ref_pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T*& ref_pObject, ezAllocator* pAllocator)
 {
   bool bIsRealObject;
   inout_stream >> bIsRealObject;
 
   if (bIsRealObject)
   {
+    EZ_ASSERT_DEBUG(pAllocator != nullptr, "Valid allocator required");
     ref_pObject = EZ_NEW(pAllocator, T);
     EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(inout_stream, *ref_pObject));
 
@@ -58,7 +59,7 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T*
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezSharedPtr<T>& ref_pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezSharedPtr<T>& ref_pObject, ezAllocator* pAllocator)
 {
   T* ptr = nullptr;
   if (ReadObject(inout_stream, ptr, pAllocator).Succeeded())
@@ -70,7 +71,7 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ez
 }
 
 template <typename T>
-ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezUniquePtr<T>& ref_pObject, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ezUniquePtr<T>& ref_pObject, ezAllocator* pAllocator)
 {
   T* ptr = nullptr;
   if (ReadObject(inout_stream, ptr, pAllocator).Succeeded())
@@ -82,7 +83,7 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, ez
 }
 
 template <typename ArrayType, typename ValueType>
-ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& inout_stream, ezArrayBase<ValueType, ArrayType>& ref_array, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& inout_stream, ezArrayBase<ValueType, ArrayType>& ref_array, ezAllocator* pAllocator)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));
@@ -105,7 +106,7 @@ ezResult ezDeduplicationReadContext::ReadArray(ezStreamReader& inout_stream, ezA
 }
 
 template <typename KeyType, typename Comparer>
-ezResult ezDeduplicationReadContext::ReadSet(ezStreamReader& inout_stream, ezSetBase<KeyType, Comparer>& ref_set, ezAllocatorBase* pAllocator)
+ezResult ezDeduplicationReadContext::ReadSet(ezStreamReader& inout_stream, ezSetBase<KeyType, Comparer>& ref_set, ezAllocator* pAllocator)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));
@@ -147,7 +148,7 @@ namespace ezInternal
 } // namespace ezInternal
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& inout_stream, ezMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode, ezAllocatorBase* pKeyAllocator, ezAllocatorBase* pValueAllocator)
+ezResult ezDeduplicationReadContext::ReadMap(ezStreamReader& inout_stream, ezMapBase<KeyType, ValueType, Comparer>& ref_map, ReadMapMode mode, ezAllocator* pKeyAllocator, ezAllocator* pValueAllocator)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadQWordValue(&uiCount));

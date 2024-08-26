@@ -131,6 +131,9 @@ public:
   /// macro. Whenever the serialization of a component changes, that number should be increased.
   ezUInt32 GetComponentTypeVersion(const ezRTTI* pRtti) const;
 
+  /// \brief Returns whether world contains a component of given type.
+  bool HasComponentOfType(const ezRTTI* pRtti) const;
+
   /// \brief Clears all data.
   void ClearAndCompact();
 

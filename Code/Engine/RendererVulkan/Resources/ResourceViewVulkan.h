@@ -8,20 +8,18 @@
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 
-class ezGALResourceViewVulkan : public ezGALResourceView
+class ezGALTextureResourceViewVulkan : public ezGALTextureResourceView
 {
 public:
   const vk::DescriptorImageInfo& GetImageInfo(bool bIsArray) const;
-  const vk::DescriptorBufferInfo& GetBufferInfo() const;
   vk::ImageSubresourceRange GetRange() const;
-  const vk::BufferView& GetBufferView() const;
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALResourceViewVulkan(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description);
-  ~ezGALResourceViewVulkan();
+  ezGALTextureResourceViewVulkan(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description);
+  ~ezGALTextureResourceViewVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
@@ -29,6 +27,24 @@ protected:
   vk::ImageSubresourceRange m_range;
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
   mutable vk::DescriptorImageInfo m_resourceImageInfoArray;
+};
+
+class ezGALBufferResourceViewVulkan : public ezGALBufferResourceView
+{
+public:
+  const vk::DescriptorBufferInfo& GetBufferInfo() const;
+  const vk::BufferView& GetBufferView() const;
+
+protected:
+  friend class ezGALDeviceVulkan;
+  friend class ezMemoryUtils;
+
+  ezGALBufferResourceViewVulkan(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description);
+  ~ezGALBufferResourceViewVulkan();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+
   mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
   vk::BufferView m_bufferView;
 };

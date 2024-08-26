@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3421619666798658962,5440524630353719653}}
-		u4 %Hash{2056945212072039626}
+		u4 %Hash{16946169244071488171}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16401473598051780497,10489396510517213864}}
@@ -22,6 +22,7 @@ o
 			s{"{ 65f61ecb-a35b-42b6-8149-b3555d8ab417 }"}
 		}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 o
@@ -39,36 +40,15 @@ o
 }
 o
 {
-	Uuid %id{u4{11123171608109474433,11078730337140900103}}
-	s %t{"ezExposeColorAlphaAttribute"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{6994146536369266775,14918085421000251359}}
-	s %t{"ezExposedParametersAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %ParametersSource{"Effect"}
-	}
-}
-o
-{
 	Uuid %id{u4{17235667589145516774,15558572846373414828}}
 	s %t{"ezExposedParameter"}
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{6994146536369266775,14918085421000251359}}
-			Uuid{u4{11123171608109474433,11078730337140900103}}
-		}
+		VarArray %Attributes{}
 		Color %DefaultValue{f{0x8D30843E,0xB7C76D3E,0xC024AE3D,0x0000803F}}
 		s %Name{"TintColor"}
-		s %Type{"ezVariant"}
+		s %Type{""}
 	}
 }
 }
@@ -220,6 +200,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -351,6 +348,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
 		u3 %TypeVersion{1}
 	}
 }

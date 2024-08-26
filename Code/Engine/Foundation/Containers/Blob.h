@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief This class encapsulates a blob's storage and it's size. It is recommended to use this class instead of directly working on the void* of the
 /// blob.
@@ -337,6 +338,9 @@ public:
 
   /// \brief Deallocates the memory allocated by this instance.
   void Clear();
+
+  /// \bried Is data blob empty
+  bool IsEmpty() const;
 
   /// \brief Allocates uiCount bytes for storage in this object. The bytes will have undefined content.
   void SetCountUninitialized(ezUInt64 uiCount);

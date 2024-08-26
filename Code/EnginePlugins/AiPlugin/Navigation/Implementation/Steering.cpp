@@ -38,6 +38,7 @@ void ezAiSteering::Calculate(float fTimeDiff, ezDebugRendererContext ctxt)
 
   ezVec3 vLookDir = m_qRotation * ezVec3::MakeAxisX();
   vLookDir.z = 0;
+  vLookDir.Normalize();
 
   float fCurSpeed = m_vVelocity.GetAsVec2().GetLength();
 

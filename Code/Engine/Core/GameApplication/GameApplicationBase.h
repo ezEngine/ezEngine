@@ -135,7 +135,7 @@ public:
   ///
   /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
   /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
-  ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
+  void ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Deactivates and destroys the active game state.
   ///
@@ -146,20 +146,12 @@ public:
   /// \brief Returns the currently active game state. Could be nullptr.
   ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
-  /// \brief Returns the currently active game state IF it was created for the given world.
-  ///
-  /// This is mostly for editor use cases, where some documents want to handle the game state, but only
-  /// it it was set up for a particular document.
-  ezGameStateBase* GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const;
-
 protected:
   /// \brief Creates a game state for the application to use.
   ///
-  /// \a pWorld is typically nullptr in a stand-alone app, but may be existing already when called from the editor.
-  ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld);
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState();
 
   /// \brief Allows to override whether a game state is created and activated at application startup.
   ///
@@ -168,7 +160,6 @@ protected:
   virtual void ActivateGameStateAtStartup();
 
   ezUniquePtr<ezGameStateBase> m_pGameState;
-  ezWorld* m_pWorldLinkedWithGameState = nullptr;
 
   ///@}
   /// \name Platform Profile
@@ -262,11 +253,14 @@ protected:
 
   virtual void Run_InputUpdate();
   virtual bool Run_ProcessApplicationInput();
+  /// \brief This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
+  virtual void Run_AcquireImage();
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
   virtual void Run_UpdatePlugins();
-  virtual void Run_Present();
+  /// \brief This function can be used to present the final image to a window. It is run at the end of the rendering phase. It can also be used to inspect the swap-chain e.g. for screenshot purposes before presenting.
+  virtual void Run_PresentImage();
   virtual void Run_FinishFrame();
 
   void UpdateFrameTime();

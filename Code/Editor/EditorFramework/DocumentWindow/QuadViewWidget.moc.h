@@ -45,4 +45,3 @@ private:
   ezHybridArray<ezQtViewWidgetContainer*, 4> m_ActiveMainViews;
   QGridLayout* m_pViewLayout;
 };
-

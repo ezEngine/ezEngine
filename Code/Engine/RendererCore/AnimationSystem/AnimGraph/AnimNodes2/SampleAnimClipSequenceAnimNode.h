@@ -38,27 +38,38 @@ public:
   const char* GetEndClip() const;
 
 private:
-  ezHashedString m_sStartClip;              // [ property ]
-  ezHybridArray<ezHashedString, 1> m_Clips; // [ property ]
-  ezHashedString m_sEndClip;                // [ property ]
-  bool m_bApplyRootMotion = false;          // [ property ]
-  bool m_bLoop = false;                     // [ property ]
-  float m_fPlaybackSpeed = 1.0f;            // [ property ]
+  ezHashedString m_sStartClip;                      // [ property ]
+  ezHybridArray<ezHashedString, 1> m_Clips;         // [ property ]
+  ezHashedString m_sEndClip;                        // [ property ]
+  bool m_bApplyRootMotion = false;                  // [ property ]
+  bool m_bLoop = false;                             // [ property ]
+  float m_fPlaybackSpeed = 1.0f;                    // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;     // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;         // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;      // [ property ]
-  ezAnimGraphNumberInputPin m_ClipIndexPin; // [ property ]
+  ezAnimGraphTriggerInputPin m_InStart;             // [ property ]
+  ezAnimGraphBoolInputPin m_InLoop;                 // [ property ]
+  ezAnimGraphNumberInputPin m_InSpeed;              // [ property ]
+  ezAnimGraphNumberInputPin m_ClipIndexPin;         // [ property ]
 
   ezAnimGraphLocalPoseOutputPin m_OutPose;          // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnMiddleStarted; // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnEndStarted;    // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnFinished;      // [ property ]
 
+  enum class State : ezUInt8
+  {
+    Off,
+    Start,
+    Middle,
+    End,
+    HoldStartFrame,
+    HoldMiddleFrame,
+    HoldEndFrame,
+  };
+
   struct InstanceState
   {
-    ezTime m_PlaybackTime;
-    ezUInt8 m_uiState = 0; // 0 = off, 1 = start, 2 = middle, 3 = end
+    ezTime m_PlaybackTime = ezTime::MakeZero();
+    State m_State = State::Start;
     ezUInt8 m_uiMiddleClipIdx = 0;
   };
 };

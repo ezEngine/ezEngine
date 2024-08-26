@@ -7,6 +7,8 @@
 android_app* ezAndroidUtils::s_app;
 JavaVM* ezAndroidUtils::s_vm;
 jobject ezAndroidUtils::s_na;
+ezEvent<ezAndroidInputEvent&> ezAndroidUtils::s_InputEvent;
+ezEvent<ezInt32> ezAndroidUtils::s_AppCommandEvent;
 
 void ezAndroidUtils::SetAndroidApp(android_app* app)
 {
@@ -41,5 +43,3 @@ jobject ezAndroidUtils::GetAndroidNativeActivity()
 }
 
 #endif
-
-

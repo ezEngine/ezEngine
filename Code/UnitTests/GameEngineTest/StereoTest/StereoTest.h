@@ -23,7 +23,7 @@ public:
   ezPlatformProfile& GetPlatformProfile() { return m_PlatformProfile; }
 
 protected:
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld) override;
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
 };
 
 

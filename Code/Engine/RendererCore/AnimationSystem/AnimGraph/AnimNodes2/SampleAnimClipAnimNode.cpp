@@ -90,22 +90,18 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
   if (!clipInfo.m_hClip.IsValid() || !m_OutPose.IsConnected())
     return;
 
-  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
-
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
-  {
-    pState->m_PlaybackTime = ezTime::MakeZero();
-    pState->m_bPlaying = true;
-
-    m_OutOnStarted.SetTriggered(ref_graph);
-  }
-
-  if (!pState->m_bPlaying)
-    return;
-
   ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
+
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
+
+  if (m_InStart.IsTriggered(ref_graph))
+  {
+    pState->m_PlaybackTime = ezTime::MakeZero();
+
+    m_OutOnStarted.SetTriggered(ref_graph);
+  }
 
   const ezTime tDuration = pAnimClip->GetDescriptor().GetDuration();
   const float fInvDuration = 1.0f / tDuration.AsFloatInSeconds();
@@ -122,11 +118,26 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
   auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
 
-  if (bLoop && pState->m_PlaybackTime > tDuration)
+  if (pState->m_PlaybackTime >= tDuration)
   {
-    pState->m_PlaybackTime -= tDuration;
-    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
-    m_OutOnStarted.SetTriggered(ref_graph);
+    if (bLoop)
+    {
+      pState->m_PlaybackTime -= tDuration;
+      cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
+      m_OutOnStarted.SetTriggered(ref_graph);
+    }
+    else
+    {
+      if (tPrevSamplePos < tDuration)
+      {
+        m_OutOnFinished.SetTriggered(ref_graph);
+      }
+      else
+      {
+        // if we are already holding the last frame, we can skip event sampling
+        cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+      }
+    }
   }
 
   cmd.m_hAnimationClip = clipInfo.m_hClip;
@@ -143,12 +154,6 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
     m_OutPose.SetPose(ref_graph, pLocalTransforms);
-  }
-
-  if (cmd.m_fNormalizedSamplePos >= 1.0f && !bLoop)
-  {
-    m_OutOnFinished.SetTriggered(ref_graph);
-    pState->m_bPlaying = false;
   }
 }
 
@@ -170,4 +175,3 @@ bool ezSampleAnimClipAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleAnimClipAnimNode);
-

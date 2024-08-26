@@ -1,10 +1,10 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Messages/ApplyOnlyToMessage.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>)
@@ -28,6 +28,8 @@ ezSurfaceResource::~ezSurfaceResource()
 
 ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -43,7 +45,7 @@ ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSurfaceResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezSurfaceResource::UpdateContent", GetResourceIdOrDescription());
 
   m_Interactions.Clear();
 
@@ -85,7 +87,8 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
       if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
         return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 

@@ -61,10 +61,14 @@ void ezHashSetBase<K, H>::ConstIterator::Next()
     return;
   }
 
-  do
+  for (++m_uiCurrentIndex; m_uiCurrentIndex < m_pHashSet->m_uiCapacity; ++m_uiCurrentIndex)
   {
-    ++m_uiCurrentIndex;
-  } while (!m_pHashSet->IsValidEntry(m_uiCurrentIndex));
+    if (m_pHashSet->IsValidEntry(m_uiCurrentIndex))
+    {
+      return;
+    }
+  }
+  SetToEnd();
 }
 
 template <typename K, typename H>
@@ -77,7 +81,7 @@ EZ_ALWAYS_INLINE void ezHashSetBase<K, H>::ConstIterator::operator++()
 // ***** ezHashSetBase *****
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(ezAllocatorBase* pAllocator)
+ezHashSetBase<K, H>::ezHashSetBase(ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -87,7 +91,7 @@ ezHashSetBase<K, H>::ezHashSetBase(ezAllocatorBase* pAllocator)
 }
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocatorBase* pAllocator)
+ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -99,7 +103,7 @@ ezHashSetBase<K, H>::ezHashSetBase(const ezHashSetBase<K, H>& other, ezAllocator
 }
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ezHashSetBase(ezHashSetBase<K, H>&& other, ezAllocatorBase* pAllocator)
+ezHashSetBase<K, H>::ezHashSetBase(ezHashSetBase<K, H>&& other, ezAllocator* pAllocator)
 {
   m_pEntries = nullptr;
   m_pEntryFlags = nullptr;
@@ -202,7 +206,7 @@ template <typename K, typename H>
 void ezHashSetBase<K, H>::Reserve(ezUInt32 uiCapacity)
 {
   const ezUInt64 uiCap64 = static_cast<ezUInt64>(uiCapacity);
-  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3); // ensure a maximum load of 60%
+  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3);                  // ensure a maximum load of 60%
 
   uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0x80000000llu); // the largest power-of-two in 32 bit
 
@@ -370,6 +374,23 @@ EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const CompatibleKeyType& key)
 }
 
 template <typename K, typename H>
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Find(const CompatibleKeyType& key) const
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  if (uiIndex == ezInvalidIndex)
+  {
+    return GetEndIterator();
+  }
+
+  ConstIterator it(*this);
+  it.m_uiCurrentIndex = uiIndex;
+  it.m_uiCurrentCount = 0; // we do not know the 'count' (which is used as an optimization), so we just use 0
+
+  return it;
+}
+
+template <typename K, typename H>
 bool ezHashSetBase<K, H>::ContainsSet(const ezHashSetBase<K, H>& operand) const
 {
   for (const K& key : operand)
@@ -429,7 +450,7 @@ EZ_FORCE_INLINE typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>:
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE ezAllocatorBase* ezHashSetBase<K, H>::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocator* ezHashSetBase<K, H>::GetAllocator() const
 {
   return m_pAllocator;
 }
@@ -549,6 +570,7 @@ EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsFreeEntry(ezUInt32 uiEntryIndex) con
 template <typename K, typename H>
 EZ_FORCE_INLINE bool ezHashSetBase<K, H>::IsValidEntry(ezUInt32 uiEntryIndex) const
 {
+  EZ_ASSERT_DEBUG(uiEntryIndex < m_uiCapacity, "Out of bounds access");
   return GetFlags(m_pEntryFlags, uiEntryIndex) == VALID_ENTRY;
 }
 
@@ -584,7 +606,7 @@ ezHashSet<K, H, A>::ezHashSet()
 }
 
 template <typename K, typename H, typename A>
-ezHashSet<K, H, A>::ezHashSet(ezAllocatorBase* pAllocator)
+ezHashSet<K, H, A>::ezHashSet(ezAllocator* pAllocator)
   : ezHashSetBase<K, H>(pAllocator)
 {
 }

@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("MaxHealth", m_uiMaxHealth)->AddAttributes(new ezDefaultValueAttribute(100)),
     EZ_MEMBER_PROPERTY("CurHealth", m_uiCurHealth),
-    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("OnDestroyedPrefab", m_hOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 
@@ -209,26 +209,6 @@ void RtsUnitComponent::OnSimulationStarted()
   }
 }
 
-void RtsUnitComponent::SetOnDestroyedPrefab(const char* szPrefab)
-{
-  ezPrefabResourceHandle hPrefab;
-
-  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
-  {
-    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
-  }
-
-  m_hOnDestroyedPrefab = hPrefab;
-}
-
-const char* RtsUnitComponent::GetOnDestroyedPrefab() const
-{
-  if (!m_hOnDestroyedPrefab.IsValid())
-    return "";
-
-  return m_hOnDestroyedPrefab.GetResourceID();
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 RtsUnitComponentManager::RtsUnitComponentManager(ezWorld* pWorld)
@@ -277,7 +257,8 @@ ezGameObject* RtsUnitComponent::FindClosestEnemy(float fMaxRadius) const
   pl.m_vOwnPosition = GetOwner()->GetGlobalPosition();
   pl.m_uiOwnTeamID = GetOwner()->GetTeamID();
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum {
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum
+  {
     if (pObject->GetTeamID() == pl.m_uiOwnTeamID)
       return ezVisitorExecution::Skip;
 

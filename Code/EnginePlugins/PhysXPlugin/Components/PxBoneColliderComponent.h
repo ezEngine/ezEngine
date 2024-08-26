@@ -31,10 +31,10 @@ public:
   ezPxBoneColliderComponent();
   ~ezPxBoneColliderComponent();
 
-  ezUInt32 GetShapeId() const { return m_uiShapeID; } // [ scriptable ]
+  ezUInt32 GetShapeId() const { return m_uiShapeID; }              // [ scriptable ]
 
-  bool m_bQueryShapeOnly = true; // [ property ]
-  ezTime m_UpdateThreshold;      // [ property ]
+  bool m_bQueryShapeOnly = true;                                   // [ property ]
+  ezTime m_UpdateThreshold;                                        // [ property ]
 
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
 

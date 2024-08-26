@@ -33,12 +33,12 @@ struct STAGE_TEMPLATE
 #  endif
 #endif
 
-#if defined(USE_DEBUG_INTERPOLATOR)
-  float4 DebugInterpolator : DEBUG_INTERPOLATOR;
-#endif
-
 #if defined(CUSTOM_INTERPOLATOR)
   CUSTOM_INTERPOLATOR
+#endif
+
+#if defined(USE_DEBUG_INTERPOLATOR)
+  float4 DebugInterpolator : DEBUG_INTERPOLATOR;
 #endif
 
   // If CAMERA_MODE is CAMERA_MODE_STEREO, every even instance is for the left eye and every odd is for the right eye.

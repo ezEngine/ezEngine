@@ -43,11 +43,11 @@ namespace DynamicArrayTestDetail
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
   };
 
-  ezAllocatorBase* g_pTestAllocator;
+  ezAllocator* g_pTestAllocator;
 
   struct ezTestAllocatorWrapper
   {
-    static ezAllocatorBase* GetAllocator() { return g_pTestAllocator; }
+    static ezAllocator* GetAllocator() { return g_pTestAllocator; }
   };
 
   template <typename T = st, typename AllocatorWrapper = ezTestAllocatorWrapper>
@@ -64,9 +64,9 @@ namespace DynamicArrayTestDetail
 } // namespace DynamicArrayTestDetail
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
+static_assert(sizeof(ezDynamicArray<ezInt32>) == 24);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 16);
+static_assert(sizeof(ezDynamicArray<ezInt32>) == 16);
 #endif
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
@@ -428,7 +428,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     // always inserts at the front
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Insert(i, 0);
+      a1.InsertAt(0, i);
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], 99 - i);
@@ -439,9 +439,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
+        a2.InsertAt(0, ezUniquePtr<DynamicArrayTestDetail::st>());
 
-      a2.Insert(std::move(ptr), 0);
+      a2.InsertAt(0, std::move(ptr));
       EZ_TEST_BOOL(ptr == nullptr);
       EZ_TEST_BOOL(a2[0] != nullptr);
 
@@ -591,7 +591,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     ezDynamicArray<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAndSwap(9);
     a1.RemoveAndSwap(7);
@@ -610,7 +610,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     ezDynamicArray<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndCopy(9);
     a1.RemoveAtAndCopy(7);
@@ -629,7 +629,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
+        a2.InsertAt(0, ezUniquePtr<DynamicArrayTestDetail::st>());
 
       a2.PushBack(std::move(ptr));
       EZ_TEST_BOOL(ptr == nullptr);
@@ -648,7 +648,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     ezDynamicArray<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndSwap(9);
     a1.RemoveAtAndSwap(7);
@@ -667,7 +667,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
+        a2.InsertAt(0, ezUniquePtr<DynamicArrayTestDetail::st>());
 
       a2.PushBack(std::move(ptr));
       EZ_TEST_BOOL(ptr == nullptr);
@@ -737,7 +737,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       a1.PushBack(DynamicArrayTestDetail::st(1));
       EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(DynamicArrayTestDetail::st(2), 0);
+      a1.InsertAt(0, DynamicArrayTestDetail::st(2));
       EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
@@ -833,9 +833,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
-    list.Insert(4, 3);
-    list.Insert(0, 1);
-    list.Insert(0, 5);
+    list.InsertAt(3, 4);
+    list.InsertAt(1, 0);
+    list.InsertAt(5, 0);
 
     EZ_TEST_BOOL(list[0].a == 1);
     EZ_TEST_BOOL(list[1].a == 0);
@@ -1175,7 +1175,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("ez-sort (random keys): {}", t);
+    s.SetFormat("ez-sort (random keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1201,7 +1201,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("std::sort (random keys): {}", t);
+    s.SetFormat("std::sort (random keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1227,7 +1227,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("ez-sort (equal keys): {}", t);
+    s.SetFormat("ez-sort (equal keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)
@@ -1253,7 +1253,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     ezTime t = sw.GetRunningTotal();
     ezStringBuilder s;
-    s.Format("std::sort (equal keys): {}", t);
+    s.SetFormat("std::sort (equal keys): {}", t);
     ezTestFramework::Output(ezTestOutput::Details, s);
 
     for (ezUInt32 i = 1; i < list.GetCount(); i++)

@@ -9,6 +9,8 @@ ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
 
 void ezDefaultTimeStepSmoothing::Reset(const ezClock* pClock)
 {
+  EZ_IGNORE_UNUSED(pClock);
+
   m_LastTimeSteps.Clear();
 }
 
@@ -53,5 +55,3 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const
 
   return m_LastTimeStepTaken;
 }
-
-

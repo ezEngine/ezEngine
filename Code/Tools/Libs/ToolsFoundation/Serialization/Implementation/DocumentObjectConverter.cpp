@@ -417,16 +417,19 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, c
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          const ezUuid guid = pSource->m_Value.Get<ezUuid>();
-          if (guid.IsValid())
+          if (pSource->m_Value.IsA<ezUuid>())
           {
-            auto* pSubNode = m_pGraph->GetNode(guid);
-            EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
-
-            if (auto* pSubObject = CreateObjectFromNode(pSubNode))
+            const ezUuid guid = pSource->m_Value.Get<ezUuid>();
+            if (guid.IsValid())
             {
-              ApplyPropertiesToObject(pSubNode, pSubObject);
-              AddObject(pSubObject, pObject, pProp->GetPropertyName(), ezVariant());
+              auto* pSubNode = m_pGraph->GetNode(guid);
+              EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+
+              if (auto* pSubObject = CreateObjectFromNode(pSubNode))
+              {
+                ApplyPropertiesToObject(pSubNode, pSubObject);
+                AddObject(pSubObject, pObject, pProp->GetPropertyName(), ezVariant());
+              }
             }
           }
         }
@@ -441,17 +444,19 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, c
         {
           pObject->GetTypeAccessor().SetValue(pProp->GetPropertyName(), pSource->m_Value);
         }
-        else // ezPropertyFlags::Class
+        else if (pSource->m_Value.IsA<ezUuid>()) // ezPropertyFlags::Class
         {
           const ezUuid& nodeGuid = pSource->m_Value.Get<ezUuid>();
+          if (nodeGuid.IsValid())
+          {
+            const ezUuid subObjectGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
+            ezDocumentObject* pEmbeddedClassObject = pObject->GetChild(subObjectGuid);
+            EZ_ASSERT_DEV(pEmbeddedClassObject != nullptr, "CreateObject should have created all embedded classes!");
+            auto* pSubNode = m_pGraph->GetNode(nodeGuid);
+            EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-          const ezUuid subObjectGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName()).Get<ezUuid>();
-          ezDocumentObject* pEmbeddedClassObject = pObject->GetChild(subObjectGuid);
-          EZ_ASSERT_DEV(pEmbeddedClassObject != nullptr, "CreateObject should have created all embedded classes!");
-          auto* pSubNode = m_pGraph->GetNode(nodeGuid);
-          EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
-
-          ApplyPropertiesToObject(pSubNode, pEmbeddedClassObject);
+            ApplyPropertiesToObject(pSubNode, pEmbeddedClassObject);
+          }
         }
       }
       break;

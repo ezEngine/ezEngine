@@ -9,13 +9,13 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 // Posix specific implementation of the thread class
 
 ezOSThread::ezOSThread(
-  ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+  ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
-  m_szName = szName;
+  m_sName = sName;
   m_uiStackSize = uiStackSize;
 
   // Thread creation is deferred since Posix threads can't be created sleeping
@@ -39,18 +39,18 @@ void ezOSThread::Start()
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  if (iReturnCode == 0 && m_szName != nullptr)
+  if (iReturnCode == 0 && !m_sName.IsEmpty())
   {
     // pthread has a thread name limit of 16 bytes.
     // This means 15 characters and the terminating '\0'
-    if (strlen(m_szName) < 16)
+    if (m_sName.GetElementCount() < 16)
     {
-      pthread_setname_np(m_hHandle, m_szName);
+      pthread_setname_np(m_hHandle, m_sName.GetData());
     }
     else
     {
       char threadName[16];
-      strncpy(threadName, m_szName, 15);
+      strncpy(threadName, m_sName.GetData(), 15);
       threadName[15] = '\0';
       pthread_setname_np(m_hHandle, threadName);
     }

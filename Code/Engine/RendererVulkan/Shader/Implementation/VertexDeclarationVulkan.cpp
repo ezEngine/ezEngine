@@ -23,13 +23,14 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
-  ezHybridArray<ezGALShaderVulkan::VertexInputAttribute, 8> vias(pShader->GetVertexInputAttributes());
-  auto FindLocation = [&](ezGALVertexAttributeSemantic::Enum sematic, ezGALResourceFormat::Enum format) -> ezUInt32 {
+  ezHybridArray<ezShaderVertexInputAttribute, 8> vias(pShader->GetVertexInputAttributes());
+  auto FindLocation = [&](ezGALVertexAttributeSemantic::Enum sematic, ezGALResourceFormat::Enum format) -> ezUInt32
+  {
     for (ezUInt32 i = 0; i < vias.GetCount(); i++)
     {
       if (vias[i].m_eSemantic == sematic)
       {
-        //EZ_ASSERT_DEBUG(vias[i].m_eFormat == format, "Found matching sematic {} but format differs: {} : {}", sematic, format, vias[i].m_eFormat);
+        // EZ_ASSERT_DEBUG(vias[i].m_eFormat == format, "Found matching sematic {} but format differs: {} : {}", sematic, format, vias[i].m_eFormat);
         ezUInt32 uiLocation = vias[i].m_uiLocation;
         vias.RemoveAtAndSwap(i);
         return uiLocation;
@@ -94,5 +95,3 @@ ezResult ezGALVertexDeclarationVulkan::DeInitPlatform(ezGALDevice* pDevice)
 }
 
 
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Shader_Implementation_VertexDeclarationVulkan);

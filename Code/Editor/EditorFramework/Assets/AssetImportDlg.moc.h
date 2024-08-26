@@ -22,4 +22,3 @@ private:
 
   ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& m_AllImports;
 };
-

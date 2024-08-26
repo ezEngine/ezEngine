@@ -378,13 +378,17 @@ namespace ezMeshImportUtils
 
     const ezUInt32 uiNumSubmeshes = inout_materialSlots.GetCount();
 
+    if (uiNumSubmeshes == 0)
+      return;
+
     ezProgressRange range("Importing Materials", uiNumSubmeshes, false);
 
     ezHashTable<const ezModelImporter2::OutputMaterial*, ezString> importMatToGuid;
 
     ezHybridArray<ezDocument*, 32> pendingSaveTasks;
 
-    auto WaitForPendingTasks = [&pendingSaveTasks]() {
+    auto WaitForPendingTasks = [&pendingSaveTasks]()
+    {
       EZ_PROFILE_SCOPE("WaitForPendingTasks");
       for (ezDocument* pDoc : pendingSaveTasks)
       {

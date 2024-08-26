@@ -76,5 +76,3 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
 
   return ezUuid::MakeUuid();
 }
-
-

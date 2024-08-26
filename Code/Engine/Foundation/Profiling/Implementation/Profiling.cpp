@@ -30,6 +30,20 @@ private:
 
 static ezProfileCaptureDataTransfer s_ProfileCaptureDataTransfer;
 
+namespace
+{
+  static ezEventSubscriptionID s_PluginEventSubscription = 0;
+  void PluginEvent(const ezPluginEvent& e)
+  {
+    if (e.m_EventType == ezPluginEvent::AfterUnloading)
+    {
+      // When a plugin is unloaded we need to clear all profiling data
+      // since they can contain pointers to function names that don't exist anymore.
+      ezProfilingSystem::Clear();
+    }
+  }
+} // namespace
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
@@ -38,11 +52,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
   ON_BASESYSTEMS_STARTUP
   {
     ezProfilingSystem::Initialize();
+  }
+  ON_CORESYSTEMS_STARTUP
+  { 
+    s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
     s_ProfileCaptureDataTransfer.EnableDataTransfer("Profiling Capture");
   }
   ON_CORESYSTEMS_SHUTDOWN
   {
     s_ProfileCaptureDataTransfer.DisableDataTransfer();
+    ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
     ezProfilingSystem::Reset();
   }
 
@@ -102,8 +121,8 @@ namespace
   static ezMutex s_ThreadInfosMutex;
 
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::CPUScope) == 64);
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::GPUScope) == 64);
+  static_assert(sizeof(ezProfilingSystem::CPUScope) == 64);
+  static_assert(sizeof(ezProfilingSystem::GPUScope) == 64);
 #  endif
 
   static thread_local CpuScopesBufferBase* s_CpuScopes = nullptr;
@@ -112,17 +131,6 @@ namespace
   static ezProfilingSystem::ScopeTimeoutDelegate s_ScopeTimeoutCallback;
 
   static ezDynamicArray<ezUniquePtr<GPUScopesBuffer>> s_GPUScopes;
-
-  static ezEventSubscriptionID s_PluginEventSubscription = 0;
-  void PluginEvent(const ezPluginEvent& e)
-  {
-    if (e.m_EventType == ezPluginEvent::AfterUnloading)
-    {
-      // When a plugin is unloaded we need to clear all profiling data
-      // since they can contain pointers to function names that don't exist anymore.
-      ezProfilingSystem::Clear();
-    }
-  }
 } // namespace
 
 void ezProfilingSystem::ProfilingData::Clear()
@@ -172,7 +180,8 @@ void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_merged, ezArrayP
 
   // merge m_ThreadInfos
   {
-    auto threadInfoAlreadyKnown = [out_merged](ezUInt64 uiThreadId) -> bool {
+    auto threadInfoAlreadyKnown = [out_merged](ezUInt64 uiThreadId) -> bool
+    {
       for (const auto& ti : out_merged.m_ThreadInfos)
       {
         if (ti.m_uiThreadId == uiThreadId)
@@ -411,7 +420,8 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
       // chrome prints the nested scope first and then scrambles everything.
       // So we sort by duration to make sure that parent scopes are written first in the json file.
       sortedScopes = eventBuffer.m_Data;
-      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b)
+        { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
       for (const CPUScope& e : sortedScopes)
       {
@@ -460,7 +470,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         const ezTime t1 = m_FrameStartTimes[i];
 
         const ezUInt64 localFrameID = uiNumFrames - i - 1;
-        sFrameName.Format("Frame {}", m_uiFrameCount - localFrameID);
+        sFrameName.SetFormat("Frame {}", m_uiFrameCount - localFrameID);
 
         writer.BeginObject();
         writer.AddVariableString("name", sFrameName);
@@ -492,7 +502,8 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
       for (ezUInt32 gpuIndex = 1; gpuIndex <= m_GPUScopes.GetCount(); ++gpuIndex)
       {
         sortedGpuScopes = m_GPUScopes[gpuIndex - 1];
-        sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
+        sortedGpuScopes.Sort([](const GPUScope& a, const GPUScope& b)
+          { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
         for (ezUInt32 i = 0; i < sortedGpuScopes.GetCount(); ++i)
         {
@@ -672,6 +683,8 @@ void ezProfilingSystem::StartNewFrame()
   }
 
   s_FrameStartTimes.PushBack(ezTime::Now());
+
+  EZ_PROFILER_FRAME_MARKER();
 }
 
 // static
@@ -744,8 +757,6 @@ void ezProfilingSystem::Initialize()
   SetThreadName("Main Thread");
 
   s_MainThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
-
-  s_PluginEventSubscription = ezPlugin::Events().AddEventHandler(&PluginEvent);
 }
 
 // static
@@ -779,8 +790,6 @@ void ezProfilingSystem::Reset()
     }
   }
   s_DeadThreadIDs.Clear();
-
-  ezPlugin::Events().RemoveEventHandler(s_PluginEventSubscription);
 }
 
 // static
@@ -892,32 +901,64 @@ void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
 
 ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const
 {
+  EZ_IGNORE_UNUSED(outputStream);
+
   return EZ_FAILURE;
 }
 
 void ezProfilingSystem::Clear() {}
 
-void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture) {}
+void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture)
+{
+  EZ_IGNORE_UNUSED(out_Capture);
+  EZ_IGNORE_UNUSED(bClearAfterCapture);
+}
 
-void ezProfilingSystem::SetDiscardThreshold(ezTime threshold) {}
+void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
+{
+  EZ_IGNORE_UNUSED(threshold);
+}
 
 void ezProfilingSystem::StartNewFrame() {}
 
-void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
+void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout)
+{
+  EZ_IGNORE_UNUSED(sName);
+  EZ_IGNORE_UNUSED(szFunctionName);
+  EZ_IGNORE_UNUSED(beginTime);
+  EZ_IGNORE_UNUSED(endTime);
+  EZ_IGNORE_UNUSED(scopeTimeout);
+}
 
 void ezProfilingSystem::Initialize() {}
 
 void ezProfilingSystem::Reset() {}
 
-void ezProfilingSystem::SetThreadName(ezStringView sThreadName) {}
+void ezProfilingSystem::SetThreadName(ezStringView sThreadName)
+{
+  EZ_IGNORE_UNUSED(sThreadName);
+}
 
 void ezProfilingSystem::RemoveThread() {}
 
-void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount) {}
+void ezProfilingSystem::InitializeGPUData(ezUInt32 gpuCount)
+{
+  EZ_IGNORE_UNUSED(gpuCount);
+}
 
-void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex) {}
+void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex)
+{
+  EZ_IGNORE_UNUSED(sName);
+  EZ_IGNORE_UNUSED(beginTime);
+  EZ_IGNORE_UNUSED(endTime);
+  EZ_IGNORE_UNUSED(gpuIndex);
+}
 
-void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs) {}
+void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs)
+{
+  EZ_IGNORE_UNUSED(out_Merged);
+  EZ_IGNORE_UNUSED(inputs);
+}
 
 #endif
 

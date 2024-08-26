@@ -180,6 +180,9 @@ public:
   /// \brief Registers a message handler that is executed for all incoming messages for the given system
   void SetMessageHandler(ezUInt32 uiSystemID, ezRemoteMessageHandler messageHandler);
 
+  /// \brief Registers a message handler that is executed for all incoming messages for systems for which there are no dedicated message handlers.
+  void SetUnhandledMessageHandler(ezRemoteMessageHandler messageHandler);
+
   /// \brief Executes the message handler for all messages that have arrived for the given system
   ezUInt32 ExecuteMessageHandlers(ezUInt32 uiSystem);
 
@@ -255,6 +258,7 @@ private:
   ezInt32 m_iConnectionsToClients = 0;
   ezDynamicArray<ezUInt8> m_TempSendBuffer;
   ezHashTable<ezUInt32, ezRemoteMessageQueue> m_MessageQueues;
+  ezRemoteMessageHandler m_UnhandledMessageHandler;
 };
 
 /// \brief The remote interface thread updates in regular intervals to keep the connection alive.

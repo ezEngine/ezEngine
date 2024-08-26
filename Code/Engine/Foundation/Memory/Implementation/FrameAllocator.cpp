@@ -5,7 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezStringView sName0, ezAllocatorBase* pParent)
+ezDoubleBufferedLinearAllocator::ezDoubleBufferedLinearAllocator(ezStringView sName0, ezAllocator* pParent)
 {
   ezStringBuilder sName = sName0;
   sName.Append("0");
@@ -18,20 +18,20 @@ ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezStringView sNam
   m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
 }
 
-ezDoubleBufferedStackAllocator::~ezDoubleBufferedStackAllocator()
+ezDoubleBufferedLinearAllocator::~ezDoubleBufferedLinearAllocator()
 {
   EZ_DEFAULT_DELETE(m_pCurrentAllocator);
   EZ_DEFAULT_DELETE(m_pOtherAllocator);
 }
 
-void ezDoubleBufferedStackAllocator::Swap()
+void ezDoubleBufferedLinearAllocator::Swap()
 {
   ezMath::Swap(m_pCurrentAllocator, m_pOtherAllocator);
 
   m_pCurrentAllocator->Reset();
 }
 
-void ezDoubleBufferedStackAllocator::Reset()
+void ezDoubleBufferedLinearAllocator::Reset()
 {
   m_pCurrentAllocator->Reset();
   m_pOtherAllocator->Reset();
@@ -54,7 +54,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezDoubleBufferedStackAllocator* ezFrameAllocator::s_pAllocator;
+ezDoubleBufferedLinearAllocator* ezFrameAllocator::s_pAllocator;
 
 // static
 void ezFrameAllocator::Swap()
@@ -76,7 +76,7 @@ void ezFrameAllocator::Reset()
 // static
 void ezFrameAllocator::Startup()
 {
-  s_pAllocator = EZ_DEFAULT_NEW(ezDoubleBufferedStackAllocator, "FrameAllocator", ezFoundation::GetAlignedAllocator());
+  s_pAllocator = EZ_DEFAULT_NEW(ezDoubleBufferedLinearAllocator, "FrameAllocator", ezFoundation::GetAlignedAllocator());
 }
 
 // static

@@ -101,4 +101,3 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);
-

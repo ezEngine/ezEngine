@@ -20,7 +20,7 @@ struct ezWorldDesc
   ezUInt64 m_uiRandomNumberGeneratorSeed = 0;
 
   ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-  bool m_bAutoCreateSpatialSystem = true; ///< automatically create a default spatial system if none is set
+  bool m_bAutoCreateSpatialSystem = true;                ///< automatically create a default spatial system if none is set
 
   ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
   ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing; ///< if nullptr, ezDefaultTimeStepSmoothing will be used

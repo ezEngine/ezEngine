@@ -6,12 +6,9 @@
 
 #define STACK_SIZE 64
 
-template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Advance(const ezInt32 dir0, const ezInt32 dir1)
 {
-  const ezInt32 dir0 = 0;
-  const ezInt32 dir1 = 1;
-
   if (m_pElement == nullptr)
   {
     EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
@@ -57,56 +54,74 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
   return;
 }
 
-template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Next()
 {
-  const ezInt32 dir0 = 1;
-  const ezInt32 dir1 = 0;
-
-  if (m_pElement == nullptr)
+  if constexpr (REVERSE)
   {
-    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
-    return;
+    Advance(1, 0);
   }
-
-  // if this element has a right child, go there and then search for the left most child of that
-  if (m_pElement->m_pLink[dir1] != m_pElement->m_pLink[dir1]->m_pLink[dir1])
+  else
   {
-    m_pElement = m_pElement->m_pLink[dir1];
-
-    while (m_pElement->m_pLink[dir0] != m_pElement->m_pLink[dir0]->m_pLink[dir0])
-      m_pElement = m_pElement->m_pLink[dir0];
-
-    return;
+    Advance(0, 1);
   }
-
-  // if this element has a parent and this element is that parents left child, go directly to the parent
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
-  {
-    m_pElement = m_pElement->m_pParent;
-    return;
-  }
-
-  // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
-  {
-    while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
-      m_pElement = m_pElement->m_pParent;
-
-    // if we are at the root node..
-    if ((m_pElement->m_pParent == nullptr) || (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
-    {
-      m_pElement = nullptr;
-      return;
-    }
-
-    m_pElement = m_pElement->m_pParent;
-    return;
-  }
-
-  m_pElement = nullptr;
-  return;
 }
+
+template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+void ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>::Prev()
+{
+  if constexpr (REVERSE)
+  {
+    Advance(0, 1);
+  }
+  else
+  {
+    Advance(1, 0);
+  }
+}
+
+#if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
+
+// These functions are used for structured bindings.
+// They describe how many elements can be accessed in the binding and which type they are.
+namespace std
+{
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_size<ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<0, ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const KeyType&;
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<1, ezMapBaseConstIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const ValueType&;
+  };
+
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_size<ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>> : integral_constant<size_t, 2>
+  {
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<0, ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = const KeyType&;
+  };
+
+  template <typename KeyType, typename ValueType, typename Comparer, bool REVERSE>
+  struct tuple_element<1, ezMapBaseIteratorBase<KeyType, ValueType, Comparer, REVERSE>>
+  {
+    using type = ValueType&;
+  };
+} // namespace std
+#endif
 
 // ***** ezMapBase *****
 
@@ -125,7 +140,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezAllocator* pAllocator)
   : m_Elements(pAllocator)
   , m_Comparer(comparer)
 {
@@ -133,7 +148,7 @@ ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezA
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocator* pAllocator)
   : m_Elements(pAllocator)
 {
   Constructor();
@@ -201,15 +216,15 @@ EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator()
+EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ReverseIterator ezMapBase<KeyType, ValueType, Comparer>::GetReverseIterator()
 {
-  return Iterator(GetRightMost());
+  return ReverseIterator(GetRightMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator() const
+EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstReverseIterator ezMapBase<KeyType, ValueType, Comparer>::GetReverseIterator() const
 {
-  return ConstIterator(GetRightMost());
+  return ConstReverseIterator(GetRightMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -554,7 +569,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     m_pFreeElementStack = m_pFreeElementStack->m_pParent;
   }
 
-  ezMemoryUtils::Construct(pNode, 1);
+  ezMemoryUtils::Construct<SkipTrivialTypes>(pNode, 1);
 
   pNode->m_pParent = pParent;
   pNode->m_Key = std::forward<CompatibleKeyType>(key);
@@ -819,13 +834,13 @@ ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocatorBase* pAllocator)
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocator* pAllocator)
   : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), pAllocator)
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator)
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocator* pAllocator)
   : ezMapBase<KeyType, ValueType, Comparer>(comparer, pAllocator)
 {
 }

@@ -95,6 +95,7 @@ ezResult ezEditorSceneDocumentTest::CreateSimpleScene(const char* szSceneName)
     if (!EZ_TEST_BOOL(m_pDoc != nullptr))
       return EZ_FAILURE;
 
+    EZ_ANALYSIS_ASSUME(m_pDoc != nullptr);
     m_SceneGuid = m_pDoc->GetGuid();
     ProcessEvents();
     EZ_TEST_STATUS(m_pDoc->CreateLayer("Layer1", m_LayerGuid));
@@ -111,7 +112,8 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
   {
     bool bSaved = false;
     ezTaskGroupID id = m_pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* pDoc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res)
+      {
         bSaved = true;
       },
       true);
@@ -139,7 +141,8 @@ void ezEditorSceneDocumentTest::LayerOperations()
   ezUuid layer1Guid;
   ezLayerDocument* pLayer1 = nullptr;
 
-  auto TestLayerEvents = [&expectedEvents](const ezScene2LayerEvent& e) {
+  auto TestLayerEvents = [&expectedEvents](const ezScene2LayerEvent& e)
+  {
     if (EZ_TEST_BOOL(!expectedEvents.IsEmpty()))
     {
       // If we pass in an invalid guid it's considered fine as we might not know the ID, e.g. when creating a layer.
@@ -155,6 +158,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
     if (!EZ_TEST_BOOL(pDoc != nullptr))
       return;
 
+    EZ_ANALYSIS_ASSUME(pDoc != nullptr);
     sceneGuid = pDoc->GetGuid();
     layerEventsID = pDoc->m_LayerEvents.AddEventHandler(TestLayerEvents);
     ProcessEvents();
@@ -209,7 +213,8 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* pDoc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res)
+      {
         bSaved = true;
       },
       true);
@@ -225,6 +230,8 @@ void ezEditorSceneDocumentTest::LayerOperations()
     pDoc = static_cast<ezScene2Document*>(m_pApplication->m_pEditorApp->OpenDocument(sName, ezDocumentFlags::RequestWindow));
     if (!EZ_TEST_BOOL(pDoc != nullptr))
       return;
+
+    EZ_ANALYSIS_ASSUME(pDoc != nullptr);
     layerEventsID = pDoc->m_LayerEvents.AddEventHandler(TestLayerEvents);
     ProcessEvents();
 
@@ -302,7 +309,8 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* pDoc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res)
+      {
         bSaved = true;
       },
       true);
@@ -370,7 +378,8 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("Components"));
 
       // Does default state match that of pSphere2 which is unmodified?
-      auto MatchesDefaultValue = [&](ezDefaultObjectState& ref_defaultState, const char* szProperty) {
+      auto MatchesDefaultValue = [&](ezDefaultObjectState& ref_defaultState, const char* szProperty)
+      {
         ezVariant defaultValue = ref_defaultState.GetDefaultValue(szProperty);
         ezVariant sphere2value;
         EZ_TEST_STATUS(pAccessor->GetValue(pSphere2, szProperty, sphere2value));
@@ -472,9 +481,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     // Copy & paste should retain the order in the tree view, not the selection array so we push the elements in a random order here.
     ezDeque<const ezDocumentObject*> assets;
-    assets.PushBack(pPrefab3);
     assets.PushBack(pPrefab1);
     assets.PushBack(pPrefab2);
+    assets.PushBack(pPrefab3);
     ezDeque<const ezDocumentObject*> newObjects;
 
     MoveObjectsToLayer(m_pDoc, assets, m_LayerGuid, newObjects);
@@ -508,7 +517,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change Prefab Type")
   {
     ezVariant oldIndex = pPrefab1->GetPropertyIndex();
-    ezDeque<const ezDocumentObject*> selection;
+    ezHybridArray<const ezDocumentObject*, 8> selection;
     {
       selection.PushBack(pPrefab1);
       m_pDoc->ConvertToEditorPrefab(selection);
@@ -543,7 +552,8 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     }
   }
 
-  auto IsObjectDefault = [&](const ezDocumentObject* pChild) {
+  auto IsObjectDefault = [&](const ezDocumentObject* pChild)
+  {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);
@@ -599,7 +609,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Revert prefab
-      ezDeque<const ezDocumentObject*> selection;
+      ezHybridArray<const ezDocumentObject*, 2> selection;
       selection.PushBack(pPrefab3);
       m_pDoc->RevertPrefabs(selection);
 
@@ -714,13 +724,15 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   selection.PushBack(pRoot);
   m_pDoc->GetSelectionManager()->SetSelection(selection);
 
-  auto CreateComponent = [&](const ezRTTI* pType, const ezDocumentObject* pParent) -> const ezDocumentObject* {
+  auto CreateComponent = [&](const ezRTTI* pType, const ezDocumentObject* pParent) -> const ezDocumentObject*
+  {
     ezUuid compGuid;
     EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, pType, compGuid));
     return pAccessor->GetObject(compGuid);
   };
 
-  auto IsObjectDefault = [&](const ezDocumentObject* pChild) {
+  auto IsObjectDefault = [&](const ezDocumentObject* pChild)
+  {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);
@@ -743,7 +755,8 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   };
 
   ezDynamicArray<const ezRTTI*> componentTypes;
-  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti) { componentTypes.PushBack(pRtti); });
+  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti)
+    { componentTypes.PushBack(pRtti); });
 
   ezSet<const ezRTTI*> blacklist;
   // The scene already has one and the code asserts otherwise. There needs to be a general way of preventing two settings components from existing at the same time.
@@ -796,7 +809,8 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
 
   auto pAccessor = m_pDoc->GetObjectAccessor();
 
-  auto CreateComponent = [&](const ezDocumentObject* pParent) -> const ezDocumentObject* {
+  auto CreateComponent = [&](const ezDocumentObject* pParent) -> const ezDocumentObject*
+  {
     pAccessor->StartTransaction("AddComponent"_ezsv);
     ezUuid compGuid;
     EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, ezRTTI::FindTypeByName("ezDecalComponent"), compGuid));

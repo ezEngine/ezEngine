@@ -1,17 +1,17 @@
 # Asset Types
 
-Sound Bank;Fmod Sound Bank
-Sound Event;Fmod Sound Event
+Sound Bank;FMOD Sound Bank
+Sound Event;FMOD Sound Event
 
 # Component Types
 
-ezFmodEventComponent;Fmod Sound Event;;https://ezengine.net/pages/docs/sound/fmod-event-component.html
-ezFmodListenerComponent;Fmod Listener;;https://ezengine.net/pages/docs/sound/fmod-listener-component.html
+ezFmodEventComponent;FMOD Sound Event;;https://ezengine.net/pages/docs/sound/fmod-event-component.html
+ezFmodListenerComponent;FMOD Listener;;https://ezengine.net/pages/docs/sound/fmod-listener-component.html
 
 # UI
 
-Fmod.Settings.Project;Fmod Project Settings...
-Fmod.Mute;Mute Sounds
-Fmod.MasterVolume;Volume
+FMOD.Settings.Project;FMOD Project Settings...
+FMOD.Mute;Mute Sounds
+FMOD.MasterVolume;Volume
 
 # Properties

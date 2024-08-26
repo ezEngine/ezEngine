@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/String.h>
+#include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -20,7 +21,11 @@ private:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex);
 #else
-  EZ_ALWAYS_INLINE static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex) {}
+  EZ_ALWAYS_INLINE static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
+  {
+    EZ_IGNORE_UNUSED(groupID);
+    EZ_IGNORE_UNUSED(mutex);
+  }
 #endif
 
   /// \brief Puts the calling thread to sleep until this group is fully finished.

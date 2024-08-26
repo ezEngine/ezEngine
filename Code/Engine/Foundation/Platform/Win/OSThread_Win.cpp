@@ -118,7 +118,7 @@ EZ_WARNING_POP()
 // Windows specific implementation of the thread class
 
 ezOSThread::ezOSThread(
-  ezOSThreadEntryPoint threadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+  ezOSThreadEntryPoint threadEntryPoint, void* pUserData /*= nullptr*/, ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -132,13 +132,13 @@ ezOSThread::ezOSThread(
 
   m_EntryPoint = threadEntryPoint;
   m_pUserData = pUserData;
-  m_szName = szName;
+  m_sName = sName;
   m_uiStackSize = uiStackSize;
 
   // If a name is given, assign it here
-  if (szName != nullptr)
+  if (!m_sName.IsEmpty())
   {
-    SetThreadName(m_hHandle, szName);
+    SetThreadName(m_hHandle, m_sName.GetData());
   }
 }
 
@@ -162,5 +162,3 @@ void ezOSThread::Join()
 }
 
 #endif
-
-

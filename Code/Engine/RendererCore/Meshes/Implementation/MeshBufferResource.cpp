@@ -45,13 +45,11 @@ ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() c
 
 ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
 {
-  EZ_ASSERT_DEV(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
   return m_VertexStreamData;
 }
 
 ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
 {
-  EZ_ASSERT_DEV(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
   return m_IndexBufferData;
 }
 
@@ -360,6 +358,7 @@ void ezMeshBufferResourceDescriptor::SetLineIndices(ezUInt32 uiLine, ezUInt32 ui
 void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2)
 {
   EZ_ASSERT_DEBUG(m_Topology == ezGALPrimitiveTopology::Triangles, "Wrong topology");
+  EZ_ASSERT_DEBUG(uiVertex0 < m_uiVertexCount && uiVertex1 < m_uiVertexCount && uiVertex2 < m_uiVertexCount, "Vertex indices out of range.");
 
   if (Uses32BitIndices())
   {
@@ -413,6 +412,11 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 
       return bounds;
     }
+  }
+
+  if (!bounds.IsValid())
+  {
+    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(0.1f), 0.1f);
   }
 
   return bounds;
@@ -566,14 +570,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
   m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetArrayPtr());
 
   ezStringBuilder sName;
-  sName.Format("{0} Vertex Buffer", GetResourceDescription());
+  sName.SetFormat("{0} Vertex Buffer", GetResourceDescription());
   pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   if (descriptor.HasIndexBuffer())
   {
     m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
 
-    sName.Format("{0} Index Buffer", GetResourceDescription());
+    sName.SetFormat("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
 
     // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again

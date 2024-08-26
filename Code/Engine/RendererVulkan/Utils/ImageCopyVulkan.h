@@ -10,8 +10,10 @@
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALResourceViewVulkan;
-class ezGALUnorderedAccessViewVulkan;
+class ezGALTextureResourceViewVulkan;
+class ezGALBufferResourceViewVulkan;
+class ezGALTextureUnorderedAccessViewVulkan;
+class ezGALBufferUnorderedAccessViewVulkan;
 
 
 /// \brief
@@ -87,7 +89,7 @@ private:
   // This avoids recreating them every frame
   struct Cache
   {
-    Cache(ezAllocatorBase* pAllocator);
+    Cache(ezAllocator* pAllocator);
     ~Cache();
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;

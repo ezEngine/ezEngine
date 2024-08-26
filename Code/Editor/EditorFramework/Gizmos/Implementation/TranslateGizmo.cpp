@@ -33,7 +33,7 @@ ezTranslateGizmo::ezTranslateGizmo()
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;
-  m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
+  m_LastHandleInteraction = HandleInteraction::None;
 }
 
 void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -93,6 +93,7 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   m_hPlaneYZ.SetVisible(true);
 
   m_Mode = TranslateMode::None;
+  m_LastHandleInteraction = HandleInteraction::None;
   m_MovementMode = MovementMode::ScreenProjection;
   m_vLastMoveDiff.SetZero();
 
@@ -118,16 +119,19 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   {
     m_vMoveAxis = gizmoRot * ezVec3(1, 0, 0);
     m_Mode = TranslateMode::Axis;
+    m_LastHandleInteraction = HandleInteraction::AxisX;
   }
   else if (m_pInteractionGizmoHandle == &m_hAxisY)
   {
     m_vMoveAxis = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Axis;
+    m_LastHandleInteraction = HandleInteraction::AxisY;
   }
   else if (m_pInteractionGizmoHandle == &m_hAxisZ)
   {
     m_vMoveAxis = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Axis;
+    m_LastHandleInteraction = HandleInteraction::AxisZ;
   }
   else if (m_pInteractionGizmoHandle == &m_hPlaneXY)
   {
@@ -135,7 +139,7 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
     m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 1, 0);
     m_Mode = TranslateMode::Plane;
-    m_LastPlaneInteraction = PlaneInteraction::PlaneZ;
+    m_LastHandleInteraction = HandleInteraction::PlaneZ;
   }
   else if (m_pInteractionGizmoHandle == &m_hPlaneXZ)
   {
@@ -143,7 +147,7 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = gizmoRot * ezVec3(1, 0, 0);
     m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
-    m_LastPlaneInteraction = PlaneInteraction::PlaneY;
+    m_LastHandleInteraction = HandleInteraction::PlaneY;
   }
   else if (m_pInteractionGizmoHandle == &m_hPlaneYZ)
   {
@@ -151,7 +155,7 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vPlaneAxis[0] = gizmoRot * ezVec3(0, 1, 0);
     m_vPlaneAxis[1] = gizmoRot * ezVec3(0, 0, 1);
     m_Mode = TranslateMode::Plane;
-    m_LastPlaneInteraction = PlaneInteraction::PlaneX;
+    m_LastHandleInteraction = HandleInteraction::PlaneX;
   }
   else
     return ezEditorInput::MayBeHandledByOthers;
@@ -319,8 +323,8 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_vLastMousePos = UpdateMouseMode(e);
 
-  // disable snapping when ALT is pressed
-  if (!e->modifiers().testFlag(Qt::AltModifier))
+  // disable snapping when SHIFT is pressed
+  if (!e->modifiers().testFlag(Qt::ShiftModifier))
   {
     ezSnapProvider::SnapTranslationInLocalSpace(mTrans.m_qRotation, vTranslate);
   }

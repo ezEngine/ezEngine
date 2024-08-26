@@ -59,4 +59,3 @@ private:
   ezAssetProfilesDocument* m_pDocument;
   ezMap<ezUuid, Binding> m_ProfileBindings;
 };
-

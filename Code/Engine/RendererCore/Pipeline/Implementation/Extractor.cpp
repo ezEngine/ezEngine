@@ -341,10 +341,10 @@ void ezVisibleObjectsExtractor::Extract(
 
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", "Extraction Stats:");
 
-    sb.Format("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
+    sb.SetFormat("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", sb);
 
-    sb.Format("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
+    sb.SetFormat("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
     ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "ExtractionStats", sb);
   }
 #endif

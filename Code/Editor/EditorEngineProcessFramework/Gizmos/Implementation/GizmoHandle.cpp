@@ -168,7 +168,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   const float fLength = 2.0f / 3.0f;
 
   ezGeometry geom;
-  geom.AddRectXY(ezVec2(fLength));
+  geom.AddRect(ezVec2(fLength));
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect", ezGALPrimitiveTopology::Triangles);
 }
@@ -189,10 +189,10 @@ static ezMeshBufferResourceHandle CreateMeshBufferLineRect()
 
   const ezVec2 halfSize(1.0f);
 
-  geom.AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), ezColor::White, 0, m);
+  geom.AddVertex(m, ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1));
+  geom.AddVertex(m, ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0));
+  geom.AddVertex(m, ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0));
+  geom.AddVertex(m, ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1));
 
   geom.AddLine(0, 1);
   geom.AddLine(1, 2);
@@ -311,11 +311,11 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
   ezGeometry::GeoOptions opt;
   opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0, 0, 0.5f));
 
-  geom.AddRectXY(ezVec2(0.5f), 1, 1, opt);
+  geom.AddRect(ezVec2(0.5f), 1, 1, opt);
 
   opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(180.0));
   opt.m_Transform.SetTranslationVector(ezVec3(0, 0, -0.5f));
-  geom.AddRectXY(ezVec2(0.5f), 1, 1, opt);
+  geom.AddRect(ezVec2(0.5f), 1, 1, opt);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces", ezGALPrimitiveTopology::Triangles);
 }
@@ -340,10 +340,10 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
 
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, 0, 0.5f));
     opt.m_Transform = rot * opt.m_Transform;
-    geom.AddRectXY(ezVec2(0.25f, 0.5f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.5f), 1, 1, opt);
 
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, 0, 0.5f));
-    geom.AddRectXY(ezVec2(0.25f, 0.5f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.5f), 1, 1, opt);
   }
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges", ezGALPrimitiveTopology::Triangles);
@@ -373,19 +373,19 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
   {
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, 0.5f - 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRectXY(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
 
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0.5f - 0.125f, -0.5f + 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRectXY(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
 
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, 0.5f - 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRectXY(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
 
     opt.m_Transform = ezMat4::MakeTranslation(ezVec3(-0.5f + 0.125f, -0.5f + 0.125f, 0.5f));
     opt.m_Transform = rot[i] * opt.m_Transform;
-    geom.AddRectXY(ezVec2(0.25f, 0.25f), 1, 1, opt);
+    geom.AddRect(ezVec2(0.25f, 0.25f), 1, 1, opt);
   }
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners", ezGALPrimitiveTopology::Triangles);
@@ -424,12 +424,12 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
 
   ezGeometry geom;
 
-  geom.AddVertex(ezVec3(0, 0, 0), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+  geom.AddVertex(m, ezVec3(0, 0, 0), ezVec3(0, 0, 1));
 
-  geom.AddVertex(ezVec3(1.0f, -1.0f, 1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(1.0f, 1.0f, 1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(1.0f, -1.0f, -1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
-  geom.AddVertex(ezVec3(1.0f, 1.0f, -1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+  geom.AddVertex(m, ezVec3(1.0f, -1.0f, 1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(1.0f, 1.0f, 1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(1.0f, -1.0f, -1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(1.0f, 1.0f, -1.0f), ezVec3(0, 0, 1));
 
   geom.AddLine(0, 1);
   geom.AddLine(0, 2);
@@ -639,7 +639,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   }
 
   ezStringBuilder sName;
-  sName.Format("Gizmo{0}", m_iHandleType);
+  sName.SetFormat("Gizmo{0}", m_iHandleType);
 
   ezGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.m_vPosition;

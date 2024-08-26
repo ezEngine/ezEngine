@@ -16,15 +16,12 @@ public:
 protected:
   virtual void ConfigureInputActions() override;
 
-private:
-  virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
+  virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
 
   void CreateGameLevel();
   void DestroyLevel();
-
-  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
 
   ezUniquePtr<Level> m_pLevel;
 };

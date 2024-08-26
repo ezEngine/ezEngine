@@ -10,7 +10,7 @@
 struct ezTypeData
 {
   ezMutex m_Mutex;
-  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> m_TypeNameHashToType;
+  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticsAllocatorWrapper> m_TypeNameHashToType;
   ezDynamicArray<ezRTTI*> m_AllTypes;
 
   bool m_bIterating = false;
@@ -20,7 +20,8 @@ ezTypeData* GetTypeData()
 {
   // Prevent static initialization hazard between first ezRTTI instance
   // and type data and also make sure it is sufficiently sized before first use.
-  auto CreateData = []() -> ezTypeData* {
+  auto CreateData = []() -> ezTypeData*
+  {
     ezTypeData* pData = new ezTypeData();
     pData->m_TypeNameHashToType.Reserve(512);
     pData->m_AllTypes.Reserve(512);
@@ -175,6 +176,7 @@ void ezRTTI::VerifyCorrectness() const
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
+        EZ_IGNORE_UNUSED(bNewProperty);
         EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_sTypeName,
           pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
@@ -186,6 +188,7 @@ void ezRTTI::VerifyCorrectness() const
   {
     for (const ezAbstractProperty* pFunc : m_Functions)
     {
+      EZ_IGNORE_UNUSED(pFunc);
       EZ_ASSERT_DEV(pFunc->GetCategory() == ezPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
     }
   }
@@ -193,7 +196,8 @@ void ezRTTI::VerifyCorrectness() const
 
 void ezRTTI::VerifyCorrectnessForAllTypes()
 {
-  ezRTTI::ForEachType([](const ezRTTI* pRtti) { pRtti->VerifyCorrectness(); });
+  ezRTTI::ForEachType([](const ezRTTI* pRtti)
+    { pRtti->VerifyCorrectness(); });
 }
 
 
@@ -267,7 +271,8 @@ const ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 
 const ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
 {
-  return FindTypeIf([=](const ezRTTI* pRtti) { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
+  return FindTypeIf([=](const ezRTTI* pRtti)
+    { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
 }
 
 const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
@@ -360,7 +365,7 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
 
   pData->m_bIterating = true;
   // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
-  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i) 
+  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
   {
     auto pRtti = pData->m_AllTypes.GetData()[i];
     if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
@@ -418,10 +423,7 @@ void ezRTTI::AssignPlugin(ezStringView sPluginName)
   }
 }
 
-// warning C4505: 'IsValidIdentifierName': unreferenced function with internal linkage has been removed
-// happens in Release builds, because the function is only used in a debug assert
-EZ_WARNING_PUSH()
-EZ_WARNING_DISABLE_MSVC(4505)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
 static bool IsValidIdentifierName(ezStringView sIdentifier)
 {
@@ -455,7 +457,7 @@ static bool IsValidIdentifierName(ezStringView sIdentifier)
   return true;
 }
 
-EZ_WARNING_POP()
+#endif
 
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
@@ -482,6 +484,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     {
       case ezPropertyCategory::Constant:
       {
+        EZ_IGNORE_UNUSED(pSpecificType);
         EZ_ASSERT_DEV(pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Only standard type constants are supported!");
       }
       break;

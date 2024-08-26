@@ -109,12 +109,12 @@ double ezCurve1D::Evaluate(double x) const
     const ezUInt32 numCPs = m_LinearApproximation.GetCount();
     const ezInt32 iControlPoint = FindApproxControlPoint(x);
 
-    if (iControlPoint == -1)
+    if (iControlPoint < 0)
     {
       // clamp to left value
       return m_LinearApproximation[0].y;
     }
-    else if (iControlPoint == numCPs - 1)
+    else if (ezUInt32(iControlPoint) == numCPs - 1)
     {
       // clamp to right value
       return m_LinearApproximation[numCPs - 1].y;
@@ -564,5 +564,3 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
-
-

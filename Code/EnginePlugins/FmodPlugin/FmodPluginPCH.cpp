@@ -20,4 +20,3 @@ EZ_STATICLINK_LIBRARY(FmodPlugin)
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResource);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResourceLoader);
 }
-

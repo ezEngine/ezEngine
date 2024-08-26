@@ -33,9 +33,9 @@ JPH_NAMESPACE_BEGIN
 ///		barrier->AddJob(third_job);
 ///		job_system->WaitForJobs(barrier);
 ///
-/// 	// Clean up
-/// 	job_system->DestroyBarrier(barrier);
-/// 	delete job_system;
+///		// Clean up
+///		job_system->DestroyBarrier(barrier);
+///		delete job_system;
 ///
 ///	Jobs are guaranteed to be started in the order that their dependency counter becomes zero (in case they're scheduled on a background thread)
 ///	or in the order they're added to the barrier (when dependency count is zero and when executing on the thread that calls WaitForJobs).
@@ -198,7 +198,7 @@ protected:
 			// Releasing a reference must use release semantics...
 			if (mReferenceCount.fetch_sub(1, memory_order_release) == 1)
 			{
-				// ... so that we can use aquire to ensure that we see any updates from other threads that released a ref before freeing the job
+				// ... so that we can use acquire to ensure that we see any updates from other threads that released a ref before freeing the job
 				atomic_thread_fence(memory_order_acquire);
 				mJobSystem->FreeJob(this);
 			}

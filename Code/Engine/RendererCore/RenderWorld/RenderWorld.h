@@ -43,6 +43,8 @@ public:
   static void DeleteView(const ezViewHandle& hView);
 
   static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
+
+  /// \brief Searches for an ezView with the desired usage hint or alternative usage hint.
   static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
 
   static void AddMainView(const ezViewHandle& hView);

@@ -170,7 +170,7 @@ bool ezQtEditorApp::IsProgressBarProcessingEvents() const
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e)
 {
   ezStringBuilder sFile;
-  sFile.Format(":project/Editor/{}.txt", sEnumName);
+  sFile.SetFormat(":project/Editor/{}.txt", sEnumName);
 
   // enums loaded this way are user editable
   e.SetStorageFile(sFile);
@@ -367,7 +367,11 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
     QProcess proc;
     proc.setWorkingDirectory(sTargetDir.GetData());
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     proc.start("git.exe", args);
+#else
+    proc.start("git", args);
+#endif
 
     if (!proc.waitForStarted())
     {
@@ -383,7 +387,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 
     ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
 
-    inout_sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
+    inout_sFilePath.SetFormat("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
     // write redirection file
     {
@@ -556,7 +560,7 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
-  app.AppendPath("Editor");
+  app.AppendPath("ezEditor");
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   app.Append(".exe");
 #endif

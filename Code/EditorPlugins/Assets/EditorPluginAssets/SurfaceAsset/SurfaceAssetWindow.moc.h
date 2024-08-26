@@ -13,4 +13,3 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const override { return "SurfaceAsset"; }
 };
-

@@ -4,6 +4,7 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 TOPOLOGY
 
 [RENDERSTATE]
@@ -66,7 +67,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color0 = RGBA8ToFloat4(data.color);
 	RetVal.InstanceID = InstanceID;
-
+#if defined(CAMERA_MODE)
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
+#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
+    RetVal.RenderTargetArrayIndex = InstanceID % 2;
+#    endif
+#  endif
+#endif
 	return RetVal;
 }
 
@@ -89,5 +96,9 @@ SamplerState FontTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
+  float glyph = FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoord0.xy).r;
+  float c = saturate(glyph * 2.0 - 1.0); // 0.5 - 1 is color content
+  float a = saturate(glyph * 2.0); // 0 - 0.5 is alpha content
+
+	return float4(c, c, c, a) * Input.Color0;
 }

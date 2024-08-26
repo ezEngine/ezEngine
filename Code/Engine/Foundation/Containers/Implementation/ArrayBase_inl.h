@@ -111,7 +111,7 @@ void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount)
   if (uiNewCount > uiOldCount)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
-    ezMemoryUtils::DefaultConstruct(static_cast<Derived*>(this)->GetElementsPtr() + uiOldCount, uiNewCount - uiOldCount);
+    ezMemoryUtils::Construct<ConstructAll>(static_cast<Derived*>(this)->GetElementsPtr() + uiOldCount, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -194,7 +194,7 @@ bool ezArrayBase<T, Derived>::Contains(const T& value) const
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::InsertAt(ezUInt32 uiIndex, const T& value)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -205,7 +205,7 @@ void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::Insert(T&& value, ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::InsertAt(ezUInt32 uiIndex, T&& value)
 {
   EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has {0} elements, trying to insert element at index {1}.", m_uiCount, uiIndex);
 
@@ -313,7 +313,7 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
-  ezMemoryUtils::Construct(pElements + m_uiCount, 1);
+  ezMemoryUtils::Construct<SkipTrivialTypes>(pElements + m_uiCount, 1);
 
   T& ReturnRef = *(pElements + m_uiCount);
 

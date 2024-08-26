@@ -397,7 +397,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableString("String", ezStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
     js.AddVariableDouble("double", 43.56);
     js.AddVariableFloat("float", 64.72f);
-    js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true); // Unicode / Utf-8 test (identifier)
+    js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true);            // Unicode / Utf-8 test (identifier)
     js.AddVariableInt32("int", 23);
 
     js.BeginArray("myarray");
@@ -411,7 +411,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.BeginObject("object");
     js.AddVariableString("variable in object", "bla/*asdf*/ //tuff"); // 'comment' in string
     js.BeginObject("Subobject");
-    js.AddVariableString("variable in subobject", "bla\\"); // character to be escaped
+    js.AddVariableString("variable in subobject", "bla\\");           // character to be escaped
 
     js.BeginArray("array in sub");
     js.BeginObject();

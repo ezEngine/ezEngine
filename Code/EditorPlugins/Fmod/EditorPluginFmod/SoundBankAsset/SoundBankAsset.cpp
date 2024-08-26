@@ -54,7 +54,7 @@ ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWrite
 
   // we copy the entire sound bank into our transformed asset
   // however, at least during development, we typically do not load the data from there,
-  // but from the Fmod sound bank files directly, so that we do not need to wait for an asset transform
+  // but from the FMOD sound bank files directly, so that we do not need to wait for an asset transform
 
   ezDefaultMemoryStreamStorage storage;
 

@@ -85,7 +85,7 @@ namespace
     {
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Transforms));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Positions,
-        nullptr)); // should not allocate anything
+        nullptr));                                                                                                       // should not allocate anything
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Scales));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadMap(
         inout_stream, m_TransformMap, ezDeduplicationReadContext::ReadMapMode::DedupValue, nullptr, nullptr));           // should not allocate anything

@@ -9,15 +9,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex)
+ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex)
   : ezPin(type, sName, pinDesc.GetColor(), pObject)
-  , m_pDataType(pinDesc.m_pDataType)
-  , m_DeductTypeFunc(pinDesc.m_DeductTypeFunc)
+  , m_pDesc(&pinDesc)
   , m_uiDataPinIndex(uiDataPinIndex)
-  , m_ScriptDataType(pinDesc.m_ScriptDataType)
-  , m_bRequired(pinDesc.m_bRequired)
-  , m_bHasDynamicPinProperty(pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
-  , m_bSplitExecution(pinDesc.m_bSplitExecution)
+  , m_uiElementIndex(uiElementIndex)
 {
   if (pinDesc.IsExecutionPin())
   {
@@ -37,13 +33,14 @@ ezVisualScriptPin::~ezVisualScriptPin()
 
 ezVisualScriptDataType::Enum ezVisualScriptPin::GetResolvedScriptDataType() const
 {
-  if (m_ScriptDataType == ezVisualScriptDataType::AnyPointer || m_ScriptDataType == ezVisualScriptDataType::Any)
+  auto scriptDataType = GetScriptDataType();
+  if (scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any)
   {
     auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetParent()->GetDocumentObjectManager());
     return pManager->GetDeductedType(*this);
   }
 
-  return m_ScriptDataType;
+  return scriptDataType;
 }
 
 ezStringView ezVisualScriptPin::GetDataTypeName() const
@@ -51,12 +48,12 @@ ezStringView ezVisualScriptPin::GetDataTypeName() const
   ezVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
   if (resolvedDataType == ezVisualScriptDataType::Invalid)
   {
-    return ezVisualScriptDataType::GetName(m_ScriptDataType);
+    return ezVisualScriptDataType::GetName(GetScriptDataType());
   }
 
-  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && m_pDataType != nullptr)
+  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && GetDataType() != nullptr)
   {
-    return m_pDataType->GetTypeName();
+    return GetDataType()->GetTypeName();
   }
 
   return ezVisualScriptDataType::GetName(resolvedDataType);
@@ -67,7 +64,7 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   ezVisualScriptDataType::Enum sourceScriptDataType = bUseResolvedDataTypes ? GetResolvedScriptDataType() : GetScriptDataType();
   ezVisualScriptDataType::Enum targetScriptDataType = bUseResolvedDataTypes ? targetPin.GetResolvedScriptDataType() : targetPin.GetScriptDataType();
 
-  const ezRTTI* pSourceDataType = m_pDataType;
+  const ezRTTI* pSourceDataType = GetDataType();
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
 
   if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
@@ -410,7 +407,8 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex) {
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
       GetDynamicPinNames(pObject, pinDesc.m_sDynamicPinProperty, pinDesc.m_sName, dynamicPinNames);
@@ -430,7 +428,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
         ++inout_dataPinIndex;
       }
 
-      auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, type, dynamicPinNames[i], pinDesc, pObject, uiDataPinIndex, i);
       out_pins.PushBack(pPin);
     }
   };
@@ -448,18 +446,84 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   }
 }
 
-void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
 {
+  auto pRegistry = ezVisualScriptNodeRegistry::GetSingleton();
+  auto propertyValues = pRegistry->GetPropertyValues();
   ezHashedString sBaseClass = GetScriptBaseClass();
 
-  for (auto it : ezVisualScriptNodeRegistry::GetSingleton()->GetAllNodeTypes())
+  for (auto& nodeTemplate : pRegistry->GetNodeCreationTemplates())
   {
-    if (IsFilteredByBaseClass(it.Key(), it.Value(), sBaseClass))
+    const ezRTTI* pNodeType = nodeTemplate.m_pType;
+
+    if (IsFilteredByBaseClass(pNodeType, *pRegistry->GetNodeDescForType(pNodeType), sBaseClass))
       continue;
 
-    if (!it.Key()->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    if (!pNodeType->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
     {
-      Types.PushBack(it.Key());
+      auto& temp = out_templates.ExpandAndGetRef();
+      temp.m_pType = pNodeType;
+      temp.m_sTypeName = nodeTemplate.m_sTypeName;
+      temp.m_sCategory = nodeTemplate.m_sCategory;
+      temp.m_PropertyValues = propertyValues.GetSubArray(nodeTemplate.m_uiPropertyValuesStart, nodeTemplate.m_uiPropertyValuesCount);
+    }
+  }
+
+  // Getter and setter templates for variables
+  if (GetRootObject()->GetChildren().IsEmpty() == false)
+  {
+    static ezHashedString sVariables = ezMakeHashedString("Variables");
+    static ezHashedString sName = ezMakeHashedString("Name");
+
+    m_PropertyValues.Clear();
+    m_VariableNodeTypeNames.Clear();
+
+    ezStringBuilder sNodeTypeName;
+
+    auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
+    const ezUInt32 uiNumVariables = typeAccessor.GetCount(sVariables.GetView());
+    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    {
+      ezVariant variableUuid = typeAccessor.GetValue(sVariables.GetView(), i);
+      if (variableUuid.IsA<ezUuid>() == false)
+        continue;
+
+      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      if (pVariableObject == nullptr)
+        continue;
+
+      ezVariant nameVar = pVariableObject->GetTypeAccessor().GetValue(sName.GetView());
+      if (nameVar.IsA<ezHashedString>() == false)
+        continue;
+
+      ezHashedString sVariableName = nameVar.Get<ezHashedString>();
+
+      ezUInt32 uiStart = m_PropertyValues.GetCount();
+      m_PropertyValues.PushBack({sName, nameVar});
+
+      // Setter
+      {
+        sNodeTypeName.Set("Set", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableSetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
+
+      // Getter
+      {
+        sNodeTypeName.Set("Get", sVariableName);
+        m_VariableNodeTypeNames.PushBack(sNodeTypeName);
+
+        auto& temp = out_templates.ExpandAndGetRef();
+        temp.m_pType = pRegistry->GetVariableGetterType();
+        temp.m_sTypeName = m_VariableNodeTypeNames.PeekBack();
+        temp.m_sCategory = sVariables;
+        temp.m_PropertyValues = m_PropertyValues.GetArrayPtr().GetSubArray(uiStart, 1);
+      }
     }
   }
 }

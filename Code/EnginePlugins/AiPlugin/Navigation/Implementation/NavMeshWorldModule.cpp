@@ -1,6 +1,6 @@
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <AiPlugin/Navigation/NavMeshWorldModule.h>
-#include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/World/World.h>
 #include <DetourNavMesh.h>
 #include <Foundation/Configuration/CVar.h>
@@ -70,11 +70,19 @@ void ezAiNavMeshWorldModule::Initialize()
 
   for (const auto& cfg : m_Config.m_NavmeshConfigs)
   {
-    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, 64, 64, 16.0f, cfg);
+    // TODO: make tile size etc configurable
+    m_WorldNavMeshes[cfg.m_sName] = EZ_DEFAULT_NEW(ezAiNavMesh, cfg);
   }
 
   m_pGenerateSectorTask = EZ_DEFAULT_NEW(ezNavMeshSectorGenerationTask);
   m_pGenerateSectorTask->ConfigureTask("Generate Navmesh Sector", ezTaskNesting::Maybe);
+}
+
+void ezAiNavMeshWorldModule::Deinitialize()
+{
+  m_pGenerateSectorTask = nullptr;
+  ezTaskSystem::CancelGroup(m_GenerateSectorTaskID).IgnoreResult();
+  ezTaskSystem::WaitForGroup(m_GenerateSectorTaskID);
 }
 
 ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName)
@@ -124,8 +132,8 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
   if (!ezTaskSystem::IsTaskGroupFinished(m_GenerateSectorTaskID))
     return;
 
-  auto pPhysics = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
-  if (pPhysics == nullptr)
+  auto pNavGeo = GetWorld()->GetOrCreateModule<ezNavmeshGeoWorldModuleInterface>();
+  if (pNavGeo == nullptr)
     return;
 
   for (auto& nm : m_WorldNavMeshes)
@@ -136,7 +144,7 @@ void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
 
     m_pGenerateSectorTask->m_pWorldNavMesh = nm.Value();
     m_pGenerateSectorTask->m_SectorID = sectorID;
-    m_pGenerateSectorTask->m_pPhysics = pPhysics;
+    m_pGenerateSectorTask->m_pNavGeo = pNavGeo;
 
     m_GenerateSectorTaskID = ezTaskSystem::StartSingleTask(m_pGenerateSectorTask, ezTaskPriority::LongRunning);
 

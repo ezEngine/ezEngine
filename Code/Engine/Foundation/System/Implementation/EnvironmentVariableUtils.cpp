@@ -45,7 +45,7 @@ ezInt32 ezEnvironmentVariableUtils::GetValueInt(ezStringView sName, ezInt32 iDef
 ezResult ezEnvironmentVariableUtils::SetValueInt(ezStringView sName, ezInt32 iValue)
 {
   ezStringBuilder sb;
-  sb.Format("{}", iValue);
+  sb.SetFormat("{}", iValue);
 
   return SetValueString(sName, sb);
 }
@@ -63,5 +63,3 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
 
   return UnsetVariableImpl(sName);
 }
-
-

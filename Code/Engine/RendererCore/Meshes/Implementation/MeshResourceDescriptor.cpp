@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
@@ -189,7 +189,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     {
       const auto& vs = m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams[idx];
 
-      chunk << idx; // Vertex stream index
+      chunk << idx;                // Vertex stream index
       chunk << (ezInt32)vs.m_Format;
       chunk << (ezInt32)vs.m_Semantic;
       chunk << vs.m_uiElementSize; // not needed, but can be used to check that memory layout has not changed
@@ -450,11 +450,12 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       // Version 2
       if (ci.m_uiChunkVersion >= 2)
       {
-        bCalculateBounds = false;
         chunk >> m_Bounds.m_vCenter;
         chunk >> m_Bounds.m_vBoxHalfExtends;
         chunk >> m_Bounds.m_fSphereRadius;
+        bCalculateBounds = !m_Bounds.IsValid();
       }
+
       if (ci.m_uiChunkVersion >= 4)
       {
         chunk >> m_fMaxBoneVertexOffset;
@@ -530,6 +531,11 @@ void ezMeshResourceDescriptor::ComputeBounds()
   {
     m_Bounds = m_MeshBufferDescriptor.ComputeBounds();
   }
+
+  if (!m_Bounds.IsValid())
+  {
+    m_Bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(0.1f), 0.1f);
+  }
 }
 
 ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
@@ -547,5 +553,3 @@ ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
-
-

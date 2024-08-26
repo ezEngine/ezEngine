@@ -144,7 +144,8 @@ void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
   QAction* pAction = new QAction("Debug", &ref_menu);
   pAction->setCheckable(true);
   pAction->setChecked(m_bDebug);
-  pAction->connect(pAction, &QAction::triggered, [this](bool bChecked) { SetDebug(bChecked); });
+  pAction->connect(pAction, &QAction::triggered, [this](bool bChecked)
+    { SetDebug(bChecked); });
 
   ref_menu.addAction(pAction);
 }

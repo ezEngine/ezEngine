@@ -152,20 +152,20 @@
 #ifdef _PREFAST_ // [
 
 // choose attribute or __declspec implementation
-#  ifndef _USE_DECLSPECS_FOR_SAL // [
+#  ifndef _USE_DECLSPECS_FOR_SAL           // [
 #    define _USE_DECLSPECS_FOR_SAL 1
-#  endif // ]
+#  endif                                   // ]
 
-#  if _USE_DECLSPECS_FOR_SAL // [
+#  if _USE_DECLSPECS_FOR_SAL               // [
 #    undef _USE_ATTRIBUTES_FOR_SAL
 #    define _USE_ATTRIBUTES_FOR_SAL 0
-#  elif !defined(_USE_ATTRIBUTES_FOR_SAL) // ][
-#    if _MSC_VER >= 1400 /*IFSTRIP=IGN*/  // [
+#  elif !defined(_USE_ATTRIBUTES_FOR_SAL)  // ][
+#    if _MSC_VER >= 1400 /*IFSTRIP=IGN*/   // [
 #      define _USE_ATTRIBUTES_FOR_SAL 1
-#    else // ][
+#    else                                  // ][
 #      define _USE_ATTRIBUTES_FOR_SAL 0
-#    endif // ]
-#  endif   // ]
+#    endif                                 // ]
+#  endif                                   // ]
 
 
 #  if !_USE_DECLSPECS_FOR_SAL              // [
@@ -173,35 +173,35 @@
 #      if _MSC_VER >= 1400 /*IFSTRIP=IGN*/ // [
 #        undef _USE_ATTRIBUTES_FOR_SAL
 #        define _USE_ATTRIBUTES_FOR_SAL 1
-#      else // ][
+#      else                                // ][
 #        undef _USE_DECLSPECS_FOR_SAL
 #        define _USE_DECLSPECS_FOR_SAL 1
-#      endif // ]
-#    endif   // ]
-#  endif     // ]
+#      endif                               // ]
+#    endif                                 // ]
+#  endif                                   // ]
 
 #else
 
 // Disable expansion of SAL macros in non-Prefast mode to
 // improve compiler throughput.
-#  ifndef _USE_DECLSPECS_FOR_SAL // [
+#  ifndef _USE_DECLSPECS_FOR_SAL           // [
 #    define _USE_DECLSPECS_FOR_SAL 0
-#  endif                          // ]
-#  ifndef _USE_ATTRIBUTES_FOR_SAL // [
+#  endif                                   // ]
+#  ifndef _USE_ATTRIBUTES_FOR_SAL          // [
 #    define _USE_ATTRIBUTES_FOR_SAL 0
-#  endif // ]
+#  endif                                   // ]
 
-#endif // ]
+#endif                                     // ]
 
 // safeguard for MIDL and RC builds
-#if _USE_DECLSPECS_FOR_SAL && (defined(MIDL_PASS) || defined(__midl) || defined(RC_INVOKED) || !defined(_PREFAST_)) /*IFSTRIP=IGN*/ // [
+#if _USE_DECLSPECS_FOR_SAL && (defined(MIDL_PASS) || defined(__midl) || defined(RC_INVOKED) || !defined(_PREFAST_)) /*IFSTRIP=IGN*/        // [
 #  undef _USE_DECLSPECS_FOR_SAL
 #  define _USE_DECLSPECS_FOR_SAL 0
 #endif                                                                                                                                     // ]
 #if _USE_ATTRIBUTES_FOR_SAL && (!defined(_MSC_EXTENSIONS) || defined(MIDL_PASS) || defined(__midl) || defined(RC_INVOKED)) /*IFSTRIP=IGN*/ // [
 #  undef _USE_ATTRIBUTES_FOR_SAL
 #  define _USE_ATTRIBUTES_FOR_SAL 0
-#endif // ]
+#endif                                                                                                                                     // ]
 
 #if _USE_DECLSPECS_FOR_SAL || _USE_ATTRIBUTES_FOR_SAL
 
@@ -218,15 +218,15 @@ enum __SAL_YesNo
 #endif
 
 #if defined(BUILD_WINDOWS) && !_USE_ATTRIBUTES_FOR_SAL /*IFSTRIP=IGN*/
-#  define _SAL1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1") _GrouP_(annotes _SAL_nop_impl_)
-#  define _SAL1_1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1.1") _GrouP_(annotes _SAL_nop_impl_)
-#  define _SAL1_2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1.2") _GrouP_(annotes _SAL_nop_impl_)
-#  define _SAL2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "2") _GrouP_(annotes _SAL_nop_impl_)
+#  define _SAL1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1") _GrouP_(annotes _SAL_nop_impl_)
+#  define _SAL1_1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1.1") _GrouP_(annotes _SAL_nop_impl_)
+#  define _SAL1_2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1.2") _GrouP_(annotes _SAL_nop_impl_)
+#  define _SAL2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "2") _GrouP_(annotes _SAL_nop_impl_)
 #else
-#  define _SAL1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1") _Group_(annotes _SAL_nop_impl_)
-#  define _SAL1_1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1.1") _Group_(annotes _SAL_nop_impl_)
-#  define _SAL1_2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "1.2") _Group_(annotes _SAL_nop_impl_)
-#  define _SAL2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #  Name, "", "2") _Group_(annotes _SAL_nop_impl_)
+#  define _SAL1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1") _Group_(annotes _SAL_nop_impl_)
+#  define _SAL1_1_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1.1") _Group_(annotes _SAL_nop_impl_)
+#  define _SAL1_2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "1.2") _Group_(annotes _SAL_nop_impl_)
+#  define _SAL2_Source_(Name, args, annotes) _SA_annotes3(SAL_name, #Name, "", "2") _Group_(annotes _SAL_nop_impl_)
 #endif
 
 //============================================================================
@@ -785,10 +785,10 @@ enum __SAL_YesNo
    with _Out_. The default unit is elements. Use 'bytecap' if the size is given in bytes
    'count' describes the readable size of the buffer and is typically used with _In_.
    The default unit is elements. Use 'bytecount' if the size is given in bytes.
-   
+
    Argument syntax for cap_, bytecap_, count_, bytecount_:
    (<parameter>|return)[+n]  e.g. cch, return, cb+2
-   
+
    If the buffer size is a constant expression use the c_ postfix.
    E.g. cap_c_(20), count_c_(MAX_PATH), bytecount_c_(16)
 
@@ -1549,7 +1549,7 @@ enum __SAL_YesNo
 // defer that check to the plugin.
 #  define __deferTypecheck _SA_annotes0(SAL_deferTypecheck)
 
-#  define _SA_SPECSTRIZE(x) #  x
+#  define _SA_SPECSTRIZE(x) #x
 #  define _SAL_nop_impl_ /* nothing */
 #  define __nop_impl(x) x
 #endif
@@ -1562,10 +1562,10 @@ enum __SAL_YesNo
 #  include "codeanalysis\sourceannotations.h"
 
 
-#  define _SA_annotes0(n) [SAL_annotes(Name = #  n)]
-#  define _SA_annotes1(n, pp1) [SAL_annotes(Name = #  n, p1 = _SA_SPECSTRIZE(pp1))]
-#  define _SA_annotes2(n, pp1, pp2) [SAL_annotes(Name = #  n, p1 = _SA_SPECSTRIZE(pp1), p2 = _SA_SPECSTRIZE(pp2))]
-#  define _SA_annotes3(n, pp1, pp2, pp3) [SAL_annotes(Name = #  n, p1 = _SA_SPECSTRIZE(pp1), p2 = _SA_SPECSTRIZE(pp2), p3 = _SA_SPECSTRIZE(pp3))]
+#  define _SA_annotes0(n) [SAL_annotes(Name = #n)]
+#  define _SA_annotes1(n, pp1) [SAL_annotes(Name = #n, p1 = _SA_SPECSTRIZE(pp1))]
+#  define _SA_annotes2(n, pp1, pp2) [SAL_annotes(Name = #n, p1 = _SA_SPECSTRIZE(pp1), p2 = _SA_SPECSTRIZE(pp2))]
+#  define _SA_annotes3(n, pp1, pp2, pp3) [SAL_annotes(Name = #n, p1 = _SA_SPECSTRIZE(pp1), p2 = _SA_SPECSTRIZE(pp2), p3 = _SA_SPECSTRIZE(pp3))]
 
 #  define _Pre_impl_ [SAL_pre]
 #  define _Post_impl_ [SAL_post]
@@ -1587,10 +1587,10 @@ enum __SAL_YesNo
 
 // Using declspecs for sal
 
-#  define _SA_annotes0(n) __declspec(#  n)
-#  define _SA_annotes1(n, pp1) __declspec(#  n "(" _SA_SPECSTRIZE(pp1) ")")
-#  define _SA_annotes2(n, pp1, pp2) __declspec(#  n "(" _SA_SPECSTRIZE(pp1) "," _SA_SPECSTRIZE(pp2) ")")
-#  define _SA_annotes3(n, pp1, pp2, pp3) __declspec(#  n "(" _SA_SPECSTRIZE(pp1) "," _SA_SPECSTRIZE(pp2) "," _SA_SPECSTRIZE(pp3) ")")
+#  define _SA_annotes0(n) __declspec(#n)
+#  define _SA_annotes1(n, pp1) __declspec(#n "(" _SA_SPECSTRIZE(pp1) ")")
+#  define _SA_annotes2(n, pp1, pp2) __declspec(#n "(" _SA_SPECSTRIZE(pp1) "," _SA_SPECSTRIZE(pp2) ")")
+#  define _SA_annotes3(n, pp1, pp2, pp3) __declspec(#n "(" _SA_SPECSTRIZE(pp1) "," _SA_SPECSTRIZE(pp2) "," _SA_SPECSTRIZE(pp3) ")")
 
 #  define _Pre_impl_ _SA_annotes0(SAL_pre)
 #  define _Post_impl_ _SA_annotes0(SAL_post)
@@ -1606,7 +1606,9 @@ enum __SAL_YesNo
 
 #  define __QUALIFIER(fun) _SA_annotes0(SAL_qualifier) void __SA_##fun;
 
-#  define __In_impl_ _Pre_impl_ _SA_annotes0(SAL_valid) _Pre_impl_ _Deref_impl_ _Notref_impl_ _SA_annotes0(SAL_readonly)
+#  define __In_impl_                   \
+    _Pre_impl_ _SA_annotes0(SAL_valid) \
+    _Pre_impl_ _Deref_impl_ _Notref_impl_ _SA_annotes0(SAL_readonly)
 
 #else // ][
 
@@ -1621,7 +1623,7 @@ enum __SAL_YesNo
 #  define __PRIMOP(type, fun)
 #  define __QUALIFIER(type, fun)
 
-#endif // ]
+#endif                                                // ]
 
 #if _USE_ATTRIBUTES_FOR_SAL || _USE_DECLSPECS_FOR_SAL // [
 
@@ -1661,13 +1663,13 @@ __PRIMOP(char*, _Macro_value_(__In_impl_ char*));
 __PRIMOP(int, _Macro_defined_(__In_impl_ char*));
 __PRIMOP(char*, _Strstr_(__In_impl_ char*, __In_impl_ char*));
 
-#endif // ]
+#endif                      // ]
 
 #if _USE_ATTRIBUTES_FOR_SAL // [
 
 #  define _Check_return_impl_ [SA_Post(MustCheck = SA_Yes)]
 
-#  define _Success_impl_(expr) [SA_Success(Condition = #  expr)]
+#  define _Success_impl_(expr) [SA_Success(Condition = #expr)]
 #  define _On_failure_impl_(annos) [SAL_context(p1 = "SAL_failed")] _Group_(_Post_impl_ _Group_(annos _SAL_nop_impl_))
 
 #  define _Printf_format_string_impl_ [SA_FormatString(Style = "printf")]
@@ -1710,40 +1712,40 @@ __PRIMOP(char*, _Strstr_(__In_impl_ char*, __In_impl_ char*));
 
 // For SAL2, we need to expect general expressions.
 
-#    define __cap_impl(size) WritableElements = "\n" #    size
-#    define __bytecap_impl(size) WritableBytes = "\n" #    size
-#    define __bytecount_impl(size) ValidBytes = "\n" #    size
-#    define __count_impl(size) ValidElements = "\n" #    size
+#    define __cap_impl(size) WritableElements = "\n" #size
+#    define __bytecap_impl(size) WritableBytes = "\n" #size
+#    define __bytecount_impl(size) ValidBytes = "\n" #size
+#    define __count_impl(size) ValidElements = "\n" #size
 
 #  else // ][
 
-#    define __cap_impl(size) WritableElements = #    size
-#    define __bytecap_impl(size) WritableBytes = #    size
-#    define __bytecount_impl(size) ValidBytes = #    size
-#    define __count_impl(size) ValidElements = #    size
+#    define __cap_impl(size) WritableElements = #size
+#    define __bytecap_impl(size) WritableBytes = #size
+#    define __bytecount_impl(size) ValidBytes = #size
+#    define __count_impl(size) ValidElements = #size
 
 #  endif // ]
 
 #  define __cap_c_impl(size) WritableElementsConst = size
 #  define __cap_c_one_notref_impl WritableElementsConst = 1, Notref = 1
-#  define __cap_for_impl(param) WritableElementsLength = #  param
-#  define __cap_x_impl(size) WritableElements = "\n@" #  size
+#  define __cap_for_impl(param) WritableElementsLength = #param
+#  define __cap_x_impl(size) WritableElements = "\n@" #size
 
 #  define __bytecap_c_impl(size) WritableBytesConst = size
-#  define __bytecap_x_impl(size) WritableBytes = "\n@" #  size
+#  define __bytecap_x_impl(size) WritableBytes = "\n@" #size
 
 #  define __mult_impl(mult, size) __cap_impl((mult) * (size))
 
 #  define __count_c_impl(size) ValidElementsConst = size
-#  define __count_x_impl(size) ValidElements = "\n@" #  size
+#  define __count_x_impl(size) ValidElements = "\n@" #size
 
 #  define __bytecount_c_impl(size) ValidBytesConst = size
-#  define __bytecount_x_impl(size) ValidBytes = "\n@" #  size
+#  define __bytecount_x_impl(size) ValidBytes = "\n@" #size
 
 
-#  define _At_impl_(target, annos) [SAL_at(p1 = #  target)] _Group_(annos)
-#  define _At_buffer_impl_(target, iter, bound, annos) [SAL_at_buffer(p1 = #  target, p2 = #  iter, p3 = #  bound)] _Group_(annos)
-#  define _When_impl_(expr, annos) [SAL_when(p1 = #  expr)] _Group_(annos)
+#  define _At_impl_(target, annos) [SAL_at(p1 = #target)] _Group_(annos)
+#  define _At_buffer_impl_(target, iter, bound, annos) [SAL_at_buffer(p1 = #target, p2 = #iter, p3 = #bound)] _Group_(annos)
+#  define _When_impl_(expr, annos) [SAL_when(p1 = #expr)] _Group_(annos)
 
 #  define _Group_impl_(annos) [SAL_begin] annos[SAL_end]
 #  define _GrouP_impl_(annos) [SAL_BEGIN] annos[SAL_END]
@@ -1803,9 +1805,9 @@ __PRIMOP(char*, _Strstr_(__In_impl_ char*, __In_impl_ char*));
 #  define _Deref_ret_bound_impl_ _Deref_post_impl_ _Bound_impl_
 
 
-#  define __null_impl _SA_annotes0(SAL_null)           // _SA_annotes1(SAL_null, __yes)
-#  define __notnull_impl _SA_annotes0(SAL_notnull)     // _SA_annotes1(SAL_null, __no)
-#  define __maybenull_impl _SA_annotes0(SAL_maybenull) // _SA_annotes1(SAL_null, __maybe)
+#  define __null_impl _SA_annotes0(SAL_null)             // _SA_annotes1(SAL_null, __yes)
+#  define __notnull_impl _SA_annotes0(SAL_notnull)       // _SA_annotes1(SAL_null, __no)
+#  define __maybenull_impl _SA_annotes0(SAL_maybenull)   // _SA_annotes1(SAL_null, __maybe)
 
 #  define __valid_impl _SA_annotes0(SAL_valid)           // _SA_annotes1(SAL_valid, __yes)
 #  define __notvalid_impl _SA_annotes0(SAL_notvalid)     // _SA_annotes1(SAL_valid, __no)
@@ -1832,21 +1834,21 @@ __PRIMOP(char*, _Strstr_(__In_impl_ char*, __In_impl_ char*));
 #  define __cap_c_impl(size) _SA_annotes1(SAL_writableTo, elementCount(size))
 #  define __cap_c_one_notref_impl _Notref_ _SA_annotes1(SAL_writableTo, elementCount(1))
 #  define __cap_for_impl(param) _SA_annotes1(SAL_writableTo, inexpressibleCount(sizeof(param)))
-#  define __cap_x_impl(size) _SA_annotes1(SAL_writableTo, inexpressibleCount(#  size))
+#  define __cap_x_impl(size) _SA_annotes1(SAL_writableTo, inexpressibleCount(#size))
 
 #  define __bytecap_impl(size) _SA_annotes1(SAL_writableTo, byteCount(size))
 #  define __bytecap_c_impl(size) _SA_annotes1(SAL_writableTo, byteCount(size))
-#  define __bytecap_x_impl(size) _SA_annotes1(SAL_writableTo, inexpressibleCount(#  size))
+#  define __bytecap_x_impl(size) _SA_annotes1(SAL_writableTo, inexpressibleCount(#size))
 
 #  define __mult_impl(mult, size) _SA_annotes1(SAL_writableTo, (mult) * (size))
 
 #  define __count_impl(size) _SA_annotes1(SAL_readableTo, elementCount(size))
 #  define __count_c_impl(size) _SA_annotes1(SAL_readableTo, elementCount(size))
-#  define __count_x_impl(size) _SA_annotes1(SAL_readableTo, inexpressibleCount(#  size))
+#  define __count_x_impl(size) _SA_annotes1(SAL_readableTo, inexpressibleCount(#size))
 
 #  define __bytecount_impl(size) _SA_annotes1(SAL_readableTo, byteCount(size))
 #  define __bytecount_c_impl(size) _SA_annotes1(SAL_readableTo, byteCount(size))
-#  define __bytecount_x_impl(size) _SA_annotes1(SAL_readableTo, inexpressibleCount(#  size))
+#  define __bytecount_x_impl(size) _SA_annotes1(SAL_readableTo, inexpressibleCount(#size))
 
 #  define _At_impl_(target, annos) _SA_annotes0(SAL_at(target)) _Group_(annos)
 #  define _At_buffer_impl_(target, iter, bound, annos) _SA_annotes3(SAL_at_buffer, target, iter, bound) _Group_(annos)
@@ -1897,13 +1899,13 @@ __PRIMOP(char*, _Strstr_(__In_impl_ char*, __In_impl_ char*));
 #  ifdef __cplusplus // [
 #    define SA(id) id
 #    define REPEATABLE [repeatable]
-#  else // !__cplusplus // ][
+#  else              // !__cplusplus // ][
 #    define SA(id) SA_##id
 #    define REPEATABLE
 #  endif             // !__cplusplus // ]
 
 REPEATABLE
-  [source_annotation_attribute(SA(Parameter))] struct __P_impl
+[source_annotation_attribute(SA(Parameter))] struct __P_impl
 {
 #  ifdef __cplusplus // [
   __P_impl();
@@ -1913,7 +1915,7 @@ REPEATABLE
 typedef struct __P_impl __P_impl;
 
 REPEATABLE
-  [source_annotation_attribute(SA(ReturnValue))] struct __R_impl
+[source_annotation_attribute(SA(ReturnValue))] struct __R_impl
 {
 #  ifdef __cplusplus // [
   __R_impl();
@@ -2051,7 +2053,7 @@ typedef struct __F_ __F_;
 #  define _Deref2_post1_impl_(p1) //[__P_impl(__d_=0)]
 #  define _Deref2_ret1_impl_(p1)  //[__P_impl(__d_=0)]
 
-#else // ][
+#else                             // ][
 
 
 #  define _SAL_nop_impl_ X
@@ -2157,7 +2159,7 @@ typedef struct __F_ __F_;
 
 // This section contains the deprecated annotations
 
-/* 
+/*
  -------------------------------------------------------------------------------
  Introduction
 
@@ -2348,7 +2350,7 @@ typedef struct __F_ __F_;
  -------------------------------------------------------------------------------
  Advanced Annotation Examples
 
- __success(return != FALSE) LWSTDAPI_(BOOL) 
+ __success(return != FALSE) LWSTDAPI_(BOOL)
  PathCanonicalizeA(__out_ecount(MAX_PATH) LPSTR pszBuf, LPCSTR pszPath) :
     pszBuf is only guaranteed to be NULL-terminated when TRUE is returned.
 
@@ -2362,14 +2364,14 @@ typedef struct __F_ __F_;
 
 #define __specstrings
 
-#ifdef __cplusplus  // [
-#  ifndef __nothrow // [
+#ifdef __cplusplus              // [
+#  ifndef __nothrow             // [
 #    define __nothrow __declspec(nothrow)
-#  endif // ]
+#  endif                        // ]
 extern "C"
 {
-#else               // ][
-#  ifndef __nothrow // [
+#else                           // ][
+#  ifndef __nothrow             // [
 #    define __nothrow
 #  endif                        // ]
 #endif /* #ifdef __cplusplus */ // ]
@@ -2385,8 +2387,8 @@ extern "C"
 */
 
   /*
-    The helper annotations are only understood by the compiler version used by 
-    various defect detection tools. When the regular compiler is running, they 
+    The helper annotations are only understood by the compiler version used by
+    various defect detection tools. When the regular compiler is running, they
     are defined into nothing, and do not affect the compiled code.
 */
 
@@ -2399,13 +2401,13 @@ extern "C"
      will decompose into these primivates.
     */
 
-#  define _SA_SPECSTRIZE(x) #  x
+#  define _SA_SPECSTRIZE(x) #x
 
   /*
      __null p
      __notnull p
      __maybenull p
-    
+
      Annotates a pointer p. States that pointer p is null. Commonly used
      in the negated form __notnull or the possibly null form __maybenull.
     */
@@ -2420,7 +2422,7 @@ extern "C"
      __readonly l
      __notreadonly l
      __mabyereadonly l
-    
+
      Annotates a location l. States that location l is not modified after
      this point.  If the annotation is placed on the precondition state of
      a function, the restriction only applies until the postcondition state
@@ -2437,7 +2439,7 @@ extern "C"
      __valid v
      __notvalid v
      __maybevalid v
-    
+
      Annotates any value v. States that the value satisfies all properties of
      valid values of its type. For example, for a string buffer, valid means
      that the buffer pointer is either NULL or points to a NULL-terminated string.
@@ -2449,7 +2451,7 @@ extern "C"
 
   /*
      __readableTo(extent) p
-    
+
      Annotates a buffer pointer p.  If the buffer can be read, extent describes
      how much of the buffer is readable. For a reader of the buffer, this is
      an explicit permission to read up to that amount, rather than a restriction to
@@ -2459,9 +2461,9 @@ extern "C"
 #  define __readableTo(extent) _SA_annotes1(SAL_readableTo, extent)
 
   /*
-    
+
      __elem_readableTo(size)
-    
+
      Annotates a buffer pointer p as being readable to size elements.
     */
 
@@ -2469,14 +2471,14 @@ extern "C"
 
 /*
      __byte_readableTo(size)
-    
+
      Annotates a buffer pointer p as being readable to size bytes.
     */
 #  define __byte_readableTo(size) _SA_annotes1(SAL_readableTo, byteCount(size))
 
 /*
      __writableTo(extent) p
-    
+
      Annotates a buffer pointer p. If the buffer can be modified, extent
      describes how much of the buffer is writable (usually the allocation
      size). For a writer of the buffer, this is an explicit permission to
@@ -2486,21 +2488,21 @@ extern "C"
 
 /*
      __elem_writableTo(size)
-    
+
      Annotates a buffer pointer p as being writable to size elements.
     */
 #  define __elem_writableTo(size) _SA_annotes1(SAL_writableTo, elementCount(size))
 
 /*
      __byte_writableTo(size)
-    
+
      Annotates a buffer pointer p as being writable to size bytes.
     */
 #  define __byte_writableTo(size) _SA_annotes1(SAL_writableTo, byteCount(size))
 
 /*
      __deref p
-    
+
      Annotates a pointer p. The next annotation applies one dereference down
      in the type. If readableTo(p, size) then the next annotation applies to
      all elements *(p+i) for which i satisfies the size. If p is a pointer
@@ -2510,21 +2512,21 @@ extern "C"
 
 /*
      __pre __next_annotation
-    
+
      The next annotation applies in the precondition state
     */
 #  define __pre _Pre_impl_
 
 /*
      __post __next_annotation
-    
+
      The next annotation applies in the postcondition state
     */
 #  define __post _Post_impl_
 
 /*
      __precond(<expr>)
-    
+
      When <expr> is true, the next annotation applies in the precondition state
      (currently not enabled)
     */
@@ -2532,7 +2534,7 @@ extern "C"
 
 /*
      __postcond(<expr>)
-    
+
      When <expr> is true, the next annotation applies in the postcondition state
      (currently not enabled)
     */
@@ -2540,26 +2542,26 @@ extern "C"
 
 /*
      __exceptthat
-    
+
      Given a set of annotations Q containing __exceptthat maybeP, the effect of
      the except clause is to erase any P or notP annotations (explicit or
      implied) within Q at the same level of dereferencing that the except
      clause appears, and to replace it with maybeP.
-    
+
       Example 1: __valid __pre_except_maybenull on a pointer p means that the
                  pointer may be null, and is otherwise valid, thus overriding
                  the implicit notnull annotation implied by __valid on
                  pointers.
-    
+
       Example 2: __valid __deref __pre_except_maybenull on an int **p means
                  that p is not null (implied by valid), but the elements
-                 pointed to by p could be null, and are otherwise valid. 
+                 pointed to by p could be null, and are otherwise valid.
     */
 #  define __exceptthat __inner_exceptthat
 
 /*
      _refparam
-    
+
      Added to all out parameter macros to indicate that they are all reference
      parameters.
     */
@@ -2567,16 +2569,16 @@ extern "C"
 
 /*
      __inner_*
-    
+
      Helper macros that directly correspond to certain high-level annotations.
-    
+
     */
 
 /*
      Macros to classify the entrypoints and indicate their category.
-    
+
      Pre-defined control point categories include: RPC, LPC, DeviceDriver, UserToKernel, ISAPI, COM.
-    
+
     */
 #  define __inner_control_entrypoint(category) _SA_annotes2(SAL_entrypoint, controlEntry, category)
 
@@ -2646,7 +2648,7 @@ extern "C"
 
 #endif /* #if !defined(__midl) && defined(_PREFAST_) */ // ]
 
-/* 
+/*
 -------------------------------------------------------------------------------
 Buffer Annotation Definitions
 
@@ -2876,26 +2878,26 @@ of each annotation, see the advanced annotations section.
 #define __useHeader _Use_decl_anno_impl_
 #define __on_failure(annotes) _On_failure_impl_(annotes _SAL_nop_impl_)
 
-#ifndef __fallthrough // [
+#ifndef __fallthrough     // [
   __inner_fallthrough_dec
 #  define __fallthrough __inner_fallthrough
-#endif // ]
+#endif                    // ]
 
 #ifndef __analysis_assume // [
 #  ifdef _PREFAST_        // [
 #    define __analysis_assume(expr) __assume(expr)
-#  else // ][
+#  else                   // ][
 #    define __analysis_assume(expr)
-#  endif // ]
-#endif   // ]
+#  endif                  // ]
+#endif                    // ]
 
 #ifndef _Analysis_assume_ // [
 #  ifdef _PREFAST_        // [
 #    define _Analysis_assume_(expr) __assume(expr)
-#  else // ][
+#  else                   // ][
 #    define _Analysis_assume_(expr)
-#  endif // ]
-#endif   // ]
+#  endif                  // ]
+#endif                    // ]
 
 #define _Analysis_noreturn_ _SAL2_Source_(_Analysis_noreturn_, (), _SA_annotes0(SAL_terminates))
 
@@ -2904,7 +2906,7 @@ of each annotation, see the advanced annotations section.
     __AnalysisAssumeNullterminated(_Post_ __nullterminated void* p);
 
 #  define _Analysis_assume_nullterminated_(x) __AnalysisAssumeNullterminated(x)
-#else // ][
+#else  // ][
 #  define _Analysis_assume_nullterminated_(x)
 #endif // ]
 
@@ -2941,9 +2943,9 @@ of each annotation, see the advanced annotations section.
 #define _Function_class_(x) _SA_annotes1(SAL_functionClassNew, #x)
 
   /*
- * interlocked operand used in interlocked instructions
- */
-  //#define _Interlocked_operand_ _Pre_ _SA_annotes0(SAL_interlocked)
+   * interlocked operand used in interlocked instructions
+   */
+  // #define _Interlocked_operand_ _Pre_ _SA_annotes0(SAL_interlocked)
 
 #define _Enum_is_bitflag_ _SA_annotes0(SAL_enumIsBitflag)
 #define _Strict_type_match_ _SA_annotes0(SAL_strictType2)
@@ -2953,7 +2955,7 @@ of each annotation, see the advanced annotations section.
 
 #ifdef __cplusplus // [
 }
-#endif // ]
+#endif             // ]
 
 // Rotor doesn't need concurrency sal.
 // #include <ConcurrencySal.h>

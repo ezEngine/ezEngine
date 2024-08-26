@@ -104,13 +104,13 @@ class EZ_FOUNDATION_DLL ezCommandLineOptionDoc : public ezCommandLineOption
 public:
   ezCommandLineOptionDoc(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sParamShortDesc, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive = false);
 
-  virtual void GetOptions(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetOptions(ezStringBuilder& ref_sOut) const override;               // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override;        // [tested]
 
   virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
-  virtual void GetLongDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetLongDesc(ezStringBuilder& ref_sOut) const override;              // [tested]
 
   /// \brief Returns "Doc"
   virtual ezStringView GetType() override { return "Doc"; }
@@ -174,7 +174,7 @@ public:
 
   virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override;        // [tested]
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   int GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
@@ -218,7 +218,7 @@ public:
 
   virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override;        // [tested]
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   float GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
@@ -326,9 +326,9 @@ public:
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   ezInt32 GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
-  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetParamShortDesc(ezStringBuilder& ref_sOut) const override;                                                  // [tested]
 
-  virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
+  virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override;                                           // [tested]
 
   struct EnumKeyValue
   {

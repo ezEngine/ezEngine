@@ -7,10 +7,10 @@
 #include <Foundation/IO/StreamUtils.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
-#include <stb_image/stb_image.h>
-#include <stb_image/stb_image_write.h>
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
 
-
+// EZ_STATICLINK_FORCE
 ezStbImageFileFormats g_StbImageFormats;
 
 // stb_image callbacks would be better than loading the entire file into memory.
@@ -109,6 +109,8 @@ namespace
 
 ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImageHeader");
 
   bool isHDR = false;
@@ -124,6 +126,8 @@ ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ez
 
 ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImage");
 
   bool isHDR = false;
@@ -231,3 +235,5 @@ bool ezStbImageFileFormats::CanWriteFileType(ezStringView sExtension) const
 }
 
 
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_StbImageFileFormats);

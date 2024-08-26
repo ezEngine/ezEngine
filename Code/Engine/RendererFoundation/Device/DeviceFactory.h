@@ -5,9 +5,9 @@
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceFactory
 {
-  using CreatorFunc = ezDelegate<ezInternal::NewInstance<ezGALDevice>(ezAllocatorBase*, const ezGALDeviceCreationDescription&)>;
+  using CreatorFunc = ezDelegate<ezInternal::NewInstance<ezGALDevice>(ezAllocator*, const ezGALDeviceCreationDescription&)>;
 
-  static ezInternal::NewInstance<ezGALDevice> CreateDevice(ezStringView sRendererName, ezAllocatorBase* pAllocator, const ezGALDeviceCreationDescription& desc);
+  static ezInternal::NewInstance<ezGALDevice> CreateDevice(ezStringView sRendererName, ezAllocator* pAllocator, const ezGALDeviceCreationDescription& desc);
 
   static void GetShaderModelAndCompiler(ezStringView sRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler);
 

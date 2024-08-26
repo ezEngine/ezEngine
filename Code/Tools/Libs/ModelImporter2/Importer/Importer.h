@@ -26,6 +26,7 @@ namespace ezModelImporter2
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
     ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
     ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
+    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 
@@ -34,6 +35,10 @@ namespace ezModelImporter2
     ezAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
     ezUInt32 m_uiFirstAnimKeyframe = 0;
     ezUInt32 m_uiNumAnimKeyframes = 0;
+
+    ezUInt8 m_uiMeshSimplification = 0;
+    ezUInt8 m_uiMaxSimplificationError = 5;
+    bool m_bAggressiveSimplification = false;
   };
 
   enum class PropertySemantic : ezInt8

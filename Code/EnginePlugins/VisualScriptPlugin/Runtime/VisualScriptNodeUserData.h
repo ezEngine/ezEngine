@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
@@ -312,6 +313,47 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
+  struct NodeUserData_Expression
+  {
+    ezExpressionByteCode m_ByteCode;
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      const ezExpressionByteCode& byteCode = nodeDesc.m_Value.Get<ezExpressionByteCode>();
+
+      ezUInt32 uiDataSize = static_cast<ezUInt32>(byteCode.GetDataBlob().GetCount());
+      inout_stream << uiDataSize;
+
+      EZ_SUCCEED_OR_RETURN(byteCode.Save(inout_stream));
+
+      out_uiSize = sizeof(NodeUserData_Expression) + uiDataSize;
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Expression);
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      auto& userData = ref_node.InitUserData<NodeUserData_Expression>(inout_pAdditionalData);
+
+      ezUInt32 uiDataSize = 0;
+      inout_stream >> uiDataSize;
+
+      auto externalMemory = ezMakeArrayPtr(inout_pAdditionalData, uiDataSize);
+      inout_pAdditionalData += uiDataSize;
+
+      EZ_SUCCEED_OR_RETURN(userData.m_ByteCode.Load(inout_stream, externalMemory));
+
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+      // Nothing to add here
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
   struct NodeUserData_StartCoroutine : public NodeUserData_Type
   {
     ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
@@ -361,9 +403,9 @@ namespace
   };
 
   inline UserDataContext s_TypeToUserDataContexts[] = {
-    {}, // Invalid,
-    {}, // EntryCall,
-    {}, // EntryCall_Coroutine,
+    {},                                           // Invalid,
+    {},                                           // EntryCall,
+    {},                                           // EntryCall_Coroutine,
     {&NodeUserData_TypeAndProperties::Serialize,
       &NodeUserData_TypeAndProperties::Deserialize,
       &NodeUserData_TypeAndProperties::ToString}, // MessageHandler,
@@ -372,80 +414,82 @@ namespace
       &NodeUserData_TypeAndProperties::ToString}, // MessageHandler_Coroutine,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
-      &NodeUserData_TypeAndProperty::ToString}, // ReflectedFunction,
+      &NodeUserData_TypeAndProperty::ToString},   // ReflectedFunction,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<false>,
-      &NodeUserData_TypeAndProperty::ToString}, // GetReflectedProperty,
+      &NodeUserData_TypeAndProperty::ToString},   // GetReflectedProperty,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<false>,
-      &NodeUserData_TypeAndProperty::ToString}, // SetReflectedProperty,
+      &NodeUserData_TypeAndProperty::ToString},   // SetReflectedProperty,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
-      &NodeUserData_TypeAndProperty::ToString}, // InplaceCoroutine,
-    {},                                         // GetScriptOwner,
+      &NodeUserData_TypeAndProperty::ToString},   // InplaceCoroutine,
+    {},                                           // GetScriptOwner,
     {&NodeUserData_TypeAndProperties::Serialize,
       &NodeUserData_TypeAndProperties::Deserialize,
       &NodeUserData_TypeAndProperties::ToString}, // SendMessage,
 
-    {}, // FirstBuiltin,
+    {},                                           // FirstBuiltin,
 
-    {}, // Builtin_Constant,
-    {}, // Builtin_GetVariable,
-    {}, // Builtin_SetVariable,
-    {}, // Builtin_IncVariable,
-    {}, // Builtin_DecVariable,
+    {},                                           // Builtin_Constant,
+    {},                                           // Builtin_GetVariable,
+    {},                                           // Builtin_SetVariable,
+    {},                                           // Builtin_IncVariable,
+    {},                                           // Builtin_DecVariable,
 
-    {}, // Builtin_Branch,
+    {},                                           // Builtin_Branch,
     {&NodeUserData_Switch::Serialize,
       &NodeUserData_Switch::Deserialize,
-      &NodeUserData_Switch::ToString}, // Builtin_Switch,
-    {},                                // Builtin_WhileLoop,
-    {},                                // Builtin_ForLoop,
-    {},                                // Builtin_ForEachLoop,
-    {},                                // Builtin_ReverseForEachLoop,
-    {},                                // Builtin_Break,
-    {},                                // Builtin_Jump,
+      &NodeUserData_Switch::ToString},            // Builtin_Switch,
+    {},                                           // Builtin_WhileLoop,
+    {},                                           // Builtin_ForLoop,
+    {},                                           // Builtin_ForEachLoop,
+    {},                                           // Builtin_ReverseForEachLoop,
+    {},                                           // Builtin_Break,
+    {},                                           // Builtin_Jump,
 
-    {}, // Builtin_And,
-    {}, // Builtin_Or,
-    {}, // Builtin_Not,
+    {},                                           // Builtin_And,
+    {},                                           // Builtin_Or,
+    {},                                           // Builtin_Not,
     {&NodeUserData_Comparison::Serialize,
       &NodeUserData_Comparison::Deserialize,
-      &NodeUserData_Comparison::ToString}, // Builtin_Compare,
-    {},                                    // Builtin_CompareExec,
-    {},                                    // Builtin_IsValid,
-    {},                                    // Builtin_Select,
+      &NodeUserData_Comparison::ToString},        // Builtin_Compare,
+    {},                                           // Builtin_CompareExec,
+    {},                                           // Builtin_IsValid,
+    {},                                           // Builtin_Select,
 
-    {}, // Builtin_Add,
-    {}, // Builtin_Subtract,
-    {}, // Builtin_Multiply,
-    {}, // Builtin_Divide,
-    {}, // Builtin_Expression,
+    {},                                           // Builtin_Add,
+    {},                                           // Builtin_Subtract,
+    {},                                           // Builtin_Multiply,
+    {},                                           // Builtin_Divide,
+    {&NodeUserData_Expression::Serialize,
+      &NodeUserData_Expression::Deserialize,
+      &NodeUserData_Expression::ToString},        // Builtin_Expression,
 
-    {}, // Builtin_ToBool,
-    {}, // Builtin_ToByte,
-    {}, // Builtin_ToInt,
-    {}, // Builtin_ToInt64,
-    {}, // Builtin_ToFloat,
-    {}, // Builtin_ToDouble,
-    {}, // Builtin_ToString,
-    {}, // Builtin_String_Format,
-    {}, // Builtin_ToHashedString,
-    {}, // Builtin_ToVariant,
-    {}, // Builtin_Variant_ConvertTo,
+    {},                                           // Builtin_ToBool,
+    {},                                           // Builtin_ToByte,
+    {},                                           // Builtin_ToInt,
+    {},                                           // Builtin_ToInt64,
+    {},                                           // Builtin_ToFloat,
+    {},                                           // Builtin_ToDouble,
+    {},                                           // Builtin_ToString,
+    {},                                           // Builtin_String_Format,
+    {},                                           // Builtin_ToHashedString,
+    {},                                           // Builtin_ToVariant,
+    {},                                           // Builtin_Variant_ConvertTo,
 
-    {}, // Builtin_MakeArray
-    {}, // Builtin_Array_GetElement,
-    {}, // Builtin_Array_SetElement,
-    {}, // Builtin_Array_GetCount,
-    {}, // Builtin_Array_IsEmpty,
-    {}, // Builtin_Array_Clear,
-    {}, // Builtin_Array_Contains,
-    {}, // Builtin_Array_IndexOf,
-    {}, // Builtin_Array_Insert,
-    {}, // Builtin_Array_PushBack,
-    {}, // Builtin_Array_Remove,
-    {}, // Builtin_Array_RemoveAt,
+    {},                                           // Builtin_MakeArray
+    {},                                           // Builtin_Array_GetElement,
+    {},                                           // Builtin_Array_SetElement,
+    {},                                           // Builtin_Array_GetCount,
+    {},                                           // Builtin_Array_IsEmpty,
+    {},                                           // Builtin_Array_Clear,
+    {},                                           // Builtin_Array_Contains,
+    {},                                           // Builtin_Array_IndexOf,
+    {},                                           // Builtin_Array_Insert,
+    {},                                           // Builtin_Array_PushBack,
+    {},                                           // Builtin_Array_Remove,
+    {},                                           // Builtin_Array_RemoveAt,
 
     {&NodeUserData_Type::Serialize,
       &NodeUserData_Type::Deserialize,
@@ -460,7 +504,7 @@ namespace
     {},                                        // Builtin_WaitForAny,
     {},                                        // Builtin_Yield,
 
-    {}, // LastBuiltin,
+    {},                                        // LastBuiltin,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_TypeToUserDataContexts) == ezVisualScriptNodeDescription::Type::Count);

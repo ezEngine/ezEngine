@@ -120,10 +120,10 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
     const ezAngle low = thisJoint.GetTwistLimitLow();
     const ezAngle high = thisJoint.GetTwistLimitHigh();
 
-    //const float stiffness = 1000;
-    //const float damping = 0;
+    // const float stiffness = 1000;
+    // const float damping = 0;
 
-    //const physx::PxSpring spring(stiffness, damping);
+    // const physx::PxSpring spring(stiffness, damping);
     physx::PxJointAngularLimitPair limit(low.GetRadian(), high.GetRadian() /*, spring*/);
     limit.restitution = 0;
     limit.bounceThreshold = 1.0f;

@@ -45,6 +45,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);
+  EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_CustomData);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_IntervalScheduler);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_ComponentManager);

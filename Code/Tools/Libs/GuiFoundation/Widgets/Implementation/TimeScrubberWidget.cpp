@@ -131,7 +131,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
       const double scaledX = x * scale;
 
       textRect.setRect(scaledX - 20, areaTop, 39, areaHeight);
-      tmp.Format("{0}", ezArgF(x));
+      tmp.SetFormat("{0}", ezArgF(x));
 
       p.drawText(textRect, tmp.GetData(), textOpt);
     }
@@ -238,18 +238,22 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* pParent)
 
   // Pass event through
   connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this,
-    [this](ezUInt64 uiNewScrubberTickPos) { Q_EMIT ScrubberPosChangedEvent(uiNewScrubberTickPos); });
+    [this](ezUInt64 uiNewScrubberTickPos)
+    { Q_EMIT ScrubberPosChangedEvent(uiNewScrubberTickPos); });
 
-  connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT PlayPauseEvent(); });
-  connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT RepeatEvent(); });
-  connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& sText) {
+  connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool)
+    { Q_EMIT PlayPauseEvent(); });
+  connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool)
+    { Q_EMIT RepeatEvent(); });
+  connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& sText)
+    {
     bool ok = false;
     double val = sText.toDouble(&ok);
 
     if (ok)
-      Q_EMIT DurationChangedEvent(val);
-  });
-  connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool) { Q_EMIT AdjustDurationEvent(); });
+      Q_EMIT DurationChangedEvent(val); });
+  connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool)
+    { Q_EMIT AdjustDurationEvent(); });
 }
 
 void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks)

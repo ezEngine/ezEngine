@@ -81,11 +81,11 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   // https://lemire.me/blog/2013/12/26/fastest-way-to-compute-the-greatest-common-divisor/
   if (a == 0)
   {
-    return a;
+    return b;
   }
   if (b == 0)
   {
-    return b;
+    return a;
   }
 
   ezUInt32 shift = FirstBitLow(a | b);
@@ -225,9 +225,8 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 
 void ezAngle::NormalizeRange()
 {
-  const float fTwoPi = 2.0f * Pi<float>();
-
-  const float fTwoPiTen = 10.0f * Pi<float>();
+  constexpr float fTwoPi = 2.0f * Pi<float>();
+  constexpr float fTwoPiTen = 10.0f * Pi<float>();
 
   if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
   {
@@ -310,81 +309,12 @@ ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir
 
 ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
 {
-  ezQuat rotAxis;
-  switch (axis)
-  {
-    case ezBasisAxis::PositiveX:
-      rotAxis.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
-      break;
-  }
-
-  return rotAxis;
+  return ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), GetBasisVector(axis));
 }
 
 ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
 {
-  ezQuat rotId;
-  switch (identity)
-  {
-    case ezBasisAxis::PositiveX:
-      rotId.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
-      break;
-  }
-
-  ezQuat rotAxis;
-  switch (axis)
-  {
-    case ezBasisAxis::PositiveX:
-      rotAxis.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
-      break;
-  }
-
-  return rotAxis * rotId;
+  return ezQuat::MakeShortestRotation(GetBasisVector(identity), GetBasisVector(axis));
 }
 
 ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bFlip)

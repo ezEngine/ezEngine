@@ -36,6 +36,13 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 
 using ezSpawnComponentManager = ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact>;
 
+/// \brief Spawns instances of prefabs dynamically at runtime.
+///
+/// The component may spawn prefabs automatically and also continuously, or it may only spawn objects on-demand
+/// when triggered from code.
+///
+/// It keeps track of when it spawned an object and can ignore spawn requests that come in too early. Thus it can
+/// also be used to take care of the logic that certain actions are only allowed every once in a while.
 class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpawnComponent, ezComponent, ezSpawnComponentManager);
@@ -75,20 +82,19 @@ public:
   /// To stop continuously spawning, remove the continuous spawn flag.
   void ScheduleSpawn(); // [ scriptable ]
 
-  void SetPrefabFile(const char* szFile); // [ property ]
-  const char* GetPrefabFile() const;      // [ property ]
-
-  bool GetSpawnAtStart() const; // [ property ]
+  /// \brief Enables that the component spawns right at creation time. Otherwise it needs to be triggered manually.
   void SetSpawnAtStart(bool b); // [ property ]
+  bool GetSpawnAtStart() const; // [ property ]
 
-  bool GetSpawnContinuously() const; // [ property ]
+  /// \brief Enables that once an object was spawned, another spawn action will be scheduled right away.
   void SetSpawnContinuously(bool b); // [ property ]
+  bool GetSpawnContinuously() const; // [ property ]
 
-  bool GetAttachAsChild() const; // [ property ]
-  void SetAttachAsChild(bool b); // [ property ]
+  /// \brief Sets that spawned objects will be attached as child objects to this game object.
+  void SetAttachAsChild(bool b);    // [ property ]
+  bool GetAttachAsChild() const;    // [ property ]
 
-  void SetPrefab(const ezPrefabResourceHandle& hPrefab);
-  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
+  ezPrefabResourceHandle m_hPrefab; // [ property ]
 
   /// The minimum delay between spawning objects. This is also enforced for manually spawning things.
   ezTime m_MinDelay; // [ property ]
@@ -97,13 +103,14 @@ public:
   ezTime m_DelayRange; // [ property ]
 
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
-  ezAngle m_MaxDeviation; // [ property ]
+  ezAngle m_MaxDeviation;                                           // [ property ]
 
   const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
   void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
   bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
 
+  /// Key/value pairs of parameters to pass to the prefab instantiation.
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 
 protected:
@@ -114,5 +121,4 @@ protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   ezTime m_LastManualSpawn;
-  ezPrefabResourceHandle m_hPrefab;
 };

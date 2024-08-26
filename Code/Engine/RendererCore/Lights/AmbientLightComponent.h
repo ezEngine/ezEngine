@@ -32,14 +32,14 @@ public:
   ezAmbientLightComponent();
   ~ezAmbientLightComponent();
 
-  void SetTopColor(ezColorGammaUB color); // [ property ]
-  ezColorGammaUB GetTopColor() const;     // [ property ]
+  void SetTopColor(ezColorGammaUB color);    // [ property ]
+  ezColorGammaUB GetTopColor() const;        // [ property ]
 
   void SetBottomColor(ezColorGammaUB color); // [ property ]
   ezColorGammaUB GetBottomColor() const;     // [ property ]
 
-  void SetIntensity(float fIntensity); // [ property ]
-  float GetIntensity() const;          // [ property ]
+  void SetIntensity(float fIntensity);       // [ property ]
+  float GetIntensity() const;                // [ property ]
 
 private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);

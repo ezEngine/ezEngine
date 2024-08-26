@@ -96,10 +96,10 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/Short{0}_Load[%%]", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/Short{0}_Load[%%]", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
-          s.Format("Utilization/Short{0}_Tasks", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/Short{0}_Tasks", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
@@ -108,10 +108,10 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/Long{0}_Load[%%]", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/Long{0}_Load[%%]", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
-          s.Format("Utilization/Long{0}_Tasks", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/Long{0}_Tasks", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
@@ -120,10 +120,10 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t, &uiNumTasks);
 
-          s.Format("Utilization/File{0}_Load[%%]", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/File{0}_Load[%%]", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), Utilization * 100.0);
 
-          s.Format("Utilization/File{0}_Tasks", ezArgI(t, 2, true));
+          s.SetFormat("Utilization/File{0}_Tasks", ezArgI(t, 2, true));
           ezStats::SetStat(s.GetData(), uiNumTasks);
         }
       }

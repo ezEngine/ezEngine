@@ -13,8 +13,8 @@ namespace cpu_x86
 {
 #  define _XCR_XFEATURE_ENABLED_MASK 0
 
-  void cpuid(int32_t out[4], int32_t eax, int32_t ecx);
-  uint64_t xgetbv(unsigned int index);
+  void cpuid(int32_t pOut[4], int32_t eax, int32_t ecx);
+  uint64_t xgetbv(unsigned int uiIndex);
   bool detect_OS_x64();
 
   static bool detect_OS_AVX()
@@ -170,5 +170,3 @@ void ezCpuFeatures::Detect()
 }
 
 #endif
-
-

@@ -35,7 +35,7 @@ bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
 void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const
 {
   bool semicolon = false;
-  out_sFilter.Format("{0} (", GetDocumentExtension());
+  out_sFilter.SetFormat("{0} (", GetDocumentExtension());
   AppendFileFilterStrings(out_sFilter, semicolon);
   out_sFilter.Append(")");
 }
@@ -261,19 +261,20 @@ ezStatus ezAssetDocumentGenerator::Import(ezStringView sInputFileAbs, ezStringVi
   if (!m_SupportedFileTypes.Contains(ext))
     return ezStatus(ezFmt("Files of type '{}' cannot be imported as '{}' documents.", ext, GetDocumentExtension()));
 
-  ezDocument* pGeneratedDoc = nullptr;
-  EZ_SUCCEED_OR_RETURN(Generate(sInputFileAbs, sMode, pGeneratedDoc));
+  ezHybridArray<ezDocument*, 16> pGeneratedDocs;
+  EZ_SUCCEED_OR_RETURN(Generate(sInputFileAbs, sMode, pGeneratedDocs));
 
-  EZ_ASSERT_DEV(pGeneratedDoc != nullptr, "");
-
-  const ezString sDocPath = pGeneratedDoc->GetDocumentPath();
-
-  pGeneratedDoc->SaveDocument(true).LogFailure();
-  pGeneratedDoc->GetDocumentManager()->CloseDocument(pGeneratedDoc);
-
-  if (bOpenDocument)
+  for (ezDocument* pDoc : pGeneratedDocs)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sDocPath);
+    const ezString sDocPath = pDoc->GetDocumentPath();
+
+    pDoc->SaveDocument(true).LogFailure();
+    pDoc->GetDocumentManager()->CloseDocument(pDoc);
+
+    if (bOpenDocument)
+    {
+      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sDocPath);
+    }
   }
 
   return ezStatus(EZ_SUCCESS);

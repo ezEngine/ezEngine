@@ -6,7 +6,7 @@
 /// \file
 
 /// \brief Macro to execute a piece of code when the current scope closes.
-#define EZ_SCOPE_EXIT(code) auto EZ_CONCAT(scopeExit_, EZ_SOURCE_LINE) = ezMakeScopeExit([&]() { code; })
+#define EZ_SCOPE_EXIT(code) auto EZ_PP_CONCAT(scopeExit_, EZ_SOURCE_LINE) = ezMakeScopeExit([&]() { code; })
 
 /// \internal Helper class to implement EZ_SCOPE_EXIT
 template <typename T>

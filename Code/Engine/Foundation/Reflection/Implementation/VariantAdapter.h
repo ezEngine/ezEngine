@@ -462,3 +462,16 @@ struct ezVariantAdapter<const char*, const char*, 1, 0>
 
   ezVariant& m_value;
 };
+
+template <class T>
+struct ezVariantAdapter<T, ezStringView, 1, 0>
+{
+  ezVariantAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  operator const ezStringView() { return m_value.IsA<ezStringView>() ? m_value.Get<ezStringView>() : m_value.Get<ezString>().GetView(); }
+
+  ezVariant& m_value;
+};

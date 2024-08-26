@@ -4,7 +4,7 @@ struct EZ_FOUNDATION_DLL ezLambdaDelegateStorageBase
 {
   ezLambdaDelegateStorageBase() = default;
   virtual ~ezLambdaDelegateStorageBase() = default;
-  virtual ezLambdaDelegateStorageBase* Clone(ezAllocatorBase* pAllocator) const = 0;
+  virtual ezLambdaDelegateStorageBase* Clone(ezAllocator* pAllocator) const = 0;
   virtual void InplaceCopy(ezUInt8* pBuffer) const = 0;
   virtual void InplaceMove(ezUInt8* pBuffer) = 0;
 
@@ -31,7 +31,7 @@ private:
   }
 
 public:
-  virtual ezLambdaDelegateStorageBase* Clone(ezAllocatorBase* pAllocator) const override
+  virtual ezLambdaDelegateStorageBase* Clone(ezAllocator* pAllocator) const override
   {
     if constexpr (std::is_copy_constructible<Function>::value)
     {
@@ -112,9 +112,9 @@ public:
 
   /// \brief Constructs the delegate from a regular C function type.
   template <typename Function>
-  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
+  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
 
     // Pure function pointers or lambdas that can be cast into pure functions (no captures) can be
     // copied directly into the inplace storage of the delegate.
@@ -277,8 +277,8 @@ private:
   template <typename Method>
   EZ_FORCE_INLINE void CopyMemberFunctionToInplaceStorage(Method method)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
 
     CopyFunctionToInplaceStorage(method);
 
@@ -338,7 +338,7 @@ private:
     struct
     {
       ezLambdaDelegateStorageBase* m_pLambdaStorage;
-      ezAllocatorBase* m_pAllocator;
+      ezAllocator* m_pAllocator;
     };
   };
 };

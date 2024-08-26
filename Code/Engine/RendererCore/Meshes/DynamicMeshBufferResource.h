@@ -24,7 +24,7 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
   ezVec2 m_vTexCoord;
   ezVec3 m_vEncodedNormal;
   ezVec4 m_vEncodedTangent;
-  //ezColorLinearUB m_Color;
+  // ezColorLinearUB m_Color;
 
   EZ_ALWAYS_INLINE void EncodeNormal(const ezVec3& vNormal)
   {
@@ -32,7 +32,7 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
     m_vEncodedNormal = vNormal * 0.5f + ezVec3(0.5f);
 
     // this is the same
-    //ezMeshBufferUtils::EncodeNormal(normal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec3)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
+    // ezMeshBufferUtils::EncodeNormal(normal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec3)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
   }
 
   EZ_ALWAYS_INLINE void EncodeTangent(const ezVec3& vTangent, float fBitangentSign)
@@ -44,7 +44,7 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertex
     m_vEncodedTangent.w = fBitangentSign < 0.0f ? 0.0f : 1.0f;
 
     // this is the same
-    //ezMeshBufferUtils::EncodeTangent(tangent, bitangentSign, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedTangent), sizeof(ezVec4)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
+    // ezMeshBufferUtils::EncodeTangent(tangent, bitangentSign, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedTangent), sizeof(ezVec4)), ezMeshNormalPrecision::_32Bit).IgnoreResult();
   }
 };
 

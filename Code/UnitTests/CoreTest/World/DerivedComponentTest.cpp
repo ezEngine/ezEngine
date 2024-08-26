@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Derived Component Update")
   {
     TestComponentBase* pComponentBase = nullptr;
-    ezComponentHandle hComponentBase = TestComponentBase::CreateComponent(pObject, pComponentBase);
+    ezTypedComponentHandle<TestComponentBase> hComponentBase = TestComponentBase::CreateComponent(pObject, pComponentBase);
 
     TestComponentBase* pTestBase = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(hComponentBase, pTestBase));
@@ -75,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     EZ_TEST_BOOL(pComponentBase->GetOwningManager() == pManagerBase);
 
     TestComponentDerived1* pComponentDerived1 = nullptr;
-    ezComponentHandle hComponentDerived1 = TestComponentDerived1::CreateComponent(pObject2, pComponentDerived1);
+    ezTypedComponentHandle<TestComponentDerived1> hComponentDerived1 = TestComponentDerived1::CreateComponent(pObject2, pComponentDerived1);
 
     TestComponentDerived1* pTestDerived1 = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(hComponentDerived1, pTestDerived1));
@@ -91,5 +91,23 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     // Get component manager via rtti
     EZ_TEST_BOOL(world.GetManagerForComponentType(ezGetStaticRTTI<TestComponentBase>()) == pManagerBase);
     EZ_TEST_BOOL(world.GetManagerForComponentType(ezGetStaticRTTI<TestComponentDerived1>()) == pManagerDerived1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Derived Component TypedComponentHandle Assign")
+  {
+    TestComponentDerived1* pComponentDerived1 = nullptr;
+    ezTypedComponentHandle<TestComponentBase> hComponentBase(TestComponentDerived1::CreateComponent(pObject2, pComponentDerived1));
+
+    TestComponentDerived1* pTestDerived1 = nullptr;
+    EZ_TEST_BOOL(world.TryGetComponent(hComponentBase, pTestDerived1));
+    EZ_TEST_BOOL(pTestDerived1 == pComponentDerived1);
+    EZ_TEST_BOOL(pComponentDerived1->GetHandle() == hComponentBase);
+    EZ_TEST_BOOL(pComponentDerived1->GetOwningManager() == pManagerDerived1);
+
+    // Assignment test Derived -> Base
+    hComponentBase = pTestDerived1->GetHandle();
+    EZ_TEST_BOOL(world.TryGetComponent(hComponentBase, pTestDerived1));
+    EZ_TEST_BOOL(pComponentDerived1->GetHandle() == hComponentBase);
+    EZ_TEST_BOOL(pComponentDerived1->GetOwningManager() == pManagerDerived1);
   }
 }

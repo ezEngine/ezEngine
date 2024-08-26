@@ -41,21 +41,21 @@ public:
   const char* GetCenterClipFile() const;
 
 private:
-  ezHashedString m_sCenterClip;                       // [ property ]
-  ezHybridArray<ezAnimationClip2D, 8> m_Clips;        // [ property ]
+  ezHashedString m_sCenterClip;                               // [ property ]
+  ezHybridArray<ezAnimationClip2D, 8> m_Clips;                // [ property ]
   ezTime m_InputResponse = ezTime::MakeFromMilliseconds(100); // [ property ]
-  bool m_bLoop = true;                                // [ property ]
-  bool m_bApplyRootMotion = false;                    // [ property ]
-  float m_fPlaybackSpeed = 1.0f;                      // [ property ]
+  bool m_bLoop = true;                                        // [ property ]
+  bool m_bApplyRootMotion = false;                            // [ property ]
+  float m_fPlaybackSpeed = 1.0f;                              // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart;        // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;            // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;         // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordX;        // [ property ]
-  ezAnimGraphNumberInputPin m_InCoordY;        // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnStarted;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFinished; // [ property ]
+  ezAnimGraphTriggerInputPin m_InStart;                       // [ property ]
+  ezAnimGraphBoolInputPin m_InLoop;                           // [ property ]
+  ezAnimGraphNumberInputPin m_InSpeed;                        // [ property ]
+  ezAnimGraphNumberInputPin m_InCoordX;                       // [ property ]
+  ezAnimGraphNumberInputPin m_InCoordY;                       // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_OutPose;                    // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnStarted;                 // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFinished;                // [ property ]
 
   struct ClipToPlay
   {
@@ -63,12 +63,12 @@ private:
 
     ezUInt32 m_uiIndex;
     float m_fWeight = 1.0f;
+    const ezAnimController::AnimClipInfo* m_pClipInfo = nullptr;
   };
 
   struct InstanceState
   {
-    bool m_bPlaying = false;
-    ezTime m_CenterPlaybackTime;
+    ezTime m_CenterPlaybackTime = ezTime::MakeZero();
     float m_fOtherPlaybackPosNorm = 0.0f;
     float m_fLastValueX = 0.0f;
     float m_fLastValueY = 0.0f;
@@ -76,5 +76,5 @@ private:
 
   void UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const;
   void PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const;
-  void ComputeClipsAndWeights(const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip) const;
+  void ComputeClipsAndWeights(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& out_Clips, ezUInt32& out_uiMaxWeightClip) const;
 };

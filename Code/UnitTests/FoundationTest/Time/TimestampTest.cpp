@@ -31,6 +31,11 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
       "Sleeping for 10 ms should cause the timestamp to change!");
     EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical),
       "Sleeping for 10 ms should cause the timestamp to change!");
+
+    // a valid timestamp should always be 'newer' than an invalid one
+    EZ_TEST_BOOL(currentTimestamp.Compare(ezTimestamp::MakeInvalid(), ezTimestamp::CompareMode::Newer) == true);
+    // an invalid timestamp should not be 'newer' than any valid one
+    EZ_TEST_BOOL(ezTimestamp::MakeInvalid().Compare(currentTimestamp, ezTimestamp::CompareMode::Newer) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Public Accessors")
@@ -169,8 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::Default | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(
-      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30.345 (UTC)", szTimestampFormatted);
     // with names, no UTC, no milliseconds
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday));
@@ -180,13 +184,10 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
       ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345", szTimestampFormatted);
     // no names, with UTC, no milliseconds
-    BuildString(
-      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(szTimestampFormatted, 256,
-      ezArgDateTime(
-        dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345 (UTC)", szTimestampFormatted);
 
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate));

@@ -9,6 +9,8 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 
 ez_make_winmain_executable(${PROJECT_NAME})
 
+ez_add_output_ez_prefix(${PROJECT_NAME})
+
 ez_add_renderers(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}

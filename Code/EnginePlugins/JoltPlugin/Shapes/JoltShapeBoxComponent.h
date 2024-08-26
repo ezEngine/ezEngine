@@ -4,6 +4,7 @@
 
 using ezJoltShapeBoxComponentManager = ezComponentManager<class ezJoltShapeBoxComponent, ezBlockStorageType::FreeList>;
 
+/// \brief Adds a Jolt box shape to a Jolt actor.
 class EZ_JOLTPLUGIN_DLL ezJoltShapeBoxComponent : public ezJoltShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltShapeBoxComponent, ezJoltShapeComponent, ezJoltShapeBoxComponentManager);
@@ -14,7 +15,6 @@ class EZ_JOLTPLUGIN_DLL ezJoltShapeBoxComponent : public ezJoltShapeComponent
 public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltShapeComponent

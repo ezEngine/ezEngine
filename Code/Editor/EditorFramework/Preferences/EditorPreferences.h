@@ -22,11 +22,13 @@ public:
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
   bool m_bUsePrecompiledTools = true;
+  ezString m_sCustomPrecompiledToolsFolder;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
   bool m_bHighlightUntranslatedUI = false;
+  bool m_bAssetBrowserShowItemsInSubFolders = true;
 
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;

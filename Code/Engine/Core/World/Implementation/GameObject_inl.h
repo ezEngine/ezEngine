@@ -108,6 +108,11 @@ EZ_ALWAYS_INLINE ezStringView ezGameObject::GetName() const
   return m_sName.GetView();
 }
 
+EZ_ALWAYS_INLINE const ezHashedString& ezGameObject::GetNameHashed() const
+{
+  return m_sName;
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::SetNameInternal(const char* szName)
 {
   m_sName.Assign(szName);

@@ -36,13 +36,13 @@ public:
   ezLineToComponent();
   ~ezLineToComponent();
 
-  const char* GetLineToTargetGuid() const;            // [ property ]
-  void SetLineToTargetGuid(const char* szTargetGuid); // [ property ]
+  const char* GetLineToTargetGuid() const;                                      // [ property ]
+  void SetLineToTargetGuid(const char* szTargetGuid);                           // [ property ]
 
   void SetLineToTarget(const ezGameObjectHandle& hTargetObject);                // [ property ]
   const ezGameObjectHandle& GetLineToTarget() const { return m_hTargetObject; } // [ property ]
 
-  ezColor m_LineColor; // [ property ]
+  ezColor m_LineColor;                                                          // [ property ]
 
 protected:
   void Update();

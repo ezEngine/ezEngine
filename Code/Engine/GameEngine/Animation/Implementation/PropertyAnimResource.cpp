@@ -1,8 +1,8 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
 // clang-format off
@@ -53,7 +53,7 @@ ezResourceLoadDesc ezPropertyAnimResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezPropertyAnimResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezPropertyAnimResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

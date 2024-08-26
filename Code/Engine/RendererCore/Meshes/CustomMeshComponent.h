@@ -65,8 +65,8 @@ public:
   /// \brief Returns the material that is used for rendering.
   ezMaterialResourceHandle GetMaterial() const;
 
-  void SetMaterialFile(const char* szMaterial); // [ property ]
-  const char* GetMaterialFile() const;          // [ property ]
+  // adds SetMaterialFile() and GetMaterialFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(Material, m_hMaterial);
 
   /// \brief Sets the mesh instance color.
   void SetColor(const ezColor& color); // [ property ]
@@ -74,14 +74,20 @@ public:
   /// \brief Returns the mesh instance color.
   const ezColor& GetColor() const; // [ property ]
 
+  /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
+  void SetCustomData(const ezVec4& vData);                  // [ property ]
+  const ezVec4& GetCustomData() const;                      // [ property ]
+
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezMaterialResourceHandle m_hMaterial;
+  ezMaterialResourceHandle m_hMaterial; // [ property ]
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
   ezBoundingBoxSphere m_Bounds;
@@ -102,6 +108,7 @@ public:
   ezDynamicMeshBufferResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
+  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
 
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;

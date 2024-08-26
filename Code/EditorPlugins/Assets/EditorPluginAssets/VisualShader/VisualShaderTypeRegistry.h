@@ -40,7 +40,7 @@ struct ezVisualShaderNodeDescriptor
   ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sCfgFile; ///< from which config file this node type was loaded
   ezString m_sName;
-  ezString m_sCategory;
+  ezHashedString m_sCategory;
   ezString m_sCheckPermutations;
   ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
   ezString m_sShaderCodePixelDefines;

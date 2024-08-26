@@ -36,9 +36,6 @@ public:
   ezPropertyAnimComponent();
   ~ezPropertyAnimComponent();
 
-  void SetPropertyAnimFile(const char* szFile); // [ property ]
-  const char* GetPropertyAnimFile() const;      // [ property ]
-
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);                                     // [ property ]
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
@@ -46,14 +43,14 @@ public:
   void PlayAnimationRange(ezTime rangeLow, ezTime rangeHigh); // [ scriptable ]
 
   /// \brief Pauses or resumes animation playback. Does not reset any state.
-  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
+  void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg);                       // [ msg handler ]
 
-  ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
-  ezTime m_RandomOffset;                      // [ property ]
-  float m_fSpeed = 1.0f;                      // [ property ]
-  ezTime m_AnimationRangeLow;                 // [ property ]
-  ezTime m_AnimationRangeHigh;                // [ property ]
-  bool m_bPlaying = true;                     // [ property ]
+  ezEnum<ezPropertyAnimMode> m_AnimationMode;                           // [ property ]
+  ezTime m_RandomOffset;                                                // [ property ]
+  float m_fSpeed = 1.0f;                                                // [ property ]
+  ezTime m_AnimationRangeLow;                                           // [ property ]
+  ezTime m_AnimationRangeHigh;                                          // [ property ]
+  bool m_bPlaying = true;                                               // [ property ]
 
 protected:
   ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]

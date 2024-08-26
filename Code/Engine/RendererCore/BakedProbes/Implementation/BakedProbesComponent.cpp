@@ -14,9 +14,8 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
@@ -31,7 +30,8 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
     EZ_ASSERT_DEV(m_PixelData.GetCount() == m_uiWidth * m_uiHeight, "Pixel data must be pre-allocated");
 
     ezProgress progress;
-    progress.m_Events.AddEventHandler([this](const ezProgressEvent& e) {
+    progress.m_Events.AddEventHandler([this](const ezProgressEvent& e)
+      {
       if (e.m_Type != ezProgressEvent::Type::CancelClicked)
       {
         if (HasBeenCanceled())
@@ -39,8 +39,7 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
           e.m_pProgressbar->UserClickedCancel();
         }
         m_bHasNewData = true;
-      }
-    });
+      } });
 
     if (m_pBakingInterface->RenderDebugView(*m_pWorld, m_InverseViewProjection, m_uiWidth, m_uiHeight, m_PixelData, progress).Succeeded())
     {
@@ -111,8 +110,8 @@ void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent
       task->m_bHasNewData = false;
 
       ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
-      ezGALPass* pGALPass = pGALDevice->BeginPass("BakingDebugViewUpdate");
-      auto pCommandEncoder = pGALPass->BeginCompute();
+      ezGALCommandEncoder* pCommandEncoder = pGALDevice->BeginCommands("BakingDebugViewUpdate");
+      pCommandEncoder->BeginCompute();
 
       ezBoundingBoxu32 destBox;
       destBox.m_vMin.SetZero();
@@ -124,8 +123,8 @@ void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent
 
       pCommandEncoder->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
 
-      pGALPass->EndCompute(pCommandEncoder);
-      pGALDevice->EndPass(pGALPass);
+      pCommandEncoder->EndCompute();
+      pGALDevice->EndCommands(pCommandEncoder);
     }
   }
 }
@@ -135,7 +134,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
   if (!m_hDebugSphere.IsValid())
   {
     ezGeometry geom;
-    geom.AddSphere(0.3f, 32, 16);
+    geom.AddStackedSphere(0.3f, 32, 16);
 
     const char* szBufferResourceName = "IrradianceProbeDebugSphereBuffer";
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
@@ -299,7 +298,8 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   const ezGameObject* pOwner = GetOwner();
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
-  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
+  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching)
+  {
     ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
 
@@ -314,7 +314,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
       pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
       pRenderData->m_Color = encodedSkyVisibility;
       pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(this, 0);
+      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
 
       pRenderData->FillBatchIdAndSortingKey();
     }
@@ -465,7 +465,7 @@ void ezBakedProbesComponent::RenderDebugOverlay()
 void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
   ezStringBuilder sPrefix;
-  sPrefix.Format(":project/AssetCache/Generated/{0}", node.GetGuid());
+  sPrefix.SetFormat(":project/AssetCache/Generated/{0}", node.GetGuid());
 
   m_sProbeTreeResourcePrefix.Assign(sPrefix);
 }

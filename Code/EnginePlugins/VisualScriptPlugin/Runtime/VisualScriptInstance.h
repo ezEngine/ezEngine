@@ -9,7 +9,8 @@ class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptInstance : public ezScriptInstance
 public:
   ezVisualScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld, const ezSharedPtr<ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pInstanceDataDesc, const ezSharedPtr<ezVisualScriptInstanceDataMapping>& pInstanceDataMapping);
 
-  virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
+  virtual void SetInstanceVariable(const ezHashedString& sName, const ezVariant& value) override;
+  virtual ezVariant GetInstanceVariable(const ezHashedString& sName) override;
 
   ezVisualScriptDataStorage* GetConstantDataStorage() { return m_pConstantDataStorage.Borrow(); }
   ezVisualScriptDataStorage* GetInstanceDataStorage() { return m_pInstanceDataStorage.Borrow(); }

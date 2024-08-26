@@ -2,38 +2,14 @@
 
 #include <EnginePluginAssets/RenderPipelineAsset/RenderPipelineContext.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-
-// clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineContextLoaderConnection, ezNoBase, 1, ezRTTIDefaultAllocator<ezRenderPipelineContextLoaderConnection>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Connection::Source", m_Source),
-    EZ_MEMBER_PROPERTY("Connection::Target", m_Target),
-    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),
-    EZ_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_STATIC_REFLECTED_TYPE;
-// clang-format on
-
-
-const ezRTTI* ezRenderPipelineRttiConverterContext::FindTypeByName(ezStringView sName) const
-{
-  if (sName == "DocumentNodeManager_DefaultConnection")
-  {
-    return ezGetStaticRTTI<ezRenderPipelineContextLoaderConnection>();
-  }
-  return ezWorldRttiConverterContext::FindTypeByName(sName);
-}
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineContext, 1, ezRTTIDefaultAllocator<ezRenderPipelineContext>)
@@ -72,16 +48,6 @@ void ezRenderPipelineContext::DestroyViewContext(ezEngineProcessViewContext* pCo
   EZ_ASSERT_DEV(false, "Should not be called");
 }
 
-ezWorldRttiConverterContext& ezRenderPipelineContext::GetContext()
-{
-  return m_RenderPipelineContext;
-}
-
-const ezWorldRttiConverterContext& ezRenderPipelineContext::GetContext() const
-{
-  return m_RenderPipelineContext;
-}
-
 ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
   ezDynamicArray<ezRenderPipelinePass*> passes;
@@ -89,11 +55,11 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
   ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
 
   ezDynamicArray<ezUuid> passUuids;
-  ezDynamicArray<ezRenderPipelineContextLoaderConnection*> toolConnections;
+  ezDynamicArray<ezDocumentObject_ConnectionBase*> toolConnections;
 
-  m_RenderPipelineContext.GetObjectsByType(passes, &passUuids);
-  m_RenderPipelineContext.GetObjectsByType(extractors);
-  m_RenderPipelineContext.GetObjectsByType(toolConnections);
+  m_Context.GetObjectsByType(passes, &passUuids);
+  m_Context.GetObjectsByType(extractors);
+  m_Context.GetObjectsByType(toolConnections);
 
   ezHashTable<ezUuid, ezUInt32> passUuidToIndex;
   for (ezUInt32 i = 0; i < passUuids.GetCount(); ++i)
@@ -103,7 +69,7 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
   connections.SetCount(toolConnections.GetCount());
   for (ezUInt32 i = 0; i < toolConnections.GetCount(); i++)
   {
-    ezRenderPipelineContextLoaderConnection* pConnection = toolConnections[i];
+    ezDocumentObject_ConnectionBase* pConnection = toolConnections[i];
     ezRenderPipelineResourceLoaderConnection& engineConnection = connections[i];
     EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Source, engineConnection.m_uiSource), "");
     EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Target, engineConnection.m_uiTarget), "");

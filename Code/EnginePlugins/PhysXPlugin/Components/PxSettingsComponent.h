@@ -27,23 +27,23 @@ public:
 
   const ezPxSettings& GetSettings() const { return m_Settings; }
 
-  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; } // [ property ]
-  void SetObjectGravity(const ezVec3& v);                                        // [ property ]
+  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; }               // [ property ]
+  void SetObjectGravity(const ezVec3& v);                                                      // [ property ]
 
-  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; } // [ property ]
-  void SetCharacterGravity(const ezVec3& v);                                           // [ property ]
+  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }         // [ property ]
+  void SetCharacterGravity(const ezVec3& v);                                                   // [ property ]
 
   float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; } // [ property ]
   void SetMaxDepenetrationVelocity(float fMaxVelocity);                                        // [ property ]
 
-  ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; } // [ property ]
-  void SetSteppingMode(ezPxSteppingMode::Enum mode);                                   // [ property ]
+  ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }         // [ property ]
+  void SetSteppingMode(ezPxSteppingMode::Enum mode);                                           // [ property ]
 
-  float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; } // [ property ]
-  void SetFixedFrameRate(float fFixedFrameRate);                           // [ property ]
+  float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; }                     // [ property ]
+  void SetFixedFrameRate(float fFixedFrameRate);                                               // [ property ]
 
-  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; } // [ property ]
-  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);                           // [ property ]
+  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; }                       // [ property ]
+  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);                                                 // [ property ]
 
 protected:
   ezPxSettings m_Settings;

@@ -21,7 +21,8 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
     {
       ezProcessOptions opt;
       opt.m_sProcess = pathToSelf;
-      opt.m_onStdOut = [&out, &mutex](ezStringView sView) {
+      opt.m_onStdOut = [&out, &mutex](ezStringView sView)
+      {
         EZ_LOCK(mutex);
         out.Append(sView);
       };

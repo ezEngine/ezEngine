@@ -97,7 +97,7 @@ void ezQuakeConsole::LogHandler(const ezLoggingEventData& data)
   }
 
   ezStringBuilder sFormat;
-  sFormat.Printf("%*s", data.m_uiIndentation, "");
+  sFormat.SetPrintf("%*s", data.m_uiIndentation, "");
   sFormat.Append(data.m_sText);
 
   AddConsoleString(sFormat.GetData(), type);
@@ -430,5 +430,3 @@ void ezConsole::LoadInputHistory(ezStringView sFile)
     AddToInputHistory(lines[lines.GetCount() - 1 - i]);
   }
 }
-
-

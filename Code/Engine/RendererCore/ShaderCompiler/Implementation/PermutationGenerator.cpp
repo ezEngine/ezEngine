@@ -56,5 +56,3 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPer
     pv.m_sValue = itValue.Key();
   }
 }
-
-

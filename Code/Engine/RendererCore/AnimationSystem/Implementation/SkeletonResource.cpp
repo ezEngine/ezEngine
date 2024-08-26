@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/Implementation/OzzUtils.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/skeleton.h>
@@ -47,7 +47,7 @@ ezResourceLoadDesc ezSkeletonResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezSkeletonResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezSkeletonResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezSkeletonResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -180,7 +180,8 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 
   // make sure the geometry is sorted by bones
   // this allows to make the algorithm for creating the bone geometry more efficient
-  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
+  m_Geometry.Sort([](const ezSkeletonResourceGeometry& lhs, const ezSkeletonResourceGeometry& rhs) -> bool
+    { return lhs.m_uiAttachedToJoint < rhs.m_uiAttachedToJoint; });
 
   return EZ_SUCCESS;
 }

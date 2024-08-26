@@ -56,7 +56,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
       ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     }
 
-    RunWorkerTask(pResource);
+    RunWorkerTask();
   }
 }
 
@@ -72,7 +72,7 @@ void ezResourceManager::SetupWorkerTasks()
 
       for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
       {
-        s.Format("Resource Data Loader {0}", i);
+        s.SetFormat("Resource Data Loader {0}", i);
         auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
         data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
@@ -84,7 +84,7 @@ void ezResourceManager::SetupWorkerTasks()
 
       for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
       {
-        s.Format("Resource Content Updater {0}", i);
+        s.SetFormat("Resource Content Updater {0}", i);
         auto& data = s_pState->m_WorkerTasksUpdateContent.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
         data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
@@ -93,7 +93,7 @@ void ezResourceManager::SetupWorkerTasks()
   }
 }
 
-void ezResourceManager::RunWorkerTask(ezResource* pResource)
+void ezResourceManager::RunWorkerTask()
 {
   if (s_pState->m_bShutdown)
     return;
@@ -119,7 +119,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     // could not find any unused task -> need to create a new one
     {
       ezStringBuilder s;
-      s.Format("Resource Data Loader {0}", s_pState->m_WorkerTasksDataLoad.GetCount());
+      s.SetFormat("Resource Data Loader {0}", s_pState->m_WorkerTasksDataLoad.GetCount());
       auto& data = s_pState->m_WorkerTasksDataLoad.ExpandAndGetRef();
       data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
       data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
@@ -328,7 +328,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
   }
   else
   {
-    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
+    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID()), pResource->GetDynamicRTTI());
   }
 
   if (bAllowPreloading)
@@ -445,5 +445,3 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     }
   }
 }
-
-

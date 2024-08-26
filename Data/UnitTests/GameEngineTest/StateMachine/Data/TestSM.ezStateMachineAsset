@@ -11,10 +11,12 @@ o
 		s %AssetType{"StateMachine"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2391545697630743727,4670014653287619337}}
-		u4 %Hash{6000266420870669119}
+		u4 %Hash{8552890364643498016}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }
@@ -69,10 +71,10 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{13018519291707928641,10361897080146564366}}
-		s %Connection::SourcePin{"Exit"}
-		Uuid %Connection::Target{u4{9755372732137878227,15957139531769019622}}
-		s %Connection::TargetPin{"Enter"}
+		Uuid %Source{u4{13018519291707928641,10361897080146564366}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{9755372732137878227,15957139531769019622}}
+		s %TargetPin{"Enter"}
 		Uuid %Type{u4{7923390778993120907,5130025846531972969}}
 	}
 }
@@ -117,10 +119,10 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{18390827156452484999,5762224206194630632}}
-		s %Connection::SourcePin{"Exit"}
-		Uuid %Connection::Target{u4{9755372732137878227,15957139531769019622}}
-		s %Connection::TargetPin{"Enter"}
+		Uuid %Source{u4{18390827156452484999,5762224206194630632}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{9755372732137878227,15957139531769019622}}
+		s %TargetPin{"Enter"}
 		Uuid %Type{u4{8545254313768413109,4933728443905610081}}
 	}
 }
@@ -145,7 +147,7 @@ o
 	p
 	{
 		d %ComparisonValue{0x000000000000F03F}
-		s %EntryName{"final"}
+		HashedString %EntryName{s{"final"}}
 		s %Operator{"ezComparisonOperator::Equal"}
 	}
 }
@@ -195,10 +197,10 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{555491968486977467,5577118816820601818}}
-		s %Connection::SourcePin{"Exit"}
-		Uuid %Connection::Target{u4{13018519291707928641,10361897080146564366}}
-		s %Connection::TargetPin{"Enter"}
+		Uuid %Source{u4{555491968486977467,5577118816820601818}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{13018519291707928641,10361897080146564366}}
+		s %TargetPin{"Enter"}
 		Uuid %Type{u4{2303060153106864037,5282554930236992566}}
 	}
 }
@@ -223,10 +225,10 @@ o
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{6462526739779681447,5205361735945797358}}
-		s %Connection::SourcePin{"Exit"}
-		Uuid %Connection::Target{u4{555491968486977467,5577118816820601818}}
-		s %Connection::TargetPin{"Enter"}
+		Uuid %Source{u4{6462526739779681447,5205361735945797358}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{555491968486977467,5577118816820601818}}
+		s %TargetPin{"Enter"}
 		Uuid %Type{u4{14612061814937599619,5151596761145082221}}
 	}
 }
@@ -237,6 +239,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"A"}
 		Vec2 %Node::Pos{f{0x0F739D43,0xCBC60043}}
 		Uuid %Type{u4{6879367562142937791,4803109892030128720}}
@@ -250,7 +253,7 @@ o
 	p
 	{
 		d %ComparisonValue{0x0000000000003440}
-		s %EntryName{"B"}
+		HashedString %EntryName{s{"B"}}
 		s %Operator{"ezComparisonOperator::Greater"}
 	}
 }
@@ -293,6 +296,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"B"}
 		Vec2 %Node::Pos{f{0xDCF0EE43,0x1DD00643}}
 		Uuid %Type{u4{8507376996489491381,4834210225930572887}}
@@ -305,6 +309,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %IsInitialState{0}
 		s %Name{"FINAL"}
 		Vec2 %Node::Pos{f{0xFD3B2344,0xAAD10743}}
 		Uuid %Type{u4{3359297952540090240,5420362112664507257}}
@@ -327,6 +332,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardCondition"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10888972232478699776,1955047099748154733}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineInstance"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -459,7 +481,7 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %ParentTypeName{"ezDocumentObject_ConnectionBase"}
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezStateMachineConnection"}
@@ -565,6 +587,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezStateMachineTransition_Compound"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
 		u3 %TypeVersion{1}
 	}
 }

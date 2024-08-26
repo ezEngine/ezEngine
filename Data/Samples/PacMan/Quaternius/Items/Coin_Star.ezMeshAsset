@@ -14,13 +14,19 @@ o
 			s{"Quaternius/Items/Coin_Star.fbx"}
 		}
 		Uuid %DocumentID{u4{6348918345039922604,5249313429624155642}}
-		u4 %Hash{7420871688624663695}
+		u4 %Hash{8085474339590307358}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ e22bd5e7-4b80-475b-be9a-24dd6f386691 }"}
 		}
+		VarArray %References
+		{
+			s{"Quaternius/Items/Coin_Star.fbx"}
+			s{"{ e22bd5e7-4b80-475b-be9a-24dd6f386691 }"}
+		}
+		s %Tags{""}
 	}
 }
 }
@@ -44,6 +50,7 @@ o
 	u3 %v{3}
 	p
 	{
+		b %AggressiveSimplification{0}
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
@@ -56,7 +63,9 @@ o
 		{
 			Uuid{u4{10289319772830354336,5481403788764739571}}
 		}
+		u1 %MaxSimplificationError{5}
 		s %MeshFile{"Quaternius/Items/Coin_Star.fbx"}
+		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -64,6 +73,7 @@ o
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

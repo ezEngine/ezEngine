@@ -1,6 +1,5 @@
 #include <EditorPluginTypeScript/EditorPluginTypeScriptPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
@@ -12,6 +11,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -40,7 +40,7 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   // Typescript doesn't fully work with the new scripting infrastructure yet. Uncomment at your own risk.
   // m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinTypeScript";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.svg"));
@@ -181,7 +181,7 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
       uiTypeNameHash = ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sClassName.GetData()));
     }
 
-    sAutoGen.Format("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
+    sAutoGen.SetFormat("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
 
     uiContinueAfterOffset = szBeginAG - content.GetData();
 

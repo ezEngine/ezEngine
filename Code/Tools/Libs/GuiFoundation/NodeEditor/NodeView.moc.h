@@ -23,9 +23,13 @@ protected:
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
   virtual void resizeEvent(QResizeEvent*) override;
+  virtual void drawBackground(QPainter* painter, const QRectF& r) override;
+
 
 private:
   void UpdateView();
+
+  void DrawGrid(QPainter* painter, const double gridStep);
 
 private:
   ezQtNodeScene* m_pScene = nullptr;

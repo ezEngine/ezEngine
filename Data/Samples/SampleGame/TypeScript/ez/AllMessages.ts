@@ -35,16 +35,16 @@ import Enum = require("./AllEnums")
 import Flags = require("./AllFlags")
 
 
+export class MsgAnimationPoseGeneration extends Message
+{
+  public static GetTypeNameHash(): number { return 1114351692; }
+  constructor() { super(); this.TypeNameHash = 1114351692; }
+}
+
 export class MsgAnimationPosePreparing extends Message
 {
   public static GetTypeNameHash(): number { return 2419062254; }
   constructor() { super(); this.TypeNameHash = 2419062254; }
-}
-
-export class MsgAnimationPoseProposal extends Message
-{
-  public static GetTypeNameHash(): number { return 3713362936; }
-  constructor() { super(); this.TypeNameHash = 3713362936; }
 }
 
 export class MsgAnimationPoseUpdated extends Message
@@ -167,6 +167,12 @@ export class MsgInputActionTriggered extends EventMessage
   TriggerState: Enum.TriggerState = 0;
 }
 
+export class MsgInterruptPlaying extends Message
+{
+  public static GetTypeNameHash(): number { return 1319502469; }
+  constructor() { super(); this.TypeNameHash = 1319502469; }
+}
+
 export class MsgMoveCharacterController extends Message
 {
   public static GetTypeNameHash(): number { return 3376977277; }
@@ -266,6 +272,12 @@ export class MsgSetColor extends Message
   constructor() { super(); this.TypeNameHash = 1623708695; }
   Color: Color = new Color(1, 1, 1, 1);
   Mode: Enum.SetColorMode = 0;
+}
+
+export class MsgSetCustomData extends Message
+{
+  public static GetTypeNameHash(): number { return 3715064801; }
+  constructor() { super(); this.TypeNameHash = 3715064801; }
 }
 
 export class MsgSetFloatParameter extends Message

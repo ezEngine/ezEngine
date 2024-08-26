@@ -29,14 +29,14 @@ public:
   ~ezSampleAnimClipAnimNode();
 
 private:
-  ezHashedString m_sClip;          // [ property ]
-  bool m_bLoop = true;             // [ property ]
-  bool m_bApplyRootMotion = false; // [ property ]
-  float m_fPlaybackSpeed = 1.0f;   // [ property ]
+  ezHashedString m_sClip;                      // [ property ]
+  bool m_bLoop = true;                         // [ property ]
+  bool m_bApplyRootMotion = false;             // [ property ]
+  float m_fPlaybackSpeed = 1.0f;               // [ property ]
 
-  ezAnimGraphTriggerInputPin m_InStart; // [ property ]
-  ezAnimGraphBoolInputPin m_InLoop;     // [ property ]
-  ezAnimGraphNumberInputPin m_InSpeed;  // [ property ]
+  ezAnimGraphTriggerInputPin m_InStart;        // [ property ]
+  ezAnimGraphBoolInputPin m_InLoop;            // [ property ]
+  ezAnimGraphNumberInputPin m_InSpeed;         // [ property ]
 
   ezAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnStarted;  // [ property ]
@@ -44,7 +44,6 @@ private:
 
   struct InstanceState
   {
-    bool m_bPlaying = false;
-    ezTime m_PlaybackTime;
+    ezTime m_PlaybackTime = ezTime::MakeZero();
   };
 };

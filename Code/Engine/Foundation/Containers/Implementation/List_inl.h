@@ -20,7 +20,7 @@ ezListBase<T>::ListElement::ListElement(const T& data)
 // **** ezListBase ****
 
 template <typename T>
-ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator)
+ezListBase<T>::ezListBase(ezAllocator* pAllocator)
   : m_End(reinterpret_cast<ListElement*>(&m_Last))
   , m_uiCount(0)
   , m_Elements(pAllocator)
@@ -31,7 +31,7 @@ ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator)
 }
 
 template <typename T>
-ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator)
+ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocator* pAllocator)
   : m_End(reinterpret_cast<ListElement*>(&m_Last))
   , m_uiCount(0)
   , m_Elements(pAllocator)
@@ -57,7 +57,7 @@ void ezListBase<T>::operator=(const ezListBase<T>& cc)
 }
 
 template <typename T>
-typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode(const T& data)
+typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode()
 {
   ListElement* pNode;
 
@@ -72,8 +72,7 @@ typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode(const T& data)
     m_pFreeElementStack = m_pFreeElementStack->m_pNext;
   }
 
-  ezMemoryUtils::Construct<ListElement>(pNode, 1);
-  pNode->m_Data = data;
+  ezMemoryUtils::Construct<SkipTrivialTypes, ListElement>(pNode, 1);
   return pNode;
 }
 
@@ -107,12 +106,6 @@ EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetIterator()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetLastIterator()
-{
-  return Iterator(m_Last.m_pPrev);
-}
-
-template <typename T>
 EZ_ALWAYS_INLINE typename ezListBase<T>::Iterator ezListBase<T>::GetEndIterator()
 {
   return m_End;
@@ -122,12 +115,6 @@ template <typename T>
 EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetIterator() const
 {
   return ConstIterator(m_First.m_pNext);
-}
-
-template <typename T>
-EZ_ALWAYS_INLINE typename ezListBase<T>::ConstIterator ezListBase<T>::GetLastIterator() const
-{
-  return ConstIterator(m_Last.m_pPrev);
 }
 
 template <typename T>
@@ -198,9 +185,9 @@ EZ_FORCE_INLINE const T& ezListBase<T>::PeekBack() const
 
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezListBase<T>::PushBack()
+EZ_ALWAYS_INLINE T& ezListBase<T>::PushBack()
 {
-  PushBack(T());
+  return *Insert(GetEndIterator());
 }
 
 template <typename T>
@@ -210,9 +197,9 @@ EZ_ALWAYS_INLINE void ezListBase<T>::PushBack(const T& element)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezListBase<T>::PushFront()
+EZ_ALWAYS_INLINE T& ezListBase<T>::PushFront()
 {
-  PushFront(T());
+  return *Insert(GetIterator());
 }
 
 template <typename T>
@@ -238,12 +225,30 @@ void ezListBase<T>::PopFront()
 }
 
 template <typename T>
+typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos)
+{
+  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+
+  ++m_uiCount;
+  ListElement* elem = AcquireNode();
+
+  elem->m_pNext = pos.m_pElement;
+  elem->m_pPrev = pos.m_pElement->m_pPrev;
+
+  pos.m_pElement->m_pPrev->m_pNext = elem;
+  pos.m_pElement->m_pPrev = elem;
+
+  return Iterator(elem);
+}
+
+template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, const T& data)
 {
   EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ++m_uiCount;
-  ListElement* elem = AcquireNode(data);
+  ListElement* elem = AcquireNode();
+  elem->m_Data = data;
 
   elem->m_pNext = pos.m_pElement;
   elem->m_pPrev = pos.m_pElement->m_pPrev;
@@ -336,7 +341,7 @@ ezList<T, A>::ezList()
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(ezAllocatorBase* pAllocator)
+ezList<T, A>::ezList(ezAllocator* pAllocator)
   : ezListBase<T>(pAllocator)
 {
 }

@@ -35,6 +35,7 @@ void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezCon
 
   ezUInt64 dataSize = ComputeLayout();
 
+  EZ_IGNORE_UNUSED(dataSize);
   EZ_ASSERT_DEV(imageData.GetCount() == dataSize, "Provided image storage ({} bytes) doesn't match required data size ({} bytes)",
     imageData.GetCount(), dataSize);
 
@@ -148,6 +149,11 @@ ezUInt64 ezImageView::ComputeLayout()
 
 void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
+  EZ_IGNORE_UNUSED(uiMipLevel);
+  EZ_IGNORE_UNUSED(uiFace);
+  EZ_IGNORE_UNUSED(uiArrayIndex);
+  EZ_IGNORE_UNUSED(uiPlaneIndex);
+
   EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
   EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
@@ -381,5 +387,3 @@ bool ezImage::UsesExternalStorage() const
 {
   return m_InternalStorage.GetBlobPtr<ezUInt8>() != m_DataPtr;
 }
-
-

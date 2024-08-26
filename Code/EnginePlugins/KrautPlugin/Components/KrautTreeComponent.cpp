@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("KrautTree", GetKrautFile, SetKrautFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("KrautTree", GetKrautGeneratorResource, SetKrautGeneratorResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
     EZ_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new ezDefaultValueAttribute(0xFFFF)),
   }
   EZ_END_PROPERTIES;
@@ -112,26 +112,6 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
   }
 
   return EZ_FAILURE;
-}
-
-void ezKrautTreeComponent::SetKrautFile(const char* szFile)
-{
-  ezKrautGeneratorResourceHandle hTree;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTree = ezResourceManager::LoadResource<ezKrautGeneratorResource>(szFile);
-  }
-
-  SetKrautGeneratorResource(hTree);
-}
-
-const char* ezKrautTreeComponent::GetKrautFile() const
-{
-  if (!m_hKrautGenerator.IsValid())
-    return "";
-
-  return m_hKrautGenerator.GetResourceID();
 }
 
 void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)
@@ -445,7 +425,7 @@ void ezKrautTreeComponent::ComputeWind() const
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
 
     ezStringBuilder tmp;
-    tmp.Format("Wind: {}m/s", m_vWindSpringPos.GetLength());
+    tmp.SetFormat("Wind: {}m/s", m_vWindSpringPos.GetLength());
 
     ezDebugRenderer::Draw3DText(GetWorld(), tmp, GetOwner()->GetGlobalPosition() + ezVec3(0, 0, 1), ezColor::DeepSkyBlue);
   }
@@ -454,7 +434,7 @@ void ezKrautTreeComponent::ComputeWind() const
 void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
   ezStringBuilder sResourceName;
-  sResourceName.Format("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
+  sResourceName.SetFormat("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
 
   ezCpuMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sResourceName);
   if (!hMesh.IsValid())

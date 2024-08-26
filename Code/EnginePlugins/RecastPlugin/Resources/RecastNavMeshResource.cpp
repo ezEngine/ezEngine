@@ -1,8 +1,8 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <DetourNavMesh.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Recast.h>
 #include <RecastAlloc.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
@@ -53,7 +53,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Serialize(ezStreamWriter& inout_stre
 
   if (hasPolygons)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
+    static_assert(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
 
     const auto& mesh = *m_pNavMeshPolygons;
 
@@ -97,7 +97,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& inout_st
 
   if (hasPolygons)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
+    static_assert(sizeof(rcPolyMesh) == sizeof(void*) * 5 + sizeof(int) * 14, "rcPolyMesh data structure has changed");
 
     m_pNavMeshPolygons = EZ_DEFAULT_NEW(rcPolyMesh);
 
@@ -166,7 +166,7 @@ ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezRecastNavMeshResource::UpdateContent(ezStreamReader* Stream)
 {
-  EZ_LOG_BLOCK("ezRecastNavMeshResource::UpdateContent", GetResourceDescription().GetData());
+  EZ_LOG_BLOCK("ezRecastNavMeshResource::UpdateContent", GetResourceIdOrDescription());
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

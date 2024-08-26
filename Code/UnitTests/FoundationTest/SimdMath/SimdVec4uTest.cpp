@@ -6,7 +6,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
     // In debug the default constructor initializes everything with 0xCDCDCDCD.
     ezSimdVec4u vDefCtor;
     EZ_TEST_BOOL(vDefCtor.x() == 0xCDCDCDCD && vDefCtor.y() == 0xCDCDCDCD && vDefCtor.z() == 0xCDCDCDCD && vDefCtor.w() == 0xCDCDCDCD);
@@ -19,8 +19,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezSimdVec4u) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_ALIGNMENT_OF(ezSimdVec4u) == 16);
+    static_assert(sizeof(ezSimdVec4u) == 16);
+    static_assert(EZ_ALIGNMENT_OF(ezSimdVec4u) == 16);
 #endif
 
     ezSimdVec4u a(2);

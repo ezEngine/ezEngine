@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
@@ -102,7 +102,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   ezStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
-  if (sAbsFilePath.HasExtension("ezRenderPipelineBin"))
+  if (sAbsFilePath.HasExtension("ezBinRenderPipeline"))
   {
     ezStringBuilder sTemp, sTemp2;
 
@@ -119,7 +119,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
       ezLog::Error("Failed to load old ezRenderPipelineResource '{}'. Needs re-transform.", sAbsFilePath);
       return res;
     }
-    EZ_ASSERT_DEV(uiVersion == 2, "Unknown ezRenderPipelineBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion == 2, "Unknown ezBinRenderPipeline version {0}", uiVersion);
 
     ezUInt32 uiSize = 0;
     (*Stream) >> uiSize;
@@ -131,7 +131,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   }
   else
   {
-    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath);
+    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezBinRenderPipeline' files can be loaded as ezRenderPipelineResource", sAbsFilePath);
   }
 
   return res;

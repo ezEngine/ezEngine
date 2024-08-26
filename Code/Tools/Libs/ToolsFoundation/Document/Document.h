@@ -84,7 +84,7 @@ public:
   bool IsSubDocument() const { return m_pHostDocument != this; }
   /// \brief In case this is a sub-document, returns the main document this belongs to. Otherwise 'this' is returned.
   const ezDocument* GetMainDocument() const { return m_pHostDocument; }
-  /// @brief At any given time, only the active sub-document can be edited. This returns the active sub-document which can also be this document itself. Changes to the active sub-document are generally triggered by ezDocumentObjectStructureEvent::Type::AfterReset.
+  /// \brief At any given time, only the active sub-document can be edited. This returns the active sub-document which can also be this document itself. Changes to the active sub-document are generally triggered by ezDocumentObjectStructureEvent::Type::AfterReset.
   const ezDocument* GetActiveSubDocument() const { return m_pActiveSubDocument; }
   ezDocument* GetMainDocument() { return m_pHostDocument; }
   ezDocument* GetActiveSubDocument() { return m_pActiveSubDocument; }
@@ -225,10 +225,10 @@ public:
   virtual void UpdatePrefabs();
 
   /// \brief Resets the given objects to their template prefab state, if they have local modifications.
-  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& selection);
+  void RevertPrefabs(ezArrayPtr<const ezDocumentObject*> selection);
 
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
-  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection);
+  virtual void UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection);
 
   virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
   virtual ezStatus CreatePrefabDocument(ezStringView sFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});

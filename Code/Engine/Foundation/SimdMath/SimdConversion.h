@@ -6,6 +6,7 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 
 namespace ezSimdConversion
 {
@@ -23,6 +24,20 @@ namespace ezSimdConversion
     return tmp;
   }
 
+  EZ_ALWAYS_INLINE ezVec3I32 ToVec3i(const ezSimdVec4i& v)
+  {
+    ezVec4I32 tmp;
+    v.Store<4>(&tmp.x);
+    return *reinterpret_cast<ezVec3I32*>(&tmp.x);
+  }
+
+  EZ_ALWAYS_INLINE ezSimdVec4i ToVec3i(const ezVec3I32& v)
+  {
+    ezSimdVec4i tmp;
+    tmp.Load<3>(&v.x);
+    return tmp;
+  }
+
   EZ_ALWAYS_INLINE ezVec4 ToVec4(const ezSimdVec4f& v)
   {
     ezVec4 tmp;
@@ -33,6 +48,20 @@ namespace ezSimdConversion
   EZ_ALWAYS_INLINE ezSimdVec4f ToVec4(const ezVec4& v)
   {
     ezSimdVec4f tmp;
+    tmp.Load<4>(&v.x);
+    return tmp;
+  }
+
+  EZ_ALWAYS_INLINE ezVec4I32 ToVec4i(const ezSimdVec4i& v)
+  {
+    ezVec4I32 tmp;
+    v.Store<4>(&tmp.x);
+    return tmp;
+  }
+
+  EZ_ALWAYS_INLINE ezSimdVec4i ToVec4i(const ezVec4I32& v)
+  {
+    ezSimdVec4i tmp;
     tmp.Load<4>(&v.x);
     return tmp;
   }
@@ -90,10 +119,19 @@ namespace ezSimdConversion
     return ezBoundingSphere::MakeFromCenterAndRadius(centerAndRadius.GetAsVec3(), centerAndRadius.w);
   }
 
-  EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s) { return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius); }
+  EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s)
+  {
+    return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
+  }
 
-  EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b) { return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax)); }
+  EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b)
+  {
+    return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
+  }
 
-  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b) { return ezBoundingBox::MakeFromMinMax(ToVec3(b.m_Min), ToVec3(b.m_Max)); }
+  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b)
+  {
+    return ezBoundingBox::MakeFromMinMax(ToVec3(b.m_Min), ToVec3(b.m_Max));
+  }
 
 }; // namespace ezSimdConversion

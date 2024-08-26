@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Type", m_sInteractionType)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
     EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::MakeFromDegree(0.0f)), ezVariant(ezAngle::MakeFromDegree(90.0f)))),
@@ -30,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BaseSurface", GetBaseSurfaceFile, SetBaseSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),// package+thumbnail so that it forbids circular dependencies
+    EZ_RESOURCE_MEMBER_PROPERTY("BaseSurface", m_hBaseSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),// package+thumbnail so that it forbids circular dependencies
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
@@ -45,32 +45,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSurfaceInteraction::SetPrefab(const char* szPrefab)
-{
-  ezPrefabResourceHandle hPrefab;
-
-  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
-  {
-    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
-  }
-
-  m_hPrefab = hPrefab;
-}
-
-const char* ezSurfaceInteraction::GetPrefab() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
-}
-
 const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezSurfaceInteraction::SetParameter(const char* szKey, const ezVariant& value)
@@ -225,26 +209,6 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_iGroundType;
 }
 
-void ezSurfaceResourceDescriptor::SetBaseSurfaceFile(const char* szFile)
-{
-  ezSurfaceResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
-  }
-
-  m_hBaseSurface = hResource;
-}
-
-const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
-{
-  if (!m_hBaseSurface.IsValid())
-    return "";
-
-  return m_hBaseSurface.GetResourceID();
-}
-
 void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* szName)
 {
   m_sOnCollideInteraction.Assign(szName);
@@ -291,6 +255,9 @@ public:
 
   virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
+    EZ_IGNORE_UNUSED(ref_context);
+    EZ_IGNORE_UNUSED(pGraph);
+
     pNode->RenameProperty("Base Surface", "BaseSurface");
     pNode->RenameProperty("Static Friction", "StaticFriction");
     pNode->RenameProperty("Dynamic Friction", "DynamicFriction");

@@ -123,6 +123,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   }
 
 #else
+  EZ_IGNORE_UNUSED(FileShareMode);
 
   switch (OpenMode)
   {
@@ -259,21 +260,16 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 #endif
 }
 
-bool ezOSFile::InternalExistsFile(ezStringView sFile)
-{
-  FILE* pFile = fopen(ezString(sFile), "r");
-
-  if (pFile == nullptr)
-    return false;
-
-  fclose(pFile);
-  return true;
-}
-
 // this might not be defined on Windows
 #ifndef S_ISDIR
-#  define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#  define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
+
+bool ezOSFile::InternalExistsFile(ezStringView sFile)
+{
+  struct stat sb;
+  return (stat(ezString(sFile), &sb) == 0 && !S_ISDIR(sb.st_mode));
+}
 
 bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
 {
@@ -364,11 +360,9 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-ezStringView ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationPath()
 {
-  static ezString256 s_Path;
-
-  if (s_Path.IsEmpty())
+  if (s_sApplicationPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_OSX)
 
@@ -385,7 +379,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
 
       if (CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
       {
-        s_Path = temp.GetPtr();
+        s_sApplicationPath = temp.GetPtr();
       }
 
       EZ_DEFAULT_DELETE_ARRAY(temp);
@@ -402,18 +396,17 @@ ezStringView ezOSFile::GetApplicationDirectory()
       // By convention, android requires assets to be placed in the 'Assets' folder
       // inside the apk thus we use that as our SDK root.
       ezStringBuilder sTemp = packagePath.GetData();
-      sTemp.AppendPath("Assets");
-      s_Path = sTemp;
+      sTemp.AppendPath("Assets/ezDummyBin");
+      s_sApplicationPath = sTemp;
     }
 #  else
     char result[PATH_MAX];
     ssize_t length = readlink("/proc/self/exe", result, PATH_MAX);
-    ezStringBuilder path(ezStringView(result, result + length));
-    s_Path = path.GetFileDirectory();
+    s_sApplicationPath = ezStringView(result, result + length);
 #  endif
   }
 
-  return s_Path;
+  return s_sApplicationPath;
 }
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
@@ -463,8 +456,6 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
   if (s_sUserDocumentsPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-    android_app* app = ezAndroidUtils::GetAndroidApp();
-    // s_sUserDataPath = app->activity->internalDataPath;
     EZ_ASSERT_NOT_IMPLEMENTED;
 #  else
     s_sUserDataPath = getenv("HOME");

@@ -32,9 +32,15 @@ public:
   void SetSelectedFile(ezStringView sAbsPath);
   void ShowOnlyTheseTypeFilters(ezStringView sFilters);
   void UseFileExtensionFilters(ezStringView sFileExtensions);
+  void SetRequiredTag(ezStringView sRequiredTag);
 
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);
+
+  void dragEnterEvent(QDragEnterEvent* pEvent) override;
+  void dragMoveEvent(QDragMoveEvent* pEvent) override;
+  void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
+  void dropEvent(QDropEvent* pEvent) override;
 
   ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
   const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
@@ -50,6 +56,7 @@ private Q_SLOTS:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
   void OnPathFilterChanged();
+  void OnFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
   void on_ListAssets_activated(const QModelIndex& index);
   void on_ListAssets_clicked(const QModelIndex& index);
@@ -64,9 +71,11 @@ private Q_SLOTS:
   void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
+  void OnResaveAssets();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
+  void OnListOpenFileWith();
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
@@ -80,6 +89,7 @@ private Q_SLOTS:
   void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
   void ImportSelection();
   void OnOpenImportReferenceAsset();
+  void RenameCurrent();
   void DeleteSelection();
   void OnImportAsAboutToShow();
   void OnImportAsClicked();
@@ -87,6 +97,7 @@ private Q_SLOTS:
 
 private:
   virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual void mousePressEvent(QMouseEvent* e) override;
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);

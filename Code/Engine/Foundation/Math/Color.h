@@ -211,6 +211,9 @@ public:
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
   [[nodiscard]] static ezColor MakeZero();
 
+  /// \brief Returns a color with the given r, g, b, a values. The values must be given in a linear color space.
+  [[nodiscard]] static ezColor MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+
   // *** Constructors ***
 public:
   /// \brief default-constructed color is uninitialized (for speed)
@@ -248,6 +251,12 @@ public:
 
   // *** Conversion Operators/Functions ***
 public:
+  /// \brief Returns a color created from the kelvin temperature. https://wikipedia.org/wiki/Color_temperature
+  /// Originally inspired from https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
+  /// But with heavy modification to better fit the mapping shown out in https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+  /// Physically accurate clipping points are 6580K for Red and 6560K for G and B. but approximated to 6570k for all to give a better mapping.
+  static ezColor MakeFromKelvin(ezUInt32 uiKelvin);
+
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
@@ -373,6 +382,12 @@ public:
 
   /// \brief Returns the current color but with changes the alpha value to the given value.
   ezColor WithAlpha(float fAlpha) const;
+
+  /// \brief Packs the 4 color values as uint8 into a single uint32 with A in the least significant bits and R in the most significant ones.
+  [[nodiscard]] ezUInt32 ToRGBA8() const;
+
+  /// \brief Packs the 4 color values as uint8 into a single uint32 with R in the least significant bits and A in the most significant ones.
+  [[nodiscard]] ezUInt32 ToABGR8() const;
 };
 
 // *** Operators ***
@@ -410,6 +425,6 @@ bool operator!=(const ezColor& c1, const ezColor& c2); // [tested]
 /// \brief Strict weak ordering. Useful for sorting colors into a map.
 bool operator<(const ezColor& c1, const ezColor& c2); // [tested]
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColor) == 16);
+static_assert(sizeof(ezColor) == 16);
 
 #include <Foundation/Math/Implementation/Color_inl.h>

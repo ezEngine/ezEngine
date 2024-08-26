@@ -15,7 +15,7 @@ namespace
 {
   void* ezImguiAllocate(size_t uiSize, void* pUserData)
   {
-    ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+    ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
     return pAllocator->Allocate(uiSize, EZ_ALIGNMENT_MINIMUM);
   }
 
@@ -23,7 +23,7 @@ namespace
   {
     if (pPtr != nullptr)
     {
-      ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
+      ezAllocator* pAllocator = static_cast<ezAllocator*>(pUserData);
       pAllocator->Deallocate(pPtr);
     }
   }
@@ -177,26 +177,26 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
     float mousex, mousey;
     ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousex);
     ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousey);
-    cfg.MousePos.x = cfg.DisplaySize.x * mousex;
-    cfg.MousePos.y = cfg.DisplaySize.y * mousey;
-    cfg.MouseDown[0] = ezInputManager::GetInputSlotState(ezInputSlot_MouseButton0) >= ezKeyState::Pressed;
-    cfg.MouseDown[1] = ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) >= ezKeyState::Pressed;
-    cfg.MouseDown[2] = ezInputManager::GetInputSlotState(ezInputSlot_MouseButton2) >= ezKeyState::Pressed;
+    cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
+    cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton0) >= ezKeyState::Pressed);
+    cfg.AddMouseButtonEvent(1, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) >= ezKeyState::Pressed);
+    cfg.AddMouseButtonEvent(2, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton2) >= ezKeyState::Pressed);
 
-    cfg.MouseWheel = 0;
+    float fMouseWheel = 0;
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
-      cfg.MouseWheel = -1;
+      fMouseWheel = -1;
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
-      cfg.MouseWheel = +1;
+      fMouseWheel = +1;
+    cfg.AddMouseWheelEvent(0, fMouseWheel);
 
-    cfg.KeyAlt = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
-                 ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
-    cfg.KeyCtrl = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
-                  ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
-    cfg.KeyShift = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
-                   ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
-    cfg.KeySuper = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed ||
-                   ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed;
+    cfg.AddKeyEvent(ImGuiKey_LeftAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftCtrl, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightCtrl, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftShift, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightShift, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_LeftSuper, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftWin) >= ezKeyState::Pressed);
+    cfg.AddKeyEvent(ImGuiKey_RightSuper, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightWin) >= ezKeyState::Pressed);
 
     cfg.AddKeyEvent(ImGuiKey_Tab, ezInputManager::GetInputSlotState(ezInputSlot_KeyTab) >= ezKeyState::Pressed);
     cfg.AddKeyEvent(ImGuiKey_LeftArrow, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeft) >= ezKeyState::Pressed);
@@ -222,21 +222,7 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   }
   else
   {
-    cfg.ClearInputCharacters();
-
-    cfg.MousePos.x = -1;
-    cfg.MousePos.y = -1;
-
-    cfg.MouseDown[0] = false;
-    cfg.MouseDown[1] = false;
-    cfg.MouseDown[2] = false;
-
-    cfg.MouseWheel = 0;
-
-    cfg.KeyAlt = false;
-    cfg.KeyCtrl = false;
-    cfg.KeyShift = false;
-    cfg.KeySuper = false;
+    cfg.ClearInputKeys();
   }
 
   ImGui::NewFrame();
@@ -245,5 +231,3 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 }
 
 #endif
-
-

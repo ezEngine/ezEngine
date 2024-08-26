@@ -95,7 +95,8 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
   bool bChanges = false;
 
   ezRTTI::ForEachDerivedType<ezDocumentManager>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       // add the ones that we don't know yet
       if (!s_KnownManagers.Find(pRtti).IsValid())
       {

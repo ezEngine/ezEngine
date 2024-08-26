@@ -14,7 +14,7 @@ o
 			s{"Materials/DamageIndicator.ezShader"}
 		}
 		Uuid %DocumentID{u4{10129869918593107075,5703342923127831900}}
-		u4 %Hash{8155647691548559290}
+		u4 %Hash{8636526546258874004}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,6 +26,7 @@ o
 			s{"Materials/DamageIndicator.ezShader"}
 			s{"{ 22c4324d-84ba-4dcc-b756-bafe1d89d7bf }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -51,6 +52,7 @@ o
 	u3 %v{4}
 	p
 	{
+		s %AssetFilterTags{""}
 		s %BaseMaterial{""}
 		s %Shader{"Materials/DamageIndicator.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
@@ -207,6 +209,7 @@ o
 	{
 		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
+		s %RequiredTag{""}
 	}
 }
 o

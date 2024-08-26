@@ -1,7 +1,7 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 // clang-format off

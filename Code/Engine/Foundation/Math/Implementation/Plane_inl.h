@@ -5,7 +5,7 @@
 template <typename Type>
 EZ_FORCE_INLINE ezPlaneTemplate<Type>::ezPlaneTemplate()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   m_vNormal.Set(TypeNaN);
@@ -85,8 +85,13 @@ void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
 {
   ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
-  // rotate the normal, translate the point
+  // Transform the normal
   ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+
+  // Normalize the normal vector
+  const bool normalizeSucceeded = vTransformedNormal.NormalizeIfNotZero().Succeeded();
+  EZ_ASSERT_DEBUG(normalizeSucceeded, "");
+  EZ_IGNORE_UNUSED(normalizeSucceeded);
 
   // If the plane's distance is already infinite, there won't be any meaningful change
   // to it as a result of the transformation.
@@ -105,8 +110,13 @@ void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
 {
   ezVec3Template<Type> vPointOnPlane = m_vNormal * -m_fNegDistance;
 
-  // rotate the normal, translate the point
+  // Transform the normal
   ezVec3Template<Type> vTransformedNormal = m.TransformDirection(m_vNormal);
+
+  // Normalize the normal vector
+  const bool normalizeSucceeded = vTransformedNormal.NormalizeIfNotZero().Succeeded();
+  EZ_ASSERT_DEBUG(normalizeSucceeded, "");
+  EZ_IGNORE_UNUSED(normalizeSucceeded);
 
   // If the plane's distance is already infinite, there won't be any meaningful change
   // to it as a result of the transformation.
@@ -363,7 +373,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayS
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
 
-  if (fCosAlpha == 0) // ray is orthogonal to plane
+  if (fCosAlpha == 0)                                      // ray is orthogonal to plane
     return false;
 
   if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane

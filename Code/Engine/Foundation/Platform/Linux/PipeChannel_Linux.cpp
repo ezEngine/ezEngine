@@ -122,7 +122,7 @@ void ezPipeChannel_linux::InternalConnect()
     serverAddress.sun_family = AF_UNIX;
     strcpy(serverAddress.sun_path, m_serverSocketPath.GetData());
 
-    int connectResult = connect(m_clientSocketFd, (struct sockaddr*)&serverAddress, SUN_LEN(&serverAddress));
+    connect(m_clientSocketFd, (struct sockaddr*)&serverAddress, SUN_LEN(&serverAddress));
 
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::Connect, m_clientSocketFd);
   }
@@ -267,5 +267,3 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 }
 
 #endif
-
-

@@ -3,6 +3,7 @@
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Reflection/Reflection.h>
 
 namespace
 {
@@ -189,50 +190,81 @@ const char* ezExpressionByteCode::OpCode::GetName(Enum code)
 
 //////////////////////////////////////////////////////////////////////////
 
+//clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExpressionByteCode, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+//clang-format on
+
 ezExpressionByteCode::ezExpressionByteCode() = default;
-ezExpressionByteCode::~ezExpressionByteCode() = default;
+
+ezExpressionByteCode::ezExpressionByteCode(const ezExpressionByteCode& other)
+{
+  *this = other;
+}
+
+ezExpressionByteCode::~ezExpressionByteCode()
+{
+  Clear();
+}
+
+void ezExpressionByteCode::operator=(const ezExpressionByteCode& other)
+{
+  Clear();
+  Init(other.GetByteCode(), other.GetInputs(), other.GetOutputs(), other.GetFunctions(), other.GetNumTempRegisters(), other.GetNumInstructions());
+}
 
 bool ezExpressionByteCode::operator==(const ezExpressionByteCode& other) const
 {
-  return m_ByteCode == other.m_ByteCode &&
-         m_Inputs == other.m_Inputs &&
-         m_Outputs == other.m_Outputs &&
-         m_Functions == other.m_Functions;
+  return GetByteCode() == other.GetByteCode() &&
+         GetInputs() == other.GetInputs() &&
+         GetOutputs() == other.GetOutputs() &&
+         GetFunctions() == other.GetFunctions();
 }
 
 void ezExpressionByteCode::Clear()
 {
-  m_ByteCode.Clear();
-  m_Inputs.Clear();
-  m_Outputs.Clear();
-  m_Functions.Clear();
+  ezMemoryUtils::Destruct(m_pInputs, m_uiNumInputs);
+  ezMemoryUtils::Destruct(m_pOutputs, m_uiNumOutputs);
+  ezMemoryUtils::Destruct(m_pFunctions, m_uiNumFunctions);
 
-  m_uiNumInstructions = 0;
+  m_pInputs = nullptr;
+  m_pOutputs = nullptr;
+  m_pFunctions = nullptr;
+  m_pByteCode = nullptr;
+
+  m_uiByteCodeCount = 0;
+  m_uiNumInputs = 0;
+  m_uiNumOutputs = 0;
+  m_uiNumFunctions = 0;
+
   m_uiNumTempRegisters = 0;
+  m_uiNumInstructions = 0;
+
+  m_Data.Clear();
 }
 
 void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 {
   out_sDisassembly.Append("// Inputs:\n");
-  for (ezUInt32 i = 0; i < m_Inputs.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_uiNumInputs; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_Inputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_Inputs[i].m_DataType));
+    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pInputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_pInputs[i].m_DataType));
   }
 
   out_sDisassembly.Append("\n// Outputs:\n");
-  for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_uiNumOutputs; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_Outputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_Outputs[i].m_DataType));
+    out_sDisassembly.AppendFormat("//  {}: {}({})\n", i, m_pOutputs[i].m_sName, ezProcessingStream::GetDataTypeName(m_pOutputs[i].m_DataType));
   }
 
   out_sDisassembly.Append("\n// Functions:\n");
-  for (ezUInt32 i = 0; i < m_Functions.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_uiNumFunctions; ++i)
   {
-    out_sDisassembly.AppendFormat("//  {}: {} {}(", i, ezExpression::RegisterType::GetName(m_Functions[i].m_OutputType), m_Functions[i].m_sName);
-    const ezUInt32 uiNumArguments = m_Functions[i].m_InputTypes.GetCount();
+    out_sDisassembly.AppendFormat("//  {}: {} {}(", i, ezExpression::RegisterType::GetName(m_pFunctions[i].m_OutputType), m_pFunctions[i].m_sName);
+    const ezUInt32 uiNumArguments = m_pFunctions[i].m_InputTypes.GetCount();
     for (ezUInt32 j = 0; j < uiNumArguments; ++j)
     {
-      out_sDisassembly.Append(ezExpression::RegisterType::GetName(m_Functions[i].m_InputTypes[j]));
+      out_sDisassembly.Append(ezExpression::RegisterType::GetName(m_pFunctions[i].m_InputTypes[j]));
       if (j < uiNumArguments - 1)
       {
         out_sDisassembly.Append(", ");
@@ -241,14 +273,15 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     out_sDisassembly.Append(")\n");
   }
 
-  out_sDisassembly.AppendFormat("\n// Temp Registers: {}\n", m_uiNumTempRegisters);
-  out_sDisassembly.AppendFormat("// Instructions: {}\n\n", m_uiNumInstructions);
+  out_sDisassembly.AppendFormat("\n// Temp Registers: {}\n", GetNumTempRegisters());
+  out_sDisassembly.AppendFormat("// Instructions: {}\n\n", GetNumInstructions());
 
-  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_sString) {
+  auto AppendConstant = [](ezUInt32 x, ezStringBuilder& out_sString)
+  {
     out_sString.AppendFormat("0x{}({})", ezArgU(x, 8, true, 16), ezArgF(*reinterpret_cast<float*>(&x), 6));
   };
 
-  const StorageType* pByteCode = GetByteCode();
+  const StorageType* pByteCode = GetByteCodeStart();
   const StorageType* pByteCodeEnd = GetByteCodeEnd();
 
   while (pByteCode < pByteCodeEnd)
@@ -313,24 +346,24 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
       ezUInt32 r = GetRegisterIndex(pByteCode);
       ezUInt32 i = GetRegisterIndex(pByteCode);
 
-      out_sDisassembly.AppendFormat("r{} i{}({})\n", r, i, m_Inputs[i].m_sName);
+      out_sDisassembly.AppendFormat("r{} i{}({})\n", r, i, m_pInputs[i].m_sName);
     }
     else if (opCode == OpCode::StoreF || opCode == OpCode::StoreI)
     {
       ezUInt32 o = GetRegisterIndex(pByteCode);
       ezUInt32 r = GetRegisterIndex(pByteCode);
 
-      out_sDisassembly.AppendFormat("o{}({}) r{}\n", o, m_Outputs[o].m_sName, r);
+      out_sDisassembly.AppendFormat("o{}({}) r{}\n", o, m_pOutputs[o].m_sName, r);
     }
     else if (opCode == OpCode::Call)
     {
       ezUInt32 uiIndex = GetFunctionIndex(pByteCode);
-      const char* szName = m_Functions[uiIndex].m_sName;
+      const char* szName = m_pFunctions[uiIndex].m_sName;
 
       ezStringBuilder sName;
       if (ezStringUtils::IsNullOrEmpty(szName))
       {
-        sName.Format("Unknown_{0}", uiIndex);
+        sName.SetFormat("Unknown_{0}", uiIndex);
       }
       else
       {
@@ -357,91 +390,179 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
   }
 }
 
-static constexpr ezUInt32 s_uiMetaDataVersion = 4;
-static constexpr ezUInt32 s_uiCodeVersion = 3;
+static constexpr ezTypeVersion s_uiByteCodeVersion = 6;
 
-void ezExpressionByteCode::Save(ezStreamWriter& inout_stream) const
+ezResult ezExpressionByteCode::Save(ezStreamWriter& inout_stream) const
 {
-  ezChunkStreamWriter chunk(inout_stream);
+  inout_stream.WriteVersion(s_uiByteCodeVersion);
 
-  chunk.BeginStream(1);
+  ezUInt32 uiDataSize = static_cast<ezUInt32>(m_Data.GetByteBlobPtr().GetCount());
 
+  inout_stream << uiDataSize;
+
+  inout_stream << m_uiNumInputs;
+  for (auto& input : GetInputs())
   {
-    chunk.BeginChunk("MetaData", s_uiMetaDataVersion);
-
-    chunk << m_uiNumInstructions;
-    chunk << m_uiNumTempRegisters;
-    chunk.WriteArray(m_Inputs).IgnoreResult();
-    chunk.WriteArray(m_Outputs).IgnoreResult();
-    chunk.WriteArray(m_Functions).IgnoreResult();
-
-    chunk.EndChunk();
+    EZ_SUCCEED_OR_RETURN(input.Serialize(inout_stream));
   }
 
+  inout_stream << m_uiNumOutputs;
+  for (auto& output : GetOutputs())
   {
-    chunk.BeginChunk("Code", s_uiCodeVersion);
-
-    chunk << m_ByteCode.GetCount();
-    chunk.WriteBytes(m_ByteCode.GetData(), m_ByteCode.GetCount() * sizeof(StorageType)).IgnoreResult();
-
-    chunk.EndChunk();
+    EZ_SUCCEED_OR_RETURN(output.Serialize(inout_stream));
   }
 
-  chunk.EndStream();
-}
-
-ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream)
-{
-  ezChunkStreamReader chunk(inout_stream);
-  chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::SkipToEnd);
-
-  chunk.BeginStream();
-
-  while (chunk.GetCurrentChunk().m_bValid)
+  inout_stream << m_uiNumFunctions;
+  for (auto& function : GetFunctions())
   {
-    if (chunk.GetCurrentChunk().m_sChunkName == "MetaData")
-    {
-      if (chunk.GetCurrentChunk().m_uiChunkVersion >= s_uiMetaDataVersion)
-      {
-        chunk >> m_uiNumInstructions;
-        chunk >> m_uiNumTempRegisters;
-        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Inputs));
-        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Outputs));
-        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Functions));
-      }
-      else
-      {
-        ezLog::Error("Invalid MetaData Chunk Version {}. Expected >= {}", chunk.GetCurrentChunk().m_uiChunkVersion, s_uiMetaDataVersion);
-
-        chunk.EndStream();
-        return EZ_FAILURE;
-      }
-    }
-    else if (chunk.GetCurrentChunk().m_sChunkName == "Code")
-    {
-      if (chunk.GetCurrentChunk().m_uiChunkVersion >= s_uiCodeVersion)
-      {
-        ezUInt32 uiByteCodeCount = 0;
-        chunk >> uiByteCodeCount;
-
-        m_ByteCode.SetCountUninitialized(uiByteCodeCount);
-        chunk.ReadBytes(m_ByteCode.GetData(), uiByteCodeCount * sizeof(StorageType));
-      }
-      else
-      {
-        ezLog::Error("Invalid Code Chunk Version {}. Expected >= {}", chunk.GetCurrentChunk().m_uiChunkVersion, s_uiCodeVersion);
-
-        chunk.EndStream();
-        return EZ_FAILURE;
-      }
-    }
-
-    chunk.NextChunk();
+    EZ_SUCCEED_OR_RETURN(function.Serialize(inout_stream));
   }
 
-  chunk.EndStream();
+  inout_stream << m_uiByteCodeCount;
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(m_pByteCode, m_uiByteCodeCount * sizeof(StorageType)));
+
+  inout_stream << m_uiNumTempRegisters;
+  inout_stream << m_uiNumInstructions;
 
   return EZ_SUCCESS;
 }
 
+ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr externalMemory /*= ezByteArrayPtr()*/)
+{
+  ezTypeVersion version = inout_stream.ReadVersion(s_uiByteCodeVersion);
+  if (version != s_uiByteCodeVersion)
+  {
+    ezLog::Error("Invalid expression byte code version {}. Expected {}", version, s_uiByteCodeVersion);
+    return EZ_FAILURE;
+  }
 
+  ezUInt32 uiDataSize = 0;
+  inout_stream >> uiDataSize;
+
+  void* pData = nullptr;
+  if (externalMemory.IsEmpty())
+  {
+    m_Data.SetCountUninitialized(uiDataSize);
+    m_Data.ZeroFill();
+    pData = m_Data.GetByteBlobPtr().GetPtr();
+  }
+  else
+  {
+    if (externalMemory.GetCount() < uiDataSize)
+    {
+      ezLog::Error("External memory is too small. Expected at least {} bytes but got {} bytes.", uiDataSize, externalMemory.GetCount());
+      return EZ_FAILURE;
+    }
+
+    if (ezMemoryUtils::IsAligned(externalMemory.GetPtr(), EZ_ALIGNMENT_OF(ezExpression::StreamDesc)) == false)
+    {
+      ezLog::Error("External memory is not properly aligned. Expected an alignment of at least {} bytes.", EZ_ALIGNMENT_OF(ezExpression::StreamDesc));
+      return EZ_FAILURE;
+    }
+
+    pData = externalMemory.GetPtr();
+  }
+
+  // Inputs
+  {
+    inout_stream >> m_uiNumInputs;
+    m_pInputs = static_cast<ezExpression::StreamDesc*>(pData);
+    for (ezUInt32 i = 0; i < m_uiNumInputs; ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(m_pInputs[i].Deserialize(inout_stream));
+    }
+
+    pData = ezMemoryUtils::AddByteOffset(pData, GetInputs().ToByteArray().GetCount());
+  }
+
+  // Outputs
+  {
+    inout_stream >> m_uiNumOutputs;
+    m_pOutputs = static_cast<ezExpression::StreamDesc*>(pData);
+    for (ezUInt32 i = 0; i < m_uiNumOutputs; ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(m_pOutputs[i].Deserialize(inout_stream));
+    }
+
+    pData = ezMemoryUtils::AddByteOffset(pData, GetOutputs().ToByteArray().GetCount());
+  }
+
+  // Functions
+  {
+    pData = ezMemoryUtils::AlignForwards(pData, EZ_ALIGNMENT_OF(ezExpression::FunctionDesc));
+
+    inout_stream >> m_uiNumFunctions;
+    m_pFunctions = static_cast<ezExpression::FunctionDesc*>(pData);
+    for (ezUInt32 i = 0; i < m_uiNumFunctions; ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(m_pFunctions[i].Deserialize(inout_stream));
+    }
+
+    pData = ezMemoryUtils::AddByteOffset(pData, GetFunctions().ToByteArray().GetCount());
+  }
+
+  // ByteCode
+  {
+    pData = ezMemoryUtils::AlignForwards(pData, EZ_ALIGNMENT_OF(StorageType));
+
+    inout_stream >> m_uiByteCodeCount;
+    m_pByteCode = static_cast<StorageType*>(pData);
+    inout_stream.ReadBytes(m_pByteCode, m_uiByteCodeCount * sizeof(StorageType));
+  }
+
+  inout_stream >> m_uiNumTempRegisters;
+  inout_stream >> m_uiNumInstructions;
+
+  return EZ_SUCCESS;
+}
+
+void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayPtr<const ezExpression::StreamDesc> inputs, ezArrayPtr<const ezExpression::StreamDesc> outputs, ezArrayPtr<const ezExpression::FunctionDesc> functions, ezUInt32 uiNumTempRegisters, ezUInt32 uiNumInstructions)
+{
+  ezUInt32 uiOutputsOffset = 0;
+  ezUInt32 uiFunctionsOffset = 0;
+  ezUInt32 uiByteCodeOffset = 0;
+
+  ezUInt32 uiDataSize = 0;
+  uiDataSize += inputs.ToByteArray().GetCount();
+  uiOutputsOffset = uiDataSize;
+  uiDataSize += outputs.ToByteArray().GetCount();
+
+  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, EZ_ALIGNMENT_OF(ezExpression::FunctionDesc));
+  uiFunctionsOffset = uiDataSize;
+  uiDataSize += functions.ToByteArray().GetCount();
+
+  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, EZ_ALIGNMENT_OF(StorageType));
+  uiByteCodeOffset = uiDataSize;
+  uiDataSize += byteCode.ToByteArray().GetCount();
+
+  m_Data.SetCountUninitialized(uiDataSize);
+  m_Data.ZeroFill();
+
+  void* pData = m_Data.GetByteBlobPtr().GetPtr();
+
+  EZ_ASSERT_DEV(inputs.GetCount() < ezSmallInvalidIndex, "Too many inputs");
+  m_pInputs = static_cast<ezExpression::StreamDesc*>(pData);
+  m_uiNumInputs = static_cast<ezUInt16>(inputs.GetCount());
+  ezMemoryUtils::Copy(m_pInputs, inputs.GetPtr(), m_uiNumInputs);
+
+  EZ_ASSERT_DEV(outputs.GetCount() < ezSmallInvalidIndex, "Too many outputs");
+  m_pOutputs = static_cast<ezExpression::StreamDesc*>(ezMemoryUtils::AddByteOffset(pData, uiOutputsOffset));
+  m_uiNumOutputs = static_cast<ezUInt16>(outputs.GetCount());
+  ezMemoryUtils::Copy(m_pOutputs, outputs.GetPtr(), m_uiNumOutputs);
+
+  EZ_ASSERT_DEV(functions.GetCount() < ezSmallInvalidIndex, "Too many functions");
+  m_pFunctions = static_cast<ezExpression::FunctionDesc*>(ezMemoryUtils::AddByteOffset(pData, uiFunctionsOffset));
+  m_uiNumFunctions = static_cast<ezUInt16>(functions.GetCount());
+  ezMemoryUtils::Copy(m_pFunctions, functions.GetPtr(), m_uiNumFunctions);
+
+  m_pByteCode = static_cast<StorageType*>(ezMemoryUtils::AddByteOffset(pData, uiByteCodeOffset));
+  m_uiByteCodeCount = byteCode.GetCount();
+  ezMemoryUtils::Copy(m_pByteCode, byteCode.GetPtr(), m_uiByteCodeCount);
+
+  EZ_ASSERT_DEV(uiNumTempRegisters < ezSmallInvalidIndex, "Too many temp registers");
+  m_uiNumTempRegisters = static_cast<ezUInt16>(uiNumTempRegisters);
+  m_uiNumInstructions = uiNumInstructions;
+}
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);

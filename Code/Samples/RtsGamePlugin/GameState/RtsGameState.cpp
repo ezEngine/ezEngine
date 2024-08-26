@@ -28,18 +28,11 @@ float RtsGameState::SetCameraZoom(float fZoom)
   return m_fCameraZoom;
 }
 
-ezGameStatePriority RtsGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
-}
-
-void RtsGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void RtsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
-
-  m_SelectedUnits.SetWorld(m_pMainWorld);
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   if (ezImgui::GetSingleton() == nullptr)
   {
@@ -92,7 +85,7 @@ void RtsGameState::PreloadAssets()
 
 void RtsGameState::BeforeWorldUpdate()
 {
-  if (IsLoadingScene())
+  if (IsLoadingSceneInBackground())
     return;
 
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
@@ -161,6 +154,15 @@ void RtsGameState::ConfigureMainCamera()
 
   m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45.0f, 0.1f, 100);
   m_MainCamera.LookAt(vCameraPos, vCameraPos - coordSys.m_vUpDir, coordSys.m_vForwardDir);
+}
+
+
+void RtsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+{
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
+
+  m_SelectedUnits.Clear();
+  m_SelectedUnits.SetWorld(pNewWorld);
 }
 
 void RtsGameState::SwitchToGameMode(RtsActiveGameMode mode)
@@ -335,7 +337,8 @@ ezGameObject* RtsGameState::PickSelectableObject() const
   if (PickGroundPlanePosition(pl.vGroundPos).Failed())
     return nullptr;
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject)
+  {
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {

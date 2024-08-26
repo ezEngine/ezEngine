@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   m_v.Set(0xCDCDCDCD);
 #endif
 }
@@ -87,7 +87,26 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
 template <int N>
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::GetComponent() const
 {
-  return (&m_v.x)[N];
+  if constexpr (N == 0)
+  {
+    return m_v.x;
+  }
+  else if constexpr (N == 1)
+  {
+    return m_v.y;
+  }
+  else if constexpr (N == 2)
+  {
+    return m_v.z;
+  }
+  else if constexpr (N == 3)
+  {
+    return m_v.w;
+  }
+  else
+  {
+    return m_v.w;
+  }
 }
 
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::x() const
@@ -120,6 +139,21 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
   result.m_v.y = v[(s & 0x0300) >> 8];
   result.m_v.z = v[(s & 0x0030) >> 4];
   result.m_v.w = v[(s & 0x0003)];
+
+  return result;
+}
+
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::GetCombined(const ezSimdVec4i& other) const
+{
+  ezSimdVec4i result;
+
+  const ezInt32* v = &m_v.x;
+  const ezInt32* o = &other.m_v.x;
+  result.m_v.x = v[(s & 0x3000) >> 12];
+  result.m_v.y = v[(s & 0x0300) >> 8];
+  result.m_v.z = o[(s & 0x0030) >> 4];
+  result.m_v.w = o[(s & 0x0003)];
 
   return result;
 }

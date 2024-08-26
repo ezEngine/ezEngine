@@ -196,10 +196,8 @@ protected:
   /// editor. If instead the sound gets started in OnSimulationStarted(), it will only play once the user starts the game mode inside the
   /// editor.
   ///
-  /// Additionally, OnSimulationStarted() is only ever executed once on a component, even if the ezWorld pauses and resumes world simulation
-  /// multiple times. Thus components that should only execute a thing exactly once, will work correctly. In contrast OnActivated() and
-  /// OnDeactivated() will be executed every time the component's active state is toggled, which could re-execute the same behavior multiple
-  /// times.
+  /// Additionally, OnSimulationStarted() is only executed once, even if the ezWorld pauses and resumes world simulation multiple times.
+  /// However, note that it will be called again after the component has been deactivated and is activated again.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnSimulationStarted();
@@ -231,7 +229,7 @@ private:
 
   ezGameObject* Reflection_GetOwner() const;
   ezWorld* Reflection_GetWorld() const;
-  void Reflection_Update();
+  void Reflection_Update(ezTime deltaTime);
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;

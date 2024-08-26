@@ -12,6 +12,8 @@
 #define LIGHT_TYPE_POINT 0
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
+#define LIGHT_TYPE_FILL_ADDITIVE 3
+#define LIGHT_TYPE_FILL_MODULATE_INDIRECT 4
 
 struct EZ_SHADER_STRUCT ezPerLightData
 {
@@ -23,17 +25,16 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
 
-  UINT1(spotParams); // scale and offset as 16 bit floats
+  UINT1(spotOrFillParams); // spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
   UINT1(projectorAtlasOffset); // xy as 16 bit floats
   UINT1(projectorAtlasScale); // xy as 16 bit floats
-
-  UINT1(reserved);
+  FLOAT1(specularMultiplier);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerLightData> perLightDataBuffer;
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
+  static_assert(sizeof(ezPerLightData) == 48);
 #endif
 
 struct EZ_SHADER_STRUCT ezPointShadowData
@@ -50,10 +51,10 @@ struct EZ_SHADER_STRUCT ezSpotShadowData
 
 struct EZ_SHADER_STRUCT ezDirShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = num cascades
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = last cascade index
   MAT4(worldToLightMatrix);
   FLOAT4(shadowParams2); // x = cascade border threshold, y = xy dither multiplier, z = z dither multiplier, w = penumbra size increment
-  FLOAT4(fadeOutParams); // x = xy fadeout scale, y = xy fadeout offset, z = z fadeout scale, w = z fadeout offset
+  FLOAT4(fadeOutParams); // x = xy fadeout scale offset (fp16), y = z fadeout scale offset (fp16), z = distance fadeout scale, w = distance fadeout offset
   FLOAT4(cascadeScaleOffset)[6]; // interleaved, maxNumCascades - 1 since first cascade has identity scale and offset
   FLOAT4(atlasScaleOffset)[4];
 
@@ -103,7 +104,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
+  static_assert(sizeof(ezPerDecalData) == 96);
 #endif
 
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)
@@ -129,7 +130,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
+  static_assert(sizeof(ezPerReflectionProbeData) == 160);
 #endif
 
   CONSTANT_BUFFER(ezClusteredDataConstants, 3)

@@ -196,5 +196,3 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStringView sFile)
 
   return ReadDependencyFile(file);
 }
-
-

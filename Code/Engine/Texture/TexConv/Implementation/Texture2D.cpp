@@ -181,5 +181,3 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
 
   return EZ_SUCCESS;
 }
-
-

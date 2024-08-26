@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Gradient", GetColorGradient, SetColorGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("Duration", m_Duration),
     EZ_ENUM_MEMBER_PROPERTY("SetColorMode", ezSetColorMode, m_SetColorMode),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
@@ -73,26 +73,6 @@ void ezColorAnimationComponent::OnSimulationStarted()
   {
     m_CurAnimTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_Duration.GetSeconds()));
   }
-}
-
-void ezColorAnimationComponent::SetColorGradientFile(const char* szFile)
-{
-  ezColorGradientResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
-  }
-
-  SetColorGradient(hResource);
-}
-
-const char* ezColorAnimationComponent::GetColorGradientFile() const
-{
-  if (!m_hGradient.IsValid())
-    return "";
-
-  return m_hGradient.GetResourceID();
 }
 
 void ezColorAnimationComponent::SetColorGradient(const ezColorGradientResourceHandle& hResource)

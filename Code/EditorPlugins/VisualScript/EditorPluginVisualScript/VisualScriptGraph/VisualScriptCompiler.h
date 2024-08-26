@@ -70,10 +70,14 @@ public:
     ezHashedString m_sTargetTypeName;
     ezVariant m_Value;
 
-    ezSmallArray<AstNode*, 8> m_Next;
-    ezSmallArray<DataInput, 4> m_Inputs;
-    ezSmallArray<DataOutput, 4> m_Outputs;
+    ezSmallArray<AstNode*, 4> m_Next;
+    ezSmallArray<DataInput, 5> m_Inputs;
+    ezSmallArray<DataOutput, 2> m_Outputs;
   };
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+  static_assert(sizeof(AstNode) == 256);
+#endif
 
 private:
   using DataOffset = ezVisualScriptDataDescription::DataOffset;
@@ -122,10 +126,10 @@ private:
 
   struct Connection
   {
-    AstNode* m_pPrev = nullptr;
-    AstNode* m_pCurrent = nullptr;
+    AstNode* m_pSource = nullptr;
+    AstNode* m_pTarget = nullptr;
     ConnectionType::Enum m_Type = ConnectionType::Execution;
-    ezUInt32 m_uiPrevPinIndex = 0;
+    ezUInt32 m_uiSourcePinIndex = 0;
   };
 
   AstNode* BuildAST(const ezDocumentObject* pEntryNode);
@@ -139,7 +143,7 @@ private:
   ezResult BuildDataExecutions(AstNode* pEntryAstNode);
   ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
   ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
-  ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);  
+  ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);
 
   struct ConnectionHasher
   {

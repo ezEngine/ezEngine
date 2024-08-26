@@ -31,7 +31,7 @@ void ezWorldModule::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
   m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-ezAllocatorBase* ezWorldModule::GetAllocator()
+ezAllocator* ezWorldModule::GetAllocator()
 {
   return m_pWorld->GetAllocator();
 }
@@ -143,7 +143,7 @@ ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtt
   {
     EZ_ASSERT_DEV(s_uiNextTypeId < EZ_MAX_WORLD_MODULE_TYPES - 1, "World module id overflow!");
 
-  uiTypeId = s_uiNextTypeId++;
+    uiTypeId = s_uiNextTypeId++;
   }
   else
   {
@@ -192,7 +192,8 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
   ezDynamicArray<ezPlugin::PluginInfo> infos;
   ezPlugin::GetAllPluginInfos(infos);
 
-  auto HasManualDependency = [&](ezStringView sPluginName) -> bool {
+  auto HasManualDependency = [&](ezStringView sPluginName) -> bool
+  {
     for (const auto& p : infos)
     {
       if (p.m_sName == sPluginName)
@@ -235,7 +236,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   // the mapping for m_TypeToId[ezWorldModule(interface)], such that querying the TypeID for the interface works as well
   // and yields the implementation
 
-  ezHybridArray<NewEntry, 64, ezStaticAllocatorWrapper> newEntries;
+  ezHybridArray<NewEntry, 64, ezStaticsAllocatorWrapper> newEntries;
   const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
   // explicit mappings
@@ -298,7 +299,8 @@ void ezWorldModuleFactory::FillBaseTypeIds()
 void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
 {
   ezSet<const ezRTTI*> allRttis;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { allRttis.Insert(pRtti); });
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+    { allRttis.Insert(pRtti); });
 
   ezSet<ezWorldModuleTypeId> mappedIdsToRemove;
 

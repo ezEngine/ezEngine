@@ -37,11 +37,45 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(nullptr, nullptr) == nullptr);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
+  {
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("") == "");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt") == "txt");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.cc") == "cc");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar.") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/bar.txt/bar") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/.hidden") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("/foo/..bar") == "");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz.tar") == "tar");
+    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("foo.bar.baz") == "baz");
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
   {
     EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file.extension"));
     EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file_no_extension"));
     EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension(""));
+
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt"));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar"));
+    EZ_TEST_BOOL(ezPathUtils::HasAnyExtension("/foo/bar.txt/bar.cc"));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar.txt/bar."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/bar.txt/bar"));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension(".."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.."));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/.hidden"));
+    EZ_TEST_BOOL(!ezPathUtils::HasAnyExtension("/foo/..bar"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
@@ -52,13 +86,31 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(!ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Ext"));
     EZ_TEST_BOOL(!ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", "sion"));
     EZ_TEST_BOOL(!ezPathUtils::HasExtension("", "ext"));
-  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
-  {
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
-    EZ_TEST_BOOL(ezPathUtils::GetFileExtension("") == "");
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt", "txt"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar.cc", "cc"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar.", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/bar.txt/bar", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/.", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/..", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/.hidden", ""));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("/foo/..bar", ""));
+    EZ_TEST_BOOL(!ezPathUtils::HasExtension(".file", ".file"));
+    EZ_TEST_BOOL(!ezPathUtils::HasExtension(".file", "file"));
+    EZ_TEST_BOOL(!ezPathUtils::HasExtension("folder/.file", ".file"));
+    EZ_TEST_BOOL(!ezPathUtils::HasExtension("folder/.file", "file"));
+
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("foo.bar.baz.tar", "tar"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("foo.bar.baz", "baz"));
+
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.txt", "txt"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.txt", ".txt"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", ".b"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", "a.b"));
+    EZ_TEST_BOOL(ezPathUtils::HasExtension("file.a.b", ".a.b"));
+    EZ_TEST_BOOL(!ezPathUtils::HasExtension("file.a.b", "file.a.b"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
@@ -70,6 +122,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("") == "");
     EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("/") == "");
     EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("file") == "file");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("file.ext") == "file.ext");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension(".stupidfile") == ".stupidfile");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("folder/.") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("folder/..") == "..");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension(".") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileNameAndExtension("..") == "..");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
@@ -81,8 +140,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::GetFileName("/") == "");
     EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\") == "");
 
-    // so far we treat file and folders whose names start with a '.' as extensions
-    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\.stupidfile") == "");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\.stupidfile") == ".stupidfile");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName(".stupidfile") == ".stupidfile");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.ext") == "File");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.") == "File.");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("File.ext.") == "File.ext.");
+
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("folder/.") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("folder/..") == "..");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName(".") == ".");
+    EZ_TEST_BOOL(ezPathUtils::GetFileName("..") == "..");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
@@ -126,21 +194,29 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
     EZ_TEST_BOOL(root == "MyRoot");
     EZ_TEST_BOOL(relPath == "folder\\file.txt");
+
     ezPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
     EZ_TEST_BOOL(root.IsEmpty());
     EZ_TEST_BOOL(relPath == "folder\\file2.txt");
+
+    ezPathUtils::GetRootedPathParts(":root", root, relPath);
+    EZ_TEST_BOOL(root == "root");
+    EZ_TEST_BOOL(relPath == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath")
   {
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/SomeFolder"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:/DataDir/", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:/DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath("C:\\DataDir\\", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath("C:\\DataDiR", "C:/DataDir/SomeFolder"));
@@ -154,12 +230,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsSubPath_NoCase")
   {
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/SomeFolder"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir/"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:/DataDir/", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:/DataDir", "C:/DataDir2"));
 
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/SomeFolder"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir"));
+    EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir\\", "C:/DataDir"));
     EZ_TEST_BOOL(ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir/"));
     EZ_TEST_BOOL(!ezPathUtils::IsSubPath_NoCase("C:\\DataDir", "C:/DataDir2"));
 

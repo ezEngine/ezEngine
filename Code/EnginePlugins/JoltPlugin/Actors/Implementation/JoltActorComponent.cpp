@@ -135,7 +135,8 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
   CreateShapes(shapes, towner, fDensity, pMaterial);
   GatherShapes(shapes, GetOwner(), towner, fDensity, pMaterial);
 
-  auto cleanShapes = [&]() {
+  auto cleanShapes = [&]()
+  {
     for (auto& s : shapes)
     {
       if (s.m_pShape)
@@ -239,4 +240,3 @@ void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltActorComponent);
-

@@ -53,8 +53,8 @@ Only concrete and clocks.\n\
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     // for absolute paths
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(szOutputFolder, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(szOutputFolder, "Clear", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezStringBuilder sTempFile = sOutputFolder1Resolved;
     sTempFile.AppendPath(LongPath);
@@ -70,16 +70,16 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(TempFile.Open(sTempFile) == EZ_SUCCESS);
     TempFile.Close();
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Clear", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Clear", "output1", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Clear") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Remove") == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove") == EZ_SUCCESS);
 
     EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Remove"), 3);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "Remove") == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove") == EZ_SUCCESS);
 
@@ -88,13 +88,13 @@ Only concrete and clocks.\n\
     EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Remove"), 0);
     EZ_TEST_INT(ezFileSystem::RemoveDataDirectoryGroup("Clear"), 0);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1, "", "output1", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2) == EZ_SUCCESS);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add / Remove Data Dirs")
   {
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "xyz-rooted", "xyz", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "xyz-rooted", "xyz", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     EZ_TEST_BOOL(ezFileSystem::FindDataDirectoryWithRoot("xyz") != nullptr);
 
@@ -244,7 +244,7 @@ Only concrete and clocks.\n\
 
     // create a file in the second dir
     {
-      EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "Remove", "output2", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
       {
         ezFileWriter FileOut;
@@ -293,8 +293,8 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindFolderWithSubPath")
   {
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(szOutputFolder, "remove", "toplevel", ezFileSystem::AllowWrites) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(szOutputFolder, "remove", "toplevel", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2, "remove", "output2", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezStringBuilder StartPath;
     ezStringBuilder SubPath;

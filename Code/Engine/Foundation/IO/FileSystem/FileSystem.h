@@ -56,13 +56,6 @@ public:
   static void UnregisterEventHandler(ezEventSubscriptionID subscriptionId);
 
 public:
-  /// \brief Describes in which mode a data directory is mounted.
-  enum DataDirUsage
-  {
-    ReadOnly,
-    AllowWrites,
-  };
-
   /// \name Data Directory Modifications
   ///
   /// All functions that add / remove data directories are not thread safe and require that this is done
@@ -78,7 +71,7 @@ public:
   /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
-  using ezDataDirFactory = ezDataDirectoryType* (*)(ezStringView, ezStringView, ezStringView, ezFileSystem::DataDirUsage);
+  using ezDataDirFactory = ezDataDirectoryType* (*)(ezStringView, ezStringView, ezStringView, ezDataDirUsage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
   static void RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority = 0); // [tested]
@@ -98,7 +91,7 @@ public:
   /// that data directory. It must be used when writing to a file in this directory. For instance, if a data dir root name is "mydata", then the path
   /// ":mydata/SomeFile.txt" can be used to write to the top level folder of this data directory. The same can be used for reading exactly that file
   /// and ignoring the other data dirs.
-  static ezResult AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup = {}, ezStringView sRootName = {}, ezFileSystem::DataDirUsage usage = ReadOnly); // [tested]
+  static ezResult AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup = {}, ezStringView sRootName = {}, ezDataDirUsage usage = ezDataDirUsage::ReadOnly); // [tested]
 
   /// \brief Searches for a data directory with the given root name and removes it
   ///
@@ -112,13 +105,16 @@ public:
   static void ClearAllDataDirectories(); // [tested]
 
   /// \brief If a data directory with the given root name already exists, it will be returned, nullptr otherwise.
-  static ezDataDirectoryType* FindDataDirectoryWithRoot(ezStringView sRootName);
+  static const ezDataDirectoryInfo* FindDataDirectoryWithRoot(ezStringView sRootName);
 
   /// \brief Returns the number of currently active data directories.
   static ezUInt32 GetNumDataDirectories(); // [tested]
 
   /// \brief Returns the n-th currently active data directory.
   static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex); // [tested]
+
+  /// \brief Returns the info about the n-th currently active data directory.
+  static const ezDataDirectoryInfo& GetDataDirectoryInfo(ezUInt32 uiDataDirIndex);
 
   /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
   static void ReloadAllExternalDataDirectoryConfigs();
@@ -225,15 +221,15 @@ public:
   /// If the path is relative, it is attempted to open the specified file, which means it is searched in all available
   /// data directories. The path to the file that is found will be returned.
   ///
+  /// \param sPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
+  /// directory that would handle it.
   /// \param out_sAbsolutePath will contain the absolute path to the file. Can be nullptr.
   /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Can be
   /// nullptr.
-  /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data
-  /// directory that would handle it.
   /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, ezDataDirectoryType** out_pDataDir = nullptr); // [tested]
+  static ezResult ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, const ezDataDirectoryInfo** out_pDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   ///
@@ -290,15 +286,6 @@ private:
   static void Shutdown();
 
 private:
-  struct DataDirectory
-  {
-    DataDirUsage m_Usage;
-
-    ezString m_sRootName;
-    ezString m_sGroup;
-    ezDataDirectoryType* m_pDataDirectory;
-  };
-
   struct Factory
   {
     EZ_DECLARE_POD_TYPE();
@@ -310,19 +297,19 @@ private:
   struct FileSystemData
   {
     ezHybridArray<Factory, 4> m_DataDirFactories;
-    ezHybridArray<DataDirectory, 16> m_DataDirectories;
+    ezHybridArray<ezDataDirectoryInfo, 16> m_DataDirectories;
 
     ezEvent<const FileEvent&, ezMutex> m_Event;
     ezMutex m_FsMutex;
   };
 
-  /// \brief Returns a list of data directory categories that were embedded in the path.
+  /// \brief Extracts the root name in a rooted path, e.g. for ":bin/stuff" it would extract "bin". Returns the relative path (here "stuff") or an empty string if it is a root only.
   static ezStringView ExtractRootName(ezStringView sFile, ezString& rootName);
 
   /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
   static ezStringView GetDataDirRelativePath(ezStringView sFile, ezUInt32 uiDataDir);
 
-  static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
+  static ezDataDirectoryInfo* GetDataDirForRoot(const ezString& sRoot);
 
   static void CleanUpRootName(ezStringBuilder& sRoot);
 

@@ -7,15 +7,17 @@ class EZ_FOUNDATION_DLL ezRefCountingImpl
 {
 public:
   /// \brief Constructor
-  ezRefCountingImpl() = default; // [tested]
+  ezRefCountingImpl() = default;                  // [tested]
 
   ezRefCountingImpl(const ezRefCountingImpl& rhs) // [tested]
   {
+    EZ_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 
   void operator=(const ezRefCountingImpl& rhs) // [tested]
   {
+    EZ_IGNORE_UNUSED(rhs);
     // do not copy the ref count
   }
 

@@ -16,6 +16,7 @@ namespace ezMath
   template <typename Type>
   constexpr static bool IsNaN(Type value)
   {
+    EZ_IGNORE_UNUSED(value);
     return false;
   }
 
@@ -23,6 +24,7 @@ namespace ezMath
   template <typename Type>
   constexpr static bool IsFinite(Type value)
   {
+    EZ_IGNORE_UNUSED(value);
     return true;
   }
 
@@ -120,6 +122,40 @@ namespace ezMath
   template <typename T>
   [[nodiscard]] constexpr T Clamp(T value, T min_val, T max_val); // [tested]
 
+  /// \brief Wraps uiValue around the maximum value, so that it stays within the range [0; uiExcludedMaxValue-1].
+  ///
+  /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
+  /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
+  [[nodiscard]] constexpr ezUInt32 WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue); // [tested]
+
+  /// \brief Wraps iValue around the maximum value, so that it stays within the range [0; uiExcludedMaxValue-1].
+  ///
+  /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
+  /// Negative values are wrapped back around to a large value, ie -1 would be wrapped to (uiExcludedMaxValue-1).
+  /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
+  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue); // [tested]
+
+  /// \brief Wraps iValue around the minimum and maximum value, so that it stays within the range [iMinValue; iExcludedMaxValue-1].
+  ///
+  /// Ie a value of iExcludedMaxValue would be wrapped to iMinValue, and (iExcludedMaxValue+1) to (iMinValue+1), etc.
+  /// Values below iMinValue are wrapped back around to a large value, ie (iMinValue-1) would be wrapped to (iExcludedMaxValue-1).
+  ///
+  /// Both iMinValue and iExcludedMaxValue can be negative, but iMinValue has to be strictly smaller than iExcludedMaxValue.
+  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue); // [tested]
+
+  /// \brief Wraps a float value around to stay within the [0; 1] range.
+  ///
+  /// Wrapping happens in both positive and negative direction. Ie -0.1f will be wrapped to 0.9f and 1.1f will be wrapped to 0.1f.
+  /// Note that here the value 1.0f is included in the range. Only values larger than 1.0f get wrapped back to zero.
+  /// Therefore it is different to what 'Fraction' would return.
+  [[nodiscard]] float WrapFloat01(float fValue); // [tested]
+
+  /// \brief Wraps a float value around to stay within the [min; max] range.
+  ///
+  /// Both fMinValue and fMaxValue are inclusive.
+  /// Both values may be negative, but fMinValue has to be strictly smaller than fMaxValue.
+  [[nodiscard]] float WrapFloat(float fValue, float fMinValue, float fMaxValue); // [tested]
+
   /// \brief Clamps "value" to the range [0; 1]. Returns "value", if it is inside the range already
   template <typename T>
   [[nodiscard]] constexpr T Saturate(T value); // [tested]
@@ -127,8 +163,18 @@ namespace ezMath
   /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
   [[nodiscard]] float Floor(float f); // [tested]
 
+  /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
+  ///
+  /// This function is identical to 'Floor()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 FloorToInt(float f); // [tested]
+
   /// \brief Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
   [[nodiscard]] float Ceil(float f); // [tested]
+
+  /// \brief Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
+  ///
+  /// This function is identical to 'Ceil()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 CeilToInt(float f); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is smaller than f.
   [[nodiscard]] float RoundDown(float f, float fMultiple); // [tested]
@@ -164,6 +210,13 @@ namespace ezMath
   ///
   /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
   [[nodiscard]] float Round(float f); // [tested]
+
+  /// \brief Rounds f to the next integer.
+  ///
+  /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
+  ///
+  /// This function is identical to 'Round()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 RoundToInt(float f); // [tested]
 
   /// \brief Rounds f to the next integer.
   ///
@@ -280,6 +333,10 @@ namespace ezMath
   template <typename T>
   [[nodiscard]] T Lerp(T f1, T f2, double fFactor); // [tested]
 
+  /// \brief Returns the interpolation factor such that Lerp(fMin, fMax, factor) == fValue.
+  template <typename T>
+  [[nodiscard]] constexpr float Unlerp(T fMin, T fMax, T fValue); // [tested]
+
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   [[nodiscard]] constexpr T Step(T value, T edge); // [tested]
@@ -287,6 +344,10 @@ namespace ezMath
   /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the hermite interpolation in between
   template <typename Type>
   [[nodiscard]] Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
+
+  /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the second order hermite interpolation in between
+  template <typename Type>
+  [[nodiscard]] Type SmootherStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// \brief Returns true, if there exists some x with base^x == value
   [[nodiscard]] EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]

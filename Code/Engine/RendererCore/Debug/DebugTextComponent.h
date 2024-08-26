@@ -24,13 +24,13 @@ public:
   ezDebugTextComponent();
   ~ezDebugTextComponent();
 
-  ezString m_sText;       // [ property ]
-  ezColorGammaUB m_Color; // [ property ]
+  ezString m_sText;                                               // [ property ]
+  ezColorGammaUB m_Color;                                         // [ property ]
 
-  float m_fValue0 = 0.0f; // [ property ]
-  float m_fValue1 = 0.0f; // [ property ]
-  float m_fValue2 = 0.0f; // [ property ]
-  float m_fValue3 = 0.0f; // [ property ]
+  float m_fValue0 = 0.0f;                                         // [ property ]
+  float m_fValue1 = 0.0f;                                         // [ property ]
+  float m_fValue2 = 0.0f;                                         // [ property ]
+  float m_fValue3 = 0.0f;                                         // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]

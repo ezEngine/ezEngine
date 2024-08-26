@@ -2,6 +2,7 @@
 
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/ThreadSignal.h>
+#include <Foundation/Time/Time.h>
 
 ezThreadSignal::ezThreadSignal(Mode mode /*= Mode::AutoReset*/)
 {
@@ -77,5 +78,3 @@ void ezThreadSignal::ClearSignal()
   EZ_LOCK(m_ConditionVariable);
   m_bSignalState = false;
 }
-
-

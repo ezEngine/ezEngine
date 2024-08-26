@@ -8,34 +8,33 @@ class ezVisualScriptPin : public ezPin
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezPin);
 
 public:
-  ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex);
+  ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex);
   ~ezVisualScriptPin();
 
-  EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == ezVisualScriptDataType::Invalid; }
-  EZ_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != ezVisualScriptDataType::Invalid; }
+  EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_pDesc->IsExecutionPin(); }
+  EZ_ALWAYS_INLINE bool IsDataPin() const { return m_pDesc->IsDataPin(); }
 
-  EZ_ALWAYS_INLINE const ezRTTI* GetDataType() const { return m_pDataType; }
-  EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetScriptDataType() const { return m_ScriptDataType; }
+  EZ_ALWAYS_INLINE const ezRTTI* GetDataType() const { return m_pDesc->m_pDataType; }
+  EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetScriptDataType() const { return m_pDesc->m_ScriptDataType; }
   ezVisualScriptDataType::Enum GetResolvedScriptDataType() const;
   ezStringView GetDataTypeName() const;
   EZ_ALWAYS_INLINE ezUInt32 GetDataPinIndex() const { return m_uiDataPinIndex; }
-  EZ_ALWAYS_INLINE bool IsRequired() const { return m_bRequired; }
-  EZ_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_bHasDynamicPinProperty; }
-  EZ_ALWAYS_INLINE bool SplitExecution() const { return m_bSplitExecution; }
-  EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_DeductTypeFunc != nullptr; }
+  EZ_ALWAYS_INLINE ezUInt32 GetElementIndex() const { return m_uiElementIndex; }
+  EZ_ALWAYS_INLINE bool IsRequired() const { return m_pDesc->m_bRequired; }
+  EZ_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty.IsEmpty() == false; }
+  EZ_ALWAYS_INLINE bool SplitExecution() const { return m_pDesc->m_bSplitExecution; }
+  EZ_ALWAYS_INLINE bool ReplaceWithArray() const { return m_pDesc->m_bReplaceWithArray; }
+  EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_pDesc->m_DeductTypeFunc != nullptr; }
 
-  EZ_ALWAYS_INLINE ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc GetDeductTypeFunc() const { return m_DeductTypeFunc; }
+  EZ_ALWAYS_INLINE const ezHashedString& GetDynamicPinProperty() const { return m_pDesc->m_sDynamicPinProperty; }
+  EZ_ALWAYS_INLINE ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc GetDeductTypeFunc() const { return m_pDesc->m_DeductTypeFunc; }
 
   bool CanConvertTo(const ezVisualScriptPin& targetPin, bool bUseResolvedDataTypes = true) const;
 
 private:
-  const ezRTTI* m_pDataType = nullptr;
-  ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc m_DeductTypeFunc = nullptr;
+  const ezVisualScriptNodeRegistry::PinDesc* m_pDesc = nullptr;
   ezUInt32 m_uiDataPinIndex = 0;
-  ezEnum<ezVisualScriptDataType> m_ScriptDataType;
-  bool m_bRequired = false;
-  bool m_bHasDynamicPinProperty = false;
-  bool m_bSplitExecution = false;
+  ezUInt32 m_uiElementIndex = 0;
 };
 
 class ezVisualScriptNodeManager : public ezDocumentNodeManager
@@ -76,7 +75,7 @@ private:
 
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
 
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
 
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
@@ -90,4 +89,7 @@ private:
   ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
   ezHashTable<const ezVisualScriptPin*, ezEnum<ezVisualScriptDataType>> m_PinToDeductedType;
   ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
+
+  mutable ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  mutable ezDeque<ezString> m_VariableNodeTypeNames;
 };

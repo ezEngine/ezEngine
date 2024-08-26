@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/Blob.h>
 
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWithPolicy.h>
 
 ezBlob::ezBlob() = default;
 
@@ -66,4 +66,9 @@ void ezBlob::ZeroFill()
   }
 }
 
+bool ezBlob::IsEmpty() const
+{
+  return 0 == m_uiSize;
+}
 
+EZ_STATICLINK_FILE(Foundation, Foundation_Containers_Implementation_Blob);

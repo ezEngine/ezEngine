@@ -25,7 +25,6 @@ ezResult ezStreamReader::ReadString(ezStringBuilder& ref_sBuilder)
       ref_sBuilder.m_Data.Reserve(uiCount + 1);
       ref_sBuilder.m_Data.SetCountUninitialized(uiCount);
       ReadBytes(ref_sBuilder.m_Data.GetData(), uiCount);
-      ref_sBuilder.m_uiCharacterCount = uiCount;
       ref_sBuilder.AppendTerminator();
     }
     else
@@ -68,5 +67,3 @@ ezResult ezStreamWriter::WriteString(const ezStringView sStringView)
 
   return EZ_SUCCESS;
 }
-
-

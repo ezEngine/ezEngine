@@ -373,8 +373,8 @@ static ezCallbackResult::Enum MarkPointsOnLineVisible(ezInt32 x, ezInt32 y, void
   const ezUInt32 uiBitfieldBiteOff = uiBitfieldByte << 2;             // modulo to determine where in the byte this cell is stored
   const ezUInt32 uiMaskShift = (uiCellIndex - uiBitfieldBiteOff) * 2; // times two because we use two bits
 
-  ezUInt8& CellFlagsRef = (*VisLine->m_pVisible)[uiBitfieldByte];    // for writing into the byte later
-  const ezUInt8 ThisCellsFlags = (CellFlagsRef >> uiMaskShift) & 3U; // the decoded flags value for reading (3U == lower two bits)
+  ezUInt8& CellFlagsRef = (*VisLine->m_pVisible)[uiBitfieldByte];     // for writing into the byte later
+  const ezUInt8 ThisCellsFlags = (CellFlagsRef >> uiMaskShift) & 3U;  // the decoded flags value for reading (3U == lower two bits)
 
   // if this point on the line was already visited and determined to be invisible, don't continue
   if (ThisCellsFlags == CellFlags::Invisible)
@@ -484,5 +484,3 @@ void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUIn
 
   ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsInConeVisible, &ld);
 }
-
-

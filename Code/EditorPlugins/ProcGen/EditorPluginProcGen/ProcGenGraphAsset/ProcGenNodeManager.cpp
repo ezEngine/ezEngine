@@ -83,18 +83,9 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezRTTI::ForEachDerivedType<ezProcGenNodeBase>(
-    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
-}
-
-ezStringView ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
-{
-  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
-  {
-    return pAttr->GetCategory();
-  }
-
-  return {};
 }
 
 ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const

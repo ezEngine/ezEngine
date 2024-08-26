@@ -1,6 +1,5 @@
 #include <Player/Player.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/Input/InputManager.h>
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -9,6 +8,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/RotorComponent.h>
 #include <GameEngine/Animation/SliderComponent.h>
@@ -67,16 +67,19 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   // if no custom game state is available, ezFallbackGameState will be used
   // the game state is also responsible for either creating a world, or loading it
   // the ezFallbackGameState inspects the command line to figure out which scene to load
-  ActivateGameState(nullptr).AssertSuccess();
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 void ezPlayerApplication::Run_InputUpdate()
 {
   SUPER::Run_InputUpdate();
 
-  if (GetActiveGameState() && GetActiveGameState()->WasQuitRequested())
+  if (auto pGameState = GetActiveGameState())
   {
-    RequestQuit();
+    if (pGameState->WasQuitRequested())
+    {
+      RequestQuit();
+    }
   }
 }
 

@@ -141,6 +141,13 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   opt.m_pMeshOutput = &meshDesc;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
+  if (pProp->m_bSimplifyMesh)
+  {
+    opt.m_uiMeshSimplification = pProp->m_uiMeshSimplification;
+    opt.m_uiMaxSimplificationError = pProp->m_uiMaxSimplificationError;
+    opt.m_bAggressiveSimplification = pProp->m_bAggressiveSimplification;
+  }
+
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
 
@@ -370,7 +377,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbs
   }
 }
 
-ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -381,11 +388,13 @@ ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInput
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)
     return ezStatus("Target document is not a valid ezJoltCollisionMeshAssetDocument");
 
@@ -420,7 +429,7 @@ void ezJoltConvexCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringVie
   }
 }
 
-ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -431,11 +440,13 @@ ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView 
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezJoltCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezJoltCollisionMeshAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)
     return ezStatus("Target document is not a valid ezJoltCollisionMeshAssetDocument");
 

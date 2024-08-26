@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
@@ -158,7 +159,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_uiThumbnailID = 0;
 
         m_pWidget->setText(ezMakeQString(sText));
-        
+
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
@@ -463,13 +464,30 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     {
       ezDocument* pDoc = nullptr;
 
-      const ezStatus res = ttu.pAssetMan->CreateDocument(
-        ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+      const ezStatus res = ttu.pAssetMan->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
 
       ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the document failed.");
 
       if (res.m_Result.Succeeded())
       {
+        // if this is an asset, make sure it gets transformed, so that the output file exists
+        // and make sure the filesystem knows about it (the asset lookup table is written)
+        // so that redirections inside the resource manager will work right away
+        // otherwise they may only work after a while (the world gets set up again) which would be irritating
+        if (ezAssetDocument* pAsset = ezDynamicCast<ezAssetDocument*>(pDoc))
+        {
+          ezAssetCurator::GetSingleton()->NotifyOfAssetChange(pAsset->GetGuid());
+
+          if (pAsset->TransformAsset(ezTransformFlags::Default).Failed())
+          {
+            ezLog::Error("Failed to transform newly created asset '{}'", pDoc->GetDocumentPath());
+            break;
+          }
+
+          ezAssetCurator::GetSingleton()->MainThreadTick(false);
+          ezAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true).IgnoreResult();
+        }
+
         pDoc->EnsureVisible();
 
         InternalSetValue(sOutput.GetData());
@@ -497,7 +515,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   ezStringBuilder sFile = m_pWidget->text().toUtf8().data();
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
-  ezQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter());
+  ezQtAssetBrowserDlg dlg(this, m_AssetGuid, pAssetAttribute->GetTypeFilter(), {}, pAssetAttribute->GetRequiredTag());
   if (dlg.exec() == 0)
     return;
 

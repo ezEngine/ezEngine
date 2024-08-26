@@ -1,5 +1,6 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
@@ -156,18 +157,14 @@ Only concrete and clocks.\n\
   }
 #  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
-#endif // EZ_SUPPORTS_FILE_STATS
+#endif   // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator")
   {
-    // It is not really possible to test this stuff (with a guaranteed result), as long as we do not have
-    // a test data folder with deterministic content
-    // Therefore I tested it manually, and leave the code in, such that it is at least a 'does it compile and link' test.
-
-    ezStringBuilder sOutputFolder = ezOSFile::GetApplicationDirectory();
-    sOutputFolder.AppendPath("*");
+    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    sOutputFolder.AppendPath("Data/Base/*");
 
     ezStringBuilder sFullPath;
 
@@ -211,15 +208,55 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(uiFiles > 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator (non recursive)")
+  {
+    ezStringBuilder sOutputFolder = ezFileSystem::GetSdkRootDirectory();
+    sOutputFolder.AppendPath("Data/Base");
+
+    ezStringBuilder sFullPath;
+
+    ezUInt32 uiFolders = 0;
+    ezUInt32 uiFiles = 0;
+
+    ezFileSystemIterator it;
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFiles); it.IsValid();)
+    {
+      sFullPath = it.GetCurrentPath();
+      sFullPath.AppendPath(it.GetStats().m_sName.GetData());
+
+      it.GetStats();
+      it.GetCurrentPath();
+
+      if (it.GetStats().m_bIsDirectory)
+      {
+        ++uiFolders;
+      }
+      else
+      {
+        ++uiFiles;
+      }
+
+      EZ_TEST_BOOL(sFullPath.StartsWith(sOutputFolder));
+      sFullPath.MakeRelativeTo(sOutputFolder).AssertSuccess();
+
+      EZ_TEST_BOOL(!sFullPath.FindSubString("/")); // no sub path
+
+      it.Next();
+    }
+
+    EZ_TEST_BOOL(uiFolders == 0);
+    EZ_TEST_BOOL(uiFiles > 0);
+  }
+
 #endif
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File")
   {
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
+    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);          // second time should still 'succeed'
 
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
+    EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);         // second time should still 'succeed'
 
     ezOSFile f;
     EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_FAILURE);  // file should not exist anymore
@@ -268,6 +305,10 @@ Only concrete and clocks.\n\
 
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+
+    ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    // We should not report folders as files
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFolder) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsDirectory")

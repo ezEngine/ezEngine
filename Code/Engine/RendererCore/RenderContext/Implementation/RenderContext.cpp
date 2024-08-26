@@ -13,10 +13,12 @@
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
+#include <RendererFoundation/Device/ImmutableSamplers.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
+ezGALCommandEncoder* ezRenderContext::s_pCommandEncoder = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
 
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
@@ -25,32 +27,33 @@ ezMutex ezRenderContext::s_ConstantBufferStorageMutex;
 ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> ezRenderContext::s_ConstantBufferStorageTable;
 ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> ezRenderContext::s_FreeConstantBufferStorage;
 
-ezGALSamplerStateHandle ezRenderContext::s_hDefaultSamplerStates[4];
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RendererContext)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
   "Foundation",
-  "Core"
+  "Core",
+  "ImmutableSamplers"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
   {
+    ezRenderContext::RegisterImmutableSamplers();
+    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderContext::GALStaticDeviceEventHandler));
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderContext::GALStaticDeviceEventHandler));
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezShaderUtils::g_RequestBuiltinShaderCallback = ezMakeDelegate(ezRenderContext::LoadBuiltinShader);
+    ezRenderContext::OnEngineStartup();
   }
 
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    ezShaderUtils::g_RequestBuiltinShaderCallback = {};
     ezRenderContext::OnEngineShutdown();
   }
 
@@ -74,14 +77,15 @@ void ezRenderContext::Statistics::Reset()
 ezRenderContext* ezRenderContext::GetDefaultInstance()
 {
   if (s_pDefaultInstance == nullptr)
-    s_pDefaultInstance = CreateInstance();
+    s_pDefaultInstance = CreateInstance(s_pCommandEncoder);
 
+  EZ_ASSERT_DEBUG(s_pDefaultInstance != nullptr, "Default instance should have been created during device creation");
   return s_pDefaultInstance;
 }
 
-ezRenderContext* ezRenderContext::CreateInstance()
+ezRenderContext* ezRenderContext::CreateInstance(ezGALCommandEncoder* pCommandEncoder)
 {
-  return EZ_DEFAULT_NEW(ezRenderContext);
+  return EZ_DEFAULT_NEW(ezRenderContext, pCommandEncoder);
 }
 
 void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
@@ -89,14 +93,11 @@ void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
   EZ_DEFAULT_DELETE(pRenderer);
 }
 
-ezRenderContext::ezRenderContext()
+ezRenderContext::ezRenderContext(ezGALCommandEncoder* pCommandEncoder)
 {
-  if (s_pDefaultInstance == nullptr)
-  {
-    s_pDefaultInstance = this;
-  }
-
   s_Instances.PushBack(this);
+
+  m_pGALCommandEncoder = pCommandEncoder;
 
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
@@ -106,12 +107,21 @@ ezRenderContext::ezRenderContext()
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
+  // If no push constants are supported, they are emulated via constant buffers.
+  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_uiMaxPushConstantsSize == 0)
+  {
+    m_hPushConstantsStorage = CreateConstantBufferStorage(128);
+  }
   ResetContextState();
 }
 
 ezRenderContext::~ezRenderContext()
 {
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
+  if (!m_hPushConstantsStorage.IsInvalidated())
+  {
+    DeleteConstantBufferStorage(m_hPushConstantsStorage);
+  }
 
   if (s_pDefaultInstance == this)
     s_pDefaultInstance = nullptr;
@@ -127,8 +137,10 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName, bool bStereoSupport)
+void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName, bool bStereoSupport)
 {
+  EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
+  m_bRendering = true;
   ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
 
   ezGALRenderTargetViewHandle hRTV;
@@ -159,52 +171,38 @@ ezGALRenderCommandEncoder* ezRenderContext::BeginRendering(ezGALPass* pGALPass, 
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);
   gc.NumMsaaSamples = msaaSampleCount;
 
-  auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, szName);
+  m_pGALCommandEncoder->BeginRendering(renderingSetup, szName);
 
-  pGALCommandEncoder->SetViewport(viewport);
+  m_pGALCommandEncoder->SetViewport(viewport);
 
-  m_pGALPass = pGALPass;
-  m_pGALCommandEncoder = pGALCommandEncoder;
-  m_bCompute = false;
   m_bStereoRendering = bStereoSupport;
-
-  return pGALCommandEncoder;
 }
 
 void ezRenderContext::EndRendering()
 {
-  m_pGALPass->EndRendering(GetRenderCommandEncoder());
+  m_pGALCommandEncoder->EndRendering();
 
-  m_pGALPass = nullptr;
-  m_pGALCommandEncoder = nullptr;
   m_bStereoRendering = false;
-
+  m_bRendering = false;
   // TODO: The render context needs to reset its state after every encoding block if we want to record to separate command buffers.
   // Although this is currently not possible since a lot of high level code binds stuff only once per frame on the render context.
   // Resetting the state after every encoding block breaks those assumptions.
-  //ResetContextState();
+  // ResetContextState();
 }
 
-ezGALComputeCommandEncoder* ezRenderContext::BeginCompute(ezGALPass* pGALPass, const char* szName /*= ""*/)
+void ezRenderContext::BeginCompute(const char* szName /*= ""*/)
 {
-  auto pGALCommandEncoder = pGALPass->BeginCompute(szName);
-
-  m_pGALPass = pGALPass;
-  m_pGALCommandEncoder = pGALCommandEncoder;
+  EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
+  m_pGALCommandEncoder->BeginCompute(szName);
   m_bCompute = true;
-
-  return pGALCommandEncoder;
 }
 
 void ezRenderContext::EndCompute()
 {
-  m_pGALPass->EndCompute(GetComputeCommandEncoder());
-
-  m_pGALPass = nullptr;
-  m_pGALCommandEncoder = nullptr;
-
+  m_pGALCommandEncoder->EndCompute();
+  m_bCompute = false;
   // TODO: See EndRendering
-  //ResetContextState();
+  // ResetContextState();
 }
 
 void ezRenderContext::SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sTempValue)
@@ -246,7 +244,7 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const e
   }
   else
   {
-    BindTexture2D(sSlotName, ezGALResourceViewHandle());
+    BindTexture2D(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
@@ -261,7 +259,7 @@ void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, const e
   }
   else
   {
-    BindTexture3D(sSlotName, ezGALResourceViewHandle());
+    BindTexture3D(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
@@ -276,13 +274,13 @@ void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, const
   }
   else
   {
-    BindTextureCube(sSlotName, ezGALResourceViewHandle());
+    BindTextureCube(sSlotName, ezGALTextureResourceViewHandle());
   }
 }
 
-void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTextures2D.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -298,9 +296,9 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALRe
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTextures3D.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -316,9 +314,9 @@ void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALRe
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALTextureResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundTexturesCube.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -334,10 +332,10 @@ void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, ezGAL
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
-void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessView)
+void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView)
 {
-  ezGALUnorderedAccessViewHandle* pOldResourceView = nullptr;
-  if (m_BoundUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  ezGALTextureUnorderedAccessViewHandle* pOldResourceView = nullptr;
+  if (m_BoundTextureUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hUnorderedAccessView)
       return;
@@ -346,7 +344,25 @@ void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALUnordere
   }
   else
   {
-    m_BoundUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+    m_BoundTextureUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
+  }
+
+  m_StateFlags.Add(ezRenderContextFlags::UAVBindingChanged);
+}
+
+void ezRenderContext::BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView)
+{
+  ezGALBufferUnorderedAccessViewHandle* pOldResourceView = nullptr;
+  if (m_BoundBufferUAVs.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  {
+    if (*pOldResourceView == hUnorderedAccessView)
+      return;
+
+    *pOldResourceView = hUnorderedAccessView;
+  }
+  else
+  {
+    m_BoundBufferUAVs.Insert(sSlotName.GetHash(), hUnorderedAccessView);
   }
 
   m_StateFlags.Add(ezRenderContextFlags::UAVBindingChanged);
@@ -376,9 +392,9 @@ void ezRenderContext::BindSamplerState(const ezTempHashedString& sSlotName, ezGA
   m_StateFlags.Add(ezRenderContextFlags::SamplerBindingChanged);
 }
 
-void ezRenderContext::BindBuffer(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+void ezRenderContext::BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferResourceViewHandle hResourceView)
 {
-  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  ezGALBufferResourceViewHandle* pOldResourceView = nullptr;
   if (m_BoundBuffer.TryGetValue(sSlotName.GetHash(), pOldResourceView))
   {
     if (*pOldResourceView == hResourceView)
@@ -430,6 +446,28 @@ void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, ez
   }
 
   m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
+}
+
+void ezRenderContext::SetPushConstants(const ezTempHashedString& sSlotName, ezArrayPtr<const ezUInt8> data)
+{
+
+  if (!m_hPushConstantsStorage.IsInvalidated())
+  {
+    EZ_ASSERT_DEBUG(data.GetCount() <= 128, "Push constants are not allowed to be bigger than 128 bytes.");
+    ezConstantBufferStorageBase* pStorage = nullptr;
+    bool bResult = TryGetConstantBufferStorage(m_hPushConstantsStorage, pStorage);
+    if (bResult)
+    {
+      ezArrayPtr<ezUInt8> targetStorage = pStorage->GetRawDataForWriting();
+      ezMemoryUtils::Copy(targetStorage.GetPtr(), data.GetPtr(), data.GetCount());
+      BindConstantBuffer(sSlotName, m_hPushConstantsStorage);
+    }
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(data.GetCount() <= ezGALDevice::GetDefaultDevice()->GetCapabilities().m_uiMaxPushConstantsSize, "Push constants are not allowed to be bigger than {} bytes.", ezGALDevice::GetDefaultDevice()->GetCapabilities().m_uiMaxPushConstantsSize);
+    m_pGALCommandEncoder->SetPushConstants(data);
+  }
 }
 
 void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)
@@ -512,7 +550,7 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
 
-  auto pCommandEncoder = GetRenderCommandEncoder();
+  auto pCommandEncoder = GetCommandEncoder();
 
   const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(pCommandEncoder->GetPrimitiveTopology());
 
@@ -527,22 +565,22 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   {
     if (!m_hIndexBuffer.IsInvalidated())
     {
-      pCommandEncoder->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
     }
     else
     {
-      pCommandEncoder->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
     }
   }
   else
   {
     if (!m_hIndexBuffer.IsInvalidated())
     {
-      pCommandEncoder->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
     }
     else
     {
-      pCommandEncoder->Draw(uiPrimitiveCount, uiFirstPrimitive);
+      return pCommandEncoder->Draw(uiPrimitiveCount, uiFirstPrimitive);
     }
   }
 
@@ -557,9 +595,7 @@ ezResult ezRenderContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThre
     return EZ_FAILURE;
   }
 
-  GetComputeCommandEncoder()->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
-
-  return EZ_SUCCESS;
+  return GetCommandEncoder()->Dispatch(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
 }
 
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
@@ -596,92 +632,55 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (m_hActiveShaderPermutation.IsValid())
   {
-    if ((bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::UAVBindingChanged |
-                                         ezRenderContextFlags::SamplerBindingChanged | ezRenderContextFlags::BufferBindingChanged |
-                                         ezRenderContextFlags::ConstantBufferBindingChanged)))
+    const bool bDirty = (bForce || m_StateFlags.IsAnySet(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::UAVBindingChanged |
+                                                         ezRenderContextFlags::SamplerBindingChanged | ezRenderContextFlags::BufferBindingChanged |
+                                                         ezRenderContextFlags::ConstantBufferBindingChanged));
+
+    const ezGALShader* pShader = nullptr;
+    if (bDirty)
     {
       if (pShaderPermutation == nullptr)
       {
         pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
       }
-    }
-
-    ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation != nullptr ? pShaderPermutation->GetResourceDescription().GetData() : "");
-
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
-    {
       if (pShaderPermutation == nullptr)
       {
         return EZ_FAILURE;
       }
-
-      // RWTextures/UAV are usually only supported in compute and pixel shader.
-      if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::ComputeShader))
-      {
-        ApplyUAVBindings(pBin);
-      }
-      if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader))
-      {
-        ApplyUAVBindings(pBin);
-      }
-
-      m_StateFlags.Remove(ezRenderContextFlags::UAVBindingChanged);
+      // #TODO_SHADER It's a bit unclean that we need to acquire the GAL shader on this level. Unfortunately, we need the resource binding on both the GAL and the high level renderer and the only alternative is some kind of duplication of the data.
+      pShader = ezGALDevice::GetDefaultDevice()->GetShader(m_hActiveGALShader);
     }
 
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged))
+    ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation ? pShaderPermutation->GetResourceDescription().GetData() : "");
+
+    if (bDirty)
     {
-      if (pShaderPermutation == nullptr)
+      if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
       {
-        return EZ_FAILURE;
+        ApplyUAVBindings(pShader);
+        m_StateFlags.Remove(ezRenderContextFlags::UAVBindingChanged);
       }
 
-      for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+      if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged))
       {
-        if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
-        {
-          ApplyTextureBindings((ezGALShaderStage::Enum)stage, pBin);
-        }
+        ApplyTextureBindings(pShader);
+        m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
       }
 
-      m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
+      if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::SamplerBindingChanged))
+      {
+        ApplySamplerBindings(pShader);
+        m_StateFlags.Remove(ezRenderContextFlags::SamplerBindingChanged);
+      }
+
+      if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::BufferBindingChanged))
+      {
+        ApplyBufferBindings(pShader);
+        m_StateFlags.Remove(ezRenderContextFlags::BufferBindingChanged);
+      }
     }
 
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::SamplerBindingChanged))
-    {
-      if (pShaderPermutation == nullptr)
-      {
-        return EZ_FAILURE;
-      }
-
-      for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-      {
-        if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
-        {
-          ApplySamplerBindings((ezGALShaderStage::Enum)stage, pBin);
-        }
-      }
-
-      m_StateFlags.Remove(ezRenderContextFlags::SamplerBindingChanged);
-    }
-
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::BufferBindingChanged))
-    {
-      if (pShaderPermutation == nullptr)
-      {
-        return EZ_FAILURE;
-      }
-
-      for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-      {
-        if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
-        {
-          ApplyBufferBindings((ezGALShaderStage::Enum)stage, pBin);
-        }
-      }
-
-      m_StateFlags.Remove(ezRenderContextFlags::BufferBindingChanged);
-    }
-
+    // Note that pMaterial is only valid, if material constants have changed, so this also always implies that ConstantBufferBindingChanged is set.
     if (pMaterial != nullptr)
     {
       pMaterial->UpdateConstantBuffer(pShaderPermutation);
@@ -690,22 +689,13 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     UploadConstants();
 
-    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged))
+    if (bDirty)
     {
-      if (pShaderPermutation == nullptr)
+      if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged))
       {
-        return EZ_FAILURE;
+        ApplyConstantBufferBindings(pShader);
+        m_StateFlags.Remove(ezRenderContextFlags::ConstantBufferBindingChanged);
       }
-
-      for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-      {
-        if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
-        {
-          ApplyConstantBufferBindings(pBin);
-        }
-      }
-
-      m_StateFlags.Remove(ezRenderContextFlags::ConstantBufferBindingChanged);
     }
   }
 
@@ -714,7 +704,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (m_hActiveGALShader.IsInvalidated())
       return EZ_FAILURE;
 
-    auto pCommandEncoder = GetRenderCommandEncoder();
+    auto pCommandEncoder = GetCommandEncoder();
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
     {
@@ -774,12 +764,21 @@ void ezRenderContext::ResetContextState()
   m_BoundBuffer.Clear();
 
   m_BoundSamplers.Clear();
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering));
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("LinearClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp));
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering));
-  m_BoundSamplers.Insert(ezHashingUtils::StringHash("PointClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp));
+  // Platforms that do not support immutable samples like DX11 still need them to be bound manually, so they are bound here.
+  ezTempHashedString sLinearSampler("LinearSampler");
+  for (auto it : ezGALImmutableSamplers::GetImmutableSamplers())
+  {
+    m_BoundSamplers.Insert(it.Key().GetHash(), it.Value());
 
-  m_BoundUAVs.Clear();
+    if (it.Key() == sLinearSampler)
+    {
+      m_hFallbackSampler = it.Value();
+    }
+  }
+  EZ_ASSERT_DEBUG(!m_hFallbackSampler.IsInvalidated(), "'LinearSampler' should have been registered as an immutable sampler.");
+
+  m_BoundTextureUAVs.Clear();
+  m_BoundBufferUAVs.Clear();
   m_BoundConstantBuffers.Clear();
 }
 
@@ -857,26 +856,17 @@ bool ezRenderContext::TryGetConstantBufferStorage(ezConstantBufferStorageHandle 
 }
 
 // static
-ezGALSamplerStateHandle ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags)
+ezGALSamplerStateCreationDescription ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags)
 {
-  ezUInt32 uiSamplerStateIndex = flags.GetValue();
-  EZ_ASSERT_DEV(uiSamplerStateIndex < EZ_ARRAY_SIZE(s_hDefaultSamplerStates), "");
+  ezGALSamplerStateCreationDescription desc;
+  desc.m_MinFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
+  desc.m_MagFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
+  desc.m_MipFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
 
-  if (s_hDefaultSamplerStates[uiSamplerStateIndex].IsInvalidated())
-  {
-    ezGALSamplerStateCreationDescription desc;
-    desc.m_MinFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
-    desc.m_MagFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
-    desc.m_MipFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
-
-    desc.m_AddressU = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
-    desc.m_AddressV = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
-    desc.m_AddressW = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
-
-    s_hDefaultSamplerStates[uiSamplerStateIndex] = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
-  }
-
-  return s_hDefaultSamplerStates[uiSamplerStateIndex];
+  desc.m_AddressU = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
+  desc.m_AddressV = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
+  desc.m_AddressW = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezImageAddressMode::Clamp : ezImageAddressMode::Repeat;
+  return desc;
 }
 
 // private functions
@@ -937,24 +927,30 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
 }
 
 // static
+void ezRenderContext::RegisterImmutableSamplers()
+{
+  ezGALImmutableSamplers::RegisterImmutableSampler(ezMakeHashedString("LinearSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering)).AssertSuccess("Failed to register immutable sampler");
+  ezGALImmutableSamplers::RegisterImmutableSampler(ezMakeHashedString("LinearClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering | ezDefaultSamplerFlags::Clamp)).AssertSuccess("Failed to register immutable sampler");
+  ezGALImmutableSamplers::RegisterImmutableSampler(ezMakeHashedString("PointSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering)).AssertSuccess("Failed to register immutable sampler");
+  ezGALImmutableSamplers::RegisterImmutableSampler(ezMakeHashedString("PointClampSampler"), GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering | ezDefaultSamplerFlags::Clamp)).AssertSuccess("Failed to register immutable sampler");
+}
+
+// static
+void ezRenderContext::OnEngineStartup()
+{
+  ezShaderUtils::g_RequestBuiltinShaderCallback = ezMakeDelegate(ezRenderContext::LoadBuiltinShader);
+}
+
+// static
 void ezRenderContext::OnEngineShutdown()
 {
+  ezShaderUtils::g_RequestBuiltinShaderCallback = {};
   ezShaderStageBinary::OnEngineShutdown();
 
   for (auto rc : s_Instances)
     EZ_DEFAULT_DELETE(rc);
 
   s_Instances.Clear();
-
-  // Cleanup sampler states
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hDefaultSamplerStates); ++i)
-  {
-    if (!s_hDefaultSamplerStates[i].IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(s_hDefaultSamplerStates[i]);
-      s_hDefaultSamplerStates[i].Invalidate();
-    }
-  }
 
   // Cleanup vertex declarations
   {
@@ -986,6 +982,26 @@ void ezRenderContext::OnEngineShutdown()
     }
 
     s_FreeConstantBufferStorage.Clear();
+  }
+}
+
+// static
+void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type == ezGALDeviceEvent::Type::AfterBeginCommands)
+  {
+    s_pCommandEncoder = e.m_pCommandEncoder;
+    if (s_pDefaultInstance)
+    {
+      s_pDefaultInstance->m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
+      s_pDefaultInstance->m_pGALCommandEncoder = e.m_pCommandEncoder;
+    }
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndCommands)
+  {
+    s_pCommandEncoder = nullptr;
+    if (s_pDefaultInstance)
+      s_pDefaultInstance->m_pGALCommandEncoder = nullptr;
   }
 }
 
@@ -1121,7 +1137,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
   // Set render state from shader
   if (!m_bCompute)
   {
-    auto pCommandEncoder = GetRenderCommandEncoder();
+    auto pCommandEncoder = GetCommandEncoder();
 
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
       pCommandEncoder->SetBlendState(pShaderPermutation->GetBlendState());
@@ -1177,7 +1193,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
   }
 
   // The material needs its constant buffer updated.
-  // Thus we keep it acquired until we have the correct shader permutation for the constant buffer layout.
+  // Thus, we keep it acquired until we have the correct shader permutation for the constant buffer layout.
   if (pMaterial->AreConstantsModified())
   {
     m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
@@ -1189,11 +1205,12 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
   return nullptr;
 }
 
-void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyConstantBufferBindings(const ezGALShader* pShader)
 {
-  for (const auto& binding : pBinary->m_ShaderResourceBindings)
+  const auto& bindings = pShader->GetBindingMapping();
+  for (const ezShaderResourceBinding& binding : bindings)
   {
-    if (binding.m_Type != ezShaderResourceType::ConstantBuffer)
+    if (binding.m_ResourceType != ezGALShaderResourceType::ConstantBuffer)
       continue;
 
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
@@ -1202,112 +1219,132 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, boundConstantBuffer))
     {
       // If the shader was compiled with debug info the shader compiler will not strip unused resources and
-      // thus this error would trigger although the shader doesn't actually uses the resource.
-      if (!pBinary->m_bWasCompiledWithDebug)
+      // thus this error would trigger although the shader doesn't actually use the resource.
+      // #TODO_SHADER if (!pBinary->GetByteCode()->m_bWasCompiledWithDebug)
       {
         ezLog::Error("No resource is bound for constant buffer slot '{0}'", binding.m_sName);
       }
-      m_pGALCommandEncoder->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
+      m_pGALCommandEncoder->SetConstantBuffer(binding, ezGALBufferHandle());
       continue;
     }
 
     if (!boundConstantBuffer.m_hConstantBuffer.IsInvalidated())
     {
-      m_pGALCommandEncoder->SetConstantBuffer(binding.m_iSlot, boundConstantBuffer.m_hConstantBuffer);
+      m_pGALCommandEncoder->SetConstantBuffer(binding, boundConstantBuffer.m_hConstantBuffer);
     }
     else
     {
       ezConstantBufferStorageBase* pConstantBufferStorage = nullptr;
       if (TryGetConstantBufferStorage(boundConstantBuffer.m_hConstantBufferStorage, pConstantBufferStorage))
       {
-        m_pGALCommandEncoder->SetConstantBuffer(binding.m_iSlot, pConstantBufferStorage->GetGALBufferHandle());
+        m_pGALCommandEncoder->SetConstantBuffer(binding, pConstantBufferStorage->GetGALBufferHandle());
       }
       else
       {
         ezLog::Error("Invalid constant buffer storage is bound for slot '{0}'", binding.m_sName);
-        m_pGALCommandEncoder->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
+        m_pGALCommandEncoder->SetConstantBuffer(binding, ezGALBufferHandle());
       }
     }
   }
 }
 
-void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyTextureBindings(const ezGALShader* pShader)
 {
-  for (const auto& binding : pBinary->m_ShaderResourceBindings)
+  const auto& bindings = pShader->GetBindingMapping();
+  for (const ezShaderResourceBinding& binding : bindings)
   {
-    // we currently only support 2D and cube textures
-
     const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
-    ezGALResourceViewHandle hResourceView;
+    ezGALTextureResourceViewHandle hResourceView;
 
-    if (binding.m_Type >= ezShaderResourceType::Texture2D && binding.m_Type <= ezShaderResourceType::Texture2DMSArray)
+    if (binding.m_ResourceType == ezGALShaderResourceType::Texture || binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
     {
-      m_BoundTextures2D.TryGetValue(uiResourceHash, hResourceView);
-      m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
-    }
-
-    if (binding.m_Type == ezShaderResourceType::Texture3D)
-    {
-      m_BoundTextures3D.TryGetValue(uiResourceHash, hResourceView);
-      m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
-    }
-
-    if (binding.m_Type >= ezShaderResourceType::TextureCube && binding.m_Type <= ezShaderResourceType::TextureCubeArray)
-    {
-      m_BoundTexturesCube.TryGetValue(uiResourceHash, hResourceView);
-      m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
+      switch (binding.m_TextureType)
+      {
+        case ezGALShaderTextureType::Texture2D:
+        case ezGALShaderTextureType::Texture2DArray:
+        case ezGALShaderTextureType::Texture2DMS:
+        case ezGALShaderTextureType::Texture2DMSArray:
+          m_BoundTextures2D.TryGetValue(uiResourceHash, hResourceView);
+          m_pGALCommandEncoder->SetResourceView(binding, hResourceView);
+          break;
+        case ezGALShaderTextureType::Texture3D:
+          m_BoundTextures3D.TryGetValue(uiResourceHash, hResourceView);
+          m_pGALCommandEncoder->SetResourceView(binding, hResourceView);
+          break;
+        case ezGALShaderTextureType::TextureCube:
+        case ezGALShaderTextureType::TextureCubeArray:
+          m_BoundTexturesCube.TryGetValue(uiResourceHash, hResourceView);
+          m_pGALCommandEncoder->SetResourceView(binding, hResourceView);
+          break;
+        case ezGALShaderTextureType::Texture1D:
+        case ezGALShaderTextureType::Texture1DArray:
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
+      }
     }
   }
 }
 
-void ezRenderContext::ApplyUAVBindings(const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyUAVBindings(const ezGALShader* pShader)
 {
-  for (const auto& binding : pBinary->m_ShaderResourceBindings)
+  const auto& bindings = pShader->GetBindingMapping();
+  for (const ezShaderResourceBinding& binding : bindings)
   {
-    if (binding.m_Type != ezShaderResourceType::UAV)
-      continue;
-
-    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
-
-    ezGALUnorderedAccessViewHandle hResourceView;
-    m_BoundUAVs.TryGetValue(uiResourceHash, hResourceView);
-
-    m_pGALCommandEncoder->SetUnorderedAccessView(binding.m_iSlot, hResourceView);
-  }
-}
-
-void ezRenderContext::ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
-{
-  for (const auto& binding : pBinary->m_ShaderResourceBindings)
-  {
-    if (binding.m_Type != ezShaderResourceType::Sampler)
-      continue;
-
-    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
-
-    ezGALSamplerStateHandle hSamplerState;
-    if (!m_BoundSamplers.TryGetValue(uiResourceHash, hSamplerState))
+    auto type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+    if (type.IsSet(ezGALShaderResourceCategory::TextureUAV))
     {
-      hSamplerState = GetDefaultSamplerState(ezDefaultSamplerFlags::LinearFiltering); // Bind a default state to avoid DX11 errors.
+      const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
+      ezGALTextureUnorderedAccessViewHandle hResourceView;
+      m_BoundTextureUAVs.TryGetValue(uiResourceHash, hResourceView);
+      m_pGALCommandEncoder->SetUnorderedAccessView(binding, hResourceView);
     }
-
-    m_pGALCommandEncoder->SetSamplerState(stage, binding.m_iSlot, hSamplerState);
+    else if (type.IsSet(ezGALShaderResourceCategory::BufferUAV))
+    {
+      const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
+      ezGALBufferUnorderedAccessViewHandle hResourceView;
+      m_BoundBufferUAVs.TryGetValue(uiResourceHash, hResourceView);
+      m_pGALCommandEncoder->SetUnorderedAccessView(binding, hResourceView);
+    }
   }
 }
 
-void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplySamplerBindings(const ezGALShader* pShader)
 {
-  for (const auto& binding : pBinary->m_ShaderResourceBindings)
+  const auto& bindings = pShader->GetBindingMapping();
+  for (const ezShaderResourceBinding& binding : bindings)
   {
-    if (binding.m_Type != ezShaderResourceType::GenericBuffer)
-      continue;
+    auto type = ezGALShaderResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+    if (type.IsSet(ezGALShaderResourceCategory::Sampler))
+    {
+      const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
 
-    const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
+      ezGALSamplerStateHandle hSamplerState;
+      if (!m_BoundSamplers.TryGetValue(uiResourceHash, hSamplerState))
+      {
+        // Fallback in case no sampler was set.
+        hSamplerState = m_hFallbackSampler;
+      }
 
-    ezGALResourceViewHandle hResourceView;
-    m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView);
+      m_pGALCommandEncoder->SetSamplerState(binding, hSamplerState);
+    }
+  }
+}
 
-    m_pGALCommandEncoder->SetResourceView(stage, binding.m_iSlot, hResourceView);
+void ezRenderContext::ApplyBufferBindings(const ezGALShader* pShader)
+{
+  const auto& bindings = pShader->GetBindingMapping();
+  for (const ezShaderResourceBinding& binding : bindings)
+  {
+    if (binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::StructuredBuffer)
+    {
+      const ezUInt64 uiResourceHash = binding.m_sName.GetHash();
+
+      ezGALBufferResourceViewHandle hResourceView;
+      m_BoundBuffer.TryGetValue(uiResourceHash, hResourceView);
+
+      m_pGALCommandEncoder->SetResourceView(binding, hResourceView);
+    }
   }
 }
 

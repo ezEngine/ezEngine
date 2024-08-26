@@ -47,4 +47,3 @@ private:
   bool m_bBlockSelectionSignal = false;
   bool m_bAllowDeleteObjects = false;
 };
-

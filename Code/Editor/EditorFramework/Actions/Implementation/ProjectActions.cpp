@@ -63,6 +63,7 @@ ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
+ezActionDescriptorHandle ezProjectActions::s_hLaunchTracy;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 ezActionDescriptorHandle ezProjectActions::s_hOpenVsCode;
 
@@ -136,6 +137,7 @@ void ezProjectActions::RegisterActions()
   s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
   s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
   s_hLaunchInspector = EZ_REGISTER_ACTION_1("Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
+  s_hLaunchTracy = EZ_REGISTER_ACTION_1("Editor.LaunchTracy", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchTracy);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 
@@ -175,6 +177,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
   ezActionManager::UnregisterAction(s_hLaunchInspector);
+  ezActionManager::UnregisterAction(s_hLaunchTracy);
   ezActionManager::UnregisterAction(s_hSaveProfiling);
   ezActionManager::UnregisterAction(s_hOpenVsCode);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
@@ -195,12 +198,10 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPluginSelection);
 }
 
-void ezProjectActions::MapActions(ezStringView sMapping)
+void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes> menus)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
-
-  ezStringBuilder sPath;
 
   // Add categories
   pMap->MapAction(s_hCatProjectGeneral, "G.Project", 1.0f);
@@ -216,12 +217,12 @@ void ezProjectActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hCatProjectSettings, "G.Project.Config", 1.0f);
   pMap->MapAction(s_hCatPluginSettings, "G.Project.Config", 1.0f);
 
-  if (pMap->SearchPathForAction("G.File", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::File))
   {
-    pMap->MapAction(s_hCatFilesGeneral, sPath, 1.0f);
-    pMap->MapAction(s_hCatFileCommon, sPath, 2.0f);
-    pMap->MapAction(s_hCatAssetDoc, sPath, 3.0f);
-    pMap->MapAction(s_hCatFileSpecial, sPath, 4.0f);
+    pMap->MapAction(s_hCatFilesGeneral, "G.File", 1.0f);
+    pMap->MapAction(s_hCatFileCommon, "G.File", 2.0f);
+    pMap->MapAction(s_hCatAssetDoc, "G.File", 3.0f);
+    pMap->MapAction(s_hCatFileSpecial, "G.File", 4.0f);
   }
 
   // Add actions
@@ -251,7 +252,8 @@ void ezProjectActions::MapActions(ezStringView sMapping)
 
   pMap->MapAction(s_hOpenVsCode, "G.Tools.External", 1.0f);
   pMap->MapAction(s_hLaunchInspector, "G.Tools.External", 2.0f);
-  pMap->MapAction(s_hLaunchFileserve, "G.Tools.External", 3.0f);
+  pMap->MapAction(s_hLaunchTracy, "G.Tools.External", 3.0f);
+  pMap->MapAction(s_hLaunchFileserve, "G.Tools.External", 4.0f);
 
   pMap->MapAction(s_hReloadResources, "G.Tools.Editor", 1.0f);
   pMap->MapAction(s_hReloadEngine, "G.Tools.Editor", 2.0f);
@@ -260,16 +262,16 @@ void ezProjectActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hShortcutEditor, "G.Editor.Settings", 1.0f);
   pMap->MapAction(s_hPreferencesDlg, "G.Editor.Settings", 2.0f);
 
-  if (pMap->SearchPathForAction("G.Help", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::Help))
   {
-    pMap->MapAction(s_hDocsAndCommunity, sPath, 0.0f);
+    pMap->MapAction(s_hDocsAndCommunity, "G.Help", 0.0f);
   }
 
-  if (pMap->SearchPathForAction("G.File.Common", sPath).Succeeded())
+  if (menus.IsSet(ezStandardMenuTypes::File))
   {
-    pMap->MapAction(s_hCreateDocument, sPath, 1.0f);
-    pMap->MapAction(s_hOpenDocument, sPath, 2.0f);
-    pMap->MapAction(s_hRecentDocuments, sPath, 3.0f);
+    pMap->MapAction(s_hCreateDocument, "G.Files.General", 1.0f);
+    pMap->MapAction(s_hOpenDocument, "G.Files.General", 2.0f);
+    pMap->MapAction(s_hRecentDocuments, "G.Files.General", 3.0f);
   }
 }
 
@@ -411,6 +413,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::LaunchInspector:
       SetIconPath(":/EditorFramework/Icons/Inspector.svg");
       break;
+    case ezProjectAction::ButtonType::LaunchTracy:
+      SetIconPath(":/EditorFramework/Icons/Tracy.svg");
+      break;
     case ezProjectAction::ButtonType::ReloadEngine:
       SetIconPath(":/GuiFoundation/Icons/ReloadEngine.svg");
       break;
@@ -478,6 +483,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       m_ButtonType == ButtonType::ReloadEngine ||
       m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::LaunchFileserve ||
+      m_ButtonType == ButtonType::LaunchTracy ||
       m_ButtonType == ButtonType::LaunchInspector ||
       m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig ||
@@ -514,6 +520,7 @@ ezProjectAction::~ezProjectAction()
       m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::LaunchFileserve ||
       m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::LaunchTracy ||
       m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig ||
       m_ButtonType == ButtonType::AssetProfiles ||
@@ -733,6 +740,14 @@ void ezProjectAction::Execute(const ezVariant& value)
     }
     break;
 
+    case ezProjectAction::ButtonType::LaunchTracy:
+    {
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching Tracy...", ezTime::MakeFromSeconds(5));
+
+      ezQtEditorApp::GetSingleton()->RunTracy();
+    }
+    break;
+
     case ezProjectAction::ButtonType::ReloadEngine:
     {
       ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().IgnoreResult();
@@ -838,9 +853,12 @@ void ezProjectAction::Execute(const ezVariant& value)
         {
           ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the C++ solution failed.");
         }
-        else if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cpp)))
+        else
         {
-          ezQtUiServices::GetSingleton()->MessageBoxWarning("Opening the solution failed.");
+          if (auto status = ezCppProject::OpenSolution(cpp); status.Failed())
+          {
+            ezQtUiServices::GetSingleton()->MessageBoxWarning(status.m_sMessage.GetView());
+          }
         }
       }
       else

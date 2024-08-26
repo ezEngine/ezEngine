@@ -185,9 +185,11 @@ class ezImageConversionStep_Decompress16bpp : ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 2;
     ezUInt32 targetStride = 4;
 
@@ -224,9 +226,11 @@ class ezImageConversionStep_Compress16bpp : ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 2;
 
@@ -270,9 +274,11 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 4;
 
@@ -357,9 +363,11 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 4;
 
@@ -425,6 +433,8 @@ public:
   virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
@@ -515,9 +525,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 16;
     ezUInt32 targetStride = 4;
 
@@ -551,9 +563,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
@@ -590,9 +603,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 16;
 
@@ -630,9 +644,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
@@ -670,9 +685,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -706,9 +722,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     ezUInt32 sourceStride = 4;
     ezUInt32 targetStride = 16;
 
@@ -742,9 +760,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -780,9 +799,11 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+    EZ_IGNORE_UNUSED(targetFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -818,9 +839,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -856,9 +878,10 @@ public:
     return supportedConversions;
   }
 
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -1436,9 +1459,10 @@ template <typename T>
 class ezImageConversion_Int_To_F32 : public ezImageConversionStepLinear
 {
 public:
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
-    ezImageFormat::Enum targetFormat) const override
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
+    EZ_IGNORE_UNUSED(sourceFormat);
+
     // Work with single channels instead of pixels
     uiNumElements *= ezImageFormat::GetBitsPerPixel(targetFormat) / 32;
 
@@ -1549,8 +1573,8 @@ public:
 };
 
 
-#define ADD_16BPP_CONVERSION(format)                                                                                                                 \
-  static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format;               \
+#define ADD_16BPP_CONVERSION(format)                                                                                                   \
+  static ezImageConversionStep_Decompress16bpp<ezDecompress##format, ezImageFormat::format##_UNORM> s_conversion_ezDecompress##format; \
   static ezImageConversionStep_Compress16bpp<ezCompress##format, ezImageFormat::format##_UNORM> s_conversion_ezCompress##format
 
 ADD_16BPP_CONVERSION(A4B4G4R4);
@@ -1561,6 +1585,7 @@ ADD_16BPP_CONVERSION(B5G5R5A1);
 ADD_16BPP_CONVERSION(X1B5G5R5);
 ADD_16BPP_CONVERSION(A1B5G5R5);
 
+// EZ_STATICLINK_FORCE
 static ezImageSwizzleConversion32_2103 s_conversion_swizzle2103;
 static ezImageConversion_BGRX_BGRA s_conversion_BGRX_BGRA;
 static ezImageConversion_F32_U8 s_conversion_F32_U8;
@@ -1590,3 +1615,5 @@ static ezImageConversion_R11G11B10_to_HALF s_conversion_R11G11B10_to_HALF;
 static ezImageConversion_FLOAT_to_R11G11B10 s_conversion_FLOAT_to_R11G11B10;
 
 
+
+EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_PixelConversions);

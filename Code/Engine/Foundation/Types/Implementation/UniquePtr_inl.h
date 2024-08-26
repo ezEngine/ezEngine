@@ -12,7 +12,7 @@ EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(const ezInternal::NewInstance<U>& i
 
 template <typename T>
 template <typename U>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(U* pInstance, ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr(U* pInstance, ezAllocator* pAllocator)
 {
   m_pInstance = pInstance;
   m_pAllocator = pAllocator;
@@ -87,7 +87,7 @@ EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release(ezAllocatorBase*& out_pAllocator)
+EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Release(ezAllocator*& out_pAllocator)
 {
   T* pInstance = m_pInstance;
   out_pAllocator = m_pAllocator;
@@ -107,7 +107,10 @@ EZ_ALWAYS_INLINE T* ezUniquePtr<T>::Borrow() const
 template <typename T>
 EZ_ALWAYS_INLINE void ezUniquePtr<T>::Clear()
 {
-  EZ_DELETE(m_pAllocator, m_pInstance);
+  if (m_pAllocator != nullptr)
+  {
+    EZ_DELETE(m_pAllocator, m_pInstance);
+  }
 
   m_pInstance = nullptr;
   m_pAllocator = nullptr;

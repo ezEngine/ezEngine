@@ -15,12 +15,12 @@
 #endif
 
 
-#define EZ_GAL_DX11_RELEASE(d3dobj)                                                                                                                  \
-  do                                                                                                                                                 \
-  {                                                                                                                                                  \
-    if ((d3dobj) != nullptr)                                                                                                                         \
-    {                                                                                                                                                \
-      (d3dobj)->Release();                                                                                                                           \
-      (d3dobj) = nullptr;                                                                                                                            \
-    }                                                                                                                                                \
+#define EZ_GAL_DX11_RELEASE(d3dobj) \
+  do                                \
+  {                                 \
+    if ((d3dobj) != nullptr)        \
+    {                               \
+      (d3dobj)->Release();          \
+      (d3dobj) = nullptr;           \
+    }                               \
   } while (0)

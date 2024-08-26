@@ -30,5 +30,3 @@ void ezThreadWithDispatcher::DispatchQueue()
 
   m_CurrentlyBeingDispatchedQueue.Clear();
 }
-
-

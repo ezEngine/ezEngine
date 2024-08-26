@@ -18,7 +18,7 @@ ez_pull_compiler_and_architecture_vars()
 
 if((EZ_OPENXR_LOADER_DIR STREQUAL "EZ_OPENXR_LOADER_DIR-NOTFOUND") OR(EZ_OPENXR_LOADER_DIR STREQUAL "") OR(EZ_OPENXR_HEADERS_DIR STREQUAL "EZ_OPENXR_HEADERS_DIR-NOTFOUND") OR(EZ_OPENXR_HEADERS_DIR STREQUAL "") OR(EZ_OPENXR_REMOTING_DIR STREQUAL "EZ_OPENXR_REMOTING_DIR-NOTFOUND") OR(EZ_OPENXR_REMOTING_DIR STREQUAL ""))
 	ez_nuget_init()
-	execute_process(COMMAND ${NUGET} restore ${CMAKE_SOURCE_DIR}/Code/EnginePlugins/OpenXRPlugin/packages.config -PackagesDirectory ${CMAKE_BINARY_DIR}/packages
+	execute_process(COMMAND ${NUGET} restore ${EZ_ROOT}/Code/EnginePlugins/OpenXRPlugin/packages.config -PackagesDirectory ${CMAKE_BINARY_DIR}/packages
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 	set(EZ_OPENXR_LOADER_DIR "${CMAKE_BINARY_DIR}/packages/OpenXR.Loader.1.0.10.2" CACHE PATH "Directory of OpenXR loader installation" FORCE)
 	set(EZ_OPENXR_HEADERS_DIR "${CMAKE_BINARY_DIR}/packages/OpenXR.Headers.1.0.10.2" CACHE PATH "Directory of OpenXR headers installation" FORCE)
@@ -77,13 +77,29 @@ if(EZOPENXR_FOUND)
 		set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_HEADERS_DIR}/include")
 	endif()
 
-	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT AND MSVC)
-		# As this is a windows only library, we are relying on the .targets file to handle to includes / imports.
-		add_library(ezOpenXR::Remoting SHARED IMPORTED)
-		set_target_properties(ezOpenXR::Remoting PROPERTIES IMPORTED_LOCATION ${EZ_OPENXR_REMOTING_DIR}/build/native/Microsoft.Holographic.Remoting.OpenXr.targets)
+	ez_uwp_mark_import_as_content(ezOpenXR::Loader)
+
+	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+
+		add_library(ezOpenXR::Remoting INTERFACE IMPORTED)
+
+		if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+			list(APPEND REMOTING_ASSETS "${EZ_OPENXR_REMOTING_DIR}/build/native/bin/x64/uwp/RemotingXR.json")
+			list(APPEND REMOTING_ASSETS "${EZ_OPENXR_REMOTING_DIR}/build/native/bin/x64/uwp/Microsoft.Holographic.AppRemoting.OpenXr.dll")
+		else()
+			list(APPEND REMOTING_ASSETS "${EZ_OPENXR_REMOTING_DIR}/build/native/bin/x64/Desktop/RemotingXR.json")
+			list(APPEND REMOTING_ASSETS "${EZ_OPENXR_REMOTING_DIR}/build/native/bin/x64/Desktop/Microsoft.Holographic.AppRemoting.OpenXr.dll")
+		endif()
+
+		set_target_properties(ezOpenXR::Remoting PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_REMOTING_DIR}/build/native/include")
+		set_target_properties(ezOpenXR::Remoting PROPERTIES INTERFACE_SOURCES "${REMOTING_ASSETS}")
+
+		set_property(SOURCE ${REMOTING_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+		set_property(SOURCE ${REMOTING_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "")
+
 	endif()
 
-	ez_uwp_mark_import_as_content(ezOpenXR::Loader)
+	
 endif()
 
 unset(OPENXR_DYNAMIC)

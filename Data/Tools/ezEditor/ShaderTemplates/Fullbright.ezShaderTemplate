@@ -45,6 +45,7 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 // SYSTEM permutations
 
 [MATERIALPARAMETER]
@@ -145,7 +146,7 @@ VS_OUT main(VS_IN Input)
   
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
   // Fetch the procedural vertex colors from the per instance vertex color buffer
-  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  float4 instanceVertexColor0 = GetInstanceVertexColors(0);
   Output.ProcColor = instanceVertexColor0;
 %endif
 

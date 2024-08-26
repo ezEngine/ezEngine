@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
 {
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
   const ezStringBuilder szOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   ezStringBuilder sOutputFolderResolved;

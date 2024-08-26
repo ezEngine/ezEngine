@@ -51,13 +51,13 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Compare,
       Builtin_CompareExec, // Editor only
       Builtin_IsValid,
-      Builtin_Select, // TODO
+      Builtin_Select,
 
       Builtin_Add,
       Builtin_Subtract,
       Builtin_Multiply,
       Builtin_Divide,
-      Builtin_Expression, // TODO
+      Builtin_Expression,
 
       Builtin_ToBool,
       Builtin_ToByte,
@@ -72,17 +72,17 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Variant_ConvertTo,
 
       Builtin_MakeArray,
-      Builtin_Array_GetElement, // TODO
-      Builtin_Array_SetElement, // TODO
-      Builtin_Array_GetCount,   // TODO
-      Builtin_Array_IsEmpty,    // TODO
-      Builtin_Array_Clear,      // TODO
-      Builtin_Array_Contains,   // TODO
-      Builtin_Array_IndexOf,    // TODO
-      Builtin_Array_Insert,     // TODO
-      Builtin_Array_PushBack,   // TODO
-      Builtin_Array_Remove,     // TODO
-      Builtin_Array_RemoveAt,   // TODO
+      Builtin_Array_GetElement,
+      Builtin_Array_SetElement,
+      Builtin_Array_GetCount,
+      Builtin_Array_IsEmpty,
+      Builtin_Array_Clear,
+      Builtin_Array_Contains,
+      Builtin_Array_IndexOf,
+      Builtin_Array_Insert,
+      Builtin_Array_PushBack,
+      Builtin_Array_Remove,
+      Builtin_Array_RemoveAt,
 
       Builtin_TryGetComponentOfBaseType,
 

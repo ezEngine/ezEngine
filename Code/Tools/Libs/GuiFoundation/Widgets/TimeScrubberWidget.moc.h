@@ -77,4 +77,3 @@ private:
   QLineEdit* m_pDuration = nullptr;
   QPushButton* m_pAdjustDurationButton = nullptr;
 };
-

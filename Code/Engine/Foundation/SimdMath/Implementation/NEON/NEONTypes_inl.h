@@ -3,7 +3,7 @@
 #include <arm_neon.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#  define EZ_CHECK_SIMD_ALIGNMENT EZ_CHECK_ALIGNMENT_16
+#  define EZ_CHECK_SIMD_ALIGNMENT(x) EZ_CHECK_ALIGNMENT(x, 16)
 #else
 #  define EZ_CHECK_SIMD_ALIGNMENT(x)
 #endif

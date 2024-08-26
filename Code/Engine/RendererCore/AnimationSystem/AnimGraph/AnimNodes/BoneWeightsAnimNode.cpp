@@ -53,7 +53,7 @@ void ezBoneWeightsAnimNode::RootBones_Insert(ezUInt32 uiIndex, const char* value
 {
   ezHashedString tmp;
   tmp.Assign(value);
-  m_RootBones.Insert(tmp, uiIndex);
+  m_RootBones.InsertAt(uiIndex, tmp);
 }
 
 void ezBoneWeightsAnimNode::RootBones_Remove(ezUInt32 uiIndex)
@@ -111,14 +111,15 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
     ezStringBuilder name;
-    name.Format("{}", pSkeleton->GetResourceIDHash());
+    name.SetFormat("{}", pSkeleton->GetResourceIDHash());
 
     for (const auto& rootBone : m_RootBones)
     {
       name.AppendFormat("-{}", rootBone);
     }
 
-    pInstance->m_pSharedBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw) {
+    pInstance->m_pSharedBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw)
+      {
       for (const auto& rootBone : m_RootBones)
       {
         int iRootBone = -1;
@@ -148,7 +149,8 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     {
       name.Append("-inv");
 
-      pInstance->m_pSharedInverseBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw) {
+      pInstance->m_pSharedInverseBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw)
+        {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
         for (ezUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)

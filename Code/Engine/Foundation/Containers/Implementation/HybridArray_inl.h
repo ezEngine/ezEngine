@@ -7,7 +7,7 @@ ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray()
 }
 
 template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezAllocatorBase* pAllocator)
+ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezAllocator* pAllocator)
   : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, pAllocator)
 {
 }
@@ -27,7 +27,7 @@ ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(const ezArrayPtr<const T
 }
 
 template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other)
+ezHybridArray<T, Size, AllocatorWrapper>::ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other) noexcept
   : ezDynamicArray<T, AllocatorWrapper>(GetStaticArray(), Size, other.GetAllocator())
 {
   *this = std::move(other);

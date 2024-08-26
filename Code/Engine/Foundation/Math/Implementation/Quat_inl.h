@@ -6,7 +6,7 @@
 template <typename Type>
 EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
@@ -125,6 +125,12 @@ EZ_FORCE_INLINE Type ezQuatTemplate<Type>::Dot(const ezQuatTemplate& rhs) const
   EZ_NAN_ASSERT(&rhs);
 
   return GetVectorPart().Dot(rhs.GetVectorPart()) + w * rhs.w;
+}
+
+template <typename Type>
+EZ_ALWAYS_INLINE ezVec3Template<Type> ezQuatTemplate<Type>::Rotate(const ezVec3Template<Type>& v) const
+{
+  return *this * v;
 }
 
 template <typename Type>

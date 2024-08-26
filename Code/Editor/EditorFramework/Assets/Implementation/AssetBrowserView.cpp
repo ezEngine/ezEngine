@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 
@@ -13,6 +14,8 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   m_pDelegate = new ezQtIconViewDelegate(this);
 
   SetDialogMode(false);
+
+  setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
@@ -71,6 +74,118 @@ ezInt32 ezQtAssetBrowserView::GetIconScale() const
   return m_iIconSizePercentage;
 }
 
+void ezQtAssetBrowserView::dragEnterEvent(QDragEnterEvent* pEvent)
+{
+  if (pEvent->source())
+    pEvent->acceptProposedAction();
+}
+
+void ezQtAssetBrowserView::dragMoveEvent(QDragMoveEvent* pEvent)
+{
+  pEvent->acceptProposedAction();
+}
+
+void ezQtAssetBrowserView::dragLeaveEvent(QDragLeaveEvent* pEvent)
+{
+  pEvent->accept();
+}
+
+static void NotifyFileChanges(ezArrayPtr<ezString> files)
+{
+  for (const auto& file : files)
+  {
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
+  }
+}
+
+void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
+{
+  if (!pEvent->mimeData()->hasUrls())
+    return;
+
+  QList<QUrl> paths = pEvent->mimeData()->urls();
+  const ezString targetDirectory = indexAt(pEvent->position().toPoint()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  if (targetDirectory.IsEmpty())
+  {
+    return;
+  }
+
+  ezHybridArray<ezString, 32> touchedFiles;
+  // make sure to notify the filesystem of files and folders that were touched
+  EZ_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
+
+  for (auto it = paths.begin(); it != paths.end(); it++)
+  {
+    ezStringBuilder src = it->path().toUtf8().constData();
+    src.TrimWordStart("/"); // remove '/' at start
+    src.MakeCleanPath();
+
+    ezStringBuilder dst = targetDirectory;
+    dst.MakeCleanPath();
+
+    // prevent moving stuff into itself
+    if (src == dst)
+      continue;
+
+    // don't allow dropping anything onto an existing file
+    if (ezOSFile::ExistsFile(dst))
+      continue;
+
+    dst.AppendPath(qtToEzString(it->fileName()));
+
+    if (ezOSFile::ExistsDirectory(src))
+    {
+      if (ezOSFile::ExistsDirectory(dst)) // ask to overwrite if target already exists
+      {
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("Directory already exists:\n\n'{}'\n\nOverwrite files inside directory?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if (res == QMessageBox::Cancel)
+          return;
+
+        if (res == QMessageBox::No)
+          continue;
+      }
+
+      if (ezOSFile::CopyFolder(src, dst, &touchedFiles).Failed())
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to copy folder:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
+        return;
+      }
+
+      touchedFiles.PushBack(dst);
+
+      if (ezOSFile::DeleteFolder(src).Failed())
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to remove folder:\n\n'{}'\n\nAborting operation.", src));
+        return;
+      }
+    }
+    else if (ezOSFile::ExistsFile(src))
+    {
+      if (ezOSFile::ExistsFile(dst)) // ask to overwrite if target already exists
+      {
+        const int res = ezQtUiServices::MessageBoxQuestion(ezFmt("The file already exists:\n\n'{}'\n\nOverwrite file?", dst), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if (res == QMessageBox::Cancel)
+          return;
+
+        if (res == QMessageBox::No)
+          continue;
+
+        ezOSFile::DeleteFile(dst).IgnoreResult();
+      }
+
+      touchedFiles.PushBack(src);
+      touchedFiles.PushBack(dst);
+
+      if (ezOSFile::MoveFileOrDirectory(src, dst).Failed())
+      {
+        ezQtUiServices::MessageBoxWarning(ezFmt("Failed to move file:\n\n'{}'\n\nto\n\n'{}'\n\nAborting operation.", src, dst));
+        return;
+      }
+    }
+  }
+}
 
 void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
@@ -87,6 +202,39 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   }
 
   QListView::wheelEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mouseDoubleClickEvent(QMouseEvent* pEvent)
+{
+  if (pEvent->button() == Qt::MouseButton::BackButton)
+  {
+    pEvent->ignore();
+    return;
+  }
+
+  QListView::mouseDoubleClickEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mousePressEvent(QMouseEvent* pEvent)
+{
+  if (pEvent->button() == Qt::MouseButton::BackButton)
+  {
+    pEvent->ignore();
+    return;
+  }
+
+  QListView::mousePressEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mouseMoveEvent(QMouseEvent* pEvent)
+{
+  // only allow dragging with left mouse button
+  if (state() == DraggingState && !pEvent->buttons().testFlag(Qt::MouseButton::LeftButton))
+  {
+    return;
+  }
+
+  QListView::mouseMoveEvent(pEvent);
 }
 
 ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent)
@@ -304,6 +452,9 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
           ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk.svg").paint(pPainter, thumbnailRect);
           break;
         case ezAssetInfo::TransformState::MissingTransformDependency:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::MissingPackageDependency:
           ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
           break;
         case ezAssetInfo::TransformState::MissingThumbnailDependency:

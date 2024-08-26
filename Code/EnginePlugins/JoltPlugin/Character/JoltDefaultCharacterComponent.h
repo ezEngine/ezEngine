@@ -6,6 +6,13 @@ struct ezMsgApplyRootMotion;
 
 using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
 
+/// \brief An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent
+///
+/// This component implements typical behavior for an FPS type of game.
+/// It is mainly meant as an example, as most games would rather implement their own CC to control the exact details.
+///
+/// It is also possible to derive from this component and override some virtual functions to just tweak the behavior of this
+/// sample implementation, in case you only need minor tweaks.
 class EZ_JOLTPLUGIN_DLL ezJoltDefaultCharacterComponent : public ezJoltCharacterControllerComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, ezJoltCharacterControllerComponent, ezJoltDefaultCharacterComponentManager);
@@ -36,38 +43,68 @@ public:
     InAir,    ///< Character isn't touching any ground surface (may still touch a wall or ceiling)
   };
 
-  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); ///< [ property ] How many degrees per second the character turns
+  /// How many degrees per second the character turns
+  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); // [ property ]
+
+  /// The radius of the capsule shape
   float m_fShapeRadius = 0.25f;
+
+  /// The total cylinder height when the character crouches.
   float m_fCylinderHeightCrouch = 0.9f;
+
+  /// The total cylinder height when the character stands.
   float m_fCylinderHeightStand = 1.7f;
+
+  /// The radius of the feet area, where it is checked whether the CC properly stands on the ground.
   float m_fFootRadius = 0.15f;
 
+  /// Meters per second movement speed when crouching.
   float m_fWalkSpeedCrouching = 0.5f;
+
+  /// Meters per second movement speed when standing.
   float m_fWalkSpeedStanding = 1.5f;
+
+  /// Meters per second movement speed when standing and running.
   float m_fWalkSpeedRunning = 3.5f;
 
+  /// The maximum step height that the CC can step up in a single frame.
   float m_fMaxStepUp = 0.25f;
+
+  /// The maximum step height that the CC can step down in a single frame (without 'falling').
   float m_fMaxStepDown = 0.25f;
+
+  /// The physics impulse to use for jumping.
   float m_fJumpImpulse = 5.0f;
 
-  ezHashedString m_sWalkSurfaceInteraction;       ///< [ property ] The surface interaction to spawn regularly when walking
-  ezSurfaceResourceHandle m_hFallbackWalkSurface; ///< [ property ] The surface type to use for interactions, when no other surface type is available
-  float m_fWalkInteractionDistance = 1.0f;        ///< [ property ] How far the CC has to walk for spawning another surface interaction
-  float m_fRunInteractionDistance = 3.0f;         ///< [ property ] How far the CC has to run for spawning another surface interaction
+  /// The surface interaction to spawn regularly when walking.
+  ezHashedString m_sWalkSurfaceInteraction; // [ property ]
 
-  void SetWalkSurfaceInteraction(const char* szSz) { m_sWalkSurfaceInteraction.Assign(szSz); }  // [ property ]
-  const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); } // [ property ]
+  /// The surface type to use for interactions, when no other surface type is available.
+  ezSurfaceResourceHandle m_hFallbackWalkSurface; // [ property ]
 
-  void SetFallbackWalkSurfaceFile(const char* szFile); // [ property ]
-  const char* GetFallbackWalkSurfaceFile() const;      // [ property ]
+  /// How far the CC has to walk for spawning another surface interaction
+  float m_fWalkInteractionDistance = 1.0f; // [ property ]
 
-  float m_fAirSpeed = 2.5f;    // [ property ]
+  /// How far the CC has to run for spawning another surface interaction.
+  float m_fRunInteractionDistance = 3.0f;                                                          // [ property ]
+
+  void SetWalkSurfaceInteraction(const char* szName) { m_sWalkSurfaceInteraction.Assign(szName); } // [ property ]
+  const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }    // [ property ]
+
+  void SetFallbackWalkSurfaceFile(ezStringView sFile);                                             // [ property ]
+  ezStringView GetFallbackWalkSurfaceFile() const;                                                 // [ property ]
+
+  /// How fast to move while falling. The higher, the more "air control" the player has.
+  float m_fAirSpeed = 2.5f; // [ property ]
+
+  /// How much lateral motion to lose while falling.
   float m_fAirFriction = 0.5f; // [ property ]
 
+  /// \brief Sets an object GUID for an object that is the 'head' (controls the camera).
   void SetHeadObjectReference(const char* szReference); // [ property ]
 
-  void SetInputState(ezMsgMoveCharacterController& ref_msg);
-
+  /// \brief This message is used to steer the CC.
+  void SetInputState(ezMsgMoveCharacterController& ref_msg); // [ msg handler ]
 
   /// \brief Returns the current height of the entire capsule (crouching or standing).
   float GetCurrentCapsuleHeight() const;
@@ -84,6 +121,7 @@ public:
   bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
   bool IsCrouching() const { return m_uiIsCrouchingBit; }                                // [ scriptable ]
 
+  /// Instantly teleports the character to the target position. Doesn't change its rotation.
   void TeleportCharacter(const ezVec3& vGlobalFootPosition);
 
   struct Config
@@ -99,11 +137,11 @@ public:
     float m_fMaxStepDown = 0;
   };
 
-  virtual void DetermineConfig(Config& out_inputs);
-
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   virtual void OnApplyRootMotion(ezMsgApplyRootMotion& msg);
+
+  virtual void DetermineConfig(Config& out_inputs);
 
   virtual void UpdateCharacter() override;
   virtual void ApplyRotationZ();

@@ -2,8 +2,10 @@
 
 #include <Texture/Image/ImageUtils.h>
 
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/Image/ImageFilter.h>
@@ -280,6 +282,7 @@ static void ApplyFunc(ImageType& inout_image, Func func)
   ezUInt32 uiHeight = inout_image.GetHeight();
   ezUInt32 uiDepth = inout_image.GetDepth();
 
+  EZ_IGNORE_UNUSED(uiDepth);
   EZ_ASSERT_DEV(uiWidth > 0 && uiHeight > 0 && uiDepth > 0, "The image passed to FindMinMax has illegal dimension {}x{}x{}.", uiWidth, uiHeight, uiDepth);
 
   ezUInt64 uiRowPitch = inout_image.GetRowPitch();
@@ -313,6 +316,7 @@ static void ApplyFunc(ImageType& inout_image, Func func)
 static void FindMinMax(const ezImageView& image, ezUInt8& out_uiMinRgb, ezUInt8& out_uiMaxRgb, ezUInt8& out_uiMinAlpha, ezUInt8& out_uiMaxAlpha)
 {
   ezImageFormat::Enum imageFormat = image.GetImageFormat();
+  EZ_IGNORE_UNUSED(imageFormat);
   EZ_ASSERT_DEV(ezImageFormat::GetBitsPerChannel(imageFormat, ezImageFormatChannel::R) == 8 && ezImageFormat::GetDataType(imageFormat) == ezImageFormatDataType::UNORM, "Only 8bpp unorm formats are supported in FindMinMax");
 
   out_uiMinRgb = 255u;
@@ -320,7 +324,8 @@ static void FindMinMax(const ezImageView& image, ezUInt8& out_uiMinRgb, ezUInt8&
   out_uiMaxRgb = 0u;
   out_uiMaxAlpha = 0u;
 
-  auto minMax = [&](const ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto minMax = [&](const ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pPixel;
 
     if (c < 3)
@@ -361,7 +366,8 @@ void ezImageUtils::Normalize(ezImage& inout_image, ezUInt8& out_uiMinRgb, ezUInt
   ezUInt8 uiRangeRgb = out_uiMaxRgb - out_uiMinRgb;
   ezUInt8 uiRangeAlpha = out_uiMaxAlpha - out_uiMinAlpha;
 
-  auto normalize = [&](ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c) {
+  auto normalize = [&](ezUInt8* pPixel, ezUInt32 /*x*/, ezUInt32 /*y*/, ezUInt32 /*z*/, ezUInt32 c)
+  {
     ezUInt8 val = *pPixel;
     if (c < 3)
     {
@@ -545,7 +551,7 @@ void ezImageUtils::RotateSubImage180(ezImage& inout_image, ezUInt32 uiMipLevel /
 
 ezResult ezImageUtils::Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& inout_dstImg, const ezVec3U32& vDstOffset, ezUInt32 uiDstMipLevel /*= 0*/, ezUInt32 uiDstFace /*= 0*/, ezUInt32 uiDstArrayIndex /*= 0*/)
 {
-  if (inout_dstImg.GetImageFormat() != srcImg.GetImageFormat()) // Can only copy when the image formats are identical
+  if (inout_dstImg.GetImageFormat() != srcImg.GetImageFormat())   // Can only copy when the image formats are identical
     return EZ_FAILURE;
 
   if (ezImageFormat::IsCompressed(inout_dstImg.GetImageFormat())) // Compressed formats are not supported
@@ -826,7 +832,7 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float fAlp
 
   ezUInt64 totalPixels = colors.GetCount();
   ezUInt64 count = 0;
-  for (ezUInt32 idx = 0; idx < totalPixels; ++idx)
+  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
     count += colors[idx].a >= fAlphaThreshold;
   }
@@ -1771,4 +1777,232 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
   return EZ_SUCCESS;
 }
 
+static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+  'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
+static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
+
+static ezUInt32 GetBase64EncodedLength(ezUInt32 uiInputLength, bool bInsertLineBreaks)
+{
+  ezUInt32 outputLength = (uiInputLength + 2) / 3 * 4;
+
+  if (bInsertLineBreaks)
+  {
+    outputLength += outputLength / BASE64_CHARS_PER_LINE;
+  }
+
+  return outputLength;
+}
+
+static ezDynamicArray<char> ArrayToBase64(ezArrayPtr<const ezUInt8> in, bool bInsertLineBreaks = true)
+{
+  ezDynamicArray<char> out;
+  out.SetCountUninitialized(GetBase64EncodedLength(in.GetCount(), bInsertLineBreaks));
+
+  ezUInt32 offsetIn = 0;
+  ezUInt32 offsetOut = 0;
+
+  ezUInt32 blocksTillNewline = BASE64_CHARS_PER_LINE / 4;
+  while (offsetIn < in.GetCount())
+  {
+    ezUInt8 ibuf[3] = {0};
+
+    ezUInt32 ibuflen = ezMath::Min(in.GetCount() - offsetIn, 3u);
+
+    for (ezUInt32 i = 0; i < ibuflen; ++i)
+    {
+      ibuf[i] = in[offsetIn++];
+    }
+
+    char obuf[4];
+    obuf[0] = s_Base64EncodingTable[(ibuf[0] >> 2)];
+    obuf[1] = s_Base64EncodingTable[((ibuf[0] << 4) & 0x30) | (ibuf[1] >> 4)];
+    obuf[2] = s_Base64EncodingTable[((ibuf[1] << 2) & 0x3c) | (ibuf[2] >> 6)];
+    obuf[3] = s_Base64EncodingTable[(ibuf[2] & 0x3f)];
+
+    if (ibuflen >= 3)
+    {
+      out[offsetOut++] = obuf[0];
+      out[offsetOut++] = obuf[1];
+      out[offsetOut++] = obuf[2];
+      out[offsetOut++] = obuf[3];
+    }
+    else // need to pad up to 4
+    {
+      switch (ibuflen)
+      {
+        case 1:
+          out[offsetOut++] = obuf[0];
+          out[offsetOut++] = obuf[1];
+          out[offsetOut++] = '=';
+          out[offsetOut++] = '=';
+          break;
+        case 2:
+          out[offsetOut++] = obuf[0];
+          out[offsetOut++] = obuf[1];
+          out[offsetOut++] = obuf[2];
+          out[offsetOut++] = '=';
+          break;
+      }
+    }
+
+    if (--blocksTillNewline == 0)
+    {
+      if (bInsertLineBreaks)
+      {
+        out[offsetOut++] = '\n';
+      }
+      blocksTillNewline = 19;
+    }
+  }
+
+  EZ_ASSERT_DEV(offsetOut == out.GetCount(), "All output data should have been written");
+  return out;
+}
+
+void ezImageUtils::EmbedImageData(ezStringBuilder& out_sHtml, const ezImage& image)
+{
+  ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
+  EZ_ASSERT_DEV(format != nullptr, "No PNG writer found");
+
+  ezDynamicArray<ezUInt8> imgData;
+  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&imgData);
+  ezMemoryStreamWriter writer(&storage);
+  format->WriteImage(writer, image, "png").IgnoreResult();
+
+  ezDynamicArray<char> imgDataBase64 = ArrayToBase64(imgData.GetArrayPtr());
+  ezStringView imgDataBase64StringView(imgDataBase64.GetArrayPtr().GetPtr(), imgDataBase64.GetArrayPtr().GetEndPtr());
+  out_sHtml.AppendFormat("data:image/png;base64,{0}", imgDataBase64StringView);
+}
+
+void ezImageUtils::CreateImageDiffHtml(ezStringBuilder& out_sHtml, ezStringView sTitle, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
+{
+  ezStringBuilder& output = out_sHtml;
+  output.Append("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+                "<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+                "<HTML> <HEAD>\n");
+
+  output.AppendFormat("<TITLE>{}</TITLE>\n", sTitle);
+  output.Append("<script type = \"text/javascript\">\n"
+                "function showReferenceImage()\n"
+                "{\n"
+                "    document.getElementById('image_current_rgb').style.display = 'none'\n"
+                "    document.getElementById('image_current_a').style.display = 'none'\n"
+                "    document.getElementById('image_reference_rgb').style.display = 'inline-block'\n"
+                "    document.getElementById('image_reference_a').style.display = 'inline-block'\n"
+                "    document.getElementById('image_caption_rgb').innerHTML = 'Displaying: Reference Image RGB'\n"
+                "    document.getElementById('image_caption_a').innerHTML = 'Displaying: Reference Image Alpha'\n"
+                "}\n"
+                "function showCurrentImage()\n"
+                "{\n"
+                "    document.getElementById('image_current_rgb').style.display = 'inline-block'\n"
+                "    document.getElementById('image_current_a').style.display = 'inline-block'\n"
+                "    document.getElementById('image_reference_rgb').style.display = 'none'\n"
+                "    document.getElementById('image_reference_a').style.display = 'none'\n"
+                "    document.getElementById('image_caption_rgb').innerHTML = 'Displaying: Current Image RGB'\n"
+                "    document.getElementById('image_caption_a').innerHTML = 'Displaying: Current Image Alpha'\n"
+                "}\n"
+                "function imageover()\n"
+                "{\n"
+                "    var mode = document.querySelector('input[name=\"image_interaction_mode\"]:checked').value\n"
+                "    if (mode == 'interactive')\n"
+                "    {\n"
+                "        showReferenceImage()\n"
+                "    }\n"
+                "}\n"
+                "function imageout()\n"
+                "{\n"
+                "    var mode = document.querySelector('input[name=\"image_interaction_mode\"]:checked').value\n"
+                "    if (mode == 'interactive')\n"
+                "    {\n"
+                "        showCurrentImage()\n"
+                "    }\n"
+                "}\n"
+                "function handleModeClick(clickedItem)\n"
+                "{\n"
+                "    if (clickedItem.value == 'current_image' || clickedItem.value == 'interactive')\n"
+                "    {\n"
+                "        showCurrentImage()\n"
+                "    }\n"
+                "    else if (clickedItem.value == 'reference_image')\n"
+                "    {\n"
+                "        showReferenceImage()\n"
+                "    }\n"
+                "}\n"
+                "</script>\n"
+                "</HEAD>\n"
+                "<BODY bgcolor=\"#ccdddd\">\n"
+                "<div style=\"line-height: 1.5; margin-top: 0px; margin-left: 10px; font-family: sans-serif;\">\n");
+
+  output.AppendFormat("<b>Test result for \"{}\" from ", sTitle);
+  ezDateTime dateTime = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
+  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true), ezArgI(dateTime.GetDay(), 2, true), ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true), ezArgI(dateTime.GetSecond(), 2, true));
+
+  output.Append("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n");
+
+  output.Append("<!-- STATS-TABLE-START -->\n");
+
+  output.AppendFormat("<tr>\n"
+                      "<td>Error metric:</td>\n"
+                      "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
+                      "</tr>\n",
+    uiError);
+  output.AppendFormat("<tr>\n"
+                      "<td>Error threshold:</td>\n"
+                      "<td align=\"right\" style=\"padding-left: 2em;\">{}</td>\n"
+                      "</tr>\n",
+    uiThreshold);
+
+  output.Append("<!-- STATS-TABLE-END -->\n");
+
+  output.Append("</table>\n"
+                "<div style=\"margin-top: 0.5em; margin-bottom: -0.75em\">\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"interactive\" "
+                "checked=\"checked\"> Mouse-Over Image Switching\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"current_image\"> "
+                "Current Image\n"
+                "    <input type=\"radio\" name=\"image_interaction_mode\" onclick=\"handleModeClick(this)\" value=\"reference_image\"> "
+                "Reference Image\n"
+                "</div>\n");
+
+  output.AppendFormat("<div style=\"width:{}px;display: inline-block;\">\n", capturedImgRgb.GetWidth());
+
+  output.Append("<p id=\"image_caption_rgb\">Displaying: Current Image RGB</p>\n"
+
+                "<div style=\"block;\" onmouseover=\"imageover()\" onmouseout=\"imageout()\">\n"
+                "<img id=\"image_current_rgb\" alt=\"Captured Image RGB\" src=\"");
+  EmbedImageData(output, capturedImgRgb);
+  output.Append("\" />\n"
+                "<img id=\"image_reference_rgb\" style=\"display: none\" alt=\"Reference Image RGB\" src=\"");
+  EmbedImageData(output, referenceImgRgb);
+  output.Append("\" />\n"
+                "</div>\n"
+                "<div style=\"display: block;\">\n");
+  output.AppendFormat("<p>RGB Difference (min: {}, max: {}):</p>\n", uiMinDiffRgb, uiMaxDiffRgb);
+  output.Append("<img alt=\"Diff Image RGB\" src=\"");
+  EmbedImageData(output, diffImgRgb);
+  output.Append("\" />\n"
+                "</div>\n"
+                "</div>\n");
+
+  output.AppendFormat("<div style=\"width:{}px;display: inline-block;\">\n", capturedImgAlpha.GetWidth());
+
+  output.Append("<p id=\"image_caption_a\">Displaying: Current Image Alpha</p>\n"
+                "<div style=\"display: block;\" onmouseover=\"imageover()\" onmouseout=\"imageout()\">\n"
+                "<img id=\"image_current_a\" alt=\"Captured Image Alpha\" src=\"");
+  EmbedImageData(output, capturedImgAlpha);
+  output.Append("\" />\n"
+                "<img id=\"image_reference_a\" style=\"display: none\" alt=\"Reference Image Alpha\" src=\"");
+  EmbedImageData(output, referenceImgAlpha);
+  output.Append("\" />\n"
+                "</div>\n"
+                "<div style=\"px;display: block;\">\n");
+  output.AppendFormat("<p>Alpha Difference (min: {}, max: {}):</p>\n", uiMinDiffAlpha, uiMaxDiffAlpha);
+  output.Append("<img alt=\"Diff Image Alpha\" src=\"");
+  EmbedImageData(output, diffImgAlpha);
+  output.Append("\" />\n"
+                "</div>\n"
+                "</div>\n"
+                "</div>\n"
+                "</BODY> </HTML>");
+}

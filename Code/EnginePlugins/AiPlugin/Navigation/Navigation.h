@@ -66,12 +66,16 @@ public:
 
   void SetCurrentPosition(const ezVec3& vPosition);
   void SetTargetPosition(const ezVec3& vPosition);
-  void SetNavmesh(ezAiNavMesh& ref_navmesh);
+  const ezVec3& GetTargetPosition() const;
+  void SetNavmesh(ezAiNavMesh* pNavmesh);
   void SetQueryFilter(const dtQueryFilter& filter);
 
   void ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const;
 
-  void DebugDraw(const ezDebugRendererContext& context, ezColor tilesColor, ezColor straightLineColor, float fPolyRenderOffsetZ = 0.1f, float fLineRenderOffsetZ = 0.2f);
+  void DebugDrawPathCorridor(const ezDebugRendererContext& context, ezColor tilesColor, float fPolyRenderOffsetZ = 0.1f);
+  void DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ = 0.2f);
+  void DebugDrawState(const ezDebugRendererContext& context, const ezVec3& vPosition) const;
+
 
   /// \brief Returns the height of the navmesh at the current position.
   float GetCurrentElevation() const;
@@ -83,11 +87,12 @@ public:
   // otherwise a character that barely left the navmesh area may not know where it is, anymore
   float m_fPolySearchRadius = 0.5f;
   float m_fPolySearchUp = 1.5f;
-  float m_fPolySearchDown = 0.5f;
+  float m_fPolySearchDown = 1.5f;
 
   // when a path search is started, all tiles in a rectangle around the start and end point are loaded first
   // this is the amount to increase that rectangle size, to overestimate which sectors may be needed during the path search
   constexpr static float c_fPathSearchBoundary = 10.0f;
+
 
 private:
   State m_State = State::Idle;
@@ -97,7 +102,6 @@ private:
 
   ezUInt8 m_uiCurrentPositionChangedBit : 1;
   ezUInt8 m_uiTargetPositionChangedBit : 1;
-  ezUInt8 m_uiEnvironmentChangedBit : 1;
   ezUInt8 m_uiReinitQueryBit : 1;
 
   ezAiNavMesh* m_pNavmesh = nullptr;

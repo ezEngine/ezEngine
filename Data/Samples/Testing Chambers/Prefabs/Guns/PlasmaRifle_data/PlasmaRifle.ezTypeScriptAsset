@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Guns/PlasmaRifle_data/PlasmaRifle.ts"}
 		}
 		Uuid %DocumentID{u4{12856587782585819836,5644786207349608285}}
-		u4 %Hash{11727107050230896316}
+		u4 %Hash{18192407152842519436}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9742135734241884762,14658222745245517107}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/Guns/PlasmaRifle_data/PlasmaRifle.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

@@ -18,20 +18,21 @@ class ezColor;
 class EZ_RENDERERFOUNDATION_DLL ezGALDevice
 {
 public:
-  ezEvent<const ezGALDeviceEvent&> m_Events;
+  static ezEvent<const ezGALDeviceEvent&> s_Events;
 
   // Init & shutdown functions
 
   ezResult Init();
   ezResult Shutdown();
+  ezStringView GetRenderer();
 
-  // Pipeline & Pass functions
+  // Commands functions
 
-  void BeginPipeline(const char* szName, ezGALSwapChainHandle hSwapChain);
-  void EndPipeline(ezGALSwapChainHandle hSwapChain);
-
-  ezGALPass* BeginPass(const char* szName);
-  void EndPass(ezGALPass* pPass);
+  /// \brief Begin recording GPU commands on the returned command encoder.
+  ezGALCommandEncoder* BeginCommands(const char* szName);
+  /// \brief Stop recording commands on the command encoder.
+  /// \param pCommandEncoder Must match the command encoder returned by BeginCommands.
+  void EndCommands(ezGALCommandEncoder* pCommandEncoder);
 
   // State creation functions
 
@@ -72,11 +73,14 @@ public:
   void DestroySharedTexture(ezGALTextureHandle hTexture);
 
   // Resource views
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
-  ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
+  ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
+  ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
 
-  ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& description);
-  void DestroyResourceView(ezGALResourceViewHandle hResourceView);
+  ezGALTextureResourceViewHandle CreateResourceView(const ezGALTextureResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALTextureResourceViewHandle hResourceView);
+
+  ezGALBufferResourceViewHandle CreateResourceView(const ezGALBufferResourceViewCreationDescription& description);
+  void DestroyResourceView(ezGALBufferResourceViewHandle hResourceView);
 
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
@@ -85,26 +89,47 @@ public:
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
 
   // Unordered access views
-  ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& description);
-  void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView);
+  ezGALTextureUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALTextureUnorderedAccessViewCreationDescription& description);
+  void DestroyUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView);
 
+  ezGALBufferUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALBufferUnorderedAccessViewCreationDescription& description);
+  void DestroyUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
 
   // Other rendering creation functions
 
-  using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocatorBase*)>;
+  using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocator*)>;
   ezGALSwapChainHandle CreateSwapChain(const SwapChainFactoryFunction& func);
   ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
   void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  ezGALQueryHandle CreateQuery(const ezGALQueryCreationDescription& description);
-  void DestroyQuery(ezGALQueryHandle hQuery);
-
   ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& description);
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
-  // Timestamp functions
+  // GPU -> CPU query functions
 
-  ezResult GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result);
+  /// \brief Queries the result of a timestamp.
+  /// Should be called every frame until ezGALAsyncResult::Ready is returned.
+  /// \param hTimestamp The timestamp handle to query.
+  /// \param out_result If ezGALAsyncResult::Ready is returned, this will be the timestamp at which this handle was inserted into the command encoder.
+  /// \return If ezGALAsyncResult::Expired is returned, the result was in a ready state for more than 4 frames and was thus deleted.
+  /// \sa ezCommandEncoder::InsertTimestamp
+  ezEnum<ezGALAsyncResult> GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result);
+
+  /// \briefQueries the result of an occlusion query.
+  /// Should be called every frame until ezGALAsyncResult::Ready is returned.
+  /// \param hOcclusion The occlusion query handle to query.
+  /// \param out_uiResult If ezGALAsyncResult::Ready is returned, this will be the number of pixels of the occlusion query.
+  /// \return If ezGALAsyncResult::Expired is returned, the result was in a ready state for more than 4 frames and was thus deleted.
+  /// \sa ezCommandEncoder::BeginOcclusionQuery, ezCommandEncoder::EndOcclusionQuery
+  ezEnum<ezGALAsyncResult> GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult);
+
+  /// \briefQueries the result of a fence.
+  /// Fences can never expire as they are just monotonically increasing numbers over time.
+  /// \param hFence The fence handle to query.
+  /// \param timeout If set to > 0, the function will block until the fence is ready or the timeout is reached.
+  /// \return Returns either Ready or Pending.
+  /// \sa ezCommandEncoder::InsertFence
+  ezEnum<ezGALAsyncResult> GetFenceResult(ezGALFenceHandle hFence, ezTime timeout = ezTime::MakeZero());
 
   /// \todo Map functions to save on memcpys
 
@@ -115,10 +140,27 @@ public:
 
   // Misc functions
 
-  void BeginFrame(const ezUInt64 uiRenderFrame = 0);
+  /// \brief Adds a swap-chain to be used for the next frame.
+  /// Must be called before or during the ezGALDeviceEvent::BeforeBeginFrame event (BeginFrame function) and repeated for every frame the swap-chain is to be used. This approach guarantees that all swap-chains of a frame acquire and present at the same time, which improves frame pacing.
+  /// \param hSwapChain Swap-chain used in this frame. The device will ensure to acquire an image from the swap-chain during BeginFrame and present it when calling EndFrame.
+  void EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain);
+
+  /// \brief Begins rendering of a frame. This needs to be called first before any rendering function can be called.
+  /// \param uiAppFrame Frame index for debugging purposes, has no effect on GetCurrentFrame.
+  void BeginFrame(const ezUInt64 uiAppFrame = 0);
+
+  /// \brief Ends rendering of a frame and submits all data to the GPU. No further rendering calls are allowed until BeginFrame is called again.
   void EndFrame();
 
-  ezGALTimestampHandle GetTimestamp();
+  /// \brief The current rendering frame.
+  /// This is a monotonically increasing number which changes +1 every time EndFrame is called. You can use this to synchronize read/writes between CPU and GPU, see GetSafeFrame.
+  /// \sa GetSafeFrame
+  ezUInt64 GetCurrentFrame() const;
+  /// \brief The latest frame that has been fully executed on the GPU.
+  /// Whenever you execute any work that requires synchronization between CPU and GPU, remember the GetCurrentFrame result in which the operation was done. When GetSafeFrame reaches this number, you know for sure that the GPU has completed all operations of that frame.
+  /// \sa GetCurrentFrame
+  ezUInt64 GetSafeFrame() const;
+
 
   const ezGALDeviceCreationDescription* GetDescription() const;
 
@@ -138,10 +180,11 @@ public:
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
-  const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
+  const ezGALTextureResourceView* GetResourceView(ezGALTextureResourceViewHandle hResourceView) const;
+  const ezGALBufferResourceView* GetResourceView(ezGALBufferResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
-  const ezGALUnorderedAccessView* GetUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView) const;
-  const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
+  const ezGALTextureUnorderedAccessView* GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const;
+  const ezGALBufferUnorderedAccessView* GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
 
@@ -152,13 +195,18 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
-  // Sends the queued up commands to the GPU
+  // \brief Sends the queued up commands to the GPU.
+  // Same as ezCommandEncoder:Flush.
   void Flush();
+
   /// \brief Waits for the GPU to be idle and destroys any pending resources and GPU objects.
   void WaitIdle();
 
   // public in case someone external needs to lock multiple operations
   mutable ezMutex m_Mutex;
+
+  /// Internal: Returns the allocator used by the device.
+  ezAllocator* GetAllocator();
 
 private:
   static ezGALDevice* s_pDefaultDevice;
@@ -171,7 +219,8 @@ protected:
   template <typename IdTableType, typename ReturnType>
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
 
-  void DestroyViews(ezGALResourceBase* pResource);
+  void DestroyViews(ezGALTexture* pResource);
+  void DestroyViews(ezGALBuffer* pResource);
 
   template <typename HandleType>
   void AddDeadObject(ezUInt32 uiType, HandleType handle);
@@ -198,12 +247,13 @@ protected:
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
-  using ResourceViewTable = ezIdTable<ezGALResourceViewHandle::IdType, ezGALResourceView*, ezLocalAllocatorWrapper>;
+  using TextureResourceViewTable = ezIdTable<ezGALTextureResourceViewHandle::IdType, ezGALTextureResourceView*, ezLocalAllocatorWrapper>;
+  using BufferResourceViewTable = ezIdTable<ezGALBufferResourceViewHandle::IdType, ezGALBufferResourceView*, ezLocalAllocatorWrapper>;
   using SamplerStateTable = ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*, ezLocalAllocatorWrapper>;
   using RenderTargetViewTable = ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper>;
-  using UnorderedAccessViewTable = ezIdTable<ezGALUnorderedAccessViewHandle::IdType, ezGALUnorderedAccessView*, ezLocalAllocatorWrapper>;
+  using TextureUnorderedAccessViewTable = ezIdTable<ezGALTextureUnorderedAccessViewHandle::IdType, ezGALTextureUnorderedAccessView*, ezLocalAllocatorWrapper>;
+  using BufferUnorderedAccessViewTable = ezIdTable<ezGALBufferUnorderedAccessViewHandle::IdType, ezGALBufferUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
-  using QueryTable = ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
 
   ShaderTable m_Shaders;
@@ -212,12 +262,13 @@ protected:
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
   TextureTable m_Textures;
-  ResourceViewTable m_ResourceViews;
+  TextureResourceViewTable m_TextureResourceViews;
+  BufferResourceViewTable m_BufferResourceViews;
   SamplerStateTable m_SamplerStates;
   RenderTargetViewTable m_RenderTargetViews;
-  UnorderedAccessViewTable m_UnorderedAccessViews;
+  TextureUnorderedAccessViewTable m_TextureUnorderedAccessViews;
+  BufferUnorderedAccessViewTable m_BufferUnorderedAccessViews;
   SwapChainTable m_SwapChains;
-  QueryTable m_Queries;
   VertexDeclarationTable m_VertexDeclarations;
 
 
@@ -253,14 +304,16 @@ protected:
 
   virtual ezResult InitPlatform() = 0;
   virtual ezResult ShutdownPlatform() = 0;
+  virtual ezStringView GetRendererPlatform() = 0;
 
   // Pipeline & Pass functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) = 0;
-  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) = 0;
 
-  virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
-  virtual void EndPassPlatform(ezGALPass* pPass) = 0;
+
+  // Command Encoder
+
+  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) = 0;
+  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) = 0;
 
   // State creation functions
 
@@ -290,32 +343,39 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) = 0;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) = 0;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;
-  virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
+  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) = 0;
+
+  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) = 0;
+  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) = 0;
 
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) = 0;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 
-  virtual ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) = 0;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
+  virtual ezGALTextureUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description) = 0;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView) = 0;
+
+  virtual ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) = 0;
+  virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) = 0;
 
   // Other rendering creation functions
-
-  virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) = 0;
-  virtual void DestroyQueryPlatform(ezGALQuery* pQuery) = 0;
 
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
 
-  // Timestamp functions
+  // GPU -> CPU query functions
 
-  virtual ezGALTimestampHandle GetTimestampPlatform() = 0;
-  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) = 0;
+  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) = 0;
 
   // Misc functions
 
-  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) = 0;
-  virtual void EndFramePlatform() = 0;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) = 0;
+  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) = 0;
+
+  virtual ezUInt64 GetCurrentFramePlatform() const = 0;
+  virtual ezUInt64 GetSafeFramePlatform() const = 0;
 
   virtual void FillCapabilitiesPlatform() = 0;
 
@@ -327,8 +387,9 @@ protected:
 
 private:
   bool m_bBeginFrameCalled = false;
+  ezHybridArray<ezGALSwapChain*, 8> m_FrameSwapChains;
   bool m_bBeginPipelineCalled = false;
-  bool m_bBeginPassCalled = false;
+  bool m_bBeginCommandsCalled = false;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

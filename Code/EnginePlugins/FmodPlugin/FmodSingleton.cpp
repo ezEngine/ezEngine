@@ -18,8 +18,8 @@ static ezFmod g_FmodSingleton;
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat cvar_FmodMasterVolume("Fmod.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all Fmod output");
-ezCVarBool cvar_FmodMute("Fmod.Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
+ezCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all FMOD output");
+ezCVarBool cvar_FmodMute("FMOD.Mute", false, ezCVarFlags::Default, "Whether FMOD sound output is muted");
 
 ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
@@ -46,14 +46,14 @@ void ezFmod::Startup()
 
     if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
     {
-      ezLog::Warning("No valid Fmod configuration file available in '{0}'. Fmod will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
+      ezLog::Warning("No valid FMOD configuration file available in '{0}'. FMOD will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
       return;
     }
   }
 
   if (!m_pData->m_Configs.m_AssetProfiles.Find(m_pData->m_sPlatform).IsValid())
   {
-    ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_pData->m_sPlatform);
+    ezLog::Error("FMOD configuration for platform '{0}' not available. FMOD will be deactivated.", m_pData->m_sPlatform);
     return;
   }
 
@@ -78,7 +78,7 @@ void ezFmod::Startup()
         break;
     }
 
-    EZ_LOG_BLOCK("Fmod Configuration");
+    EZ_LOG_BLOCK("FMOD Configuration");
     ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
@@ -92,7 +92,7 @@ void ezFmod::Startup()
   void* extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
-  // Fmod live update doesn't work with multiple instances and the same default IP
+  // FMOD live update doesn't work with multiple instances and the same default IP
   // bank loading fails, once two processes are running that use this feature with the same IP
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -109,7 +109,7 @@ void ezFmod::Startup()
     }
     else
     {
-      ezLog::Warning("Fmod Live-Update not available for this process, another process using Fmod is already running.");
+      ezLog::Warning("FMOD Live-Update not available for this process, another process using FMOD is already running.");
       if (g_hLiveUpdateMutex != NULL)
       {
         CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
@@ -126,12 +126,12 @@ void ezFmod::Startup()
 
   if ((studioflags & FMOD_STUDIO_INIT_LIVEUPDATE) != 0)
   {
-    ezLog::Success("Fmod Live-Update is enabled for this process.");
+    ezLog::Success("FMOD Live-Update is enabled for this process.");
   }
 
   if (LoadMasterSoundBank(config.m_sMasterSoundBank).Failed())
   {
-    ezLog::Error("Failed to load Fmod master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
+    ezLog::Error("Failed to load FMOD master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
     return;
   }
 
@@ -144,7 +144,7 @@ void ezFmod::Shutdown()
 {
   if (m_bInitialized)
   {
-    // delete all Fmod resources, except the master bank
+    // delete all FMOD resources, except the master bank
     ezResourceManager::FreeAllUnusedResources();
 
     m_bInitialized = false;
@@ -171,7 +171,7 @@ void ezFmod::Shutdown()
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
 {
-  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "Fmod supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
+  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "FMOD supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
 
   m_pStudioSystem->setNumListeners(uiNumListeners);
 }
@@ -304,6 +304,19 @@ void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
   m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
 }
 
+void ezFmod::SetGlobalParameter(const char* szName, float fValue)
+{
+  m_pStudioSystem->setParameterByName(szName, fValue);
+}
+
+float ezFmod::GetGlobalParameter(const char* szName)
+{
+  float fValue = 0.0f;
+  float fFinalValue = 0.0f;
+  m_pStudioSystem->getParameterByName(szName, &fValue, &fFinalValue);
+  return fFinalValue;
+}
+
 void ezFmod::SetListenerOverrideMode(bool bEnabled)
 {
   m_bListenerOverrideMode = bEnabled;
@@ -392,7 +405,7 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
 {
   if (ezStringUtils::IsNullOrEmpty(szMasterBankResourceID))
   {
-    ezLog::Error("Fmod master bank name has not been configured.");
+    ezLog::Error("FMOD master bank name has not been configured.");
     return EZ_FAILURE;
   }
 

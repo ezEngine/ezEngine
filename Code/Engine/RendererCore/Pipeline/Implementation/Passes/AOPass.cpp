@@ -107,8 +107,6 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
   ezUInt32 uiWidth = pDepthInput->m_Desc.m_uiWidth;
   ezUInt32 uiHeight = pDepthInput->m_Desc.m_uiHeight;
@@ -123,7 +121,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   // Find temp targets
   ezGALTextureHandle hzbTexture;
   ezHybridArray<ezVec2, 8> hzbSizes;
-  ezHybridArray<ezGALResourceViewHandle, 8> hzbResourceViews;
+  ezHybridArray<ezGALTextureResourceViewHandle, 8> hzbResourceViews;
   ezHybridArray<ezGALRenderTargetViewHandle, 8> hzbRenderTargetViews;
 
   ezGALTextureHandle tempSSAOTexture;
@@ -151,7 +149,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       hzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
 
       {
-        ezGALResourceViewCreationDescription desc;
+        ezGALTextureResourceViewCreationDescription desc;
         desc.m_hTexture = hzbTexture;
         desc.m_uiMostDetailedMipLevel = i;
         desc.m_uiMipLevelsToUse = 1;
@@ -179,7 +177,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
-      ezGALResourceViewHandle hInputView;
+      ezGALTextureResourceViewHandle hInputView;
       ezVec2 pixelSize;
 
       if (i == 0)
@@ -198,7 +196,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hOutputView);
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "SSAOMipMaps", renderViewContext.m_pCamera->IsStereoscopic());
+      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "SSAOMipMaps", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezDownscaleDepthConstants* constants = ezRenderContext::GetConstantBufferData<ezDownscaleDepthConstants>(m_hDownscaleConstantBuffer);
       constants->PixelSize = pixelSize;
@@ -239,7 +237,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempSSAOTexture));
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "SSAO", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "SSAO", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
@@ -259,7 +257,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   {
     ezGALRenderingSetup renderingSetup;
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Blur", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Blur", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
@@ -298,7 +296,7 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
   renderingSetup.m_ClearColor = ezColor::White;
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
 ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const

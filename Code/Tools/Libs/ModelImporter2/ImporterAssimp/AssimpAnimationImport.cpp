@@ -3,10 +3,14 @@
 #include <Foundation/Logging/Log.h>
 #include <ModelImporter2/ImporterAssimp/ImporterAssimp.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <assimp/anim.h>
 #include <assimp/scene.h>
+#include <ozz/animation/offline/additive_animation_builder.h>
+#include <ozz/animation/offline/animation_optimizer.h>
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/raw_animation_utils.h>
+#include <ozz/animation/runtime/skeleton.h>
 
 namespace ezModelImporter2
 {
@@ -42,6 +46,15 @@ namespace ezModelImporter2
 
   ezResult ImporterAssimp::ImportAnimations()
   {
+    // always output the available animation clips, even if no clip is supposed to be read
+    {
+      m_OutputAnimationNames.SetCount(m_pScene->mNumAnimations);
+      for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
+      {
+        m_OutputAnimationNames[animIdx] = m_pScene->mAnimations[animIdx]->mName.C_Str();
+      }
+    }
+
     auto* pAnimOut = m_Options.m_pAnimationOutput;
 
     if (pAnimOut == nullptr)
@@ -52,18 +65,12 @@ namespace ezModelImporter2
 
     pAnimOut->m_bAdditive = m_Options.m_bAdditiveAnimation;
 
-    m_OutputAnimationNames.SetCount(m_pScene->mNumAnimations);
-    for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
-    {
-      m_OutputAnimationNames[animIdx] = m_pScene->mAnimations[animIdx]->mName.C_Str();
-    }
-
     if (m_Options.m_sAnimationToImport.IsEmpty())
       m_Options.m_sAnimationToImport = m_pScene->mAnimations[0]->mName.C_Str();
 
     ezHashedString hs;
 
-    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim;
+    ozz::animation::offline::RawAnimation orgRawAnim, sampledRawAnim, additiveAnim, optAnim;
     ozz::animation::offline::RawAnimation* pFinalRawAnim = &orgRawAnim;
 
     for (ezUInt32 animIdx = 0; animIdx < m_pScene->mNumAnimations; ++animIdx)
@@ -117,37 +124,15 @@ namespace ezModelImporter2
           orgRawAnim.tracks[channelIdx].scales[i].time = (float)(pChannel->mScalingKeys[i].mTime * fOneDivTicksPerSec);
           ai2ozz(pChannel->mScalingKeys[i].mValue, orgRawAnim.tracks[channelIdx].scales[i].value);
         }
+      }
 
-        if (m_Options.m_bAdditiveAnimation)
+      if (m_Options.m_bAdditiveAnimation)
+      {
+        ozz::animation::offline::AdditiveAnimationBuilder builder;
+
+        if (builder(*pFinalRawAnim, &additiveAnim))
         {
-          auto refPos = orgRawAnim.tracks[channelIdx].translations[0].value;
-          auto refRot = Conjugate(orgRawAnim.tracks[channelIdx].rotations[0].value);
-          auto refScale = orgRawAnim.tracks[channelIdx].scales[0].value;
-          refScale.x = 1.0f / refScale.x;
-          refScale.y = 1.0f / refScale.y;
-          refScale.z = 1.0f / refScale.z;
-
-          for (ezUInt32 i = 0; i < pChannel->mNumPositionKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].translations[i].value;
-            val.x -= refPos.x;
-            val.y -= refPos.y;
-            val.z -= refPos.z;
-          }
-
-          for (ezUInt32 i = 0; i < pChannel->mNumRotationKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].rotations[i].value;
-            val = refRot * val;
-          }
-
-          for (ezUInt32 i = 0; i < pChannel->mNumScalingKeys; ++i)
-          {
-            auto& val = orgRawAnim.tracks[channelIdx].scales[i].value;
-            val.x *= refScale.x;
-            val.y *= refScale.y;
-            val.z *= refScale.z;
-          }
+          pFinalRawAnim = &additiveAnim;
         }
       }
 
@@ -177,7 +162,7 @@ namespace ezModelImporter2
           {
             const float fCurTime = (float)fOneDivTicksPerSec * kf;
             ;
-            ozz::animation::offline::SampleTrack(orgRawAnim.tracks[channelIdx], (float)(fLowerTimestamp + fOneDivTicksPerSec * kf), &tmpTransform);
+            ozz::animation::offline::SampleTrack(pFinalRawAnim->tracks[channelIdx], (float)(fLowerTimestamp + fOneDivTicksPerSec * kf), &tmpTransform);
 
             track.translations[kf].time = fCurTime;
             track.translations[kf].value = tmpTransform.translation;
@@ -193,7 +178,20 @@ namespace ezModelImporter2
         pFinalRawAnim = &sampledRawAnim;
       }
 
-      // TODO: optimize the animation
+      // TODO: optimize the animation (currently this code doesn't work)
+      if (m_Options.m_pSkeletonOutput && !m_Options.m_pSkeletonOutput->m_Children.IsEmpty())
+      {
+        ozz::animation::Skeleton skeleton;
+        m_Options.m_pSkeletonOutput->GenerateOzzSkeleton(skeleton);
+
+        ozz::animation::offline::AnimationOptimizer opt;
+        opt.setting.distance = 0.01f;
+        opt.setting.tolerance = 0.001f;
+        if (opt(*pFinalRawAnim, skeleton, &optAnim))
+        {
+          pFinalRawAnim = &optAnim;
+        }
+      }
 
       for (ezUInt32 channelIdx = 0; channelIdx < uiNumChannels; ++channelIdx)
       {

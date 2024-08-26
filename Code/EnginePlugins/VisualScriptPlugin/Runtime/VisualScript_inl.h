@@ -98,7 +98,9 @@ template <typename T>
 T& ezVisualScriptGraphDescription::Node::InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize /*= sizeof(T)*/)
 {
   m_UserDataByteSize = uiByteSize;
-  auto pUserData = m_UserData.Init(uiByteSize / sizeof(ezUInt32), inout_pAdditionalData);
+  const ezUInt32 uiUserDataCount = uiByteSize / sizeof(ezUInt32);
+  EZ_ASSERT_DEBUG(uiUserDataCount <= ezMath::MaxValue<ezUInt8>(), "User data is too big");
+  auto pUserData = m_UserData.Init(static_cast<ezUInt8>(uiUserDataCount), inout_pAdditionalData);
   EZ_CHECK_ALIGNMENT(pUserData, EZ_ALIGNMENT_OF(T));
   return *reinterpret_cast<T*>(pUserData);
 }

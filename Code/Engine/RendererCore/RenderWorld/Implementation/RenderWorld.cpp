@@ -69,14 +69,15 @@ namespace
   };
 
   static bool s_bWriteRenderPipelineDgml = false;
-  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []() { s_bWriteRenderPipelineDgml = true; });
+  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []()
+    { s_bWriteRenderPipelineDgml = true; });
 } // namespace
 
 namespace ezInternal
 {
   struct RenderDataCache
   {
-    RenderDataCache(ezAllocatorBase* pAllocator)
+    RenderDataCache(ezAllocator* pAllocator)
       : m_PerObjectCaches(pAllocator)
     {
       for (ezUInt32 i = 0; i < MaxNumNewCacheEntries; ++i)
@@ -89,7 +90,7 @@ namespace ezInternal
     {
       PerObjectCache() = default;
 
-      PerObjectCache(ezAllocatorBase* pAllocator)
+      PerObjectCache(ezAllocator* pAllocator)
         : m_Entries(pAllocator)
       {
       }
@@ -102,7 +103,7 @@ namespace ezInternal
 
     struct NewEntryPerComponent
     {
-      NewEntryPerComponent(ezAllocatorBase* pAllocator)
+      NewEntryPerComponent(ezAllocator* pAllocator)
         : m_Cache(pAllocator)
       {
       }
@@ -117,7 +118,7 @@ namespace ezInternal
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
+  static_assert(sizeof(RenderDataCacheEntry) == 16);
 #endif
 } // namespace ezInternal
 
@@ -579,10 +580,12 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   }
 
   filteredRenderPipelines.Clear();
-
-  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
-  EZ_PROFILE_SCOPE("EndRender");
-  s_RenderEvent.Broadcast(renderEvent);
+  /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
+  {
+    renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
+    EZ_PROFILE_SCOPE("EndRender");
+    s_RenderEvent.Broadcast(renderEvent);
+  }
 }
 
 void ezRenderWorld::BeginFrame()
@@ -598,11 +601,30 @@ void ezRenderWorld::BeginFrame()
   }
 
   RebuildPipelines();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  // On most platforms it doesn't matter that much how early this happens.
+  // But on HoloLens this executes something that needs to be done at the right time,
+  // for the reprojection to work properly.
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+
+  auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
+  for (auto& pRenderPipeline : filteredRenderPipelines)
+  {
+    ezGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
+    if (!hSwapChain.IsInvalidated())
+    {
+      pDevice->EnqueueFrameSwapChain(hSwapChain);
+    }
+  }
+  pDevice->BeginFrame(uiRenderFrame);
 }
 
 void ezRenderWorld::EndFrame()
 {
   EZ_PROFILE_SCOPE("EndFrame");
+  ezGALDevice::GetDefaultDevice()->EndFrame();
 
   ++s_uiFrameCounter;
 

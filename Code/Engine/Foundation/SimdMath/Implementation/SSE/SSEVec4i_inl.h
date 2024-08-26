@@ -1,10 +1,14 @@
 #pragma once
 
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#  include <intrin.h>
+#endif
+
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   m_v = _mm_set1_epi32(0xCDCDCDCD);
 #endif
 }
@@ -142,6 +146,12 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Get() const
 {
   return _mm_shuffle_epi32(m_v, EZ_TO_SHUFFLE(s));
+}
+
+template <ezSwizzle::Enum s>
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::GetCombined(const ezSimdVec4i& other) const
+{
+  return _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(other.m_v), EZ_TO_SHUFFLE(s)));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator-() const

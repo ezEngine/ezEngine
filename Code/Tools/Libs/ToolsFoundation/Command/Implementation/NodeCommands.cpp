@@ -62,7 +62,8 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
   ezDocument* pDocument = GetDocument();
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
 
-  auto RemoveConnections = [&](const ezPin& pin) {
+  auto RemoveConnections = [&](const ezPin& pin)
+  {
     while (true)
     {
       auto connections = pManager->GetConnections(pin);
@@ -278,25 +279,45 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
 // static
 ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin)
 {
-  ezAddObjectCommand cmd;
-  cmd.m_pType = pConnectionType;
-  cmd.m_NewObjectGuid = ezUuid::MakeUuid();
-  cmd.m_Index = -1;
+  ezAddObjectCommand addCmd;
+  addCmd.m_pType = pConnectionType;
+  addCmd.m_NewObjectGuid = ezUuid::MakeUuid();
+  addCmd.m_Index = -1;
 
-  ezStatus res = pHistory->AddCommand(cmd);
-  if (res.m_Result.Succeeded())
+  EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(addCmd));
+
+  constexpr ezStringView propertyNames[] = {
+    "Source"_ezsv,
+    "Target"_ezsv,
+    "SourcePin"_ezsv,
+    "TargetPin"_ezsv,
+  };
+  ezVariant propertyValues[] = {
+    sourcePin.GetParent()->GetGuid(),
+    targetPin.GetParent()->GetGuid(),
+    sourcePin.GetName(),
+    targetPin.GetName(),
+  };
+  static_assert(EZ_ARRAY_SIZE(propertyNames) == EZ_ARRAY_SIZE(propertyValues));
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(propertyNames); ++i)
   {
-    ezConnectNodePinsCommand connect;
-    connect.m_ConnectionObject = cmd.m_NewObjectGuid;
-    connect.m_ObjectSource = sourcePin.GetParent()->GetGuid();
-    connect.m_ObjectTarget = targetPin.GetParent()->GetGuid();
-    connect.m_sSourcePin = sourcePin.GetName();
-    connect.m_sTargetPin = targetPin.GetName();
+    ezSetObjectPropertyCommand propCmd;
+    propCmd.m_Object = addCmd.m_NewObjectGuid;
+    propCmd.m_sProperty = propertyNames[i];
+    propCmd.m_NewValue = propertyValues[i];
 
-    res = pHistory->AddCommand(connect);
+    EZ_SUCCEED_OR_RETURN(pHistory->AddCommand(propCmd));
   }
 
-  return res;
+  ezConnectNodePinsCommand connectCmd;
+  connectCmd.m_ConnectionObject = addCmd.m_NewObjectGuid;
+  connectCmd.m_ObjectSource = sourcePin.GetParent()->GetGuid();
+  connectCmd.m_ObjectTarget = targetPin.GetParent()->GetGuid();
+  connectCmd.m_sSourcePin = sourcePin.GetName();
+  connectCmd.m_sTargetPin = targetPin.GetName();
+
+  return pHistory->AddCommand(connectCmd);
 }
 
 // static

@@ -19,11 +19,11 @@ bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
 ezString ezTelemetry::s_sServerName;
 ezString ezTelemetry::s_sServerIP;
-static bool g_bInitialized = false;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
 ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
+static bool g_bInitialized = false;
 static ENetAddress g_pServerAddress;
 static ENetHost* g_pHost = nullptr;
 static ENetPeer* g_pConnectionToServer = nullptr;
@@ -313,6 +313,7 @@ ezResult ezTelemetry::InitializeAsClient(ezStringView sConnectTo0)
   if (g_pConnectionToServer)
     return EZ_SUCCESS;
 #else
+  EZ_IGNORE_UNUSED(sConnectTo0);
   ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::InitializeAsClient() will be ignored.");
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
@@ -361,6 +362,8 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, ezStringView sConnectT
 
   return EZ_SUCCESS;
 #else
+  EZ_IGNORE_UNUSED(Mode);
+  EZ_IGNORE_UNUSED(sConnectTo);
   ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::OpenConnection() will be ignored.");
   return EZ_FAILURE;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
@@ -379,6 +382,10 @@ void ezTelemetry::Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBy
 
   // make sure the message is processed immediately
   ezTelemetry::UpdateNetwork();
+#else
+  EZ_IGNORE_UNUSED(tm);
+  EZ_IGNORE_UNUSED(pData);
+  EZ_IGNORE_UNUSED(uiDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
@@ -405,6 +412,12 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
 
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
+#else
+  EZ_IGNORE_UNUSED(tm);
+  EZ_IGNORE_UNUSED(uiSystemID);
+  EZ_IGNORE_UNUSED(uiMsgID);
+  EZ_IGNORE_UNUSED(pData);
+  EZ_IGNORE_UNUSED(uiDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
@@ -460,14 +473,18 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
     // when we do have a connection, just send the message out
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
+#else
+  EZ_IGNORE_UNUSED(tm);
+  EZ_IGNORE_UNUSED(uiSystemID);
+  EZ_IGNORE_UNUSED(uiMsgID);
+  EZ_IGNORE_UNUSED(Stream);
+  EZ_IGNORE_UNUSED(iDataBytes);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
 void ezTelemetry::CloseConnection()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  s_bConnectedToServer = false;
-  s_bConnectedToClient = false;
   s_ConnectionMode = None;
   s_uiServerID = 0;
   g_pConnectionToServer = nullptr;
@@ -491,6 +508,24 @@ void ezTelemetry::CloseConnection()
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
+  {
+    // Fire disconnect event.
+    if (s_bConnectedToClient)
+    {
+      TelemetryEventData e;
+      e.m_EventType = TelemetryEventData::DisconnectedFromClient;
+      s_TelemetryEvents.Broadcast(e);
+      s_bConnectedToClient = false;
+    }
+
+    if (s_bConnectedToServer)
+    {
+      TelemetryEventData e;
+      e.m_EventType = TelemetryEventData::DisconnectedFromServer;
+      s_TelemetryEvents.Broadcast(e);
+      s_bConnectedToServer = false;
+    }
+  }
   // finally close the network connection
   if (g_pHost)
   {
@@ -512,5 +547,3 @@ void ezTelemetry::CloseConnection()
   }
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
-
-

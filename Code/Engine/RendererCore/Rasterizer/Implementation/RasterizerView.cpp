@@ -127,7 +127,8 @@ void ezRasterizerView::SortObjectsFrontToBack()
 
   const ezVec3 camPos = m_pCamera->GetCenterPosition();
 
-  m_Instances.Sort([&](const Instance& i1, const Instance& i2) {
+  m_Instances.Sort([&](const Instance& i1, const Instance& i2)
+    {
       const float d1 = (i1.m_Transform.m_vPosition - camPos).GetLengthSquared();
       const float d2 = (i2.m_Transform.m_vPosition - camPos).GetLengthSquared();
 

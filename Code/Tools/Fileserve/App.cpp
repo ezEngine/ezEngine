@@ -15,7 +15,7 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
   EZ_DEFAULT_NEW(ezFileserver);
 
@@ -25,6 +25,11 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezFileserverApp::FileserverEventHandlerConsole, this));
   ezFileserver::GetSingleton()->StartServer();
 #endif
+
+  ezPlugin::LoadPlugin("ezShaderCompilerDXC", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  ezPlugin::LoadPlugin("ezShaderCompilerHLSL", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+
+  ezFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', ezMakeDelegate(&ezFileserverApp::ShaderMessageHandler, this));
 
   // TODO: CommandLine Option
   m_CloseAppTimeout = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));

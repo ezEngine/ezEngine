@@ -9,7 +9,7 @@ public:
   ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
   ~ezVisualScriptCoroutine();
 
-  virtual void Start(ezArrayPtr<ezVariant> arguments) override;
+  virtual void StartWithVarargs(ezArrayPtr<ezVariant> arguments) override;
   virtual void Stop() override;
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
 
@@ -23,8 +23,8 @@ class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptCoroutineAllocator : public ezRTTI
 public:
   ezVisualScriptCoroutineAllocator(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
 
-  void Deallocate(void* pObject, ezAllocatorBase* pAllocator = nullptr) override;
-  ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override;
+  void Deallocate(void* pObject, ezAllocator* pAllocator = nullptr) override;
+  ezInternal::NewInstance<void> AllocateInternal(ezAllocator* pAllocator) override;
 
 private:
   ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;

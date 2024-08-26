@@ -147,12 +147,18 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
   return 4;
 }
 
-inline bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStringEnd)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStringEnd)
 {
+#if EZ_ENABLED(EZ_USE_STRING_VALIDATION)
   if (szStringEnd == GetMaxStringEnd<char>())
     szStringEnd = szString + strlen(szString);
 
   return utf8::is_valid(szString, szStringEnd);
+#else
+  EZ_IGNORE_UNUSED(szString);
+  EZ_IGNORE_UNUSED(szStringEnd);
+  return true;
+#endif
 }
 
 inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& ref_szUtf8)
@@ -194,13 +200,14 @@ inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& ref_pUtf16)
   return false;
 }
 
-inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters)
+inline ezResult ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Invalid string pointer to advance!");
 
   while (uiNumCharacters > 0)
   {
-    EZ_ASSERT_DEV(*ref_szUtf8 != '\0', "The given string must not point to the zero terminator.");
+    if (*ref_szUtf8 == '\0')
+      return EZ_FAILURE;
 
     do
     {
@@ -209,15 +216,18 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiN
 
     --uiNumCharacters;
   }
+
+  return EZ_SUCCESS;
 }
 
-inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters)
+inline ezResult ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Invalid string pointer to advance!");
 
-  while (uiNumCharacters > 0 && ref_szUtf8 < szUtf8End)
+  while (uiNumCharacters > 0)
   {
-    EZ_ASSERT_DEV(*ref_szUtf8 != '\0', "The given string must not point to the zero terminator.");
+    if (ref_szUtf8 >= szUtf8End || *ref_szUtf8 == '\0')
+      return EZ_FAILURE;
 
     do
     {
@@ -226,14 +236,19 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, const char* 
 
     --uiNumCharacters;
   }
+
+  return EZ_SUCCESS;
 }
 
-inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters)
+inline ezResult ezUnicodeUtils::MoveToPriorUtf8(const char*& ref_szUtf8, const char* szUtf8Start, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Invalid string pointer to advance!");
 
   while (uiNumCharacters > 0)
   {
+    if (ref_szUtf8 <= szUtf8Start)
+      return EZ_FAILURE;
+
     do
     {
       --ref_szUtf8;
@@ -241,6 +256,8 @@ inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& ref_szUtf8, ezUInt32 ui
 
     --uiNumCharacters;
   }
+
+  return EZ_SUCCESS;
 }
 template <typename T>
 constexpr T* ezUnicodeUtils::GetMaxStringEnd()

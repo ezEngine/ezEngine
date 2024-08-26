@@ -10,9 +10,10 @@
 #include <GameEngine/Messages/DamageMessage.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 1)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 2)
   EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
   EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
+  EZ_ENUM_CONSTANT(ezProjectileReaction::Bounce),
   EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
   EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -21,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
@@ -31,14 +32,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 5, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 6, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_MEMBER_PROPERTY("SpawnPrefabOnStatic", m_bSpawnPrefabOnStatic),
+    EZ_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
     EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -60,32 +62,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 5, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezProjectileSurfaceInteraction::SetSurface(const char* szSurface)
-{
-  ezSurfaceResourceHandle hSurface;
-
-  if (!ezStringUtils::IsNullOrEmpty(szSurface))
-  {
-    hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szSurface);
-  }
-
-  m_hSurface = hSurface;
-}
-
-const char* ezProjectileSurfaceInteraction::GetSurface() const
-{
-  if (!m_hSurface.IsValid())
-    return "";
-
-  return m_hSurface.GetResourceID();
-}
-
 ezProjectileComponent::ezProjectileComponent()
 {
   m_fMetersPerSecond = 10.0f;
   m_uiCollisionLayer = 0;
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
+  m_bSpawnPrefabOnStatic = false;
 }
 
 ezProjectileComponent::~ezProjectileComponent() = default;
@@ -190,10 +173,13 @@ void ezProjectileComponent::Update()
 
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
         {
+          SpawnDeathPrefab();
+
+
           GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
           vNewPosition = castResult.m_vPosition;
         }
-        else if (interaction.m_Reaction == ezProjectileReaction::Reflect)
+        else if (interaction.m_Reaction == ezProjectileReaction::Reflect || interaction.m_Reaction == ezProjectileReaction::Bounce)
         {
           /// \todo Should reflect around the actual hit position
           /// \todo Should preserve travel distance while reflecting
@@ -209,6 +195,28 @@ void ezProjectileComponent::Update()
           GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
 
           m_vVelocity = qRot * m_vVelocity;
+
+          if (interaction.m_Reaction == ezProjectileReaction::Bounce)
+          {
+            ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
+
+            if (pSurface)
+            {
+              m_vVelocity *= pSurface->GetDescriptor().m_fPhysicsRestitution;
+            }
+
+            if (m_vVelocity.GetLength() < 1.0f)
+            {
+              m_vVelocity = ezVec3::MakeZero();
+              m_fGravityMultiplier = 0.0f;
+
+              if (m_bSpawnPrefabOnStatic)
+              {
+                SpawnDeathPrefab();
+                GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+              }
+            }
+          }
         }
         else if (interaction.m_Reaction == ezProjectileReaction::Attach)
         {
@@ -245,7 +253,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fGravityMultiplier;
   s << m_uiCollisionLayer;
   s << m_MaxLifetime;
-  s << m_hTimeoutPrefab;
+  s << m_hDeathPrefab;
 
   // Version 3
   s << m_hFallbackSurface;
@@ -269,6 +277,9 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   // Version 5
   s << m_ShapeTypesToHit;
+
+  // Version 6
+  s << m_bSpawnPrefabOnStatic;
 }
 
 void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -281,7 +292,7 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fGravityMultiplier;
   s >> m_uiCollisionLayer;
   s >> m_MaxLifetime;
-  s >> m_hTimeoutPrefab;
+  s >> m_hDeathPrefab;
 
   if (uiVersion >= 3)
   {
@@ -316,6 +327,11 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 5)
   {
     s >> m_ShapeTypesToHit;
+  }
+
+  if (uiVersion >= 6)
+  {
+    s >> m_bSpawnPrefabOnStatic;
   }
 }
 
@@ -361,13 +377,31 @@ void ezProjectileComponent::OnSimulationStarted()
     PostMessage(msg, m_MaxLifetime);
 
     // make sure the prefab is available when the projectile dies
-    if (m_hTimeoutPrefab.IsValid())
+    if (m_hDeathPrefab.IsValid())
     {
-      ezResourceManager::PreloadResource(m_hTimeoutPrefab);
+      ezResourceManager::PreloadResource(m_hDeathPrefab);
     }
   }
 
   m_vVelocity = GetOwner()->GetGlobalDirForwards() * m_fMetersPerSecond;
+}
+
+void ezProjectileComponent::SpawnDeathPrefab()
+{
+  if (!m_bSpawnPrefabOnStatic)
+  {
+    return;
+  }
+
+  if (m_hDeathPrefab.IsValid())
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(m_hDeathPrefab, ezResourceAcquireMode::AllowLoadingFallback);
+
+    ezPrefabInstantiationOptions options;
+    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options, nullptr);
+  }
 }
 
 void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
@@ -375,51 +409,27 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   if (msg.m_sMessage != s_sSuicide)
     return;
 
-  if (m_hTimeoutPrefab.IsValid())
-  {
-    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
-
-    ezPrefabInstantiationOptions options;
-    options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
-
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), options, nullptr);
-  }
+  SpawnDeathPrefab();
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
 
-
-void ezProjectileComponent::SetTimeoutPrefab(const char* szPrefab)
+void ezProjectileComponent::SetFallbackSurfaceFile(ezStringView sFile)
 {
-  ezPrefabResourceHandle hPrefab;
-
-  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
+  if (!sFile.IsEmpty())
   {
-    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
+    m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hFallbackSurface = {};
   }
 
-  m_hTimeoutPrefab = hPrefab;
-}
-
-const char* ezProjectileComponent::GetTimeoutPrefab() const
-{
-  if (!m_hTimeoutPrefab.IsValid())
-    return "";
-
-  return m_hTimeoutPrefab.GetResourceID();
-}
-
-void ezProjectileComponent::SetFallbackSurfaceFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hFallbackSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
-  }
   if (m_hFallbackSurface.IsValid())
     ezResourceManager::PreloadResource(m_hFallbackSurface);
 }
 
-const char* ezProjectileComponent::GetFallbackSurfaceFile() const
+ezStringView ezProjectileComponent::GetFallbackSurfaceFile() const
 {
   if (!m_hFallbackSurface.IsValid())
     return "";
@@ -447,6 +457,20 @@ public:
     pNode->RenameProperty("Max Lifetime", "MaxLifetime");
     pNode->RenameProperty("Timeout Prefab", "TimeoutPrefab");
     pNode->RenameProperty("Collision Layer", "CollisionLayer");
+  }
+};
+
+class ezProjectileComponentPatch_5_6 : public ezGraphPatch
+{
+public:
+  ezProjectileComponentPatch_5_6()
+    : ezGraphPatch("ezProjectileComponent", 6)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("TimeoutPrefab", "DeathPrefab");
   }
 };
 

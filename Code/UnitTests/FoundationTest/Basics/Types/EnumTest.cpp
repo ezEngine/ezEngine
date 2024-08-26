@@ -35,8 +35,8 @@ struct ezTestEnum2Base
 using ezTestEnum2 = ezEnum<ezTestEnum2Base>;
 
 // Test if the type actually has the requested size
-EZ_CHECK_AT_COMPILETIME(sizeof(ezTestEnum) == sizeof(ezUInt8));
-EZ_CHECK_AT_COMPILETIME(sizeof(ezTestEnum2) == sizeof(ezUInt16));
+static_assert(sizeof(ezTestEnum) == sizeof(ezUInt8));
+static_assert(sizeof(ezTestEnum2) == sizeof(ezUInt16));
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Basics);
 
@@ -48,9 +48,15 @@ void TakeEnum2(ezTestEnum value) {}
 
 EZ_CREATE_SIMPLE_TEST(Basics, Enum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum") { ezTestEnum e1; }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum")
+  {
+    ezTestEnum e1;
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization") { ezTestEnum e2(ezTestEnum::Yes); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization")
+  {
+    ezTestEnum e2(ezTestEnum::Yes);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "This tests if the default initialization works and if the implicit conversion works")
   {

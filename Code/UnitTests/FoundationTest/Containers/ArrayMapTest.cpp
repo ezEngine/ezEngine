@@ -19,44 +19,52 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     // non-const
     {
       // findable
-      auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 500; });
       EZ_TEST_BOOL(findable == itfound->key);
 
       // unfindable
-      itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 1001; });
       EZ_TEST_BOOL(end(m) == itfound);
     }
 
     // const
     {
       // findable
-      auto itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      auto itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 500; });
       EZ_TEST_BOOL(findable == itfound->key);
 
       // unfindable
-      itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      itfound = std::find_if(cbegin(m), cend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 1001; });
       EZ_TEST_BOOL(cend(m) == itfound);
     }
 
     // non-const reverse
     {
       // findable
-      auto itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      auto itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 500; });
       EZ_TEST_BOOL(findable == itfound->key);
 
       // unfindable
-      itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      itfound = std::find_if(rbegin(m), rend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 1001; });
       EZ_TEST_BOOL(rend(m) == itfound);
     }
 
     // const reverse
     {
       // findable
-      auto itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+      auto itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 500; });
       EZ_TEST_BOOL(findable == itfound->key);
 
       // unfindable
-      itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+      itfound = std::find_if(crbegin(m), crend(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+        { return val.value == 1001; });
       EZ_TEST_BOOL(crend(m) == itfound);
     }
 
@@ -110,11 +118,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_BOOL(m.Find(499u) == ezInvalidIndex);
 
     // findable
-    auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+    auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+      { return val.value == 500; });
     EZ_TEST_BOOL((findable + 1000) == itfound->key);
 
     // unfindable
-    itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+    itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val)
+      { return val.value == 1001; });
     EZ_TEST_BOOL(end(m) == itfound);
 
     // forward

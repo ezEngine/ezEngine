@@ -5,7 +5,7 @@
 
 class ezQtFilePropertyWidget;
 
-  /// \brief A QLineEdit that is used by ezQtFilePropertyWidget
+/// \brief A QLineEdit that is used by ezQtFilePropertyWidget
 class EZ_EDITORFRAMEWORK_DLL ezQtFileLineEdit : public QLineEdit
 {
   Q_OBJECT
@@ -18,4 +18,3 @@ public:
 
   ezQtFilePropertyWidget* m_pOwner = nullptr;
 };
-

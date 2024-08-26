@@ -44,6 +44,8 @@ struct JSEdit
     KeywordPink,
     KeywordGreen,
     BuiltIn,
+
+    Count,
   };
 };
 
@@ -66,6 +68,5 @@ private:
   QSet<QString> m_KeywordsPink;
   QSet<QString> m_KeywordsGreen;
   QSet<QString> m_BuiltIn;
-  QHash<JSEdit::ColorComponent, QColor> m_Colors;
+  QColor m_Colors[JSEdit::Count];
 };
-

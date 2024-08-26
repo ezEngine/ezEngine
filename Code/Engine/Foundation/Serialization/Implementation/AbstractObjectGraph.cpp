@@ -219,6 +219,8 @@ ezResult ezAbstractObjectNode::InlineProperty(ezStringView sName)
       public:
         void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override
         {
+          EZ_IGNORE_UNUSED(pRtti);
+          EZ_IGNORE_UNUSED(pObject);
           m_SubTree.PushBack(guid);
         }
         ezHybridArray<ezUuid, 1> m_SubTree;

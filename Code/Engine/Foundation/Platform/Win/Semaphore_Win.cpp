@@ -103,5 +103,3 @@ ezResult ezSemaphore::TryAcquireToken()
 }
 
 #endif
-
-

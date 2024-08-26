@@ -24,8 +24,8 @@ public:
   void SetClip(const char* szClip);
   const char* GetClip() const;
 
-  ezHashedString m_sClip;                   // [ property ]
-  float m_fNormalizedSamplePosition = 0.0f; // [ property ]
+  ezHashedString m_sClip;                                 // [ property ]
+  float m_fNormalizedSamplePosition = 0.0f;               // [ property ]
 
 private:
   ezAnimGraphNumberInputPin m_InNormalizedSamplePosition; // [ property ]

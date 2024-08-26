@@ -238,7 +238,8 @@ ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 {
   if (DeleteFileW(ezDosDevicePath(sFile)) == FALSE)
   {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+    DWORD error = GetLastError();
+    if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
       return EZ_SUCCESS;
 
     return EZ_FAILURE;
@@ -251,7 +252,8 @@ ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 {
   if (RemoveDirectoryW(ezDosDevicePath(sDirectory)) == FALSE)
   {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+    DWORD error = GetLastError();
+    if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)
       return EZ_SUCCESS;
 
     return EZ_FAILURE;
@@ -364,6 +366,16 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezF
   const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
   EZ_ASSERT_DEV(flags.IsSet(ezFileSystemIteratorFlags::Recursive) == false || bHasWildcard == false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
 
+  if (!bHasWildcard && ezOSFile::ExistsDirectory(sSearch))
+  {
+    // when calling FindFirstFileW with a path to a folder (e.g. "C:/test") it will report "test" as the very first item
+    // which is typically NOT what one wants, instead you want items INSIDE that folder to be reported
+    // this is especially annoying when 'Recursion' is disabled, as "C:/test" would result in "C:/test" being reported
+    // but no items inside it
+    // therefore, when the start search points to a directory, we append "/*" to force the search inside the folder
+    sSearch.Append("/*");
+  }
+
   m_sCurPath = sSearch.GetFileDirectory();
 
   EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
@@ -379,28 +391,11 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezF
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sParentPath.TrimRight("/\\"); // remove trailing slashes
   m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   m_Data.m_Handles.PushBack(hSearch);
-
-  if (ezOSFile::ExistsDirectory(sSearch))
-  {
-    // when calling FindFirstFileW with a path to a folder (e.g. "C:/test") it will report "test" as the very first item
-    // which is typically NOT what one wants, instead you want items INSIDE that folder to be reported
-    // this is especially annoying when 'Recursion' is disabled, as "C:/test" would result in "C:/test" being reported
-    // but no items inside it
-    // therefore, when the start search points to a directory, we enable recursion for one call to 'Next', thus enter
-    // the directory, and then switch it back again; all following calls to 'Next' will then iterate through the sub directory
-
-    const bool bRecursive = m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive);
-    m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
-
-    Next();
-
-    m_Flags.AddOrRemove(ezFileSystemIteratorFlags::Recursive, bRecursive);
-    return;
-  }
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
   {
@@ -450,6 +445,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
       m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
       m_CurFile.m_sParentPath = m_sCurPath;
+      EZ_ASSERT_DEBUG(!m_CurFile.m_sParentPath.EndsWith("/") && !m_CurFile.m_sParentPath.EndsWith("\\"), "Unexpected path separator.");
       m_CurFile.m_sName = data.cFileName;
       m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
@@ -497,6 +493,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
+  m_CurFile.m_sParentPath.TrimRight("/\\"); // remove trailing slashes
   m_CurFile.m_sName = data.cFileName;
   m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
@@ -519,7 +516,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
 #  endif
 
-ezStringView ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationPath()
 {
   if (s_sApplicationPath.IsEmpty())
   {
@@ -551,7 +548,7 @@ ezStringView ezOSFile::GetApplicationDirectory()
       EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
     }
 
-    s_sApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
+    s_sApplicationPath = ezStringUtf8(tmp.GetData()).GetData();
   }
 
   return s_sApplicationPath;
@@ -702,5 +699,3 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 }
 
 #endif
-
-

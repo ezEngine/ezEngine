@@ -57,13 +57,22 @@ void ezVisualShaderNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   }
 }
 
-void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezVisualShaderNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
 {
   const ezRTTI* pNodeBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
   ezRTTI::ForEachDerivedType(
     pNodeBaseType,
-    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti)
+    {
+      auto& nodeTemplate = out_templates.ExpandAndGetRef();
+      nodeTemplate.m_pType = pRtti;
+
+      if (const ezVisualShaderNodeDescriptor* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti))
+      {
+        nodeTemplate.m_sCategory = pDesc->m_sCategory;
+      }
+    },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
@@ -95,16 +104,6 @@ ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin& source, cons
 
   out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
-}
-
-ezStringView ezVisualShaderNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
-{
-  const ezVisualShaderNodeDescriptor* pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
-
-  if (pDesc == nullptr)
-    return {};
-
-  return pDesc->m_sCategory;
 }
 
 

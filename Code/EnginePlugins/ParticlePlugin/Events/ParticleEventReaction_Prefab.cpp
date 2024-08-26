@@ -146,4 +146,3 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Prefab);
-

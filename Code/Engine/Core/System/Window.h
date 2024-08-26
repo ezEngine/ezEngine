@@ -5,7 +5,6 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezOpenDdlWriter;
@@ -19,6 +18,8 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/Win/InputDevice_win32.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Core/System/Implementation/android/InputDevice_android.h>
 #else
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif
@@ -109,6 +110,13 @@ using ezWindowHandle = IUnknown*;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+struct ANativeWindow;
+using ezWindowHandle = ANativeWindow*;
+using ezWindowInternalHandle = ezWindowHandle;
+#  define INVALID_WINDOW_HANDLE_VALUE nullptr
+
 #else
 
 using ezWindowHandle = void*;
@@ -135,6 +143,10 @@ public:
   ///
   /// If bOnlyProperFullscreenMode, the caller accepts borderless windows that cover the entire screen as "fullscreen".
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const = 0;
+
+  /// \brief Whether the window can potentially be seen by the user.
+  /// Windows that are minimized or hidden are not visible.
+  virtual bool IsVisible() const = 0;
 
   virtual void ProcessWindowMessages() = 0;
 
@@ -218,6 +230,9 @@ struct EZ_CORE_DLL ezWindowCreationDesc
 
   /// Whether the window is activated and focussed on Initialize()
   bool m_bSetForegroundOnInit = true;
+
+  /// Whether the window is centered on the display.
+  bool m_bCenterWindowOnDisplay = true;
 };
 
 /// \brief A simple abstraction for platform specific window creation.
@@ -256,6 +271,8 @@ public:
 
     return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
   }
+
+  virtual bool IsVisible() const override { return m_bVisible; }
 
   virtual void AddReference() override { m_iReferenceCount.Increment(); }
   virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
@@ -305,10 +322,17 @@ public:
   virtual void OnResize(const ezSizeU32& newWindowSize);
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
-  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY) {}
+  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
+  {
+    EZ_IGNORE_UNUSED(iNewPosX);
+    EZ_IGNORE_UNUSED(iNewPosY);
+  }
 
   /// \brief Called when the window gets focus or loses focus.
-  virtual void OnFocus(bool bHasFocus) {}
+  virtual void OnFocus(bool bHasFocus) { EZ_IGNORE_UNUSED(bHasFocus); }
+
+  /// \brief Called when the window gets focus or loses focus.
+  virtual void OnVisibleChange(bool bVisible) { m_bVisible = bVisible; }
 
   /// \brief Called when the close button of the window is clicked. Does nothing by default.
   virtual void OnClickClose() {}
@@ -350,12 +374,14 @@ protected:
 
 private:
   bool m_bInitialized = false;
+  bool m_bVisible = true;
 
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
   mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+  static void IconifyCallback(GLFWwindow* window, int iconified);
   static void SizeCallback(GLFWwindow* window, int width, int height);
   static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
   static void CloseCallback(GLFWwindow* window);

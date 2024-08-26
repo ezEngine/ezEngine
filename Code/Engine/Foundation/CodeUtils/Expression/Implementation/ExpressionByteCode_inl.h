@@ -1,12 +1,17 @@
 
-EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCode() const
+EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCodeStart() const
 {
-  return m_ByteCode.GetData();
+  return m_pByteCode;
 }
 
 EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCodeEnd() const
 {
-  return m_ByteCode.GetData() + m_ByteCode.GetCount();
+  return m_pByteCode + m_uiByteCodeCount;
+}
+
+EZ_ALWAYS_INLINE ezArrayPtr<const ezExpressionByteCode::StorageType> ezExpressionByteCode::GetByteCode() const
+{
+  return ezMakeArrayPtr(m_pByteCode, m_uiByteCodeCount);
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumInstructions() const
@@ -21,17 +26,17 @@ EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumTempRegisters() const
 
 EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::StreamDesc> ezExpressionByteCode::GetInputs() const
 {
-  return m_Inputs;
+  return ezMakeArrayPtr(m_pInputs, m_uiNumInputs);
 }
 
 EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::StreamDesc> ezExpressionByteCode::GetOutputs() const
 {
-  return m_Outputs;
+  return ezMakeArrayPtr(m_pOutputs, m_uiNumOutputs);
 }
 
 EZ_ALWAYS_INLINE ezArrayPtr<const ezExpression::FunctionDesc> ezExpressionByteCode::GetFunctions() const
 {
-  return m_Functions;
+  return ezMakeArrayPtr(m_pFunctions, m_uiNumFunctions);
 }
 
 // static

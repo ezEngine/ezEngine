@@ -4,11 +4,15 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 #ifdef EZ_USE_QT
 #  include <Fileserve/Gui.moc.h>
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <QApplication>
+#  include <QFileDialog>
+#  include <QSettings>
 #endif
 
 #ifdef EZ_USE_QT
@@ -65,6 +69,33 @@ ezResult ezFileserverApp::BeforeCoreSystemsStartup()
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("fileserve");
 
+#ifdef EZ_USE_QT
+  if (!ezCommandLineUtils::GetGlobalInstance()->HasOption("-specialdirs"))
+  {
+    QString sLastFolder;
+
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      sLastFolder = Settings.value("LastProject", "").toString();
+      Settings.endGroup();
+    }
+
+    QString folder = QFileDialog::getExistingDirectory(nullptr, "Select Project Folder", sLastFolder);
+    if (!folder.isEmpty())
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      Settings.setValue("LastProject", folder);
+      Settings.endGroup();
+
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-specialdirs");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("project");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(folder.toUtf8().data());
+    }
+  }
+#endif
+
   return SUPER::BeforeCoreSystemsStartup();
 }
 
@@ -89,5 +120,80 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
       break;
     default:
       break;
+  }
+}
+
+void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, ezRemoteMessage& ref_msg, ezRemoteInterface& ref_clientChannel, ezDelegate<void(const char*)> logActivity)
+{
+  if (ref_msg.GetMessageID() == 'CMPL')
+  {
+    for (auto& dd : ref_ctxt.m_MountedDataDirs)
+    {
+      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezDataDirUsage::AllowWrites).IgnoreResult();
+    }
+
+    auto& r = ref_msg.GetReader();
+
+    ezStringBuilder tmp;
+    ezStringBuilder file, platform;
+    ezUInt32 numPermVars;
+    ezHybridArray<ezPermutationVar, 16> permVars;
+
+    r >> file;
+    r >> platform;
+    r >> numPermVars;
+    permVars.SetCount(numPermVars);
+
+    tmp.SetFormat("Compiling Shader '{}' - '{}'", file, platform);
+
+    for (auto& pv : permVars)
+    {
+      r >> pv.m_sName;
+      r >> pv.m_sValue;
+
+      tmp.AppendWithSeparator(" | ", pv.m_sName, "=", pv.m_sValue);
+    }
+
+    logActivity(tmp);
+
+    // enable runtime shader compilation and set the shader cache directories (this only works, if the user doesn't change the default values)
+    // the 'active platform' value should never be used during shader compilation, because there it is passed in
+    ezShaderManager::Configure("FILESERVE_UNUSED", true);
+
+    ezLogSystemToBuffer log;
+    ezLogSystemScope ls(&log);
+
+    ezShaderCompiler sc;
+    ezResult res = sc.CompileShaderPermutationForPlatforms(file, permVars, ezLog::GetThreadLocalLogSystem(), platform);
+
+    ezFileSystem::RemoveDataDirectoryGroup("FileServe");
+
+    if (res.Succeeded())
+    {
+      // invalidate read cache to not short-circuit the next file read operation
+      ezRemoteMessage msg2('FSRV', 'INVC');
+      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+    }
+    else
+    {
+      logActivity("[ERROR] Shader Compilation failed:");
+
+      ezHybridArray<ezStringView, 32> lines;
+      log.m_sBuffer.Split(false, lines, "\n", "\r");
+
+      for (auto line : lines)
+      {
+        tmp.Set(">   ", line);
+        logActivity(tmp);
+      }
+    }
+
+    {
+      ezRemoteMessage msg2('SHDR', 'CRES');
+      msg2.GetWriter() << (res == EZ_SUCCESS);
+      msg2.GetWriter() << log.m_sBuffer;
+
+      ref_clientChannel.Send(ezRemoteTransmitMode::Reliable, msg2);
+    }
   }
 }

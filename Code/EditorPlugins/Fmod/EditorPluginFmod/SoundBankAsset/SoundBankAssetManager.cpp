@@ -63,7 +63,7 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinFmodSoundBank";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.svg"));
@@ -157,7 +157,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
             sEventName.Shrink(7, 0);
           else
           {
-            ezLog::Warning("Skipping unknown Fmod event type: '{0}", sEventName);
+            ezLog::Warning("Skipping unknown FMOD event type: '{0}", sEventName);
             continue;
           }
 
@@ -186,7 +186,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
-  // instead we reference the source Fmod sound bank file
+  // instead we reference the source FMOD sound bank file
   // this makes development easier, as we don't need to wait for an asset transform before changes are available
 
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.

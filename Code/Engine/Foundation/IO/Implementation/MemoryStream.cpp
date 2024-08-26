@@ -34,7 +34,7 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
 
       ezMemoryUtils::Copy(static_cast<ezUInt8*>(pReadBuffer), data.GetPtr(), static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
 
-      pReadBuffer = ezMemoryUtils::AddByteOffset(pReadBuffer, static_cast<size_t>(toRead)); // Down-cast to size_t for 32-bit.
+      pReadBuffer = ezMemoryUtils::AddByteOffset(pReadBuffer, static_cast<size_t>(toRead));                // Down-cast to size_t for 32-bit.
 
       m_uiReadPosition += toRead;
       uiBytesLeft -= toRead;
@@ -120,7 +120,7 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
 
       ezMemoryUtils::Copy(data.GetPtr(), static_cast<const ezUInt8*>(pWriteBuffer), static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
 
-      pWriteBuffer = ezMemoryUtils::AddByteOffset(pWriteBuffer, static_cast<size_t>(toWrite)); // Down-cast to size_t for 32-bit.
+      pWriteBuffer = ezMemoryUtils::AddByteOffset(pWriteBuffer, static_cast<size_t>(toWrite));                     // Down-cast to size_t for 32-bit.
 
       m_uiWritePosition += toWrite;
       uiBytesLeft -= toWrite;
@@ -290,7 +290,7 @@ void ezRawMemoryStreamWriter::SetDebugSourceInformation(ezStringView sDebugSourc
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultMemoryStreamStorage::ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity, ezAllocatorBase* pAllocator)
+ezDefaultMemoryStreamStorage::ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity, ezAllocator* pAllocator)
   : m_Chunks(pAllocator)
 {
   Reserve(uiInitialCapacity);
@@ -450,5 +450,3 @@ void ezDefaultMemoryStreamStorage::AddChunk(ezUInt32 uiMinimumSize)
   chunk.m_uiStartOffset = prevChunk.m_uiStartOffset + prevChunk.m_Bytes.GetCount();
   m_uiCapacity += chunk.m_Bytes.GetCount();
 }
-
-

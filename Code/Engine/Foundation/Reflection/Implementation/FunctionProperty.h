@@ -168,6 +168,7 @@ public:
 
   virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override
   {
+    EZ_IGNORE_UNUSED(pInstance);
     ExecuteImpl(ezTraitInt<std::is_same<R, void>::value>(), out_returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
 
@@ -206,6 +207,7 @@ public:
 
   virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override
   {
+    EZ_IGNORE_UNUSED(pInstance);
     ExecuteImpl(ezTraitInt<ezIsStandardType<CLASS>::value>(), out_returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
 };

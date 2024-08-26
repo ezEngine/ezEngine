@@ -119,7 +119,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
-  m_pWorld->GetRandomNumberGenerator().Initialize(42);     // reset the RNG
+  m_pWorld->GetRandomNumberGenerator().Initialize(42);         // reset the RNG
   m_pWorld->GetClock().SetAccumulatedTime(ezTime::MakeZero()); // reset the world clock
 
   ezFileReader file;
@@ -174,7 +174,7 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
 
-  ActivateGameState(m_pWorld.Borrow()).IgnoreResult();
+  ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }
 
 void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
@@ -202,12 +202,12 @@ void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
     ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
   }
 }
 
-ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState()
 {
   return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
 }
@@ -223,11 +223,6 @@ void ezGameEngineTestGameState::ProcessInput()
 
   // trigger taking a screenshot every frame, for image comparison purposes
   ezGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
-}
-
-ezGameStatePriority ezGameEngineTestGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
 }
 
 void ezGameEngineTestGameState::ConfigureInputActions()

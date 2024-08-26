@@ -9,13 +9,5 @@ public:
   ezResult Save(ezStringView sFile = ":project/Editor/CppProject.ddl");
   ezResult Load(ezStringView sFile = ":project/Editor/CppProject.ddl");
 
-  enum class Compiler
-  {
-    None,
-    Vs2022,
-  };
-
   ezString m_sPluginName;
-  Compiler m_Compiler = Compiler::None;
-  mutable ezString m_sMsBuildPath;
 };

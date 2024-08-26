@@ -22,11 +22,20 @@ namespace ezMath
     return (((i2f.i & 0x7FF0000000000000ull) == 0x7FF0000000000000ull) && ((i2f.i & 0xFFFFFFFFFFFFFull) != 0));
   }
 
-  EZ_ALWAYS_INLINE double Floor(double f) { return floor(f); }
+  EZ_ALWAYS_INLINE double Floor(double f)
+  {
+    return floor(f);
+  }
 
-  EZ_ALWAYS_INLINE double Ceil(double f) { return ceil(f); }
+  EZ_ALWAYS_INLINE double Ceil(double f)
+  {
+    return ceil(f);
+  }
 
-  EZ_ALWAYS_INLINE double Round(double f) { return Floor(f + 0.5f); }
+  EZ_ALWAYS_INLINE double Round(double f)
+  {
+    return Floor(f + 0.5f);
+  }
 
   inline double RoundDown(double f, double fMultiple)
   {
@@ -42,25 +51,58 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  EZ_ALWAYS_INLINE double RoundToMultiple(double f, double fMultiple) { return Round(f / fMultiple) * fMultiple; }
+  EZ_ALWAYS_INLINE double RoundToMultiple(double f, double fMultiple)
+  {
+    return Round(f / fMultiple) * fMultiple;
+  }
 
-  EZ_ALWAYS_INLINE double Exp(double f) { return exp(f); }
+  EZ_ALWAYS_INLINE double Exp(double f)
+  {
+    return exp(f);
+  }
 
-  EZ_ALWAYS_INLINE double Ln(double f) { return log(f); }
+  EZ_ALWAYS_INLINE double Ln(double f)
+  {
+    return log(f);
+  }
 
-  EZ_ALWAYS_INLINE double Log2(double f) { return log10(f) / log10(2.0); }
+  EZ_ALWAYS_INLINE double Log2(double f)
+  {
+    return log10(f) / log10(2.0);
+  }
 
-  EZ_ALWAYS_INLINE double Log10(double f) { return log10(f); }
+  EZ_ALWAYS_INLINE double Log10(double f)
+  {
+    return log10(f);
+  }
 
-  EZ_ALWAYS_INLINE double Log(double fBase, double f) { return log10(f) / log10(fBase); }
+  EZ_ALWAYS_INLINE double Log(double fBase, double f)
+  {
+    return log10(f) / log10(fBase);
+  }
 
-  EZ_ALWAYS_INLINE double Pow2(double f) { return pow(2.0, f); }
+  EZ_ALWAYS_INLINE double Pow2(double f)
+  {
+    return pow(2.0, f);
+  }
 
-  EZ_ALWAYS_INLINE double Pow(double fBase, double fExp) { return pow(fBase, fExp); }
+  EZ_ALWAYS_INLINE double Pow(double fBase, double fExp)
+  {
+    return pow(fBase, fExp);
+  }
 
-  EZ_ALWAYS_INLINE double Root(double f, double fNthRoot) { return pow(f, 1.0 / fNthRoot); }
+  EZ_ALWAYS_INLINE double Root(double f, double fNthRoot)
+  {
+    return pow(f, 1.0 / fNthRoot);
+  }
 
-  EZ_ALWAYS_INLINE double Sqrt(double f) { return sqrt(f); }
+  EZ_ALWAYS_INLINE double Sqrt(double f)
+  {
+    return sqrt(f);
+  }
 
-  EZ_ALWAYS_INLINE double Mod(double f, double fDiv) { return fmod(f, fDiv); }
+  EZ_ALWAYS_INLINE double Mod(double f, double fDiv)
+  {
+    return fmod(f, fDiv);
+  }
 } // namespace ezMath

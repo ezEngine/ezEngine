@@ -143,6 +143,34 @@ struct ezComponentHandle
   friend class ezComponent;
 };
 
+/// \brief A typed handle to a component.
+///
+/// This should be preferred if the component type to be stored inside the handle is known, as it provides
+/// compile time checks against wrong usages (e.g. assigning unrelated types) and more clearly conveys intent.
+///
+/// See struct \see ezComponentHandle for more information about general component handle usage.
+template <typename TYPE>
+struct ezTypedComponentHandle : public ezComponentHandle
+{
+  ezTypedComponentHandle() = default;
+  explicit ezTypedComponentHandle(const ezComponentHandle& hUntyped)
+  {
+    m_InternalId = hUntyped.GetInternalID();
+  }
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>, bool> = true>
+  explicit ezTypedComponentHandle(const ezTypedComponentHandle<T>& other)
+    : ezTypedComponentHandle(static_cast<const ezComponentHandle&>(other))
+  {
+  }
+
+  template <typename T, std::enable_if_t<std::is_convertible_v<T*, TYPE*>, bool> = true>
+  EZ_ALWAYS_INLINE void operator=(const ezTypedComponentHandle<T>& other)
+  {
+    ezComponentHandle::operator=(other);
+  }
+};
+
 /// \brief HashHelper implementation so component handles can be used as key in a hashtable.
 template <>
 struct ezHashHelper<ezComponentHandle>
@@ -172,23 +200,23 @@ struct ezObjectFlags
   enum Enum
   {
     None = 0,
-    Dynamic = EZ_BIT(0),                 ///< Usually detected automatically. A dynamic object will not cache render data across frames.
-    ForceDynamic = EZ_BIT(1),            ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
-                                         ///< objects, and the automatic detection cannot know that.
-    ActiveFlag = EZ_BIT(2),              ///< The object/component has the 'active flag' set
-    ActiveState = EZ_BIT(3),             ///< The object/component and all its parents have the active flag
-    Initialized = EZ_BIT(4),             ///< The object/component has been initialized
-    Initializing = EZ_BIT(5),            ///< The object/component is currently initializing. Used to prevent recursions during initialization.
-    SimulationStarted = EZ_BIT(6),       ///< OnSimulationStarted() has been called on the component
-    SimulationStarting = EZ_BIT(7),      ///< Used to prevent recursion during OnSimulationStarted()
-    UnhandledMessageHandler = EZ_BIT(8), ///< For components, when a message is not handled, a virtual function is called
+    Dynamic = EZ_BIT(0),                              ///< Usually detected automatically. A dynamic object will not cache render data across frames.
+    ForceDynamic = EZ_BIT(1),                         ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
+                                                      ///< objects, and the automatic detection cannot know that.
+    ActiveFlag = EZ_BIT(2),                           ///< The object/component has the 'active flag' set
+    ActiveState = EZ_BIT(3),                          ///< The object/component and all its parents have the active flag
+    Initialized = EZ_BIT(4),                          ///< The object/component has been initialized
+    Initializing = EZ_BIT(5),                         ///< The object/component is currently initializing. Used to prevent recursions during initialization.
+    SimulationStarted = EZ_BIT(6),                    ///< OnSimulationStarted() has been called on the component
+    SimulationStarting = EZ_BIT(7),                   ///< Used to prevent recursion during OnSimulationStarted()
+    UnhandledMessageHandler = EZ_BIT(8),              ///< For components, when a message is not handled, a virtual function is called
 
     ChildChangesNotifications = EZ_BIT(9),            ///< The object should send a notification message when children are added or removed.
     ComponentChangesNotifications = EZ_BIT(10),       ///< The object should send a notification message when components are added or removed.
     StaticTransformChangesNotifications = EZ_BIT(11), ///< The object should send a notification message if it is static and its transform changes.
     ParentChangesNotifications = EZ_BIT(12),          ///< The object should send a notification message when the parent is changes.
 
-    CreatedByPrefab = EZ_BIT(13), ///< Such flagged objects and components are ignored during scene export (see ezWorldWriter) and will be removed when a prefab needs to be re-instantiated.
+    CreatedByPrefab = EZ_BIT(13),                     ///< Such flagged objects and components are ignored during scene export (see ezWorldWriter) and will be removed when a prefab needs to be re-instantiated.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -218,18 +246,18 @@ struct ezObjectFlags
     StorageType StaticTransformChangesNotifications : 1; //< 11
     StorageType ParentChangesNotifications : 1;          //< 12
 
-    StorageType CreatedByPrefab : 1; //< 13
+    StorageType CreatedByPrefab : 1;                     //< 13
 
-    StorageType Padding : 10; // 14 - 23
+    StorageType Padding : 10;                            // 14 - 23
 
-    StorageType UserFlag0 : 1; //< 24
-    StorageType UserFlag1 : 1; //< 25
-    StorageType UserFlag2 : 1; //< 26
-    StorageType UserFlag3 : 1; //< 27
-    StorageType UserFlag4 : 1; //< 28
-    StorageType UserFlag5 : 1; //< 29
-    StorageType UserFlag6 : 1; //< 30
-    StorageType UserFlag7 : 1; //< 31
+    StorageType UserFlag0 : 1;                           //< 24
+    StorageType UserFlag1 : 1;                           //< 25
+    StorageType UserFlag2 : 1;                           //< 26
+    StorageType UserFlag3 : 1;                           //< 27
+    StorageType UserFlag4 : 1;                           //< 28
+    StorageType UserFlag5 : 1;                           //< 29
+    StorageType UserFlag6 : 1;                           //< 30
+    StorageType UserFlag7 : 1;                           //< 31
   };
 };
 
@@ -287,9 +315,9 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 
   enum Enum : StorageType
   {
-    None,
-    DeleteComponent,
-    DeleteGameObject,
+    None,             ///< Nothing happens after the action is finished.
+    DeleteComponent,  ///< The component deletes only itself, but its game object stays.
+    DeleteGameObject, ///< When finished the component deletes its owner game object. If there are multiple objects with this mode, the component instead deletes itself, and only the last such component deletes the game object.
 
     Default = None
   };
@@ -320,10 +348,10 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
 
   enum Enum
   {
-    None,
-    DeleteComponent,
-    DeleteGameObject,
-    Restart,
+    None,             ///< Nothing happens after the action is finished.
+    DeleteComponent,  ///< The component deletes only itself, but its game object stays.
+    DeleteGameObject, ///< When finished the component deletes its owner game object. If there are multiple objects with this mode, the component instead deletes itself, and only the last such component deletes the game object.
+    Restart,          ///< When finished, restart from the beginning.
 
     Default = None
   };

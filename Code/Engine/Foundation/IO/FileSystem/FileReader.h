@@ -25,14 +25,20 @@ public:
   ///
   /// You should typically not disable bAllowFileEvents, unless you need to prevent recursive file events,
   /// which is only the case, if you are doing file accesses from within a File Event Handler.
-  ezResult Open(ezStringView sFile, ezUInt32 uiCacheSize = 1024 * 64, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default,
-    bool bAllowFileEvents = true);
+  ezResult Open(ezStringView sFile, ezUInt32 uiCacheSize = 1024 * 64, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default, bool bAllowFileEvents = true);
 
   /// \brief Closes the file, if it is open.
   void Close();
 
   /// \brief Attempts to read the given number of bytes into the buffer. Returns the actual number of bytes read.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override;
+
+  /// \brief Helper method to skip a number of bytes. Returns the actual number of bytes skipped.
+  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip) override;
+  /// \brief Whether the end of the file was reached during reading.
+  ///
+  /// \note This is not 100% accurate, it does not guarantee that if it returns false, that the next read will return any data.
+  bool IsEOF() const { return m_bEOF; }
 
 private:
   ezUInt64 m_uiBytesCached = 0;

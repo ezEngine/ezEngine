@@ -303,7 +303,7 @@ void ezQtAssetBrowserModel::HandleEntry(const VisibleEntry& entry, AssetOp op)
       return;
 
     beginInsertRows(QModelIndex(), uiInsertIndex, uiInsertIndex);
-    m_EntriesToDisplay.Insert(entry, uiInsertIndex);
+    m_EntriesToDisplay.InsertAt(uiInsertIndex, entry);
     if (entry.m_Guid.IsValid())
       m_DisplayedEntries.Insert(entry.m_Guid);
     endInsertRows();
@@ -563,6 +563,9 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
           case ezAssetInfo::MissingTransformDependency:
             sToolTip.Append("Missing Transform Dependency");
             break;
+          case ezAssetInfo::MissingPackageDependency:
+            sToolTip.Append("Missing Package Dependency");
+            break;
           case ezAssetInfo::MissingThumbnailDependency:
             sToolTip.Append("Missing Thumbnail Dependency");
             break;
@@ -648,9 +651,14 @@ Qt::ItemFlags ezQtAssetBrowserModel::flags(const QModelIndex& index) const
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder))
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::Asset))
   {
     flags |= Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+  }
+
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::SubAsset))
+  {
+    flags |= Qt::ItemIsDragEnabled;
   }
 
   return flags;

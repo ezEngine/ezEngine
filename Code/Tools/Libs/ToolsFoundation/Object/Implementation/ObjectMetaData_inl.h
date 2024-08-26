@@ -127,7 +127,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
 
       const VALUE* pMeta = nullptr;
       if (!m_pMetaStorage->m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
-        continue;                               // it is the default object, so all values are default -> skip
+        continue;                                               // it is the default object, so all values are default -> skip
 
       for (const auto& pProp : pMeta->GetDynamicRTTI()->GetProperties())
       {
@@ -195,7 +195,8 @@ ezSharedPtr<typename ezObjectMetaData<KEY, VALUE>::Storage> ezObjectMetaData<KEY
 
   m_pMetaStorage = pNewStorage;
 
-  m_pMetaStorage->m_DataModifiedEvent.AddEventHandler([this](const EventData& e) { m_DataModifiedEvent.Broadcast(e); }, m_EventsUnsubscriber);
+  m_pMetaStorage->m_DataModifiedEvent.AddEventHandler([this](const EventData& e)
+    { m_DataModifiedEvent.Broadcast(e); }, m_EventsUnsubscriber);
 
   return retVal;
 }

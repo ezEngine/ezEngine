@@ -539,7 +539,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
     // always inserts at the front
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Insert(i, 0);
+      a1.InsertAt(0, i);
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], 99 - i);
@@ -567,7 +567,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAndSwap(9);
     a1.RemoveAndSwap(7);
@@ -586,7 +586,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndCopy(9);
     a1.RemoveAtAndCopy(7);
@@ -605,7 +605,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     ezDeque<ezInt32> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
-      a1.Insert(i, i); // inserts at the end
+      a1.InsertAt(i, i); // inserts at the end
 
     a1.RemoveAtAndSwap(9);
     a1.RemoveAtAndSwap(7);
@@ -700,7 +700,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       a1.PushBack(DequeTestDetail::st(1));
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(DequeTestDetail::st(2), 0);
+      a1.InsertAt(0, DequeTestDetail::st(2));
       EZ_TEST_BOOL(DequeTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;

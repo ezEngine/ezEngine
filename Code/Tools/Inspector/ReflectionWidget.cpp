@@ -1,8 +1,8 @@
 #include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
-#include <Inspector/ReflectionWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <qlistwidget.h>
 
 ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
@@ -128,7 +128,7 @@ bool ezQtReflectionWidget::UpdateTree()
       it.Value().m_pTreeItem = pItem;
 
       ezStringBuilder sText;
-      sText.Format("{0}", it.Value().m_uiSize);
+      sText.SetFormat("{0}", it.Value().m_uiSize);
 
       pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       pItem->setText(0, it.Key().GetData());

@@ -31,6 +31,13 @@ protected:
   virtual void Deinitialize() override;
 };
 
+/// \brief Visualizes a Jolt collision mesh that is attached to the same game object.
+///
+/// When attached to a game object where a ezJoltStaticActorComponent or a ezJoltShapeConvexHullComponent is attached as well,
+/// this component will retrieve the triangle mesh and turn it into a render mesh.
+///
+/// This is used for displaying the collision mesh of a single object.
+/// It doesn't work for non-mesh shape types (sphere, box, capsule).
 class EZ_JOLTPLUGIN_DLL ezJoltVisColMeshComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltVisColMeshComponent, ezRenderComponent, ezJoltVisColMeshComponentManager);
@@ -45,13 +52,11 @@ public:
 protected:
   virtual void Initialize() override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltVisColMeshComponent
@@ -60,11 +65,9 @@ public:
   ezJoltVisColMeshComponent();
   ~ezJoltVisColMeshComponent();
 
-  void SetMeshFile(const char* szFile); // [ property ]
-  const char* GetMeshFile() const;      // [ property ]
-
-  void SetMesh(const ezJoltMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+  /// \brief If this is set directly, the mesh is not taken from the sibling components.
+  void SetMesh(const ezJoltMeshResourceHandle& hMesh);                                          // [ property ]
+  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; } // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

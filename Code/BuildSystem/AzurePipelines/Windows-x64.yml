@@ -90,31 +90,43 @@ jobs:
   - task: CmdLine@2
     displayName: HeaderCheck
     condition: succeededOrFailed()
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\HeaderCheck.exe $(System.DefaultWorkingDirectory)\Code\Engine\Foundation -i $(System.DefaultWorkingDirectory)\Code\Engine -f $(System.DefaultWorkingDirectory)\Code\Engine\Foundation\headerCheckerIgnore.json
   - task: CmdLine@2
     displayName: FoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\FoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
   - task: CmdLine@2
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\CoreTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
   - task: CmdLine@2
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\ToolsFoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
   - task: CmdLine@2
     displayName: RendererTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\RendererTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
   - task: CmdLine@2
     displayName: EditorTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: >-
         set QT_PLUGIN_PATH=Output\Bin\WinVs2022Dev64
@@ -123,6 +135,8 @@ jobs:
   - task: CmdLine@2
     displayName: GameEngineTest
     condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
   - task: CmdLine@2
@@ -186,4 +200,10 @@ jobs:
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
       ArtifactName: AssetCache
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: ShaderCache'
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      PathtoPublish: $(System.DefaultWorkingDirectory)\Output\ShaderCache
+      ArtifactName: ShaderCache
 ...

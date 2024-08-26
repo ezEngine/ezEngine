@@ -4,6 +4,10 @@
 
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_CLANG("-Wunused-local-typedef")
+EZ_WARNING_DISABLE_GCC("-Wunused-local-typedefs")
+
 /// \brief Casts the given object to the given type with no runtime cost (like C++ static_cast).
 /// This function will assert when the object is not an instance of the given type.
 /// E.g. DerivedType* d = ezStaticCast<DerivedType*>(pObj);
@@ -85,3 +89,5 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
   }
   return nullptr;
 }
+
+EZ_WARNING_POP()

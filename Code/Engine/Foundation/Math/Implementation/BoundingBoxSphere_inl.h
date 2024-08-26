@@ -3,7 +3,7 @@
 template <typename Type>
 EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   // m_vOrigin and m_vBoxHalfExtends are already initialized to NaN by their own constructor.
   const Type TypeNaN = ezMath::NaN<Type>();
@@ -123,7 +123,7 @@ ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeFromBox
 template <typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxSphereTemplate<Type>::IsValid() const
 {
-  return (m_vCenter.IsValid() && m_fSphereRadius >= 0.0f && m_vBoxHalfExtends.IsValid());
+  return (m_vCenter.IsValid() && m_fSphereRadius >= 0.0f && m_vBoxHalfExtends.IsValid() && (m_vBoxHalfExtends.x >= 0) && (m_vBoxHalfExtends.y >= 0) && (m_vBoxHalfExtends.z >= 0));
 }
 
 template <typename Type>

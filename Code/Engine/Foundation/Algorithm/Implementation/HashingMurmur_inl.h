@@ -62,7 +62,10 @@ namespace ezInternal
     constexpr EZ_ALWAYS_INLINE ezUInt32 operator()(ezUInt32 uiHash, const char (&str)[N], size_t i) const { return uiHash; }
   };
 
-  constexpr ezUInt32 rightShift_and_xorWithPrevSelf(ezUInt32 h, ezUInt32 uiShift) { return h ^ (h >> uiShift); }
+  constexpr ezUInt32 rightShift_and_xorWithPrevSelf(ezUInt32 h, ezUInt32 uiShift)
+  {
+    return h ^ (h >> uiShift);
+  }
 } // namespace ezInternal
 
 template <size_t N>

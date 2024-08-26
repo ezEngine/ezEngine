@@ -18,7 +18,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
   SetInputArea(ezVec2(0.0f), ezVec2(0.0f), 0.0f, 0.0f);
 
   ezStringBuilder s;
-  s.Format("Thumbstick_{0}", s_iThumbsticks);
+  s.SetFormat("Thumbstick_{0}", s_iThumbsticks);
   m_sName = s;
 
   ++s_iThumbsticks;
@@ -253,7 +253,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
     vDir.y *= -1;
 
     const float fLength = ezMath::Min(vDir.GetLength(), m_fRadius) / m_fRadius;
-    vDir.Normalize();
+    vDir.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
 
     m_InputSlotValues[m_sOutputLeft] = ezMath::Max(0.0f, -vDir.x) * fLength;
     m_InputSlotValues[m_sOutputRight] = ezMath::Max(0.0f, vDir.x) * fLength;

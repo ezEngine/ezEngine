@@ -42,4 +42,3 @@ ezScriptBaseClassFunctionAttribute::ezScriptBaseClassFunctionAttribute(ezUInt16 
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Implementation_ScriptAttributes);
-

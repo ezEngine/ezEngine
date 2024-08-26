@@ -248,7 +248,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
   // Disabled because MSVC 2017 has code generation issues in Release builds
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "Multiplication Rounding")
   {
-    ezFixedPoint<2> fp; // 2 Bits -> 4 fractional values
+    ezFixedPoint<2> fp;         // 2 Bits -> 4 fractional values
 
     fp = 0.25;
     fp *= ezFixedPoint<2>(1.5); // -> should be 0.375, which is not representable -> will be rounded up
@@ -321,13 +321,13 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_INT(fp2.GetRawValue(), (1 << 4) + (1 << 3) + (1 << 2) + (1 << 1) + (1 << 0) + (1 << 0)); // here we round up again
 
     fp2 /= ezFixedPoint<12>(2);
-    EZ_TEST_INT(fp2.GetRawValue(), (1 << 3) + (1 << 2) + (1 << 1) + (1 << 0) + (1 << 0)); // here we round up again
+    EZ_TEST_INT(fp2.GetRawValue(), (1 << 3) + (1 << 2) + (1 << 1) + (1 << 0) + (1 << 0));            // here we round up again
 
     fp2 /= ezFixedPoint<12>(2);
-    EZ_TEST_INT(fp2.GetRawValue(), (1 << 2) + (1 << 1) + (1 << 1)); // here we round up again
+    EZ_TEST_INT(fp2.GetRawValue(), (1 << 2) + (1 << 1) + (1 << 1));                                  // here we round up again
 
     fp2 /= ezFixedPoint<12>(2);
-    EZ_TEST_INT(fp2.GetRawValue(), (1 << 1) + (1 << 1)); // here we round up again
+    EZ_TEST_INT(fp2.GetRawValue(), (1 << 1) + (1 << 1));                                             // here we round up again
 
     fp2 /= ezFixedPoint<12>(2);
     EZ_TEST_INT(fp2.GetRawValue(), (1 << 1));
@@ -339,6 +339,6 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     EZ_TEST_INT(fp2.GetRawValue(), (1 << 0)); // we can never get lower than this by dividing by 2, as it will always get rounded up again
 
     fp2 /= ezFixedPoint<12>(2.01);
-    EZ_TEST_INT(fp2.GetRawValue(), 0); // finally we round down
+    EZ_TEST_INT(fp2.GetRawValue(), 0);        // finally we round down
   }
 }

@@ -114,7 +114,7 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   {
     if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
       return false;
-  }  
+  }
 
   const ezGameObject* pActorObj = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))

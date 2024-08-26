@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11212234289642059194,4637845551590943091}}
-		u4 %Hash{636537976352460239}
+		u4 %Hash{15752447825049813445}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -39,6 +39,7 @@ o
 			s{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 			s{"{ e8c45e75-2e03-4758-852c-a51ff3947c78 }"}
 		}
+		s %Tags{""}
 	}
 }
 }
@@ -81,19 +82,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9831880711089096616,4783948115393526391}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{1609146095160100947,10350911148129115697}}
-		s %Connection::SourcePin{"Value"}
-		Uuid %Connection::Target{u4{4883770800960183447,5175797913140972920}}
-		s %Connection::TargetPin{"A"}
-	}
-}
-o
-{
 	Uuid %id{u4{15619621848996766087,4833179476461454807}}
 	s %t{"ezProcGen_PerlinNoise"}
 	u3 %v{1}
@@ -106,19 +94,6 @@ o
 		f %OutputMin{0}
 		Vec3 %Scale{f{0x00002041,0x00002041,0x00002041}}
 		Uuid %Value{u4{1932222591278378949,15103096557360009858}}
-	}
-}
-o
-{
-	Uuid %id{u4{8098696933173837716,4856876226557470320}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{15619621848996766087,4833179476461454807}}
-		s %Connection::SourcePin{"Value"}
-		Uuid %Connection::Target{u4{4883770800960183447,5175797913140972920}}
-		s %Connection::TargetPin{"B"}
 	}
 }
 o
@@ -150,6 +125,7 @@ o
 			s{"{ 176b6229-ba87-48ec-bbc6-3fe14f54411b }"}
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
+		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
 		Uuid %Scale{u4{9791305905673822488,12638390741642247297}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -157,15 +133,28 @@ o
 }
 o
 {
-	Uuid %id{u4{15371641216340233371,5001336765416267819}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{12415879647780357804,4885116657851068068}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{1507394232540889005,5266196713061815143}}
-		s %Connection::SourcePin{"Value"}
-		Uuid %Connection::Target{u4{8601754667010464145,4858791763714360891}}
-		s %Connection::TargetPin{"Density"}
+		Uuid %Source{u4{4883770800960183447,5175797913140972920}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{17318022188094043471,10193503723611707000}}
+		s %TargetPin{"Density"}
+	}
+}
+o
+{
+	Uuid %id{u4{11042911966157552547,5018596736547130216}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{15619621848996766087,4833179476461454807}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
+		s %TargetPin{"B"}
 	}
 }
 o
@@ -202,28 +191,41 @@ o
 }
 o
 {
-	Uuid %id{u4{11742221483968822171,5449309251948438738}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{14113544341085186460,5359457239809900727}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{4883770800960183447,5175797913140972920}}
-		s %Connection::SourcePin{"Value"}
-		Uuid %Connection::Target{u4{17318022188094043471,10193503723611707000}}
-		s %Connection::TargetPin{"Density"}
+		Uuid %Source{u4{16600160950372042245,14966675785173787356}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{11095407931685293014,15063649965740399571}}
+		s %TargetPin{"Density"}
 	}
 }
 o
 {
-	Uuid %id{u4{6345767080277350035,5454988632297665951}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
+	Uuid %id{u4{11631986701700544144,5403967083731506754}}
+	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Connection::Source{u4{16600160950372042245,14966675785173787356}}
-		s %Connection::SourcePin{"Value"}
-		Uuid %Connection::Target{u4{11095407931685293014,15063649965740399571}}
-		s %Connection::TargetPin{"Density"}
+		Uuid %Source{u4{1609146095160100947,10350911148129115697}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{4883770800960183447,5175797913140972920}}
+		s %TargetPin{"A"}
+	}
+}
+o
+{
+	Uuid %id{u4{8075590721622238886,5546733678112482671}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{1507394232540889005,5266196713061815143}}
+		s %SourcePin{"Value"}
+		Uuid %Target{u4{8601754667010464145,4858791763714360891}}
+		s %TargetPin{"Density"}
 	}
 }
 o
@@ -244,11 +246,11 @@ o
 			Uuid{u4{16600160950372042245,14966675785173787356}}
 			Uuid{u4{15619621848996766087,4833179476461454807}}
 			Uuid{u4{4883770800960183447,5175797913140972920}}
-			Uuid{u4{8098696933173837716,4856876226557470320}}
-			Uuid{u4{11742221483968822171,5449309251948438738}}
-			Uuid{u4{15371641216340233371,5001336765416267819}}
-			Uuid{u4{9831880711089096616,4783948115393526391}}
-			Uuid{u4{6345767080277350035,5454988632297665951}}
+			Uuid{u4{11631986701700544144,5403967083731506754}}
+			Uuid{u4{11042911966157552547,5018596736547130216}}
+			Uuid{u4{8075590721622238886,5546733678112482671}}
+			Uuid{u4{12415879647780357804,4885116657851068068}}
+			Uuid{u4{14113544341085186460,5359457239809900727}}
 		}
 	}
 }
@@ -321,6 +323,7 @@ o
 			s{"{ 6670a1ca-a18d-4d10-b782-99097912c7a8 }"}
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
+		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
 		Uuid %Scale{u4{14112596777051007533,7985040258764076844}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -406,6 +409,7 @@ o
 			s{"{ 84987847-ecba-4794-b779-0a683d48bcc0 }"}
 		}
 		s %PlacementMode{"ezProcPlacementMode::Raycast"}
+		s %PlacementPattern{"ezProcPlacementPattern::Natural"}
 		Uuid %Scale{u4{5956391832851329029,8065022560000220215}}
 		s %Surface{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 		Angle %YawRotationSnap{f{0}}
@@ -463,6 +467,40 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PerlinNoise"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{612392181161098119,4924088055133934390}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTitleAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -553,6 +591,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8636592190291312350,8842102502527186654}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezHiddenAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9971238377151764212,9082536472818234444}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -565,23 +620,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Slope"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1988646526571382668,10729334715299371304}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"DocumentNodeManager_DefaultConnection"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -621,6 +659,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2549860409077325764,13532112717021023449}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -633,6 +688,23 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PlacementOutput"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10937609275525498833,14481575896192985365}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginProcGen"}
+		VarArray %Properties{}
+		s %TypeName{"ezProcPlacementPattern"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -667,6 +739,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
 		u3 %TypeVersion{1}
 	}
 }

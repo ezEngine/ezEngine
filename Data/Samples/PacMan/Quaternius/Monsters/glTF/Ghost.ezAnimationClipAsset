@@ -14,13 +14,15 @@ o
 			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		}
 		Uuid %DocumentID{u4{7380177275452422788,5612665315909530043}}
-		u4 %Hash{13949568362562284805}
+		u4 %Hash{5705513286623554333}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"{ 72216d7c-f56c-4a1b-9c67-f93ad7146a18 }"}
+			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
 		}
+		s %Tags{""}
 	}
 }
 }

@@ -80,8 +80,27 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   const bool bWasInterpolating = pInstance->m_PlayTime < pInstance->m_EndTime;
+  const float fNewTargetWeight = static_cast<float>(m_InTargetWeight.GetNumber(ref_graph, 1.0f));
 
-  float fCurrentWeight = 1.0f;
+  if (pInstance->m_fEndWeight != fNewTargetWeight)
+  {
+    // compute weight from previous frame
+    if (bWasInterpolating)
+    {
+      const float f = (float)(pInstance->m_PlayTime.GetSeconds() / pInstance->m_EndTime.GetSeconds());
+      pInstance->m_fStartWeight = ezMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
+    }
+    else
+    {
+      pInstance->m_fStartWeight = pInstance->m_fEndWeight;
+    }
+
+    pInstance->m_fEndWeight = fNewTargetWeight;
+    pInstance->m_PlayTime = ezTime::MakeZero();
+    pInstance->m_EndTime = ezTime::MakeFromSeconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
+  }
+
+  float fCurrentWeight = 0.0f;
   pInstance->m_PlayTime += tDiff;
 
   if (pInstance->m_PlayTime >= pInstance->m_EndTime)
@@ -101,16 +120,6 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   {
     const float f = (float)(pInstance->m_PlayTime.GetSeconds() / pInstance->m_EndTime.GetSeconds());
     fCurrentWeight = ezMath::Lerp(pInstance->m_fStartWeight, pInstance->m_fEndWeight, f);
-  }
-
-  const float fNewTargetWeight = m_InTargetWeight.GetNumber(ref_graph, 1.0f);
-
-  if (pInstance->m_fEndWeight != fNewTargetWeight)
-  {
-    pInstance->m_fStartWeight = fCurrentWeight;
-    pInstance->m_fEndWeight = fNewTargetWeight;
-    pInstance->m_PlayTime = ezTime::MakeZero();
-    pInstance->m_EndTime = ezTime::MakeFromSeconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
   }
 
   m_OutCurrentWeight.SetNumber(ref_graph, fCurrentWeight);
@@ -163,4 +172,3 @@ bool ezPoseResultAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) con
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_PoseResultAnimNode);
-

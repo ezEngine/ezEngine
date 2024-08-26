@@ -31,7 +31,8 @@ void ezTypeScriptBinding::SetupRttiPropertyBindings()
     return;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       for (const ezAbstractProperty* pProp : pRtti->GetProperties())
       {
         if (pProp->GetCategory() != ezPropertyCategory::Member)
@@ -65,10 +66,10 @@ void ezTypeScriptBinding::GeneratePropertiesCode(ezStringBuilder& out_Code, cons
     if (sTypeName.IsEmpty())
       continue;
 
-    sProp.Format("  get {0}(): {1} { return __CPP_ComponentProperty_get(this, {2}); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
+    sProp.SetFormat("  get {0}(): {1} { return __CPP_ComponentProperty_get(this, {2}); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
     out_Code.Append(sProp.GetView());
 
-    sProp.Format("  set {0}(value: {1}) { __CPP_ComponentProperty_set(this, {2}, value); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
+    sProp.SetFormat("  set {0}(value: {1}) { __CPP_ComponentProperty_set(this, {2}, value); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
     out_Code.Append(sProp.GetView());
   }
 }

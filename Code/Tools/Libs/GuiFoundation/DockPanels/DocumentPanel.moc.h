@@ -26,4 +26,3 @@ private:
 
   static ezDynamicArray<ezQtDocumentPanel*> s_AllDocumentPanels;
 };
-

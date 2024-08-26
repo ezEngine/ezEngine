@@ -61,7 +61,10 @@ namespace
            ezSimdVec4f::Select((h & ezSimdVec4i(2)) == ezSimdVec4i::MakeZero(), v, -v);
   }
 
-  EZ_ALWAYS_INLINE ezSimdVec4f Lerp(const ezSimdVec4f& t, const ezSimdVec4f& a, const ezSimdVec4f& b) { return ezSimdVec4f::Lerp(a, b, t); }
+  EZ_ALWAYS_INLINE ezSimdVec4f Lerp(const ezSimdVec4f& t, const ezSimdVec4f& a, const ezSimdVec4f& b)
+  {
+    return ezSimdVec4f::Lerp(a, b, t);
+  }
 
 } // namespace
 
@@ -120,5 +123,3 @@ ezSimdVec4f ezSimdPerlinNoise::Noise(const ezSimdVec4f& inX, const ezSimdVec4f& 
 
   return Lerp(w, Lerp(v, c000_c100, c010_c110), Lerp(v, c001_c101, c011_c111));
 }
-
-

@@ -155,10 +155,10 @@ namespace
     };
 
     UINT createDeviceFlags = 0;
-    //#  ifdef _DEBUG
-    //    don't do this (especially not without a fallback for failure), not needed for texture conversion
-    //    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    //#  endif
+    // #  ifdef _DEBUG
+    //     don't do this (especially not without a fallback for failure), not needed for texture conversion
+    //     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    // #  endif
 
     D3D_FEATURE_LEVEL fl;
     HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,
@@ -256,7 +256,7 @@ namespace
 
       for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
       {
-        entry.m_additionalPenalty = devicePenalty;
+        entry.m_fAdditionalPenalty = devicePenalty;
       }
 
       m_SupportedConversions = s_sourceConversions;
@@ -387,6 +387,7 @@ public:
   }
 };
 
+// EZ_STATICLINK_FORCE
 static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
 
 #endif

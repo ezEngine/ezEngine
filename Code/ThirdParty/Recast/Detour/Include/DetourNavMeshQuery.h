@@ -185,7 +185,7 @@ public:
 	/// @{
 
 	/// Finds a path from the start polygon to the end polygon.
-	///  @param[in]		startRef	The refrence id of the start polygon.
+	///  @param[in]		startRef	The reference id of the start polygon.
 	///  @param[in]		endRef		The reference id of the end polygon.
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
@@ -224,8 +224,8 @@ public:
 	///	-# Call finalizeSlicedFindPath() to get the path.
 	///@{ 
 
-	/// Intializes a sliced path query.
-	///  @param[in]		startRef	The refrence id of the start polygon.
+	/// Initializes a sliced path query.
+	///  @param[in]		startRef	The reference id of the start polygon.
 	///  @param[in]		endRef		The reference id of the end polygon.
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]

@@ -12,9 +12,9 @@
 #  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
 #endif
 
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connecting == (ezInt32)ezIpcChannelEvent::Connecting);
-EZ_CHECK_AT_COMPILETIME((ezInt32)ezIpcChannel::ConnectionState::Connected == (ezInt32)ezIpcChannelEvent::Connected);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Connecting == (ezInt32)ezIpcChannelEvent::Connecting);
+static_assert((ezInt32)ezIpcChannel::ConnectionState::Connected == (ezInt32)ezIpcChannelEvent::Connected);
 
 ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   : m_sAddress(sAddress)
@@ -43,6 +43,7 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreatePipeChannel(ezStringVi
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   return EZ_DEFAULT_NEW(ezPipeChannel_linux, sAddress, mode);
 #else
+  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif
@@ -54,6 +55,8 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStrin
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return EZ_DEFAULT_NEW(ezIpcChannelEnet, sAddress, mode);
 #else
+  EZ_IGNORE_UNUSED(sAddress);
+  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif
@@ -90,14 +93,14 @@ bool ezIpcChannel::Send(ezArrayPtr<const ezUInt8> data)
   }
   if (IsConnected())
   {
+    EZ_LOCK(m_pOwner->m_TasksMutex);
+    if (!m_pOwner->m_SendQueue.Contains(this))
+      m_pOwner->m_SendQueue.PushBack(this);
     if (NeedWakeup())
     {
-      EZ_LOCK(m_pOwner->m_TasksMutex);
-      if (!m_pOwner->m_SendQueue.Contains(this))
-        m_pOwner->m_SendQueue.PushBack(this);
       m_pOwner->WakeUp();
-      return true;
     }
+    return true;
   }
   return false;
 }
@@ -200,5 +203,3 @@ void ezIpcChannel::FlushPendingOperations()
 {
   m_pOwner->WaitForMessages(-1, this);
 }
-
-

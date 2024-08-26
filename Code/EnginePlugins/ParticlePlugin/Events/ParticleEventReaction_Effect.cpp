@@ -132,9 +132,13 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
 
 const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_pParameters->m_FloatParams.GetCount() + m_pParameters->m_ColorParams.GetCount(); }, [this](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* {
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_pParameters->m_FloatParams.GetCount() + m_pParameters->m_ColorParams.GetCount(); }, [this](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    {
       if (uiIt < m_pParameters->m_FloatParams.GetCount())
         return m_pParameters->m_FloatParams[uiIt].m_sName.GetData();
       else
@@ -313,4 +317,3 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Effect);
-

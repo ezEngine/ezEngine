@@ -2,6 +2,7 @@
 
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
 // static
 ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromNodeDataType(const ezVisualScriptPin& pin)
@@ -21,6 +22,18 @@ ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromTypeProperty
   }
 
   return ezVisualScriptDataType::Invalid;
+}
+
+// static
+ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionInput(const ezVisualScriptPin& pin)
+{
+  return DeductFromExpressionVariable(pin, "Inputs");
+}
+
+// static
+ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionOutput(const ezVisualScriptPin& pin)
+{
+  return DeductFromExpressionVariable(pin, "Outputs");
 }
 
 // static
@@ -96,6 +109,13 @@ ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromPropertyProp
 }
 
 // static
+ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductDummy(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin)
+{
+  // nothing to do here
+  return ezVisualScriptDataType::Float;
+}
+
+// static
 const ezRTTI* ezVisualScriptTypeDeduction::GetReflectedType(const ezDocumentObject* pObject)
 {
   auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
@@ -147,4 +167,29 @@ const ezAbstractProperty* ezVisualScriptTypeDeduction::GetReflectedProperty(cons
   }
 
   return pProperty;
+}
+
+// static
+ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromExpressionVariable(const ezVisualScriptPin& pin, ezStringView sPropertyName)
+{
+  auto pObject = pin.GetParent();
+
+  ezVariant varList = pObject->GetTypeAccessor().GetValue(sPropertyName);
+  if (varList.IsA<ezVariantArray>() == false)
+    return ezVisualScriptDataType::Invalid;
+
+  ezVariant var = varList[pin.GetDataPinIndex()];
+  if (var.IsA<ezUuid>() == false)
+    return ezVisualScriptDataType::Invalid;
+
+  const ezDocumentObject* pVarObject = pObject->GetDocumentObjectManager()->GetObject(var.Get<ezUuid>());
+  if (pVarObject == nullptr)
+    return ezVisualScriptDataType::Invalid;
+
+  ezVariant typeVar = pVarObject->GetTypeAccessor().GetValue("Type");
+  if (typeVar.IsA<ezInt64>() == false)
+    return ezVisualScriptDataType::Invalid;
+
+  auto expressionDataType = static_cast<ezVisualScriptExpressionDataType::Enum>(typeVar.Get<ezInt64>());
+  return ezVisualScriptExpressionDataType::GetVisualScriptDataType(expressionDataType);
 }

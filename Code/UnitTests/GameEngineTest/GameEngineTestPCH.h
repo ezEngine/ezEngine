@@ -15,8 +15,8 @@
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Rect.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldDesc.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>

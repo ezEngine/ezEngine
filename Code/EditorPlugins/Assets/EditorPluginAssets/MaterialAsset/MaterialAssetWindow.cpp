@@ -274,7 +274,7 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
   else
   {
     ezStringBuilder msg;
-    msg.Format("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
+    msg.SetFormat("The auto generated file does not exist (yet).\nThe supposed location is '{0}'", sAutoGenShader);
 
     ezQtUiServices::GetSingleton()->MessageBoxInformation(msg);
   }
@@ -296,7 +296,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 
   // Write Path
   ezStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezMaterialBin");
+  sAbsFilePath.ChangeFileExtension("ezBinMaterial");
   // Write Header
   memoryWriter << sAbsFilePath;
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetMaterialDocument()->GetGuid());
@@ -339,7 +339,8 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
     // delayed execution
-    QTimer::singleShot(1, [this]() {
+    QTimer::singleShot(1, [this]()
+      {
       // Check again if the selection is empty. This could have changed due to the delayed execution.
       if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
       {
@@ -391,7 +392,8 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(100, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(100, this, [this, bCustom]()
+    { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {

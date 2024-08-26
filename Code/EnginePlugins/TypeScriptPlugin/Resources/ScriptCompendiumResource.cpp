@@ -1,6 +1,6 @@
 #include <TypeScriptPlugin/TypeScriptPluginPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 
 // clang-format off

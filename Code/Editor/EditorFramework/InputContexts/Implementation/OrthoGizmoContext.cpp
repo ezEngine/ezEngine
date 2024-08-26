@@ -94,8 +94,8 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     m_vTranslationResult = m_vUnsnappedTranslationResult;
 
-    // disable snapping when ALT is pressed
-    if (!e->modifiers().testFlag(Qt::AltModifier))
+    // disable snapping when SHIFT is pressed
+    if (!e->modifiers().testFlag(Qt::ShiftModifier))
       ezSnapProvider::SnapTranslation(m_vTranslationResult);
 
     m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
@@ -104,8 +104,8 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     ezAngle snappedRotation = m_UnsnappedRotationResult;
 
-    // disable snapping when ALT is pressed
-    if (!e->modifiers().testFlag(Qt::AltModifier))
+    // disable snapping when SHIFT is pressed
+    if (!e->modifiers().testFlag(Qt::ShiftModifier))
       ezSnapProvider::SnapRotation(snappedRotation);
 
     m_qRotationResult = ezQuat::MakeFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
@@ -123,8 +123,8 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
       m_fScalingResult = m_fUnsnappedScalingResult;
 
-      // disable snapping when ALT is pressed
-      if (!e->modifiers().testFlag(Qt::AltModifier))
+      // disable snapping when SHIFT is pressed
+      if (!e->modifiers().testFlag(Qt::ShiftModifier))
         ezSnapProvider::SnapScale(m_fScalingResult);
     }
 

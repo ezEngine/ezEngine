@@ -2,6 +2,11 @@
 
 #include <Texture/Utils/TexturePacker.h>
 
+#include <stb/stb_rect_pack.h>
+
+EZ_DEFINE_AS_POD_TYPE(stbrp_node);
+EZ_DEFINE_AS_POD_TYPE(stbrp_rect);
+
 ezTexturePacker::ezTexturePacker() = default;
 
 ezTexturePacker::~ezTexturePacker() = default;
@@ -13,10 +18,6 @@ void ezTexturePacker::SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt
 
   m_Textures.Clear();
   m_Textures.Reserve(uiReserveTextures);
-
-  // initializes all values to false
-  m_Grid.Clear();
-  m_Grid.SetCount(m_uiWidth * m_uiHeight);
 }
 
 void ezTexturePacker::AddTexture(ezUInt32 uiWidth, ezUInt32 uiHeight)
@@ -24,96 +25,34 @@ void ezTexturePacker::AddTexture(ezUInt32 uiWidth, ezUInt32 uiHeight)
   Texture& tex = m_Textures.ExpandAndGetRef();
   tex.m_Size.x = uiWidth;
   tex.m_Size.y = uiHeight;
-  tex.m_Priority = 2 * uiWidth + 2 * uiHeight;
 }
-
-struct sortdata
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezInt32 m_Priority;
-  ezInt32 m_Index;
-};
 
 ezResult ezTexturePacker::PackTextures()
 {
-  ezDynamicArray<sortdata> sorted;
-  sorted.SetCountUninitialized(m_Textures.GetCount());
+  m_Nodes.SetCountUninitialized(m_uiWidth);
 
-  for (ezUInt32 i = 0; i < m_Textures.GetCount(); ++i)
+  stbrp_context context;
+  stbrp_init_target(&context, m_uiWidth, m_uiHeight, m_Nodes.GetData(), m_Nodes.GetCount());
+
+  m_Rects.SetCountUninitialized(m_Textures.GetCount());
+  for (uint32_t i = 0; i < m_Textures.GetCount(); ++i)
   {
-    sorted[i].m_Index = i;
-    sorted[i].m_Priority = m_Textures[i].m_Priority;
+    m_Rects[i] = {int(i), stbrp_coord(m_Textures[i].m_Size.x), stbrp_coord(m_Textures[i].m_Size.y), 0, 0, 0};
   }
 
-  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool { return lhs.m_Priority > rhs.m_Priority; });
-
-  for (ezUInt32 idx = 0; idx < sorted.GetCount(); ++idx)
+  if (!stbrp_pack_rects(&context, m_Rects.GetData(), m_Rects.GetCount()))
   {
-    if (!TryPlaceTexture(sorted[idx].m_Index))
-      return EZ_FAILURE;
+    return EZ_FAILURE;
+  }
+
+  for (uint32_t i = 0; i < m_Textures.GetCount(); ++i)
+  {
+    m_Textures[i].m_Position.x = m_Rects[i].x;
+    m_Textures[i].m_Position.y = m_Rects[i].y;
   }
 
   return EZ_SUCCESS;
 }
 
-ezUInt32 ezTexturePacker::PosToIndex(ezUInt32 x, ezUInt32 y) const
-{
-  return (y * m_uiWidth + x);
-}
 
-bool ezTexturePacker::TryPlaceTexture(ezUInt32 idx)
-{
-  Texture& tex = m_Textures[idx];
-
-  for (ezUInt32 y = 0; y < m_uiHeight; ++y)
-  {
-    for (ezUInt32 x = 0; x < m_uiWidth; ++x)
-    {
-      if (!TryPlaceAt(ezVec2U32(x, y), tex.m_Size))
-        continue;
-
-      tex.m_Position.Set(x, y);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool ezTexturePacker::CanPlaceAt(ezVec2U32 pos, ezVec2U32 size)
-{
-  if (pos.x + size.x > m_uiWidth)
-    return false;
-  if (pos.y + size.y > m_uiHeight)
-    return false;
-
-  for (ezUInt32 y = 0; y < size.y; ++y)
-  {
-    for (ezUInt32 x = 0; x < size.x; ++x)
-    {
-      if (m_Grid[PosToIndex(pos.x + x, pos.y + y)])
-        return false;
-    }
-  }
-
-  return true;
-}
-
-bool ezTexturePacker::TryPlaceAt(ezVec2U32 pos, ezVec2U32 size)
-{
-  if (!CanPlaceAt(pos, size))
-    return false;
-
-  for (ezUInt32 y = 0; y < size.y; ++y)
-  {
-    for (ezUInt32 x = 0; x < size.x; ++x)
-    {
-      m_Grid[PosToIndex(pos.x + x, pos.y + y)] = true;
-    }
-  }
-
-  return true;
-}
-
-
+EZ_STATICLINK_FILE(Texture, Texture_Utils_Implementation_TexturePacker);

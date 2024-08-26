@@ -13,8 +13,10 @@
 
 static void SetConsoleColor(WORD ui)
 {
-#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
+#  else
+  EZ_IGNORE_UNUSED(ui);
 #  endif
 }
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
@@ -37,8 +39,9 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
   if (eventData.m_EventType == ezLogMsgType::BeginGroup)
     printf("\n");
 
-  for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
-    printf(" ");
+  ezHybridArray<char, 11> indentation;
+  indentation.SetCount(eventData.m_uiIndentation + 1, ' ');
+  indentation[eventData.m_uiIndentation] = 0;
 
   ezStringBuilder sTemp1, sTemp2;
 
@@ -50,58 +53,58 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
 
     case ezLogMsgType::BeginGroup:
       SetConsoleColor(0x02);
-      printf("+++++ %s (%s) +++++\n", eventData.m_sText.GetData(sTemp1), eventData.m_sTag.GetData(sTemp2));
+      printf("%s+++++ %s (%s) +++++\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), eventData.m_sTag.GetData(sTemp2));
       break;
 
     case ezLogMsgType::EndGroup:
       SetConsoleColor(0x02);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      printf("----- %s (%.6f sec)-----\n\n", eventData.m_sText.GetData(sTemp1), eventData.m_fSeconds);
+      printf("%s----- %s (%.6f sec)-----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), eventData.m_fSeconds);
 #else
-      printf("----- %s (%s)-----\n\n", eventData.m_sText.GetData(sTemp1), "timing info not available");
+      printf("%s----- %s (%s)-----\n\n", indentation.GetData(), eventData.m_sText.GetData(sTemp1), "timing info not available");
 #endif
       break;
 
     case ezLogMsgType::ErrorMsg:
       SetConsoleColor(0x0C);
-      printf("%sError: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%sError: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
     case ezLogMsgType::SeriousWarningMsg:
       SetConsoleColor(0x0C);
-      printf("%sSeriously: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%sSeriously: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::WarningMsg:
       SetConsoleColor(0x0E);
-      printf("%sWarning: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%sWarning: %s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::SuccessMsg:
       SetConsoleColor(0x0A);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
     case ezLogMsgType::InfoMsg:
       SetConsoleColor(0x07);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::DevMsg:
       SetConsoleColor(0x08);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::DebugMsg:
       SetConsoleColor(0x09);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     default:
       SetConsoleColor(0x0D);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
+      printf("%s%s%s\n", indentation.GetData(), sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
 
       ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
       break;
@@ -117,5 +120,3 @@ void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  undef printf
 #endif
-
-

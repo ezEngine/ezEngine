@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
-#include <Foundation/Memory/StackAllocator.h>
+#include <Foundation/Memory/LinearAllocator.h>
 
 class ezDGMLGraph;
 
@@ -84,6 +84,8 @@ public:
       Clamp,
       Select,
       Lerp,
+      SmoothStep,
+      SmootherStep,
       LastTernary,
 
       Constant,
@@ -274,7 +276,8 @@ public:
 
   void PrintGraph(ezDGMLGraph& inout_graph) const;
 
-  ezHybridArray<Output*, 8> m_OutputNodes;
+  ezSmallArray<Input*, 8> m_InputNodes;
+  ezSmallArray<Output*, 8> m_OutputNodes;
 
   // Transforms
   Node* TypeDeductionAndConversion(Node* pNode);
@@ -285,6 +288,7 @@ public:
   Node* CommonSubexpressionElimination(Node* pNode);
   Node* Validate(Node* pNode);
 
+  ezResult ScalarizeInputs();
   ezResult ScalarizeOutputs();
 
 private:
@@ -295,7 +299,7 @@ private:
   static void UpdateHash(Node* pNode);
   static bool IsEqual(const Node* pNodeA, const Node* pNodeB);
 
-  ezStackAllocator<> m_Allocator;
+  ezLinearAllocator<> m_Allocator;
 
   ezSet<ezExpression::FunctionDesc> m_FunctionDescs;
 

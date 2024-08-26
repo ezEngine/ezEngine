@@ -174,5 +174,3 @@ void ezChunkStreamReader::NextChunk()
 
   TryReadChunkHeader();
 }
-
-

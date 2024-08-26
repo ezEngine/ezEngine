@@ -1,12 +1,14 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+
 
 namespace
 {
-  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
+  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
   {
     return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
   }
-  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
+  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
   {
     return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
   }
@@ -60,7 +62,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALResourceViewCreationDescription& viewDesc)
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
 
@@ -97,7 +99,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
 }
 
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALUnorderedAccessViewCreationDescription& viewDesc)
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
 
@@ -214,6 +216,11 @@ EZ_ALWAYS_INLINE bool ezConversionUtilsVulkan::IsStencilFormat(vk::Format format
   }
 }
 
+EZ_ALWAYS_INLINE vk::ImageLayout ezConversionUtilsVulkan::GetDefaultLayout(vk::Format format)
+{
+  return IsDepthFormat(format) ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
+}
+
 EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology)
 {
   switch (topology)
@@ -292,3 +299,62 @@ EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStag
 
   return res;
 }
+
+EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(ezGALShaderResourceType::Enum type)
+{
+  switch (type)
+  {
+    case ezGALShaderResourceType::Unknown:
+      EZ_REPORT_FAILURE("Unknown descriptor type");
+      break;
+    case ezGALShaderResourceType::PushConstants:
+      EZ_REPORT_FAILURE("Push constants should never appear as shader resources");
+      break;
+    case ezGALShaderResourceType::Sampler:
+      return vk::DescriptorType::eSampler;
+    case ezGALShaderResourceType::ConstantBuffer:
+      return vk::DescriptorType::eUniformBuffer;
+    case ezGALShaderResourceType::Texture:
+      return vk::DescriptorType::eSampledImage;
+    case ezGALShaderResourceType::TextureAndSampler:
+      return vk::DescriptorType::eCombinedImageSampler;
+    case ezGALShaderResourceType::TexelBuffer:
+      return vk::DescriptorType::eUniformTexelBuffer;
+    case ezGALShaderResourceType::StructuredBuffer:
+      return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::TextureRW:
+      return vk::DescriptorType::eStorageImage;
+    case ezGALShaderResourceType::TexelBufferRW:
+      return vk::DescriptorType::eStorageTexelBuffer;
+    case ezGALShaderResourceType::StructuredBufferRW:
+      return vk::DescriptorType::eStorageBuffer;
+  }
+
+  return vk::DescriptorType::eMutableVALVE;
+}
+
+EZ_ALWAYS_INLINE vk::ShaderStageFlagBits ezConversionUtilsVulkan::GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages)
+{
+  return (vk::ShaderStageFlagBits)stages.GetValue();
+}
+
+EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages)
+{
+  vk::PipelineStageFlags res;
+  for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    ezGALShaderStageFlags::Enum flag = ezGALShaderStageFlags::MakeFromShaderStage((ezGALShaderStage::Enum)i);
+    if (stages.IsSet(flag))
+    {
+      res |= GetPipelineStage((ezGALShaderStage::Enum)i);
+    }
+  }
+  return res;
+}
+
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);

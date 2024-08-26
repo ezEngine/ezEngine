@@ -24,7 +24,7 @@ o
 			s{"Features/RenderToTexture/Monitor_data/Monitor.ts"}
 		}
 		Uuid %DocumentID{u4{2372183896940669850,5717197418543432079}}
-		u4 %Hash{3161901667012639309}
+		u4 %Hash{4699885661276931585}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7832182034372090298,5249674631762078941}}
@@ -35,6 +35,7 @@ o
 		{
 			s{"Features/RenderToTexture/Monitor_data/Monitor.ts"}
 		}
+		s %Tags{""}
 	}
 }
 }

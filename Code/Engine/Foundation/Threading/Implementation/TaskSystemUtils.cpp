@@ -80,7 +80,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph)
     if (!tg.m_bInUse)
       continue;
 
-    title.Format("Group {}", g);
+    title.SetFormat("Group {}", g);
 
     const ezDGMLGraph::NodeId taskGroupId = ref_graph.AddGroup(title, ezDGMLGraph::GroupType::Expanded, &taskGroupND);
     groupNodeIds[&tg] = taskGroupId;
@@ -99,10 +99,10 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph)
       ref_graph.AddNodeProperty(taskNodeId, scheduledId, task.m_bTaskIsScheduled ? "true" : "false");
       ref_graph.AddNodeProperty(taskNodeId, finishedId, task.IsTaskFinished() ? "true" : "false");
 
-      tmp.Format("{}", task.GetMultiplicity());
+      tmp.SetFormat("{}", task.GetMultiplicity());
       ref_graph.AddNodeProperty(taskNodeId, multiplicityId, tmp);
 
-      tmp.Format("{}", task.m_iRemainingRuns);
+      tmp.SetFormat("{}", task.m_iRemainingRuns);
       ref_graph.AddNodeProperty(taskNodeId, remainingRunsId, tmp);
     }
   }
@@ -159,5 +159,3 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   ezFileSystem::ResolvePath(sPath, &absPath, nullptr).IgnoreResult();
   ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
-
-

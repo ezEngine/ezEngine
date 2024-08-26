@@ -40,6 +40,12 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& ref_collection,
   }
 
 #else
+  EZ_IGNORE_UNUSED(ref_collection);
+  EZ_IGNORE_UNUSED(sAssetTypeNameView);
+  EZ_IGNORE_UNUSED(sAbsPathToFolder);
+  EZ_IGNORE_UNUSED(sFileExtension);
+  EZ_IGNORE_UNUSED(sStripPrefix);
+  EZ_IGNORE_UNUSED(sPrependPrefix);
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
 }
@@ -74,7 +80,7 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
   if (!hHandle.IsValid())
     return;
 
-  const char* resID = hHandle.GetResourceID();
+  const ezStringView resID = hHandle.GetResourceID();
 
   auto& entry = ref_collection.m_Resources.ExpandAndGetRef();
 
@@ -99,5 +105,3 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
     }
   }
 }
-
-

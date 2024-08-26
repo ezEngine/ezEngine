@@ -35,4 +35,3 @@ private:
   ezPreferencesDocument* m_pDocument;
   ezMap<ezUuid, const ezDocument*> m_DocumentBinding;
 };
-

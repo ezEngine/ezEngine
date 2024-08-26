@@ -58,6 +58,8 @@ private:
     SharedInstances,
     EventReactionEffect,
     LocalSpaceSim,
+
+    Lighting
   };
 
   virtual void SetupSubTests() override;

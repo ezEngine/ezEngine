@@ -11,11 +11,12 @@ o
 		s %AssetType{"Render Target"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8163339918064692135,5640678330794413728}}
-		u4 %Hash{13402745666098255525}
+		u4 %Hash{12077780059175319166}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References{}
+		s %Tags{""}
 	}
 }
 }

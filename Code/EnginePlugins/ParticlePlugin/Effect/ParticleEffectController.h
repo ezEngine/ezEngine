@@ -24,6 +24,8 @@ public:
 
   void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
+  void CombineSystemBoundingVolumes();
+
   void Tick(const ezTime& diff) const;
 
   void ExtractRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const;
@@ -34,7 +36,7 @@ public:
   /// The volume is in the local space of the effect.
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
-  void UpdateWindSamples();
+  void UpdateWindSamples(ezTime diff);
 
   /// \brief Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();

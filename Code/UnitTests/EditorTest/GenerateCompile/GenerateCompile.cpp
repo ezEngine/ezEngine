@@ -25,6 +25,12 @@ ezResult ezEditorTestGenerateCompile::InitializeTest()
   if (SUPER::OpenProject("Data/Samples/PacMan").Failed())
     return EZ_FAILURE;
 
+  if (ezCppProject::ForceSdkCompatibleCompiler().Failed())
+  {
+    ezLog::Error("Failed to autodetect SDK compatible compiler for testing");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -52,7 +58,6 @@ ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt
       if (!EZ_TEST_RESULT(ezOSFile::DeleteFolder(sBuildDir)))
         return ezTestAppRun::Quit;
     }
-    cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
 
     if (!EZ_TEST_RESULT(ezCppProject::RunCMake(cpp)))
       return ezTestAppRun::Quit;

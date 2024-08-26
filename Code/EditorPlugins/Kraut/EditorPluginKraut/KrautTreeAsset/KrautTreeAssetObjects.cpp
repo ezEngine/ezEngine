@@ -8,7 +8,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezKrautAssetMaterial, ezNoBase, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Material", m_sMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_MEMBER_PROPERTY("Material", m_sMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Kraut")),
   }
   EZ_END_PROPERTIES;
 }

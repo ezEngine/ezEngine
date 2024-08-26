@@ -1,10 +1,10 @@
 #pragma once
 
 /// \brief Operator to serialize ezIAllocator::Stats objects.
-EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& inout_stream, const ezAllocatorBase::Stats& rhs);
+EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& inout_stream, const ezAllocator::Stats& rhs);
 
 /// \brief Operator to serialize ezIAllocator::Stats objects.
-EZ_FOUNDATION_DLL void operator>>(ezStreamReader& inout_stream, ezAllocatorBase::Stats& rhs);
+EZ_FOUNDATION_DLL void operator>>(ezStreamReader& inout_stream, ezAllocator::Stats& rhs);
 
 struct ezTime;
 

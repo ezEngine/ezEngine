@@ -6,9 +6,9 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  ifdef APIENTRY
 #    undef APIENTRY
-#endif
+#  endif
 
-# include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  define GLFW_EXPOSE_NATIVE_WIN32
 #  include <GLFW/glfw3native.h>
 #endif
@@ -19,7 +19,7 @@ namespace
   {
     ezLog::Error("GLFW error {}: {}", errorCode, msg);
   }
-}
+} // namespace
 
 
 // clang-format off
@@ -61,21 +61,27 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Window)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-namespace {
+namespace
+{
   ezResult ezGlfwError(const char* file, size_t line)
   {
     const char* desc;
     int errorCode = glfwGetError(&desc);
-    if(errorCode != GLFW_NO_ERROR)
+    if (errorCode != GLFW_NO_ERROR)
     {
       ezLog::Error("GLFW error {} ({}): {} - {}", file, line, errorCode, desc);
       return EZ_FAILURE;
     }
     return EZ_SUCCESS;
   }
-}
+} // namespace
 
-#define EZ_GLFW_RETURN_FAILURE_ON_ERROR() do { if(ezGlfwError(__FILE__, __LINE__).Failed()) return EZ_FAILURE; } while(false)
+#define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
+  do                                              \
+  {                                               \
+    if (ezGlfwError(__FILE__, __LINE__).Failed()) \
+      return EZ_FAILURE;                          \
+  } while (false)
 
 ezResult ezWindow::Initialize()
 {
@@ -124,7 +130,7 @@ ezResult ezWindow::Initialize()
       {
         const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
         EZ_GLFW_RETURN_FAILURE_ON_ERROR();
-        if(pVideoMode == nullptr)
+        if (pVideoMode == nullptr)
         {
           ezLog::Error("Failed to get video mode for monitor");
           return EZ_FAILURE;
@@ -170,6 +176,7 @@ ezResult ezWindow::Initialize()
   }
 
   glfwSetWindowUserPointer(pWindow, this);
+  glfwSetWindowIconifyCallback(pWindow, &ezWindow::IconifyCallback);
   glfwSetWindowSizeCallback(pWindow, &ezWindow::SizeCallback);
   glfwSetWindowPosCallback(pWindow, &ezWindow::PositionCallback);
   glfwSetWindowCloseCallback(pWindow, &ezWindow::CloseCallback);
@@ -263,6 +270,13 @@ void ezWindow::ProcessWindowMessages()
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+void ezWindow::IconifyCallback(GLFWwindow* window, int iconified)
+{
+  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  if (self)
+    self->OnVisibleChange(!iconified);
 }
 
 void ezWindow::SizeCallback(GLFWwindow* window, int width, int height)

@@ -59,4 +59,3 @@ protected:
   QString m_sTitle;
   QIcon m_Icon;
 };
-

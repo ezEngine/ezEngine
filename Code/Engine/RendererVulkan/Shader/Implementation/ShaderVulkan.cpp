@@ -1,15 +1,12 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <Foundation/Algorithm/HashStream.h>
+#include <RendererFoundation/Device/ImmutableSamplers.h>
+#include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
+#include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <ShaderCompilerDXC/SpirvMetaData.h>
-
-EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::ConstantBuffer == ezGALShaderVulkan::BindingMapping::ConstantBuffer);
-EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::ResourceView == ezGALShaderVulkan::BindingMapping::ResourceView);
-EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::UAV == ezGALShaderVulkan::BindingMapping::UAV);
-EZ_CHECK_AT_COMPILETIME(ezVulkanDescriptorSetLayoutBinding::Sampler == ezGALShaderVulkan::BindingMapping::Sampler);
 
 void ezGALShaderVulkan::DescriptorSetLayoutDesc::ComputeHash()
 {
@@ -34,183 +31,122 @@ ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Descr
 
 ezGALShaderVulkan::~ezGALShaderVulkan() {}
 
-void ezGALShaderVulkan::SetDebugName(const char* szName) const
+void ezGALShaderVulkan::SetDebugName(ezStringView sName) const
 {
+  ezStringBuilder tmp;
+
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice());
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
-    pVulkanDevice->SetDebugName(szName, m_Shaders[i]);
+    pVulkanDevice->SetDebugName(sName.GetData(tmp), m_Shaders[i]);
   }
 }
 
 ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 {
+  EZ_SUCCEED_OR_RETURN(CreateBindingMapping(false));
+
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-  // Extract meta data and shader code.
-  ezArrayPtr<const ezUInt8> shaderCode[ezGALShaderStage::ENUM_COUNT];
-  ezDynamicArray<ezVulkanDescriptorSetLayout> sets[ezGALShaderStage::ENUM_COUNT];
-  ezHybridArray<ezVulkanVertexInputAttribute, 8> vertexInputAttributes;
+  m_SetBindings.Clear();
 
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  for (const ezShaderResourceBinding& binding : GetBindingMapping())
   {
-    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
+    if (binding.m_ResourceType == ezGALShaderResourceType::PushConstants)
+      continue;
+
+    ezUInt32 iMaxSets = ezMath::Max((ezUInt32)m_SetBindings.GetCount(), static_cast<ezUInt32>(binding.m_iSet + 1));
+    m_SetBindings.SetCount(iMaxSets);
+    m_SetBindings[binding.m_iSet].PushBack(binding);
+  }
+
+  const ezGALImmutableSamplers::ImmutableSamplers& immutableSamplers = ezGALImmutableSamplers::GetImmutableSamplers();
+  auto GetImmutableSampler = [&](const ezHashedString& sName) -> const vk::Sampler*
+  {
+    if (const ezGALSamplerStateHandle* hSampler = immutableSamplers.GetValue(sName))
     {
-      ezArrayPtr<const ezUInt8> metaData(reinterpret_cast<const ezUInt8*>(m_Description.m_ByteCodes[i]->GetByteCode()), m_Description.m_ByteCodes[i]->GetSize());
-      // Only the vertex shader stores vertexInputAttributes, so passing in the array into other shaders is just a no op.
-      ezSpirvMetaData::Read(metaData, shaderCode[i], sets[i], vertexInputAttributes);
+      const auto* pSampler = static_cast<const ezGALSamplerStateVulkan*>(pVulkanDevice->GetSamplerState(*hSampler));
+      return &pSampler->GetImageInfo().sampler;
     }
+    return nullptr;
+  };
+
+  // If no descriptor set is needed, we still need to create an empty one to fulfil the Vulkan spec :-/
+  if (m_SetBindings.IsEmpty())
+  {
+    m_SetBindings.SetCount(1);
   }
 
-  // For now the meta data and what the shader exposes is the exact same data but this might change so different types are used.
-  for (ezVulkanVertexInputAttribute& via : vertexInputAttributes)
+  // Sort mappings and build descriptor set layout
+  ezHybridArray<DescriptorSetLayoutDesc, 4> descriptorSetLayoutDesc;
+  descriptorSetLayoutDesc.SetCount(m_SetBindings.GetCount());
+  m_descriptorSetLayout.SetCount(m_SetBindings.GetCount());
+  for (ezUInt32 iSet = 0; iSet < m_SetBindings.GetCount(); ++iSet)
   {
-    m_VertexInputAttributes.PushBack({via.m_eSemantic, via.m_uiLocation, via.m_eFormat});
-  }
+    m_SetBindings[iSet].Sort([](const ezShaderResourceBinding& lhs, const ezShaderResourceBinding& rhs)
+      { return lhs.m_iSlot < rhs.m_iSlot; });
 
-  // Compute remapping.
-  // Each shader stage is compiled individually and has its own binding indices.
-  // In Vulkan we need to map all stages into one descriptor layout which requires us to remap some shader stages so no binding index conflicts appear.
-  struct ShaderRemapping
-  {
-    const ezVulkanDescriptorSetLayoutBinding* pBinding = 0;
-    ezUInt16 m_uiTarget = 0; ///< The new binding target that pBinding needs to be remapped to.
-  };
-  struct LayoutBinding
-  {
-    const ezVulkanDescriptorSetLayoutBinding* m_binding = nullptr; ///< The first binding under which this resource was encountered.
-    vk::ShaderStageFlags m_stages = {};                            ///< Bitflags of all stages that share this binding. Matching is done by name.
-  };
-  ezHybridArray<ShaderRemapping, 6> remappings[ezGALShaderStage::ENUM_COUNT]; ///< Remappings for each shader stage.
-  ezHybridArray<LayoutBinding, 6> sourceBindings;                             ///< Bindings across all stages. Can have gaps. Array index is the binding index.
-  ezMap<ezStringView, ezUInt32> bindingMap;                                   ///< Maps binding name to index in sourceBindings.
-
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
-  {
-    const vk::ShaderStageFlags vulkanStage = ezConversionUtilsVulkan::GetShaderStage((ezGALShaderStage::Enum)i);
-    if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
+    // Build Vulkan descriptor set layout
+    for (ezUInt32 i = 0; i < m_SetBindings[iSet].GetCount(); i++)
     {
-      EZ_ASSERT_DEV(sets[i].GetCount() <= 1, "Only a single descriptor set is currently supported.");
+      const ezShaderResourceBinding& ezBinding = m_SetBindings[iSet][i];
+      vk::DescriptorSetLayoutBinding& binding = descriptorSetLayoutDesc[ezBinding.m_iSet].m_bindings.ExpandAndGetRef();
 
-      for (ezUInt32 j = 0; j < sets[i].GetCount(); j++)
+      binding.binding = ezBinding.m_iSlot;
+      binding.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(ezBinding.m_ResourceType);
+      binding.descriptorCount = ezBinding.m_uiArraySize;
+      binding.stageFlags = ezConversionUtilsVulkan::GetShaderStages(ezBinding.m_Stages);
+      binding.pImmutableSamplers = ezBinding.m_ResourceType == ezGALShaderResourceType::Sampler ? GetImmutableSampler(ezBinding.m_sName) : nullptr;
+    }
+
+    descriptorSetLayoutDesc[iSet].ComputeHash();
+    m_descriptorSetLayout[iSet] = ezResourceCacheVulkan::RequestDescriptorSetLayout(descriptorSetLayoutDesc[iSet]);
+  }
+
+  // Remove immutable samplers and push constants from binding info
+  {
+    for (ezUInt32 uiSet = 0; uiSet < m_SetBindings.GetCount(); ++uiSet)
+    {
+      for (ezInt32 iIndex = (ezInt32)m_SetBindings[uiSet].GetCount() - 1; iIndex >= 0; --iIndex)
       {
-        const ezVulkanDescriptorSetLayout& set = sets[i][j];
-        EZ_ASSERT_DEV(set.m_uiSet == 0, "Only a single descriptor set is currently supported.");
-        for (ezUInt32 k = 0; k < set.bindings.GetCount(); k++)
+        const bool bIsImmutableSample = m_SetBindings[uiSet][iIndex].m_ResourceType == ezGALShaderResourceType::Sampler && immutableSamplers.Contains(m_SetBindings[uiSet][iIndex].m_sName);
+
+        if (bIsImmutableSample)
         {
-          const ezVulkanDescriptorSetLayoutBinding& binding = set.bindings[k];
-          // Does a binding already exist for the resource with the same name?
-          if (ezUInt32* pBindingIdx = bindingMap.GetValue(binding.m_sName))
-          {
-            LayoutBinding& layoutBinding = sourceBindings[*pBindingIdx];
-            layoutBinding.m_stages |= vulkanStage;
-            const ezVulkanDescriptorSetLayoutBinding* pCurrentBinding = layoutBinding.m_binding;
-            EZ_ASSERT_DEBUG(pCurrentBinding->m_Type == binding.m_Type, "The descriptor {} was found with different resource type {} and {}", binding.m_sName, pCurrentBinding->m_Type, binding.m_Type);
-            EZ_ASSERT_DEBUG(pCurrentBinding->m_uiDescriptorType == binding.m_uiDescriptorType, "The descriptor {} was found with different type {} and {}", binding.m_sName, pCurrentBinding->m_uiDescriptorType, binding.m_uiDescriptorType);
-            EZ_ASSERT_DEBUG(pCurrentBinding->m_uiDescriptorCount == binding.m_uiDescriptorCount, "The descriptor {} was found with different count {} and {}", binding.m_sName, pCurrentBinding->m_uiDescriptorCount, binding.m_uiDescriptorCount);
-            // The binding index differs from the one already in the set, remapping is necessary.
-            if (binding.m_uiBinding != *pBindingIdx)
-            {
-              remappings[i].PushBack({&binding, pCurrentBinding->m_uiBinding});
-            }
-          }
-          else
-          {
-            ezUInt8 uiTargetBinding = binding.m_uiBinding;
-            // Doesn't exist yet, find a good place for it.
-            if (binding.m_uiBinding >= sourceBindings.GetCount())
-              sourceBindings.SetCount(binding.m_uiBinding + 1);
-
-            // If the original binding index doesn't exist yet, use it (No remapping necessary).
-            if (sourceBindings[binding.m_uiBinding].m_binding == nullptr)
-            {
-              sourceBindings[binding.m_uiBinding] = {&binding, vulkanStage};
-              bindingMap[binding.m_sName] = uiTargetBinding;
-            }
-            else
-            {
-              // Binding index already in use, remapping necessary.
-              uiTargetBinding = (ezUInt8)sourceBindings.GetCount();
-              sourceBindings.PushBack({&binding, vulkanStage});
-              bindingMap[binding.m_sName] = uiTargetBinding;
-              remappings[i].PushBack({&binding, uiTargetBinding});
-            }
-
-            // The shader reflection used by the high level renderer is per stage and assumes it can map resources to stages.
-            // We build this remapping table to map our descriptor binding to the original per-stage resource binding model.
-            BindingMapping& bindingMapping = m_BindingMapping.ExpandAndGetRef();
-            bindingMapping.m_descriptorType = (vk::DescriptorType)binding.m_uiDescriptorType;
-            bindingMapping.m_ezType = binding.m_ezType;
-            bindingMapping.m_type = (BindingMapping::Type)binding.m_Type;
-            bindingMapping.m_stage = (ezGALShaderStage::Enum)i;
-            bindingMapping.m_uiSource = binding.m_uiVirtualBinding;
-            bindingMapping.m_uiTarget = uiTargetBinding;
-            bindingMapping.m_sName = binding.m_sName;
-          }
+          m_SetBindings[uiSet].RemoveAtAndCopy(iIndex);
         }
       }
     }
-  }
-  m_BindingMapping.Sort([](const BindingMapping& lhs, const BindingMapping& rhs) { return lhs.m_uiTarget < rhs.m_uiTarget; });
-  for (ezUInt32 i = 0; i < m_BindingMapping.GetCount(); i++)
-  {
-    m_BindingMapping[i].m_targetStages = ezConversionUtilsVulkan::GetPipelineStage(sourceBindings[m_BindingMapping[i].m_uiTarget].m_stages);
-  }
-
-  // Build Vulkan descriptor set layout
-  for (ezUInt32 i = 0; i < sourceBindings.GetCount(); i++)
-  {
-    const LayoutBinding& sourceBinding = sourceBindings[i];
-    if (sourceBinding.m_binding != nullptr)
+    for (ezInt32 iIndex = (ezInt32)m_BindingMapping.GetCount() - 1; iIndex >= 0; --iIndex)
     {
-      vk::DescriptorSetLayoutBinding& binding = m_descriptorSetLayoutDesc.m_bindings.ExpandAndGetRef();
-      binding.binding = i;
-      binding.descriptorType = (vk::DescriptorType)sourceBinding.m_binding->m_uiDescriptorType;
-      binding.descriptorCount = sourceBinding.m_binding->m_uiDescriptorCount;
-      binding.stageFlags = sourceBinding.m_stages;
-    }
-  }
-  m_descriptorSetLayoutDesc.m_bindings.Sort([](const vk::DescriptorSetLayoutBinding& lhs, const vk::DescriptorSetLayoutBinding& rhs) { return lhs.binding < rhs.binding; });
-  m_descriptorSetLayoutDesc.ComputeHash();
+      const bool bIsImmutableSample = m_BindingMapping[iIndex].m_ResourceType == ezGALShaderResourceType::Sampler && immutableSamplers.Contains(m_BindingMapping[iIndex].m_sName);
+      const bool bIsPushConstant = m_BindingMapping[iIndex].m_ResourceType == ezGALShaderResourceType::PushConstants;
 
-  // Remap and build shaders
-  ezUInt32 uiMaxShaderSize = 0;
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
-  {
-    if (!remappings[i].IsEmpty())
-    {
-      uiMaxShaderSize = ezMath::Max(uiMaxShaderSize, shaderCode[i].GetCount());
+      if (bIsPushConstant)
+      {
+        const auto& pushConstant = m_BindingMapping[iIndex];
+        m_pushConstants.size = pushConstant.m_pLayout->m_uiTotalSize;
+        m_pushConstants.offset = 0;
+        m_pushConstants.stageFlags = ezConversionUtilsVulkan::GetShaderStages(pushConstant.m_Stages);
+      }
+
+      if (bIsImmutableSample || bIsPushConstant)
+      {
+        m_BindingMapping.RemoveAtAndCopy(iIndex);
+      }
     }
   }
 
+  // Build shaders
   vk::ShaderModuleCreateInfo createInfo;
-  ezDynamicArray<ezUInt8> tempBuffer;
-  tempBuffer.Reserve(uiMaxShaderSize);
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
   {
     if (m_Description.HasByteCodeForStage((ezGALShaderStage::Enum)i))
     {
-      if (remappings[i].IsEmpty())
-      {
-        createInfo.codeSize = shaderCode[i].GetCount();
-        EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
-        createInfo.pCode = reinterpret_cast<const ezUInt32*>(shaderCode[i].GetPtr());
-        VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
-      }
-      else
-      {
-        tempBuffer = shaderCode[i];
-        ezUInt32* pData = reinterpret_cast<ezUInt32*>(tempBuffer.GetData());
-        for (const auto& remap : remappings[i])
-        {
-          EZ_ASSERT_DEBUG(pData[remap.pBinding->m_uiWordOffset] == remap.pBinding->m_uiBinding, "Spirv descriptor word offset does not point to descriptor index.");
-          pData[remap.pBinding->m_uiWordOffset] = remap.m_uiTarget;
-        }
-        createInfo.codeSize = tempBuffer.GetCount();
-        EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
-        createInfo.pCode = pData;
-        VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
-      }
+      createInfo.codeSize = m_Description.m_ByteCodes[i]->m_ByteCode.GetCount();
+      EZ_ASSERT_DEV(createInfo.codeSize % 4 == 0, "Spirv shader code should be a multiple of 4.");
+      createInfo.pCode = reinterpret_cast<const ezUInt32*>(m_Description.m_ByteCodes[i]->m_ByteCode.GetData());
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createShaderModule(&createInfo, nullptr, &m_Shaders[i]));
     }
   }
 
@@ -219,15 +155,16 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALShaderVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  m_descriptorSetLayoutDesc = {};
-  m_BindingMapping.Clear();
+  DestroyBindingMapping();
 
-  ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+  // Right now, we do not destroy descriptor set layouts as they are shared among many shaders.
+  m_descriptorSetLayout.Clear();
+  m_SetBindings.Clear();
+
+  auto* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  for (auto& m_Shader : m_Shaders)
   {
-    pVulkanDevice->DeleteLater(m_Shaders[i]);
+    pVulkanDevice->DeleteLater(m_Shader);
   }
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Shader_Implementation_ShaderVulkan);

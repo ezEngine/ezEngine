@@ -1,9 +1,9 @@
 #include <EnginePluginJolt/EnginePluginJoltPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <EnginePluginJolt/SceneExport/JoltStaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <JoltCooking/JoltCooking.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
 
@@ -94,7 +94,7 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   ezStringBuilder sDocGuid, sOutputFile;
   ezConversionUtils::ToString(documentGuid, sDocGuid);
 
-  sOutputFile.Format(":project/AssetCache/Generated/{0}.ezJoltMesh", sDocGuid);
+  sOutputFile.SetFormat(":project/AssetCache/Generated/{0}.ezJoltMesh", sDocGuid);
 
   ezDeferredFileWriter file;
   file.SetOutput(sOutputFile);
@@ -130,6 +130,10 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
     ezJoltStaticActorComponent* pComp;
     pCompMan->CreateComponent(pGo, pComp);
 
-    pComp->SetMeshFile(sOutputFile);
+    if (!sOutputFile.IsEmpty())
+    {
+      ezJoltMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(sOutputFile);
+      pComp->SetMesh(hMesh);
+    }
   }
 }

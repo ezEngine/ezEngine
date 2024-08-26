@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <JoltPlugin/JoltPluginDLL.h>
@@ -36,6 +37,7 @@ private:
 
   static void* JoltMalloc(size_t inSize);
   static void JoltFree(void* inBlock);
+  static void* JoltReallocate(void* inBlock, size_t inOldSize, size_t inNewSize);
   static void* JoltAlignedMalloc(size_t inSize, size_t inAlignment);
   static void JoltAlignedFree(void* inBlock);
 
@@ -43,4 +45,5 @@ private:
   static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
 
   static ezUniquePtr<ezProxyAllocator> s_pAllocator;
+  static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;
 };

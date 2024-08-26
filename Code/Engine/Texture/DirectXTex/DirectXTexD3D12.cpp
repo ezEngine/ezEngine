@@ -2,6 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
+EZ_WARNING_PUSH()
+EZ_WARNING_DISABLE_CLANG("-Wunused-but-set-variable")
+
 //-------------------------------------------------------------------------------------
 // DirectXTexD3D12.cpp
 //
@@ -830,6 +833,8 @@ HRESULT DirectX::CaptureTexture(
 
     return S_OK;
 }
+
+EZ_WARNING_POP()
 
 #endif
 

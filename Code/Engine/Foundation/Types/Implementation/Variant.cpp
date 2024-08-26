@@ -5,9 +5,9 @@
 #include <Foundation/Types/VariantTypeRegistry.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 24);
+static_assert(sizeof(ezVariant) == 24);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 20);
+static_assert(sizeof(ezVariant) == 20);
 #endif
 
 /// constructors
@@ -106,8 +106,8 @@ EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 {
   using StorageType = typename TypeDeduction<T>::StorageType;
 
-  EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
-  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
+  static_assert((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
+  static_assert(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
   const ezRTTI* pType = ezGetStaticRTTI<T>();
 
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, pType);
@@ -122,8 +122,9 @@ struct ComputeHashFunc
   template <typename T>
   EZ_FORCE_INLINE ezUInt64 operator()(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
-                                  !ezVariant::TypeDeduction<T>::forceSharing,
+    EZ_IGNORE_UNUSED(v);
+    static_assert(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
+                    !ezVariant::TypeDeduction<T>::forceSharing,
       "This type requires special handling! Add a specialization below.");
     return ezHashingUtils::xxHash64(pData, sizeof(T), uiSeed);
   }
@@ -132,40 +133,45 @@ struct ComputeHashFunc
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezString>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   auto pString = static_cast<const ezString*>(pData);
-
   return ezHashingUtils::xxHash64String(*pString, uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat3>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezMat3), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezMat4>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezMat4), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezTransform>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   return ezHashingUtils::xxHash64(pData, sizeof(ezTransform), uiSeed);
 }
 
 template <>
 EZ_ALWAYS_INLINE ezUInt64 ComputeHashFunc::operator()<ezDataBuffer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   auto pDataBuffer = static_cast<const ezDataBuffer*>(pData);
-
   return ezHashingUtils::xxHash64(pDataBuffer->GetData(), pDataBuffer->GetCount(), uiSeed);
 }
 
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
+
   auto pVariantArray = static_cast<const ezVariantArray*>(pData);
 
   ezUInt64 uiHash = uiSeed;
@@ -180,6 +186,8 @@ EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezVariantArray>(const ezVar
 template <>
 ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
+
   auto pVariantDictionary = static_cast<const ezVariantDictionary*>(pData);
 
   ezHybridArray<ezUInt64, 128> hashes;
@@ -199,7 +207,9 @@ ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, co
 template <>
 EZ_FORCE_INLINE ezUInt64 ComputeHashFunc::operator()<ezTypedPointer>(const ezVariant& v, const void* pData, ezUInt64 uiSeed)
 {
+  EZ_IGNORE_UNUSED(v);
   EZ_IGNORE_UNUSED(pData);
+  EZ_IGNORE_UNUSED(uiSeed);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return 0;
@@ -873,5 +883,3 @@ namespace ezMath
     return result;
   }
 } // namespace ezMath
-
-

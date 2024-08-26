@@ -5,7 +5,11 @@ param
     [string]
     $Checks = "-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
     [string]
+    $ChecksGroup1 = "clang-analyzer-core.*",
+    [string]
     $ExcludeRootFiles = "DirectXTex|ThirdParty|\.rc$|qrc_resources.cpp$",
+    [string]
+    $Group1Pattern = "Code\\Engine\\|Code\\EnginePlugins\\|Code\\Editor\\|Code\\EditorPlugins\\",
     [string]
     $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_).)*$",
     [string]
@@ -196,7 +200,7 @@ if($DiffTo)
     }
 }
 
-& $ClangTidy --checks=$Checks --list-checks
+& $ClangTidy "--checks=$Checks,$ChecksGroup1" --list-checks
 if($lastexitcode -ne 0)
 {
     Write-Error "Inital clang-tidy test run failed"
@@ -322,6 +326,7 @@ $syncStore.NumMessages = 0
 if($FilterPattern)
 {
     $files = $files | ? {$_ -match $FilterPattern}
+    Write-Host $files
 }
 
 if($FileLimit -gt 0)
@@ -343,6 +348,13 @@ $job = $files | Foreach-Object -Parallel `
    $syncStore = $using:syncStore
    $ClangLibPath = $using:ClangLibPath
    $warningSeen = $using:warningSeen
+   $ChecksGroup1 = $using:ChecksGroup1
+   $Group1Pattern = $using:Group1Pattern
+   
+   if($Group1Pattern -and $_ -match $Group1Pattern)
+   {
+       $Checks += ",$ChecksGroup1"
+   }
    
    $fixesFile = Join-Path $TempDir "$(New-Guid).yaml"
    
@@ -383,6 +395,11 @@ $job = $files | Foreach-Object -Parallel `
    if($lastexitcode -ne 0)
    {
        $syncStore.NumErrors++
+       if($numMessages -eq 0) # If we didn't find any errors or warnings but compilation still failed, just forward the entire output.
+       {
+         $numMessages++
+         $output += $tidyOutput
+       }
    }
    
    if($numMessages -gt 0)

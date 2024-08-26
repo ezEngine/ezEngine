@@ -14,10 +14,18 @@ o
 			s{"Effects/Smoke.png"}
 		}
 		Uuid %DocumentID{u4{3069452984245899694,5324380406263147775}}
-		u4 %Hash{7261754644330017913}
+		u4 %Hash{17377217717442613276}
 		VarArray %MetaInfo{}
-		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %Outputs
+		{
+			s{"LOWRES"}
+		}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Effects/Smoke.png"}
+		}
+		s %Tags{""}
 	}
 }
 }

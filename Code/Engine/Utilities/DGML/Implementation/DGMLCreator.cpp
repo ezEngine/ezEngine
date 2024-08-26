@@ -28,7 +28,7 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_gr
     ezVisitorExecution::Enum Visit(ezGameObject* pObject)
     {
       ezStringBuilder name;
-      name.Format("GameObject: \"{0}\"", pObject->GetName().IsEmpty() ? "<Unnamed>" : pObject->GetName());
+      name.SetFormat("GameObject: \"{0}\"", pObject->GetName().IsEmpty() ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
       ezDGMLGraph::NodeDesc gameobjectND;
@@ -81,5 +81,3 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_gr
   GraphVisitor visitor(ref_graph);
   pWorld->Traverse(ezWorld::VisitorFunc(&GraphVisitor::Visit, &visitor), ezWorld::BreadthFirst);
 }
-
-

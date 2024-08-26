@@ -15,32 +15,32 @@ public:
 
 public:
   template <int N>
-  bool GetComponent() const; // [tested]
+  bool GetComponent() const;                                                                               // [tested]
 
-  bool x() const; // [tested]
-  bool y() const; // [tested]
-  bool z() const; // [tested]
-  bool w() const; // [tested]
+  bool x() const;                                                                                          // [tested]
+  bool y() const;                                                                                          // [tested]
+  bool z() const;                                                                                          // [tested]
+  bool w() const;                                                                                          // [tested]
 
   template <ezSwizzle::Enum s>
-  ezSimdVec4b Get() const; // [tested]
+  ezSimdVec4b Get() const;                                                                                 // [tested]
 
 public:
-  ezSimdVec4b operator&&(const ezSimdVec4b& rhs) const; // [tested]
-  ezSimdVec4b operator||(const ezSimdVec4b& rhs) const; // [tested]
-  ezSimdVec4b operator!() const;                        // [tested]
+  ezSimdVec4b operator&&(const ezSimdVec4b& rhs) const;                                                    // [tested]
+  ezSimdVec4b operator||(const ezSimdVec4b& rhs) const;                                                    // [tested]
+  ezSimdVec4b operator!() const;                                                                           // [tested]
 
-  ezSimdVec4b operator==(const ezSimdVec4b& rhs) const; // [tested]
-  ezSimdVec4b operator!=(const ezSimdVec4b& rhs) const; // [tested]
-
-  template <int N = 4>
-  bool AllSet() const; // [tested]
+  ezSimdVec4b operator==(const ezSimdVec4b& rhs) const;                                                    // [tested]
+  ezSimdVec4b operator!=(const ezSimdVec4b& rhs) const;                                                    // [tested]
 
   template <int N = 4>
-  bool AnySet() const; // [tested]
+  bool AllSet() const;                                                                                     // [tested]
 
   template <int N = 4>
-  bool NoneSet() const; // [tested]
+  bool AnySet() const;                                                                                     // [tested]
+
+  template <int N = 4>
+  bool NoneSet() const;                                                                                    // [tested]
 
   static ezSimdVec4b Select(const ezSimdVec4b& vCmp, const ezSimdVec4b& vTrue, const ezSimdVec4b& vFalse); // [tested]
 

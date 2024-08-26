@@ -40,7 +40,7 @@ o
 			s{"Scripting/BreakOnDamage.ts"}
 		}
 		Uuid %DocumentID{u4{16577393433835775632,4893515811071332673}}
-		u4 %Hash{11826221025312773742}
+		u4 %Hash{726197473913822142}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9934882761547361949,2607229738769957047}}
@@ -51,6 +51,7 @@ o
 		{
 			s{"Scripting/BreakOnDamage.ts"}
 		}
+		s %Tags{""}
 	}
 }
 }

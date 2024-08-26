@@ -71,6 +71,7 @@ ezResult ezTelemetry::ConnectToServer(ezStringView sConnectTo)
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   return OpenConnection(Client, sConnectTo);
 #else
+  EZ_IGNORE_UNUSED(sConnectTo);
   ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::ConnectToServer() will be ignored.");
   return EZ_FAILURE;
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
@@ -184,5 +185,3 @@ void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
 {
   Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.GetReader(), (ezInt32)msg.m_Storage.GetStorageSize32());
 }
-
-

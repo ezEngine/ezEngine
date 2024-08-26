@@ -40,4 +40,3 @@ private:
 
   ezQtCurve1DEditorWidget* m_pCurveEditor;
 };
-

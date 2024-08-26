@@ -6,7 +6,10 @@
 
 namespace ezRmlUiInternal
 {
-  double SystemInterface::GetElapsedTime() { return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(); }
+  double SystemInterface::GetElapsedTime()
+  {
+    return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds();
+  }
 
   void SystemInterface::JoinPath(Rml::String& ref_sTranslated_path, const Rml::String& sDocument_path, const Rml::String& sPath)
   {

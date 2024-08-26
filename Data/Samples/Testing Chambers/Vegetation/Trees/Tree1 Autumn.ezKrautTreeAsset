@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Tree1.tree"}
 		}
 		Uuid %DocumentID{u4{7922893751843090352,4753529958296423156}}
-		u4 %Hash{2706104492845633068}
+		u4 %Hash{10848453892150431318}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -29,6 +29,7 @@ o
 			s{"{ 1f56861a-dfe6-4028-917a-1fcb10700d3b }"}
 			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 		}
+		s %Tags{""}
 	}
 }
 }

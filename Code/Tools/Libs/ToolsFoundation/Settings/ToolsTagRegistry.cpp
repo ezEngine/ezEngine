@@ -157,7 +157,8 @@ void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categ
   out_tags.Clear();
   for (auto it = s_NameToTags.GetIterator(); it.IsValid(); ++it)
   {
-    if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& sCat) { return it.Value().m_sCategory == sCat; }))
+    if (std::any_of(cbegin(categories), cend(categories), [&it](const ezStringView& sCat)
+          { return it.Value().m_sCategory == sCat; }))
     {
       out_tags.PushBack(&it.Value());
     }

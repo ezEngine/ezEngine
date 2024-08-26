@@ -1,8 +1,0 @@
-#pragma once
-
-#undef EZ_SUPPORTS_GLFW
-#ifdef BUILDSYSTEM_ENABLE_GLFW_SUPPORT
-#  define EZ_SUPPORTS_GLFW EZ_ON
-#else
-#  define EZ_SUPPORTS_GLFW EZ_OFF
-#endif

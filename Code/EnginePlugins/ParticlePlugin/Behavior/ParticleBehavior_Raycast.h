@@ -40,7 +40,9 @@ public:
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
   ezUInt8 m_uiCollisionLayer = 0;
   ezString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.6f;
+  float m_fBounceFactor = 0.5f;
+  float m_fSlideFactor = 0.5f;
+  float m_fSizeFactor = 0.1f;
 };
 
 
@@ -52,11 +54,14 @@ public:
   ezParticleBehavior_Raycast();
 
   virtual void CreateRequiredStreams() override;
+  virtual void QueryOptionalStreams() override;
 
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
   ezUInt8 m_uiCollisionLayer = 0;
   ezTempHashedString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.6f;
+  float m_fBounceFactor = 0.5f;
+  float m_fSlideFactor = 0.5f;
+  float m_fSizeFactor = 0.1f;
 
 protected:
   friend class ezParticleBehaviorFactory_Raycast;
@@ -70,4 +75,5 @@ protected:
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamLastPosition = nullptr;
   ezProcessingStream* m_pStreamVelocity = nullptr;
+  const ezProcessingStream* m_pStreamSize = nullptr;
 };

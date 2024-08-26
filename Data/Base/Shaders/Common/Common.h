@@ -14,7 +14,7 @@ float4 RGBA8ToFloat4(uint x)
 {
   float4 result;
   result.r = x & 0xFF;
-  result.g = (x >> 8)  & 0xFF;
+  result.g = (x >> 8) & 0xFF;
   result.b = (x >> 16) & 0xFF;
   result.a = (x >> 24) & 0xFF;
 
@@ -31,7 +31,7 @@ float3 RGB8ToFloat3(uint x)
 {
   float3 result;
   result.r = x & 0xFF;
-  result.g = (x >> 8)  & 0xFF;
+  result.g = (x >> 8) & 0xFF;
   result.b = (x >> 16) & 0xFF;
 
   return result / 255.0;
@@ -68,12 +68,12 @@ float GetLuminance(float3 color)
 
 float3 SrgbToLinear(float3 color)
 {
-  return (color < 0.04045) ? (color / 12.92) : pow(color / 1.055 + 0.0521327, 2.4);
+  return select(color < 0.04045, (color / 12.92), pow(color / 1.055 + 0.0521327, 2.4));
 }
 
 float3 LinearToSrgb(float3 color)
 {
-  return (color < 0.0031308) ? (color * 12.92) : (1.055 * pow(color, 1.0 / 2.4) - 0.055);
+  return select(color < 0.0031308, (color * 12.92), (1.055 * pow(color, 1.0 / 2.4) - 0.055));
 }
 
 float3 CubeMapDirection(float3 inDirection)

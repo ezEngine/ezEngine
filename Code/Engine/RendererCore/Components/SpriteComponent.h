@@ -51,6 +51,14 @@ public:
 
 using ezSpriteComponentManager = ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact>;
 
+/// \brief Renders a screen-oriented quad (billboard) with a maximum screen size.
+///
+/// This component is typically used to attach an icon to a game object.
+/// The sprite becomes smaller the farther away it is, but when you come closer, its screen size gets clamped to a fixed maximum.
+///
+/// It can also be used to render simple projectiles.
+///
+/// If you want to render a glow effect for a lightsource, use the ezLensFlareComponent instead.
 class EZ_RENDERERCORE_DLL ezSpriteComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpriteComponent, ezRenderComponent, ezSpriteComponentManager);
@@ -62,13 +70,11 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
 
   //////////////////////////////////////////////////////////////////////////
   // ezSpriteComponent
@@ -77,20 +83,19 @@ public:
   ezSpriteComponent();
   ~ezSpriteComponent();
 
-  void SetTexture(const ezTexture2DResourceHandle& hTexture);
-  const ezTexture2DResourceHandle& GetTexture() const;
+  void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
+  const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile() const;      // [ property ]
+  void SetColor(ezColor color);                               // [ property ]
+  ezColor GetColor() const;                                   // [ property ]
 
-  void SetColor(ezColor color); // [ property ]
-  ezColor GetColor() const;     // [ property ]
-
+  /// \brief Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]
   float GetSize() const;     // [ property ]
 
-  void SetMaxScreenSize(float fSize); // [ property ]
-  float GetMaxScreenSize() const;     // [ property ]
+  /// \brief Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
+  void SetMaxScreenSize(float fSize);         // [ property ]
+  float GetMaxScreenSize() const;             // [ property ]
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
 

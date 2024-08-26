@@ -52,8 +52,7 @@ ezQtPropertyWidget::ezQtPropertyWidget()
 
 ezQtPropertyWidget::~ezQtPropertyWidget() = default;
 
-void ezQtPropertyWidget::Init(
-  ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
+void ezQtPropertyWidget::Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
 {
   m_pGrid = pGrid;
   m_pObjectAccessor = pObjectAccessor;
@@ -62,7 +61,9 @@ void ezQtPropertyWidget::Init(
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType && m_pProp, "");
 
   if (pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
-    setEnabled(false);
+  {
+    SetReadOnly();
+  }
 
   OnInit();
 }
@@ -232,21 +233,21 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("Cannot convert clipboard and property content between arrays and members.");
+        sTemp.SetFormat("Cannot convert clipboard and property content between arrays and members.");
         pPaste->setToolTip(sTemp.GetData());
       }
       else if (bEnumerationMissmatch || (!content.m_Value.CanConvertTo(m_pProp->GetSpecificType()->GetVariantType()) && content.m_Type != m_pProp->GetSpecificType()->GetTypeName()))
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("Cannot convert clipboard of type '{}' to property of type '{}'", content.m_Type, m_pProp->GetSpecificType()->GetTypeName());
+        sTemp.SetFormat("Cannot convert clipboard of type '{}' to property of type '{}'", content.m_Type, m_pProp->GetSpecificType()->GetTypeName());
         pPaste->setToolTip(sTemp.GetData());
       }
       else if (clamped.Failed())
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.Format("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
+        sTemp.SetFormat("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
       }
 
       connect(pPaste, &QAction::triggered, this, [this, content]()
@@ -406,7 +407,7 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
     {
       if (!value.IsValid())
       {
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).IgnoreResult();
       }
       else
       {
@@ -432,6 +433,10 @@ void ezQtPropertyWidget::PrepareToDie()
   DoPrepareToDie();
 }
 
+void ezQtPropertyWidget::SetReadOnly(bool bReadOnly /*= true*/)
+{
+  setDisabled(bReadOnly);
+}
 
 void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
 {
@@ -463,7 +468,7 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
     case ezPropertyEvent::Type::SingleValueChanged:
     {
       ezStringBuilder sTemp;
-      sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      sTemp.SetFormat("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       m_pObjectAccessor->StartTransaction(sTemp);
 
       ezStatus res;
@@ -486,7 +491,7 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
     case ezPropertyEvent::Type::BeginTemporary:
     {
       ezStringBuilder sTemp;
-      sTemp.Format("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
+      sTemp.SetFormat("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       m_pObjectAccessor->BeginTemporaryCommands(sTemp);
     }
     break;
@@ -873,7 +878,7 @@ void ezQtEmbeddedClassPropertyWidget::FlushQueuedChanges()
 ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   : ezQtPropertyWidget()
 {
-  m_pLayout = new QHBoxLayout(this);
+  m_pLayout = new QVBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
   m_pGroup = nullptr;
@@ -882,7 +887,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   if (bAddCollapsibleGroup)
   {
     m_pGroup = new ezQtCollapsibleGroupBox(this);
-    m_pGroupLayout = new QHBoxLayout(nullptr);
+    m_pGroupLayout = new QVBoxLayout(nullptr);
     m_pGroupLayout->setSpacing(1);
     m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
     m_pGroup->GetContent()->setLayout(m_pGroupLayout);
@@ -910,7 +915,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
 
   ezQtPropertyWidget::SetSelection(items);
 
-  QHBoxLayout* pLayout = m_pGroup != nullptr ? m_pGroupLayout : m_pLayout;
+  QVBoxLayout* pLayout = m_pGroup != nullptr ? m_pGroupLayout : m_pLayout;
   QWidget* pOwner = m_pGroup != nullptr ? m_pGroup->GetContent() : this;
   if (m_pTypeWidget)
   {
@@ -1266,7 +1271,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
   }
 
-  m_Elements.Insert(Element(pSubGroup, pNewWidget, pHelpButton), index);
+  m_Elements.InsertAt(index, Element(pSubGroup, pNewWidget, pHelpButton));
   return m_Elements[index];
 }
 
@@ -1395,7 +1400,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
     if (element.m_pWidget)
     {
       element.m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
-      element.m_pSubGroup->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+      element.m_pWidget->SetReadOnly(bReadOnly || state == ezPropertyUiState::Disabled);
       element.m_pWidget->SetIsDefault(bIsDefault);
     }
   }
@@ -1566,9 +1571,9 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 
   ezStringBuilder sTitle;
   if (m_pProp->GetCategory() == ezPropertyCategory::Map)
-    sTitle.Format("{0}", m_Keys[index].ConvertTo<ezString>());
+    sTitle.SetFormat("{0}", m_Keys[index].ConvertTo<ezString>());
   else
-    sTitle.Format("[{0}]", m_Keys[index].ConvertTo<ezString>());
+    sTitle.SetFormat("[{0}]", m_Keys[index].ConvertTo<ezString>());
 
   elem.m_pSubGroup->SetTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
@@ -1630,7 +1635,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     // Label
     {
       ezStringBuilder sTitle, tmp;
-      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
+      sTitle.SetFormat("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
 
       if (auto pInDev = pCommonType->GetAttributeByType<ezInDevelopmentAttribute>())
       {
@@ -1750,6 +1755,7 @@ ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
   setLayout(m_pLayout);
 
   m_pTypeList = new QComboBox(this);
+  m_pTypeList->installEventFilter(this);
   m_pTypeList->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pTypeList);
 }

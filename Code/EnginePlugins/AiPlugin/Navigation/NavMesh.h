@@ -14,7 +14,7 @@
 
 using ezDataBuffer = ezDynamicArray<ezUInt8>;
 
-class ezPhysicsWorldModuleInterface;
+class ezNavmeshGeoWorldModuleInterface;
 class dtNavMesh;
 
 /// \brief Stores indices for a triangle.
@@ -71,7 +71,7 @@ class EZ_AIPLUGIN_DLL ezAiNavMesh final
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAiNavMesh);
 
 public:
-  ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig);
+  ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig);
   ~ezAiNavMesh();
 
   using SectorID = ezUInt32;
@@ -95,16 +95,30 @@ public:
   /// Returns true, if all the sectors are already available, false when any of them needs to be built first.
   bool RequestSector(const ezVec2& vCenter, const ezVec2& vHalfExtents);
 
-  // void InvalidateSector(SectorID sectorID);
+  /// \brief Marks the sector as invalidated.
+  ///
+  /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
+  /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
+  /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
+  void InvalidateSector(SectorID sectorID, bool bRebuildAsSoonAsPossible);
+
+  /// \brief Marks all sectors within the given rectangle as invalidated.
+  ///
+  /// Invalidated sectors are considered out of date and must be rebuilt before they can be used again.
+  /// If bRebuildAsSoonAsPossible is true, the sector is queued to be rebuilt as soon as possible.
+  /// Otherwise, it will be unloaded and will not be rebuilt until it is requested again.
+  void InvalidateSector(const ezVec2& vCenter, const ezVec2& vHalfExtents, bool bRebuildAsSoonAsPossible);
 
   void FinalizeSectorUpdates();
 
   SectorID RetrieveRequestedSector();
-  void BuildSector(SectorID sectorID, const ezPhysicsWorldModuleInterface* pPhysics);
+  void BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleInterface* pGeo);
 
   const dtNavMesh* GetDetourNavMesh() const { return m_pNavMesh; }
 
   void DebugDraw(ezDebugRendererContext context, const ezAiNavigationConfig& config);
+
+  const ezAiNavmeshConfig& GetConfig() const { return m_NavmeshConfig; }
 
 private:
   void DebugDrawSector(ezDebugRendererContext context, const ezAiNavigationConfig& config, int iTileIdx);
@@ -119,8 +133,9 @@ private:
   dtNavMesh* m_pNavMesh = nullptr;
   ezMap<SectorID, ezAiNavMeshSector> m_Sectors;
   ezDeque<SectorID> m_RequestedSectors;
-  // ezHybridArray<SectorID, 32> m_InvalidatedSectors;
 
   ezMutex m_Mutex;
   ezDynamicArray<SectorID> m_UpdatingSectors;
+
+  ezDynamicArray<SectorID> m_UnloadingSectors;
 };

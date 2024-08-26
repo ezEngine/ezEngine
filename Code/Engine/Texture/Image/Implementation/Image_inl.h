@@ -80,5 +80,6 @@ template <typename T>
 void ezImageView::ValidateDataTypeAccessor(ezUInt32 uiPlaneIndex) const
 {
   ezUInt32 bytesPerBlock = ezImageFormat::GetBitsPerBlock(GetImageFormat(), uiPlaneIndex) / 8;
+  EZ_IGNORE_UNUSED(bytesPerBlock);
   EZ_ASSERT_DEV(bytesPerBlock % ezImageSizeofHelper<T>::Size == 0, "Accessor type is not suitable for interpreting contained data");
 }

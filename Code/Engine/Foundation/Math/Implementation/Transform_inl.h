@@ -77,7 +77,7 @@ EZ_ALWAYS_INLINE Type ezTransformTemplate<Type>::GetMaxScale() const
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsNegativeScale() const
+EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::HasMirrorScaling() const
 {
   return (m_vScale.x * m_vScale.y * m_vScale.z) < 0.0f;
 }
@@ -99,6 +99,12 @@ template <typename Type>
 inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, Type fEpsilon) const
 {
   return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_qRotation.IsEqualRotation(rhs.m_qRotation, fEpsilon) && m_vScale.IsEqual(rhs.m_vScale, fEpsilon);
+}
+
+template <typename Type>
+inline bool ezTransformTemplate<Type>::IsValid() const
+{
+  return m_vPosition.IsValid() && m_qRotation.IsValid(0.005f) && m_vScale.IsValid();
 }
 
 template <typename Type>

@@ -37,25 +37,25 @@ static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branch
     case ezKrautBranchType::Trunk1:
     case ezKrautBranchType::Trunk2:
     case ezKrautBranchType::Trunk3:
-      ref_sOut.Format("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
+      ref_sOut.SetFormat("Trunk {}", (int)branchType - (int)ezKrautBranchType::Trunk1 + 1);
       break;
 
     case ezKrautBranchType::MainBranches1:
     case ezKrautBranchType::MainBranches2:
     case ezKrautBranchType::MainBranches3:
-      ref_sOut.Format("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
+      ref_sOut.SetFormat("Branch {}", (int)branchType - (int)ezKrautBranchType::MainBranches1 + 1);
       break;
 
     case ezKrautBranchType::SubBranches1:
     case ezKrautBranchType::SubBranches2:
     case ezKrautBranchType::SubBranches3:
-      ref_sOut.Format("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
+      ref_sOut.SetFormat("Twig {}", (int)branchType - (int)ezKrautBranchType::SubBranches1 + 1);
       break;
 
     case ezKrautBranchType::Twigs1:
     case ezKrautBranchType::Twigs2:
     case ezKrautBranchType::Twigs3:
-      ref_sOut.Format("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
+      ref_sOut.SetFormat("Twigy {}", (int)branchType - (int)ezKrautBranchType::Twigs1 + 1);
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
@@ -235,7 +235,7 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFil
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDocument*& out_pGeneratedDocument)
+ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
@@ -246,12 +246,13 @@ ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs,
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
 
-  out_pGeneratedDocument = pApp->CreateDocument(sInputFileAbs, ezDocumentFlags::None);
-
-  if (out_pGeneratedDocument == nullptr)
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
     return ezStatus("Could not create target document");
 
-  ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(out_pGeneratedDocument);
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezKrautTreeAssetDocument* pAssetDoc = ezDynamicCast<ezKrautTreeAssetDocument*>(pDoc);
 
   if (pAssetDoc == nullptr)
     return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");

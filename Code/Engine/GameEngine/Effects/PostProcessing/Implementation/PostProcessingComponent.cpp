@@ -175,7 +175,7 @@ void ezPostProcessingComponent::Mappings_SetMapping(ezUInt32 i, const ezPostProc
 
 void ezPostProcessingComponent::Mappings_Insert(ezUInt32 uiIndex, const ezPostProcessingValueMapping& mapping)
 {
-  m_Mappings.Insert(mapping, uiIndex);
+  m_Mappings.InsertAt(uiIndex, mapping);
 
   RegisterSamplerValues();
 }
@@ -273,4 +273,3 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_PostProcessing_Implementation_PostProcessingComponent);
-

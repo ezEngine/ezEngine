@@ -204,6 +204,8 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
 
 ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
+  EZ_IGNORE_UNUSED(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
   EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
   return EZ_SUCCESS;
@@ -259,4 +261,3 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
 }
 
 
-EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_TextureDX11);

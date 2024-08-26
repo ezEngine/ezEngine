@@ -74,5 +74,3 @@ ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatial
 ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic", ezSpatialData::Flags::FrequentChanges);
 ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionStatic = ezSpatialData::RegisterCategory("OcclusionStatic", ezSpatialData::Flags::None);
 ezSpatialData::Category ezDefaultSpatialDataCategories::OcclusionDynamic = ezSpatialData::RegisterCategory("OcclusionDynamic", ezSpatialData::Flags::FrequentChanges);
-
-

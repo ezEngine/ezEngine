@@ -9,6 +9,9 @@ struct ezMsgUpdateLocalBounds;
 struct ezMsgComponentInternalTrigger;
 struct ezMsgDeleteGameObject;
 
+/// \brief Base class for components that define volumes in which a camera shake effect shall be applied.
+///
+/// Derived classes implement different shape types and how the shake strength is calculated.
 class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezCameraShakeVolumeComponent, ezComponent);
@@ -32,15 +35,22 @@ public:
   ezCameraShakeVolumeComponent();
   ~ezCameraShakeVolumeComponent();
 
+  /// \brief The spatial category used to find camera shake volume components through the spatial system.
   static ezSpatialData::Category SpatialDataCategory;
 
+  /// \brief How long a shake burst should last. Zero for constant shaking.
   ezTime m_BurstDuration; // [ property ]
-  float m_fStrength;      // [ property ]
 
+  /// \brief How strong the shake should be at the strongest point. Typically a value between one and zero.
+  float m_fStrength; // [ property ]
+
+  /// \brief Calculates the shake strength at the given global position.
   float ComputeForceAtGlobalPosition(const ezSimdVec4f& vGlobalPos) const;
 
+  /// \brief Calculates the shake strength in local space of the component.
   virtual float ComputeForceAtLocalPosition(const ezSimdVec4f& vLocalPos) const = 0;
 
+  /// \brief In case of a burst shake, defines whether the component should delete itself afterwards.
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
 protected:
@@ -54,6 +64,12 @@ protected:
 
 using ezCameraShakeVolumeSphereComponentManager = ezComponentManager<class ezCameraShakeVolumeSphereComponent, ezBlockStorageType::Compact>;
 
+/// \brief A spherical volume in which a camera shake will be applied.
+///
+/// The shake strength is strongest at the center of the sphere and gradually weaker towards the sphere radius.
+///
+/// \see ezCameraShakeVolumeComponent
+/// \see ezCameraShakeComponent
 class EZ_GAMECOMPONENTS_DLL ezCameraShakeVolumeSphereComponent : public ezCameraShakeVolumeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezCameraShakeVolumeSphereComponent, ezCameraShakeVolumeComponent, ezCameraShakeVolumeSphereComponentManager);

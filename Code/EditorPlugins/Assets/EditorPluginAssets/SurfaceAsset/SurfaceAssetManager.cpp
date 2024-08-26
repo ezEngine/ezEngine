@@ -19,7 +19,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezSurface";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinSurface";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.svg"));

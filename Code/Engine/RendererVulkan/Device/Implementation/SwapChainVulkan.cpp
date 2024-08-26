@@ -3,7 +3,6 @@
 #include <Core/System/Window.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
@@ -69,16 +68,10 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   EZ_ASSERT_DEV(!m_currentPipelineImageAvailableSemaphore, "Pipeline semaphores leaked");
   m_currentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
-  if (m_swapChainImageInUseFences[m_uiCurrentSwapChainImage])
-  {
-    // #TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
-    //  m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
-    m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = nullptr;
-  }
-
   int retryCount = 0;
   while (true)
   {
+    // #TODO_VULKAN We leave the fence parameter blank as we do not care on the CPU whether a swap chain image is still in use or not. Currently, we daisy-chain each frame to the previous frame's semaphore. Not sure if this won't break if we stop doing that. If we call acquireNextImageKHR, can we be sure that the image is no longer in use?
     vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
     {
@@ -121,6 +114,11 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 #endif
 
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
+
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+  // pVulkanDevice->Submit();
+  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+  pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
 }
 
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
@@ -138,11 +136,9 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   // Submit command buffer
   vk::Semaphore currentPipelineRenderFinishedSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
-  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+
   pVulkanDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(currentPipelineRenderFinishedSemaphore));
-  vk::Fence renderFence = pVulkanDevice->Submit();
-  //vk::Fence renderFence = pVulkanDevice->Submit(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput, currentPipelineRenderFinishedSemaphore);
-  pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
+  pVulkanDevice->Submit();
 
   {
     // Present image
@@ -158,8 +154,6 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
 #ifdef VK_LOG_LAYOUT_CHANGES
     ezLog::Warning("PresentInfoKHR {}", ezArgP(m_swapChainImages[m_uiCurrentSwapChainImage]));
 #endif
-
-    m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = renderFence;
   }
 
   pVulkanDevice->ReclaimLater(currentPipelineRenderFinishedSemaphore);
@@ -220,6 +214,10 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));
   m_vulkanSurface = glfwSurface;
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  vk::AndroidSurfaceCreateInfoKHR info;
+  info.window = reinterpret_cast<ANativeWindow*>(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanInstance().createAndroidSurfaceKHR(&info, nullptr, &m_vulkanSurface));
 #else
 #  error Platform not supported
 #endif
@@ -312,7 +310,16 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
 
   vk::SwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.clipped = VK_FALSE;
-  swapChainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+  vk::CompositeAlphaFlagBitsKHR preferredCompositeMode[] = {vk::CompositeAlphaFlagBitsKHR::eOpaque, vk::CompositeAlphaFlagBitsKHR::eInherit, vk::CompositeAlphaFlagBitsKHR::ePreMultiplied, vk::CompositeAlphaFlagBitsKHR::ePostMultiplied};
+  for (auto cm : preferredCompositeMode)
+  {
+    if (surfaceCapabilities.supportedCompositeAlpha & cm)
+    {
+      swapChainCreateInfo.compositeAlpha = cm;
+      break;
+    }
+  }
+
   swapChainCreateInfo.imageArrayLayers = 1;
   swapChainCreateInfo.imageColorSpace = desiredColorSpace;
   swapChainCreateInfo.imageExtent.width = m_WindowDesc.m_pWindow->GetClientAreaSize().width;
@@ -355,9 +362,6 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, nullptr));
   m_swapChainImages.SetCount(uiSwapChainImages);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, m_swapChainImages.GetData()));
-
-  EZ_ASSERT_DEV(uiSwapChainImages < 4, "If we have more than 3 swap chain images we can't hold ontp fences owned by ezDeviceVulkan::PerFrameData anymore as that reclaims all fences once it reuses the frame data (which is 4 right now). Thus, we can't safely pass in the fence in ezGALSwapChainVulkan::PresentRenderTarget as it will be reclaimed before we use it.");
-  m_swapChainImageInUseFences.SetCount(uiSwapChainImages);
 
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
@@ -405,5 +409,3 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_SwapChainVulkan);

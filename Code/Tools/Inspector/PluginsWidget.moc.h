@@ -34,4 +34,3 @@ private:
   bool m_bUpdatePlugins;
   ezMap<ezString, PluginsData> m_Plugins;
 };
-

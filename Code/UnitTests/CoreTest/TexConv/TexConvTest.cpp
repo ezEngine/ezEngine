@@ -48,7 +48,7 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     return EZ_SUCCESS;
   }
@@ -68,9 +68,9 @@ private:
   void RunTexConv(ezProcessOptions& options, const char* szOutName)
   {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    const char* szTexConvExecutableName = "TexConv.exe";
+    const char* szTexConvExecutableName = "ezTexConv.exe";
 #  else
-    const char* szTexConvExecutableName = "TexConv";
+    const char* szTexConvExecutableName = "ezTexConv";
 #  endif
     ezStringBuilder sTexConvExe = ezOSFile::GetApplicationDirectory();
     sTexConvExe.AppendPath(szTexConvExecutableName);
@@ -95,7 +95,13 @@ private:
 
     EZ_TEST_INT_MSG(m_pState->m_TexConvGroup.GetProcesses().PeekBack().GetExitCode(), 0, "TexConv failed to process the image");
 
-    m_pState->m_image.LoadFrom(sOut).IgnoreResult();
+    if (!EZ_TEST_BOOL_MSG(m_pState->m_image.LoadFrom(sOut).Succeeded(), "Failed to load converted image"))
+      return;
+
+    ezByteBlobPtr rawImgData = m_pState->m_image.GetByteBlobPtr();
+    ezUInt64 rawDataHash = ezHashingUtils::xxHash64(rawImgData.GetPtr(), rawImgData.GetCount(), 1234);
+    // The [test] tag tells the UnitTest to actually output this:
+    ezLog::Info("[test]Converted file '{0}' has raw data hash: 0x{1}", szOutName, ezArgU(rawDataHash, 16, true, 16, false));
   }
 
   struct State

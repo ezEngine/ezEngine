@@ -1,10 +1,11 @@
 #include <TexConv/TexConvPCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/StbImageFileFormats.h>
+#include <Texture/Image/ImageUtils.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 ezTexConv::ezTexConv()
@@ -22,7 +23,7 @@ ezResult ezTexConv::BeforeCoreSystemsStartup()
 
 void ezTexConv::AfterCoreSystemsStartup()
 {
-  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -69,7 +70,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = false;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURE2D")
+  if (sExt == "EZBINTEXTURE2D")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -80,7 +81,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURE3D")
+  if (sExt == "EZBINTEXTURE3D")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = true;
@@ -91,7 +92,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTURECUBE")
+  if (sExt == "EZBINTEXTURECUBE")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -102,7 +103,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZTEXTUREATLAS")
+  if (sExt == "EZBINTEXTUREATLAS")
   {
     m_bOutputSupports2D = false;
     m_bOutputSupports3D = false;
@@ -113,7 +114,7 @@ ezResult ezTexConv::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "EZIMAGEDATA")
+  if (sExt == "EZBINIMAGEDATA")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -164,7 +165,7 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& im
 
 ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
 {
-  if (sFile.HasExtension("ezImageData"))
+  if (sFile.HasExtension("ezBinImageData"))
   {
     ezDeferredFileWriter file;
     file.SetOutput(sFile);
@@ -215,73 +216,115 @@ ezApplication::Execution ezTexConv::Run()
   if (ParseCommandLine().Failed())
     return ezApplication::Execution::Quit;
 
-  if (m_Processor.Process().Failed())
-    return ezApplication::Execution::Quit;
-
-  if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
+  if (m_Mode == ezTexConvMode::Compare)
   {
-    ezDeferredFileWriter file;
-    file.SetOutput(m_sOutputFile);
-
-    ezAssetFileHeader header;
-    header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
-
-    header.Write(file).IgnoreResult();
-
-    m_Processor.m_TextureAtlas.CopyToStream(file).IgnoreResult();
-
-    if (file.Close().Succeeded())
-    {
-      SetReturnCode(0);
-    }
-    else
-    {
-      ezLog::Error("Failed to write atlas output image.");
-    }
-
-    return ezApplication::Execution::Quit;
-  }
-
-  if (!m_sOutputFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
-  {
-    if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
-    {
-      ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
+    if (m_Comparer.Compare().Failed())
       return ezApplication::Execution::Quit;
-    }
 
-    ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
-  }
+    SetReturnCode(0);
 
-  if (!m_sOutputThumbnailFile.IsEmpty() && m_Processor.m_ThumbnailOutputImage.IsValid())
-  {
-    if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
+    if (m_Comparer.m_bExceededMSE)
     {
-      ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
-      return ezApplication::Execution::Quit;
-    }
+      SetReturnCode(m_Comparer.m_OutputMSE);
 
-    ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
-  }
-
-  if (!m_sOutputLowResFile.IsEmpty())
-  {
-    // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
-    ezOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
-
-    if (m_Processor.m_LowResOutputImage.IsValid())
-    {
-      if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
+      if (!m_sOutputFile.IsEmpty())
       {
-        ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
+        ezStringBuilder tmp;
+
+        tmp.Set(m_sOutputFile, "-rgb.png");
+        m_Comparer.m_OutputImageDiffRgb.SaveTo(tmp).IgnoreResult();
+
+        tmp.Set(m_sOutputFile, "-alpha.png");
+        m_Comparer.m_OutputImageDiffAlpha.SaveTo(tmp).IgnoreResult();
+
+        if (!m_sHtmlTitle.IsEmpty())
+        {
+          tmp.Set(m_sOutputFile, ".htm");
+
+          ezFileWriter file;
+          if (file.Open(tmp).Succeeded())
+          {
+            ezStringBuilder html;
+
+            ezImageUtils::CreateImageDiffHtml(html, m_sHtmlTitle, m_Comparer.m_ExtractedExpectedRgb, m_Comparer.m_ExtractedExpectedAlpha, m_Comparer.m_ExtractedActualRgb, m_Comparer.m_ExtractedActualAlpha, m_Comparer.m_OutputImageDiffRgb, m_Comparer.m_OutputImageDiffAlpha, m_Comparer.m_OutputMSE, m_Comparer.m_Descriptor.m_MeanSquareErrorThreshold, m_Comparer.m_uiOutputMinDiffRgb, m_Comparer.m_uiOutputMaxDiffRgb, m_Comparer.m_uiOutputMinDiffAlpha, m_Comparer.m_uiOutputMaxDiffAlpha);
+
+            file.WriteBytes(html.GetData(), html.GetElementCount()).AssertSuccess();
+          }
+        }
+      }
+    }
+  }
+  else
+  {
+    if (m_Processor.Process().Failed())
+      return ezApplication::Execution::Quit;
+
+    if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
+    {
+      ezDeferredFileWriter file;
+      file.SetOutput(m_sOutputFile);
+
+      ezAssetFileHeader header;
+      header.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
+
+      header.Write(file).IgnoreResult();
+
+      m_Processor.m_TextureAtlas.CopyToStream(file).IgnoreResult();
+
+      if (file.Close().Succeeded())
+      {
+        SetReturnCode(0);
+      }
+      else
+      {
+        ezLog::Error("Failed to write atlas output image.");
+      }
+
+      return ezApplication::Execution::Quit;
+    }
+
+    if (!m_sOutputFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
+    {
+      if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
+      {
+        ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
         return ezApplication::Execution::Quit;
       }
 
-      ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
+      ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
     }
+
+    if (!m_sOutputThumbnailFile.IsEmpty() && m_Processor.m_ThumbnailOutputImage.IsValid())
+    {
+      if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
+      {
+        ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
+        return ezApplication::Execution::Quit;
+      }
+
+      ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
+    }
+
+    if (!m_sOutputLowResFile.IsEmpty())
+    {
+      // the image may not exist, if we do not have enough mips, so make sure any old low-res file is cleaned up
+      ezOSFile::DeleteFile(m_sOutputLowResFile).IgnoreResult();
+
+      if (m_Processor.m_LowResOutputImage.IsValid())
+      {
+        if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
+        {
+          ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
+          return ezApplication::Execution::Quit;
+        }
+
+        ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
+      }
+    }
+
+    SetReturnCode(0);
   }
 
-  SetReturnCode(0);
   return ezApplication::Execution::Quit;
 }
 

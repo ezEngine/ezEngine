@@ -5,6 +5,14 @@
           android:versionCode="1"
           android:versionName="1.0">
 
+  <!-- 26 Introduces Vulkan 1.0, 29 requires Vulkan 1.1 -->
+  <uses-sdk
+	android:minSdkVersion="29"
+	android:targetSdkVersion="29" />
+  <!-- Permissions -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
   <!-- This .apk has no Java code itself, so set hasCode to false.-->
   <application
       android:debuggable="true"
@@ -16,7 +24,8 @@
          This will take care of integrating with our NDK code. -->
     <activity android:name="android.app.NativeActivity"
               android:label="@string/app_name"
-              android:configChanges="orientation|keyboardHidden">
+			  android:screenOrientation="landscape"
+              android:configChanges="orientation|keyboardHidden|screenSize">
       <!-- Tell NativeActivity the name of our .so -->
       <meta-data android:name="android.app.lib_name"
                  android:value="${TARGET_NAME}" />

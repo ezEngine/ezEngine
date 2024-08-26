@@ -51,6 +51,12 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshBoneWeigthPrecision, 1)
   EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_16Bit),
   EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_32Bit),
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshVertexColorConversion, 1)
+  EZ_ENUM_CONSTANT(ezMeshVertexColorConversion::None),
+  EZ_ENUM_CONSTANT(ezMeshVertexColorConversion::LinearToSrgb),
+  EZ_ENUM_CONSTANT(ezMeshVertexColorConversion::SrgbToLinear),
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static

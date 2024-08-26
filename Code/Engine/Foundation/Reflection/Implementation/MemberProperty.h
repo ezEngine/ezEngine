@@ -24,7 +24,7 @@ public:
     : ezAbstractMemberProperty(szPropertyName)
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
-    EZ_CHECK_AT_COMPILETIME_MSG(
+    static_assert(
       !std::is_pointer<Type>::value ||
         ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value == ezVariantType::Invalid,
       "Pointer to standard types are not supported.");
@@ -105,6 +105,8 @@ public:
   /// others.
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
+    EZ_IGNORE_UNUSED(pInstance);
+
     // No access to sub-properties, if we have accessors for this property
     return nullptr;
   }

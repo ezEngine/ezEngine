@@ -207,5 +207,3 @@ EZ_RENDERERCORE_DLL void ezOzzUtils::CopySkeleton(ozz::animation::Skeleton* pDst
     ozzArchive >> *pDst;
   }
 }
-
-

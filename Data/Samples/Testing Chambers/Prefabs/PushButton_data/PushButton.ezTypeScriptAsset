@@ -14,7 +14,7 @@ o
 			s{"Prefabs/PushButton_data/PushButton.ts"}
 		}
 		Uuid %DocumentID{u4{14024572347157366953,5392666905430495908}}
-		u4 %Hash{11008996019959780410}
+		u4 %Hash{10511480999735167795}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7333557021333519745,6441903689223483449}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/PushButton_data/PushButton.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

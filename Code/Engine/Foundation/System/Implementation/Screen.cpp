@@ -1,6 +1,5 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/System/PlatformFeatures.h>
 #include <Foundation/System/Screen.h>
 
 void ezScreen::PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ezLogInterface* pLog /*= ezLog::GetThreadLocalLogSystem()*/)
@@ -14,5 +13,3 @@ void ezScreen::PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ez
     ezLog::Dev(pLog, "'{0}': Offset = ({1}, {2}), Resolution = ({3}, {4}){5}", screen.m_sDisplayName, screen.m_iOffsetX, screen.m_iOffsetY, screen.m_iResolutionX, screen.m_iResolutionY, screen.m_bIsPrimary ? " (primary)" : "");
   }
 }
-
-

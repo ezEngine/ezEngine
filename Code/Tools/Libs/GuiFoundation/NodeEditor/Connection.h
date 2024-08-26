@@ -35,6 +35,9 @@ public:
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
+  // Draws connections following the rules of subway maps (angles of 45 degrees only).
+  void DrawSubwayPath(QPainterPath& path, const QPointF& startPoint, const QPointF& endPoint);
+
   const ezDocumentObject* m_pObject = nullptr;
   const ezConnection* m_pConnection = nullptr;
 

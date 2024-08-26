@@ -161,7 +161,7 @@ ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   // TODO conservative raster extension
   // TODO scissor test is always enabled for vulkan
-  //const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
+  // const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
 
   m_rasterizerState.cullMode = GALCullModeToVulkan[m_Description.m_CullMode];
   m_rasterizerState.depthBiasClamp = m_Description.m_fDepthBiasClamp;
@@ -262,5 +262,3 @@ ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_resourceImageInfo.sampler);
   return EZ_SUCCESS;
 }
-
-EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_State_Implementation_StateVulkan);

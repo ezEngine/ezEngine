@@ -3,7 +3,7 @@
 template <typename Type>
 EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
@@ -51,13 +51,13 @@ EZ_ALWAYS_INLINE void ezVec3Template<Type>::SetZero()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
 {
   return (ezMath::Sqrt(GetLengthSquared()));
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec3Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
     return EZ_FAILURE;
@@ -75,7 +75,7 @@ EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthSquared() const
 }
 
 template <typename Type>
-EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthAndNormalize()
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthAndNormalize()
 {
   const Type fLength = GetLength();
   *this /= fLength;
@@ -83,7 +83,7 @@ EZ_FORCE_INLINE Type ezVec3Template<Type>::GetLengthAndNormalize()
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::GetNormalized() const
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::GetNormalized() const
 {
   const Type fLen = GetLength();
 
@@ -92,13 +92,13 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::GetNormalized()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec3Template<Type>::Normalize()
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE void ezVec3Template<Type>::Normalize()
 {
   *this /= GetLength();
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::NormalizeIfNotZero(const ezVec3Template<Type>& vFallback, Type fEpsilon)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::NormalizeIfNotZero(const ezVec3Template<Type>& vFallback, Type fEpsilon)
 {
   EZ_NAN_ASSERT(&vFallback);
 
@@ -118,7 +118,7 @@ ezResult ezVec3Template<Type>::NormalizeIfNotZero(const ezVec3Template<Type>& vF
   length is between a lower and upper limit.
 */
 template <typename Type>
-EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLengthSquared();
   return ezMath::IsEqual(t, (Type)1, fEpsilon);
@@ -231,25 +231,33 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator*=(Type f)
 template <typename Type>
 EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
 {
-  const Type f_inv = ezMath::Invert(f);
-
-  x *= f_inv;
-  y *= f_inv;
-  z *= f_inv;
+  if constexpr (std::is_floating_point_v<Type>)
+  {
+    const Type f_inv = ezMath::Invert(f);
+    x *= f_inv;
+    y *= f_inv;
+    z *= f_inv;
+  }
+  else
+  {
+    x /= f;
+    y /= f;
+    z /= f;
+  }
 
   // if this assert fires, you might have tried to normalize a zero-length vector
   EZ_NAN_ASSERT(this);
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
   *this = (v3 - v2).CrossRH(v1 - v2);
   return NormalizeIfNotZero();
 }
 
 template <typename Type>
-void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
+EZ_IMPLEMENT_IF_FLOAT_TYPE void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
   EZ_ASSERT_DEBUG(
     vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
@@ -259,7 +267,7 @@ void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
+EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 {
   EZ_ASSERT_DEBUG(!IsZero(ezMath::SmallEpsilon<Type>()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
@@ -271,7 +279,7 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const
+EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
@@ -398,9 +406,16 @@ EZ_FORCE_INLINE const ezVec3Template<Type> operator/(const ezVec3Template<Type>&
 {
   EZ_NAN_ASSERT(&v);
 
-  // multiplication is much faster than division
-  const Type f_inv = ezMath::Invert(f);
-  return ezVec3Template<Type>(v.x * f_inv, v.y * f_inv, v.z * f_inv);
+  if constexpr (std::is_floating_point_v<Type>)
+  {
+    // multiplication is much faster than division
+    const Type f_inv = ezMath::Invert(f);
+    return ezVec3Template<Type>(v.x * f_inv, v.y * f_inv, v.z * f_inv);
+  }
+  else
+  {
+    return ezVec3Template<Type>(v.x / f, v.y / f, v.z / f);
+  }
 }
 
 template <typename Type>
@@ -452,7 +467,7 @@ EZ_FORCE_INLINE bool operator<(const ezVec3Template<Type>& v1, const ezVec3Templ
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
+EZ_IMPLEMENT_IF_FLOAT_TYPE const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 

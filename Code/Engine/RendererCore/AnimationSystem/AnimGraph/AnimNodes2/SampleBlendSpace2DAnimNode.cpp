@@ -151,17 +151,13 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
+  if (m_InStart.IsTriggered(ref_graph))
   {
     pState->m_CenterPlaybackTime = ezTime::MakeZero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
-    pState->m_bPlaying = true;
 
     m_OutOnStarted.SetTriggered(ref_graph);
   }
-
-  if (!pState->m_bPlaying)
-    return;
 
   const float x = static_cast<float>(m_InCoordX.GetNumber(ref_graph));
   const float y = static_cast<float>(m_InCoordY.GetNumber(ref_graph));
@@ -182,19 +178,21 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   ezUInt32 uiMaxWeightClip = 0;
   ezHybridArray<ClipToPlay, 8> clips;
-  ComputeClipsAndWeights(centerInfo, ezVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
+  ComputeClipsAndWeights(ref_controller, centerInfo, ezVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
 
   PlayClips(ref_controller, centerInfo, pState, ref_graph, tDiff, clips, uiMaxWeightClip);
 }
 
-void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& clips, ezUInt32& out_uiMaxWeightClip) const
+void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& clips, ezUInt32& out_uiMaxWeightClip) const
 {
   out_uiMaxWeightClip = 0;
   float fMaxWeight = -1.0f;
 
   if (m_Clips.GetCount() == 1 && !centerInfo.m_hClip.IsValid())
   {
-    clips.ExpandAndGetRef().m_uiIndex = 0;
+    auto& clip = clips.ExpandAndGetRef();
+    clip.m_uiIndex = 0;
+    clip.m_pClipInfo = &centerInfo;
   }
   else
   {
@@ -205,6 +203,10 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController
 
     for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
     {
+      const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_Clips[i].m_sClip);
+      if (!clipInfo.m_hClip.IsValid())
+        continue;
+
       const ezVec2 pi = m_Clips[i].m_vPosition;
       float fMinWeight = 1.0f;
 
@@ -242,6 +244,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController
         auto& c = clips.ExpandAndGetRef();
         c.m_uiIndex = i;
         c.m_fWeight = fMinWeight;
+        c.m_pClipInfo = &clipInfo;
 
         fWeightNormalization += fMinWeight;
       }
@@ -272,6 +275,7 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController
         auto& c = clips.ExpandAndGetRef();
         c.m_uiIndex = 0xFFFFFFFF;
         c.m_fWeight = fMinWeight;
+        c.m_pClipInfo = &centerInfo;
 
         fWeightNormalization += fMinWeight;
       }
@@ -313,7 +317,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
 
     const ezHashedString sClip = c.m_uiIndex >= 0xFF ? m_sCenterClip : m_Clips[c.m_uiIndex].m_sClip;
 
-    const auto& clipInfo = ref_controller.GetAnimationClipInfo(sClip);
+    const auto& clipInfo = *clips[i].m_pClipInfo;
 
     ezResourceLock<ezAnimationClipResource> pClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
 
@@ -361,8 +365,16 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     else
     {
       pState->m_fOtherPlaybackPosNorm = 1.0f;
-      pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(ref_graph);
+
+      if (fPrevPlaybackPosNorm < 1.0f)
+      {
+        m_OutOnFinished.SetTriggered(ref_graph);
+      }
+      else
+      {
+        eventSampling = ezAnimPoseEventTrackSampleMode::None;
+      }
+
       break;
     }
   }
@@ -447,4 +459,3 @@ bool ezSampleBlendSpace2DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleBlendSpace2DAnimNode);
-

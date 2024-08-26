@@ -1,10 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
@@ -116,7 +116,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
     pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTexture3D") || sAbsolutePath.HasExtension("ezTextureCube") || sAbsolutePath.HasExtension("ezRenderTarget") || sAbsolutePath.HasExtension("ezLUT"))
+    if (sAbsolutePath.HasExtension("ezBinTexture2D") || sAbsolutePath.HasExtension("ezBinTexture3D") || sAbsolutePath.HasExtension("ezBinTextureCube") || sAbsolutePath.HasExtension("ezBinRenderTarget") || sAbsolutePath.HasExtension("ezBinLUT"))
     {
       if (LoadTexFile(File, *pData).Failed())
         return res;

@@ -18,10 +18,10 @@ ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
 
 void ezFmodActions::RegisterActions()
 {
-  s_hCategoryFmod = EZ_REGISTER_CATEGORY("Fmod");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
-  s_hMuteSound = EZ_REGISTER_ACTION_1("Fmod.Mute", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
-  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
+  s_hCategoryFmod = EZ_REGISTER_CATEGORY("FMOD");
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("FMOD.Settings.Project", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
+  s_hMuteSound = EZ_REGISTER_ACTION_1("FMOD.Mute", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
+  s_hMasterVolume = EZ_REGISTER_ACTION_1("FMOD.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()
@@ -38,11 +38,11 @@ void ezFmodActions::MapMenuActions(ezStringView sMapping)
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryFmod, "G.Plugins.Settings", 9.0f);
-  pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "Fmod", 0.0f);
+  pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "FMOD", 0.0f);
 
   pMap->MapAction(s_hCategoryFmod, "G.Scene", 5.0f);
-  pMap->MapAction(s_hMuteSound, "G.Scene", "Fmod", 0.0f);
-  pMap->MapAction(s_hMasterVolume, "G.Scene", "Fmod", 1.0f);
+  pMap->MapAction(s_hMuteSound, "G.Scene", "FMOD", 0.0f);
+  pMap->MapAction(s_hMasterVolume, "G.Scene", "FMOD", 1.0f);
 }
 
 void ezFmodActions::MapToolbarActions(ezStringView sMapping)
@@ -51,7 +51,7 @@ void ezFmodActions::MapToolbarActions(ezStringView sMapping)
   EZ_ASSERT_DEV(pSceneMap != nullptr, "Mapping the actions failed!");
 
   pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
-  pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);
+  pSceneMap->MapAction(s_hMuteSound, "FMOD", 0.0f);
 }
 
 ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)

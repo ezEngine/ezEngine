@@ -6,13 +6,15 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
 
 const char* ezTestBaseClass::GetSubTestName(ezInt32 iIdentifier) const
 {
-  if (iIdentifier < 0 || static_cast<std::size_t>(iIdentifier) > m_Entries.size())
+  const ezInt32 entryIndex = FindEntryForIdentifier(iIdentifier);
+
+  if (entryIndex < 0)
   {
     ezLog::Error("Tried to access retrieve sub-test name using invalid identifier.");
     return "";
   }
 
-  return m_Entries[iIdentifier].m_szName;
+  return m_Entries[entryIndex].m_szName;
 }
 
 void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& ref_config) const
@@ -40,7 +42,7 @@ void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& ref_config) const
 
 void ezTestBaseClass::MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
 {
-  out_sString.Format("{0}_{1}_{2}", szTestName, subTest.m_szSubTestName, ezArgI(uiImageNumber, 3, true));
+  out_sString.SetFormat("{0}_{1}_{2}", szTestName, subTest.m_szSubTestName, ezArgI(uiImageNumber, 3, true));
   out_sString.ReplaceAll(" ", "_");
 }
 
@@ -141,16 +143,7 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
   }
   catch (...)
   {
-    ezInt32 iEntry = -1;
-
-    for (ezInt32 i = 0; i < (ezInt32)m_Entries.size(); ++i)
-    {
-      if (m_Entries[i].m_iIdentifier == iIdentifier)
-      {
-        iEntry = i;
-        break;
-      }
-    }
+    const ezInt32 iEntry = FindEntryForIdentifier(iIdentifier);
 
     if (iEntry >= 0)
       ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test '%s'.", m_Entries[iEntry].m_szName);
@@ -161,4 +154,15 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
   return ret;
 }
 
+ezInt32 ezTestBaseClass::FindEntryForIdentifier(ezInt32 iIdentifier) const
+{
+  for (ezInt32 i = 0; i < (ezInt32)m_Entries.size(); ++i)
+  {
+    if (m_Entries[i].m_iIdentifier == iIdentifier)
+    {
+      return i;
+    }
+  }
 
+  return -1;
+}

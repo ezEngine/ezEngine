@@ -98,7 +98,7 @@ namespace ezUwpTestHarness
     private string GetFileserverPath()
     {
       string absBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-      string absFSPath = System.IO.Path.Combine(absBinDir, "Fileserve.exe");
+      string absFSPath = System.IO.Path.Combine(absBinDir, "ezFileserve.exe");
       if (!File.Exists(absFSPath))
       {
         throw new Exception(string.Format("FileServe '{0}' does not exist.", absFSPath));
@@ -235,7 +235,7 @@ namespace ezUwpTestHarness
       {
         Console.WriteLine("Starting Fileserve ...");
 
-        // 60s timeout for connect, 2s timeout for closing after connection loss.
+        // 120s timeout for connect, 4s timeout for closing after connection loss.
         string args = string.Format("-specialdirs eztest \"{0}\" -fs_start -fs_wait_timeout 120 -fs_close_timeout 4", _absTestOutputDirectory);
         return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, fileserveTimeoutMS);
       };
@@ -245,7 +245,7 @@ namespace ezUwpTestHarness
       {
  
         session.EnableProvider(new Guid("BFD4350A-BA77-463D-B4BE-E30374E42494")); //ezLogProvider
-        session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessge", delegate (TraceEvent data)
+        session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessage", delegate (TraceEvent data)
         {
           int Type = (int)data.PayloadByName("Type");
           byte Indentation = (byte)data.PayloadByName("Indentation");

@@ -53,14 +53,14 @@ ezPxQueryShapeActorComponent::~ezPxQueryShapeActorComponent() = default;
 void ezPxQueryShapeActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
-  //auto& s = stream.GetStream();
+  // auto& s = stream.GetStream();
 }
 
 void ezPxQueryShapeActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  //auto& s = stream.GetStream();
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // auto& s = stream.GetStream();
 }
 
 void ezPxQueryShapeActorComponent::OnSimulationStarted()
@@ -89,7 +89,7 @@ void ezPxQueryShapeActorComponent::OnSimulationStarted()
 
   m_pActor->setActorFlag(PxActorFlag::eDISABLE_SIMULATION, true);
 
-  //if (m_bKinematic)
+  // if (m_bKinematic)
   {
     GetWorld()->GetOrCreateComponentManager<ezPxQueryShapeActorComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
@@ -102,7 +102,7 @@ void ezPxQueryShapeActorComponent::OnSimulationStarted()
 
 void ezPxQueryShapeActorComponent::OnDeactivated()
 {
-  //if (m_bKinematic)
+  // if (m_bKinematic)
   {
     GetWorld()->GetOrCreateComponentManager<ezPxQueryShapeActorComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
   }

@@ -14,7 +14,7 @@ o
 			s{"Prefabs/GasCylinder_data/GasCylinder.ts"}
 		}
 		Uuid %DocumentID{u4{10082073094147714946,4636556735832643617}}
-		u4 %Hash{10907462054970661149}
+		u4 %Hash{2695203005369868197}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7783716656766041153,9772536832461453195}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/GasCylinder_data/GasCylinder.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

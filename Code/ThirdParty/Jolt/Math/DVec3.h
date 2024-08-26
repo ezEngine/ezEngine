@@ -73,7 +73,7 @@ public:
 	/// Prepare to convert to float vector 3 rounding towards zero (returns DVec3 that can be converted to a Vec3 to get the rounding)
 	JPH_INLINE DVec3			PrepareRoundToZero() const;
 
-	/// Prepare to convert to float vector 3 rounding towards positive/negative inf  (returns DVec3 that can be converted to a Vec3 to get the rounding)
+	/// Prepare to convert to float vector 3 rounding towards positive/negative inf (returns DVec3 that can be converted to a Vec3 to get the rounding)
 	JPH_INLINE DVec3			PrepareRoundToInf() const;
 
 	/// Convert to float vector 3 rounding down
@@ -153,6 +153,9 @@ public:
 	JPH_INLINE void				SetX(double inX)								{ mF64[0] = inX; }
 	JPH_INLINE void				SetY(double inY)								{ mF64[1] = inY; }
 	JPH_INLINE void				SetZ(double inZ)								{ mF64[2] = mF64[3] = inZ; } // Assure Z and W are the same
+
+	/// Set all components
+	JPH_INLINE void				Set(double inX, double inY, double inZ)			{ *this = DVec3(inX, inY, inZ); }
 
 	/// Get double component by index
 	JPH_INLINE double			operator [] (uint inCoordinate) const			{ JPH_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }

@@ -4,8 +4,8 @@
 #include <BakingPlugin/Tasks/PlaceProbesTask.h>
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
-#include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/BakedProbes/BakedProbesComponent.h>
@@ -70,19 +70,24 @@ ezResult ezBakingScene::Extract()
   ezBoundingBox queryBox = m_BoundingBox;
   queryBox.Grow(ezVec3(m_Settings.m_fMaxRayDistance));
 
+  ezTagSet excludeTags;
+  excludeTags.SetByName("Editor");
+
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
-  queryParams.m_ExcludeTags.SetByName("Editor");
+  queryParams.m_pExcludeTags = &excludeTags;
 
   ezMsgExtractGeometry msg;
   msg.m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
   msg.m_pMeshObjects = &m_MeshObjects;
 
-  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams, [&](ezGameObject* pObject) {
-    pObject->SendMessage(msg);
+  world.GetSpatialSystem()->FindObjectsInBox(queryBox, queryParams,
+    [&](ezGameObject* pObject)
+    {
+      pObject->SendMessage(msg);
 
-    return ezVisitorExecution::Continue;
-  });
+      return ezVisitorExecution::Continue;
+    });
 
   return EZ_SUCCESS;
 }
@@ -205,7 +210,7 @@ ezBakingScene::~ezBakingScene() = default;
 
 namespace
 {
-  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticAllocatorWrapper> s_BakingScenes;
+  static ezDynamicArray<ezUniquePtr<ezBakingScene>, ezStaticsAllocatorWrapper> s_BakingScenes;
 }
 
 EZ_IMPLEMENT_SINGLETON(ezBaking);

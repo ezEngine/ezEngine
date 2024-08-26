@@ -28,7 +28,7 @@ namespace physx
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-//using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+// using ezPxRagdollComponentManager = ezComponentManagerSimple<class ezPxRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
 
 struct ezPxRagdollStart
 {
@@ -82,19 +82,19 @@ public:
   ezPxRagdollComponent();
   ~ezPxRagdollComponent();
 
-  ezUInt32 GetShapeId() const { return m_uiPxShapeID; } // [ scriptable ]
+  ezUInt32 GetShapeId() const { return m_uiPxShapeID; }              // [ scriptable ]
 
   void OnAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg); // [ msg handler ]
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);   // [ msg handler ]
   void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;   // [ msg handler ]
 
-  bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
-  void SetDisableGravity(bool b);                              // [ property ]
+  bool GetDisableGravity() const { return m_bDisableGravity; }       // [ property ]
+  void SetDisableGravity(bool b);                                    // [ property ]
 
-  bool m_bSelfCollision = false; // [ property ]
+  bool m_bSelfCollision = false;                                     // [ property ]
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);             // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);                 // [ message ]
 
 protected:
   struct Limb
@@ -121,7 +121,7 @@ protected:
   ezEnum<ezPxRagdollStart> m_Start;                    // [ property ]
   ezSkeletonResourceHandle m_hSkeleton;
 
-  bool m_bDisableGravity = false; // [ property ]
+  bool m_bDisableGravity = false;                      // [ property ]
   bool m_bLimbsSetup = false;
   ezUInt32 m_uiPxShapeID = ezInvalidIndex;
   ezUInt32 m_uiPxUserDataIndex = ezInvalidIndex;

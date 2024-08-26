@@ -29,6 +29,7 @@ void ezFileserver::StartServer()
   m_pNetwork = ezRemoteInterfaceEnet::Make();
   m_pNetwork->StartServer('EZFS', ezConversionUtils::ToString(m_uiPort, tmp), false).IgnoreResult();
   m_pNetwork->SetMessageHandler('FSRV', ezMakeDelegate(&ezFileserver::NetworkMsgHandler, this));
+  m_pNetwork->SetUnhandledMessageHandler(ezMakeDelegate(&ezFileserver::UnknownNetworkMsgHandler, this));
   m_pNetwork->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezFileserver::NetworkEventHandler, this));
 
   ezFileserverEvent e;
@@ -141,6 +142,16 @@ void ezFileserver::NetworkMsgHandler(ezRemoteMessage& msg)
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
+void ezFileserver::UnknownNetworkMsgHandler(ezRemoteMessage& msg)
+{
+  auto it = m_CustomMessageHandlers.Find(msg.GetSystemID());
+  if (!it.IsValid() || !it.Value().IsValid())
+    return;
+
+  auto& client = DetermineClient(msg);
+
+  it.Value()(client, msg, *m_pNetwork, ezMakeDelegate(&ezFileserver::LogCustomActivity, this));
+}
 
 void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
 {
@@ -452,6 +463,13 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
   m_pNetwork->Send('FSRV', 'UACK');
 }
 
+void ezFileserver::LogCustomActivity(const char* szText)
+{
+  ezFileserverEvent e;
+  e.m_szName = szText;
+  e.m_Type = ezFileserverEvent::Type::LogCustomActivity;
+  m_Events.Broadcast(e);
+}
 
 ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& myIPs, ezTime timeout)
 {
@@ -491,6 +509,9 @@ ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 
   return EZ_SUCCESS;
 }
 
-
+void ezFileserver::SetCustomMessageHandler(ezUInt32 uiSystemID, ClientMessageHandler handler)
+{
+  m_CustomMessageHandlers[uiSystemID] = handler;
+}
 
 EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Fileserver_Fileserver);

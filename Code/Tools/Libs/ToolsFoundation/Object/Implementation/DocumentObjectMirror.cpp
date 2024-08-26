@@ -445,8 +445,9 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     ezLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
     return;
   }
-  propPath.WriteToLeafObject(
-            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type) { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
+
+  propPath.WriteToLeafObject(object.m_pObject, object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type)
+            { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
     .IgnoreResult();
 }
 

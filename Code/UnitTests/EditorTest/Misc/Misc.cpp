@@ -57,6 +57,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
     if (!EZ_TEST_BOOL(m_pDocument != nullptr))
       return ezTestAppRun::Quit;
 
+    EZ_ANALYSIS_ASSUME(m_pDocument != nullptr);
     ezAssetCurator::GetSingleton()->TransformAsset(m_pDocument->GetGuid(), ezTransformFlags::Default);
 
     ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDocument));
@@ -64,6 +65,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
     if (!EZ_TEST_BOOL(pWindow != nullptr))
       return ezTestAppRun::Quit;
 
+    EZ_ANALYSIS_ASSUME(pWindow != nullptr);
     auto viewWidgets = pWindow->GetViewWidgets();
 
     if (!EZ_TEST_BOOL(!viewWidgets.IsEmpty()))

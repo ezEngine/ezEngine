@@ -90,19 +90,16 @@ public:
       // which redirection table to search
       ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
       // which platform assets to use
-      ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+      ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/Default/";
     }
 
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();              // writing to the binary directory
-    ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
-    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-      ezFileSystem::AllowWrites)
-      .IgnoreResult(); // app user data
-
+    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();                                  // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).IgnoreResult();                 // for shader files
+    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // app user data
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -243,7 +240,7 @@ public:
       {
         for (ezInt32 x = -g_iMaxHalfExtent; x < g_iMaxHalfExtent; ++x)
         {
-          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
+          sResourceName.SetPrintf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
@@ -289,17 +286,17 @@ public:
     // do the rendering
     {
       // Before starting to render in a frame call this function
+      m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
       m_pDevice->BeginFrame();
 
-      m_pDevice->BeginPipeline("TextureSample", m_hSwapChain);
-      ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
+      ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
       renderingSetup.m_bClearDepth = true;
 
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 
       ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
@@ -333,7 +330,7 @@ public:
             cb.ViewProjectionMatrix = Proj;
           }
 
-          sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
+          sResourceName.SetPrintf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
@@ -348,9 +345,7 @@ public:
       }
 
       ezRenderContext::GetDefaultInstance()->EndRendering();
-      m_pDevice->EndPass(pGALPass);
-
-      m_pDevice->EndPipeline(m_hSwapChain);
+      m_pDevice->EndCommands(pCommandEncoder);
 
       m_pDevice->EndFrame();
       ezRenderContext::GetDefaultInstance()->ResetContextState();
@@ -410,7 +405,7 @@ public:
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    geom.AddRectXY(ezVec2(100, 100), 1, 1, opt);
+    geom.AddRect(ezVec2(100, 100), 1, 1, opt);
 
     ezDynamicArray<Vertex> Vertices;
     ezDynamicArray<ezUInt16> Indices;

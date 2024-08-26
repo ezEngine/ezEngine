@@ -112,8 +112,15 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& ref_world)
 
 ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_typeInfo)
 {
-  if (!m_bInitialized || !typeGuid.IsValid())
+  if (!m_bInitialized)
   {
+    ezLog::Error("TypeScript binding not initialized.");
+    return EZ_FAILURE;
+  }
+
+  if (!typeGuid.IsValid())
+  {
+    ezLog::Error("Invalid TS component GUID.");
     return EZ_FAILURE;
   }
 
@@ -136,12 +143,14 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   ezResourceLock<ezScriptCompendiumResource> pCompendium(m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
+    ezLog::Error("Failed to acquire TS script compendium.");
     return EZ_FAILURE;
   }
 
   auto itType = pCompendium->GetDescriptor().m_AssetGuidToInfo.Find(typeGuid);
   if (!itType.IsValid())
   {
+    ezLog::Error("Unknown TS component GUID");
     return EZ_FAILURE;
   }
 
@@ -153,10 +162,10 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   m_Duk.PushGlobalObject();
 
   ezStringBuilder req;
-  req.Format("var {} = require(\"./{}\");", sCompModule, itType.Value().m_sComponentFilePath);
+  req.SetFormat("var {} = require(\"./{}\");", sCompModule, itType.Value().m_sComponentFilePath);
   if (m_Duk.ExecuteString(req).Failed())
   {
-    ezLog::Error("Could not load component");
+    ezLog::Error("Could not load TS component");
     return EZ_FAILURE;
   }
 
@@ -282,15 +291,15 @@ bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStash
   duk.PushGlobalStash();          // [ stash ]
   duk_push_uint(duk, uiStashIdx); // [ stash idx ]
 
-  if (!duk_get_prop(duk, -2)) // [ stash obj/undef ]
+  if (!duk_get_prop(duk, -2))     // [ stash obj/undef ]
   {
-    duk_pop_2(duk);     // [ ]
-    duk_push_null(duk); // [ null ]
+    duk_pop_2(duk);               // [ ]
+    duk_push_null(duk);           // [ null ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, +1);
   }
-  else // [ stash obj ]
+  else                            // [ stash obj ]
   {
-    duk_replace(duk, -2); // [ obj ]
+    duk_replace(duk, -2);         // [ obj ]
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, +1);
   }
 }
@@ -386,77 +395,77 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::ColorGamma:
     {
       const ezColor c = value.ConvertTo<ezColor>();
-      out_String.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+      out_String.SetFormat("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
       break;
     }
 
     case ezVariant::Type::Vector2:
     {
       const ezVec2 v = value.Get<ezVec2>();
-      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      out_String.SetFormat("new Vec2({}, {})", v.x, v.y);
       break;
     }
 
     case ezVariant::Type::Vector3:
     {
       const ezVec3 v = value.Get<ezVec3>();
-      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      out_String.SetFormat("new Vec3({}, {}, {})", v.x, v.y, v.z);
       break;
     }
 
     case ezVariant::Type::Vector4:
     {
       const ezVec4 v = value.Get<ezVec4>();
-      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      out_String.SetFormat("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
       break;
     }
 
     case ezVariant::Type::Vector2I:
     {
       const ezVec2I32 v = value.Get<ezVec2I32>();
-      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      out_String.SetFormat("new Vec2({}, {})", v.x, v.y);
       break;
     }
 
     case ezVariant::Type::Vector3I:
     {
       const ezVec3I32 v = value.Get<ezVec3I32>();
-      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      out_String.SetFormat("new Vec3({}, {}, {})", v.x, v.y, v.z);
       break;
     }
 
     case ezVariant::Type::Vector4I:
     {
       const ezVec4I32 v = value.Get<ezVec4I32>();
-      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      out_String.SetFormat("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
       break;
     }
 
     case ezVariant::Type::Vector2U:
     {
       const ezVec2U32 v = value.Get<ezVec2U32>();
-      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      out_String.SetFormat("new Vec2({}, {})", v.x, v.y);
       break;
     }
 
     case ezVariant::Type::Vector3U:
     {
       const ezVec3U32 v = value.Get<ezVec3U32>();
-      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      out_String.SetFormat("new Vec3({}, {}, {})", v.x, v.y, v.z);
       break;
     }
 
     case ezVariant::Type::Vector4U:
     {
       const ezVec4U32 v = value.Get<ezVec4U32>();
-      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      out_String.SetFormat("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
       break;
     }
 
     case ezVariant::Type::Quaternion:
     {
       const ezQuat q = value.Get<ezQuat>();
-      out_String.Format("new Quat({}, {}, {}, {})", q.x, q.y, q.z, q.w);
+      out_String.SetFormat("new Quat({}, {}, {}, {})", q.x, q.y, q.z, q.w);
       break;
     }
 
@@ -479,11 +488,11 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     }
 
     case ezVariant::Type::Time:
-      out_String.Format("{0}", value.Get<ezTime>().GetSeconds());
+      out_String.SetFormat("{0}", value.Get<ezTime>().GetSeconds());
       break;
 
     case ezVariant::Type::Angle:
-      out_String.Format("{0}", value.Get<ezAngle>().GetRadian());
+      out_String.SetFormat("{0}", value.Get<ezAngle>().GetRadian());
       break;
 
     case ezVariant::Type::Uuid:

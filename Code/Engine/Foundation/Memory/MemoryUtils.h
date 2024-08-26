@@ -3,6 +3,12 @@
 #include <Foundation/Basics.h>
 #include <cstdint> // for uintptr_t
 
+enum ezConstructionMode
+{
+  ConstructAll = 0,     /// < default initialize all types, including std::is_trivial types
+  SkipTrivialTypes = 1, ///< If the given type to construct is trivial, nothing will be done
+};
+
 /// \brief This class provides functions to work on raw memory.
 ///
 /// \details
@@ -25,23 +31,13 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
-  /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
-  template <typename T>
+  /// The ezConstructionMode template argument determines whether trivial types will be skipped.
+  template <ezConstructionMode mode, typename T>
   static void Construct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
-  template <typename T>
+  template <ezConstructionMode mode, typename T>
   static ConstructorFunction MakeConstructorFunction(); // [tested]
-
-  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or
-  /// trivial.
-  template <typename T>
-  static void DefaultConstruct(T* pDestination, size_t uiCount = 1); // [tested]
-
-  /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class,
-  /// POD or trivial.
-  template <typename T>
-  static ConstructorFunction MakeDefaultConstructorFunction(); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename Destination, typename Source>
@@ -72,7 +68,7 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
   /// using move construction if availble, otherwise by copy construction. Calls destructor of source elements in any case (if it is a non
-  /// primitive or memrelocatable type).
+  /// primitive or mem-relocatable type).
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount = 1);
 
@@ -190,103 +186,6 @@ public:
   ///
   /// Currently only implemented on Windows.
   static void ReserveLower4GBAddressSpace();
-
-private:
-  template <typename T>
-  static void Construct(T* pDestination, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Construct(T* pDestination, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static ConstructorFunction MakeConstructorFunction(ezTypeIsPod);
-  template <typename T>
-  static ConstructorFunction MakeConstructorFunction(ezTypeIsClass);
-
-  template <typename Destination, typename Source>
-  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod);
-  template <typename Destination, typename Source>
-  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
-
-
-  using NotRValueReference = std::false_type;
-  using IsRValueReference = std::true_type;
-
-  template <typename Destination, typename Source>
-  static void CopyOrMoveConstruct(Destination* pDestination, const Source& source, NotRValueReference);
-  template <typename Destination, typename Source>
-  static void CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference);
-
-  template <typename T>
-  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static DestructorFunction MakeDestructorFunction(ezTypeIsPod);
-  template <typename T>
-  static DestructorFunction MakeDestructorFunction(ezTypeIsClass);
-
-  template <typename T>
-  static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsMemRelocatable);
-  template <typename T>
-  static void Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount, ezTypeIsClass);
-
-  template <typename T>
-  static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod);
-  template <typename T>
-  static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsClass);
 };
 
 #include <Foundation/Memory/Implementation/MemoryUtils_inl.h>

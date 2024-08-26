@@ -204,6 +204,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
       CASE_EZ2DXGI(BC7_UNORM_SRGB);
       CASE_EZ2DXGI(B4G4R4A4_UNORM);
       CASE_EZ2DXGI(NV12);
+      CASE_EZ2DXGI(P010);
   }
 }
 
@@ -286,6 +287,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
       CASE_DXGI2EZ(BC7_UNORM_SRGB);
       CASE_DXGI2EZ(B4G4R4A4_UNORM);
       CASE_DXGI2EZ(NV12);
+      CASE_DXGI2EZ(P010);
   }
 }
 
@@ -358,12 +360,10 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     case 110: // D3DFMT_Q16W16V16U16
       return ezImageFormat::R16G16B16A16_SNORM;
 
-    case 36: // D3DFMT_A16B16G16R16
+    case 36:  // D3DFMT_A16B16G16R16
       return ezImageFormat::R16G16B16A16_UNORM;
 
     default:
       return ezImageFormat::UNKNOWN;
   }
 }
-
-

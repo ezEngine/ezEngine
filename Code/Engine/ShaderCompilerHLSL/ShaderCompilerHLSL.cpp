@@ -70,11 +70,63 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
 {
   ID3D11ShaderReflection* pReflector = nullptr;
 
-  auto byteCode = inout_Data.m_StageBinary[Stage].GetByteCode();
-  D3DReflect(byteCode.GetData(), byteCode.GetCount(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+  ezGALShaderByteCode* pShader = inout_Data.m_ByteCode[Stage];
+  D3DReflect(pShader->m_ByteCode.GetData(), pShader->m_ByteCode.GetCount(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+
 
   D3D11_SHADER_DESC shaderDesc;
   pReflector->GetDesc(&shaderDesc);
+
+  if (Stage == ezGALShaderStage::VertexShader)
+  {
+    auto& vertexInputAttributes = pShader->m_ShaderVertexInput;
+    vertexInputAttributes.Reserve(shaderDesc.InputParameters);
+    for (ezUInt32 i = 0; i < shaderDesc.InputParameters; ++i)
+    {
+      D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
+      pReflector->GetInputParameterDesc(i, &paramDesc);
+
+      ezGALVertexAttributeSemantic::Enum semantic;
+      if (!m_VertexInputMapping.TryGetValue(paramDesc.SemanticName, semantic))
+      {
+        // We ignore all system-value semantics as they are not provided by the user but the system so we don't care to reflect them.
+        if (ezStringUtils::StartsWith_NoCase(paramDesc.SemanticName, "SV_"))
+          continue;
+
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      switch (semantic)
+      {
+        case ezGALVertexAttributeSemantic::Color0:
+          EZ_ASSERT_DEBUG(paramDesc.SemanticIndex <= 7, "Color out of range");
+          semantic = static_cast<ezGALVertexAttributeSemantic::Enum>((ezUInt32)semantic + paramDesc.SemanticIndex);
+          break;
+        case ezGALVertexAttributeSemantic::TexCoord0:
+          EZ_ASSERT_DEBUG(paramDesc.SemanticIndex <= 9, "TexCoord out of range");
+          semantic = static_cast<ezGALVertexAttributeSemantic::Enum>((ezUInt32)semantic + paramDesc.SemanticIndex);
+          break;
+        case ezGALVertexAttributeSemantic::BoneIndices0:
+          EZ_ASSERT_DEBUG(paramDesc.SemanticIndex <= 1, "BoneIndices out of range");
+          semantic = static_cast<ezGALVertexAttributeSemantic::Enum>((ezUInt32)semantic + paramDesc.SemanticIndex);
+          break;
+        case ezGALVertexAttributeSemantic::BoneWeights0:
+          EZ_ASSERT_DEBUG(paramDesc.SemanticIndex <= 1, "BoneWeights out of range");
+          semantic = static_cast<ezGALVertexAttributeSemantic::Enum>((ezUInt32)semantic + paramDesc.SemanticIndex);
+          break;
+        default:
+          break;
+      }
+
+      ezShaderVertexInputAttribute& attr = vertexInputAttributes.ExpandAndGetRef();
+      attr.m_eSemantic = semantic;
+      attr.m_eFormat = GetEZFormat(paramDesc);
+      attr.m_uiLocation = paramDesc.Register;
+    }
+  }
+  else if (Stage == ezGALShaderStage::HullShader)
+  {
+    pShader->m_uiTessellationPatchControlPoints = shaderDesc.cControlPoints;
+  }
 
   for (ezUInt32 r = 0; r < shaderDesc.BoundResources; ++r)
   {
@@ -82,45 +134,49 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     pReflector->GetResourceBindingDesc(r, &shaderInputBindDesc);
 
     // ezLog::Info("Bound Resource: '{0}' at slot {1} (Count: {2}, Flags: {3})", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
-
+    // #TODO_SHADER remove [x] at the end of the name for arrays
     ezShaderResourceBinding shaderResourceBinding;
-    shaderResourceBinding.m_Type = ezShaderResourceType::Unknown;
-    shaderResourceBinding.m_iSlot = shaderInputBindDesc.BindPoint;
+    shaderResourceBinding.m_iSet = 0;
+    shaderResourceBinding.m_iSlot = static_cast<ezInt16>(shaderInputBindDesc.BindPoint);
+    shaderResourceBinding.m_uiArraySize = shaderInputBindDesc.BindCount;
     shaderResourceBinding.m_sName.Assign(shaderInputBindDesc.Name);
+    shaderResourceBinding.m_Stages = ezGALShaderStageFlags::MakeFromShaderStage(Stage);
 
-    if (shaderInputBindDesc.Type == D3D_SIT_TEXTURE)
+    if (shaderInputBindDesc.Type == D3D_SIT_TEXTURE || shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
     {
+      shaderResourceBinding.m_ResourceType = shaderInputBindDesc.Type == D3D_SIT_TEXTURE ? ezGALShaderResourceType::Texture : ezGALShaderResourceType::TextureRW;
       switch (shaderInputBindDesc.Dimension)
       {
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture1D;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture1D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture1DArray;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture1DArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2D;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture2D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DArray;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture2DArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DMS;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture2DMS;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture2DMSArray;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture2DMSArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D:
-          shaderResourceBinding.m_Type = ezShaderResourceType::Texture3D;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Texture3D;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE:
-          shaderResourceBinding.m_Type = ezShaderResourceType::TextureCube;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::TextureCube;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY:
-          shaderResourceBinding.m_Type = ezShaderResourceType::TextureCubeArray;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::TextureCubeArray;
           break;
         case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
-          shaderResourceBinding.m_Type = ezShaderResourceType::GenericBuffer;
+          shaderResourceBinding.m_ResourceType = shaderInputBindDesc.Type == D3D_SIT_TEXTURE ? ezGALShaderResourceType::TexelBuffer : ezGALShaderResourceType::TexelBufferRW;
+          shaderResourceBinding.m_TextureType = ezGALShaderTextureType::Unknown;
           break;
 
         default:
@@ -129,48 +185,35 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       }
     }
 
-    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
-    {
-      switch (shaderInputBindDesc.Dimension)
-      {
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D:
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY:
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER:
-        case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX:
-          shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
-          break;
+    else if (shaderInputBindDesc.Type == D3D_SIT_STRUCTURED)
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
 
-        default:
-          EZ_ASSERT_NOT_IMPLEMENTED;
-          break;
-      }
-    }
+    else if (shaderInputBindDesc.Type == D3D_SIT_BYTEADDRESS)
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
-      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED)
-      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER)
-      shaderResourceBinding.m_Type = ezShaderResourceType::UAV;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {
-      shaderResourceBinding.m_Type = ezShaderResourceType::ConstantBuffer;
-      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::ConstantBuffer;
+      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(*inout_Data.m_ByteCode[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
     }
     else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
-      shaderResourceBinding.m_Type = ezShaderResourceType::Sampler;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::Sampler;
       if (ezStringUtils::EndsWith(shaderInputBindDesc.Name, "_AutoSampler"))
       {
         ezStringBuilder sb = shaderInputBindDesc.Name;
@@ -180,19 +223,19 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
     else
     {
-      shaderResourceBinding.m_Type = ezShaderResourceType::GenericBuffer;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::Enum::Unknown;
     }
 
-    if (shaderResourceBinding.m_Type != ezShaderResourceType::Unknown)
+    if (shaderResourceBinding.m_ResourceType != ezGALShaderResourceType::Unknown)
     {
-      inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
+      inout_Data.m_ByteCode[Stage]->m_ShaderResourceBindings.PushBack(shaderResourceBinding);
     }
   }
 
   pReflector->Release();
 }
 
-ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
+ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
 {
   D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
 
@@ -204,7 +247,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
   EZ_LOG_BLOCK("Constant Buffer Layout", shaderBufferDesc.Name);
   ezLog::Debug("Constant Buffer has {0} variables, Size is {1}", shaderBufferDesc.Variables, shaderBufferDesc.Size);
 
-  ezShaderConstantBufferLayout* pLayout = pStageBinary.CreateConstantBufferLayout();
+  ezShaderConstantBufferLayout* pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
 
   pLayout->m_uiTotalSize = shaderBufferDesc.Size;
 
@@ -220,7 +263,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
     D3D11_SHADER_TYPE_DESC std;
     pVar->GetType()->GetDesc(&std);
 
-    ezShaderConstantBufferLayout::Constant constant;
+    ezShaderConstant constant;
     constant.m_uiArrayElements = static_cast<ezUInt8>(ezMath::Max(std.Elements, 1u));
     constant.m_uiOffset = static_cast<ezUInt16>(svd.StartOffset);
     constant.m_sName.Assign(svd.Name);
@@ -230,18 +273,18 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       switch (std.Type)
       {
         case D3D_SVT_FLOAT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstant::Type::Enum)((ezInt32)ezShaderConstant::Type::Float1 + std.Columns - 1);
           break;
         case D3D_SVT_INT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstant::Type::Enum)((ezInt32)ezShaderConstant::Type::Int1 + std.Columns - 1);
           break;
         case D3D_SVT_UINT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
+          constant.m_Type = (ezShaderConstant::Type::Enum)((ezInt32)ezShaderConstant::Type::UInt1 + std.Columns - 1);
           break;
         case D3D_SVT_BOOL:
           if (std.Columns == 1)
           {
-            constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Bool;
+            constant.m_Type = ezShaderConstant::Type::Bool;
           }
           break;
 
@@ -259,11 +302,11 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
 
       if (std.Columns == 3 && std.Rows == 3)
       {
-        constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Mat3x3;
+        constant.m_Type = ezShaderConstant::Type::Mat3x3;
       }
       else if (std.Columns == 4 && std.Rows == 4)
       {
-        constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Mat4x4;
+        constant.m_Type = ezShaderConstant::Type::Mat4x4;
       }
       else
       {
@@ -281,7 +324,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       continue;
     }
 
-    if (constant.m_Type == ezShaderConstantBufferLayout::Constant::Type::Default)
+    if (constant.m_Type == ezShaderConstant::Type::Default)
     {
       ezLog::Error("Variable '{0}': Variable type '{1}' is unknown / not supported", svd.Name, std.Class);
       continue;
@@ -367,14 +410,57 @@ const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum stage)
   return "";
 }
 
+ezResult ezShaderCompilerHLSL::ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog)
+{
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    ezShaderParser::ParseShaderResources(inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage]);
+  }
+
+  ezHashTable<ezHashedString, ezShaderResourceBinding> bindings;
+  EZ_SUCCEED_OR_RETURN(ezShaderParser::MergeShaderResourceBindings(inout_data, bindings, pLog));
+  EZ_SUCCEED_OR_RETURN(DefineShaderResourceBindings(inout_data, bindings, pLog));
+
+  for (auto it : bindings)
+  {
+    if (it.Value().m_ResourceType == ezGALShaderResourceType::ConstantBuffer && it.Value().m_iSlot >= EZ_GAL_MAX_CONSTANT_BUFFER_COUNT)
+    {
+      ezLog::Error(pLog, "Shader constant buffer resource '{}' has slot index {}. EZ only supports up to {} slots.", it.Key(), it.Value().m_iSlot, EZ_GAL_MAX_CONSTANT_BUFFER_COUNT);
+      return EZ_FAILURE;
+    }
+    if (it.Value().m_ResourceType == ezGALShaderResourceType::Sampler && it.Value().m_iSlot >= EZ_GAL_MAX_SAMPLER_COUNT)
+    {
+      ezLog::Error(pLog, "Shader sampler resource '{}' has slot index {}. EZ only supports up to {} slots.", it.Key(), it.Value().m_iSlot, EZ_GAL_MAX_SAMPLER_COUNT);
+      return EZ_FAILURE;
+    }
+  }
+
+  // Apply shader resource bindings
+  ezStringBuilder sNewShaderCode;
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    if (inout_data.m_sShaderSource[stage].IsEmpty())
+      continue;
+    ezShaderParser::ApplyShaderResourceBindings(inout_data.m_sPlatform, inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage], bindings, ezMakeDelegate(&ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration, this), sNewShaderCode);
+    inout_data.m_sShaderSource[stage] = sNewShaderCode;
+    inout_data.m_Resources[stage].Clear();
+  }
+  return EZ_SUCCESS;
+}
+
 ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog)
 {
+  Initialize();
   ezStringBuilder sFile, sSource;
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    // shader already compiled
-    if (!inout_data.m_StageBinary[stage].GetByteCode().IsEmpty())
+    // Shader stage not used.
+    if (inout_data.m_uiSourceHash[stage] == 0)
+      continue;
+
+    // Shader already compiled.
+    if (inout_data.m_bWriteToDisk[stage] == false)
     {
       ezLog::Debug("Shader for stage '{0}' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
@@ -385,7 +471,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInt
 
     if (uiLength > 0 && sShaderSource.FindSubString("main") != nullptr)
     {
-      if (CompileDXShader(inout_data.m_sSourceFile.GetData(sFile), sShaderSource.GetData(sSource), inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      if (CompileDXShader(inout_data.m_sSourceFile.GetData(sFile), sShaderSource.GetData(sSource), inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_ByteCode[stage]->m_ByteCode).Succeeded())
       {
         ReflectShaderStage(inout_data, (ezGALShaderStage::Enum)stage);
       }
@@ -397,4 +483,228 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInt
   }
 
   return EZ_SUCCESS;
+}
+
+namespace
+{
+  struct DX11ResourceCategory
+  {
+    using StorageType = ezUInt8;
+    static constexpr int ENUM_COUNT = 4;
+    enum Enum : ezUInt8
+    {
+      Sampler = EZ_BIT(0),
+      ConstantBuffer = EZ_BIT(1),
+      SRV = EZ_BIT(2),
+      UAV = EZ_BIT(3),
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType Sampler : 1;
+      StorageType ConstantBuffer : 1;
+      StorageType SRV : 1;
+      StorageType UAV : 1;
+    };
+
+    static ezBitflags<DX11ResourceCategory> MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type);
+  };
+
+  EZ_DECLARE_FLAGS_OPERATORS(DX11ResourceCategory);
+} // namespace
+
+inline ezBitflags<DX11ResourceCategory> DX11ResourceCategory::MakeFromShaderDescriptorType(ezGALShaderResourceType::Enum type)
+{
+  switch (type)
+  {
+    case ezGALShaderResourceType::Sampler:
+      return DX11ResourceCategory::Sampler;
+    case ezGALShaderResourceType::ConstantBuffer:
+    case ezGALShaderResourceType::PushConstants:
+      return DX11ResourceCategory::ConstantBuffer;
+    case ezGALShaderResourceType::Texture:
+    case ezGALShaderResourceType::TexelBuffer:
+    case ezGALShaderResourceType::StructuredBuffer:
+      return DX11ResourceCategory::SRV;
+    case ezGALShaderResourceType::TextureRW:
+    case ezGALShaderResourceType::TexelBufferRW:
+    case ezGALShaderResourceType::StructuredBufferRW:
+      return DX11ResourceCategory::UAV;
+    case ezGALShaderResourceType::TextureAndSampler:
+      return DX11ResourceCategory::SRV | DX11ResourceCategory::Sampler;
+    default:
+      EZ_REPORT_FAILURE("Missing enum");
+      return {};
+  }
+}
+
+ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgramData& data, ezHashTable<ezHashedString, ezShaderResourceBinding>& inout_resourceBinding, ezLogInterface* pLog)
+{
+  ezHybridBitfield<64> indexInUse[DX11ResourceCategory::ENUM_COUNT];
+  for (auto it : inout_resourceBinding)
+  {
+    const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(it.Value().m_ResourceType);
+    // Convert bit to index. We know that only one bit can be set in DX11 as TextureAndSampler is not supported.
+    const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type.GetValue());
+    const ezInt16 iSlot = it.Value().m_iSlot;
+    if (iSlot != -1)
+    {
+      indexInUse[uiIndex].SetCount(ezMath::Max(indexInUse[uiIndex].GetCount(), static_cast<ezUInt32>(iSlot + 1)));
+      indexInUse[uiIndex].SetBit(iSlot);
+    }
+    // DX11: Everything is set 0.
+    it.Value().m_iSet = 0;
+  }
+
+  // Create stable order of resources
+  ezHybridArray<ezHashedString, 16> order[DX11ResourceCategory::ENUM_COUNT];
+  for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    if (data.m_sShaderSource[stage].IsEmpty())
+      continue;
+
+    for (const auto& res : data.m_Resources[stage])
+    {
+      const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(res.m_Binding.m_ResourceType);
+      const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type.GetValue());
+      if (!order[uiIndex].Contains(res.m_Binding.m_sName))
+      {
+        order[uiIndex].PushBack(res.m_Binding.m_sName);
+      }
+    }
+  }
+
+  // EZ: We only allow constant buffers to be bound globally, so they must all have unique indices.
+  // DX11: UAV are bound globally
+  // DX11: SRV, Samplers can be bound by stage, so indices can be re-used. Thus, we don't set an index for any of them and let the compiler choose.
+  for (auto type : ezBitflags<DX11ResourceCategory>(DX11ResourceCategory::UAV | DX11ResourceCategory::ConstantBuffer))
+  {
+    const ezUInt32 uiIndex = ezMath::FirstBitLow((ezUInt32)type);
+    ezUInt32 uiCurrentIndex = 0;
+    // Workaround for this: error X4509: UAV registers live in the same name space as outputs, so they must be bound to at least u1, manual bind to slot u0 failed
+    if (type == DX11ResourceCategory::UAV)
+      uiCurrentIndex = 1;
+
+    for (const auto& sName : order[uiIndex])
+    {
+      while (uiCurrentIndex < indexInUse[uiIndex].GetCount() && indexInUse[uiIndex].IsBitSet(uiCurrentIndex))
+      {
+        uiCurrentIndex++;
+      }
+      inout_resourceBinding[sName].m_iSlot = static_cast<ezInt16>(uiCurrentIndex);
+      indexInUse[uiIndex].SetCount(ezMath::Max(indexInUse[uiIndex].GetCount(), uiCurrentIndex + 1));
+      indexInUse[uiIndex].SetBit(uiCurrentIndex);
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration)
+{
+  EZ_ASSERT_DEBUG(binding.m_iSet == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
+  const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+  ezStringView sResourcePrefix;
+  if (binding.m_iSlot == -1)
+  {
+    // Let the compiler choose an index.
+    out_sDeclaration.SetFormat("{}", sDeclaration);
+    return;
+  }
+
+  switch (type.GetValue())
+  {
+    case DX11ResourceCategory::Sampler:
+      sResourcePrefix = "s"_ezsv;
+      break;
+    case DX11ResourceCategory::ConstantBuffer:
+      sResourcePrefix = "b"_ezsv;
+      break;
+    case DX11ResourceCategory::SRV:
+      sResourcePrefix = "t"_ezsv;
+      break;
+    case DX11ResourceCategory::UAV:
+      sResourcePrefix = "u"_ezsv;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+  }
+  out_sDeclaration.SetFormat("{} : register({}{})", sDeclaration, sResourcePrefix, binding.m_iSlot);
+}
+
+void ezShaderCompilerHLSL::Initialize()
+{
+  if (m_VertexInputMapping.IsEmpty())
+  {
+    m_VertexInputMapping["POSITION"] = ezGALVertexAttributeSemantic::Position;
+    m_VertexInputMapping["NORMAL"] = ezGALVertexAttributeSemantic::Normal;
+    m_VertexInputMapping["TANGENT"] = ezGALVertexAttributeSemantic::Tangent;
+    m_VertexInputMapping["COLOR"] = ezGALVertexAttributeSemantic::Color0;
+    m_VertexInputMapping["TEXCOORD"] = ezGALVertexAttributeSemantic::TexCoord0;
+    m_VertexInputMapping["BITANGENT"] = ezGALVertexAttributeSemantic::BiTangent;
+    m_VertexInputMapping["BONEINDICES"] = ezGALVertexAttributeSemantic::BoneIndices0;
+    m_VertexInputMapping["BONEWEIGHTS"] = ezGALVertexAttributeSemantic::BoneWeights0;
+  }
+}
+
+ezGALResourceFormat::Enum ezShaderCompilerHLSL::GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc)
+{
+  ezUInt32 uiComponents = ezMath::Log2i(paramDesc.Mask + 1);
+  switch (paramDesc.ComponentType)
+  {
+    case D3D_REGISTER_COMPONENT_UNKNOWN:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+    case D3D_REGISTER_COMPONENT_UINT32:
+      switch (uiComponents)
+      {
+        case 1:
+          return ezGALResourceFormat::RUInt;
+        case 2:
+          return ezGALResourceFormat::RGUInt;
+        case 3:
+          return ezGALResourceFormat::RGBUInt;
+        case 4:
+          return ezGALResourceFormat::RGBAUInt;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
+      }
+      break;
+    case D3D_REGISTER_COMPONENT_SINT32:
+      switch (uiComponents)
+      {
+        case 1:
+          return ezGALResourceFormat::RInt;
+        case 2:
+          return ezGALResourceFormat::RGInt;
+        case 3:
+          return ezGALResourceFormat::RGBInt;
+        case 4:
+          return ezGALResourceFormat::RGBAInt;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
+      }
+      break;
+    case D3D_REGISTER_COMPONENT_FLOAT32:
+      switch (uiComponents)
+      {
+        case 1:
+          return ezGALResourceFormat::RFloat;
+        case 2:
+          return ezGALResourceFormat::RGFloat;
+        case 3:
+          return ezGALResourceFormat::RGBFloat;
+        case 4:
+          return ezGALResourceFormat::RGBAFloat;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+          break;
+      }
+      break;
+  }
+  return ezGALResourceFormat::Invalid;
 }

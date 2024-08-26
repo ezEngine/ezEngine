@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
+#include "../Common/Platforms.h"
 
 CONSTANT_BUFFER(ezTonemapConstants, 3)
 {
@@ -14,4 +14,3 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   FLOAT1(Lut2Strength);
   FLOAT4(ContrastParams);
 };
-

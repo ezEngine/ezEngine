@@ -1,42 +1,42 @@
 #pragma once
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   Clear();
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocatorBase* pAllocator)
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocator* pAllocator)
   : m_Data(pAllocator)
 {
   *this = rhs;
@@ -50,7 +50,6 @@ void ezHybridStringBase<Size>::Clear()
 {
   m_Data.SetCountUninitialized(1);
   m_Data[0] = '\0';
-  m_uiCharacterCount = 0;
 }
 
 template <ezUInt16 Size>
@@ -71,14 +70,13 @@ EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetElementCount() const
 template <ezUInt16 Size>
 EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
 {
-  return m_uiCharacterCount;
+  return ezStringUtils::GetCharacterCount(GetData());
 }
 
 template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const char* szString)
 {
-  ezUInt32 uiElementCount = 0;
-  ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
+  ezUInt32 uiElementCount = ezStringUtils::GetStringElementCount(szString);
 
   if (szString + uiElementCount < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount())
   {
@@ -100,7 +98,6 @@ void ezHybridStringBase<Size>::operator=(const ezHybridStringBase& rhs)
   if (this == &rhs)
     return;
 
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = rhs.m_Data;
 }
 
@@ -110,7 +107,6 @@ void ezHybridStringBase<Size>::operator=(ezHybridStringBase&& rhs)
   if (this == &rhs)
     return;
 
-  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
 
@@ -129,20 +125,17 @@ void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 
   m_Data.SetCountUninitialized(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetStartPointer(), rhs.GetEndPointer());
-  m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
 }
 
 template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount,
-    "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
-
   const char* szStart = GetData();
-  ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter);
+  if (ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter).Failed())
+    return {};                                                           // szStart was moved too far, the result is just an empty string
 
   const char* szEnd = szStart;
-  ezUnicodeUtils::MoveToNextUtf8(szEnd, uiNumCharacters);
+  ezUnicodeUtils::MoveToNextUtf8(szEnd, uiNumCharacters).IgnoreResult(); // if it fails, szEnd just points to the end of this string
 
   return ezStringView(szStart, szEnd);
 }
@@ -156,9 +149,10 @@ ezStringView ezHybridStringBase<Size>::GetFirst(ezUInt32 uiNumCharacters) const
 template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT_DEV(uiNumCharacters < m_uiCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.",
-    m_uiCharacterCount, uiNumCharacters);
-  return GetSubString(m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
+  const ezUInt32 uiMaxCharacterCount = GetCharacterCount();
+  EZ_ASSERT_DEV(uiNumCharacters < uiMaxCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.",
+    uiMaxCharacterCount, uiNumCharacters);
+  return GetSubString(uiMaxCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 
 
@@ -169,7 +163,7 @@ EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString()
 }
 
 template <ezUInt16 Size, typename A>
-EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator)
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocator* pAllocator)
   : ezHybridStringBase<Size>(pAllocator)
 {
 }
@@ -257,5 +251,65 @@ EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
+
+#if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
+
+template <ezUInt16 Size>
+ezHybridStringBase<Size>::ezHybridStringBase(const std::string_view& rhs, ezAllocator* pAllocator)
+{
+  *this = rhs;
+}
+
+template <ezUInt16 Size>
+ezHybridStringBase<Size>::ezHybridStringBase(const std::string& rhs, ezAllocator* pAllocator)
+{
+  *this = rhs;
+}
+
+template <ezUInt16 Size>
+void ezHybridStringBase<Size>::operator=(const std::string_view& rhs)
+{
+  if (rhs.empty())
+  {
+    Clear();
+  }
+  else
+  {
+    m_Data.SetCountUninitialized(((ezUInt32)rhs.size() + 1));
+    ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.data(), rhs.data() + rhs.size());
+  }
+}
+
+template <ezUInt16 Size>
+void ezHybridStringBase<Size>::operator=(const std::string& rhs)
+{
+  *this = std::string_view(rhs);
+}
+
+template <ezUInt16 Size, typename A>
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const std::string_view& rhs)
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+{
+}
+
+template <ezUInt16 Size, typename A>
+EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const std::string& rhs)
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+{
+}
+
+template <ezUInt16 Size, typename A>
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const std::string_view& rhs)
+{
+  ezHybridStringBase<Size>::operator=(rhs);
+}
+
+template <ezUInt16 Size, typename A>
+EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const std::string& rhs)
+{
+  ezHybridStringBase<Size>::operator=(rhs);
+}
+
+#endif
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>

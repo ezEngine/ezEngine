@@ -65,9 +65,15 @@ public:
 
   ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
   ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+  ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
   ezUInt32 m_uiVertices = 0;
   ezUInt32 m_uiTriangles = 0;
+
+  bool m_bSimplifyMesh = false;
+  bool m_bAggressiveSimplification = false;
+  ezUInt8 m_uiMeshSimplification = 50;
+  ezUInt8 m_uiMaxSimplificationError = 5;
 };

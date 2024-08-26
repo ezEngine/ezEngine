@@ -122,7 +122,7 @@ void ezStandardJSONWriter::OutputIndentation()
     iIndentation = m_iIndentation;
 
   ezStringBuilder s;
-  s.Printf("%*s", iIndentation, "");
+  s.SetPrintf("%*s", iIndentation, "");
 
   OutputString(s.GetData());
 }
@@ -142,7 +142,7 @@ void ezStandardJSONWriter::WriteInt32(ezInt32 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -152,7 +152,7 @@ void ezStandardJSONWriter::WriteUInt32(ezUInt32 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -162,7 +162,7 @@ void ezStandardJSONWriter::WriteInt64(ezInt64 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -172,7 +172,7 @@ void ezStandardJSONWriter::WriteUInt64(ezUInt64 value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -182,7 +182,7 @@ void ezStandardJSONWriter::WriteFloat(float value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -192,7 +192,7 @@ void ezStandardJSONWriter::WriteDouble(double value)
   CommaWriter cw(this);
 
   ezStringBuilder s;
-  s.Format("{0}", value);
+  s.SetFormat("{0}", value);
 
   OutputString(s.GetData());
 }
@@ -225,9 +225,9 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2},{3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
+    s.SetFormat("({0},{1},{2},{3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
   else
-    s.Format("({0}, {1}, {2}, {3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
+    s.SetFormat("({0}, {1}, {2}, {3})", ezArgF(value.r, 4), ezArgF(value.g, 4), ezArgF(value.b, 4), ezArgF(value.a, 4));
 
   WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
 }
@@ -237,9 +237,9 @@ void ezStandardJSONWriter::WriteColorGamma(const ezColorGammaUB& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2},{3})", value.r, value.g, value.b, value.a);
+    s.SetFormat("({0},{1},{2},{3})", value.r, value.g, value.b, value.a);
   else
-    s.Format("({0}, {1}, {2}, {3})", value.r, value.g, value.b, value.a);
+    s.SetFormat("({0}, {1}, {2}, {3})", value.r, value.g, value.b, value.a);
 
   WriteBinaryData("gamma", value.GetData(), sizeof(ezColorGammaUB), s.GetData());
 }
@@ -253,9 +253,9 @@ void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
+    s.SetFormat("({0},{1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
   else
-    s.Format("({0}, {1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
+    s.SetFormat("({0}, {1})", ezArgF(value.x, 4), ezArgF(value.y, 4));
 
   WriteBinaryData("vec2", &temp, sizeof(temp), s.GetData());
 }
@@ -269,9 +269,9 @@ void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
+    s.SetFormat("({0},{1},{2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
   else
-    s.Format("({0}, {1}, {2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
+    s.SetFormat("({0}, {1}, {2})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4));
 
   WriteBinaryData("vec3", &temp, sizeof(temp), s.GetData());
 }
@@ -285,9 +285,9 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2},{3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
+    s.SetFormat("({0},{1},{2},{3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
   else
-    s.Format("({0}, {1}, {2}, {3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
+    s.SetFormat("({0}, {1}, {2}, {3})", ezArgF(value.x, 4), ezArgF(value.y, 4), ezArgF(value.z, 4), ezArgF(value.w, 4));
 
   WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
 }
@@ -303,9 +303,9 @@ void ezStandardJSONWriter::WriteVec2I32(const ezVec2I32& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1})", value.x, value.y);
+    s.SetFormat("({0},{1})", value.x, value.y);
   else
-    s.Format("({0}, {1})", value.x, value.y);
+    s.SetFormat("({0}, {1})", value.x, value.y);
 
   WriteBinaryData("vec2i", &temp, sizeof(temp), s.GetData());
 }
@@ -321,9 +321,9 @@ void ezStandardJSONWriter::WriteVec3I32(const ezVec3I32& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2})", value.x, value.y, value.z);
+    s.SetFormat("({0},{1},{2})", value.x, value.y, value.z);
   else
-    s.Format("({0}, {1}, {2})", value.x, value.y, value.z);
+    s.SetFormat("({0}, {1}, {2})", value.x, value.y, value.z);
 
   WriteBinaryData("vec3i", &temp, sizeof(temp), s.GetData());
 }
@@ -339,9 +339,9 @@ void ezStandardJSONWriter::WriteVec4I32(const ezVec4I32& value)
   ezStringBuilder s;
 
   if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-    s.Format("({0},{1},{2},{3})", value.x, value.y, value.z, value.w);
+    s.SetFormat("({0},{1},{2},{3})", value.x, value.y, value.z, value.w);
   else
-    s.Format("({0}, {1}, {2}, {3})", value.x, value.y, value.z, value.w);
+    s.SetFormat("({0}, {1}, {2}, {3})", value.x, value.y, value.z, value.w);
 
   WriteBinaryData("vec4i", &temp, sizeof(temp), s.GetData());
 }
@@ -601,7 +601,7 @@ void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* p
 
   for (ezUInt32 i = 0; i < uiBytes; ++i)
   {
-    s.Format("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
+    s.SetFormat("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
     ++pBytes;
 
     OutputString(s.GetData());
@@ -612,5 +612,3 @@ void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* p
   else
     OutputString("\" }");
 }
-
-

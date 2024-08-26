@@ -146,4 +146,3 @@ void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOther
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltTriggerComponent);
-

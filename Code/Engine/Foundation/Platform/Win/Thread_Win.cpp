@@ -15,5 +15,3 @@ DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
 }
 
 #endif
-
-

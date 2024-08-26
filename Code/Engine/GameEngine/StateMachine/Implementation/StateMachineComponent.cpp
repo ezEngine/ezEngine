@@ -248,7 +248,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Resource", GetResource, SetResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
     EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
   }
@@ -336,27 +336,6 @@ void ezStateMachineComponent::SetResource(const ezStateMachineResourceHandle& hR
   }
 }
 
-void ezStateMachineComponent::SetResourceFile(const char* szFile)
-{
-  ezStateMachineResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezStateMachineResource>(szFile);
-    ezResourceManager::PreloadResource(hResource);
-  }
-
-  SetResource(hResource);
-}
-
-const char* ezStateMachineComponent::GetResourceFile() const
-{
-  if (!m_hResource.IsValid())
-    return "";
-
-  return m_hResource.GetResourceID();
-}
-
 void ezStateMachineComponent::SetInitialState(const char* szName)
 {
   ezHashedString sInitialState;
@@ -442,7 +421,7 @@ void ezStateMachineComponent::InstantiateStateMachine()
   ezResourceLock<ezStateMachineResource> pStateMachineResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pStateMachineResource.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load state machine '{}'", GetResourceFile());
+    ezLog::Error("Failed to load state machine '{}'", GetResource().GetResourceID());
     return;
   }
 

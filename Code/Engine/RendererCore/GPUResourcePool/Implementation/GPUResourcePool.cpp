@@ -17,12 +17,12 @@ ezGPUResourcePool::ezGPUResourcePool()
 {
   m_pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_GALDeviceEventSubscriptionID = m_pDevice->m_Events.AddEventHandler(ezMakeDelegate(&ezGPUResourcePool::GALDeviceEventHandler, this));
+  m_GALDeviceEventSubscriptionID = m_pDevice->s_Events.AddEventHandler(ezMakeDelegate(&ezGPUResourcePool::GALDeviceEventHandler, this));
 }
 
 ezGPUResourcePool::~ezGPUResourcePool()
 {
-  m_pDevice->m_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
+  m_pDevice->s_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
   if (!m_TexturesInUse.IsEmpty())
   {
     ezLog::SeriousWarning("Destructing a GPU resource pool of which textures are still in use!");
@@ -339,5 +339,3 @@ void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
     }
   }
 }
-
-

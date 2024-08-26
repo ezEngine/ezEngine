@@ -19,8 +19,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetCount() const
 }
 
 template <class Container>
-template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do
-                    // not support this.
+template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do not support this.
 void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
 {
   const ezUInt32 uiInts = (uiBitCount + 31) >> 5;
@@ -189,6 +188,14 @@ void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
 }
 
 template <class Container>
+void ezBitfield<Container>::FlipBit(ezUInt32 uiBit)
+{
+  EZ_ASSERT_DEBUG(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
+
+  m_Container[GetBitInt(uiBit)] ^= GetBitMask(uiBit);
+}
+
+template <class Container>
 EZ_ALWAYS_INLINE void ezBitfield<Container>::SetBitValue(ezUInt32 uiBit, bool bValue)
 {
   if (bValue)
@@ -297,6 +304,150 @@ void ezBitfield<Container>::ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBit
   // set the bits in the last int individually
   for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     ClearBit(i);
+}
+
+template <class Container>
+void ezBitfield<Container>::FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits)
+{
+  if (m_uiCount == 0 || uiNumBits == 0)
+    return;
+
+  EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
+
+  const ezUInt32 uiLastBit = uiFirstBit + uiNumBits - 1;
+
+  const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
+  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
+
+  // all within the same int
+  if (uiFirstInt == uiLastInt)
+  {
+    for (ezUInt32 i = uiFirstBit; i <= uiLastBit; ++i)
+      FlipBit(i);
+
+    return;
+  }
+
+  const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
+  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
+
+  // flip the bits in the first int individually
+  for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
+    FlipBit(i);
+
+  // flip the bits in the ints in between with one operation
+  for (ezUInt32 i = uiFirstInt + 1; i < uiLastInt; ++i)
+    m_Container[i] = ~m_Container[i];
+
+  // flip the bits in the last int individually
+  for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
+    FlipBit(i);
+}
+
+template <class Container>
+void ezBitfield<Container>::Swap(ezBitfield<Container>& other)
+{
+  ezMath::Swap(m_uiCount, other.m_uiCount);
+  m_Container.Swap(other.m_Container);
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE typename ezBitfield<Container>::ConstIterator ezBitfield<Container>::GetIterator() const
+{
+  return ConstIterator(*this);
+};
+
+template <class Container>
+EZ_ALWAYS_INLINE typename ezBitfield<Container>::ConstIterator ezBitfield<Container>::GetEndIterator() const
+{
+  return ConstIterator();
+};
+
+//////////////////////////////////////////////////////////////////////////
+// ezBitfield<Container>::ConstIterator
+
+template <class Container>
+ezBitfield<Container>::ConstIterator::ConstIterator(const ezBitfield<Container>& bitfield)
+{
+  m_pBitfield = &bitfield;
+  FindNextChunk(0);
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::IsValid() const
+{
+  return m_pBitfield != nullptr;
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::ConstIterator::Value() const
+{
+  return *m_Iterator + (m_uiChunk << 5);
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE void ezBitfield<Container>::ConstIterator::Next()
+{
+  ++m_Iterator;
+  if (!m_Iterator.IsValid())
+  {
+    FindNextChunk(m_uiChunk + 1);
+  }
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::operator==(const ConstIterator& other) const
+{
+  return m_pBitfield == other.m_pBitfield && m_Iterator == other.m_Iterator && m_uiChunk == other.m_uiChunk;
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE bool ezBitfield<Container>::ConstIterator::operator!=(const ConstIterator& other) const
+{
+  return m_pBitfield != other.m_pBitfield || m_Iterator != other.m_Iterator || m_uiChunk != other.m_uiChunk;
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::ConstIterator::operator*() const
+{
+  return Value();
+}
+
+template <class Container>
+EZ_ALWAYS_INLINE void ezBitfield<Container>::ConstIterator::operator++()
+{
+  Next();
+}
+
+template <class Container>
+void ezBitfield<Container>::ConstIterator::FindNextChunk(ezUInt32 uiStartChunk)
+{
+  if (uiStartChunk < m_pBitfield->m_Container.GetCount())
+  {
+    const ezUInt32 uiLastChunk = m_pBitfield->m_Container.GetCount() - 1;
+    for (ezUInt32 i = uiStartChunk; i < uiLastChunk; ++i)
+    {
+      if (m_pBitfield->m_Container[i] != 0)
+      {
+        m_uiChunk = i;
+        m_Iterator = sub_iterator(m_pBitfield->m_Container[i]);
+        return;
+      }
+    }
+
+    const ezUInt32 uiMask = 0xFFFFFFFF >> (32 - (m_pBitfield->m_uiCount - (uiLastChunk << 5)));
+    if ((m_pBitfield->m_Container[uiLastChunk] & uiMask) != 0)
+    {
+      m_uiChunk = uiLastChunk;
+      m_Iterator = sub_iterator(m_pBitfield->m_Container[uiLastChunk] & uiMask);
+      return;
+    }
+  }
+
+  // End iterator.
+  m_pBitfield = nullptr;
+  m_uiChunk = 0;
+  m_Iterator = sub_iterator();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -432,4 +583,10 @@ template <typename T>
 EZ_ALWAYS_INLINE T ezStaticBitfield<T>::GetValue() const
 {
   return m_Storage;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE void ezStaticBitfield<T>::Swap(ezStaticBitfield<T>& other)
+{
+  ezMath::Swap(m_Storage, other.m_Storage);
 }

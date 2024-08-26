@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Player_data/Player.ts"}
 		}
 		Uuid %DocumentID{u4{8578378032072979072,5092232374516961900}}
-		u4 %Hash{11327317942376874157}
+		u4 %Hash{3090840248691333125}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12821812504545231033,15864946280584286119}}
@@ -25,6 +25,7 @@ o
 		{
 			s{"Prefabs/Player_data/Player.ts"}
 		}
+		s %Tags{""}
 	}
 }
 o

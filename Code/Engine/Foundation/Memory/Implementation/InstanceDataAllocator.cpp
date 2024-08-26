@@ -71,5 +71,3 @@ void ezInstanceDataAllocator::Destruct(ezByteBlobPtr blobPtr) const
     uiOffset += desc.m_uiTypeSize;
   }
 }
-
-

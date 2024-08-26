@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezCppSettings;
@@ -13,7 +14,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes> menus = ezStandardMenuTypes::Default);
 
   static ezActionDescriptorHandle s_hCatProjectGeneral;
   static ezActionDescriptorHandle s_hCatProjectAssets;
@@ -57,6 +58,7 @@ public:
   static ezActionDescriptorHandle s_hReloadEngine;
   static ezActionDescriptorHandle s_hLaunchFileserve;
   static ezActionDescriptorHandle s_hLaunchInspector;
+  static ezActionDescriptorHandle s_hLaunchTracy;
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
@@ -115,6 +117,7 @@ public:
     ReloadEngine,
     LaunchFileserve,
     LaunchInspector,
+    LaunchTracy,
     SaveProfiling,
     OpenVsCode,
     Shortcuts,

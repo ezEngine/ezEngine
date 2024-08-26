@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
@@ -26,13 +27,13 @@ class ezDequeBase
 {
 protected:
   /// \brief No memory is allocated during construction.
-  explicit ezDequeBase(ezAllocatorBase* pAllocator); // [tested]
+  explicit ezDequeBase(ezAllocator* pAllocator); // [tested]
 
   /// \brief Constructs this deque by copying from rhs.
-  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Constructs this deque by moving from rhs.
-  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDequeBase(); // [tested]
@@ -154,7 +155,7 @@ public:
   bool RemoveAndSwap(const T& value); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
-  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
+  void InsertAt(ezUInt32 uiIndex, const T& value); // [tested]
 
   /// \brief Sort with explicit comparer
   template <typename Comparer>
@@ -164,7 +165,7 @@ public:
   void Sort(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
+  ezAllocator* GetAllocator() const { return m_pAllocator; }
 
   using const_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, false>;
   using const_reverse_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, true>;
@@ -186,7 +187,7 @@ public:
 
 private:
   /// \brief A common constructor function.
-  void Constructor(ezAllocatorBase* pAllocator);
+  void Constructor(ezAllocator* pAllocator);
 
   /// \brief Reduces the index array to take up less memory.
   void CompactIndexArray(ezUInt32 uiMinChunksToKeep);
@@ -247,7 +248,7 @@ private:
   /// \brief Deallocates all data, resets the deque to the state after construction.
   void DeallocateAll();
 
-  ezAllocatorBase* m_pAllocator;
+  ezAllocator* m_pAllocator;
   T** m_pChunks;                ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
   ezUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
   ezUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
@@ -269,7 +270,7 @@ class ezDeque : public ezDequeBase<T, Construct>
 {
 public:
   ezDeque();
-  ezDeque(ezAllocatorBase* pAllocator);
+  ezDeque(ezAllocator* pAllocator);
 
   ezDeque(const ezDeque<T, AllocatorWrapper, Construct>& other);
   ezDeque(const ezDequeBase<T, Construct>& other);

@@ -7,8 +7,14 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/System/Process.h>
 
 using ezPluginModule = void*;
+
+bool ezPlugin::PlatformNeedsPluginCopy()
+{
+  return false;
+}
 
 void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
 {

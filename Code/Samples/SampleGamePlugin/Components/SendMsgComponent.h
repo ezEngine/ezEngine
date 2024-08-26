@@ -34,7 +34,7 @@ public:
   ~SendMsgComponent();
 
 private:
-  ezDynamicArray<ezString> m_TextArray; // [ property ]
+  ezDynamicArray<ezString> m_TextArray;                // [ property ]
 
   void OnSendText(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
 

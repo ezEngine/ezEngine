@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnDeactivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnDeactivated)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnSimulationStarted)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted)),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_Update, In, "DeltaTime")->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Update)),
   }
   EZ_END_FUNCTIONS;
 }
@@ -53,10 +53,12 @@ const ezWorld* ezComponent::GetWorld() const
 
 void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::EnsureInitialized()
@@ -150,11 +152,15 @@ void ezComponent::EnableUnhandledMessageHandler(bool enable)
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
@@ -196,8 +202,9 @@ ezWorld* ezComponent::Reflection_GetWorld() const
   return m_pManager->GetWorld();
 }
 
-void ezComponent::Reflection_Update()
+void ezComponent::Reflection_Update(ezTime deltaTime)
 {
+  EZ_IGNORE_UNUSED(deltaTime);
   // This is just a dummy function for the scripting reflection
 }
 
