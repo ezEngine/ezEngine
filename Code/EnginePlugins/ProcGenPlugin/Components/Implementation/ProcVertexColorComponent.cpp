@@ -267,12 +267,12 @@ void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorCompone
 
 void ezProcVertexColorComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading || resourceEvent.m_pResource->GetReferenceCount() == 0)
     return;
 
-  if (auto pResource = ezDynamicCast<const ezProcGenGraphResource*>(resourceEvent.m_pResource))
+  if (auto pResource = ezDynamicCast<ezProcGenGraphResource*>(resourceEvent.m_pResource))
   {
-    ezProcGenGraphResourceHandle hResource = pResource->GetResourceHandle();
+    ezProcGenGraphResourceHandle hResource(pResource);
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
