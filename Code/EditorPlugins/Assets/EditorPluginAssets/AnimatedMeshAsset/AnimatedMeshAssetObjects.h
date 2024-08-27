@@ -3,6 +3,8 @@
 #include <EditorPluginAssets/Util/AssetUtils.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
+struct ezPropertyMetaStateEvent;
+
 class ezAnimatedMeshAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimatedMeshAssetProperties, ezReflectedClass);
@@ -10,6 +12,8 @@ class ezAnimatedMeshAssetProperties : public ezReflectedClass
 public:
   ezAnimatedMeshAssetProperties();
   ~ezAnimatedMeshAssetProperties();
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
   ezString m_sDefaultSkeleton;
