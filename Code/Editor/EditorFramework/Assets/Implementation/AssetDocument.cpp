@@ -232,6 +232,10 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
       depFlags |= pAttr->GetDependencyFlags();
     }
 
+    const auto propVarType = pProp->GetSpecificType()->GetVariantType();
+    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+      continue;
+
     // add all strings that are marked as asset references or file references
     if (depFlags != 0)
     {
@@ -239,7 +243,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
       {
         case ezPropertyCategory::Member:
         {
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
           {
             if (bInsidePrefab)
             {
@@ -252,17 +256,14 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
 
             const ezVariant& value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
 
-            if (value.IsA<ezString>())
-            {
-              if (depFlags.IsSet(ezDependencyFlags::Transform))
-                pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+            if (depFlags.IsSet(ezDependencyFlags::Transform))
+              pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
 
-              if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
-                pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+            if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+              pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
 
-              if (depFlags.IsSet(ezDependencyFlags::Package))
-                pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
-            }
+            if (depFlags.IsSet(ezDependencyFlags::Package))
+              pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
           }
         }
         break;
@@ -270,7 +271,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         case ezPropertyCategory::Array:
         case ezPropertyCategory::Set:
         {
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
           {
             const ezInt32 iCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
@@ -318,7 +319,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
 
         case ezPropertyCategory::Map:
           // #TODO Search for exposed params that reference assets.
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
           {
             ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
             const ezVariantDictionary& varDict = value.Get<ezVariantDictionary>();
