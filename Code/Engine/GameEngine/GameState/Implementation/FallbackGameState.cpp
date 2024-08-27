@@ -16,10 +16,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezFallbackGameState::ezFallbackGameState()
-{
-  m_iActiveCameraComponentIndex = -3;
-}
+ezFallbackGameState::ezFallbackGameState() = default;
 
 void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
@@ -63,6 +60,8 @@ bool ezFallbackGameState::IsFallbackGameState() const
 
 ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
+  m_iActiveCameraComponentIndex = -3;
+
   if (SUPER::SpawnPlayer(sStartPosition, startPositionOffset).Succeeded())
     return EZ_SUCCESS;
 
