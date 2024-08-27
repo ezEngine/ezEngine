@@ -47,6 +47,8 @@ void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosit
 
     if (sScenePath.IsEmpty())
     {
+      SwitchToLoadingScreen("");
+
       m_bShowMenu = true;
       m_State = State::NoScene;
     }
@@ -223,6 +225,7 @@ void ezFallbackGameState::ProcessInput()
     }
   }
 
+  if (m_pMainWorld)
   {
     EZ_LOCK(m_pMainWorld->GetReadMarker());
 
@@ -271,6 +274,9 @@ void ezFallbackGameState::ProcessInput()
 
 void ezFallbackGameState::ConfigureMainCamera()
 {
+  if (!m_pMainWorld)
+    return;
+
   EZ_LOCK(m_pMainWorld->GetReadMarker());
 
   // Update the camera transform after world update so the owner node has its final position for this frame.
