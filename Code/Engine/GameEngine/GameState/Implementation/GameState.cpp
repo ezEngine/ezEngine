@@ -59,8 +59,11 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
   {
     ezStringBuilder sSceneFile = GetStartupSceneFile();
 
-    // TODO: also pass along a preload collection
-    LoadScene(sSceneFile, {}, sStartPosition, startPositionOffset);
+    if (!sSceneFile.IsEmpty())
+    {
+      // TODO: also pass along a preload collection
+      LoadScene(sSceneFile, {}, sStartPosition, startPositionOffset);
+    }
   }
 }
 

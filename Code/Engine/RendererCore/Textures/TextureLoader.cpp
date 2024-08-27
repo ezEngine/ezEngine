@@ -59,8 +59,10 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
 
   ezResourceLoadData res;
 
+  ezStringView sResourceID = pResource->GetResourceID();
+
   // Solid Color Textures
-  if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
+  if (sResourceID.HasExtension("color") || sResourceID.StartsWith("#") || (!sResourceID.HasAnyExtension() && !ezConversionUtils::IsStringUuid(sResourceID)))
   {
     ezStringBuilder sName = pResource->GetResourceID();
     sName.RemoveFileExtension();

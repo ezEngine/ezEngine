@@ -921,7 +921,12 @@ namespace ezConversionUtils
     {
       ezColorGammaUB res;
       if (ConvertHexStringToColor(sColorName, res).Succeeded())
+      {
+        if (out_pValidColorName)
+          *out_pValidColorName = true;
+
         return res;
+      }
 
       // else RebeccaPurple !
     }

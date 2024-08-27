@@ -65,6 +65,7 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezJoltCollisionMeshAssetProperties>())
     return;
 
+  const bool bSimplify = e.m_pObject->GetTypeAccessor().GetValue("SimplifyMesh").ConvertTo<bool>();
   const bool isConvex = e.m_pObject->GetTypeAccessor().GetValue("IsConvexMesh").ConvertTo<bool>();
   const ezInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("ConvexMeshType").ConvertTo<ezInt64>();
 
@@ -79,6 +80,10 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
   props["Surfaces"].m_Visibility = isConvex ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
   props["Surface"].m_Visibility = isConvex ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+  props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
   if (!isConvex)
   {

@@ -36,7 +36,7 @@ protected:
 
   virtual const ezCameraComponent* FindActiveCameraComponent();
 
-  ezInt32 m_iActiveCameraComponentIndex;
+  ezInt32 m_iActiveCameraComponentIndex = -3;
 
   //////////////////////////////////////////////////////////////////////////
 
