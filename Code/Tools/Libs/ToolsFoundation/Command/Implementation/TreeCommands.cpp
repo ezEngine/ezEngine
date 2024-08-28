@@ -702,7 +702,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
-    EZ_ASSERT_DEBUG(m_NewValue.GetType() != ezVariantType::StringView && m_NewValue.GetType() != ezVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
+    EZ_ASSERT_DEBUG(m_NewValue.GetType() != ezVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
 
     if (m_Object.IsValid())
     {
