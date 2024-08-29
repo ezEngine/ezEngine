@@ -218,25 +218,25 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg");
       break;
     case ActionType::DeltaTransform:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/DeltaTransform.svg"); // TODO Icon
       break;
     case ActionType::SnapObjectToCamera:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/SnapToCamera.svg"); // TODO Icon
       break;
     case ActionType::AttachToObject:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Attach.svg"); // TODO Icon
       break;
     case ActionType::DetachFromParent:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Detach.svg"); // TODO Icon
       break;
     case ActionType::ConvertToEditorPrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEditorPrefab.png"); // TODO Icon
       break;
     case ActionType::ConvertToEnginePrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEnginePrefab.png"); // TODO Icon
       break;
     case ActionType::CopyReference:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      SetIconPath(":/EditorFramework/Icons/id.svg");
       break;
     case ActionType::SelectParent:
       SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg");
