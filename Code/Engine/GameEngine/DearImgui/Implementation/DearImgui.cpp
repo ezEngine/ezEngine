@@ -2,11 +2,15 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
+#  define IMGUI_DEFINE_MATH_OPERATORS
+#  include <Imgui/imgui.h>
+
 #  include <Core/Input/InputManager.h>
 #  include <Foundation/Configuration/Startup.h>
 #  include <Foundation/Time/Clock.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/GameApplication/GameApplication.h>
+#  include <Imgui/imgui_internal.h>
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererCore/Textures/Texture2DResource.h>
@@ -68,6 +72,148 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
     BeginFrame(hView);
     context.m_uiFrameBeginCounter = uiCurrentFrameCounter;
   }
+}
+
+ImTextureID ezImgui::RegisterTexture(const ezTexture2DResourceHandle& hTexture)
+{
+  ezUInt32 idx = m_Textures.IndexOf(hTexture);
+  if (idx == ezInvalidIndex)
+  {
+    idx = m_Textures.GetCount();
+    m_Textures.PushBack(hTexture);
+  }
+
+  return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(idx));
+}
+
+void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID id, const ezVec2& uv0, const ezVec2& uv1)
+{
+  auto& img = m_Images[sName];
+  img.m_Id = id;
+  img.m_UV0 = uv0;
+  img.m_UV1 = uv1;
+}
+
+bool ezImgui::AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor, const ezColor& tintColor) const
+{
+  Image* pImg;
+  if (!m_Images.TryGetValue(sImgId, pImg))
+  {
+    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    return false;
+  }
+
+  return ImGui::ImageButton(szImguiID, pImg->m_Id, reinterpret_cast<const ImVec2&>(vImageSize), reinterpret_cast<const ImVec2&>(pImg->m_UV0), reinterpret_cast<const ImVec2&>(pImg->m_UV1), reinterpret_cast<const ImVec4&>(backgroundColor), reinterpret_cast<const ImVec4&>(tintColor));
+}
+
+
+void ezImgui::AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor, const ezColor& borderColor) const
+{
+  Image* pImg;
+  if (!m_Images.TryGetValue(sImgId, pImg))
+  {
+    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    return;
+  }
+
+  return ImGui::Image(pImg->m_Id, reinterpret_cast<const ImVec2&>(vImageSize), reinterpret_cast<const ImVec2&>(pImg->m_UV0), reinterpret_cast<const ImVec2&>(pImg->m_UV1), reinterpret_cast<const ImVec4&>(tintColor), reinterpret_cast<const ImVec4&>(borderColor));
+}
+
+
+bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor) const
+{
+  Image* pImg;
+  if (!m_Images.TryGetValue(sImgId, pImg))
+  {
+    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    return false;
+  }
+
+  ImGuiContext& g = *ImGui::GetCurrentContext();
+  ImGuiWindow* window = g.CurrentWindow;
+  if (window->SkipItems)
+    return false;
+
+  ImTextureID user_texture_id = pImg->m_Id;
+  const ImVec2 image_size = reinterpret_cast<const ImVec2&>(vImageSize);
+  const ImVec2 uv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
+  const ImVec2 uv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
+  ImGuiID id = window->GetID(szImguiID);
+
+  const ImVec2 padding = g.Style.FramePadding;
+  const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + image_size + padding * 2.0f);
+  ImGui::ItemSize(bb);
+  if (!ImGui::ItemAdd(bb, id))
+    return false;
+
+  const ImGuiButtonFlags flags = 0;
+
+  bool hovered, held;
+  bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+
+  // Render
+  const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered
+                                                                                           : ImGuiCol_Button);
+  ImGui::RenderNavHighlight(bb, id);
+  ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
+
+  // if (bg_col.w > 0.0f)
+  //   window->DrawList->AddRectFilled(bb.Min + padding, bb.Max - padding, ImGui::GetColorU32(bg_col));
+
+  const ImVec4 tintCol = reinterpret_cast<const ImVec4&>(tintColor);
+  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, uv0, uv1, ImGui::GetColorU32(tintCol));
+
+  ImVec2 min = bb.Min;
+  ImVec2 max = bb.Max;
+
+  min.x = ezMath::Lerp(min.x, max.x, fProgress);
+
+  const ImVec4 overlayCol = reinterpret_cast<const ImVec4&>(overlayColor);
+  window->DrawList->AddRectFilled(min, max, ImGui::GetColorU32(overlayCol));
+
+  return pressed;
+}
+
+void ezImgui::AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor) const
+{
+  Image* pImg;
+  if (!m_Images.TryGetValue(sImgId, pImg))
+  {
+    EZ_ASSERT_DEBUG(false, "Unknown image identifier");
+    return;
+  }
+
+  ImGuiContext& g = *ImGui::GetCurrentContext();
+  ImGuiWindow* window = g.CurrentWindow;
+  if (window->SkipItems)
+    return;
+
+  ImTextureID user_texture_id = pImg->m_Id;
+  const ImVec2 image_size = reinterpret_cast<const ImVec2&>(vImageSize);
+  const ImVec2 uv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
+  const ImVec2 uv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
+  ImGuiID id = window->GetID(szImguiID);
+
+  const ImVec2 padding = g.Style.FramePadding;
+  const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + image_size + padding * 2.0f);
+  ImGui::ItemSize(bb);
+  if (!ImGui::ItemAdd(bb, id))
+    return;
+
+  // Render
+  const ImU32 col = ImGui::GetColorU32(ImGuiCol_Button);
+  ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
+
+  const ImVec4 tintCol = reinterpret_cast<const ImVec4&>(tintColor);
+  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, uv0, uv1, ImGui::GetColorU32(tintCol));
+
+  ImVec2 min = bb.Min;
+  ImVec2 max = bb.Max;
+
+  min.x = ezMath::Lerp(min.x, max.x, fProgress);
+
+  const ImVec4 overlayCol = reinterpret_cast<const ImVec4&>(overlayColor);
+  window->DrawList->AddRectFilled(min, max, ImGui::GetColorU32(overlayCol));
 }
 
 void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
