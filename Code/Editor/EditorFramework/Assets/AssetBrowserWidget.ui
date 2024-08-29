@@ -60,8 +60,8 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normalon>:/EditorFramework/Icons/Perspective.svg</normalon>
-             <normaloff>:/EditorFramework/Icons/ShowHidden.svg</normaloff>
+             <normalon>:/EditorFramework/Icons/ObjectsHidden.svg</normalon>
+             <normaloff>:/EditorFramework/Icons/ObjectsVisible.svg</normaloff>
             </iconset>
            </property>
            <property name="checkable">

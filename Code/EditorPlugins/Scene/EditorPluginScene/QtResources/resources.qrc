@@ -20,6 +20,7 @@
     <file>Icons/Layer.svg</file>
     <file>Icons/LayerVisible.svg</file>
     <file>Icons/LayerLoaded.svg</file>
+	<file>Icons/LayerUnloaded.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezMeshComponent.svg</file>

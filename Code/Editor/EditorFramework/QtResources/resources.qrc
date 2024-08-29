@@ -3,7 +3,8 @@
     <file>Icons/Connection.svg</file>
     <file>Icons/Tag.svg</file>
     <file>Icons/Perspective.svg</file>
-    <file>Icons/ShowHidden.svg</file>
+	<file>Icons/ObjectsVisible.svg</file>
+	<file>Icons/ObjectsHidden.svg</file>
     <file>Icons/RenderMode.svg</file>
     <file>Icons/Asset.svg</file>
     <file>Icons/AssetCurator.svg</file>
