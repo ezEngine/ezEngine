@@ -36,6 +36,7 @@ public:
   static ezActionDescriptorHandle s_hConvertToEnginePrefab;
   static ezActionDescriptorHandle s_hConvertToEditorPrefab;
   static ezActionDescriptorHandle s_hCopyReference;
+  static ezActionDescriptorHandle s_hSelectParent;
 };
 
 ///
@@ -66,6 +67,7 @@ public:
     AttachToObject,
     DetachFromParent,
     CopyReference,
+    SelectParent,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

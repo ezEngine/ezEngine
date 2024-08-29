@@ -42,6 +42,9 @@ public:
 
   void GroupSelection();
 
+  /// \brief Changes the selection to the parent object.
+  void SelectParentObject();
+
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();
 
