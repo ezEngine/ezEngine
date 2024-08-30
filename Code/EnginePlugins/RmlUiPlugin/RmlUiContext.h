@@ -18,7 +18,7 @@ namespace ezRmlUiInternal
 class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Context
 {
 public:
-  ezRmlUiContext(const Rml::String& sName);
+  ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* render_manager, Rml::TextInputHandler* text_input_handler);
   ~ezRmlUiContext();
 
 public:
@@ -67,7 +67,7 @@ namespace ezRmlUiInternal
   class ContextInstancer : public Rml::ContextInstancer
   {
   public:
-    virtual Rml::ContextPtr InstanceContext(const Rml::String& sName) override;
+    virtual Rml::ContextPtr InstanceContext(const Rml::String& sName, Rml::RenderManager* render_manager, Rml::TextInputHandler* text_input_handler) override;
     virtual void ReleaseContext(Rml::Context* pContext) override;
 
   private:
