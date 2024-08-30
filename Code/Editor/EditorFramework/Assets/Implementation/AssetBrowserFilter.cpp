@@ -176,6 +176,8 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
     tmp.ToLower();
     m_FileExtensions.Insert(tmp);
   }
+
+  Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
