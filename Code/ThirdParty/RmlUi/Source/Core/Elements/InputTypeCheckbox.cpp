@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,42 +31,36 @@
 
 namespace Rml {
 
-InputTypeCheckbox::InputTypeCheckbox(ElementFormControlInput* element) : InputType(element)
+InputTypeCheckbox::InputTypeCheckbox(ElementFormControlInput* element) : InputType(element) {}
+
+InputTypeCheckbox::~InputTypeCheckbox() {}
+
+String InputTypeCheckbox::GetValue() const
 {
+	auto value = InputType::GetValue();
+	return value.empty() ? "on" : value;
 }
 
-InputTypeCheckbox::~InputTypeCheckbox()
-{
-}
-
-// Returns if this value should be submitted with the form.
 bool InputTypeCheckbox::IsSubmitted()
 {
 	return element->HasAttribute("checked");
 }
 
-// Checks for necessary functional changes in the control as a result of changed attributes.
 bool InputTypeCheckbox::OnAttributeChange(const ElementAttributes& changed_attributes)
 {
-	// Check if maxlength has been defined.
-	if (changed_attributes.find("checked") != changed_attributes.end())
+	if (changed_attributes.count("checked"))
 	{
-		bool checked = element->HasAttribute("checked");
+		const bool checked = element->HasAttribute("checked");
 		element->SetPseudoClass("checked", checked);
-
-		Dictionary parameters;
-		parameters["value"] = String(checked ? GetValue() : "");
-		element->DispatchEvent(EventId::Change, parameters);
+		element->DispatchEvent(EventId::Change, {{"data-binding-override-value", Variant(checked)}, {"value", Variant(checked ? GetValue() : "")}});
 	}
 
 	return true;
 }
 
-// Checks for necessary functional changes in the control as a result of the event.
 void InputTypeCheckbox::ProcessDefaultAction(Event& event)
 {
-	if (event == EventId::Click &&
-		!element->IsDisabled())
+	if (event == EventId::Click && !element->IsDisabled())
 	{
 		if (element->HasAttribute("checked"))
 			element->RemoveAttribute("checked");
@@ -75,7 +69,6 @@ void InputTypeCheckbox::ProcessDefaultAction(Event& event)
 	}
 }
 
-// Sizes the dimensions to the element's inherent size.
 bool InputTypeCheckbox::GetIntrinsicDimensions(Vector2f& dimensions, float& ratio)
 {
 	dimensions.x = 16;

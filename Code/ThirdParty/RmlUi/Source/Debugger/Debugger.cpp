@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,7 +33,6 @@
 namespace Rml {
 namespace Debugger {
 
-// Initialises the debug plugin. The debugger will be loaded into the given context.
 bool Initialise(Context* context)
 {
 	if (DebuggerPlugin::GetInstance() != nullptr)
@@ -57,7 +56,18 @@ bool Initialise(Context* context)
 	return true;
 }
 
-// Sets the context to be debugged.
+void Shutdown()
+{
+	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
+	if (!plugin)
+	{
+		Log::Message(Log::LT_WARNING, "Unable to shutdown debugger plugin, it was not initialised!");
+		return;
+	}
+
+	UnregisterPlugin(plugin);
+}
+
 bool SetContext(Context* context)
 {
 	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
@@ -69,7 +79,6 @@ bool SetContext(Context* context)
 	return true;
 }
 
-// Sets the visibility of the debugger.
 void SetVisible(bool visibility)
 {
 	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
@@ -77,7 +86,6 @@ void SetVisible(bool visibility)
 		plugin->SetVisible(visibility);
 }
 
-// Returns the visibility of the debugger.
 bool IsVisible()
 {
 	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
@@ -87,5 +95,5 @@ bool IsVisible()
 	return plugin->IsVisible();
 }
 
-}
+} // namespace Debugger
 } // namespace Rml
