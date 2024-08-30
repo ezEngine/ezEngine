@@ -4,7 +4,7 @@
  *
  *   FreeType path stroker (specification).
  *
- * Copyright (C) 2002-2020 by
+ * Copyright (C) 2002-2024 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -19,9 +19,8 @@
 #ifndef FTSTROKE_H_
 #define FTSTROKE_H_
 
-#include <ft2build.h>
-#include FT_OUTLINE_H
-#include FT_GLYPH_H
+#include <freetype/ftoutln.h>
+#include <freetype/ftglyph.h>
 
 
 FT_BEGIN_HEADER
@@ -44,7 +43,7 @@ FT_BEGIN_HEADER
    *    borders of the stroke.
    *
    *    This can be useful to generate 'bordered' glyph, i.e., glyphs
-   *    displayed with a coloured (and anti-aliased) border around their
+   *    displayed with a colored (and anti-aliased) border around their
    *    shape.
    *
    * @order:
@@ -294,7 +293,7 @@ FT_BEGIN_HEADER
    *
    *   miter_limit ::
    *     The maximum reciprocal sine of half-angle at the miter join,
-   *     expressed as 16.16 fixed point value.
+   *     expressed as 16.16 fixed-point value.
    *
    * @note:
    *   The `radius` is expressed in the same units as the outline
