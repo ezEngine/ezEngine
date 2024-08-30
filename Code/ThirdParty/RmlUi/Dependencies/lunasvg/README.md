@@ -1,13 +1,15 @@
-# LunaSVG
+[![Releases](https://img.shields.io/badge/Version-2.4.1-orange.svg)](https://github.com/sammycage/lunasvg/releases)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/sammycage/lunasvg/blob/master/LICENSE)
+[![Build Status](https://github.com/sammycage/lunasvg/actions/workflows/ci.yml/badge.svg)](https://github.com/sammycage/lunasvg/actions)
 
-lunasvg is a standalone SVG rendering library in C++
+# LunaSVG - SVG rendering library in C++
 
-![svg2png generated PNG](luna.png)
+![LunaSVG](https://github.com/sammycage/lunasvg/blob/master/luna.png)
 
 ## Example
 
 ```cpp
-#include <lunasvg/document.h>
+#include <lunasvg.h>
 
 using namespace lunasvg;
 
@@ -34,13 +36,13 @@ int main()
 - Masks
 - ClipPaths
 - Markers
+- StyleSheet
 
 ## TODO
 
 - Texts
 - Filters
 - Images
-- StyleSheet
 
 ## Build
 
@@ -61,15 +63,24 @@ make install
 
 ## Demo
 
-While building lunasvg example it generates a simple SVG to PNG converter which can be used to convert SVG file to PNG file.
+By enabling the `LUNASVG_BUILD_EXAMPLES` option during the CMake configuration, the lunasvg build includes a simple SVG to PNG converter for easy conversion of SVG files to PNG format.
 
 Run Demo.
 ```
 svg2png [filename] [resolution] [bgColor]
 ```
 
-## Support
+## Projects Using LunaSVG
 
-If you like the work lunasvg is doing please consider a small donation:
+- [OpenSiv3D](https://github.com/Siv3D/OpenSiv3D)
+- [PICsimLab](https://github.com/lcgamboa/picsimlab)
+- [MoneyManagerEx](https://github.com/moneymanagerex/moneymanagerex)
+- [RmlUi](https://github.com/mikke89/RmlUi)
+- [ObEngine](https://github.com/ObEngine/ObEngine)
+- [OTTO](https://github.com/bitfieldaudio/OTTO)
+- [EmulationStation-DE](https://gitlab.com/es-de/emulationstation-de)
+- [SvgBooga](https://github.com/etodanik/SvgBooga/tree/main)
+- [Dear ImGui](https://github.com/ocornut/imgui)
+- [Multi Theft Auto: San Andreas](https://github.com/multitheftauto/mtasa-blue)
+- [eScada Solutions](https://www.escadasolutions.com)
 
-<a href="https://www.buymeacoffee.com/sammycage"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=sammycage&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff"></a>

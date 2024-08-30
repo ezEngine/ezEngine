@@ -34,11 +34,8 @@ void plutovg_dash_destroy(plutovg_dash_t* dash)
 
 plutovg_path_t* plutovg_dash_path(const plutovg_dash_t* dash, const plutovg_path_t* path)
 {
-    plutovg_path_t* flat = plutovg_path_clone_flat(path);
-    plutovg_path_t* result = plutovg_path_create();
-
-    plutovg_array_ensure(result->elements, flat->elements.size);
-    plutovg_array_ensure(result->points, flat->points.size);
+    if(dash->data==NULL || dash->size==0)
+        return plutovg_path_clone(path);
 
     int toggle = 1;
     int offset = 0;
@@ -47,8 +44,14 @@ plutovg_path_t* plutovg_dash_path(const plutovg_dash_t* dash, const plutovg_path
     {
         toggle = !toggle;
         phase -= dash->data[offset];
-        if(++offset==dash->size) offset = 0;
+        offset += 1;
+        if(offset == dash->size) offset = 0;
     }
+
+    plutovg_path_t* flat = plutovg_path_clone_flat(path);
+    plutovg_path_t* result = plutovg_path_create();
+    plutovg_array_ensure(result->elements, flat->elements.size);
+    plutovg_array_ensure(result->points, flat->points.size);
 
     plutovg_path_element_t* elements = flat->elements.data;
     plutovg_path_element_t* end = elements + flat->elements.size;
@@ -74,6 +77,7 @@ plutovg_path_t* plutovg_dash_path(const plutovg_dash_t* dash, const plutovg_path
             double dy = points->y - y0;
             double dist0 = sqrt(dx*dx + dy*dy);
             double dist1 = 0;
+
             while(dist0 - dist1 > dash->data[ioffset] - iphase)
             {
                 dist1 += dash->data[ioffset] - iphase;
@@ -88,7 +92,8 @@ plutovg_path_t* plutovg_dash_path(const plutovg_dash_t* dash, const plutovg_path
 
                 itoggle = !itoggle;
                 iphase = 0;
-                if(++ioffset==dash->size) ioffset = 0;
+                ioffset += 1;
+                if(ioffset == dash->size) ioffset = 0;
             }
 
             iphase += dist0 - dist1;

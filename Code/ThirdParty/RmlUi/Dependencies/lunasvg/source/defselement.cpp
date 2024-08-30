@@ -1,13 +1,10 @@
 #include "defselement.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
 DefsElement::DefsElement()
-    : GraphicsElement(ElementId::Defs)
+    : GraphicsElement(ElementID::Defs)
 {
 }
 
-std::unique_ptr<Node> DefsElement::clone() const
-{
-    return cloneElement<DefsElement>();
-}
+} // namespace lunasvg

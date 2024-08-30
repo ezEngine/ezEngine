@@ -7,8 +7,7 @@ namespace lunasvg {
 
 class LayoutMarker;
 
-class MarkerElement : public StyledElement
-{
+class MarkerElement final : public StyledElement {
 public:
     MarkerElement();
 
@@ -21,9 +20,7 @@ public:
 
     Rect viewBox() const;
     PreserveAspectRatio preserveAspectRatio() const;
-    std::unique_ptr<LayoutMarker> getMarker(LayoutContext* context) const;
-
-    std::unique_ptr<Node> clone() const;
+    std::unique_ptr<LayoutMarker> getMarker(LayoutContext* context);
 };
 
 } // namespace lunasvg
