@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,48 +27,69 @@
  */
 
 #include "FontFamily.h"
+#include "../../../Include/RmlUi/Core/ComputedValues.h"
+#include "../../../Include/RmlUi/Core/Math.h"
 #include "FontFace.h"
+#include <limits.h>
 
 namespace Rml {
 
-FontFamily::FontFamily(const String& name) : name(name)
+FontFamily::FontFamily(const String& name) : name(name) {}
+
+FontFamily::~FontFamily()
 {
+	// Multiple face entries may share memory within a single font family, although only one of them owns it. Here we make sure that all the face
+	// destructors are run before all the memory is released. This way we don't leave any hanging references to invalidated memory.
+	for (FontFaceEntry& entry : font_faces)
+		entry.face.reset();
 }
 
-// Returns a handle to the most appropriate font in the family, at the correct size.
 FontFaceHandleDefault* FontFamily::GetFaceHandle(Style::FontStyle style, Style::FontWeight weight, int size)
 {
-	// Search for a face of the same style, and match the weight as closely as we can.
+	int best_dist = INT_MAX;
 	FontFace* matching_face = nullptr;
 	for (size_t i = 0; i < font_faces.size(); i++)
 	{
-		// If we've found a face matching the style, then ... great! We'll match it regardless of the weight. However,
-		// if it's a perfect match, then we'll stop looking altogether.
-		if (font_faces[i]->GetStyle() == style)
-		{
-			matching_face = font_faces[i].get();
+		FontFace* face = font_faces[i].face.get();
 
-			if (font_faces[i]->GetWeight() == weight)
+		if (face->GetStyle() == style)
+		{
+			const int dist = Math::Absolute((int)face->GetWeight() - (int)weight);
+			if (dist == 0)
+			{
+				// Direct match for weight, break the loop early.
+				matching_face = face;
 				break;
+			}
+			else if (dist < best_dist)
+			{
+				// Best match so far for weight, store the face and dist.
+				matching_face = face;
+				best_dist = dist;
+			}
 		}
 	}
 
-	if (matching_face == nullptr)
+	if (!matching_face)
 		return nullptr;
 
-	return matching_face->GetHandle(size);
+	return matching_face->GetHandle(size, true);
 }
 
-
-// Adds a new face to the family.
-FontFace* FontFamily::AddFace(FontFaceHandleFreetype ft_face, Style::FontStyle style, Style::FontWeight weight, bool release_stream)
+FontFace* FontFamily::AddFace(FontFaceHandleFreetype ft_face, Style::FontStyle style, Style::FontWeight weight, UniquePtr<byte[]> face_memory)
 {
-	auto face = MakeUnique<FontFace>(ft_face, style, weight, release_stream);
+	auto face = MakeUnique<FontFace>(ft_face, style, weight);
 	FontFace* result = face.get();
 
-	font_faces.push_back(std::move(face));
+	font_faces.push_back(FontFaceEntry{std::move(face), std::move(face_memory)});
 
 	return result;
+}
+
+void FontFamily::ReleaseFontResources()
+{
+	for (auto& entry : font_faces)
+		entry.face->ReleaseFontResources();
 }
 
 } // namespace Rml

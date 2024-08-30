@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,57 +30,41 @@
 #define RMLUI_CORE_STYLESHEETNODE_H
 
 #include "../../Include/RmlUi/Core/PropertyDictionary.h"
-#include "../../Include/RmlUi/Core/StyleSheet.h"
 #include "../../Include/RmlUi/Core/Types.h"
-#include <tuple>
+#include "StyleSheetSelector.h"
 
 namespace Rml {
 
-class StyleSheetNodeSelector;
-
-struct StructuralSelector {
-	StructuralSelector(StyleSheetNodeSelector* selector, int a, int b) : selector(selector), a(a), b(b) {}
-	StyleSheetNodeSelector* selector;
-	int a;
-	int b;
-};
-inline bool operator==(const StructuralSelector& a, const StructuralSelector& b) { return a.selector == b.selector && a.a == b.a && a.b == b.b; }
-inline bool operator<(const StructuralSelector& a, const StructuralSelector& b) { return std::tie(a.selector, a.a, a.b) < std::tie(b.selector, b.a, b.b); }
-
-using StructuralSelectorList = Vector< StructuralSelector >;
-using StyleSheetNodeList = Vector< UniquePtr<StyleSheetNode> >;
-
+struct StyleSheetIndex;
+class StyleSheetNode;
+using StyleSheetNodeList = Vector<UniquePtr<StyleSheetNode>>;
 
 /**
-	A style sheet is composed of a tree of nodes.
+    A style sheet is composed of a tree of nodes.
 
-	@author Pete / Lloyd
+    @author Pete / Lloyd
  */
 
-class StyleSheetNode
-{
+class StyleSheetNode {
 public:
 	StyleSheetNode();
-	StyleSheetNode(StyleSheetNode* parent, const String& tag, const String& id, const StringList& classes, const StringList& pseudo_classes, const StructuralSelectorList& structural_selectors, bool child_combinator);
-	StyleSheetNode(StyleSheetNode* parent, String&& tag, String&& id, StringList&& classes, StringList&& pseudo_classes, StructuralSelectorList&& structural_selectors, bool child_combinator);
+	StyleSheetNode(StyleSheetNode* parent, const CompoundSelector& selector);
+	StyleSheetNode(StyleSheetNode* parent, CompoundSelector&& selector);
 
-	/// Retrieves a child node with the given requirements if they match an existing node, or else creates a new one.
-	StyleSheetNode* GetOrCreateChildNode(String&& tag, String&& id, StringList&& classes, StringList&& pseudo_classes, StructuralSelectorList&& structural_selectors, bool child_combinator);
 	/// Retrieves or creates a child node with requirements equivalent to the 'other' node.
-	StyleSheetNode* GetOrCreateChildNode(const StyleSheetNode& other);
+	StyleSheetNode* GetOrCreateChildNode(const CompoundSelector& other);
+	/// Retrieves a child node with the given requirements if they match an existing node, or else creates a new one.
+	StyleSheetNode* GetOrCreateChildNode(CompoundSelector&& other);
 
 	/// Merges an entire tree hierarchy into our hierarchy.
 	void MergeHierarchy(StyleSheetNode* node, int specificity_offset = 0);
 	/// Copy this node including all descendent nodes.
 	UniquePtr<StyleSheetNode> DeepCopy(StyleSheetNode* parent = nullptr) const;
-	/// Recursively set structural volatility.
-	bool SetStructurallyVolatileRecursive(bool ancestor_is_structurally_volatile);
 	/// Builds up a style sheet's index recursively.
-	void BuildIndex(StyleSheet::NodeIndex& styled_node_index) const;
+	void BuildIndex(StyleSheetIndex& styled_node_index) const;
 
-	/// Imports properties from a single rule definition into the node's properties and sets the
-	/// appropriate specificity on them. Any existing attributes sharing a key with a new attribute
-	/// will be overwritten if they are of a lower specificity.
+	/// Imports properties from a single rule definition into the node's properties and sets the appropriate specificity on them. Any existing
+	/// attributes sharing a key with a new attribute will be overwritten if they are of a lower specificity.
 	/// @param[in] properties The properties to import.
 	/// @param[in] rule_specificity The specificity of the importing rule.
 	void ImportProperties(const PropertyDictionary& properties, int rule_specificity);
@@ -88,42 +72,31 @@ public:
 	const PropertyDictionary& GetProperties() const;
 
 	/// Returns true if this node is applicable to the given element, given its IDs, classes and heritage.
-	bool IsApplicable(const Element* element, bool skip_id_tag) const;
+	/// @note For performance reasons this call does not check whether 'element' is a text element. The caller must manually check this condition and
+	/// consider any text element not applicable.
+	bool IsApplicable(const Element* element) const;
 
 	/// Returns the specificity of this node.
 	int GetSpecificity() const;
-	/// Returns true if this node employs a structural selector, and therefore generates element definitions that are
-	/// sensitive to sibling changes. 
-	/// @warning Result is only valid if structural volatility is set since any changes to the node tree.
-	bool IsStructurallyVolatile() const;
 
 private:
-	// Returns true if the requirements of this node equals the given arguments.
-	bool EqualRequirements(const String& tag, const String& id, const StringList& classes, const StringList& pseudo_classes, const StructuralSelectorList& structural_pseudo_classes, bool child_combinator) const;
-
 	void CalculateAndSetSpecificity();
 
 	// Match an element to the local node requirements.
 	inline bool Match(const Element* element) const;
-	inline bool MatchClassPseudoClass(const Element* element) const;
 	inline bool MatchStructuralSelector(const Element* element) const;
+	inline bool MatchAttributes(const Element* element) const;
+
+	// Recursively traverse the nodes up towards the root to match the element and its hierarchy.
+	bool TraverseMatch(const Element* element) const;
 
 	// The parent of this node; is nullptr for the root node.
 	StyleSheetNode* parent = nullptr;
 
 	// Node requirements
-	String tag;
-	String id;
-	StringList class_names;
-	StringList pseudo_class_names;
-	StructuralSelectorList structural_selectors; // Represents structural pseudo classes
-	bool child_combinator = false; // The '>' combinator: This node only matches if the element is a parent of the previous matching element.
+	CompoundSelector selector;
 
-	// True if any ancestor, descendent, or self is a structural pseudo class.
-	bool is_structurally_volatile = true;
-
-	// A measure of specificity of this node; the attribute in a node with a higher value will override those of a
-	// node with a lower value.
+	// A measure of specificity of this node; the attribute in a node with a higher value will override those of a node with a lower value.
 	int specificity = 0;
 
 	PropertyDictionary properties;

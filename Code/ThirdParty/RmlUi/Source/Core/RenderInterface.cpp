@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,62 +27,67 @@
  */
 
 #include "../../Include/RmlUi/Core/RenderInterface.h"
-#include "TextureDatabase.h"
 
 namespace Rml {
 
-RenderInterface::RenderInterface()
-{
-	context = nullptr;
+namespace CoreInternal {
+	bool HasRenderManager(RenderInterface* render_interface);
 }
+
+RenderInterface::RenderInterface() {}
 
 RenderInterface::~RenderInterface()
 {
-	TextureDatabase::ReleaseTextures(this);
+	// Note: We cannot automatically release render resources here, because that involves a virtual call to this interface during its destruction
+	// which is illegal.
+	RMLUI_ASSERTMSG(!CoreInternal::HasRenderManager(this),
+		"RenderInterface is being destroyed, but it is still actively referenced and used within the RmlUi library. This may lead to use-after-free "
+		"or nullptr dereference when releasing render resources. Ensure that the render interface is destroyed *after* the call to Rml::Shutdown.");
 }
 
-// Called by RmlUi when it wants to compile geometry it believes will be static for the forseeable future.
-CompiledGeometryHandle RenderInterface::CompileGeometry(Vertex* /*vertices*/, int /*num_vertices*/, int* /*indices*/, int /*num_indices*/, TextureHandle /*texture*/)
+void RenderInterface::EnableClipMask(bool /*enable*/) {}
+
+void RenderInterface::RenderToClipMask(ClipMaskOperation /*operation*/, CompiledGeometryHandle /*geometry*/, Vector2f /*translation*/) {}
+
+void RenderInterface::SetTransform(const Matrix4f* /*transform*/) {}
+
+LayerHandle RenderInterface::PushLayer()
 {
-	return 0;
+	return {};
 }
 
-// Called by RmlUi when it wants to render application-compiled geometry.
-void RenderInterface::RenderCompiledGeometry(CompiledGeometryHandle /*geometry*/, const Vector2f& /*translation*/)
+void RenderInterface::CompositeLayers(LayerHandle /*source*/, LayerHandle /*destination*/, BlendMode /*blend_mode*/,
+	Span<const CompiledFilterHandle> /*filters*/)
+{}
+
+void RenderInterface::PopLayer() {}
+
+TextureHandle RenderInterface::SaveLayerAsTexture()
 {
+	return TextureHandle{};
 }
 
-// Called by RmlUi when it wants to release application-compiled geometry.
-void RenderInterface::ReleaseCompiledGeometry(CompiledGeometryHandle /*geometry*/)
+CompiledFilterHandle RenderInterface::SaveLayerAsMaskImage()
 {
+	return CompiledFilterHandle{};
 }
 
-// Called by RmlUi when a texture is required by the library.
-bool RenderInterface::LoadTexture(TextureHandle& /*texture_handle*/, Vector2i& /*texture_dimensions*/, const String& /*source*/)
+CompiledFilterHandle RenderInterface::CompileFilter(const String& /*name*/, const Dictionary& /*parameters*/)
 {
-	return false;
+	return CompiledFilterHandle{};
 }
 
-// Called by RmlUi when a texture is required to be built from an internally-generated sequence of pixels.
-bool RenderInterface::GenerateTexture(TextureHandle& /*texture_handle*/, const byte* /*source*/, const Vector2i& /*source_dimensions*/)
+void RenderInterface::ReleaseFilter(CompiledFilterHandle /*filter*/) {}
+
+CompiledShaderHandle RenderInterface::CompileShader(const String& /*name*/, const Dictionary& /*parameters*/)
 {
-	return false;
+	return CompiledShaderHandle{};
 }
 
-// Called by RmlUi when a loaded texture is no longer required.
-void RenderInterface::ReleaseTexture(TextureHandle /*texture*/)
-{
-}
+void RenderInterface::RenderShader(CompiledShaderHandle /*shader*/, CompiledGeometryHandle /*geometry*/, Vector2f /*translation*/,
+	TextureHandle /*texture*/)
+{}
 
-// Called by RmlUi when it wants to change the current transform matrix to a new matrix.
-void RenderInterface::SetTransform(const Matrix4f* /*transform*/)
-{
-}
-
-// Get the context currently being rendered.
-Context* RenderInterface::GetContext() const
-{
-	return context;
-}
+void RenderInterface::ReleaseShader(CompiledShaderHandle /*shader*/) {}
 
 } // namespace Rml

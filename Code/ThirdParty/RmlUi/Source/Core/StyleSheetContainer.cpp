@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,23 +27,20 @@
  */
 
 #include "../../Include/RmlUi/Core/StyleSheetContainer.h"
+#include "../../Include/RmlUi/Core/ComputedValues.h"
 #include "../../Include/RmlUi/Core/Context.h"
-#include "../../Include/RmlUi/Core/PropertyDictionary.h"
 #include "../../Include/RmlUi/Core/Profiling.h"
+#include "../../Include/RmlUi/Core/PropertyDictionary.h"
 #include "../../Include/RmlUi/Core/StyleSheet.h"
+#include "../../Include/RmlUi/Core/Utilities.h"
 #include "ComputeProperty.h"
 #include "StyleSheetParser.h"
-#include "Utilities.h"
 
 namespace Rml {
 
-StyleSheetContainer::StyleSheetContainer()
-{
-}
+StyleSheetContainer::StyleSheetContainer() {}
 
-StyleSheetContainer::~StyleSheetContainer()
-{
-}
+StyleSheetContainer::~StyleSheetContainer() {}
 
 bool StyleSheetContainer::LoadStyleSheetContainer(Stream* stream, int begin_line_number)
 {
@@ -62,12 +59,14 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 
 	Vector<int> new_active_media_block_indices;
 
-	const float font_size = DefaultComputedValues.font_size;
+	const float font_size = DefaultComputedValues.font_size();
 
 	for (int media_block_index = 0; media_block_index < (int)media_blocks.size(); media_block_index++)
 	{
 		const MediaBlock& media_block = media_blocks[media_block_index];
 		bool all_match = true;
+		bool expected_match_value = media_block.modifier == MediaQueryModifier::Not ? false : true;
+
 		for (const auto& property : media_block.properties.GetProperties())
 		{
 			const MediaQueryId id = static_cast<MediaQueryId>(property.first);
@@ -76,27 +75,27 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 			switch (id)
 			{
 			case MediaQueryId::Width:
-				if (vp_dimensions.x != ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x != ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MinWidth:
-				if (vp_dimensions.x < ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x < ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MaxWidth:
-				if (vp_dimensions.x > ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x > ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::Height:
-				if (vp_dimensions.y != ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y != ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MinHeight:
-				if (vp_dimensions.y < ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y < ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MaxHeight:
-				if (vp_dimensions.y > ComputeLength(&property.second, font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y > ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::AspectRatio:
@@ -127,7 +126,7 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 					all_match = false;
 				break;
 			case MediaQueryId::Orientation:
-				// Landscape (x > y) = 0 
+				// Landscape (x > y) = 0
 				// Portrait (x <= y) = 1
 				if ((vp_dimensions.x <= vp_dimensions.y) != property.second.Get<bool>())
 					all_match = false;
@@ -138,15 +137,14 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 				break;
 				// Invalid properties
 			case MediaQueryId::Invalid:
-			case MediaQueryId::NumDefinedIds:
-				break;
+			case MediaQueryId::NumDefinedIds: break;
 			}
 
-			if (!all_match)
+			if (all_match != expected_match_value)
 				break;
 		}
 
-		if (all_match)
+		if (all_match == expected_match_value)
 			new_active_media_block_indices.push_back(media_block_index);
 	}
 
@@ -198,7 +196,7 @@ SharedPtr<StyleSheetContainer> StyleSheetContainer::CombineStyleSheetContainer(c
 
 	for (const MediaBlock& media_block : media_blocks)
 	{
-		new_sheet->media_blocks.emplace_back(media_block.properties, media_block.stylesheet);
+		new_sheet->media_blocks.emplace_back(media_block.properties, media_block.stylesheet, media_block.modifier);
 	}
 
 	new_sheet->MergeStyleSheetContainer(container);
@@ -238,7 +236,7 @@ void StyleSheetContainer::MergeStyleSheetContainer(const StyleSheetContainer& ot
 	for (auto it = it_other_begin; it != other.media_blocks.end(); ++it)
 	{
 		const MediaBlock& block_other = *it;
-		media_blocks.emplace_back(block_other.properties, block_other.stylesheet);
+		media_blocks.emplace_back(block_other.properties, block_other.stylesheet, block_other.modifier);
 	}
 }
 

@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,26 +33,27 @@
 
 namespace Rml {
 
-/**	
-	Templated class for a four-component RGBA colour.
+using byte = unsigned char;
 
-	@author Peter Curry
+/**
+    Templated class for a four-component RGBA colour.
+
+    @author Peter Curry
  */
 
-template < typename ColourType, int AlphaDefault >
-class Colour
-{
+template <typename ColourType, int AlphaDefault, bool PremultipliedAlpha>
+class Colour {
 public:
 	/// Initialising constructor.
 	/// @param[in] rgb Initial red, green and blue value of the colour.
 	/// @param[in] alpha Initial alpha value of the colour.
-	inline Colour(ColourType rgb = ColourType{ 0 }, ColourType alpha = ColourType{ AlphaDefault });
+	inline Colour(ColourType rgb = ColourType{0}, ColourType alpha = ColourType{AlphaDefault});
 	/// Initialising constructor.
 	/// @param[in] red Initial red value of the colour.
 	/// @param[in] green Initial green value of the colour.
 	/// @param[in] blue Initial blue value of the colour.
 	/// @param[in] alpha Initial alpha value of the colour.
-	inline Colour(ColourType red, ColourType green, ColourType blue, ColourType alpha = ColourType{ AlphaDefault });
+	inline Colour(ColourType red, ColourType green, ColourType blue, ColourType alpha = ColourType{AlphaDefault});
 
 	/// Returns the sum of this colour and another. This does not saturate the channels.
 	/// @param[in] rhs The colour to add this to.
@@ -87,11 +88,11 @@ public:
 	/// Equality operator.
 	/// @param[in] rhs The colour to compare this against.
 	/// @return True if the two colours are equal, false otherwise.
-	inline bool operator==(Colour rhs) { return red == rhs.red && green == rhs.green && blue == rhs.blue && alpha == rhs.alpha; }
+	inline bool operator==(Colour rhs) const { return red == rhs.red && green == rhs.green && blue == rhs.blue && alpha == rhs.alpha; }
 	/// Inequality operator.
 	/// @param[in] rhs The colour to compare this against.
 	/// @return True if the two colours are not equal, false otherwise.
-	inline bool operator!=(Colour rhs) { return !(*this == rhs); }
+	inline bool operator!=(Colour rhs) const { return !(*this == rhs); }
 
 	/// Auto-cast operator.
 	/// @return A pointer to the first value.
@@ -99,6 +100,45 @@ public:
 	/// Constant auto-cast operator.
 	/// @return A constant pointer to the first value.
 	inline operator ColourType*() { return &red; }
+
+	// Convert color to premultiplied alpha.
+	template <typename IsPremultiplied = std::integral_constant<bool, PremultipliedAlpha>,
+		typename = typename std::enable_if_t<!IsPremultiplied::value && std::is_same<ColourType, byte>::value>>
+	inline Colour<ColourType, AlphaDefault, true> ToPremultiplied() const
+	{
+		return {
+			ColourType((red * alpha) / 255),
+			ColourType((green * alpha) / 255),
+			ColourType((blue * alpha) / 255),
+			alpha,
+		};
+	}
+	// Convert color to premultiplied alpha, after multiplying alpha by opacity.
+	template <typename IsPremultiplied = std::integral_constant<bool, PremultipliedAlpha>,
+		typename = typename std::enable_if_t<!IsPremultiplied::value && std::is_same<ColourType, byte>::value>>
+	inline Colour<ColourType, AlphaDefault, true> ToPremultiplied(float opacity) const
+	{
+		const float new_alpha = alpha * opacity;
+		return {
+			ColourType(red * (new_alpha / 255.f)),
+			ColourType(green * (new_alpha / 255.f)),
+			ColourType(blue * (new_alpha / 255.f)),
+			ColourType(new_alpha),
+		};
+	}
+
+	// Convert color to non-premultiplied alpha.
+	template <typename IsPremultiplied = std::integral_constant<bool, PremultipliedAlpha>,
+		typename = typename std::enable_if_t<IsPremultiplied::value && std::is_same<ColourType, byte>::value>>
+	inline Colour<ColourType, AlphaDefault, false> ToNonPremultiplied() const
+	{
+		return {
+			ColourType(alpha > 0 ? (red * 255) / alpha : 0),
+			ColourType(alpha > 0 ? (green * 255) / alpha : 0),
+			ColourType(alpha > 0 ? (blue * 255) / alpha : 0),
+			ColourType(alpha),
+		};
+	}
 
 	ColourType red, green, blue, alpha;
 
@@ -111,8 +151,6 @@ public:
 
 } // namespace Rml
 
-
 #include "Colour.inl"
-
 
 #endif

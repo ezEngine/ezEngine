@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,87 +29,35 @@
 #ifndef RMLUI_CORE_GEOMETRY_H
 #define RMLUI_CORE_GEOMETRY_H
 
+#include "CompiledFilterShader.h"
 #include "Header.h"
-#include "Vertex.h"
-#include <stdint.h>
+#include "Mesh.h"
+#include "Texture.h"
+#include "UniqueRenderResource.h"
 
 namespace Rml {
 
-class Context;
-class Element;
-class RenderInterface;
-struct Texture;
-using GeometryDatabaseHandle = uint32_t;
+class RenderManager;
 
 /**
-	A helper object for holding an array of vertices and indices, and compiling it as necessary when rendered.
+    A representation of geometry to be rendered through its underlying render interface.
 
-	@author Peter Curry
+    A unique resource constructed through the render manager.
  */
-
-class RMLUICORE_API Geometry
-{
+class RMLUICORE_API Geometry final : public UniqueRenderResource<Geometry, StableVectorIndex, StableVectorIndex::Invalid> {
 public:
-	Geometry(Element* host_element = nullptr);
-	Geometry(Context* host_context);
+	enum class ReleaseMode { ReturnMesh, ClearMesh };
 
-	Geometry(const Geometry&) = delete;
-	Geometry& operator=(const Geometry&) = delete;
+	Geometry() = default;
 
-	Geometry(Geometry&& other);
-	Geometry& operator=(Geometry&& other);
+	void Render(Vector2f translation, Texture texture = {}, const CompiledShader& shader = {}) const;
 
-	~Geometry();
-
-	/// Set the host element for this geometry; this should be passed in the constructor if possible.
-	/// @param[in] host_element The new host element for the geometry.
-	void SetHostElement(Element* host_element);
-
-	/// Attempts to compile the geometry if appropriate, then renders the geometry, compiled if it can.
-	/// @param[in] translation The translation of the geometry.
-	void Render(Vector2f translation);
-
-	/// Returns the geometry's vertices. If these are written to, Release() should be called to force a recompile.
-	/// @return The geometry's vertex array.
-	Vector< Vertex >& GetVertices();
-	/// Returns the geometry's indices. If these are written to, Release() should be called to force a recompile.
-	/// @return The geometry's index array.
-	Vector< int >& GetIndices();
-
-	/// Gets the geometry's texture.
-	/// @return The geometry's texture.
-	const Texture* GetTexture() const;
-	/// Sets the geometry's texture.
-	void SetTexture(const Texture* texture);
-
-	/// Releases any previously-compiled geometry, and forces any new geometry to have a compile attempted.
-	/// @param[in] clear_buffers True to also clear the vertex and index buffers, false to leave intact.
-	void Release(bool clear_buffers = false);
-
-	/// Returns true if there is geometry to be rendered.
-	explicit operator bool() const;
+	Mesh Release(ReleaseMode mode = ReleaseMode::ReturnMesh);
 
 private:
-	// Move members from another geometry.
-	void MoveFrom(Geometry& other);
-
-	// Returns the host context's render interface.
-	RenderInterface* GetRenderInterface();
-
-	Context* host_context = nullptr;
-	Element* host_element = nullptr;
-
-	Vector< Vertex > vertices;
-	Vector< int > indices;
-	const Texture* texture = nullptr;
-
-	CompiledGeometryHandle compiled_geometry = 0;
-	bool compile_attempted = false;
-
-	GeometryDatabaseHandle database_handle;
+	Geometry(RenderManager* render_manager, StableVectorIndex resource_handle);
+	friend class RenderManager;
 };
-
-using GeometryList = Vector< Geometry >;
 
 } // namespace Rml
 #endif

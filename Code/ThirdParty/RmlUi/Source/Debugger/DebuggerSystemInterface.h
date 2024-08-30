@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,14 +37,13 @@ namespace Debugger {
 class ElementLog;
 
 /**
-	The log interface the debugger installs into RmlUi. This is a pass-through interface, so it holds onto the
-	application's system interface and passes all the calls through.
+    The log interface the debugger installs into RmlUi. This is a pass-through interface, so it holds onto the
+    application's system interface and passes all the calls through.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class DebuggerSystemInterface : public Rml::SystemInterface
-{
+class DebuggerSystemInterface : public Rml::SystemInterface {
 public:
 	/// Instances a new debugging log interface.
 	/// @param[in] log The logging element to send messages to.
@@ -60,6 +59,12 @@ public:
 	/// @param[in] input String as received from XML.
 	/// @return Number of translations that occured.
 	int TranslateString(String& translated, const String& input) override;
+
+	/// Joins the path of an RML or RCSS file with the path of a resource specified within the file.
+	/// @param[out] translated_path The joined path.
+	/// @param[in] document_path The path of the source document (including the file name).
+	/// @param[in] path The path of the resource specified in the document.
+	void JoinPath(String& translated_path, const String& document_path, const String& path) override;
 
 	/// Log the specified message.
 	/// @param[in] type Type of log message, ERROR, WARNING, etc.
@@ -79,17 +84,18 @@ public:
 	/// @param[out] text Retrieved text from clipboard.
 	void GetClipboardText(String& text) override;
 
-	/// Activate keyboard (for touchscreen devices)
-	void ActivateKeyboard() override;
-	
-	/// Deactivate keyboard (for touchscreen devices)
+	/// Activate keyboard (for touchscreen devices).
+	void ActivateKeyboard(Rml::Vector2f caret_position, float line_height) override;
+
+	/// Deactivate keyboard (for touchscreen devices).
 	void DeactivateKeyboard() override;
+
 private:
 	Rml::SystemInterface* application_interface;
 	ElementLog* log;
 };
 
-}
+} // namespace Debugger
 } // namespace Rml
 
 #endif

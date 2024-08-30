@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -78,11 +78,11 @@ static DataAddress ParseAddress(const String& address_str)
 // Returns an error string on error, or nullptr on success.
 static const char* LegalVariableName(const String& name)
 {
-	static SmallUnorderedSet<String> reserved_names{ "it", "ev", "true", "false", "size", "literal" };
-	
+	static SmallUnorderedSet<String> reserved_names{"it", "it_index", "ev", "true", "false", "size", "literal"};
+
 	if (name.empty())
 		return "Name cannot be empty.";
-	
+
 	const String name_lower = StringUtilities::ToLower(name);
 
 	const char first = name_lower.front();
@@ -120,7 +120,7 @@ static String DataAddressToString(const DataAddress& address)
 	return result;
 }
 
-DataModel::DataModel(const TransformFuncRegister* transform_register) : transform_register(transform_register)
+DataModel::DataModel(DataTypeRegister* data_type_register) : data_type_register(data_type_register)
 {
 	views = MakeUnique<DataViews>();
 	controllers = MakeUnique<DataControllers>();
@@ -131,11 +131,13 @@ DataModel::~DataModel()
 	RMLUI_ASSERT(attached_elements.empty());
 }
 
-void DataModel::AddView(DataViewPtr view) {
+void DataModel::AddView(DataViewPtr view)
+{
 	views->Add(std::move(view));
 }
 
-void DataModel::AddController(DataControllerPtr controller) {
+void DataModel::AddController(DataControllerPtr controller)
+{
 	controllers->Add(std::move(controller));
 }
 
@@ -217,7 +219,7 @@ bool DataModel::InsertAlias(Element* element, const String& alias_name, DataAddr
 		Log::Message(Log::LT_WARNING, "Alias variable '%s' is shadowed by a global variable.", alias_name.c_str());
 
 	auto& map = aliases.emplace(element, SmallUnorderedMap<String, DataAddress>()).first->second;
-	
+
 	auto it = map.find(alias_name);
 	if (it != map.end())
 		Log::Message(Log::LT_WARNING, "Alias name '%s' in data model already exists, replaced.", alias_name.c_str());
@@ -230,6 +232,21 @@ bool DataModel::InsertAlias(Element* element, const String& alias_name, DataAddr
 bool DataModel::EraseAliases(Element* element)
 {
 	return aliases.erase(element) == 1;
+}
+
+void DataModel::CopyAliases(Element* from_element, Element* to_element)
+{
+	if (from_element == to_element)
+		return;
+	auto existing_map = aliases.find(from_element);
+
+	if (existing_map != aliases.end())
+	{
+		// Need to create a copy to prevent errors during concurrent modification for 3rd party containers
+		auto copy = existing_map->second;
+		for (auto const& it : copy)
+			aliases[to_element][it.first] = std::move(it.second);
+	}
 }
 
 DataAddress DataModel::ResolveAddress(const String& address_str, Element* element) const
@@ -246,7 +263,7 @@ DataAddress DataModel::ResolveAddress(const String& address_str, Element* elemen
 		return address;
 
 	// Look for a variable alias for the first name.
-	
+
 	Element* ancestor = element;
 	while (ancestor && ancestor->GetDataModel() == this)
 	{
@@ -320,7 +337,8 @@ const DataEventFunc* DataModel::GetEventCallback(const String& name)
 	return &it->second;
 }
 
-bool DataModel::GetVariableInto(const DataAddress& address, Variant& out_value) const {
+bool DataModel::GetVariableInto(const DataAddress& address, Variant& out_value) const
+{
 	DataVariable variable = GetVariable(address);
 	bool result = (variable && variable.Get(out_value));
 	if (!result)
@@ -341,10 +359,19 @@ bool DataModel::IsVariableDirty(const String& variable_name) const
 	return dirty_variables.count(variable_name) == 1;
 }
 
-bool DataModel::CallTransform(const String& name, Variant& inout_result, const VariantList& arguments) const
+void DataModel::DirtyAllVariables()
 {
-	if (transform_register)
-		return transform_register->Call(name, inout_result, arguments);
+	dirty_variables.reserve(variables.size());
+	for (const auto& variable : variables)
+	{
+		dirty_variables.emplace(variable.first);
+	}
+}
+
+bool DataModel::CallTransform(const String& name, const VariantList& arguments, Variant& out_result) const
+{
+	if (const auto transform_register = data_type_register->GetTransformFuncRegister())
+		return transform_register->Call(name, arguments, out_result);
 	return false;
 }
 
@@ -372,7 +399,7 @@ bool DataModel::Update(bool clear_dirty_variables)
 
 	if (clear_dirty_variables)
 		dirty_variables.clear();
-	
+
 	return result;
 }
 

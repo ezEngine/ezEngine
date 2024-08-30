@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,40 +27,174 @@
  */
 
 #include "WidgetTextInput.h"
-#include "ElementTextSelection.h"
-#include "../../../Include/RmlUi/Core/Elements/ElementFormControl.h"
+#include "../../../Include/RmlUi/Core/ComputedValues.h"
+#include "../../../Include/RmlUi/Core/Context.h"
 #include "../../../Include/RmlUi/Core/Core.h"
 #include "../../../Include/RmlUi/Core/ElementScroll.h"
 #include "../../../Include/RmlUi/Core/ElementText.h"
 #include "../../../Include/RmlUi/Core/ElementUtilities.h"
-#include "../../../Include/RmlUi/Core/GeometryUtilities.h"
-#include "../../../Include/RmlUi/Core/Input.h"
+#include "../../../Include/RmlUi/Core/Elements/ElementFormControl.h"
 #include "../../../Include/RmlUi/Core/Factory.h"
+#include "../../../Include/RmlUi/Core/FontEngineInterface.h"
+#include "../../../Include/RmlUi/Core/Input.h"
 #include "../../../Include/RmlUi/Core/Math.h"
-#include "../../../Include/RmlUi/Core/SystemInterface.h"
+#include "../../../Include/RmlUi/Core/MeshUtilities.h"
 #include "../../../Include/RmlUi/Core/StringUtilities.h"
+#include "../../../Include/RmlUi/Core/SystemInterface.h"
+#include "../../../Include/RmlUi/Core/TextInputContext.h"
+#include "../../../Include/RmlUi/Core/TextInputHandler.h"
 #include "../Clock.h"
+#include "ElementTextSelection.h"
 #include <algorithm>
 #include <limits.h>
 
 namespace Rml {
 
-static constexpr float CURSOR_BLINK_TIME = 0.7f;
+static constexpr float CURSOR_BLINK_TIME = 0.7f;          // [s]
+static constexpr float OVERFLOW_TOLERANCE = 0.5f;         // [px]
+static constexpr float COMPOSITION_UNDERLINE_WIDTH = 2.f; // [px]
 
-static bool IsWordCharacter(char c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || ((unsigned char)c >= 128);
+enum class CharacterClass { Word, Punctuation, Newline, Whitespace, Undefined };
+static CharacterClass GetCharacterClass(char c)
+{
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || ((unsigned char)c >= 128))
+		return CharacterClass::Word;
+	if ((c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'))
+		return CharacterClass::Punctuation;
+	if (c == '\n')
+		return CharacterClass::Newline;
+	return CharacterClass::Whitespace;
 }
 
-WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) : internal_dimensions(0, 0), scroll_offset(0, 0), selection_geometry(_parent), cursor_position(0, 0), cursor_size(0, 0), cursor_geometry(_parent)
+// Clamps the value to the given maximum number of unicode code points. Returns true if the value was changed.
+static bool ClampValue(String& value, int max_length)
+{
+	if (max_length >= 0)
+	{
+		int max_byte_length = StringUtilities::ConvertCharacterOffsetToByteOffset(value, max_length);
+		if (max_byte_length < (int)value.size())
+		{
+			value.erase((size_t)max_byte_length);
+			return true;
+		}
+	}
+	return false;
+}
+
+class WidgetTextInputContext final : public TextInputContext {
+public:
+	WidgetTextInputContext(TextInputHandler* handler, WidgetTextInput* _owner, ElementFormControl* _element);
+	~WidgetTextInputContext();
+
+	bool GetBoundingBox(Rectanglef& out_rectangle) const override;
+	void GetSelectionRange(int& start, int& end) const override;
+	void SetSelectionRange(int start, int end) override;
+	void SetCursorPosition(int position) override;
+	void SetText(StringView text, int start, int end) override;
+	void SetCompositionRange(int start, int end) override;
+	void CommitComposition(StringView composition) override;
+
+private:
+	TextInputHandler* handler;
+	WidgetTextInput* owner;
+	ElementFormControl* element;
+};
+
+WidgetTextInputContext::WidgetTextInputContext(TextInputHandler* handler, WidgetTextInput* owner, ElementFormControl* element) :
+	handler(handler), owner(owner), element(element)
+{}
+
+WidgetTextInputContext::~WidgetTextInputContext()
+{
+	handler->OnDestroy(this);
+}
+
+bool WidgetTextInputContext::GetBoundingBox(Rectanglef& out_rectangle) const
+{
+	return ElementUtilities::GetBoundingBox(out_rectangle, element, BoxArea::Border);
+}
+
+void WidgetTextInputContext::GetSelectionRange(int& start, int& end) const
+{
+	owner->GetSelection(&start, &end, nullptr);
+}
+
+void WidgetTextInputContext::SetSelectionRange(int start, int end)
+{
+	owner->SetSelectionRange(start, end);
+}
+
+void WidgetTextInputContext::SetCursorPosition(int position)
+{
+	SetSelectionRange(position, position);
+}
+
+void WidgetTextInputContext::SetText(StringView text, int start, int end)
+{
+	String value = owner->GetAttributeValue();
+
+	start = StringUtilities::ConvertCharacterOffsetToByteOffset(value, start);
+	end = StringUtilities::ConvertCharacterOffsetToByteOffset(value, end);
+
+	RMLUI_ASSERTMSG(end >= start, "Invalid end character offset.");
+	value.replace(start, end - start, text.begin(), text.size());
+
+	element->SetValue(value);
+}
+
+void WidgetTextInputContext::SetCompositionRange(int start, int end)
+{
+	owner->SetCompositionRange(start, end);
+}
+
+void WidgetTextInputContext::CommitComposition(StringView composition)
+{
+	int start_byte, end_byte;
+	owner->GetCompositionRange(start_byte, end_byte);
+
+	// No composition to commit.
+	if (start_byte == 0 && end_byte == 0)
+		return;
+
+	String value = owner->GetAttributeValue();
+
+	// If the text input has a length restriction, we have to shorten the composition string.
+	if (owner->GetMaxLength() >= 0)
+	{
+		int start = StringUtilities::ConvertByteOffsetToCharacterOffset(value, start_byte);
+		int end = StringUtilities::ConvertByteOffsetToCharacterOffset(value, end_byte);
+
+		int value_length = (int)StringUtilities::LengthUTF8(value);
+		int composition_length = (int)StringUtilities::LengthUTF8(composition);
+
+		// The requested text value would exceed the length restriction after replacing the original value.
+		if (value_length + composition_length - (start - end) > owner->GetMaxLength())
+		{
+			int new_length = owner->GetMaxLength() - (value_length - composition_length);
+			int new_length_byte = StringUtilities::ConvertCharacterOffsetToByteOffset(composition, new_length);
+			composition = StringView(composition.begin(), composition.begin() + new_length_byte);
+		}
+	}
+
+	RMLUI_ASSERTMSG(end_byte >= start_byte, "Invalid end character offset.");
+	value.replace(start_byte, end_byte - start_byte, composition.begin(), composition.size());
+
+	element->SetValue(value);
+}
+
+WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) :
+	internal_dimensions(0, 0), scroll_offset(0, 0), cursor_position(0, 0), cursor_size(0, 0)
 {
 	keyboard_showed = false;
-	
+
 	parent = _parent;
 	parent->SetProperty(PropertyId::WhiteSpace, Property(Style::WhiteSpace::Pre));
 	parent->SetProperty(PropertyId::OverflowX, Property(Style::Overflow::Hidden));
 	parent->SetProperty(PropertyId::OverflowY, Property(Style::Overflow::Hidden));
 	parent->SetProperty(PropertyId::Drag, Property(Style::Drag::Drag));
-	parent->SetClientArea(Box::CONTENT);
+	parent->SetProperty(PropertyId::WordBreak, Property(Style::WordBreak::BreakWord));
+	parent->SetProperty(PropertyId::TextTransform, Property(Style::TextTransform::None));
+	parent->SetProperty(PropertyId::Clip, Property(Style::Clip::Type::Auto));
 
 	parent->AddEventListener(EventId::Keydown, this, true);
 	parent->AddEventListener(EventId::Textinput, this, true);
@@ -71,9 +205,9 @@ WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) : internal_dimensi
 	parent->AddEventListener(EventId::Drag, this, true);
 
 	ElementPtr unique_text = Factory::InstanceElement(parent, "#text", "#text", XMLAttributes());
-	text_element = rmlui_dynamic_cast< ElementText* >(unique_text.get());
+	text_element = rmlui_dynamic_cast<ElementText*>(unique_text.get());
 	ElementPtr unique_selected_text = Factory::InstanceElement(parent, "#text", "#text", XMLAttributes());
-	selected_text_element = rmlui_dynamic_cast< ElementText* >(unique_selected_text.get());
+	selected_text_element = rmlui_dynamic_cast<ElementText*>(unique_selected_text.get());
 	if (text_element)
 	{
 		text_element->SuppressAutoLayout();
@@ -92,12 +226,11 @@ WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) : internal_dimensi
 		parent->AppendChild(std::move(unique_selection), false);
 	}
 
-	edit_index = 0;
 	absolute_cursor_index = 0;
-	cursor_line_index = 0;
-	cursor_character_index = 0;
-	cursor_on_right_side_of_character = true;
+	cursor_wrap_down = false;
+	ideal_cursor_position_to_the_right_of_cursor = true;
 	cancel_next_drag = false;
+	force_formatting_on_next_layout = false;
 
 	ideal_cursor_position = 0;
 
@@ -107,7 +240,11 @@ WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) : internal_dimensi
 	selection_begin_index = 0;
 	selection_length = 0;
 
+	ime_composition_begin_index = 0;
+	ime_composition_end_index = 0;
+
 	last_update_time = 0;
+	ink_overflow = false;
 
 	ShowCursor(false);
 }
@@ -122,54 +259,61 @@ WidgetTextInput::~WidgetTextInput()
 	parent->RemoveEventListener(EventId::Dblclick, this, true);
 	parent->RemoveEventListener(EventId::Drag, this, true);
 
+	// This widget might be parented by an input element, which may now be constructing a completely different type.
+	// Thus, remove all properties set by this widget so they don't affect the new type.
+	parent->RemoveProperty(PropertyId::WhiteSpace);
+	parent->RemoveProperty(PropertyId::OverflowX);
+	parent->RemoveProperty(PropertyId::OverflowY);
+	parent->RemoveProperty(PropertyId::Drag);
+	parent->RemoveProperty(PropertyId::WordBreak);
+	parent->RemoveProperty(PropertyId::TextTransform);
+
 	// Remove all the children added by the text widget.
 	parent->RemoveChild(text_element);
 	parent->RemoveChild(selected_text_element);
 	parent->RemoveChild(selection_element);
 }
 
-// Sets the value of the text field.
-void WidgetTextInput::SetValue(const String& value)
+void WidgetTextInput::SetValue(String value)
 {
-	text_element->SetText(value);
-	FormatElement();
+	const size_t initial_size = value.size();
+	SanitizeValue(value);
 
-	UpdateRelativeCursor();
+	if (initial_size != value.size())
+	{
+		parent->SetAttribute("value", value);
+		DispatchChangeEvent();
+	}
+	else
+	{
+		TransformValue(value);
+		RMLUI_ASSERTMSG(value.size() == initial_size, "TransformValue must not change the text length.");
+
+		text_element->SetText(value);
+
+		// Reset the IME composition range when the value changes.
+		ime_composition_begin_index = 0;
+		ime_composition_end_index = 0;
+
+		FormatElement();
+		UpdateCursorPosition(true);
+	}
 }
 
-// Sets the maximum length (in characters) of this text field.
+void WidgetTextInput::TransformValue(String& /*value*/) {}
+
 void WidgetTextInput::SetMaxLength(int _max_length)
 {
 	if (max_length != _max_length)
 	{
 		max_length = _max_length;
-		if (max_length >= 0)
-		{
-			String value = GetElement()->GetAttribute< String >("value", "");
 
-			int num_characters = 0;
-			size_t i_erase = value.size();
-
-			for (auto it = StringIteratorU8(value); it; ++it)
-			{
-				num_characters += 1;
-				if (num_characters > max_length)
-				{
-					i_erase = size_t(it.offset());
-					break;
-				}
-			}
-
-			if(i_erase < value.size())
-			{
-				value.erase(i_erase);
-				GetElement()->SetAttribute("value", value);
-			}
-		}
+		String value = GetValue();
+		if (ClampValue(value, max_length))
+			GetElement()->SetAttribute("value", value);
 	}
 }
 
-// Returns the maximum length (in characters) of this text field.
 int WidgetTextInput::GetMaxLength() const
 {
 	return max_length;
@@ -177,45 +321,117 @@ int WidgetTextInput::GetMaxLength() const
 
 int WidgetTextInput::GetLength() const
 {
-	String value = GetElement()->GetAttribute< String >("value", "");
-	size_t result = StringUtilities::LengthUTF8(value);
+	size_t result = StringUtilities::LengthUTF8(GetValue());
 	return (int)result;
 }
 
-// Update the colours of the selected text.
+void WidgetTextInput::Select()
+{
+	SetSelectionRange(0, INT_MAX);
+}
+
+void WidgetTextInput::SetSelectionRange(int selection_start, int selection_end)
+{
+	if (!IsFocused())
+		return;
+
+	const String& value = GetValue();
+	const int byte_start = StringUtilities::ConvertCharacterOffsetToByteOffset(value, selection_start);
+	const int byte_end = StringUtilities::ConvertCharacterOffsetToByteOffset(value, selection_end);
+	const bool is_selecting = (byte_start != byte_end);
+
+	cursor_wrap_down = true;
+	absolute_cursor_index = byte_end;
+
+	bool selection_changed = false;
+	if (is_selecting)
+	{
+		selection_anchor_index = byte_start;
+		selection_changed = UpdateSelection(true);
+	}
+	else
+	{
+		selection_changed = UpdateSelection(false);
+	}
+
+	UpdateCursorPosition(true);
+	ShowCursor(true, true);
+
+	if (selection_changed)
+		FormatText();
+}
+
+void WidgetTextInput::GetSelection(int* selection_start, int* selection_end, String* selected_text) const
+{
+	const String& value = GetValue();
+	if (selection_start)
+		*selection_start = StringUtilities::ConvertByteOffsetToCharacterOffset(value, selection_begin_index);
+	if (selection_end)
+		*selection_end = StringUtilities::ConvertByteOffsetToCharacterOffset(value, selection_begin_index + selection_length);
+	if (selected_text)
+		*selected_text = value.substr(Math::Min((size_t)selection_begin_index, (size_t)value.size()), (size_t)selection_length);
+}
+
+void WidgetTextInput::SetCompositionRange(int range_start, int range_end)
+{
+	const String& value = GetValue();
+	const int byte_start = StringUtilities::ConvertCharacterOffsetToByteOffset(value, range_start);
+	const int byte_end = StringUtilities::ConvertCharacterOffsetToByteOffset(value, range_end);
+
+	if (byte_end > byte_start)
+	{
+		ime_composition_begin_index = byte_start;
+		ime_composition_end_index = byte_end;
+	}
+	else
+	{
+		ime_composition_begin_index = 0;
+		ime_composition_end_index = 0;
+	}
+
+	FormatText();
+}
+
+void WidgetTextInput::GetCompositionRange(int& range_start, int& range_end) const
+{
+	range_start = ime_composition_begin_index;
+	range_end = ime_composition_end_index;
+}
+
 void WidgetTextInput::UpdateSelectionColours()
 {
 	// Determine what the colour of the selected text is. If our 'selection' element has the 'color'
 	// attribute set, then use that. Otherwise, use the inverse of our own text colour.
 	Colourb colour;
-	const Property* colour_property = selection_element->GetLocalProperty("color");
-	if (colour_property != nullptr)
-		colour = colour_property->Get< Colourb >();
+	const Property* colour_property = selection_element->GetLocalProperty(PropertyId::Color);
+	if (colour_property)
+		colour = colour_property->Get<Colourb>();
 	else
 	{
-		colour = parent->GetComputedValues().color;
+		colour = parent->GetComputedValues().color();
 		colour.red = 255 - colour.red;
 		colour.green = 255 - colour.green;
 		colour.blue = 255 - colour.blue;
 	}
 
 	// Set the computed text colour on the element holding the selected text.
-	selected_text_element->SetProperty(PropertyId::Color, Property(colour, Property::COLOUR));
+	selected_text_element->SetProperty(PropertyId::Color, Property(colour, Unit::COLOUR));
 
 	// If the 'background-color' property has been set on the 'selection' element, use that as the
 	// background colour for the selected text. Otherwise, use the inverse of the selected text
 	// colour.
-	colour_property = selection_element->GetLocalProperty("background-color");
-	if (colour_property != nullptr)
-		selection_colour = colour_property->Get< Colourb >();
+	colour_property = selection_element->GetLocalProperty(PropertyId::BackgroundColor);
+	if (colour_property)
+		colour = colour_property->Get<Colourb>();
 	else
-		selection_colour = Colourb(255 - colour.red, 255 - colour.green, 255 - colour.blue, colour.alpha);
+		colour = Colourb(255 - colour.red, 255 - colour.green, 255 - colour.blue, colour.alpha);
+
+	selection_colour = colour.ToPremultiplied();
 
 	// Color may have changed, so we update the cursor geometry.
 	GenerateCursor();
 }
 
-// Updates the cursor, if necessary.
 void WidgetTextInput::OnUpdate()
 {
 	if (cursor_timer > 0)
@@ -229,6 +445,12 @@ void WidgetTextInput::OnUpdate()
 			cursor_timer += CURSOR_BLINK_TIME;
 			cursor_visible = !cursor_visible;
 		}
+
+		if (parent->IsVisible(true))
+		{
+			if (Context* ctx = parent->GetContext())
+				ctx->RequestNextUpdate(cursor_timer);
+		}
 	}
 }
 
@@ -236,72 +458,65 @@ void WidgetTextInput::OnResize()
 {
 	GenerateCursor();
 
-	Vector2f text_position = parent->GetBox().GetPosition(Box::CONTENT);
+	Vector2f text_position = parent->GetBox().GetPosition(BoxArea::Content);
 	text_element->SetOffset(text_position, parent);
 	selected_text_element->SetOffset(text_position, parent);
 
-	Vector2f new_internal_dimensions = parent->GetBox().GetSize(Box::CONTENT);
-	if (new_internal_dimensions != internal_dimensions)
-	{
-		internal_dimensions = new_internal_dimensions;
-
-		FormatElement();
-		UpdateCursorPosition();
-	}
+	ForceFormattingOnNextLayout();
 }
 
-// Renders the cursor, if it is visible.
 void WidgetTextInput::OnRender()
 {
 	ElementUtilities::SetClippingRegion(text_element);
 
 	Vector2f text_translation = parent->GetAbsoluteOffset() - Vector2f(parent->GetScrollLeft(), parent->GetScrollTop());
-	selection_geometry.Render(text_translation);
+	selection_composition_geometry.Render(text_translation);
 
-	if (cursor_visible &&
-		!parent->IsDisabled())
+	if (cursor_visible && selection_length <= 0 && !parent->IsDisabled())
 	{
 		cursor_geometry.Render(text_translation + cursor_position);
 	}
 }
 
-// Formats the widget's internal content.
 void WidgetTextInput::OnLayout()
 {
-	FormatElement();
+	if (force_formatting_on_next_layout)
+	{
+		internal_dimensions = parent->GetBox().GetSize(BoxArea::Content);
+		FormatElement();
+		UpdateCursorPosition(true);
+		force_formatting_on_next_layout = false;
+	}
+
 	parent->SetScrollLeft(scroll_offset.x);
 	parent->SetScrollTop(scroll_offset.y);
 }
 
-// Returns the input element's underlying text element.
-ElementText* WidgetTextInput::GetTextElement()
-{
-	return text_element;
-}
-
-// Returns the input element's maximum allowed text dimensions.
-Vector2f WidgetTextInput::GetTextDimensions() const
-{
-	return internal_dimensions;
-}
-
-// Gets the parent element containing the widget.
 Element* WidgetTextInput::GetElement() const
 {
 	return parent;
 }
 
-// Dispatches a change event to the widget's element.
+TextInputHandler* WidgetTextInput::GetTextInputHandler() const
+{
+	if (Context* context = parent->GetContext())
+		return context->GetTextInputHandler();
+	return nullptr;
+}
+
+bool WidgetTextInput::IsFocused() const
+{
+	return cursor_timer > 0;
+}
+
 void WidgetTextInput::DispatchChangeEvent(bool linebreak)
 {
 	Dictionary parameters;
-	parameters["value"] = GetElement()->GetAttribute< String >("value", "");
+	parameters["value"] = GetAttributeValue();
 	parameters["linebreak"] = Variant(linebreak);
 	GetElement()->DispatchEvent(EventId::Change, parameters);
 }
 
-// Processes the "keydown" and "textinput" event to write to the input field, and the "focus" and "blur" to set
-// the state of the cursor.
 void WidgetTextInput::ProcessEvent(Event& event)
 {
 	if (parent->IsDisabled())
@@ -311,46 +526,45 @@ void WidgetTextInput::ProcessEvent(Event& event)
 	{
 	case EventId::Keydown:
 	{
-		Input::KeyIdentifier key_identifier = (Input::KeyIdentifier) event.GetParameter< int >("key_identifier", 0);
-		bool numlock = event.GetParameter< int >("num_lock_key", 0) > 0;
-		bool shift = event.GetParameter< int >("shift_key", 0) > 0;
-		bool ctrl = event.GetParameter< int >("ctrl_key", 0) > 0;
+		Input::KeyIdentifier key_identifier = (Input::KeyIdentifier)event.GetParameter<int>("key_identifier", 0);
+		bool numlock = event.GetParameter<int>("num_lock_key", 0) > 0;
+		bool shift = event.GetParameter<int>("shift_key", 0) > 0;
+		bool ctrl = event.GetParameter<int>("ctrl_key", 0) > 0;
+		bool alt = event.GetParameter<int>("alt_key", 0) > 0;
+		bool selection_changed = false;
+		bool out_of_bounds = false;
 
 		switch (key_identifier)
 		{
-		case Input::KI_NUMPAD4:	if (numlock) break; //-fallthrough
-		case Input::KI_LEFT:		MoveCursorHorizontal(ctrl ? CursorMovement::PreviousWord : CursorMovement::Left, shift); break;
+			// clang-format off
+		case Input::KI_NUMPAD4: if (numlock) break; //-fallthrough
+		case Input::KI_LEFT:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::PreviousWord : CursorMovement::Left, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD6:	if (numlock) break; //-fallthrough
-		case Input::KI_RIGHT:		MoveCursorHorizontal(ctrl ? CursorMovement::NextWord : CursorMovement::Right, shift); break;
+		case Input::KI_NUMPAD6: if (numlock) break; //-fallthrough
+		case Input::KI_RIGHT:   selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::NextWord : CursorMovement::Right, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD8:	if (numlock) break; //-fallthrough
-		case Input::KI_UP:		MoveCursorVertical(-1, shift); break;
+		case Input::KI_NUMPAD8: if (numlock) break; //-fallthrough
+		case Input::KI_UP:      selection_changed = MoveCursorVertical(-1, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD2:	if (numlock) break; //-fallthrough
-		case Input::KI_DOWN:		MoveCursorVertical(1, shift); break;
+		case Input::KI_NUMPAD2: if (numlock) break; //-fallthrough
+		case Input::KI_DOWN:    selection_changed = MoveCursorVertical(1, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD7:	if (numlock) break; //-fallthrough
-		case Input::KI_HOME:		MoveCursorHorizontal(ctrl ? CursorMovement::Begin : CursorMovement::BeginLine, shift); break;
+		case Input::KI_NUMPAD7: if (numlock) break; //-fallthrough
+		case Input::KI_HOME:    selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::Begin : CursorMovement::BeginLine, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD1:	if (numlock) break; //-fallthrough
-		case Input::KI_END:		MoveCursorHorizontal(ctrl ? CursorMovement::End : CursorMovement::EndLine, shift); break;
+		case Input::KI_NUMPAD1: if (numlock) break; //-fallthrough
+		case Input::KI_END:     selection_changed = MoveCursorHorizontal(ctrl ? CursorMovement::End : CursorMovement::EndLine, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD3:	if (numlock) break; //-fallthrough
-		case Input::KI_PRIOR:		MoveCursorVertical(-int(internal_dimensions.y / parent->GetLineHeight()) + 1, shift); break;
+		case Input::KI_NUMPAD9: if (numlock) break; //-fallthrough
+		case Input::KI_PRIOR:   selection_changed = MoveCursorVertical(-int(internal_dimensions.y / GetLineHeight()) + 1, shift, out_of_bounds); break;
 
-		case Input::KI_NUMPAD9:	if (numlock) break; //-fallthrough
-		case Input::KI_NEXT:		MoveCursorVertical(int(internal_dimensions.y / parent->GetLineHeight()) - 1, shift); break;
+		case Input::KI_NUMPAD3: if (numlock) break; //-fallthrough
+		case Input::KI_NEXT:    selection_changed = MoveCursorVertical(int(internal_dimensions.y / GetLineHeight()) - 1, shift, out_of_bounds); break;
 
 		case Input::KI_BACK:
 		{
 			CursorMovement direction = (ctrl ? CursorMovement::PreviousWord : CursorMovement::Left);
-			if (DeleteCharacters(direction))
-			{
-				FormatElement();
-				UpdateRelativeCursor();
-			}
-
+			DeleteCharacters(direction);
 			ShowCursor(true);
 		}
 		break;
@@ -359,15 +573,11 @@ void WidgetTextInput::ProcessEvent(Event& event)
 		case Input::KI_DELETE:
 		{
 			CursorMovement direction = (ctrl ? CursorMovement::NextWord : CursorMovement::Right);
-			if (DeleteCharacters(direction))
-			{
-				FormatElement();
-				UpdateRelativeCursor();
-			}
-
+			DeleteCharacters(direction);
 			ShowCursor(true);
 		}
 		break;
+			// clang-format on
 
 		case Input::KI_NUMPADENTER:
 		case Input::KI_RETURN:
@@ -379,60 +589,59 @@ void WidgetTextInput::ProcessEvent(Event& event)
 		case Input::KI_A:
 		{
 			if (ctrl)
-			{
-				MoveCursorHorizontal(CursorMovement::Begin, false);
-				MoveCursorHorizontal(CursorMovement::End, true);
-			}
+				Select();
 		}
 		break;
 
 		case Input::KI_C:
 		{
-			if (ctrl)
+			if (ctrl && selection_length > 0)
 				CopySelection();
 		}
 		break;
 
 		case Input::KI_X:
 		{
-			if (ctrl)
+			if (ctrl && selection_length > 0)
 			{
 				CopySelection();
 				DeleteSelection();
+				DispatchChangeEvent();
+				ShowCursor(true);
 			}
 		}
 		break;
 
 		case Input::KI_V:
 		{
-			if (ctrl)
+			if (ctrl && !alt)
 			{
 				String clipboard_text;
 				GetSystemInterface()->GetClipboardText(clipboard_text);
 
 				AddCharacters(clipboard_text);
+				ShowCursor(true);
 			}
 		}
 		break;
 
 		// Ignore tabs so input fields can be navigated through with keys.
-		case Input::KI_TAB:
-			return;
+		case Input::KI_TAB: return;
 
-		default:
-		break;
+		default: break;
 		}
 
-		event.StopPropagation();
+		if (shift || ctrl || !out_of_bounds || selection_changed)
+			event.StopPropagation();
+		if (selection_changed)
+			FormatText();
 	}
 	break;
 
 	case EventId::Textinput:
 	{
 		// Only process the text if no modifier keys are pressed.
-		if (event.GetParameter< int >("ctrl_key", 0) == 0 &&
-			event.GetParameter< int >("alt_key", 0) == 0 &&
-			event.GetParameter< int >("meta_key", 0) == 0)
+		if (event.GetParameter<int>("ctrl_key", 0) == 0 && event.GetParameter<int>("alt_key", 0) == 0 && event.GetParameter<int>("meta_key", 0) == 0)
 		{
 			String text = event.GetParameter("text", String{});
 			AddCharacters(text);
@@ -446,8 +655,19 @@ void WidgetTextInput::ProcessEvent(Event& event)
 	{
 		if (event.GetTargetElement() == parent)
 		{
-			UpdateSelection(false);
+			parent->SetPseudoClass("focus-visible", true);
+			if (UpdateSelection(false))
+				FormatText();
 			ShowCursor(true, false);
+
+			if (TextInputHandler* handler = GetTextInputHandler())
+			{
+				// Lazily instance the text input context for this widget.
+				if (!text_input_context)
+					text_input_context = MakeUnique<WidgetTextInputContext>(handler, this, parent);
+
+				handler->OnActivate(text_input_context.get());
+			}
 		}
 	}
 	break;
@@ -455,7 +675,10 @@ void WidgetTextInput::ProcessEvent(Event& event)
 	{
 		if (event.GetTargetElement() == parent)
 		{
-			ClearSelection();
+			if (TextInputHandler* handler = GetTextInputHandler())
+				handler->OnDeactivate(text_input_context.get());
+			if (ClearSelection())
+				FormatText();
 			ShowCursor(false, false);
 		}
 	}
@@ -472,21 +695,22 @@ void WidgetTextInput::ProcessEvent(Event& event)
 	{
 		if (event.GetTargetElement() == parent)
 		{
-			Vector2f mouse_position = Vector2f(event.GetParameter< float >("mouse_x", 0), event.GetParameter< float >("mouse_y", 0));
+			Vector2f mouse_position = Vector2f(event.GetParameter<float>("mouse_x", 0), event.GetParameter<float>("mouse_y", 0));
 			mouse_position -= text_element->GetAbsoluteOffset();
 
-			cursor_line_index = CalculateLineIndex(mouse_position.y);
-			cursor_character_index = CalculateCharacterIndex(cursor_line_index, mouse_position.x);
+			const int cursor_line_index = CalculateLineIndex(mouse_position.y);
+			const int cursor_character_index = CalculateCharacterIndex(cursor_line_index, mouse_position.x);
 
-			UpdateAbsoluteCursor();
+			SetCursorFromRelativeIndices(cursor_line_index, cursor_character_index);
+
 			MoveCursorToCharacterBoundaries(false);
+			UpdateCursorPosition(true);
 
-			UpdateCursorPosition();
-			ideal_cursor_position = cursor_position.x;
+			if (UpdateSelection(event == EventId::Drag || event.GetParameter<int>("shift_key", 0) > 0))
+				FormatText();
 
-			UpdateSelection(event == EventId::Drag || event.GetParameter< int >("shift_key", 0) > 0);
-
-			ShowCursor(true); 
+			const bool move_to_cursor = (event == EventId::Drag);
+			ShowCursor(true, move_to_cursor);
 			cancel_next_drag = false;
 		}
 	}
@@ -501,61 +725,48 @@ void WidgetTextInput::ProcessEvent(Event& event)
 	}
 	break;
 
-	default:
-		break;
+	default: break;
 	}
-
 }
 
-// Adds a new character to the string at the cursor position.
 bool WidgetTextInput::AddCharacters(String string)
 {
-	// Erase invalid characters from string
-	auto invalid_character = [this](char c) {
-		return ((unsigned char)c <= 127 && !IsCharacterValid(c));
-	};
-	string.erase(
-		std::remove_if(string.begin(), string.end(), invalid_character),
-		string.end()
-	);
-
-	if (string.empty())
-		return false;
+	SanitizeValue(string);
 
 	if (selection_length > 0)
 		DeleteSelection();
 
-	if (max_length >= 0 && GetLength() >= max_length)
+	if (max_length >= 0)
+		ClampValue(string, Math::Max(max_length - GetLength(), 0));
+
+	if (string.empty())
 		return false;
 
-	String value = GetElement()->GetAttribute< String >("value", "");
-	
-	value.insert(std::min<size_t>(GetCursorIndex(), value.size()), string);
+	String value = GetAttributeValue();
+	value.insert(std::min<size_t>((size_t)absolute_cursor_index, value.size()), string);
 
-	edit_index += (int)string.size();
+	absolute_cursor_index += (int)string.size();
+	parent->SetAttribute("value", value);
 
-	GetElement()->SetAttribute("value", value);
+	if (UpdateSelection(false))
+		FormatText();
+
 	DispatchChangeEvent();
-
-	UpdateSelection(false);
-
 	return true;
 }
 
-// Deletes a character from the string.
 bool WidgetTextInput::DeleteCharacters(CursorMovement direction)
 {
+	bool out_of_bounds;
 	// We set a selection of characters according to direction, and then delete it.
 	// If we already have a selection, we delete that first.
 	if (selection_length <= 0)
-		MoveCursorHorizontal(direction, true);
+		MoveCursorHorizontal(direction, true, out_of_bounds);
 
 	if (selection_length > 0)
 	{
 		DeleteSelection();
 		DispatchChangeEvent();
-
-		UpdateSelection(false);
 
 		return true;
 	}
@@ -563,57 +774,55 @@ bool WidgetTextInput::DeleteCharacters(CursorMovement direction)
 	return false;
 }
 
-// Copies the selection (if any) to the clipboard.
 void WidgetTextInput::CopySelection()
 {
-	const String& value = GetElement()->GetAttribute< String >("value", "");
-	const String snippet = value.substr(std::min(size_t(selection_begin_index), size_t(value.size())), selection_length);
+	const String& value = GetValue();
+	const String snippet = value.substr(Math::Min((size_t)selection_begin_index, (size_t)value.size()), (size_t)selection_length);
 	GetSystemInterface()->SetClipboardText(snippet);
 }
 
-// Returns the absolute index of the cursor.
-int WidgetTextInput::GetCursorIndex() const
+bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select, bool& out_of_bounds)
 {
-	return edit_index;
-}
+	out_of_bounds = false;
 
-// Moves the cursor along the current line.
-void WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select)
-{
+	const String& value = GetValue();
+
+	int cursor_line_index = 0, cursor_character_index = 0;
+	GetRelativeCursorIndices(cursor_line_index, cursor_character_index);
+
+	// By default the cursor wraps down when located on softbreaks. This may be overridden by setting the cursor using relative indices.
+	cursor_wrap_down = true;
+
 	// Whether to seek forward or back to align to utf8 boundaries later.
 	bool seek_forward = false;
 
 	switch (movement)
 	{
-	case CursorMovement::Begin:
-		absolute_cursor_index = 0;
-		break;
-	case CursorMovement::BeginLine:
-		absolute_cursor_index -= cursor_character_index;
-		break;
+	case CursorMovement::Begin: absolute_cursor_index = 0; break;
+	case CursorMovement::BeginLine: SetCursorFromRelativeIndices(cursor_line_index, 0); break;
 	case CursorMovement::PreviousWord:
-		if (cursor_character_index <= 1)
+	{
+		// First skip whitespace, then skip all characters of the same class as the first non-whitespace character.
+		CharacterClass skip_character_class = CharacterClass::Whitespace;
+		const char* p_rend = value.data();
+		const char* p_rbegin = p_rend + absolute_cursor_index;
+		const char* p = p_rbegin - 1;
+		for (; p > p_rend; --p)
 		{
-			absolute_cursor_index -= 1;
-		}
-		else
-		{
-			bool word_character_found = false;
-			const char* p_rend = lines[cursor_line_index].content.data();
-			const char* p_rbegin = p_rend + cursor_character_index;
-			const char* p = p_rbegin - 1;
-			for (; p > p_rend; --p)
+			const CharacterClass character_class = GetCharacterClass(*p);
+			if (character_class != skip_character_class)
 			{
-				bool is_word_character = IsWordCharacter(*p);
-				if(word_character_found && !is_word_character)
+				if (skip_character_class == CharacterClass::Whitespace)
+					skip_character_class = character_class;
+				else
 					break;
-				else if(is_word_character)
-					word_character_found = true;
 			}
-			if (p != p_rend) ++p;
-			absolute_cursor_index += int(p - p_rbegin);
 		}
-		break;
+		if (p != p_rend)
+			++p;
+		absolute_cursor_index += int(p - p_rbegin);
+	}
+	break;
 	case CursorMovement::Left:
 		if (!select && selection_length > 0)
 			absolute_cursor_index = selection_begin_index;
@@ -628,123 +837,115 @@ void WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select)
 			absolute_cursor_index += 1;
 		break;
 	case CursorMovement::NextWord:
-		if (cursor_character_index >= lines[cursor_line_index].content_length)
+	{
+		// First skip all characters of the same class as the first character, then skip any whitespace.
+		CharacterClass skip_character_class = CharacterClass::Undefined;
+		const char* p_begin = value.data() + absolute_cursor_index;
+		const char* p_end = value.data() + value.size();
+		const char* p = p_begin;
+		for (; p < p_end; ++p)
 		{
-			absolute_cursor_index += 1;
-		}
-		else
-		{
-			bool whitespace_found = false;
-			const char* p_begin = lines[cursor_line_index].content.data() + cursor_character_index;
-			const char* p_end = lines[cursor_line_index].content.data() + lines[cursor_line_index].content_length;
-			const char* p = p_begin;
-			for (; p < p_end; ++p)
+			const CharacterClass character_class = GetCharacterClass(*p);
+			if (skip_character_class == CharacterClass::Undefined)
+				skip_character_class = character_class;
+
+			if (character_class != skip_character_class)
 			{
-				bool is_whitespace = !IsWordCharacter(*p);
-				if (whitespace_found && !is_whitespace)
+				if (character_class == CharacterClass::Whitespace)
+					skip_character_class = CharacterClass::Whitespace;
+				else
 					break;
-				else if (is_whitespace)
-					whitespace_found = true;
 			}
-			absolute_cursor_index += int(p - p_begin);
 		}
-		break;
-	case CursorMovement::EndLine:
-		absolute_cursor_index += lines[cursor_line_index].content_length - cursor_character_index;
-		break;
-	case CursorMovement::End:
-		absolute_cursor_index = INT_MAX;
-		break;
-	default:
-		break;
+		absolute_cursor_index += int(p - p_begin);
 	}
-	
-	absolute_cursor_index = Math::Max(0, absolute_cursor_index);
+	break;
+	case CursorMovement::EndLine: SetCursorFromRelativeIndices(cursor_line_index, lines[cursor_line_index].editable_length); break;
+	case CursorMovement::End: absolute_cursor_index = (int)GetValue().size(); break;
+	}
 
-	UpdateRelativeCursor();
+	const int unclamped_absolute_cursor_index = absolute_cursor_index;
+	absolute_cursor_index = Math::Clamp(absolute_cursor_index, 0, (int)GetValue().size());
+	out_of_bounds = (unclamped_absolute_cursor_index != absolute_cursor_index);
+
 	MoveCursorToCharacterBoundaries(seek_forward);
+	UpdateCursorPosition(true);
 
-	ideal_cursor_position = cursor_position.x;
-	UpdateSelection(select);
+	bool selection_changed = UpdateSelection(select);
 	ShowCursor(true);
+
+	return selection_changed;
 }
 
-// Moves the cursor up and down the text field.
-void WidgetTextInput::MoveCursorVertical(int distance, bool select)
+bool WidgetTextInput::MoveCursorVertical(int distance, bool select, bool& out_of_bounds)
 {
-	bool update_ideal_cursor_position = false;
+	int cursor_line_index = 0, cursor_character_index = 0;
+	out_of_bounds = false;
+	GetRelativeCursorIndices(cursor_line_index, cursor_character_index);
+
 	cursor_line_index += distance;
 
 	if (cursor_line_index < 0)
 	{
+		out_of_bounds = true;
 		cursor_line_index = 0;
 		cursor_character_index = 0;
-
-		update_ideal_cursor_position = true;
 	}
-	else if (cursor_line_index >= (int) lines.size())
+	else if (cursor_line_index >= (int)lines.size())
 	{
-		cursor_line_index = (int) lines.size() - 1;
-		cursor_character_index = (int) lines[cursor_line_index].content_length;
-
-		update_ideal_cursor_position = true;
+		out_of_bounds = true;
+		cursor_line_index = (int)lines.size() - 1;
+		cursor_character_index = (int)lines[cursor_line_index].editable_length;
 	}
 	else
 		cursor_character_index = CalculateCharacterIndex(cursor_line_index, ideal_cursor_position);
 
-	UpdateAbsoluteCursor();
+	SetCursorFromRelativeIndices(cursor_line_index, cursor_character_index);
 
 	MoveCursorToCharacterBoundaries(false);
+	UpdateCursorPosition(false);
 
-	UpdateCursorPosition();
-
-	if (update_ideal_cursor_position)
-		ideal_cursor_position = cursor_position.x;
-
-	UpdateSelection(select);
-
+	bool selection_changed = UpdateSelection(select);
 	ShowCursor(true);
+
+	return selection_changed;
 }
 
 void WidgetTextInput::MoveCursorToCharacterBoundaries(bool forward)
 {
-	const char* p_line_begin = lines[cursor_line_index].content.data();
-	const char* p_line_end = p_line_begin + lines[cursor_line_index].content_length;
-	const char* p_cursor = p_line_begin + cursor_character_index;
+	const String& value = GetValue();
+	absolute_cursor_index = Math::Min(absolute_cursor_index, (int)value.size());
+
+	const char* p_begin = value.data();
+	const char* p_end = p_begin + value.size();
+	const char* p_cursor = p_begin + absolute_cursor_index;
 	const char* p = p_cursor;
 
 	if (forward)
-		p = StringUtilities::SeekForwardUTF8(p_cursor, p_line_end);
+		p = StringUtilities::SeekForwardUTF8(p_cursor, p_end);
 	else
-		p = StringUtilities::SeekBackwardUTF8(p_cursor, p_line_begin);
+		p = StringUtilities::SeekBackwardUTF8(p_cursor, p_begin);
 
 	if (p != p_cursor)
-	{
 		absolute_cursor_index += int(p - p_cursor);
-		UpdateRelativeCursor();
-	}
 }
 
 void WidgetTextInput::ExpandSelection()
 {
-	const char* const p_begin = lines[cursor_line_index].content.data();
-	const char* const p_end = p_begin + lines[cursor_line_index].content_length;
-	const char* const p_index = p_begin + cursor_character_index;
+	const String& value = GetValue();
+	const char* const p_begin = value.data();
+	const char* const p_end = p_begin + value.size();
+	const char* const p_index = p_begin + absolute_cursor_index;
 
-	// If true, we are expanding word characters, if false, whitespace characters.
-	// The first character encountered defines the bool.
-	bool expanding_word = false;
-	bool expanding_word_set = false;
+	// The first character encountered defines the character class to expand.
+	CharacterClass expanding_character_class = CharacterClass::Undefined;
 
-	auto character_is_wrong_type = [&expanding_word_set, &expanding_word](const char* p) -> bool {
-		bool is_word_character = IsWordCharacter(*p);
-		if (expanding_word_set && (expanding_word != is_word_character))
+	auto character_is_wrong_type = [&expanding_character_class](const char* p) -> bool {
+		const CharacterClass character_class = GetCharacterClass(*p);
+		if (expanding_character_class == CharacterClass::Undefined)
+			expanding_character_class = character_class;
+		else if (character_class != expanding_character_class)
 			return true;
-		if (!expanding_word_set)
-		{
-			expanding_word = is_word_character;
-			expanding_word_set = true;
-		}
 		return false;
 	};
 
@@ -766,7 +967,7 @@ void WidgetTextInput::ExpandSelection()
 	const char* p_left = p_index;
 	const char* p_right = p_index;
 
-	if (cursor_on_right_side_of_character)
+	if (ideal_cursor_position_to_the_right_of_cursor)
 	{
 		p_right = search_right();
 		p_left = search_left();
@@ -777,86 +978,138 @@ void WidgetTextInput::ExpandSelection()
 		p_right = search_right();
 	}
 
+	cursor_wrap_down = true;
 	absolute_cursor_index -= int(p_index - p_left);
-	UpdateRelativeCursor();
 	MoveCursorToCharacterBoundaries(false);
-	UpdateSelection(false);
+	bool selection_changed = UpdateSelection(false);
 
 	absolute_cursor_index += int(p_right - p_left);
-	UpdateRelativeCursor();
 	MoveCursorToCharacterBoundaries(true);
-	UpdateSelection(true);
+	selection_changed |= UpdateSelection(true);
+
+	if (selection_changed)
+		FormatText();
+
+	UpdateCursorPosition(true);
 }
 
-// Updates the absolute cursor index from the relative cursor indices.
-void WidgetTextInput::UpdateAbsoluteCursor()
+const String& WidgetTextInput::GetValue() const
 {
-	RMLUI_ASSERT(cursor_line_index < (int) lines.size())
-
-	absolute_cursor_index = cursor_character_index;
-	edit_index = cursor_character_index;
-
-	for (int i = 0; i < cursor_line_index; i++)
-	{
-		absolute_cursor_index += (int)lines[i].content.size();
-		edit_index += (int)lines[i].content.size() + lines[i].extra_characters;
-	}
+	return text_element->GetText();
 }
 
-// Updates the relative cursor indices from the absolute cursor index.
-void WidgetTextInput::UpdateRelativeCursor()
+String WidgetTextInput::GetAttributeValue() const
 {
-	int num_characters = 0;
-	edit_index = absolute_cursor_index;
+	return parent->GetAttribute("value", String());
+}
+
+void WidgetTextInput::GetRelativeCursorIndices(int& out_cursor_line_index, int& out_cursor_character_index) const
+{
+	int line_begin = 0;
 
 	for (size_t i = 0; i < lines.size(); i++)
 	{
-		if (num_characters + lines[i].content_length >= absolute_cursor_index)
+		const int cursor_relative_line_end = absolute_cursor_index - (line_begin + lines[i].editable_length);
+
+		// Test if the absolute index is located on the editable part of this line, otherwise we wrap down to the next line. We may have additional
+		// characters after the editable length, such as the newline character '\n'. We also wrap down if the cursor is located to the right of any
+		// such characters.
+		if (cursor_relative_line_end <= 0)
 		{
-			cursor_line_index = (int) i;
-			cursor_character_index = absolute_cursor_index - num_characters;
+			const bool soft_wrapped_line = (lines[i].editable_length == lines[i].size);
 
-			UpdateCursorPosition();
-
+			// If we are located exactly on a soft break (due to word wrapping) then the cursor wrap state determines whether or not we wrap down.
+			if (cursor_relative_line_end == 0 && soft_wrapped_line && cursor_wrap_down && (int)i + 1 < (int)lines.size())
+			{
+				out_cursor_line_index = (int)i + 1;
+				out_cursor_character_index = 0;
+			}
+			else
+			{
+				out_cursor_line_index = (int)i;
+				out_cursor_character_index = Math::Max(absolute_cursor_index - line_begin, 0);
+			}
 			return;
 		}
 
-		num_characters += (int) lines[i].content.size();
-		edit_index += lines[i].extra_characters;
+		line_begin += lines[i].size;
 	}
 
 	// We shouldn't ever get here; this means we actually couldn't find where the absolute cursor said it was. So we'll
-	// just set the relative cursors to the very end of the text field, and update the absolute cursor to point here.
-	cursor_line_index = (int) lines.size() - 1;
-	cursor_character_index = lines[cursor_line_index].content_length;
-	absolute_cursor_index = num_characters;
-	edit_index = num_characters;
-
-	UpdateCursorPosition();
+	// just set the relative cursors to the very end of the text field.
+	out_cursor_line_index = (int)lines.size() - 1;
+	out_cursor_character_index = lines[out_cursor_line_index].editable_length;
 }
 
-// Calculates the line index under a specific vertical position.
-int WidgetTextInput::CalculateLineIndex(float position)
+void WidgetTextInput::SetCursorFromRelativeIndices(int cursor_line_index, int cursor_character_index)
 {
-	float line_height = parent->GetLineHeight();
-	int line_index = Math::RealToInteger(position / line_height);
-	return Math::Clamp(line_index, 0, (int) (lines.size() - 1));
+	RMLUI_ASSERT(cursor_line_index < (int)lines.size())
+
+	absolute_cursor_index = cursor_character_index;
+
+	for (int i = 0; i < cursor_line_index; i++)
+		absolute_cursor_index += lines[i].size;
+
+	// Only wrap down if we're not located at the end of the line.
+	cursor_wrap_down = (cursor_character_index < lines[cursor_line_index].editable_length);
 }
 
-// Calculates the character index along a line under a specific horizontal position.
+int WidgetTextInput::CalculateLineIndex(float position) const
+{
+	int line_index = int(position / GetLineHeight());
+	return Math::Clamp(line_index, 0, (int)(lines.size() - 1));
+}
+
+float WidgetTextInput::GetAlignmentSpecificTextOffset(const Line& line) const
+{
+	// Callback to avoid expensive calculation in the cases where it is not needed.
+	auto RemainingWidth = [this](StringView editable_line_string) {
+		const float total_width = (float)ElementUtilities::GetStringWidth(text_element, editable_line_string);
+		return GetAvailableWidth() - total_width;
+	};
+
+	const String& value = GetValue();
+	StringView editable_line_string(value, line.value_offset, line.editable_length);
+
+	switch (parent->GetComputedValues().text_align())
+	{
+	case Style::TextAlign::Left: return 0;
+	case Style::TextAlign::Right:
+	{
+		// For right alignment with soft-wrapped newlines, remove up to a single space to align the last word to the right edge.
+		const bool is_last_line = (line.value_offset + line.size == (int)value.size());
+		const bool is_soft_wrapped = (!is_last_line && line.editable_length == line.size);
+		if (is_soft_wrapped && !editable_line_string.empty() && *(editable_line_string.end() - 1) == ' ')
+		{
+			editable_line_string = StringView(editable_line_string.begin(), editable_line_string.end() - 1);
+		}
+		return Math::Max(0.0f, RemainingWidth(editable_line_string));
+	}
+	case Style::TextAlign::Center: return Math::Max(0.0f, 0.5f * RemainingWidth(editable_line_string));
+	case Style::TextAlign::Justify: return 0;
+	}
+	return 0;
+}
+
 int WidgetTextInput::CalculateCharacterIndex(int line_index, float position)
 {
 	int prev_offset = 0;
 	float prev_line_width = 0;
 
-	cursor_on_right_side_of_character = true;
+	ideal_cursor_position_to_the_right_of_cursor = true;
 
-	for(auto it = StringIteratorU8(lines[line_index].content, 0, lines[line_index].content_length); it; )
+	const Line& line = lines[line_index];
+	const char* p_begin = GetValue().data() + line.value_offset;
+	const char* p_end = p_begin + line.editable_length;
+
+	position -= GetAlignmentSpecificTextOffset(line);
+
+	for (auto it = StringIteratorU8(p_begin, p_begin, p_end); it;)
 	{
 		++it;
-		int offset = (int)it.offset();
+		const int offset = (int)it.offset();
 
-		float line_width = (float) ElementUtilities::GetStringWidth(text_element, lines[line_index].content.substr(0, offset));
+		const float line_width = (float)ElementUtilities::GetStringWidth(text_element, StringView(p_begin, p_begin + offset));
 		if (line_width > position)
 		{
 			if (position - prev_line_width < line_width - position)
@@ -865,7 +1118,7 @@ int WidgetTextInput::CalculateCharacterIndex(int line_index, float position)
 			}
 			else
 			{
-				cursor_on_right_side_of_character = false;
+				ideal_cursor_position_to_the_right_of_cursor = false;
 				return offset;
 			}
 		}
@@ -877,29 +1130,28 @@ int WidgetTextInput::CalculateCharacterIndex(int line_index, float position)
 	return prev_offset;
 }
 
-// Shows or hides the cursor.
 void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 {
 	if (show)
 	{
 		cursor_visible = true;
-		SetKeyboardActive(true);
-		keyboard_showed = true;
-		
 		cursor_timer = CURSOR_BLINK_TIME;
 		last_update_time = GetSystemInterface()->GetElapsedTime();
 
 		// Shift the cursor into view.
 		if (move_to_cursor)
 		{
-			float minimum_scroll_top = (cursor_position.y + cursor_size.y) - parent->GetClientHeight();
+			float minimum_scroll_top = Math::Min((cursor_position.y + cursor_size.y) - GetAvailableHeight(), cursor_position.y);
 			if (parent->GetScrollTop() < minimum_scroll_top)
 				parent->SetScrollTop(minimum_scroll_top);
 			else if (parent->GetScrollTop() > cursor_position.y)
 				parent->SetScrollTop(cursor_position.y);
 
-			float minimum_scroll_left = (cursor_position.x + cursor_size.x) - parent->GetClientWidth();
-			if (parent->GetScrollLeft() < minimum_scroll_left)
+			const bool word_wrap = parent->GetComputedValues().white_space() == Style::WhiteSpace::Prewrap;
+			float minimum_scroll_left = Math::Min((cursor_position.x + cursor_size.x) - GetAvailableWidth(), cursor_position.x);
+			if (word_wrap)
+				parent->SetScrollLeft(0.f);
+			else if (parent->GetScrollLeft() < minimum_scroll_left)
 				parent->SetScrollLeft(minimum_scroll_left);
 			else if (parent->GetScrollLeft() > cursor_position.x)
 				parent->SetScrollLeft(cursor_position.x);
@@ -907,6 +1159,9 @@ void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 			scroll_offset.x = parent->GetScrollLeft();
 			scroll_offset.y = parent->GetScrollTop();
 		}
+
+		SetKeyboardActive(true);
+		keyboard_showed = true;
 	}
 	else
 	{
@@ -921,15 +1176,15 @@ void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 	}
 }
 
-// Formats the element, laying out the text and inserting scrollbars as appropriate.
 void WidgetTextInput::FormatElement()
 {
 	using namespace Style;
 	ElementScroll* scroll = parent->GetElementScroll();
-	float width = parent->GetBox().GetSize(Box::PADDING).x;
+	float width = parent->GetBox().GetSize(BoxArea::Padding).x;
 
-	Overflow x_overflow_property = parent->GetComputedValues().overflow_x;
-	Overflow y_overflow_property = parent->GetComputedValues().overflow_y;
+	const Overflow x_overflow_property = parent->GetComputedValues().overflow_x();
+	const Overflow y_overflow_property = parent->GetComputedValues().overflow_y();
+	const bool word_wrap = (parent->GetComputedValues().white_space() == WhiteSpace::Prewrap);
 
 	if (x_overflow_property == Overflow::Scroll)
 		scroll->EnableScrollbar(ElementScroll::HORIZONTAL, width);
@@ -941,133 +1196,134 @@ void WidgetTextInput::FormatElement()
 	else
 		scroll->DisableScrollbar(ElementScroll::VERTICAL);
 
+	// If the formatting produces scrollbars we need to format again later, this constraint enables early exit for the first formatting round.
+	const float formatting_height_constraint = (y_overflow_property == Overflow::Auto ? GetAvailableHeight() : FLT_MAX);
+
 	// Format the text and determine its total area.
-	Vector2f content_area = FormatText();
+	Vector2f content_area = FormatText(formatting_height_constraint);
 
 	// If we're set to automatically generate horizontal scrollbars, check for that now.
-	if (x_overflow_property == Overflow::Auto)
+	if (!word_wrap && x_overflow_property == Overflow::Auto && content_area.x > GetAvailableWidth() + OVERFLOW_TOLERANCE)
+		scroll->EnableScrollbar(ElementScroll::HORIZONTAL, width);
+
+	// Now check for vertical overflow. If we do turn on the scrollbar, this will cause a reflow.
+	if (y_overflow_property == Overflow::Auto && content_area.y > GetAvailableHeight() + OVERFLOW_TOLERANCE)
 	{
-		if (parent->GetClientWidth() < content_area.x)
+		scroll->EnableScrollbar(ElementScroll::VERTICAL, width);
+		content_area = FormatText();
+
+		if (!word_wrap && x_overflow_property == Overflow::Auto && content_area.x > GetAvailableWidth() + OVERFLOW_TOLERANCE)
 			scroll->EnableScrollbar(ElementScroll::HORIZONTAL, width);
 	}
 
-	// Now check for vertical overflow. If we do turn on the scrollbar, this will cause a reflow.
-	if (y_overflow_property == Overflow::Auto)
-	{
-		if (parent->GetClientHeight() < content_area.y)
-		{
-			scroll->EnableScrollbar(ElementScroll::VERTICAL, width);
-			content_area = FormatText();
-
-			if (x_overflow_property == Overflow::Auto &&
-				parent->GetClientWidth() < content_area.x)
-			{
-				scroll->EnableScrollbar(ElementScroll::HORIZONTAL, width);
-			}
-		}
-	}
-
-	parent->SetContentBox(Vector2f(0, 0), content_area);
+	// For text elements, make the content and padding on all sides reachable by scrolling.
+	const Vector2f padding_size = parent->GetBox().GetFrameSize(BoxArea::Padding);
+	parent->SetScrollableOverflowRectangle(content_area + padding_size, true);
 	scroll->FormatScrollbars();
 }
 
-// Formats the input element's text field.
-Vector2f WidgetTextInput::FormatText()
+Vector2f WidgetTextInput::FormatText(float height_constraint)
 {
-	absolute_cursor_index = edit_index;
-
 	Vector2f content_area(0, 0);
+
+	const FontFaceHandle font_handle = parent->GetFontFaceHandle();
+	if (!font_handle)
+		return content_area;
+
+	const FontMetrics& font_metrics = GetFontEngineInterface()->GetFontMetrics(font_handle);
 
 	// Clear the old lines, and all the lines in the text elements.
 	lines.clear();
 	text_element->ClearLines();
 	selected_text_element->ClearLines();
 
-	// Clear the selection background geometry, and get the vertices and indices so the new geo can
-	// be generated.
-	selection_geometry.Release(true);
-	Vector< Vertex >& selection_vertices = selection_geometry.GetVertices();
-	Vector< int >& selection_indices = selection_geometry.GetIndices();
-
 	// Determine the line-height of the text element.
-	float line_height = parent->GetLineHeight();
+	const float line_height = GetLineHeight();
 
+	const float half_leading = 0.5f * (line_height - (font_metrics.ascent + font_metrics.descent));
+	const float top_to_baseline = font_metrics.ascent + half_leading;
+
+	// When the selection contains endlines, we expand the selection area by this width.
+	const int endline_font_width = int(0.4f * parent->GetComputedValues().font_size());
+
+	const float available_width = GetAvailableWidth();
 	int line_begin = 0;
-	Vector2f line_position(0, 0);
+	Vector2f line_position = {0, top_to_baseline};
 	bool last_line = false;
+
+	float max_selection_right_edge = 0;
+
+	// Clear the selection background and IME composition geometry, and get the vertices and indices so the new geometry can be generated.
+	Mesh selection_composition_mesh = selection_composition_geometry.Release(Geometry::ReleaseMode::ClearMesh);
 
 	// Keep generating lines until all the text content is placed.
 	do
 	{
-		Line line;
-		line.extra_characters = 0;
-		float line_width;
-
-		// Generate the next line.
-		last_line = text_element->GenerateLine(line.content, line.content_length, line_width, line_begin, parent->GetClientWidth() - cursor_size.x, 0, false, false);
-
-		// If this line terminates in a soft-return, then the line may be leaving a space or two behind as an orphan.
-		// If so, we must append the orphan onto the line even though it will push the line outside of the input
-		// field's bounds.
-		bool soft_return = false;
-		if (!last_line &&
-			(line.content.empty() ||
-			 line.content[line.content.size() - 1] != '\n'))
+		if (available_width <= 0.f)
 		{
-			soft_return = true;
-
-			const String& text = text_element->GetText();
-			String orphan;
-			for (int i = 1; i >= 0; --i)
-			{
-				int index = line_begin + line.content_length + i;
-				if (index >= (int) text.size())
-					continue;
-
-				if (text[index] != ' ')
-				{
-					orphan.clear();
-					continue;
-				}
-
-				int next_index = index + 1;
-				if (!orphan.empty() ||
-					next_index >= (int) text.size() ||
-					text[next_index] != ' ')
-					orphan += ' ';
-			}
-
-			if (!orphan.empty())
-			{
-				line.content += orphan;
-				line.content_length += (int) orphan.size();
-				line_width += ElementUtilities::GetStringWidth(text_element, orphan);
-			}
+			lines.push_back(Line{});
+			break;
 		}
 
+		Line line = {};
+		line.value_offset = line_begin;
+		float line_width;
+		String line_content;
+
+		// Generate the next line.
+		last_line =
+			text_element->GenerateLine(line_content, line.size, line_width, line_begin, available_width - cursor_size.x, 0, false, false, false);
+
+		// Check if the editable length needs to be truncated to dodge a trailing endline.
+		line.editable_length = (int)line_content.size();
+		if (!line_content.empty() && line_content.back() == '\n')
+			line.editable_length -= 1;
+
+		// Include all spaces at the end of this line, if they were not included due to soft-wrapping in `GenerateLine`.
+		// This helps prevent sudden shifts when whitespace wraps down to the next line.
+		{
+			const String& text = GetValue();
+			size_t i_space_begin = size_t(line_begin + line.editable_length);
+			size_t i_space_end = Math::Min(text.find_first_not_of(' ', i_space_begin), text.size());
+			size_t count = i_space_end - i_space_begin;
+			if (count > 0)
+			{
+				line_content.append(count, ' ');
+				line_width += ElementUtilities::GetStringWidth(text_element, " ") * (int)count;
+				line.editable_length += (int)count;
+				line.size += (int)count;
+				// Consume the hard wrap if we have one on this line, so that it doesn't make its own, empty line.
+				if (text[i_space_end] == '\n')
+					line.size += 1;
+				// If the spaces extend all the way to the end, we have consumed all the lines.
+				if (i_space_end == text.size())
+					last_line = true;
+			}
+		}
 
 		// Now that we have the string of characters appearing on the new line, we split it into
 		// three parts; the unselected text appearing before any selected text on the line, the
 		// selected text on the line, and any unselected text after the selection.
-		String pre_selection, selection, post_selection;
-		GetLineSelection(pre_selection, selection, post_selection, line.content, line_begin);
+		StringView pre_selection, selection, post_selection;
+		GetLineSelection(pre_selection, selection, post_selection, line_content, line_begin);
 
 		// The pre-selected text is placed, if there is any (if the selection starts on or before
 		// the beginning of this line, then this will be empty).
 		if (!pre_selection.empty())
 		{
-			text_element->AddLine(line_position, pre_selection);
-			line_position.x += ElementUtilities::GetStringWidth(text_element, pre_selection);
+			const int width = ElementUtilities::GetStringWidth(text_element, pre_selection);
+			text_element->AddLine(line_position + Vector2f{GetAlignmentSpecificTextOffset(line), 0}, String(pre_selection));
+			line_position.x += width;
 		}
 
 		// Return the extra kerning that would result in joining two strings.
-		auto GetKerningBetween = [this](const String& left, const String& right) -> float {
+		auto GetKerningBetween = [this](StringView left, StringView right) -> float {
 			if (left.empty() || right.empty())
 				return 0.0f;
-			// We could join the whole string, and compare the result of the joined width to the individual widths of each string. Instead, we just take the
-			// two neighboring characters from each string and compare the string width with and without kerning, which should be much faster.
-			const Character left_back = StringUtilities::ToCharacter(StringUtilities::SeekBackwardUTF8(&left.back(), &left.front()));
-			const String right_front_u8 = right.substr(0, size_t(StringUtilities::SeekForwardUTF8(right.c_str() + 1, right.c_str() + right.size()) - right.c_str()));
+			// We could join the whole string, and compare the result of the joined width to the individual widths of each string. Instead, we take
+			// the two neighboring characters from each string and compare the string width with and without kerning, which should be much faster.
+			const Character left_back = StringUtilities::ToCharacter(StringUtilities::SeekBackwardUTF8(left.end() - 1, left.begin()), left.end());
+			const StringView right_front_u8 = StringView(right.begin(), StringUtilities::SeekForwardUTF8(right.begin() + 1, right.end()));
 			const int width_kerning = ElementUtilities::GetStringWidth(text_element, right_front_u8, left_back);
 			const int width_no_kerning = ElementUtilities::GetStringWidth(text_element, right_front_u8, Character::Null);
 			return float(width_kerning - width_no_kerning);
@@ -1078,13 +1334,17 @@ Vector2f WidgetTextInput::FormatText()
 		if (!selection.empty())
 		{
 			line_position.x += GetKerningBetween(pre_selection, selection);
-			selected_text_element->AddLine(line_position, selection);
+
 			const int selection_width = ElementUtilities::GetStringWidth(selected_text_element, selection);
+			const bool selection_contains_endline = (selection_begin_index + selection_length > line_begin + line.editable_length);
+			const Vector2f selection_size = {float(selection_width + (selection_contains_endline ? endline_font_width : 0)), line_height};
+			const Vector2f aligned_position = line_position + Vector2f{GetAlignmentSpecificTextOffset(line), 0};
 
-			selection_vertices.resize(selection_vertices.size() + 4);
-			selection_indices.resize(selection_indices.size() + 6);
-			GeometryUtilities::GenerateQuad(&selection_vertices[selection_vertices.size() - 4], &selection_indices[selection_indices.size() - 6], line_position, Vector2f((float)selection_width, line_height), selection_colour, (int)selection_vertices.size() - 4);
+			MeshUtilities::GenerateQuad(selection_composition_mesh, aligned_position - Vector2f(0, top_to_baseline), selection_size,
+				selection_colour);
+			selected_text_element->AddLine(aligned_position, String(selection));
 
+			max_selection_right_edge = Math::Max(max_selection_right_edge, aligned_position.x + selection_size.x);
 			line_position.x += selection_width;
 		}
 
@@ -1093,174 +1353,247 @@ Vector2f WidgetTextInput::FormatText()
 		if (!post_selection.empty())
 		{
 			line_position.x += GetKerningBetween(selection, post_selection);
-			text_element->AddLine(line_position, post_selection);
+			text_element->AddLine(line_position + Vector2f{GetAlignmentSpecificTextOffset(line), 0}, String(post_selection));
 		}
 
+		// We fetch the IME composition on the new line to highlight it.
+		StringView ime_pre_composition, ime_composition;
+		GetLineIMEComposition(ime_pre_composition, ime_composition, line_content, line_begin);
+
+		// If there is any IME composition string on the line, create a segment for its underline.
+		if (!ime_composition.empty())
+		{
+			const bool composition_contains_endline = (ime_composition_end_index > line_begin + line.editable_length);
+			const int composition_width = ElementUtilities::GetStringWidth(text_element, ime_composition);
+			const Vector2f composition_position = {
+				float(ElementUtilities::GetStringWidth(text_element, ime_pre_composition)) + GetAlignmentSpecificTextOffset(line),
+				line_position.y - top_to_baseline + line_height - COMPOSITION_UNDERLINE_WIDTH,
+			};
+			Vector2f line_size = {float(composition_width + (composition_contains_endline ? endline_font_width : 0)), COMPOSITION_UNDERLINE_WIDTH};
+
+			MeshUtilities::GenerateLine(selection_composition_mesh, composition_position, line_size,
+				parent->GetComputedValues().color().ToPremultiplied());
+		}
 
 		// Update variables for the next line.
-		line_begin += line.content_length;
+		line_begin += line.size;
 		line_position.x = 0;
 		line_position.y += line_height;
 
-		// Grow the content area width-wise if this line is the longest so far, and push the
-		// height out.
+		// Grow the content area width-wise if this line is the longest so far, and push the height out.
 		content_area.x = Math::Max(content_area.x, line_width + cursor_size.x);
-		content_area.y = line_position.y;
+		content_area.y = line_position.y - top_to_baseline;
 
-		// Push a trailing '\r' token onto the back to indicate a soft return if necessary.
-		if (soft_return)
-		{
-			line.content += '\r';
-			line.extra_characters -= 1;
+		// Finally, push the new line into our array of lines.
+		lines.push_back(std::move(line));
 
-			if (edit_index >= line_begin)
-				absolute_cursor_index += 1;
-		}
+	} while (!last_line && content_area.y <= height_constraint + OVERFLOW_TOLERANCE);
 
-		// Push the new line into our array of lines, but first check if its content length needs to be truncated to
-		// dodge a trailing endline.
-		if (!line.content.empty() &&
-			line.content[line.content.size() - 1] == '\n')
-			line.content_length -= 1;
-		lines.push_back(line);
+	// Clamp the cursor to a valid range.
+	absolute_cursor_index = Math::Min(absolute_cursor_index, (int)GetValue().size());
+
+	selection_composition_geometry = parent->GetRenderManager()->MakeGeometry(std::move(selection_composition_mesh));
+
+	// Overflow is automatically caught by any text overflowing the content area. However, sometimes it is possible that
+	// the selection box extends beyond the text and outside the content area. This can even overflow the element
+	// itself. In particular, when the selection includes newlines near the right edge. We don't want the selection box
+	// to take part in the scrollable region of the element, which would be one way to ensure that it is always clipped.
+	// Instead, we here detect such possible overflow manually and force the element to clip. This will clip any parts
+	// of the selection box that is overflowing. Maybe in the future we'll have a better way to specify ink overflow and
+	// have that automatically clipped.
+	const bool new_ink_overflow = (max_selection_right_edge > available_width + parent->GetBox().GetEdge(BoxArea::Padding, BoxEdge::Right));
+	if (new_ink_overflow != ink_overflow)
+	{
+		ink_overflow = new_ink_overflow;
+		parent->SetProperty(PropertyId::Clip, Property(ink_overflow ? Style::Clip::Type::Always : Style::Clip::Type::Auto));
 	}
-	while (!last_line);
 
 	return content_area;
 }
 
-// Generates the text cursor.
 void WidgetTextInput::GenerateCursor()
 {
-	// Generates the cursor.
-	cursor_geometry.Release();
+	cursor_size.x = Math::Round(ElementUtilities::GetDensityIndependentPixelRatio(text_element));
+	cursor_size.y = GetLineHeight();
 
-	Vector< Vertex >& vertices = cursor_geometry.GetVertices();
-	vertices.resize(4);
-
-	Vector< int >& indices = cursor_geometry.GetIndices();
-	indices.resize(6);
-
-	cursor_size.x = Math::RoundFloat( ElementUtilities::GetDensityIndependentPixelRatio(text_element) );
-	cursor_size.y = text_element->GetLineHeight() + 2.0f;
-
-	Colourb color = parent->GetComputedValues().color;
+	Colourb color = parent->GetComputedValues().color();
 
 	if (const Property* property = parent->GetProperty(PropertyId::CaretColor))
 	{
-		if (property->unit == Property::COLOUR)
+		if (property->unit == Unit::COLOUR)
 			color = property->Get<Colourb>();
 	}
 
-	GeometryUtilities::GenerateQuad(&vertices[0], &indices[0], Vector2f(0, 0), cursor_size, color);
+	Mesh mesh = cursor_geometry.Release(Geometry::ReleaseMode::ClearMesh);
+	MeshUtilities::GenerateQuad(mesh, Vector2f(0, 0), cursor_size, color.ToPremultiplied());
+	cursor_geometry = parent->GetRenderManager()->MakeGeometry(std::move(mesh));
 }
 
-void WidgetTextInput::UpdateCursorPosition()
+void WidgetTextInput::ForceFormattingOnNextLayout()
 {
-	if (text_element->GetFontFaceHandle() == 0)
+	force_formatting_on_next_layout = true;
+}
+
+void WidgetTextInput::UpdateCursorPosition(bool update_ideal_cursor_position)
+{
+	if (text_element->GetFontFaceHandle() == 0 || lines.empty())
 		return;
 
-	cursor_position.x = (float) ElementUtilities::GetStringWidth(text_element, lines[cursor_line_index].content.substr(0, cursor_character_index));
-	cursor_position.y = -1.f + (float)cursor_line_index * text_element->GetLineHeight();
+	int cursor_line_index = 0, cursor_character_index = 0;
+	GetRelativeCursorIndices(cursor_line_index, cursor_character_index);
+
+	const auto& line = lines[cursor_line_index];
+	const int string_width_pre_cursor =
+		ElementUtilities::GetStringWidth(text_element, StringView(GetValue(), line.value_offset, cursor_character_index));
+	const float alignment_offset = GetAlignmentSpecificTextOffset(line);
+
+	cursor_position = {
+		(float)string_width_pre_cursor + alignment_offset,
+		(float)cursor_line_index * GetLineHeight(),
+	};
+
+	const bool word_wrap = parent->GetComputedValues().white_space() == Style::WhiteSpace::Prewrap;
+	if (word_wrap)
+		cursor_position.x = Math::Min(cursor_position.x, GetAvailableWidth() - cursor_size.x);
+
+	if (update_ideal_cursor_position)
+		ideal_cursor_position = cursor_position.x;
 }
 
-// Expand the text selection to the position of the cursor.
-void WidgetTextInput::UpdateSelection(bool selecting)
+bool WidgetTextInput::UpdateSelection(bool selecting)
 {
+	bool selection_changed = false;
 	if (!selecting)
 	{
-		selection_anchor_index = edit_index;
-		ClearSelection();
+		selection_anchor_index = selection_begin_index = absolute_cursor_index;
+		selection_changed = ClearSelection();
 	}
 	else
 	{
 		int new_begin_index;
 		int new_end_index;
 
-		if (edit_index > selection_anchor_index)
+		if (absolute_cursor_index > selection_anchor_index)
 		{
 			new_begin_index = selection_anchor_index;
-			new_end_index = edit_index;
+			new_end_index = absolute_cursor_index;
 		}
 		else
 		{
-			new_begin_index = edit_index;
+			new_begin_index = absolute_cursor_index;
 			new_end_index = selection_anchor_index;
 		}
 
-		if (new_begin_index != selection_begin_index ||
-			new_end_index - new_begin_index != selection_length)
+		if (new_begin_index != selection_begin_index || new_end_index - new_begin_index != selection_length)
 		{
 			selection_begin_index = new_begin_index;
 			selection_length = new_end_index - new_begin_index;
 
-			FormatText();
+			selection_changed = true;
 		}
 	}
+
+	return selection_changed;
 }
 
-// Removes the selection of text.
-void WidgetTextInput::ClearSelection()
+bool WidgetTextInput::ClearSelection()
 {
 	if (selection_length > 0)
 	{
 		selection_length = 0;
-		FormatElement();
+		return true;
 	}
+	return false;
 }
 
-// Deletes all selected text and removes the selection.
 void WidgetTextInput::DeleteSelection()
 {
 	if (selection_length > 0)
 	{
-		const String& value = GetElement()->GetAttribute< String >("value", "");
-
-		String new_value = value.substr(0, selection_begin_index) + value.substr(std::min(size_t(selection_begin_index + selection_length), size_t(value.size())));
-		GetElement()->SetAttribute("value", new_value);
+		String new_value = GetAttributeValue();
+		const size_t selection_begin = std::min((size_t)selection_begin_index, (size_t)new_value.size());
+		new_value.erase(selection_begin, (size_t)selection_length);
 
 		// Move the cursor to the beginning of the old selection.
 		absolute_cursor_index = selection_begin_index;
-		UpdateRelativeCursor();
+
+		GetElement()->SetAttribute("value", new_value);
 
 		// Erase our record of the selection.
-		ClearSelection();
+		if (UpdateSelection(false))
+			FormatText();
 	}
 }
 
-// Split one line of text into three parts, based on the current selection.
-void WidgetTextInput::GetLineSelection(String& pre_selection, String& selection, String& post_selection, const String& line, int line_begin)
+void WidgetTextInput::GetLineSelection(StringView& pre_selection, StringView& selection, StringView& post_selection, const String& line,
+	int line_begin) const
 {
-	// Check if we have any selection at all, and if so if the selection is on this line.
-	if (selection_length <= 0 ||
-		selection_begin_index + selection_length < line_begin ||
-		selection_begin_index > line_begin + (int) line.size())
+	const int selection_end = selection_begin_index + selection_length;
+	if (selection_length <= 0 || selection_end < line_begin || selection_begin_index > line_begin + (int)line.size())
 	{
 		pre_selection = line;
 		return;
 	}
 
-	int line_length = (int)line.size();
+	const int line_length = (int)line.size();
 	using namespace Math;
 
 	// Split the line up into its three parts, depending on the size and placement of the selection.
-	pre_selection = line.substr(0, Max(0, selection_begin_index - line_begin));
-	selection = line.substr(Clamp(selection_begin_index - line_begin, 0, line_length), Max(0, selection_length + Min(0, selection_begin_index - line_begin)));
-	post_selection = line.substr(Clamp(selection_begin_index + selection_length - line_begin, 0, line_length));
+	pre_selection = StringView(line, 0, Max(0, selection_begin_index - line_begin));
+	selection = StringView(line, Clamp(selection_begin_index - line_begin, 0, line_length),
+		Max(0, selection_length + Min(0, selection_begin_index - line_begin)));
+	post_selection = StringView(line, Clamp(selection_end - line_begin, 0, line_length));
+}
+
+void WidgetTextInput::GetLineIMEComposition(StringView& pre_composition, StringView& ime_composition, const String& line, int line_begin) const
+{
+	const int composition_length = ime_composition_end_index - ime_composition_begin_index;
+
+	// Check if the line has any text in the IME composition range at all.
+	if (composition_length <= 0 || ime_composition_end_index < line_begin || ime_composition_begin_index > line_begin + (int)line.size())
+	{
+		pre_composition = line;
+		return;
+	}
+
+	const int line_length = (int)line.size();
+
+	pre_composition = StringView(line, 0, Math::Max(0, ime_composition_begin_index - line_begin));
+	ime_composition = StringView(line, Math::Clamp(ime_composition_begin_index - line_begin, 0, line_length),
+		Math::Max(0, composition_length + Math::Min(0, ime_composition_begin_index - line_begin)));
 }
 
 void WidgetTextInput::SetKeyboardActive(bool active)
 {
-	SystemInterface* system = GetSystemInterface();
-	if (system) {
-		if (active) 
+	if (SystemInterface* system = GetSystemInterface())
+	{
+		if (active)
 		{
-			system->ActivateKeyboard();
-		} else 
+			// Activate the keyboard and submit the cursor position and line height to enable clients to adjust the input method editor (IME).
+			const Vector2f element_offset = parent->GetAbsoluteOffset() - scroll_offset;
+			const Vector2f absolute_cursor_position = element_offset + cursor_position;
+			system->ActivateKeyboard(absolute_cursor_position, cursor_size.y);
+		}
+		else
 		{
 			system->DeactivateKeyboard();
 		}
 	}
 }
-	
+
+float WidgetTextInput::GetLineHeight() const
+{
+	return Math::Round(parent->GetLineHeight());
+}
+
+float WidgetTextInput::GetAvailableWidth() const
+{
+	return parent->GetClientWidth() - parent->GetBox().GetFrameSize(BoxArea::Padding).x;
+}
+
+float WidgetTextInput::GetAvailableHeight() const
+{
+	return parent->GetClientHeight() - parent->GetBox().GetFrameSize(BoxArea::Padding).y;
+}
+
 } // namespace Rml

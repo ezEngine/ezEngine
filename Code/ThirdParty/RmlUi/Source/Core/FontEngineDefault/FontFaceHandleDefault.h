@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,12 @@
 #ifndef RMLUI_CORE_FONTENGINEDEFAULT_FONTFACEHANDLE_H
 #define RMLUI_CORE_FONTENGINEDEFAULT_FONTFACEHANDLE_H
 
-#include "../../../Include/RmlUi/Core/Traits.h"
 #include "../../../Include/RmlUi/Core/FontEffect.h"
 #include "../../../Include/RmlUi/Core/FontGlyph.h"
+#include "../../../Include/RmlUi/Core/FontMetrics.h"
 #include "../../../Include/RmlUi/Core/Geometry.h"
 #include "../../../Include/RmlUi/Core/Texture.h"
+#include "../../../Include/RmlUi/Core/Traits.h"
 #include "FontTypes.h"
 
 #include <cinttypes>
@@ -42,60 +43,53 @@ namespace Rml {
 
 class FontFaceLayer;
 
-
 /**
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class FontFaceHandleDefault final : public NonCopyMoveable
-{
+class FontFaceHandleDefault final : public NonCopyMoveable {
 public:
 	FontFaceHandleDefault();
 	~FontFaceHandleDefault();
 
-	bool Initialize(FontFaceHandleFreetype face, int font_size);
+	bool Initialize(FontFaceHandleFreetype face, int font_size, bool load_default_glyphs);
 
-	/// Returns the point size of this font face.
-	int GetSize() const;
-	/// Returns the pixel height of a lower-case x in this font face.
-	int GetXHeight() const;
-	/// Returns the default height between this font face's baselines.
-	int GetLineHeight() const;
+	const FontMetrics& GetFontMetrics() const;
 
-	/// Returns the font's baseline, as a pixel offset from the bottom of the font.
-	int GetBaseline() const;
-
-	/// Returns the font's underline, as a pixel offset from the bottom of the font.
-	float GetUnderline(float& thickness) const;
-
-	/// Returns the font's glyphs.
 	const FontGlyphMap& GetGlyphs() const;
 
 	/// Returns the width a string will take up if rendered with this handle.
 	/// @param[in] string The string to measure.
-	/// @param[in] prior_character The optionally-specified character that immediately precedes the string. This may have an impact on the string width due to kerning.
+	/// @param[in] prior_character The optionally-specified character that immediately precedes the string. This may have an impact on the string
+	/// width due to kerning.
 	/// @return The width, in pixels, this string will occupy if rendered with this handle.
-	int GetStringWidth(const String& string, Character prior_character = Character::Null);
+	int GetStringWidth(StringView string, float letter_spacing, Character prior_character = Character::Null);
 
 	/// Generates, if required, the layer configuration for a given list of font effects.
 	/// @param[in] font_effects The list of font effects to generate the configuration for.
 	/// @return The index to use when generating geometry using this configuration.
 	int GenerateLayerConfiguration(const FontEffectList& font_effects);
 	/// Generates the texture data for a layer (for the texture database).
-	/// @param[out] texture_data The pointer to be set to the generated texture data.
+	/// @param[out] texture_data The generated texture data.
 	/// @param[out] texture_dimensions The dimensions of the texture.
 	/// @param[in] font_effect The font effect used for the layer.
 	/// @param[in] texture_id The index of the texture within the layer to generate.
 	/// @param[in] handle_version The version of the handle data. Function returns false if out of date.
-	bool GenerateLayerTexture(UniquePtr<const byte[]>& texture_data, Vector2i& texture_dimensions, const FontEffect* font_effect, int texture_id, int handle_version) const;
+	bool GenerateLayerTexture(Vector<byte>& texture_data, Vector2i& texture_dimensions, const FontEffect* font_effect, int texture_id,
+		int handle_version) const;
 
 	/// Generates the geometry required to render a single line of text.
-	/// @param[out] geometry An array of geometries to generate the geometry into.
+	/// @param[in] render_manager The render manager responsible for rendering the string.
+	/// @param[out] mesh_list A list to place the new meshes into.
 	/// @param[in] string The string to render.
 	/// @param[in] position The position of the baseline of the first character to render.
 	/// @param[in] colour The colour to render the text.
+	/// @param[in] opacity The opacity of the text, should be applied to font effects.
+	/// @param[in] letter_spacing The letter spacing size in pixels.
+	/// @param[in] layer_configuration Face configuration index to use for generating string.
 	/// @return The width, in pixels, of the string geometry.
-	int GenerateString(GeometryList& geometry, const String& string, Vector2f position, Colourb colour, int layer_configuration = 0);
+	int GenerateString(RenderManager& render_manager, TexturedMeshList& mesh_list, StringView string, Vector2f position, ColourbPremultiplied colour,
+		float opacity, float letter_spacing, int layer_configuration);
 
 	/// Version is changed whenever the layers are dirtied, requiring regeneration of string geometry.
 	int GetVersion() const;
@@ -108,7 +102,7 @@ private:
 	void FillKerningPairCache();
 
 	// Return the kerning for a character pair.
-	int GetKerning(Character lhs, Character rhs) const;
+	int GetKerning(Character lhs, Character rhs, bool& has_set_size) const;
 
 	/// Retrieve a glyph from the given code point, building and appending a new glyph if not already built.
 	/// @param[in-out] character  The character, can be changed e.g. to the replacement character if no glyph is found.
@@ -129,12 +123,12 @@ private:
 
 	struct EffectLayerPair {
 		const FontEffect* font_effect;
-		UniquePtr<FontFaceLayer> layer; 
+		UniquePtr<FontFaceLayer> layer;
 	};
-	using FontLayerMap = Vector< EffectLayerPair >;
-	using FontLayerCache = SmallUnorderedMap< size_t, FontFaceLayer* >;
-	using LayerConfiguration = Vector< FontFaceLayer* >;
-	using LayerConfigurationList = Vector< LayerConfiguration >;
+	using FontLayerMap = Vector<EffectLayerPair>;
+	using FontLayerCache = SmallUnorderedMap<size_t, FontFaceLayer*>;
+	using LayerConfiguration = Vector<FontFaceLayer*>;
+	using LayerConfigurationList = Vector<LayerConfiguration>;
 
 	// The list of all font layers, index by the effect that instanced them.
 	FontFaceLayer* base_layer;
@@ -143,9 +137,9 @@ private:
 	FontLayerCache layer_cache;
 
 	// Pre-cache kerning pairs for some ascii subset of all characters.
-	using AsciiPair = std::uint16_t;
-	using KerningIntType = std::int16_t;
-	using KerningPairs = UnorderedMap< AsciiPair, KerningIntType >;
+	using AsciiPair = uint16_t;
+	using KerningIntType = int16_t;
+	using KerningPairs = UnorderedMap<AsciiPair, KerningIntType>;
 	KerningPairs kerning_pair_cache;
 
 	bool has_kerning = false;

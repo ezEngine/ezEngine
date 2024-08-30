@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,29 +29,44 @@
 #include "../../Include/RmlUi/Core/StringUtilities.h"
 #include "../../Include/RmlUi/Core/Log.h"
 #include <algorithm>
-#include <stdio.h>
+#include <limits.h>
+#include <sstream>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 namespace Rml {
 
-static int FormatString(String& string, size_t max_size, const char* format, va_list argument_list)
+static int FormatString(String& string, const char* format, va_list argument_list)
 {
-	const int INTERNAL_BUFFER_SIZE = 1024;
-	static char buffer[INTERNAL_BUFFER_SIZE];
+	constexpr size_t InternalBufferSize = 256;
+	char buffer[InternalBufferSize];
 	char* buffer_ptr = buffer;
 
-	if (max_size + 1 > INTERNAL_BUFFER_SIZE)
-		buffer_ptr = new char[max_size + 1];
+	size_t max_size = InternalBufferSize;
+	int length = 0;
 
-	int length = vsnprintf(buffer_ptr, max_size, format, argument_list);
-	buffer_ptr[length >= 0 ? length : max_size] = '\0';
-#ifdef RMLUI_DEBUG
-	if (length == -1)
+	for (int i = 0; i < 2; i++)
 	{
-		Log::Message(Log::LT_WARNING, "FormatString: String truncated to %d bytes when processing %s", max_size, format);
+		va_list argument_list_copy;
+		va_copy(argument_list_copy, argument_list);
+
+		length = vsnprintf(buffer_ptr, max_size, format, argument_list_copy);
+
+		va_end(argument_list_copy);
+
+		if (length < 0)
+		{
+			RMLUI_ERRORMSG("Error while formatting string");
+			return 0;
+		}
+
+		if ((size_t)length < max_size || i > 0)
+			break;
+
+		max_size = (size_t)length + 1;
+		buffer_ptr = new char[max_size];
 	}
-#endif
 
 	string = buffer_ptr;
 
@@ -61,47 +76,45 @@ static int FormatString(String& string, size_t max_size, const char* format, va_
 	return length;
 }
 
-int FormatString(String& string, size_t max_size, const char* format, ...)
+int FormatString(String& string, const char* format, ...)
 {
 	va_list argument_list;
 	va_start(argument_list, format);
-	int result = FormatString(string, (int)max_size, format, argument_list);
+	int result = FormatString(string, format, argument_list);
 	va_end(argument_list);
 	return result;
 }
-String CreateString(size_t max_size, const char* format, ...)
+String CreateString(const char* format, ...)
 {
 	String result;
-	result.reserve(max_size);
 	va_list argument_list;
 	va_start(argument_list, format);
-	FormatString(result, max_size, format, argument_list);
+	FormatString(result, format, argument_list);
 	va_end(argument_list);
 	return result;
 }
 
-static inline char CharToLower(char c) {
+static inline char CharToLower(char c)
+{
 	if (c >= 'A' && c <= 'Z')
 		c += char('a' - 'A');
 	return c;
 }
 
-String StringUtilities::ToLower(const String& string) {
-	String str_lower = string;
-	std::transform(str_lower.begin(), str_lower.end(), str_lower.begin(), &CharToLower);
-	return str_lower;
+String StringUtilities::ToLower(String string)
+{
+	std::transform(string.begin(), string.end(), string.begin(), &CharToLower);
+	return string;
 }
 
-String StringUtilities::ToUpper(const String& string)
+String StringUtilities::ToUpper(String string)
 {
-	String str_upper = string;
-	std::transform(str_upper.begin(), str_upper.end(), str_upper.begin(), [](char c) {
+	std::transform(string.begin(), string.end(), string.begin(), [](char c) {
 		if (c >= 'a' && c <= 'z')
 			c -= char('a' - 'A');
 		return c;
-		}
-	);
-	return str_upper;
+	});
+	return string;
 }
 
 RMLUICORE_API String StringUtilities::EncodeRml(const String& string)
@@ -130,29 +143,82 @@ String StringUtilities::DecodeRml(const String& s)
 	{
 		if (s[i] == '&')
 		{
-			if (s[i+1] == 'l' && s[i+2] == 't' && s[i+3] == ';')
+			if (s[i + 1] == 'l' && s[i + 2] == 't' && s[i + 3] == ';')
 			{
 				result += "<";
 				i += 4;
 				continue;
 			}
-			else if (s[i+1] == 'g' && s[i+2] == 't' && s[i+3] == ';')
+			else if (s[i + 1] == 'g' && s[i + 2] == 't' && s[i + 3] == ';')
 			{
 				result += ">";
 				i += 4;
 				continue;
 			}
-			else if (s[i+1] == 'a' && s[i+2] == 'm' && s[i+3] == 'p' && s[i+4] == ';')
+			else if (s[i + 1] == 'a' && s[i + 2] == 'm' && s[i + 3] == 'p' && s[i + 4] == ';')
 			{
 				result += "&";
 				i += 5;
 				continue;
 			}
-			else if (s[i+1] == 'q' && s[i+2] == 'u' && s[i+3] == 'o' && s[i+4] == 't' && s[i+5] == ';')
+			else if (s[i + 1] == 'q' && s[i + 2] == 'u' && s[i + 3] == 'o' && s[i + 4] == 't' && s[i + 5] == ';')
 			{
 				result += "\"";
 				i += 6;
 				continue;
+			}
+			else if (s[i + 1] == '#')
+			{
+				size_t start = i + 2;
+				if (s[i + 2] == 'x')
+				{
+					start++;
+					size_t j = 0;
+					for (; j < 8; j++)
+					{
+						const auto& c = s[start + j];
+						if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
+							break;
+					}
+
+					if (j > 0 && s[start + j] == ';')
+					{
+						String tmp = s.substr(start, j);
+						const char* begin = tmp.c_str();
+						char* end;
+						unsigned long code_point = strtoul(begin, &end, 16);
+						if (code_point != 0 && code_point != ULONG_MAX)
+						{
+							result += ToUTF8(static_cast<Character>(code_point));
+							i = start + (end - begin) + 1;
+							continue;
+						}
+					}
+				}
+				else
+				{
+					size_t j = 0;
+					for (; j < 8; j++)
+					{
+						const auto& c = s[start + j];
+						if (!(c >= '0' && c <= '9'))
+							break;
+					}
+
+					if (j > 0 && s[start + j] == ';')
+					{
+						String tmp = s.substr(start, j);
+						const char* begin = tmp.c_str();
+						char* end;
+						unsigned long code_point = strtoul(begin, &end, 10);
+						if (code_point != 0 && code_point != ULONG_MAX)
+						{
+							result += ToUTF8(static_cast<Character>(code_point));
+							i = start + (end - begin) + 1;
+							continue;
+						}
+					}
+				}
 			}
 		}
 		result += s[i];
@@ -164,7 +230,8 @@ String StringUtilities::DecodeRml(const String& s)
 String StringUtilities::Replace(String subject, const String& search, const String& replace)
 {
 	size_t pos = 0;
-	while ((pos = subject.find(search, pos)) != String::npos) {
+	while ((pos = subject.find(search, pos)) != String::npos)
+	{
 		subject.replace(pos, search.length(), replace);
 		pos += replace.length();
 	}
@@ -182,10 +249,8 @@ String StringUtilities::Replace(String subject, char search, char replace)
 	return subject;
 }
 
-
-// Expands character-delimited list of values in a single string to a whitespace-trimmed list of values.
 void StringUtilities::ExpandString(StringList& string_list, const String& string, const char delimiter)
-{	
+{
 	char quote = 0;
 	bool last_char_delimiter = true;
 	const char* ptr = string.c_str();
@@ -205,11 +270,11 @@ void StringUtilities::ExpandString(StringList& string_list, const String& string
 		// Switch into quote mode if the last char was a delimeter ( excluding whitespace )
 		// and we're not already in quote mode
 		if (last_char_delimiter && !quote && (*ptr == '"' || *ptr == '\''))
-		{			
+		{
 			quote = *ptr;
 		}
 		// Switch out of quote mode if we encounter a quote that hasn't been escaped
-		else if (*ptr == quote && *(ptr-1) != '\\')
+		else if (*ptr == quote && *(ptr - 1) != '\\')
 		{
 			quote = 0;
 		}
@@ -240,8 +305,8 @@ void StringUtilities::ExpandString(StringList& string_list, const String& string
 		string_list.emplace_back(start_ptr, end_ptr + 1);
 }
 
-
-void StringUtilities::ExpandString(StringList& string_list, const String& string, const char delimiter, char quote_character, char unquote_character, bool ignore_repeated_delimiters)
+void StringUtilities::ExpandString(StringList& string_list, const String& string, const char delimiter, char quote_character, char unquote_character,
+	bool ignore_repeated_delimiters)
 {
 	int quote_mode_depth = 0;
 	const char* ptr = string.c_str();
@@ -266,7 +331,7 @@ void StringUtilities::ExpandString(StringList& string_list, const String& string
 		{
 			if (start_ptr)
 				string_list.emplace_back(start_ptr, end_ptr + 1);
-			else if(!ignore_repeated_delimiters)
+			else if (!ignore_repeated_delimiters)
 				string_list.emplace_back();
 			start_ptr = nullptr;
 		}
@@ -286,7 +351,6 @@ void StringUtilities::ExpandString(StringList& string_list, const String& string
 		string_list.emplace_back(start_ptr, end_ptr + 1);
 }
 
-// Joins a list of string values into a single string separated by a character delimiter.
 void StringUtilities::JoinString(String& string, const StringList& string_list, const char delimiter)
 {
 	for (size_t i = 0; i < string_list.size(); i++)
@@ -310,7 +374,7 @@ RMLUICORE_API String StringUtilities::StripWhitespace(StringView string)
 	while (start < end && IsWhitespace(*start))
 		start++;
 
-	while (end > start&& IsWhitespace(*(end - 1)))
+	while (end > start && IsWhitespace(*(end - 1)))
 		end--;
 
 	if (start < end)
@@ -339,6 +403,15 @@ void StringUtilities::TrimTrailingDotZeros(String& string)
 		string.resize(new_size);
 }
 
+bool StringUtilities::StartsWith(StringView string, StringView start)
+{
+	if (string.size() < start.size())
+		return false;
+
+	StringView substring(string.begin(), string.begin() + start.size());
+	return substring == start;
+}
+
 bool StringUtilities::StringCompareCaseInsensitive(const StringView lhs, const StringView rhs)
 {
 	if (lhs.size() != rhs.size())
@@ -357,8 +430,10 @@ bool StringUtilities::StringCompareCaseInsensitive(const StringView lhs, const S
 	return true;
 }
 
-Character StringUtilities::ToCharacter(const char* p)
+Character StringUtilities::ToCharacter(const char* p, const char* p_end)
 {
+	RMLUI_ASSERTMSG(p && p != p_end, "ToCharacter expects a valid, non-empty input string");
+
 	if ((*p & (1 << 7)) == 0)
 		return static_cast<Character>(*p);
 
@@ -386,13 +461,15 @@ Character StringUtilities::ToCharacter(const char* p)
 		return Character::Null;
 	}
 
+	if (p_end - p < num_bytes)
+		return Character::Null;
+
 	for (int i = 1; i < num_bytes; i++)
 	{
 		const char byte = *(p + i);
 		if ((byte & 0b1100'0000) != 0b1000'0000)
 		{
 			// Invalid continuation byte
-			++p;
 			return Character::Null;
 		}
 
@@ -430,11 +507,11 @@ String StringUtilities::ToUTF8(const Character* characters, int num_characters)
 		if (c < 0x80)
 			result += (char)c;
 		else if (c < 0x800)
-			result += { char(((c >> 6) & l5) | h2), char((c & l6) | h1) };
+			result += {char(((c >> 6) & l5) | h2), char((c & l6) | h1)};
 		else if (c < 0x10000)
-			result += { char(((c >> 12) & l4) | h3), char(((c >> 6) & l6) | h1), char((c & l6) | h1) };
+			result += {char(((c >> 12) & l4) | h3), char(((c >> 6) & l6) | h1), char((c & l6) | h1)};
 		else if (c <= 0x10FFFF)
-			result += { char(((c >> 18) & l3) | h4), char(((c >> 12) & l6) | h1), char(((c >> 6) & l6) | h1), char((c & l6) | h1) };
+			result += {char(((c >> 18) & l3) | h4), char(((c >> 12) & l6) | h1), char(((c >> 6) & l6) | h1), char((c & l6) | h1)};
 		else
 			invalid_character = true;
 	}
@@ -444,7 +521,6 @@ String StringUtilities::ToUTF8(const Character* characters, int num_characters)
 
 	return result;
 }
-
 
 size_t StringUtilities::LengthUTF8(StringView string_view)
 {
@@ -465,97 +541,32 @@ size_t StringUtilities::LengthUTF8(StringView string_view)
 	return string_view.size() - num_continuation_bytes;
 }
 
-U16String StringUtilities::ToUTF16(const String& input)
+int StringUtilities::ConvertCharacterOffsetToByteOffset(StringView string, int character_offset)
 {
-	U16String result;
+	if (character_offset >= (int)string.size())
+		return (int)string.size();
 
-	if (input.empty())
-		return result;
-
-	Vector<Character> characters;
-	characters.reserve(input.size());
-
-	for (auto it = StringIteratorU8(input); it; ++it)
-		characters.push_back(*it);
-
-	result.reserve(input.size());
-
-	bool valid_characters = true;
-
-	for (Character character : characters)
+	int character_count = 0;
+	for (auto it = StringIteratorU8(string.begin(), string.begin(), string.end()); it; ++it)
 	{
-		char32_t c = (char32_t)character;
-
-		if (c <= 0xD7FF || (c >= 0xE000 && c <= 0xFFFF))
-		{
-			// Single 16-bit code unit.
-			result += (char16_t)c;
-		}
-		else if (c >= 0x10000 && c <= 0x10FFFF)
-		{
-			// Encode as two 16-bit code units.
-			char32_t c_shift = c - 0x10000;
-			char16_t w1 = (0xD800 | ((c_shift >> 10) & 0x3FF));
-			char16_t w2 = (0xDC00 | (c_shift & 0x3FF));
-			result += {w1, w2};
-		}
-		else
-		{
-			valid_characters = false;
-		}
+		character_count += 1;
+		if (character_count > character_offset)
+			return (int)it.offset();
 	}
-
-	if (!valid_characters)
-		Log::Message(Log::LT_WARNING, "Invalid characters encountered while converting UTF-8 string to UTF-16.");
-
-	return result;
+	return (int)string.size();
 }
 
-String StringUtilities::ToUTF8(const U16String& input)
+int StringUtilities::ConvertByteOffsetToCharacterOffset(StringView string, int byte_offset)
 {
-	Vector<Character> characters;
-	characters.reserve(input.size());
-
-	bool valid_input = true;
-	char16_t w1 = 0;
-
-	for (char16_t w : input)
+	int character_count = 0;
+	for (auto it = StringIteratorU8(string.begin(), string.begin(), string.end()); it; ++it)
 	{
-		if (w <= 0xD7FF || w >= 0xE000)
-		{
-			// Single 16-bit code unit.
-			characters.push_back((Character)(w));
-		}
-		else
-		{
-			// Two 16-bit code units.
-			if (!w1 && w < 0xDC00)
-			{
-				w1 = w;
-			}
-			else if (w1 && w >= 0xDC00)
-			{
-				characters.push_back((Character)(((((char32_t)w1 & 0x3FF) << 10) | ((char32_t)(w) & 0x3FF)) + 0x10000u));
-				w1 = 0;
-			}
-			else
-			{
-				valid_input = false;
-			}
-		}
+		if (it.offset() >= byte_offset)
+			break;
+		character_count += 1;
 	}
-
-	String result;
-
-	if (characters.size() > 0)
-		result = StringUtilities::ToUTF8(characters.data(), (int)characters.size());
-
-	if (!valid_input)
-		Log::Message(Log::LT_WARNING, "Invalid characters encountered while converting UTF-16 string to UTF-8.");
-
-	return result;
+	return character_count;
 }
-
 
 StringView::StringView()
 {
@@ -568,43 +579,43 @@ StringView::StringView(const char* p_begin, const char* p_end) : p_begin(p_begin
 {
 	RMLUI_ASSERT(p_end >= p_begin);
 }
-StringView::StringView(const String& string) : p_begin(string.data()), p_end(string.data() + string.size())
-{}
-StringView::StringView(const String& string, size_t offset) : p_begin(string.data() + offset), p_end(string.data() + string.size())
-{}
-StringView::StringView(const String& string, size_t offset, size_t count) : p_begin(string.data() + offset), p_end(string.data() + std::min<size_t>(offset + count, string.size()))
+StringView::StringView(const String& string) : p_begin(string.data()), p_end(string.data() + string.size()) {}
+StringView::StringView(const String& string, size_t offset) : p_begin(string.data() + offset), p_end(string.data() + string.size()) {}
+StringView::StringView(const String& string, size_t offset, size_t count) :
+	p_begin(string.data() + offset), p_end(string.data() + std::min<size_t>(offset + count, string.size()))
 {}
 
-bool StringView::operator==(const StringView& other) const { 
-	return size() == other.size() && strncmp(p_begin, other.p_begin, size()) == 0; 
+bool StringView::operator==(const StringView& other) const
+{
+	return size() == other.size() && strncmp(p_begin, other.p_begin, size()) == 0;
 }
 
-
-StringIteratorU8::StringIteratorU8(const char* p_begin, const char* p, const char* p_end) : view(p_begin, p_end), p(p) 
-{}
-StringIteratorU8::StringIteratorU8(const String& string) : view(string), p(string.data())
-{}
-StringIteratorU8::StringIteratorU8(const String& string, size_t offset) : view(string), p(string.data() + offset)
-{}
-StringIteratorU8::StringIteratorU8(const String& string, size_t offset, size_t count) : view(string, 0, offset + count), p(string.data() + offset)
-{}
-StringIteratorU8& StringIteratorU8::operator++() {
+StringIteratorU8::StringIteratorU8(const char* p_begin, const char* p, const char* p_end) : view(p_begin, p_end), p(p) {}
+StringIteratorU8::StringIteratorU8(StringView string) : view(string), p(view.begin()) {}
+StringIteratorU8::StringIteratorU8(const String& string) : view(string), p(string.data()) {}
+StringIteratorU8::StringIteratorU8(const String& string, size_t offset) : view(string), p(string.data() + offset) {}
+StringIteratorU8::StringIteratorU8(const String& string, size_t offset, size_t count) : view(string, 0, offset + count), p(string.data() + offset) {}
+StringIteratorU8& StringIteratorU8::operator++()
+{
 	RMLUI_ASSERT(p < view.end());
 	++p;
 	SeekForward();
 	return *this;
 }
-StringIteratorU8& StringIteratorU8::operator--() {
+StringIteratorU8& StringIteratorU8::operator--()
+{
 	RMLUI_ASSERT(p >= view.begin());
 	--p;
 	SeekBack();
 	return *this;
 }
-inline void StringIteratorU8::SeekBack() {
+inline void StringIteratorU8::SeekBack()
+{
 	p = StringUtilities::SeekBackwardUTF8(p, view.begin());
 }
 
-inline void StringIteratorU8::SeekForward() {
+inline void StringIteratorU8::SeekForward()
+{
 	p = StringUtilities::SeekForwardUTF8(p, view.end());
 }
 
