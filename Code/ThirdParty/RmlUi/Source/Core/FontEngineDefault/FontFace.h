@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@
 #ifndef RMLUI_CORE_FONTENGINEDEFAULT_FONTFACE_H
 #define RMLUI_CORE_FONTENGINEDEFAULT_FONTFACE_H
 
-#include "../../../Include/RmlUi/Core/ComputedValues.h"
+#include "../../../Include/RmlUi/Core/StyleTypes.h"
 #include "FontTypes.h"
 
 namespace Rml {
@@ -37,13 +37,12 @@ namespace Rml {
 class FontFaceHandleDefault;
 
 /**
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class FontFace
-{
+class FontFace {
 public:
-	FontFace(FontFaceHandleFreetype face, Style::FontStyle style, Style::FontWeight weight, bool release_stream);
+	FontFace(FontFaceHandleFreetype face, Style::FontStyle style, Style::FontWeight weight);
 	~FontFace();
 
 	Style::FontStyle GetStyle() const;
@@ -51,17 +50,19 @@ public:
 
 	/// Returns a handle for positioning and rendering this face at the given size.
 	/// @param[in] size The size of the desired handle, in points.
+	/// @param[in] load_default_glyphs True to load the default set of glyph (ASCII range).
 	/// @return The font handle.
-	FontFaceHandleDefault* GetHandle(int size);
+	FontFaceHandleDefault* GetHandle(int size, bool load_default_glyphs);
+
+	/// Releases resources owned by sized font faces, including their textures and rendered glyphs.
+	void ReleaseFontResources();
 
 private:
 	Style::FontStyle style;
 	Style::FontWeight weight;
 
-	bool release_stream;
-
 	// Key is font size
-	using HandleMap = UnorderedMap< int, UniquePtr<FontFaceHandleDefault> >;
+	using HandleMap = UnorderedMap<int, UniquePtr<FontFaceHandleDefault>>;
 	HandleMap handles;
 
 	FontFaceHandleFreetype face;

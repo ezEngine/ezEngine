@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,16 +29,18 @@
 #ifndef RMLUI_CORE_ELEMENT_H
 #define RMLUI_CORE_ELEMENT_H
 
-#include "ScriptInterface.h"
-#include "Header.h"
 #include "Box.h"
-#include "ComputedValues.h"
+#include "Core.h"
 #include "Event.h"
+#include "Header.h"
 #include "ObserverPtr.h"
 #include "Property.h"
-#include "Types.h"
+#include "ScriptInterface.h"
+#include "ScrollTypes.h"
+#include "StyleTypes.h"
 #include "Transform.h"
 #include "Tween.h"
+#include "Types.h"
 
 namespace Rml {
 
@@ -48,31 +50,31 @@ class Decorator;
 class ElementInstancer;
 class EventDispatcher;
 class EventListener;
-class ElementDecoration;
+class ElementBackgroundBorder;
 class ElementDefinition;
 class ElementDocument;
 class ElementScroll;
 class ElementStyle;
 class LayoutEngine;
-class LayoutInlineBox;
-class LayoutBlockBox;
+class ContainerBox;
+class InlineLevelBox;
+class ReplacedBox;
 class PropertiesIteratorView;
 class PropertyDictionary;
-class RenderInterface;
+class RenderManager;
 class StyleSheet;
 class StyleSheetContainer;
 class TransformState;
 struct ElementMeta;
-struct StackingOrderedChild;
+struct StackingContextChild;
 
 /**
-	A generic element in the DOM tree.
+    A generic element in the DOM tree.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class RMLUICORE_API Element : public ScriptInterface, public EnableObserverPtr<Element>
-{
+class RMLUICORE_API Element : public ScriptInterface, public EnableObserverPtr<Element> {
 public:
 	RMLUI_RTTI_DefineWithParent(Element, ScriptInterface)
 
@@ -108,8 +110,9 @@ public:
 	virtual const StyleSheet* GetStyleSheet() const;
 
 	/// Fills a string with the full address of this element.
-	/// @param[in] include_pseudo_classes True if the address is to include the pseudo-classes of the leaf element.
-	/// @return The address of the element, including its full parentage.
+	/// @param[in] include_pseudo_classes True to include the pseudo-classes of the leaf element.
+	/// @param[in] include_parents True to include the address of all parent elements.
+	/// @return The address of the element.
 	String GetAddress(bool include_pseudo_classes = false, bool include_parents = true) const;
 
 	/// Sets the position of this element, as a two-dimensional offset from another element.
@@ -121,25 +124,25 @@ public:
 	/// offset parent's top-left border corner.
 	/// @param[in] area The desired area position.
 	/// @return The relative offset.
-	Vector2f GetRelativeOffset(Box::Area area = Box::CONTENT);
+	Vector2f GetRelativeOffset(BoxArea area = BoxArea::Content);
 	/// Returns the position of the top-left corner of one of the areas of this element's primary box, relative to
 	/// the element root.
 	/// @param[in] area The desired area position.
 	/// @return The absolute offset.
-	Vector2f GetAbsoluteOffset(Box::Area area = Box::CONTENT);
+	Vector2f GetAbsoluteOffset(BoxArea area = BoxArea::Content);
 
-	/// Sets an alternate area to use as the client area.
-	/// @param[in] client_area The box area to use as the element's client area.
-	void SetClientArea(Box::Area client_area);
-	/// Returns the area the element uses as its client area.
-	/// @return The box area used as the element's client area.
-	Box::Area GetClientArea() const;
+	/// Sets an alternate area to use as the clip area.
+	/// @param[in] clip_area The box area to use as the element's clip area.
+	void SetClipArea(BoxArea clip_area);
+	/// Returns the area the element uses as its clip area.
+	/// @return The box area used as the element's clip area.
+	BoxArea GetClipArea() const;
 
-	/// Sets the dimensions of the element's internal content. This is the tightest fitting box surrounding all of
-	/// this element's logical children, plus the element's padding.
-	/// @param[in] content_offset The offset of the box's internal content.
-	/// @param[in] content_box The dimensions of the box's internal content.
-	void SetContentBox(Vector2f content_offset, Vector2f content_box);
+	/// Sets the dimensions of the element's scrollable overflow rectangle. This is the tightest fitting box surrounding
+	/// all of this element's logical children, and the element's padding box.
+	/// @param[in] scrollable_overflow_rectangle The dimensions of the box's scrollable content.
+	/// @param[in] clamp_scroll_offset Clamp scroll offset to the new rectangle, should only be set when the final overflow size has been determined.
+	void SetScrollableOverflowRectangle(Vector2f scrollable_overflow_rectangle, bool clamp_scroll_offset);
 	/// Sets the box describing the size of the element, and removes all others.
 	/// @param[in] box The new dimensions box for the element.
 	void SetBox(const Box& box);
@@ -159,15 +162,18 @@ public:
 	/// @return the number of boxes making up this element's geometry.
 	int GetNumBoxes();
 
-	/// Returns the baseline of the element, in pixels offset from the bottom of the element's content area.
-	/// @return The element's baseline. A negative baseline will be further 'up' the element, a positive on further 'down'. The default element will return 0.
+	/// Returns the baseline of the element, in pixel offset from the element's bottom margin edge (positive up).
+	/// @return The element's baseline. The default element will return 0.
 	virtual float GetBaseline() const;
-	/// Gets the intrinsic dimensions of this element, if it is of a type that has an inherent size. This size will
-	/// only be overriden by a styled width or height.
+	/// Gets the intrinsic dimensions of this element, if it is a replaced element with an inherent size. This size will
+	/// only be overridden by a styled width or height.
 	/// @param[out] dimensions The dimensions to size, if appropriate.
 	/// @param[out] ratio The intrinsic ratio (width/height), if appropriate.
-	/// @return True if the element has intrinsic dimensions, false otherwise. The default element will return false.
+	/// @return True if the element is a replaced element with intrinsic dimensions, false otherwise.
 	virtual bool GetIntrinsicDimensions(Vector2f& dimensions, float& ratio);
+	/// Returns true if the element is replaced, thereby handling its own rendering.
+	/// @return True if the element is a replaced element.
+	bool IsReplaced();
 
 	/// Checks if a given point in screen coordinates lies within the bordered area of this element.
 	/// @param[in] point The point to test.
@@ -175,8 +181,9 @@ public:
 	virtual bool IsPointWithinElement(Vector2f point);
 
 	/// Returns the visibility of the element.
+	/// @param[in] include_ancestors Check parent elements for visibility
 	/// @return True if the element is visible, false otherwise.
-	bool IsVisible() const;
+	bool IsVisible(bool include_ancestors = false) const;
 	/// Returns the z-index of the element.
 	/// @return The element's z-index.
 	float GetZIndex() const;
@@ -194,7 +201,7 @@ public:
 	/// @return True if the property parsed successfully, false otherwise.
 	bool SetProperty(const String& name, const String& value);
 	/// Sets a local property override on the element to a pre-parsed value.
-	/// @param[in] name The name of the new property.
+	/// @param[in] id The id of the new property.
 	/// @param[in] property The parsed property to set.
 	/// @return True if the property was set successfully, false otherwise.
 	bool SetProperty(PropertyId id, const Property& property);
@@ -202,16 +209,16 @@ public:
 	/// @param[in] name The name of the local property definition to remove.
 	void RemoveProperty(const String& name);
 	void RemoveProperty(PropertyId id);
-	/// Returns one of this element's properties. If the property is not defined for this element and not inherited 
+	/// Returns one of this element's properties. If the property is not defined for this element and not inherited
 	/// from an ancestor, the default value will be returned.
 	/// @param[in] name The name of the property to fetch the value for.
 	/// @return The value of this property for this element, or nullptr if no property exists with the given name.
-	const Property* GetProperty(const String& name);		
-	const Property* GetProperty(PropertyId id);		
-	/// Returns the values of one of this element's properties.		
+	const Property* GetProperty(const String& name);
+	const Property* GetProperty(PropertyId id);
+	/// Returns the values of one of this element's properties.
 	/// @param[in] name The name of the property to get.
 	/// @return The value of this property.
-	template < typename T >
+	template <typename T>
 	T GetProperty(const String& name);
 	/// Returns one of this element's properties. If this element is not defined this property, nullptr will be
 	/// returned.
@@ -223,17 +230,17 @@ public:
 	/// @return The local properties for this element, or nullptr if no properties defined
 	const PropertyMap& GetLocalStyleProperties();
 
-	/// Resolves a property with units of number, percentage, length, or angle to their canonical unit (unit-less, 'px', or 'rad').
+	/// Resolves a length to its canonical unit ('px').
+	/// @param[in] value The numeric value.
+	/// @return The resolved value in their canonical unit, or zero if it could not be resolved.
+	/// @note Font-relative and context-relative units will be resolved against this element's computed values and its context.
+	float ResolveLength(NumericValue value);
+	/// Resolves a numeric value with units of number, percentage, length, or angle to their canonical unit (unit-less, 'px', or 'rad').
 	/// Numbers and percentages are scaled by the base value and returned.
-	/// @param[in] property The property to resolve the value for.
+	/// @param[in] value The value to be resolved.
 	/// @param[in] base_value The value that is scaled by the number or percentage value, if applicable.
 	/// @return The resolved value in their canonical unit, or zero if it could not be resolved.
-	float ResolveNumericProperty(const Property *property, float base_value);
-	/// Resolves a property with units of number, percentage, length, or angle to their canonical unit (unit-less, 'px', or 'rad').
-	/// Numbers and percentages are scaled according to the relative target of the property definition.
-	/// @param[in] name The property to resolve the value for.
-	/// @return The resolved value in their canonical unit, or zero if it could not be resolved.
-	float ResolveNumericProperty(const String& property_name);
+	float ResolveNumericValue(NumericValue value, float base_value);
 
 	/// Returns the size of the containing block. Often percentages are scaled relative to this.
 	Vector2f GetContainingBlock();
@@ -255,13 +262,14 @@ public:
 	/// If an animation of the same property name exists, it will be replaced.
 	/// If start_value is null, the current property value on this element is used.
 	/// @return True if a new animation was added.
-	bool Animate(const String& property_name, const Property& target_value, float duration, Tween tween = Tween{}, int num_iterations = 1, bool alternate_direction = true, float delay = 0.0f, const Property* start_value = nullptr);
+	bool Animate(const String& property_name, const Property& target_value, float duration, Tween tween = Tween{}, int num_iterations = 1,
+		bool alternate_direction = true, float delay = 0.0f, const Property* start_value = nullptr);
 
 	/// Add a key to an animation, extending its duration.
 	/// If no animation exists for the given property name, the call will be ignored.
 	/// @return True if a new animation key was added.
 	bool AddAnimationKey(const String& property_name, const Property& target_value, float duration, Tween tween = Tween{});
-	
+
 	/// Iterator for the local (non-inherited) properties defined on this element.
 	/// @warning Modifying the element's properties or classes invalidates the iterator.
 	/// @return Iterator to the first property defined on this element.
@@ -281,7 +289,7 @@ public:
 	bool IsPseudoClassSet(const String& pseudo_class) const;
 	/// Checks if a complete set of pseudo-classes are set on the element.
 	/// @param[in] pseudo_classes The list of pseudo-classes to check for.
-	/// @return True if all of the pseudo-classes are set, false if not.
+	/// @return True if all the pseudo-classes are set, false if not.
 	bool ArePseudoClassesSet(const StringList& pseudo_classes) const;
 	/// Gets a list of the current active pseudo-classes.
 	/// @return The list of active pseudo-classes.
@@ -294,16 +302,18 @@ public:
 	/// Sets an attribute on the element.
 	/// @param[in] name Name of the attribute.
 	/// @param[in] value Value of the attribute.
-	template< typename T >
+	template <typename T>
 	void SetAttribute(const String& name, const T& value);
 	/// Gets the specified attribute.
 	/// @param[in] name Name of the attribute to retrieve.
 	/// @return A variant representing the attribute, or nullptr if the attribute doesn't exist.
 	Variant* GetAttribute(const String& name);
+	/// Gets the specified attribute.
+	const Variant* GetAttribute(const String& name) const;
 	/// Gets the specified attribute, with default value.
 	/// @param[in] name Name of the attribute to retrieve.
 	/// @param[in] default_value Value to return if the attribute doesn't exist.
-	template< typename T >
+	template <typename T>
 	T GetAttribute(const String& name, const T& default_value) const;
 	/// Checks if the element has a certain attribute.
 	/// @param[in] name The name of the attribute to check for.
@@ -323,13 +333,16 @@ public:
 	int GetNumAttributes() const;
 	//@}
 
-	/// Gets the outer-most focus element down the tree from this node.
-	/// @return Outer-most focus element.
+	/// Gets the outermost focus element down the tree from this node.
+	/// @return Outermost focus element.
 	Element* GetFocusLeafNode();
 
 	/// Returns the element's context.
 	/// @return The context this element's document exists within.
 	Context* GetContext() const;
+	/// Returns the element's render manager.
+	/// @return The render manager responsible for this element.
+	RenderManager* GetRenderManager() const;
 
 	/** @name DOM Properties
 	 */
@@ -354,20 +367,18 @@ public:
 	float GetAbsoluteTop();
 
 	/// Gets the horizontal offset from the element's left border edge to the left edge of its client area. This is
-	/// usually the edge of the padding, but may be the content area for some replaced elements.
+	/// effectively equivalent to the left border width.
 	/// @return The horizontal offset of the element's client area, in pixels.
 	float GetClientLeft();
 	/// Gets the vertical offset from the element's top border edge to the top edge of its client area. This is
-	/// usually the edge of the padding, but may be the content area for some replaced elements.
+	/// effectively equivalent to the top border width.
 	/// @return The vertical offset of the element's client area, in pixels.
 	float GetClientTop();
-	/// Gets the width of the element's client area. This is usually the padded area less the vertical scrollbar
-	/// width, but may be the content area for some replaced elements.
-	/// @return The width of the element's client area, usually including padding but not the vertical scrollbar width, border or margin.
+	/// Gets the width of the element's client area. This is the padding area subtracted by the vertical scrollbar width if present.
+	/// @return The element's client width, in pixels.
 	float GetClientWidth();
-	/// Gets the height of the element's client area. This is usually the padded area less the horizontal scrollbar
-	/// height, but may be the content area for some replaced elements.
-	/// @return The inner height of the element, usually including padding but not the horizontal scrollbar height, border or margin.
+	/// Gets the height of the element's client area. This is the padding area subtracted by the horizontal scrollbar height if present.
+	/// @return The element's client height, in pixels.
 	float GetClientHeight();
 
 	/// Returns the element from which all offset calculations are currently computed.
@@ -379,10 +390,10 @@ public:
 	/// Gets the distance from this element's top border to its offset parent's top border.
 	/// @return The vertical distance (in pixels) from this element's offset parent to itself.
 	float GetOffsetTop();
-	/// Gets the width of the element, including the client area, padding, borders and scrollbars, but not margins.
+	/// Gets the width of the element, including the content area, padding, borders and scrollbars, but not margins.
 	/// @return The width of the rendered element, in pixels.
 	float GetOffsetWidth();
-	/// Gets the height of the element, including the client area, padding, borders and scrollbars, but not margins.
+	/// Gets the height of the element, including the content area, padding, borders and scrollbars, but not margins.
 	/// @return The height of the rendered element, in pixels.
 	float GetOffsetHeight();
 
@@ -399,10 +410,10 @@ public:
 	/// @param[in] scroll_top The element's new top scroll offset.
 	void SetScrollTop(float scroll_top);
 	/// Gets the width of the scrollable content of the element; it includes the element padding but not its margin.
-	/// @return The width (in pixels) of the of the scrollable content of the element.
+	/// @return The width (in pixels) of the scrollable content of the element.
 	float GetScrollWidth();
 	/// Gets the height of the scrollable content of the element; it includes the element padding but not its margin.
-	/// @return The height (in pixels) of the of the scrollable content of the element.
+	/// @return The height (in pixels) of the scrollable content of the element.
 	float GetScrollHeight();
 
 	/// Gets the object representing the declarations of an element's style attributes.
@@ -440,7 +451,8 @@ public:
 	/// @return The child element at the given index.
 	Element* GetChild(int index) const;
 	/// Get the current number of children in this element
-	/// @param[in] include_non_dom_elements True if the caller wants to include the non DOM children. Only set this to true if you know what you're doing!
+	/// @param[in] include_non_dom_elements True if the caller wants to include the non DOM children. Only set this to true if you know what you're
+	/// doing!
 	/// @return The number of children.
 	int GetNumChildren(bool include_non_dom_elements = false) const;
 
@@ -461,9 +473,10 @@ public:
 	//@{
 
 	/// Gives focus to the current element.
+	/// @param[in] focus_visible True to indicate that the focus should be visually indicated by setting the ':focus-visible' pseudo class.
 	/// @return True if the change focus request was successful
-	bool Focus();
-	/// Removes focus from from this element.
+	bool Focus(bool focus_visible = false);
+	/// Removes focus from this element.
 	void Blur();
 	/// Fakes a mouse click on this element.
 	void Click();
@@ -473,11 +486,11 @@ public:
 	/// @param[in] listener The listener object to be attached.
 	/// @param[in] in_capture_phase True to attach in the capture phase, false in bubble phase.
 	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
-	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
+	///     e.g. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(const String& event, EventListener* listener, bool in_capture_phase = false);
 	/// Adds an event listener to this element by id.
 	/// @lifetime The added listener must stay alive until after the dispatched call from EventListener::OnDetach(). This occurs
-	///     eg. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
+	///     e.g. when the element is destroyed or when RemoveEventListener() is called with the same parameters passed here.
 	void AddEventListener(EventId id, EventListener* listener, bool in_capture_phase = false);
 	/// Removes an event listener from this element.
 	/// @param[in] event Event to detach from.
@@ -497,17 +510,26 @@ public:
 	bool DispatchEvent(EventId id, const Dictionary& parameters);
 
 	/// Scrolls the parent element's contents so that this element is visible.
-	/// @param[in] align_with_top If true, the element will align itself to the top of the parent element's window. If false, the element will be aligned to the bottom of the parent element's window.
+	/// @param[in] options Scroll parameters that control desired element alignment relative to the parent.
+	void ScrollIntoView(ScrollIntoViewOptions options);
+	/// Scrolls the parent element's contents so that this element is visible.
+	/// @param[in] align_with_top If true, the element will align itself to the top of the parent element's window. If false, the element will be
+	/// aligned to the bottom of the parent element's window.
 	void ScrollIntoView(bool align_with_top = true);
+	/// Sets the scroll offset of this element to the given coordinates.
+	/// @param[in] offset The scroll destination coordinates.
+	/// @param[in] behavior Smooth scrolling behavior.
+	/// @note Smooth scrolling can only be applied to a single element at a time, any active smooth scrolls will be cancelled.
+	void ScrollTo(Vector2f offset, ScrollBehavior behavior = ScrollBehavior::Instant);
 
 	/// Append a child to this element.
 	/// @param[in] element The element to append as a child.
 	/// @param[in] dom_element True if the element is to be part of the DOM, false otherwise. Only set this to false if you know what you're doing!
 	Element* AppendChild(ElementPtr element, bool dom_element = true);
-	/// Adds a child to this element, directly after the adjacent element. The new element inherits the DOM/non-DOM
+	/// Adds a child to this element directly before the adjacent element. The new element inherits the DOM/non-DOM
 	/// status from the adjacent element.
-	/// @param[in] element Element to insert into the this element.
-	/// @param[in] adjacent_element The element to insert directly before.
+	/// @param[in] element Element to be inserted.
+	/// @param[in] adjacent_element The reference element which the new element will be inserted before.
 	Element* InsertBefore(ElementPtr element, Element* adjacent_element);
 	/// Replaces the second node with the first node.
 	/// @param[in] inserted_element The element that will be inserted and replace the other element.
@@ -515,7 +537,7 @@ public:
 	/// @return A unique pointer to the replaced element if found, discard the result to immediately destroy.
 	ElementPtr ReplaceChild(ElementPtr inserted_element, Element* replaced_element);
 	/// Remove a child element from this element.
-	/// @param[in] The element to remove.
+	/// @param[in] element The element to remove.
 	/// @returns A unique pointer to the element if found, discard the result to immediately destroy.
 	ElementPtr RemoveChild(Element* element);
 	/// Returns whether or not this element has any DOM children.
@@ -523,7 +545,7 @@ public:
 	bool HasChildNodes() const;
 
 	/// Get a child element by its ID.
-	/// @param[in] id Id of the the child element
+	/// @param[in] id The ID of the child element.
 	/// @return The child of this element with the given ID, or nullptr if no such child exists.
 	Element* GetElementById(const String& id);
 	/// Get all descendant elements with the given tag.
@@ -532,48 +554,44 @@ public:
 	void GetElementsByTagName(ElementList& elements, const String& tag);
 	/// Get all descendant elements with the given class set on them.
 	/// @param[out] elements Resulting elements.
-	/// @param[in] tag Tag to search for.
+	/// @param[in] class_name Class name to search for.
 	void GetElementsByClassName(ElementList& elements, const String& class_name);
 	/// Returns the first descendent element matching the RCSS selector query.
-	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @param[in] selector The selector or comma-separated selectors to match against.
 	/// @return The first matching element during a depth-first traversal.
 	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
 	Element* QuerySelector(const String& selector);
 	/// Returns all descendent elements matching the RCSS selector query.
 	/// @param[out] elements The list of matching elements.
-	/// @param[in] selectors The selector or comma-separated selectors to match against.
+	/// @param[in] selector The selector or comma-separated selectors to match against.
 	/// @performance Prefer GetElementById/TagName/ClassName whenever possible.
-	void QuerySelectorAll(ElementList& elements, const String& selectors);
-
+	void QuerySelectorAll(ElementList& elements, const String& selector);
+	/// Check if the element matches the given RCSS selector query.
+	/// @param[in] selector The selector or comma-separated selectors to match against.
+	/// @return True if the element matches the given RCSS selector query, false otherwise.
+	bool Matches(const String& selector);
 
 	//@}
 
 	/**
-		@name Internal Functions
+	    @name Internal Functions
 	 */
 	//@{
 	/// Access the event dispatcher for this element.
 	EventDispatcher* GetEventDispatcher() const;
 	/// Returns event types with number of listeners for debugging.
 	String GetEventDispatcherSummary() const;
-	/// Access the element decorators.
-	ElementDecoration* GetElementDecoration() const;
+	/// Access the element background and border.
+	ElementBackgroundBorder* GetElementBackgroundBorder() const;
 	/// Returns the element's scrollbar functionality.
 	ElementScroll* GetElementScroll() const;
+	/// Returns the element's nearest scroll container that can be scrolled, if any.
+	Element* GetClosestScrollableContainer();
 	/// Returns the element's transform state.
 	const TransformState* GetTransformState() const noexcept;
 	/// Returns the data model of this element.
 	DataModel* GetDataModel() const;
 	//@}
-	
-	/// Returns true if this element requires clipping
-	int GetClippingIgnoreDepth();
-	/// Returns true if this element has clipping enabled
-	bool IsClippingEnabled();
-
-	/// Gets the render interface owned by this element's context.
-	/// @return The element's context's render interface.
-	RenderInterface* GetRenderInterface();
 
 	/// Sets the instancer to use for releasing this element.
 	/// @param[in] instancer Instancer to set on this element.
@@ -630,7 +648,6 @@ protected:
 
 	/// Forces a re-layout of this element, and any other elements required.
 	virtual void DirtyLayout();
-
 	/// Returns true if the element has been marked as needing a re-layout.
 	virtual bool IsLayoutDirty();
 
@@ -644,6 +661,10 @@ protected:
 	/// @param[in] activate True if the pseudo-class is to be activated, false to be deactivated.
 	static void OverridePseudoClass(Element* target_element, const String& pseudo_class, bool activate);
 
+	enum class DirtyNodes { Self, SelfAndSiblings };
+	// Dirty the element style definition, including all descendants of the specified nodes.
+	void DirtyDefinition(DirtyNodes dirty_nodes);
+
 	void SetOwnerDocument(ElementDocument* document);
 
 	void OnStyleSheetChangeRecursive();
@@ -652,31 +673,36 @@ protected:
 
 private:
 	void SetParent(Element* parent);
-	
+
 	void SetDataModel(DataModel* new_data_model);
 
-	void DirtyOffset();
+	void DirtyAbsoluteOffset();
+	void DirtyAbsoluteOffsetRecursive();
 	void UpdateOffset();
 	void SetBaseline(float baseline);
 
 	void BuildLocalStackingContext();
-	void BuildStackingContext(ElementList* stacking_context);
-	static void BuildStackingContextForTable(Vector<StackingOrderedChild>& ordered_children, Element* child);
+	void AddChildrenToStackingContext(Vector<StackingContextChild>& stacking_children);
+	void AddToStackingContext(Vector<StackingContextChild>& stacking_children, bool is_flex_item, bool is_non_dom_element);
 	void DirtyStackingContext();
 
-	void DirtyStructure();
-	void UpdateStructure();
+	void UpdateDefinition();
 
 	void DirtyTransformState(bool perspective_dirty, bool transform_dirty);
 	void UpdateTransformState();
 
 	void OnDpRatioChangeRecursive();
+	void DirtyFontFaceRecursive();
+
+	void ClampScrollOffset();
+	void ClampScrollOffsetRecursive();
 
 	/// Start an animation, replacing any existing animations of the same property name. If start_value is null, the element's current value is used.
-	ElementAnimationList::iterator StartAnimation(PropertyId property_id, const Property * start_value, int num_iterations, bool alternate_direction, float delay, bool initiated_by_animation_property);
+	ElementAnimationList::iterator StartAnimation(PropertyId property_id, const Property* start_value, int num_iterations, bool alternate_direction,
+		float delay, bool initiated_by_animation_property);
 
 	/// Add a key to an animation, extending its duration. If target_value is null, the element's current value is used.
-	bool AddAnimationKeyTime(PropertyId property_id, const Property * target_value, float time, Tween tween);
+	bool AddAnimationKeyTime(PropertyId property_id, const Property* target_value, float time, Tween tween);
 
 	/// Start a transition of the given property on this element.
 	/// If an animation exists for the property, the call will be ignored. If a transition exists for this property, it will be replaced.
@@ -691,6 +717,31 @@ private:
 
 	/// Advances the animations (including transitions) forward in time.
 	void AdvanceAnimations();
+
+	// State flags are packed together for compact data layout.
+	bool local_stacking_context;
+	bool local_stacking_context_forced;
+	bool stacking_context_dirty;
+	bool computed_values_are_default_initialized;
+
+	bool visible; // True if the element is visible and active.
+
+	bool offset_fixed;
+	bool absolute_offset_dirty;
+
+	bool dirty_definition : 1; // Implies dirty child definitions as well.
+	bool dirty_child_definitions : 1;
+
+	bool dirty_animation : 1;
+	bool dirty_transition : 1;
+	bool dirty_transform : 1;
+	bool dirty_perspective : 1;
+
+	OwnedElementList children;
+	int num_non_dom_children;
+
+	// Defines which box area to use for clipping; this is usually padding, but may be content.
+	BoxArea clip_area;
 
 	// Original tag this element came from.
 	String tag;
@@ -715,12 +766,10 @@ private:
 
 	// The offset of the element, and the element it is offset from.
 	Element* offset_parent;
-	Vector2f relative_offset_base;		// the base offset from the parent
-	Vector2f relative_offset_position;	// the offset of a relatively positioned element
-	bool offset_fixed;
+	Vector2f relative_offset_base;     // the base offset from the parent
+	Vector2f relative_offset_position; // the offset of a relatively positioned element
 
-	mutable Vector2f absolute_offset;
-	mutable bool offset_dirty;
+	Vector2f absolute_offset;
 
 	// The offset this element adds to its logical children due to scrolling content.
 	Vector2f scroll_offset;
@@ -730,53 +779,32 @@ private:
 		Box box;
 		Vector2f offset;
 	};
-	using PositionedBoxList = Vector< PositionedBox >;
+	using PositionedBoxList = Vector<PositionedBox>;
 	Box main_box;
 	PositionedBoxList additional_boxes;
 
-	// And of the element's internal content.
-	Vector2f content_offset;
-	Vector2f content_box;
-
-	// Defines what box area represents the element's client area; this is usually padding, but may be content.
-	Box::Area client_area;
+	// And of the element's scrollable content.
+	Vector2f scrollable_overflow_rectangle;
 
 	float baseline;
-
-	// True if the element is visible and active.
-	bool visible;
-
-	OwnedElementList children;
-	int num_non_dom_children;
-
 	float z_index;
-	bool local_stacking_context;
-	bool local_stacking_context_forced;
 
 	ElementList stacking_context;
-	bool stacking_context_dirty;
 
-	bool structure_dirty;
-
-	bool computed_values_are_default_initialized;
-
-	// Transform state
-	UniquePtr< TransformState > transform_state;
-	bool dirty_transform;
-	bool dirty_perspective;
+	UniquePtr<TransformState> transform_state;
 
 	ElementAnimationList animations;
-	bool dirty_animation;
-	bool dirty_transition;
 
 	ElementMeta* meta;
 
 	friend class Rml::Context;
 	friend class Rml::ElementStyle;
+	friend class Rml::ContainerBox;
+	friend class Rml::InlineLevelBox;
+	friend class Rml::ReplacedBox;
 	friend class Rml::LayoutEngine;
-	friend class Rml::LayoutBlockBox;
-	friend class Rml::LayoutInlineBox;
 	friend class Rml::ElementScroll;
+	friend RMLUICORE_API void Rml::ReleaseFontResources();
 };
 
 } // namespace Rml

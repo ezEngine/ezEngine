@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,11 +27,11 @@
  */
 
 #include "ElementLog.h"
-#include "CommonSource.h"
-#include "BeaconSource.h"
-#include "LogSource.h"
 #include "../../Include/RmlUi/Core/Context.h"
 #include "../../Include/RmlUi/Core/Factory.h"
+#include "BeaconSource.h"
+#include "CommonSource.h"
+#include "LogSource.h"
 #include <limits.h>
 
 namespace Rml {
@@ -39,7 +39,7 @@ namespace Debugger {
 
 const int MAX_LOG_MESSAGES = 50;
 
-ElementLog::ElementLog(const String& tag) : ElementDocument(tag)
+ElementLog::ElementLog(const String& tag) : ElementDebugDocument(tag)
 {
 	dirty_logs = false;
 	beacon = nullptr;
@@ -80,9 +80,20 @@ ElementLog::ElementLog(const String& tag) : ElementDocument(tag)
 
 ElementLog::~ElementLog()
 {
+	RemoveEventListener(EventId::Click, this);
+
+	if (beacon && beacon->GetFirstChild())
+		beacon->GetFirstChild()->RemoveEventListener(EventId::Click, this);
+
+	if (beacon && beacon->GetParentNode())
+		beacon->GetParentNode()->RemoveChild(beacon);
+
+	if (message_content)
+	{
+		message_content->RemoveEventListener(EventId::Resize, this);
+	}
 }
 
-// Initialises the log element.
 bool ElementLog::Initialise()
 {
 	SetInnerRML(log_rml);
@@ -103,7 +114,8 @@ bool ElementLog::Initialise()
 	AddEventListener(EventId::Click, this);
 
 	// Create the log beacon.
-	beacon = GetContext()->CreateDocument();
+	beacon = GetContext()->CreateDocument("debug-document");
+	RMLUI_ASSERT(rmlui_dynamic_cast<ElementDebugDocument*>(beacon));
 	if (!beacon)
 		return false;
 
@@ -128,7 +140,6 @@ bool ElementLog::Initialise()
 	return true;
 }
 
-// Adds a log message to the debug log.
 void ElementLog::AddLogMessage(Log::Type type, const String& message)
 {
 	LogMessageList& log_message_list = log_types[type].log_messages;
@@ -200,10 +211,11 @@ void ElementLog::OnUpdate()
 			int num_messages = 0;
 			while (next_type != -1 && num_messages < MAX_LOG_MESSAGES)
 			{
-				messages += CreateString(128, "<div class=\"log-entry\"><div class=\"icon %s\">%s</div><p class=\"message\">", log_types[next_type].class_name.c_str(), log_types[next_type].alert_contents.c_str());
+				messages += CreateString("<div class=\"log-entry\"><div class=\"icon %s\">%s</div><p class=\"message\">",
+					log_types[next_type].class_name.c_str(), log_types[next_type].alert_contents.c_str());
 				messages += log_types[next_type].log_messages[log_pointers[next_type]].message;
 				messages += "</p></div>";
-				
+
 				log_pointers[next_type]++;
 				next_type = FindNextEarliestLogType(log_pointers);
 				num_messages++;
@@ -217,7 +229,7 @@ void ElementLog::OnUpdate()
 			else
 				auto_scroll = true;
 
-			message_content->SetInnerRML(messages);		
+			message_content->SetInnerRML(messages);
 
 			dirty_logs = false;
 		}
@@ -250,7 +262,7 @@ void ElementLog::ProcessEvent(Event& event)
 					log_types[i].log_messages.clear();
 					if (!log_types[i].visible)
 					{
-						if (Element * button = GetElementById(log_types[i].button_name))
+						if (Element* button = GetElementById(log_types[i].button_name))
 							button->SetInnerRML("Off");
 					}
 				}
@@ -276,8 +288,7 @@ void ElementLog::ProcessEvent(Event& event)
 
 	if (event == EventId::Resize && auto_scroll)
 	{
-		if (message_content != nullptr &&
-			message_content->HasChildNodes())
+		if (message_content != nullptr && message_content->HasChildNodes())
 			message_content->GetLastChild()->ScrollIntoView();
 	}
 }
@@ -305,5 +316,5 @@ int ElementLog::FindNextEarliestLogType(unsigned int log_pointers[Log::LT_MAX])
 	return log_channel;
 }
 
-}
-}
+} // namespace Debugger
+} // namespace Rml

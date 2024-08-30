@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,15 +34,14 @@
 namespace Rml {
 
 /**
-	A property parser that parses a floating-point number with an optional unit.
+    A property parser that parses a floating-point number with an optional unit.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class PropertyParserNumber : public PropertyParser
-{
+class PropertyParserNumber : public PropertyParser {
 public:
-	PropertyParserNumber(int units, Property::Unit zero_unit = Property::UNKNOWN);
+	PropertyParserNumber(Units units, Unit zero_unit = Unit::UNKNOWN);
 	virtual ~PropertyParserNumber();
 
 	/// Called to parse a RCSS number declaration.
@@ -54,10 +53,10 @@ public:
 
 private:
 	// Stores a bit mask of allowed units.
-	int units;
+	Units units;
 
 	// If zero unit is set and pure numbers are not allowed, parsing of "0" is still allowed and assigned the given unit.
-	Property::Unit zero_unit;
+	Unit zero_unit;
 };
 
 } // namespace Rml

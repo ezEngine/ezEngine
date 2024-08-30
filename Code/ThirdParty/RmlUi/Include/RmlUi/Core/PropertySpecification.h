@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,9 +30,9 @@
 #define RMLUI_CORE_PROPERTYSPECIFICATION_H
 
 #include "Header.h"
-#include "Types.h"
-#include "PropertyIdSet.h"
 #include "ID.h"
+#include "PropertyIdSet.h"
+#include "Types.h"
 
 namespace Rml {
 
@@ -43,8 +43,7 @@ class PropertyIdNameMap;
 class ShorthandIdNameMap;
 struct ShorthandDefinition;
 
-enum class ShorthandType
-{
+enum class ShorthandType {
 	// Normal; properties that fail to parse fall-through to the next until they parse correctly, and any
 	// undeclared are not set.
 	FallThrough,
@@ -55,18 +54,18 @@ enum class ShorthandType
 	// Repeatedly resolves the full value string on each property, whether it is a normal property or another shorthand.
 	RecursiveRepeat,
 	// Comma-separated list of properties or shorthands, the number of declared values must match the specified.
-	RecursiveCommaSeparated
+	RecursiveCommaSeparated,
+	// The 'flex' shorthand has some special behavior but otherwise acts like 'FallThrough'.
+	Flex
 };
 
-
 /**
-	A property specification stores a group of property definitions.
+    A property specification stores a group of property definitions.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class RMLUICORE_API PropertySpecification
-{
+class RMLUICORE_API PropertySpecification {
 public:
 	PropertySpecification(size_t reserve_num_properties, size_t reserve_num_shorthands);
 	~PropertySpecification();
@@ -78,7 +77,8 @@ public:
 	/// @param[in] forces_layout True if this property requires its parent to be reformatted if changed.
 	/// @param[in] id If 'Invalid' then automatically assigns a new id, otherwise assigns the given id.
 	/// @return The new property definition, ready to have parsers attached.
-	PropertyDefinition& RegisterProperty(const String& property_name, const String& default_value, bool inherited, bool forces_layout, PropertyId id = PropertyId::Invalid);
+	PropertyDefinition& RegisterProperty(const String& property_name, const String& default_value, bool inherited, bool forces_layout,
+		PropertyId id = PropertyId::Invalid);
 	/// Returns a property definition.
 	/// @param[in] id The id of the desired property.
 	/// @return The appropriate property definition if it could be found, nullptr otherwise.
@@ -94,13 +94,15 @@ public:
 
 	/// Registers a shorthand property definition.
 	/// @param[in] shorthand_name The name to register the new shorthand property under.
-	/// @param[in] properties A comma-separated list of the properties this definition is shorthand for. The order in which they are specified here is the order in which the values will be processed.
+	/// @param[in] property_names A comma-separated list of the properties this definition is shorthand for. The order
+	/// in which they are specified here is the order in which the values will be processed.
 	/// @param[in] type The type of shorthand to declare.
 	/// @param[in] id If 'Invalid' then automatically assigns a new id, otherwise assigns the given id.
-	/// @param True if all the property names exist, false otherwise.
-	ShorthandId RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type, ShorthandId id = ShorthandId::Invalid);
+	/// @return An ID for the new shorthand, or 'Invalid' if the shorthand declaration is invalid.
+	ShorthandId RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type,
+		ShorthandId id = ShorthandId::Invalid);
 	/// Returns a shorthand definition.
-	/// @param[in] shorthand_name The name of the desired shorthand.
+	/// @param[in] id The id of the desired shorthand.
 	/// @return The appropriate shorthand definition if it could be found, nullptr otherwise.
 	const ShorthandDefinition* GetShorthand(ShorthandId id) const;
 	const ShorthandDefinition* GetShorthand(const String& shorthand_name) const;
@@ -118,11 +120,11 @@ public:
 	void SetPropertyDefaults(PropertyDictionary& dictionary) const;
 
 	/// Returns the properties of dictionary converted to a string.
-	String PropertiesToString(const PropertyDictionary& dictionary) const;
+	String PropertiesToString(const PropertyDictionary& dictionary, bool include_name, char delimiter) const;
 
 private:
-	using Properties = Vector< UniquePtr<PropertyDefinition> >;
-	using Shorthands = Vector< UniquePtr<ShorthandDefinition> >;
+	using Properties = Vector<UniquePtr<PropertyDefinition>>;
+	using Shorthands = Vector<UniquePtr<ShorthandDefinition>>;
 
 	Properties properties;
 	Shorthands shorthands;
@@ -134,9 +136,11 @@ private:
 	PropertyIdSet property_ids_inherited;
 	PropertyIdSet property_ids_forcing_layout;
 
-	bool ParsePropertyValues(StringList& values_list, const String& values, bool split_values) const;
+	enum class SplitOption { None, Whitespace, Comma };
+	bool ParsePropertyValues(StringList& values_list, const String& values, SplitOption split_option) const;
 
 	friend class Rml::StyleSheetSpecification;
+	friend class TestPropertySpecification;
 };
 
 } // namespace Rml

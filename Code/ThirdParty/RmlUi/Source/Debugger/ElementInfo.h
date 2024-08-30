@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,21 +31,21 @@
 
 #include "../../Include/RmlUi/Core/ElementDocument.h"
 #include "../../Include/RmlUi/Core/EventListener.h"
+#include "ElementDebugDocument.h"
 
 namespace Rml {
 namespace Debugger {
 
-typedef Pair< String, const Property* > NamedProperty;
-typedef Vector< NamedProperty > NamedPropertyList;
+typedef Pair<String, const Property*> NamedProperty;
+typedef Vector<NamedProperty> NamedPropertyList;
 
 /**
-	@author Robert Curry
+    @author Robert Curry
  */
 
-class ElementInfo : public ElementDocument, public EventListener
-{
+class ElementInfo : public ElementDebugDocument, public EventListener {
 public:
-	RMLUI_RTTI_DefineWithParent(ElementInfo, ElementDocument)
+	RMLUI_RTTI_DefineWithParent(ElementInfo, ElementDebugDocument)
 
 	ElementInfo(const String& tag);
 	~ElementInfo();
@@ -61,6 +61,8 @@ public:
 
 	void RenderHoverElement();
 	void RenderSourceElement();
+
+	Element* GetSourceElement() const { return source_element; }
 
 protected:
 	void ProcessEvent(Event& event) override;
@@ -90,14 +92,14 @@ private:
 	bool update_source_element;
 	// Forces an update to the source element during the next update loop.
 	bool force_update_once;
-	
+
 	bool title_dirty;
 
 	Element* hover_element;
 	Element* source_element;
 };
 
-}
+} // namespace Debugger
 } // namespace Rml
 
 #endif

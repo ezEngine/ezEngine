@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,8 +29,8 @@
 #ifndef RMLUI_CORE_EVENTINSTANCER_H
 #define RMLUI_CORE_EVENTINSTANCER_H
 
-#include "Traits.h"
 #include "Header.h"
+#include "Traits.h"
 #include "Types.h"
 
 namespace Rml {
@@ -39,20 +39,19 @@ class Element;
 class Event;
 
 /**
-	Abstract instancer interface for instancing events. This is required to be overridden for scripting systems.
+    Abstract instancer interface for instancing events. This is required to be overridden for scripting systems.
 
-	@author Lloyd Weehuizen
+    @author Lloyd Weehuizen
  */
 
-class RMLUICORE_API EventInstancer : public Releasable
-{
+class RMLUICORE_API EventInstancer : public Releasable {
 public:
 	virtual ~EventInstancer();
 
 	/// Instance an event object.
 	/// @param[in] target Target element of this event.
-	/// @param[in] id EventId of this event.
-	/// @param[in] name Name of this event.
+	/// @param[in] id ID of this event.
+	/// @param[in] type Name of this event type.
 	/// @param[in] parameters Additional parameters for this event.
 	/// @param[in] interruptible If the event propagation can be stopped.
 	virtual EventPtr InstanceEvent(Element* target, EventId id, const String& type, const Dictionary& parameters, bool interruptible) = 0;

@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,10 +29,10 @@
 #ifndef RMLUI_CORE_STYLESHEET_H
 #define RMLUI_CORE_STYLESHEET_H
 
-#include "Traits.h"
 #include "PropertyDictionary.h"
 #include "Spritesheet.h"
 #include "StyleSheetTypes.h"
+#include "Traits.h"
 
 namespace Rml {
 
@@ -40,29 +40,25 @@ class Element;
 class ElementDefinition;
 class StyleSheetNode;
 class Decorator;
-class FontEffect;
+class RenderManager;
 class SpritesheetList;
-class Stream;
 class StyleSheetContainer;
 class StyleSheetParser;
 struct PropertySource;
 struct Sprite;
-struct Spritesheet;
+
+using DecoratorPtrList = Vector<SharedPtr<const Decorator>>;
 
 /**
-	StyleSheet maintains a single stylesheet definition. A stylesheet can be combined with another stylesheet to create
-	a new, merged stylesheet.
+    StyleSheet maintains a single stylesheet definition. A stylesheet can be combined with another stylesheet to create
+    a new, merged stylesheet.
 
-	@author Lloyd Weehuizen
+    @author Lloyd Weehuizen
  */
 
-class RMLUICORE_API StyleSheet final : public NonCopyMoveable
-{
+class RMLUICORE_API StyleSheet final : public NonCopyMoveable {
 public:
 	~StyleSheet();
-
-	using NodeList = Vector< const StyleSheetNode* >;
-	using NodeIndex = UnorderedMap< size_t, NodeList >;
 
 	/// Combines this style sheet with another one, producing a new sheet.
 	UniquePtr<StyleSheet> CombineStyleSheet(const StyleSheet& sheet) const;
@@ -72,22 +68,25 @@ public:
 	/// Builds the node index for a combined style sheet.
 	void BuildNodeIndex();
 
+	/// Returns the named @decorator, or null if it does not exist.
+	const NamedDecorator* GetNamedDecorator(const String& name) const;
+
 	/// Returns the Keyframes of the given name, or null if it does not exist.
-	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to subobjects around.
+	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to
+	/// subobjects around.
 	const Keyframes* GetKeyframes(const String& name) const;
 
 	/// Get sprite located in any spritesheet within this stylesheet.
-	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to subobjects around.
+	/// @lifetime The returned pointer becomes invalidated whenever the style sheet is re-generated. Do not store this pointer or references to
+	/// subobjects around.
 	const Sprite* GetSprite(const String& name) const;
 
 	/// Returns the compiled element definition for a given element and its hierarchy.
-	SharedPtr<ElementDefinition> GetElementDefinition(const Element* element) const;
-
-	/// Retrieve the hash key used to look-up applicable nodes in the node index.
-	static size_t NodeHash(const String& tag, const String& id);
+	SharedPtr<const ElementDefinition> GetElementDefinition(const Element* element) const;
 
 	/// Returns a list of instanced decorators from the declarations. The instances are cached for faster future retrieval.
-	const Vector<SharedPtr<const Decorator>>& InstanceDecorators(const DecoratorDeclarationList& declaration_list, const PropertySource* decorator_source) const;
+	const DecoratorPtrList& InstanceDecorators(RenderManager& render_manager, const DecoratorDeclarationList& declaration_list,
+		const PropertySource* decorator_source) const;
 
 private:
 	StyleSheet();
@@ -106,20 +105,20 @@ private:
 	KeyframesMap keyframes;
 
 	// Name of every @decorator mapped to their specification
-	DecoratorSpecificationMap decorator_map;
+	NamedDecoratorMap named_decorator_map;
 
 	// Name of every @spritesheet and underlying sprites mapped to their values
 	SpritesheetList spritesheet_list;
 
 	// Map of all styled nodes, that is, they have one or more properties.
-	NodeIndex styled_node_index;
+	StyleSheetIndex styled_node_index;
 
 	// Index of node sets to element definitions.
-	using ElementDefinitionCache = UnorderedMap< size_t, SharedPtr<ElementDefinition> >;
+	using ElementDefinitionCache = UnorderedMap<StyleSheetIndex::NodeList, SharedPtr<const ElementDefinition>>;
 	mutable ElementDefinitionCache node_cache;
 
 	// Cached decorator instances.
-	using DecoratorCache = UnorderedMap< String, Vector<SharedPtr<const Decorator>> >;
+	using DecoratorCache = UnorderedMap<String, Vector<SharedPtr<const Decorator>>>;
 	mutable DecoratorCache decorator_cache;
 
 	friend Rml::StyleSheetParser;
@@ -127,4 +126,5 @@ private:
 };
 
 } // namespace Rml
+
 #endif

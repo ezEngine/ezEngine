@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,6 +32,7 @@
 #include "../../Include/RmlUi/Core/ElementDocument.h"
 #include "../../Include/RmlUi/Core/EventListener.h"
 #include "../../Include/RmlUi/Core/Types.h"
+#include "ElementDebugDocument.h"
 
 namespace Rml {
 namespace Debugger {
@@ -39,13 +40,12 @@ namespace Debugger {
 class DebuggerSystemInterface;
 
 /**
-	@author Robert Curry
+    @author Robert Curry
  */
 
-class ElementLog : public Rml::ElementDocument, public Rml::EventListener
-{
+class ElementLog : public ElementDebugDocument, public Rml::EventListener {
 public:
-	RMLUI_RTTI_DefineWithParent(ElementLog, Rml::ElementDocument)
+	RMLUI_RTTI_DefineWithParent(ElementLog, ElementDebugDocument)
 
 	ElementLog(const String& tag);
 	~ElementLog();
@@ -62,15 +62,13 @@ protected:
 	void ProcessEvent(Event& event) override;
 
 private:
-	struct LogMessage
-	{
+	struct LogMessage {
 		unsigned int index;
 		String message;
 	};
-	using LogMessageList = Vector< LogMessage >;
+	using LogMessageList = Vector<LogMessage>;
 
-	struct LogType
-	{
+	struct LogType {
 		bool visible;
 		String class_name;
 		String alert_contents;
@@ -89,7 +87,7 @@ private:
 	int current_beacon_level;
 };
 
-}
+} // namespace Debugger
 } // namespace Rml
 
 #endif

@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,8 +27,6 @@
  */
 
 #include "DataViewDefault.h"
-#include "DataExpression.h"
-#include "DataModel.h"
 #include "../../Include/RmlUi/Core/Core.h"
 #include "../../Include/RmlUi/Core/DataVariable.h"
 #include "../../Include/RmlUi/Core/Element.h"
@@ -36,6 +34,9 @@
 #include "../../Include/RmlUi/Core/Factory.h"
 #include "../../Include/RmlUi/Core/SystemInterface.h"
 #include "../../Include/RmlUi/Core/Variant.h"
+#include "DataExpression.h"
+#include "DataModel.h"
+#include "XMLParseTools.h"
 
 namespace Rml {
 
@@ -45,8 +46,8 @@ static constexpr int SortOffset_DataValue = 100;
 //  'data-checked' may need a value attribute already set.
 static constexpr int SortOffset_DataChecked = 110;
 
-
-DataViewCommon::DataViewCommon(Element* element, String override_modifier, int sort_offset) : DataView(element, sort_offset), modifier(std::move(override_modifier))
+DataViewCommon::DataViewCommon(Element* element, String override_modifier, int sort_offset) :
+	DataView(element, sort_offset), modifier(std::move(override_modifier))
 {}
 
 bool DataViewCommon::Initialize(DataModel& model, Element* element, const String& expression_str, const String& in_modifier)
@@ -62,16 +63,19 @@ bool DataViewCommon::Initialize(DataModel& model, Element* element, const String
 	return result;
 }
 
-StringList DataViewCommon::GetVariableNameList() const {
+StringList DataViewCommon::GetVariableNameList() const
+{
 	RMLUI_ASSERT(expression);
 	return expression->GetVariableNameList();
 }
 
-const String& DataViewCommon::GetModifier() const {
+const String& DataViewCommon::GetModifier() const
+{
 	return modifier;
 }
 
-DataExpression& DataViewCommon::GetExpression() {
+DataExpression& DataViewCommon::GetExpression()
+{
 	RMLUI_ASSERT(expression);
 	return *expression;
 }
@@ -81,11 +85,10 @@ void DataViewCommon::Release()
 	delete this;
 }
 
+DataViewAttribute::DataViewAttribute(Element* element) : DataViewCommon(element) {}
 
-DataViewAttribute::DataViewAttribute(Element* element) : DataViewCommon(element)
-{}
-
-DataViewAttribute::DataViewAttribute(Element * element, String override_attribute, int sort_offset) : DataViewCommon(element, std::move(override_attribute), sort_offset)
+DataViewAttribute::DataViewAttribute(Element* element, String override_attribute, int sort_offset) :
+	DataViewCommon(element, std::move(override_attribute), sort_offset)
 {}
 
 bool DataViewAttribute::Update(DataModel& model)
@@ -100,7 +103,7 @@ bool DataViewAttribute::Update(DataModel& model)
 	{
 		const String value = variant.Get<String>();
 		const Variant* attribute = element->GetAttribute(attribute_name);
-		
+
 		if (!attribute || (attribute && attribute->Get<String>() != value))
 		{
 			element->SetAttribute(attribute_name, value);
@@ -110,9 +113,7 @@ bool DataViewAttribute::Update(DataModel& model)
 	return result;
 }
 
-
-DataViewAttributeIf::DataViewAttributeIf(Element* element) : DataViewCommon(element)
-{}
+DataViewAttributeIf::DataViewAttributeIf(Element* element) : DataViewCommon(element) {}
 
 bool DataViewAttributeIf::Update(DataModel& model)
 {
@@ -138,14 +139,11 @@ bool DataViewAttributeIf::Update(DataModel& model)
 	return result;
 }
 
+DataViewValue::DataViewValue(Element* element) : DataViewAttribute(element, "value", SortOffset_DataValue) {}
 
-DataViewValue::DataViewValue(Element* element) : DataViewAttribute(element, "value", SortOffset_DataValue)
-{}
+DataViewChecked::DataViewChecked(Element* element) : DataViewCommon(element, String(), SortOffset_DataChecked) {}
 
-DataViewChecked::DataViewChecked(Element* element) : DataViewCommon(element, String(), SortOffset_DataChecked)
-{}
-
-bool DataViewChecked::Update(DataModel & model)
+bool DataViewChecked::Update(DataModel& model)
 {
 	bool result = false;
 	Variant variant;
@@ -181,9 +179,7 @@ bool DataViewChecked::Update(DataModel & model)
 	return result;
 }
 
-
-DataViewStyle::DataViewStyle(Element* element) : DataViewCommon(element)
-{}
+DataViewStyle::DataViewStyle(Element* element) : DataViewCommon(element) {}
 
 bool DataViewStyle::Update(DataModel& model)
 {
@@ -192,7 +188,7 @@ bool DataViewStyle::Update(DataModel& model)
 	Variant variant;
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
-	
+
 	if (element && GetExpression().Run(expr_interface, variant))
 	{
 		const String value = variant.Get<String>();
@@ -206,9 +202,7 @@ bool DataViewStyle::Update(DataModel& model)
 	return result;
 }
 
-
-DataViewClass::DataViewClass(Element* element) : DataViewCommon(element)
-{}
+DataViewClass::DataViewClass(Element* element) : DataViewCommon(element) {}
 
 bool DataViewClass::Update(DataModel& model)
 {
@@ -231,11 +225,9 @@ bool DataViewClass::Update(DataModel& model)
 	return result;
 }
 
+DataViewRml::DataViewRml(Element* element) : DataViewCommon(element) {}
 
-DataViewRml::DataViewRml(Element* element) : DataViewCommon(element)
-{}
-
-bool DataViewRml::Update(DataModel & model)
+bool DataViewRml::Update(DataModel& model)
 {
 	bool result = false;
 	Variant variant;
@@ -255,9 +247,7 @@ bool DataViewRml::Update(DataModel & model)
 	return result;
 }
 
-
-DataViewIf::DataViewIf(Element* element) : DataViewCommon(element)
-{}
+DataViewIf::DataViewIf(Element* element) : DataViewCommon(element) {}
 
 bool DataViewIf::Update(DataModel& model)
 {
@@ -270,7 +260,7 @@ bool DataViewIf::Update(DataModel& model)
 	{
 		const bool value = variant.Get<bool>();
 		const bool is_visible = (element->GetLocalStyleProperties().count(PropertyId::Display) == 0);
-		if(is_visible != value)
+		if (is_visible != value)
 		{
 			if (value)
 				element->RemoveProperty(PropertyId::Display);
@@ -282,9 +272,7 @@ bool DataViewIf::Update(DataModel& model)
 	return result;
 }
 
-
-DataViewVisible::DataViewVisible(Element* element) : DataViewCommon(element)
-{}
+DataViewVisible::DataViewVisible(Element* element) : DataViewCommon(element) {}
 
 bool DataViewVisible::Update(DataModel& model)
 {
@@ -309,53 +297,71 @@ bool DataViewVisible::Update(DataModel& model)
 	return result;
 }
 
+DataViewText::DataViewText(Element* element) : DataView(element, 0) {}
 
-DataViewText::DataViewText(Element* element) : DataView(element, 0)
-{}
-
-bool DataViewText::Initialize(DataModel& model, Element* element, const String& RMLUI_UNUSED_PARAMETER(expression), const String& RMLUI_UNUSED_PARAMETER(modifier))
+bool DataViewText::Initialize(DataModel& model, Element* element, const String& /*expression*/, const String& /*modifier*/)
 {
-	RMLUI_UNUSED(expression);
-	RMLUI_UNUSED(modifier);
-
 	ElementText* element_text = rmlui_dynamic_cast<ElementText*>(element);
 	if (!element_text)
 		return false;
 
 	const String& in_text = element_text->GetText();
-	
+
 	text.reserve(in_text.size());
 
 	DataExpressionInterface expression_interface(&model, element);
 
-	size_t previous_close_brackets = 0;
 	size_t begin_brackets = 0;
-	while ((begin_brackets = in_text.find("{{", begin_brackets)) != String::npos)
+	size_t cur = 0;
+	char previous = 0;
+	bool was_in_brackets = false;
+	bool in_brackets = false;
+	bool in_string = false;
+
+	for (char c : in_text)
 	{
-		text.insert(text.end(), in_text.begin() + previous_close_brackets, in_text.begin() + begin_brackets);
+		was_in_brackets = in_brackets;
 
-		const size_t begin_name = begin_brackets + 2;
-		const size_t end_name = in_text.find("}}", begin_name);
-
-		if (end_name == String::npos)
+		const char* error_str = XMLParseTools::ParseDataBrackets(in_brackets, in_string, c, previous);
+		if (error_str)
+		{
+			Log::Message(Log::LT_WARNING, "Failed to parse data view text '%s'. %s", in_text.c_str(), error_str);
 			return false;
+		}
 
-		DataEntry entry;
-		entry.index = text.size();
-		entry.data_expression = MakeUnique<DataExpression>(String(in_text.begin() + begin_name, in_text.begin() + end_name));
+		if (!was_in_brackets && in_brackets)
+		{
+			begin_brackets = cur;
+		}
+		else if (was_in_brackets && !in_brackets)
+		{
+			DataEntry entry;
+			entry.index = text.size();
+			entry.data_expression = MakeUnique<DataExpression>(String(in_text.begin() + begin_brackets + 1, in_text.begin() + cur - 1));
+			entry.value = "#rmlui#"; // A random value that the user string will not be initialized with.
 
-		if (entry.data_expression->Parse(expression_interface, false))
-			data_entries.push_back(std::move(entry));
+			if (entry.data_expression->Parse(expression_interface, false))
+				data_entries.push_back(std::move(entry));
 
-		previous_close_brackets = end_name + 2;
-		begin_brackets = previous_close_brackets;
+			// Reset char so that it won't be appended to the output
+			c = 0;
+		}
+		else if (!in_brackets && previous)
+		{
+			text.push_back(previous);
+		}
+
+		cur++;
+		previous = c;
+	}
+
+	if (!in_brackets && previous)
+	{
+		text.push_back(previous);
 	}
 
 	if (data_entries.empty())
 		return false;
-
-	if (previous_close_brackets < in_text.size())
-		text.insert(text.end(), in_text.begin() + previous_close_brackets, in_text.end());
 
 	return true;
 }
@@ -385,17 +391,12 @@ bool DataViewText::Update(DataModel& model)
 	{
 		if (Element* element = GetElement())
 		{
-			RMLUI_ASSERTMSG(rmlui_dynamic_cast<ElementText*>(element), "Somehow the element type was changed from ElementText since construction of the view. Should not be possible?");
+			String new_text = BuildText();
+			String text;
+			if (SystemInterface* system_interface = GetSystemInterface())
+				system_interface->TranslateString(text, new_text);
 
-			if (ElementText* text_element = static_cast<ElementText*>(element))
-			{
-				String new_text = BuildText();
-
-				String text;
-				if (SystemInterface* system_interface = GetSystemInterface())
-					system_interface->TranslateString(text, new_text);
-				text_element->SetText(text);
-			}
+			rmlui_static_cast<ElementText*>(element)->SetText(text);
 		}
 		else
 		{
@@ -416,10 +417,7 @@ StringList DataViewText::GetVariableNameList() const
 		RMLUI_ASSERT(entry.data_expression);
 
 		StringList entry_list = entry.data_expression->GetVariableNameList();
-		full_list.insert(full_list.end(),
-			MakeMoveIterator(entry_list.begin()),
-			MakeMoveIterator(entry_list.end())
-		);
+		full_list.insert(full_list.end(), MakeMoveIterator(entry_list.begin()), MakeMoveIterator(entry_list.end()));
 	}
 
 	return full_list;
@@ -454,10 +452,7 @@ String DataViewText::BuildText() const
 	return result;
 }
 
-
-
-DataViewFor::DataViewFor(Element* element) : DataView(element, 0)
-{}
+DataViewFor::DataViewFor(Element* element) : DataView(element, 0) {}
 
 bool DataViewFor::Initialize(DataModel& model, Element* element, const String& in_expression, const String& in_rml_content)
 {
@@ -466,7 +461,8 @@ bool DataViewFor::Initialize(DataModel& model, Element* element, const String& i
 	StringList iterator_container_pair;
 	StringUtilities::ExpandString(iterator_container_pair, in_expression, ':');
 
-	if (iterator_container_pair.empty() || iterator_container_pair.size() > 2 || iterator_container_pair.front().empty() || iterator_container_pair.back().empty())
+	if (iterator_container_pair.empty() || iterator_container_pair.size() > 2 || iterator_container_pair.front().empty() ||
+		iterator_container_pair.back().empty())
 	{
 		Log::Message(Log::LT_WARNING, "Invalid syntax in data-for '%s'", in_expression.c_str());
 		return false;
@@ -521,7 +517,6 @@ bool DataViewFor::Initialize(DataModel& model, Element* element, const String& i
 	return true;
 }
 
-
 bool DataViewFor::Update(DataModel& model)
 {
 	DataVariable variable = model.GetVariable(container_address);
@@ -544,9 +539,7 @@ bool DataViewFor::Update(DataModel& model)
 			iterator_address = container_address;
 			iterator_address.push_back(DataAddressEntry(i));
 
-			DataAddress iterator_index_address = {
-				{"literal"}, {"int"}, {i}
-			};
+			DataAddress iterator_index_address = {{"literal"}, {"int"}, {i}};
 
 			model.InsertAlias(new_element_ptr.get(), iterator_name, std::move(iterator_address));
 			model.InsertAlias(new_element_ptr.get(), iterator_index_name, std::move(iterator_index_address));
@@ -572,12 +565,41 @@ bool DataViewFor::Update(DataModel& model)
 	return result;
 }
 
-StringList DataViewFor::GetVariableNameList() const {
+StringList DataViewFor::GetVariableNameList() const
+{
 	RMLUI_ASSERT(!container_address.empty());
-	return StringList{ container_address.front().name };
+	return StringList{container_address.front().name};
 }
 
 void DataViewFor::Release()
+{
+	delete this;
+}
+
+DataViewAlias::DataViewAlias(Element* element) : DataView(element, 0) {}
+
+StringList DataViewAlias::GetVariableNameList() const
+{
+	return variables;
+}
+
+bool DataViewAlias::Update(DataModel&)
+{
+	return false;
+}
+
+bool DataViewAlias::Initialize(DataModel& model, Element* element, const String& expression, const String& modifier)
+{
+	auto address = model.ResolveAddress(expression, element);
+	if (address.empty())
+		return false;
+
+	variables.push_back(modifier);
+	model.InsertAlias(element, modifier, address);
+	return true;
+}
+
+void DataViewAlias::Release()
 {
 	delete this;
 }

@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,21 +32,18 @@
 
 namespace Rml {
 
-TextureLayoutTexture::TextureLayoutTexture() : dimensions(0, 0)
-{}
+TextureLayoutTexture::TextureLayoutTexture() : dimensions(0, 0) {}
 
 TextureLayoutTexture::~TextureLayoutTexture()
 {
 	// Don't free texture data; freed in the texture loader.
 }
 
-// Returns the texture's dimensions. This is only valid after the texture has been generated.
 Vector2i TextureLayoutTexture::GetDimensions() const
 {
 	return dimensions;
 }
 
-// Attempts to position unplaced rectangles from the layout into this texture.
 int TextureLayoutTexture::Generate(TextureLayout& layout, int maximum_dimensions)
 {
 	// Come up with an estimate for how big a texture we need. Calculate the total square pixels
@@ -64,12 +61,12 @@ int TextureLayoutTexture::Generate(TextureLayout& layout, int maximum_dimensions
 			int x = rectangle.GetDimensions().x + 1;
 			int y = rectangle.GetDimensions().y + 1;
 
-			square_pixels += x*y;
+			square_pixels += x * y;
 			++unplaced_rectangles;
 		}
 	}
 
-	int texture_width = Math::RealToInteger(Math::SquareRoot((float) square_pixels));
+	int texture_width = int(Math::SquareRoot((float)square_pixels));
 
 	dimensions.y = Math::ToPowerOfTwo(texture_width);
 	dimensions.x = dimensions.y >> 1;
@@ -135,23 +132,17 @@ int TextureLayoutTexture::Generate(TextureLayout& layout, int maximum_dimensions
 	}
 }
 
-// Allocates the texture.
-UniquePtr<byte[]> TextureLayoutTexture::AllocateTexture()
+Vector<byte> TextureLayoutTexture::AllocateTexture()
 {
-	// Note: this object does not free this texture data. It is freed in the font texture loader.
-	UniquePtr<byte[]> texture_data;
+	Vector<byte> texture_data;
 
-	if (dimensions.x > 0 &&
-		dimensions.y > 0)
+	if (dimensions.x > 0 && dimensions.y > 0)
 	{
-		texture_data.reset(new byte[dimensions.x * dimensions.y * 4]);
-
-		// Set the texture to transparent white.
-		for (int i = 0; i < dimensions.x * dimensions.y; i++)
-			((unsigned int*)(texture_data.get()))[i] = 0x00ffffff;
+		// Set the texture to transparent black.
+		texture_data.resize(dimensions.x * dimensions.y * 4, 0);
 
 		for (size_t i = 0; i < rows.size(); ++i)
-			rows[i].Allocate(texture_data.get(), dimensions.x * 4);
+			rows[i].Allocate(texture_data.data(), dimensions.x * 4);
 	}
 
 	return texture_data;

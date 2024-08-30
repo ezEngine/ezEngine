@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,24 +34,20 @@
 namespace Rml {
 
 /**
-	Default instancer for instancing contexts.
+    Default instancer for instancing contexts.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class ContextInstancerDefault : public ContextInstancer
-{
+class ContextInstancerDefault : public ContextInstancer {
 public:
 	ContextInstancerDefault();
 	virtual ~ContextInstancerDefault();
 
 	/// Instances a context.
-	/// @param[in] name Name of this context.
-	/// @return The instanced context.
-	ContextPtr InstanceContext(const String& name) override;
+	ContextPtr InstanceContext(const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler) override;
 
 	/// Releases a context previously created by this context.
-	/// @param[in] context The context to release.
 	void ReleaseContext(Context* context) override;
 
 	/// Releases this context instancer.

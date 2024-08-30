@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,11 +29,12 @@
 #include "../../Include/RmlUi/Core/PropertySpecification.h"
 #include "../../Include/RmlUi/Core/Debug.h"
 #include "../../Include/RmlUi/Core/Log.h"
+#include "../../Include/RmlUi/Core/Profiling.h"
 #include "../../Include/RmlUi/Core/PropertyDefinition.h"
 #include "../../Include/RmlUi/Core/PropertyDictionary.h"
-#include "../../Include/RmlUi/Core/Profiling.h"
-#include "PropertyShorthandDefinition.h"
 #include "IdNameMap.h"
+#include "PropertyShorthandDefinition.h"
+#include <algorithm>
 #include <limits.h>
 #include <stdint.h>
 
@@ -43,15 +44,12 @@ PropertySpecification::PropertySpecification(size_t reserve_num_properties, size
 	// Increment reserve numbers by one because the 'invalid' property occupies the first element
 	properties(reserve_num_properties + 1), shorthands(reserve_num_shorthands + 1),
 	property_map(MakeUnique<PropertyIdNameMap>(reserve_num_properties + 1)), shorthand_map(MakeUnique<ShorthandIdNameMap>(reserve_num_shorthands + 1))
-{
-}
+{}
 
-PropertySpecification::~PropertySpecification()
-{
-}
+PropertySpecification::~PropertySpecification() {}
 
-// Registers a property with a new definition.
-PropertyDefinition& PropertySpecification::RegisterProperty(const String& property_name, const String& default_value, bool inherited, bool forces_layout, PropertyId id)
+PropertyDefinition& PropertySpecification::RegisterProperty(const String& property_name, const String& default_value, bool inherited,
+	bool forces_layout, PropertyId id)
 {
 	if (id == PropertyId::Invalid)
 		id = property_map->GetOrCreateId(property_name);
@@ -62,7 +60,9 @@ PropertyDefinition& PropertySpecification::RegisterProperty(const String& proper
 
 	if (index >= size_t(PropertyId::MaxNumIds))
 	{
-		Log::Message(Log::LT_ERROR, "Fatal error while registering property '%s': Maximum number of allowed properties exceeded. Continuing execution may lead to crash.", property_name.c_str());
+		Log::Message(Log::LT_ERROR,
+			"Fatal error while registering property '%s': Maximum number of allowed properties exceeded. Continuing execution may lead to crash.",
+			property_name.c_str());
 		RMLUI_ERROR;
 		return *properties[0];
 	}
@@ -79,7 +79,7 @@ PropertyDefinition& PropertySpecification::RegisterProperty(const String& proper
 	else
 	{
 		// Resize vector to hold the new index
-		properties.resize((index*3)/2 + 1);
+		properties.resize((index * 3) / 2 + 1);
 	}
 
 	// Create and insert the new property
@@ -93,7 +93,6 @@ PropertyDefinition& PropertySpecification::RegisterProperty(const String& proper
 	return *properties[index];
 }
 
-// Returns a property definition.
 const PropertyDefinition* PropertySpecification::GetProperty(PropertyId id) const
 {
 	if (id == PropertyId::Invalid || (size_t)id >= properties.size())
@@ -107,14 +106,12 @@ const PropertyDefinition* PropertySpecification::GetProperty(const String& prope
 	return GetProperty(property_map->GetId(property_name));
 }
 
-// Fetches a list of the names of all registered property definitions.
-const PropertyIdSet& PropertySpecification::GetRegisteredProperties(void) const
+const PropertyIdSet& PropertySpecification::GetRegisteredProperties() const
 {
 	return property_ids;
 }
 
-// Fetches a list of the names of all registered property definitions.
-const PropertyIdSet& PropertySpecification::GetRegisteredInheritedProperties(void) const
+const PropertyIdSet& PropertySpecification::GetRegisteredInheritedProperties() const
 {
 	return property_ids_inherited;
 }
@@ -124,7 +121,6 @@ const PropertyIdSet& PropertySpecification::GetRegisteredPropertiesForcingLayout
 	return property_ids_forcing_layout;
 }
 
-// Registers a shorthand property definition.
 ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type, ShorthandId id)
 {
 	if (id == ShorthandId::Invalid)
@@ -142,11 +138,17 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 	{
 		ShorthandItem item;
 		bool optional = false;
+		bool repeats = false;
 		String name = raw_name;
 
 		if (!raw_name.empty() && raw_name.back() == '?')
 		{
 			optional = true;
+			name.pop_back();
+		}
+		if (!raw_name.empty() && raw_name.back() == '#')
+		{
+			repeats = true;
 			name.pop_back();
 		}
 
@@ -155,7 +157,7 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 		{
 			// We have a valid property
 			if (const PropertyDefinition* property = GetProperty(property_id))
-				item = ShorthandItem(property_id, property, optional);
+				item = ShorthandItem(property_id, property, optional, repeats);
 		}
 		else
 		{
@@ -165,8 +167,8 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 			// Test for valid shorthand id. The recursive types (and only those) can hold other shorthands.
 			if (shorthand_id != ShorthandId::Invalid && (type == ShorthandType::RecursiveRepeat || type == ShorthandType::RecursiveCommaSeparated))
 			{
-				if (const ShorthandDefinition * shorthand = GetShorthand(shorthand_id))
-					item = ShorthandItem(shorthand_id, shorthand, optional);
+				if (const ShorthandDefinition* shorthand = GetShorthand(shorthand_id))
+					item = ShorthandItem(shorthand_id, shorthand, optional, repeats);
 			}
 		}
 
@@ -208,7 +210,6 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 	return id;
 }
 
-// Returns a shorthand definition.
 const ShorthandDefinition* PropertySpecification::GetShorthand(ShorthandId id) const
 {
 	if (id == ShorthandId::Invalid || (size_t)id >= shorthands.size())
@@ -247,55 +248,78 @@ bool PropertySpecification::ParsePropertyDeclaration(PropertyDictionary& diction
 		return false;
 
 	StringList property_values;
-	if (!ParsePropertyValues(property_values, property_value, false) || property_values.size() == 0)
+	if (!ParsePropertyValues(property_values, property_value, SplitOption::None) || property_values.empty())
 		return false;
 
 	Property new_property;
 	if (!property_definition->ParseValue(new_property, property_values[0]))
 		return false;
-	
+
 	dictionary.SetProperty(property_id, new_property);
 	return true;
 }
 
-// Parses a property declaration, setting any parsed and validated properties on the given dictionary.
 bool PropertySpecification::ParseShorthandDeclaration(PropertyDictionary& dictionary, ShorthandId shorthand_id, const String& property_value) const
 {
-	StringList property_values;
-	if (!ParsePropertyValues(property_values, property_value, true) || property_values.size() == 0)
-		return false;
-
-	// Parse as a shorthand.
 	const ShorthandDefinition* shorthand_definition = GetShorthand(shorthand_id);
 	if (!shorthand_definition)
 		return false;
 
-	// If this definition is a 'box'-style shorthand (x-top, x-right, x-bottom, x-left, etc) and there are fewer
-	// than four values
-	if (shorthand_definition->type == ShorthandType::Box &&
-		property_values.size() < 4)
+	const SplitOption split_option =
+		(shorthand_definition->type == ShorthandType::RecursiveCommaSeparated ? SplitOption::Comma : SplitOption::Whitespace);
+
+	StringList property_values;
+	if (!ParsePropertyValues(property_values, property_value, split_option) || property_values.empty())
+		return false;
+
+	// Handle the special behavior of the flex shorthand first, otherwise it acts like 'FallThrough'.
+	if (shorthand_definition->type == ShorthandType::Flex && !property_values.empty())
+	{
+		RMLUI_ASSERT(shorthand_definition->items.size() == 3);
+		if (property_values[0] == "none")
+		{
+			property_values = {"0", "0", "auto"};
+		}
+		else
+		{
+			// Default values when omitted from the 'flex' shorthand is specified here. These defaults are special
+			// for this shorthand only, otherwise each underlying property has a different default value.
+			const char* default_omitted_values[] = {"1", "1", "0"}; // flex-grow, flex-shrink, flex-basis
+			Property new_property;
+			bool result = true;
+			for (int i = 0; i < 3; i++)
+			{
+				auto& item = shorthand_definition->items[i];
+				result &= item.property_definition->ParseValue(new_property, default_omitted_values[i]);
+				dictionary.SetProperty(item.property_id, new_property);
+			}
+			(void)result;
+			RMLUI_ASSERT(result);
+		}
+	}
+
+	// If this definition is a 'box'-style shorthand (x-top x-right x-bottom x-left) that needs replication.
+	if (shorthand_definition->type == ShorthandType::Box && property_values.size() < 4)
 	{
 		// This array tells which property index each side is parsed from
-		Array<int, 4> box_side_to_value_index = { 0,0,0,0 };
+		Array<int, 4> box_side_to_value_index = {0, 0, 0, 0};
 		switch (property_values.size())
 		{
 		case 1:
 			// Only one value is defined, so it is parsed onto all four sides.
-			box_side_to_value_index = { 0,0,0,0 };
+			box_side_to_value_index = {0, 0, 0, 0};
 			break;
 		case 2:
 			// Two values are defined, so the first one is parsed onto the top and bottom value, the second onto
 			// the left and right.
-			box_side_to_value_index = { 0,1,0,1 };
+			box_side_to_value_index = {0, 1, 0, 1};
 			break;
 		case 3:
 			// Three values are defined, so the first is parsed into the top value, the second onto the left and
 			// right, and the third onto the bottom.
-			box_side_to_value_index = { 0,1,2,1 };
+			box_side_to_value_index = {0, 1, 2, 1};
 			break;
-		default:
-			RMLUI_ERROR;
-			break;
+		default: RMLUI_ERROR; break;
 		}
 
 		for (int i = 0; i < 4; i++)
@@ -329,39 +353,57 @@ bool PropertySpecification::ParseShorthandDeclaration(PropertyDictionary& dictio
 	}
 	else if (shorthand_definition->type == ShorthandType::RecursiveCommaSeparated)
 	{
-		StringList subvalues;
-		StringUtilities::ExpandString(subvalues, property_value);
-
 		size_t num_optional = 0;
 		for (auto& item : shorthand_definition->items)
 			if (item.optional)
 				num_optional += 1;
 
-		if (subvalues.size() + num_optional < shorthand_definition->items.size())
+		if (property_values.size() + num_optional < shorthand_definition->items.size())
 		{
 			// Not enough subvalues declared.
 			return false;
 		}
 
 		size_t subvalue_i = 0;
-		for (size_t i = 0; i < shorthand_definition->items.size() && subvalue_i < subvalues.size(); i++)
+		String temp_subvalue;
+		for (size_t i = 0; i < shorthand_definition->items.size() && subvalue_i < property_values.size(); i++)
 		{
 			bool result = false;
 
+			const String* subvalue = &property_values[subvalue_i];
+
 			const ShorthandItem& item = shorthand_definition->items[i];
+			if (item.repeats)
+			{
+				property_values.erase(property_values.begin(), property_values.begin() + subvalue_i);
+				temp_subvalue.clear();
+				StringUtilities::JoinString(temp_subvalue, property_values);
+				subvalue = &temp_subvalue;
+			}
+
 			if (item.type == ShorthandItemType::Property)
-				result = ParsePropertyDeclaration(dictionary, item.property_id, subvalues[subvalue_i]);
+				result = ParsePropertyDeclaration(dictionary, item.property_id, *subvalue);
 			else if (item.type == ShorthandItemType::Shorthand)
-				result = ParseShorthandDeclaration(dictionary, item.shorthand_id, subvalues[subvalue_i]);
+				result = ParseShorthandDeclaration(dictionary, item.shorthand_id, *subvalue);
 
 			if (result)
 				subvalue_i += 1;
-			else if (!item.optional)
+			else if (item.repeats || !item.optional)
 				return false;
+
+			if (item.repeats)
+				break;
 		}
 	}
 	else
 	{
+		RMLUI_ASSERT(shorthand_definition->type == ShorthandType::Box || shorthand_definition->type == ShorthandType::FallThrough ||
+			shorthand_definition->type == ShorthandType::Replicate || shorthand_definition->type == ShorthandType::Flex);
+
+		// Abort over-specified shorthand values.
+		if (property_values.size() > shorthand_definition->items.size())
+			return false;
+
 		size_t value_index = 0;
 		size_t property_index = 0;
 
@@ -373,7 +415,7 @@ bool PropertySpecification::ParseShorthandDeclaration(PropertyDictionary& dictio
 			{
 				// This definition failed to parse; if we're falling through, try the next property. If there is no
 				// next property, then abort!
-				if (shorthand_definition->type == ShorthandType::FallThrough)
+				if (shorthand_definition->type == ShorthandType::FallThrough || shorthand_definition->type == ShorthandType::Flex)
 				{
 					if (property_index + 1 < shorthand_definition->items.size())
 						continue;
@@ -384,16 +426,19 @@ bool PropertySpecification::ParseShorthandDeclaration(PropertyDictionary& dictio
 			dictionary.SetProperty(shorthand_definition->items[property_index].property_id, new_property);
 
 			// Increment the value index, unless we're replicating the last value and we're up to the last value.
-			if (shorthand_definition->type != ShorthandType::Replicate ||
-				value_index < property_values.size() - 1)
+			if (shorthand_definition->type != ShorthandType::Replicate || value_index < property_values.size() - 1)
 				value_index++;
 		}
+
+		// Abort if we still have values left to parse but no more properties to pass them to.
+		if (shorthand_definition->type != ShorthandType::Replicate && value_index < property_values.size() &&
+			property_index >= shorthand_definition->items.size())
+			return false;
 	}
 
 	return true;
 }
 
-// Sets all undefined properties in the dictionary to their defaults.
 void PropertySpecification::SetPropertyDefaults(PropertyDictionary& dictionary) const
 {
 	for (const auto& property : properties)
@@ -403,170 +448,167 @@ void PropertySpecification::SetPropertyDefaults(PropertyDictionary& dictionary) 
 	}
 }
 
-String PropertySpecification::PropertiesToString(const PropertyDictionary& dictionary) const
+String PropertySpecification::PropertiesToString(const PropertyDictionary& dictionary, bool include_name, char delimiter) const
 {
+	const PropertyMap& properties = dictionary.GetProperties();
+
+	// For determinism we print the strings in order of increasing property ids.
+	Vector<PropertyId> ids;
+	ids.reserve(properties.size());
+	for (auto& pair : properties)
+		ids.push_back(pair.first);
+
+	std::sort(ids.begin(), ids.end());
+
 	String result;
-	for (auto& pair : dictionary.GetProperties())
+	for (PropertyId id : ids)
 	{
-		result += property_map->GetName(pair.first) + ": " + pair.second.ToString() + '\n';
+		const Property& p = properties.find(id)->second;
+		if (include_name)
+			result += property_map->GetName(id) + ": ";
+		result += p.ToString() + delimiter;
 	}
+
+	if (!result.empty())
+		result.pop_back();
+
 	return result;
 }
 
-
-bool PropertySpecification::ParsePropertyValues(StringList& values_list, const String& values, bool split_values) const
+bool PropertySpecification::ParsePropertyValues(StringList& values_list, const String& values, const SplitOption split_option) const
 {
+	const bool split_values = (split_option != SplitOption::None);
+	const bool split_by_comma = (split_option == SplitOption::Comma);
+	const bool split_by_whitespace = (split_option == SplitOption::Whitespace);
+
 	String value;
 
-	enum ParseState { VALUE, VALUE_PARENTHESIS, VALUE_QUOTE };
+	auto SubmitValue = [&]() {
+		value = StringUtilities::StripWhitespace(value);
+		if (value.size() > 0)
+		{
+			values_list.push_back(value);
+			value.clear();
+		}
+	};
+
+	enum ParseState { VALUE, VALUE_PARENTHESIS, VALUE_QUOTE, VALUE_QUOTE_ESCAPE_NEXT };
 	ParseState state = VALUE;
 	int open_parentheses = 0;
-
 	size_t character_index = 0;
-	char previous_character = 0;
+
 	while (character_index < values.size())
 	{
-		char character = values[character_index];
+		const char character = values[character_index];
 		character_index++;
 
 		switch (state)
 		{
-			case VALUE:
+		case VALUE:
+		{
+			if (character == ';')
 			{
-				if (character == ';')
+				value = StringUtilities::StripWhitespace(value);
+				if (value.size() > 0)
 				{
-					value = StringUtilities::StripWhitespace(value);
-					if (value.size() > 0)
-					{
-						values_list.push_back(value);
-						value.clear();
-					}
-				}
-				else if (StringUtilities::IsWhitespace(character))
-				{
-					if (split_values)
-					{
-						value = StringUtilities::StripWhitespace(value);
-						if (value.size() > 0)
-						{
-							values_list.push_back(value);
-							value.clear();
-						}
-					}
-					else
-						value += character;
-				}
-				else if (character == '"')
-				{
-					if (split_values)
-					{
-						value = StringUtilities::StripWhitespace(value);
-						if (value.size() > 0)
-						{
-							values_list.push_back(value);
-							value.clear();
-						}
-						state = VALUE_QUOTE;
-					}
-					else
-					{
-						value += ' ';
-						state = VALUE_QUOTE;
-					}
-				}
-				else if (character == '(')
-				{
-					open_parentheses = 1;
-					value += character;
-					state = VALUE_PARENTHESIS;
-				}
-				else
-				{
-					value += character;
+					values_list.push_back(value);
+					value.clear();
 				}
 			}
-			break;
-
-			case VALUE_PARENTHESIS:
+			else if (split_by_comma ? (character == ',') : StringUtilities::IsWhitespace(character))
 			{
-				if (previous_character == '/')
-				{
-					if (character == ')' || character == '(')
-						value += character;
-					else
-					{
-						value += '/';
-						value += character;
-					}
-				}
+				if (split_values)
+					SubmitValue();
 				else
-				{
-					if (character == '(')
-					{
-						open_parentheses++;
-						value += character;
-					}
-					else if (character == ')')
-					{
-						open_parentheses--;
-						value += character;
-						if (open_parentheses == 0)
-							state = VALUE;
-					}
-					else if (character != '/')
-					{
-						value += character;
-					}
-				}
+					value += character;
 			}
-			break;
-
-			case VALUE_QUOTE:
+			else if (character == '"')
 			{
-				if (previous_character == '/')
-				{
-					if (character == '"')
-						value += character;
-					else
-					{
-						value += '/';
-						value += character;
-					}
-				}
+				state = VALUE_QUOTE;
+				if (split_by_whitespace)
+					SubmitValue();
 				else
-				{
-					if (character == '"')
-					{
-						if (split_values)
-						{
-							value = StringUtilities::StripWhitespace(value);
-							if (value.size() > 0)
-							{
-								values_list.push_back(value);
-								value.clear();
-							}
-						}
-						else
-							value += ' ';
-						state = VALUE;
-					}
-					else if (character != '/')
-					{
-						value += character;
-					}
-				}
+					value += (split_by_comma ? '"' : ' ');
+			}
+			else if (character == '(')
+			{
+				open_parentheses = 1;
+				value += character;
+				state = VALUE_PARENTHESIS;
+			}
+			else
+			{
+				value += character;
 			}
 		}
+		break;
+		case VALUE_PARENTHESIS:
+		{
+			if (character == '(')
+			{
+				open_parentheses++;
+			}
+			else if (character == ')')
+			{
+				open_parentheses--;
+				if (open_parentheses == 0)
+					state = VALUE;
+			}
+			else if (character == '"')
+			{
+				state = VALUE_QUOTE;
+			}
 
-		previous_character = character;
+			value += character;
+		}
+		break;
+		case VALUE_QUOTE:
+		{
+			if (character == '"')
+			{
+				if (open_parentheses == 0)
+				{
+					state = VALUE;
+					if (split_by_whitespace)
+						SubmitValue();
+					else
+						value += (split_by_comma ? '"' : ' ');
+				}
+				else
+				{
+					state = VALUE_PARENTHESIS;
+					value += character;
+				}
+			}
+			else if (character == '\\')
+			{
+				state = VALUE_QUOTE_ESCAPE_NEXT;
+			}
+			else
+			{
+				value += character;
+			}
+		}
+		break;
+		case VALUE_QUOTE_ESCAPE_NEXT:
+		{
+			if (character == '"' || character == '\\')
+			{
+				value += character;
+			}
+			else
+			{
+				value += '\\';
+				value += character;
+			}
+			state = VALUE_QUOTE;
+		}
+		break;
+		}
 	}
 
 	if (state == VALUE)
-	{
-		value = StringUtilities::StripWhitespace(value);
-		if (value.size() > 0)
-			values_list.push_back(value);
-	}
+		SubmitValue();
 
 	return true;
 }

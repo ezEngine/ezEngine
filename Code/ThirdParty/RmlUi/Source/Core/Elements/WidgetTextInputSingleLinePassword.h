@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,18 +34,16 @@
 namespace Rml {
 
 /**
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class WidgetTextInputSingleLinePassword : public WidgetTextInputSingleLine
-{
+class WidgetTextInputSingleLinePassword : public WidgetTextInputSingleLine {
 public:
 	WidgetTextInputSingleLinePassword(ElementFormControl* parent);
-	virtual ~WidgetTextInputSingleLinePassword();
 
-	/// Sets the value of the password field.
-	/// @param value[in] The new password to set on the field.
-	void SetValue(const String& value) override;
+protected:
+	/// Transforms the displayed value of the text box, typically used for password fields.
+	void TransformValue(String& value) override;
 };
 
 } // namespace Rml

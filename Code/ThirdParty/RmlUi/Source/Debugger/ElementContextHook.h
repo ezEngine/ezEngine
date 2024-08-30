@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,6 +30,7 @@
 #define RMLUI_DEBUGGER_ELEMENTCONTEXTHOOK_H
 
 #include "../../Include/RmlUi/Core/ElementDocument.h"
+#include "ElementDebugDocument.h"
 
 namespace Rml {
 namespace Debugger {
@@ -37,15 +38,14 @@ namespace Debugger {
 class DebuggerPlugin;
 
 /**
-	An element that the debugger uses to render into a foreign context.
+    An element that the debugger uses to render into a foreign context.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class ElementContextHook : public ElementDocument
-{
+class ElementContextHook : public ElementDebugDocument {
 public:
-	RMLUI_RTTI_DefineWithParent(ElementContextHook, ElementDocument)
+	RMLUI_RTTI_DefineWithParent(ElementContextHook, ElementDebugDocument)
 
 	ElementContextHook(const String& tag);
 	virtual ~ElementContextHook();
@@ -58,7 +58,7 @@ private:
 	DebuggerPlugin* debugger;
 };
 
-}
+} // namespace Debugger
 } // namespace Rml
 
 #endif

@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,24 +29,26 @@
 #ifndef RMLUI_CORE_FONTENGINEDEFAULT_FONTTYPES_H
 #define RMLUI_CORE_FONTENGINEDEFAULT_FONTTYPES_H
 
-#include "../../../Include/RmlUi/Core/Types.h"
-#include "../../../Include/RmlUi/Core/ComputedValues.h"
 #include "../../../Include/RmlUi/Core/FontGlyph.h"
+#include "../../../Include/RmlUi/Core/StyleTypes.h"
+#include "../../../Include/RmlUi/Core/Types.h"
 
 namespace Rml {
 
 using FontFaceHandleFreetype = uintptr_t;
 
-struct FontMetrics 
-{
-	int size;
-	int x_height;
-	int line_height;
-	int baseline;
-
-	float underline_position;
-	float underline_thickness;
+struct FaceVariation {
+	Style::FontWeight weight;
+	uint16_t width;
+	int named_instance_index;
 };
+
+inline bool operator<(const FaceVariation& a, const FaceVariation& b)
+{
+	if (a.weight == b.weight)
+		return a.width < b.width;
+	return a.weight < b.weight;
+}
 
 } // namespace Rml
 #endif
