@@ -47,7 +47,7 @@ if(EZ_CMAKE_PLATFORM_LINUX)
 endif()
 
 # Enable SVG support
-target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_ENABLE_SVG_PLUGIN)
+target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_SVG_PLUGIN)
 target_sources(${PROJECT_NAME} PRIVATE
   ../SVG/ElementSVG.cpp
   ../SVG/SVGPlugin.cpp
