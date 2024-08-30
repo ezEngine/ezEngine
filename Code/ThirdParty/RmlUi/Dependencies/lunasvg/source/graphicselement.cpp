@@ -1,18 +1,17 @@
 #include "graphicselement.h"
 #include "parser.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
-GraphicsElement::GraphicsElement(ElementId id)
+GraphicsElement::GraphicsElement(ElementID id)
     : StyledElement(id)
 {
 }
 
 Transform GraphicsElement::transform() const
 {
-    auto& value = get(PropertyId::Transform);
-    if(value.empty())
-        return Transform{};
-
+    auto& value = get(PropertyID::Transform);
     return Parser::parseTransform(value);
 }
+
+} // namespace lunasvg

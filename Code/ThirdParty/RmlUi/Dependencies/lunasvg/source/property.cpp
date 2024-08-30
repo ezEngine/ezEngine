@@ -1,21 +1,27 @@
 #include "property.h"
-#include "styledelement.h"
+#include "element.h"
+#include "lunasvg.h"
 
+#include <algorithm>
 #include <cmath>
 
-using namespace lunasvg;
+namespace lunasvg {
 
-const Color Color::Black = {0, 0, 0, 1};
-const Color Color::White = {1, 1, 1, 1};
-const Color Color::Red = {1, 0, 0, 1};
-const Color Color::Green = {0, 1, 0, 1};
-const Color Color::Blue = {0, 0, 1, 1};
-const Color Color::Yellow = {1, 1, 0, 1};
-const Color Color::Transparent = {0, 0, 0, 0};
+const Color Color::Black(0xFF000000);
+const Color Color::White(0xFFFFFFFF);
+const Color Color::Transparent(0x00000000);
 
-Color::Color(double r, double g, double b, double a)
-    : r(r), g(g), b(b), a(a)
+Color& Color::combine(double opacity)
 {
+    *this = combined(opacity);
+    return *this;
+}
+
+Color Color::combined(double opacity) const
+{
+    auto rgb = m_value & 0x00FFFFFF;
+    auto a = static_cast<int>(clamp(opacity * alpha(), 0.0, 255.0));
+    return Color(rgb | a << 24);
 }
 
 Paint::Paint(const Color& color)
@@ -23,8 +29,8 @@ Paint::Paint(const Color& color)
 {
 }
 
-Paint::Paint(const std::string& ref)
-    : m_ref(ref)
+Paint::Paint(const std::string& ref, const Color& color)
+    : m_ref(ref), m_color(color)
 {
 }
 
@@ -33,43 +39,102 @@ Point::Point(double x, double y)
 {
 }
 
+const Rect Rect::Empty{0, 0, 0, 0};
+const Rect Rect::Invalid{0, 0, -1, -1};
+
 Rect::Rect(double x, double y, double w, double h)
     : x(x), y(y), w(w), h(h)
 {
 }
+
+Rect::Rect(const Box& box)
+    : x(box.x), y(box.y), w(box.w), h(box.h)
+{
+}
+
+Rect Rect::operator&(const Rect& rect) const
+{
+    if(!rect.valid())
+        return *this;
+
+    if(!valid())
+        return rect;
+
+    auto l = std::max(x, rect.x);
+    auto t = std::max(y, rect.y);
+    auto r = std::min(x + w, rect.x + rect.w);
+    auto b = std::min(y + h, rect.y + rect.h);
+
+    return Rect{l, t, r-l, b-t};
+}
+
+Rect Rect::operator|(const Rect& rect) const
+{
+    if(!rect.valid())
+        return *this;
+
+    if(!valid())
+        return rect;
+
+    auto l = std::min(x, rect.x);
+    auto t = std::min(y, rect.y);
+    auto r = std::max(x + w, rect.x + rect.w);
+    auto b = std::max(y + h, rect.y + rect.h);
+
+    return Rect{l, t, r-l, b-t};
+}
+
+Rect& Rect::intersect(const Rect& rect)
+{
+    *this = *this & rect;
+    return *this;
+}
+
+Rect& Rect::unite(const Rect& rect)
+{
+    *this = *this | rect;
+    return *this;
+}
+
+const Transform Transform::Identity(1, 0, 0, 1, 0, 0);
 
 Transform::Transform(double m00, double m10, double m01, double m11, double m02, double m12)
     : m00(m00), m10(m10), m01(m01), m11(m11), m02(m02), m12(m12)
 {
 }
 
+Transform::Transform(const Matrix& matrix)
+    : m00(matrix.a), m10(matrix.b), m01(matrix.c), m11(matrix.d), m02(matrix.e), m12(matrix.f)
+{
+}
+
 Transform Transform::inverted() const
 {
-    double det = (this->m00 * this->m11 - this->m10 * this->m01);
+    double det = (m00 * m11 - m10 * m01);
     if(det == 0.0)
         return Transform{};
 
     double inv_det = 1.0 / det;
-    double m00 = this->m00 * inv_det;
-    double m10 = this->m10 * inv_det;
-    double m01 = this->m01 * inv_det;
-    double m11 = this->m11 * inv_det;
-    double m02 = (this->m01 * this->m12 - this->m11 * this->m02) * inv_det;
-    double m12 = (this->m10 * this->m02 - this->m00 * this->m12) * inv_det;
+    double _m00 = m00 * inv_det;
+    double _m10 = m10 * inv_det;
+    double _m01 = m01 * inv_det;
+    double _m11 = m11 * inv_det;
+    double _m02 = (m01 * m12 - m11 * m02) * inv_det;
+    double _m12 = (m10 * m02 - m00 * m12) * inv_det;
 
-    return Transform{m11, -m10, -m01, m00, m02, m12};
+    return Transform{_m11, -_m10, -_m01, _m00, _m02, _m12};
 }
 
 Transform Transform::operator*(const Transform& transform) const
 {
-    double m00 = this->m00 * transform.m00 + this->m10 * transform.m01;
-    double m10 = this->m00 * transform.m10 + this->m10 * transform.m11;
-    double m01 = this->m01 * transform.m00 + this->m11 * transform.m01;
-    double m11 = this->m01 * transform.m10 + this->m11 * transform.m11;
-    double m02 = this->m02 * transform.m00 + this->m12 * transform.m01 + transform.m02;
-    double m12 = this->m02 * transform.m10 + this->m12 * transform.m11 + transform.m12;
+    double _m00 = m00 * transform.m00 + m10 * transform.m01;
+    double _m10 = m00 * transform.m10 + m10 * transform.m11;
+    double _m01 = m01 * transform.m00 + m11 * transform.m01;
+    double _m11 = m01 * transform.m10 + m11 * transform.m11;
+    double _m02 = m02 * transform.m00 + m12 * transform.m01 + transform.m02;
+    double _m12 = m02 * transform.m10 + m12 * transform.m11 + transform.m12;
 
-    return Transform{m00, m10, m01, m11, m02, m12};
+    return Transform{_m00, _m10, _m01, _m11, _m02, _m12};
 }
 
 Transform& Transform::operator*=(const Transform& transform)
@@ -120,9 +185,9 @@ Transform& Transform::translate(double tx, double ty)
     return *this;
 }
 
-Transform& Transform::transform(double m00, double m10, double m01, double m11, double m02, double m12)
+Transform& Transform::transform(double _m00, double _m10, double _m01, double _m11, double _m02, double _m12)
 {
-    *this = Transform{m00, m10, m01, m11, m02, m12} * *this;
+    *this = Transform{_m00, _m10, _m01, _m11, _m02, _m12} * *this;
     return *this;
 }
 
@@ -144,33 +209,38 @@ void Transform::map(double x, double y, double* _x, double* _y) const
     *_y = x * m10 + y * m11 + m12;
 }
 
+Point Transform::map(double x, double y) const
+{
+    map(x, y, &x, &y);
+    return Point{x, y};
+}
+
 Point Transform::map(const Point& point) const
 {
-    Point p;
-    map(point.x, point.y, &p.x, &p.y);
-    return p;
+    return map(point.x, point.y);
 }
 
 Rect Transform::map(const Rect& rect) const
 {
-    auto left = rect.x;
-    auto top = rect.y;
-    auto right = rect.x + rect.w;
-    auto bottom = rect.y + rect.h;
+    if(!rect.valid())
+        return Rect::Invalid;
 
-    Point p[4];
-    p[0] = map(Point{left, top});
-    p[1] = map(Point{right, top});
-    p[2] = map(Point{right, bottom});
-    p[3] = map(Point{left, bottom});
+    auto x1 = rect.x;
+    auto y1 = rect.y;
+    auto x2 = rect.x + rect.w;
+    auto y2 = rect.y + rect.h;
+
+    const Point p[] = {
+        map(x1, y1), map(x2, y1),
+        map(x2, y2), map(x1, y2)
+    };
 
     auto l = p[0].x;
     auto t = p[0].y;
     auto r = p[0].x;
     auto b = p[0].y;
 
-    for(int i = 1;i < 4;i++)
-    {
+    for(int i = 1; i < 4; i++) {
         if(p[i].x < l) l = p[i].x;
         if(p[i].x > r) r = p[i].x;
         if(p[i].y < t) t = p[i].y;
@@ -287,8 +357,7 @@ void Path::arcTo(double cx, double cy, double rx, double ry, double xAxisRotatio
     auto Px = dx1 * dx1;
     auto Py = dy1 * dy1;
     auto check = Px / Pr1 + Py / Pr2;
-    if(check > 1)
-    {
+    if(check > 1) {
         rx = rx * std::sqrt(check);
         ry = ry * std::sqrt(check);
     }
@@ -312,38 +381,37 @@ void Path::arcTo(double cx, double cy, double rx, double ry, double xAxisRotatio
     auto th0 = std::atan2(y0 - yc, x0 - xc);
     auto th1 = std::atan2(y1 - yc, x1 - xc);
 
-    double th_arc = th1 - th0;
+    auto th_arc = th1 - th0;
     if(th_arc < 0.0 && sweepFlag)
         th_arc += 2.0 * pi;
     else if(th_arc > 0.0 && !sweepFlag)
         th_arc -= 2.0 * pi;
 
     auto n_segs = static_cast<int>(std::ceil(std::fabs(th_arc / (pi * 0.5 + 0.001))));
-    for(int i = 0;i < n_segs;i++)
-    {
+    for(int i = 0; i < n_segs; i++) {
         auto th2 = th0 + i * th_arc / n_segs;
         auto th3 = th0 + (i + 1) * th_arc / n_segs;
 
-        auto a00 =  cos_th * rx;
-        auto a01 = -sin_th * ry;
-        auto a10 =  sin_th * rx;
-        auto a11 =  cos_th * ry;
+        auto _a00 =  cos_th * rx;
+        auto _a01 = -sin_th * ry;
+        auto _a10 =  sin_th * rx;
+        auto _a11 =  cos_th * ry;
 
         auto thHalf = 0.5 * (th3 - th2);
         auto t = (8.0 / 3.0) * std::sin(thHalf * 0.5) * std::sin(thHalf * 0.5) / std::sin(thHalf);
-        auto x1 = xc + std::cos(th2) - t * std::sin(th2);
-        auto y1 = yc + std::sin(th2) + t * std::cos(th2);
-        auto x3 = xc + std::cos(th3);
-        auto y3 = yc + std::sin(th3);
-        auto x2 = x3 + t * std::sin(th3);
-        auto y2 = y3 - t * std::cos(th3);
+        auto _x1 = xc + std::cos(th2) - t * std::sin(th2);
+        auto _y1 = yc + std::sin(th2) + t * std::cos(th2);
+        auto _x3 = xc + std::cos(th3);
+        auto _y3 = yc + std::sin(th3);
+        auto _x2 = _x3 + t * std::sin(th3);
+        auto _y2 = _y3 - t * std::cos(th3);
 
-        auto cx1 = a00 * x1 + a01 * y1;
-        auto cy1 = a10 * x1 + a11 * y1;
-        auto cx2 = a00 * x2 + a01 * y2;
-        auto cy2 = a10 * x2 + a11 * y2;
-        auto cx3 = a00 * x3 + a01 * y3;
-        auto cy3 = a10 * x3 + a11 * y3;
+        auto cx1 = _a00 * _x1 + _a01 * _y1;
+        auto cy1 = _a10 * _x1 + _a11 * _y1;
+        auto cx2 = _a00 * _x2 + _a01 * _y2;
+        auto cy2 = _a10 * _x2 + _a11 * _y2;
+        auto cx3 = _a00 * _x3 + _a01 * _y3;
+        auto cy3 = _a10 * _x3 + _a11 * _y3;
         cubicTo(cx1, cy1, cx2, cy2, cx3, cy3);
     }
 }
@@ -376,17 +444,14 @@ void Path::rect(double x, double y, double w, double h, double rx, double ry)
     auto right = x + w;
     auto bottom = y + h;
 
-    if(rx == 0.0 && ry == 0.0)
-    {
+    if(rx == 0.0 && ry == 0.0) {
         moveTo(x, y);
         lineTo(right, y);
         lineTo(right, bottom);
         lineTo(x, bottom);
         lineTo(x, y);
         close();
-    }
-    else
-    {
+    } else {
         double cpx = rx * kappa;
         double cpy = ry * kappa;
         moveTo(x, y+ry);
@@ -412,8 +477,7 @@ Rect Path::box() const
     auto r = m_points[0].x;
     auto b = m_points[0].y;
 
-    for(std::size_t i = 1;i < m_points.size();i++)
-    {
+    for(std::size_t i = 1; i < m_points.size(); i++) {
         if(m_points[i].x < l) l = m_points[i].x;
         if(m_points[i].x > r) r = m_points[i].x;
         if(m_points[i].y < t) t = m_points[i].y;
@@ -475,6 +539,15 @@ void PathIterator::next()
     m_index += 1;
 }
 
+const Length Length::Unknown{0, LengthUnits::Unknown};
+const Length Length::Zero{0, LengthUnits::Number};
+const Length Length::One{1, LengthUnits::Number};
+const Length Length::Three{3, LengthUnits::Number};
+const Length Length::HundredPercent{100, LengthUnits::Percent};
+const Length Length::FiftyPercent{50, LengthUnits::Percent};
+const Length Length::OneTwentyPercent{120, LengthUnits::Percent};
+const Length Length::MinusTenPercent{-10, LengthUnits::Percent};
+
 Length::Length(double value)
     : m_value(value)
 {
@@ -516,11 +589,10 @@ static const double sqrt2 = 1.41421356237309504880;
 
 double Length::value(const Element* element, LengthMode mode) const
 {
-    if(m_units == LengthUnits::Percent)
-    {
-        auto viewBox = element->nearestViewBox();
-        auto w = viewBox.w;
-        auto h = viewBox.h;
+    if(m_units == LengthUnits::Percent) {
+        auto viewport = element->currentViewport();
+        auto w = viewport.w;
+        auto h = viewport.h;
         auto max = (mode == LengthMode::Width) ? w : (mode == LengthMode::Height) ? h : std::sqrt(w*w+h*h) / sqrt2;
         return m_value * max / 100.0;
     }
@@ -550,40 +622,36 @@ PreserveAspectRatio::PreserveAspectRatio(Align align, MeetOrSlice scale)
 {
 }
 
-Transform PreserveAspectRatio::getMatrix(const Rect& viewPort, const Rect& viewBox) const
+Transform PreserveAspectRatio::getMatrix(double width, double height, const Rect& viewBox) const
 {
-    auto matrix = Transform::translated(viewPort.x, viewPort.y);
-    if(viewBox.w == 0.0 || viewBox.h == 0.0)
-        return matrix;
+    if(viewBox.empty())
+        return Transform{};
 
-    auto scaleX = viewPort.w  / viewBox.w;
-    auto scaleY = viewPort.h  / viewBox.h;
-    if(scaleX == 0.0 || scaleY == 0.0)
-        return matrix;
-
-    auto transX = -viewBox.x;
-    auto transY = -viewBox.y;
-    if(m_align == Align::None)
-    {
-        matrix.scale(scaleX, scaleY);
-        matrix.translate(transX, transY);
-        return matrix;
+    auto xscale = width / viewBox.w;
+    auto yscale = height / viewBox.h;
+    if(m_align == Align::None) {
+        auto xoffset = -viewBox.x * xscale;
+        auto yoffset = -viewBox.y * yscale;
+        return Transform{xscale, 0, 0, yscale, xoffset, yoffset};
     }
 
-    auto scale = (m_scale == MeetOrSlice::Meet) ? std::min(scaleX, scaleY) : std::max(scaleX, scaleY);
-    auto viewW = viewPort.w / scale;
-    auto viewH = viewPort.h / scale;
+    auto scale = (m_scale == MeetOrSlice::Meet) ? std::min(xscale, yscale) : std::max(xscale, yscale);
+    auto viewWidth = viewBox.w * scale;
+    auto viewHeight = viewBox.h * scale;
+
+    auto xoffset = -viewBox.x * scale;
+    auto yoffset = -viewBox.y * scale;
 
     switch(m_align) {
     case Align::xMidYMin:
     case Align::xMidYMid:
     case Align::xMidYMax:
-        transX -= (viewBox.w - viewW) * 0.5;
+        xoffset += (width - viewWidth) * 0.5;
         break;
     case Align::xMaxYMin:
     case Align::xMaxYMid:
     case Align::xMaxYMax:
-        transX -= (viewBox.w - viewW);
+        xoffset += (width - viewWidth);
         break;
     default:
         break;
@@ -593,20 +661,62 @@ Transform PreserveAspectRatio::getMatrix(const Rect& viewPort, const Rect& viewB
     case Align::xMinYMid:
     case Align::xMidYMid:
     case Align::xMaxYMid:
-        transY -= (viewBox.h - viewH) * 0.5;
+        yoffset += (height - viewHeight) * 0.5;
         break;
     case Align::xMinYMax:
     case Align::xMidYMax:
     case Align::xMaxYMax:
-        transY -= (viewBox.h - viewH);
+        yoffset += (height - viewHeight);
         break;
     default:
         break;
     }
 
-    matrix.scale(scale, scale);
-    matrix.translate(transX, transY);
-    return matrix;
+    return Transform{scale, 0, 0, scale, xoffset, yoffset};
+}
+
+Rect PreserveAspectRatio::getClip(double width, double height, const Rect& viewBox) const
+{
+    if(viewBox.empty())
+        return Rect{0, 0, width, height};
+    if(m_scale == MeetOrSlice::Meet)
+        return viewBox;
+    auto scale = std::max(width / viewBox.w, height / viewBox.h);
+    auto xOffset = -viewBox.x * scale;
+    auto yOffset = -viewBox.y * scale;
+    auto viewWidth = viewBox.w * scale;
+    auto viewHeight = viewBox.h * scale;
+    switch(m_align) {
+    case Align::xMidYMin:
+    case Align::xMidYMid:
+    case Align::xMidYMax:
+        xOffset += (width - viewWidth) * 0.5f;
+        break;
+    case Align::xMaxYMin:
+    case Align::xMaxYMid:
+    case Align::xMaxYMax:
+        xOffset += (width - viewWidth);
+        break;
+    default:
+        break;
+    }
+
+    switch(m_align) {
+    case Align::xMinYMid:
+    case Align::xMidYMid:
+    case Align::xMaxYMid:
+        yOffset += (height - viewHeight) * 0.5f;
+        break;
+    case Align::xMinYMax:
+    case Align::xMidYMax:
+    case Align::xMaxYMax:
+        yOffset += (height - viewHeight);
+        break;
+    default:
+        break;
+    }
+
+    return Rect(-xOffset / scale, -yOffset / scale, width / scale, height / scale);
 }
 
 Angle::Angle(MarkerOrient type)
@@ -618,3 +728,5 @@ Angle::Angle(double value, MarkerOrient type)
     : m_value(value), m_type(type)
 {
 }
+
+} // namespace lunasvg

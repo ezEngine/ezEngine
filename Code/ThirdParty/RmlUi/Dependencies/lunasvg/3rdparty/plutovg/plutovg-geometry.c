@@ -2,6 +2,22 @@
 
 #include <math.h>
 
+void plutovg_rect_init(plutovg_rect_t* rect, double x, double y, double w, double h)
+{
+    rect->x = x;
+    rect->y = y;
+    rect->w = w;
+    rect->h = h;
+}
+
+void plutovg_rect_init_zero(plutovg_rect_t* rect)
+{
+    rect->x = 0.0;
+    rect->y = 0.0;
+    rect->w = 0.0;
+    rect->h = 0.0;
+}
+
 void plutovg_matrix_init(plutovg_matrix_t* matrix, double m00, double m10, double m01, double m11, double m02, double m12)
 {
     matrix->m00 = m00; matrix->m10 = m10;
@@ -311,19 +327,13 @@ void plutovg_path_add_rect(plutovg_path_t* path, double x, double y, double w, d
     plutovg_path_close(path);
 }
 
-#define KAPPA 0.5522847498
 void plutovg_path_add_round_rect(plutovg_path_t* path, double x, double y, double w, double h, double rx, double ry)
 {
     double right = x + w;
     double bottom = y + h;
 
-    rx = 2 * rx;
-    ry = 2 * ry;
-    if(rx > w) rx = w;
-    if(ry > h) ry = h;
-
-    double cpx = rx * KAPPA;
-    double cpy = ry * KAPPA;
+    double cpx = rx * plutovg_kappa;
+    double cpy = ry * plutovg_kappa;
 
     plutovg_path_move_to(path, x, y+ry);
     plutovg_path_cubic_to(path, x, y+ry-cpy, x+rx-cpx, y, x+rx, y);
@@ -344,8 +354,8 @@ void plutovg_path_add_ellipse(plutovg_path_t* path, double cx, double cy, double
     double right = cx + rx;
     double bottom = cy + ry;
 
-    double cpx = rx * KAPPA;
-    double cpy = ry * KAPPA;
+    double cpx = rx * plutovg_kappa;
+    double cpy = ry * plutovg_kappa;
 
     plutovg_path_move_to(path, cx, top);
     plutovg_path_cubic_to(path, cx+cpx, top, right, cy-cpy, right, cy);
@@ -366,17 +376,17 @@ void plutovg_path_add_path(plutovg_path_t* path, const plutovg_path_t* source, c
     plutovg_array_ensure(path->points, source->points.size);
 
     plutovg_point_t* points = path->points.data + path->points.size;
-    const plutovg_point_t* ptr = source->points.data;
-    const plutovg_point_t* end = ptr + source->points.size;
-    while(ptr < end)
+    const plutovg_point_t* data = source->points.data;
+    const plutovg_point_t* end = data + source->points.size;
+    while(data < end)
     {
         if(matrix)
-            plutovg_matrix_map_point(matrix, ptr, points);
+            plutovg_matrix_map_point(matrix, data, points);
         else
-            memcpy(points, ptr, sizeof(plutovg_point_t));
+            memcpy(points, data, sizeof(plutovg_point_t));
 
         points += 1;
-        ptr += 1;
+        data += 1;
     }
 
     plutovg_path_element_t* elements = path->elements.data + path->elements.size;
@@ -390,13 +400,12 @@ void plutovg_path_add_path(plutovg_path_t* path, const plutovg_path_t* source, c
 
 void plutovg_path_transform(plutovg_path_t* path, const plutovg_matrix_t* matrix)
 {
-    plutovg_point_t* ptr = path->points.data;
-    plutovg_point_t* end = ptr + path->points.size;
-    while(ptr < end)
+    plutovg_point_t* points = path->points.data;
+    plutovg_point_t* end = points + path->points.size;
+    while(points < end)
     {
-        plutovg_matrix_map_point(matrix, ptr, ptr);
-
-        ptr += 1;
+        plutovg_matrix_map_point(matrix, points, points);
+        points += 1;
     }
 }
 
@@ -449,7 +458,6 @@ int plutovg_path_empty(const plutovg_path_t* path)
 plutovg_path_t* plutovg_path_clone(const plutovg_path_t* path)
 {
     plutovg_path_t* result = plutovg_path_create();
-
     plutovg_array_ensure(result->elements, path->elements.size);
     plutovg_array_ensure(result->points, path->points.size);
 
@@ -460,7 +468,6 @@ plutovg_path_t* plutovg_path_clone(const plutovg_path_t* path)
     result->points.size = path->points.size;
     result->contours = path->contours;
     result->start = path->start;
-
     return result;
 }
 
@@ -539,11 +546,10 @@ static void flatten(plutovg_path_t* path, const plutovg_point_t* p0, const pluto
 plutovg_path_t* plutovg_path_clone_flat(const plutovg_path_t* path)
 {
     plutovg_path_t* result = plutovg_path_create();
-
     plutovg_array_ensure(result->elements, path->elements.size);
     plutovg_array_ensure(result->points, path->points.size);
-
     plutovg_point_t* points = path->points.data;
+
     for(int i = 0;i < path->elements.size;i++)
     {
         switch(path->elements.data[i])

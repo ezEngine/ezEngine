@@ -2,25 +2,25 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
 ClipPathElement::ClipPathElement()
-    : GraphicsElement(ElementId::ClipPath)
+    : GraphicsElement(ElementID::ClipPath)
 {
 }
 
 Units ClipPathElement::clipPathUnits() const
 {
-    auto& value = get(PropertyId::ClipPathUnits);
-    if(value.empty())
-        return Units::UserSpaceOnUse;
-
-    return Parser::parseUnits(value);
+    auto& value = get(PropertyID::ClipPathUnits);
+    return Parser::parseUnits(value, Units::UserSpaceOnUse);
 }
 
-std::unique_ptr<LayoutClipPath> ClipPathElement::getClipper(LayoutContext* context) const
+std::unique_ptr<LayoutClipPath> ClipPathElement::getClipper(LayoutContext* context)
 {
-    auto clipper = std::make_unique<LayoutClipPath>();
+    if(context->hasReference(this))
+        return nullptr;
+    LayoutBreaker layoutBreaker(context, this);
+    auto clipper = makeUnique<LayoutClipPath>(this);
     clipper->units = clipPathUnits();
     clipper->transform = transform();
     clipper->clipper = context->getClipper(clip_path());
@@ -28,7 +28,4 @@ std::unique_ptr<LayoutClipPath> ClipPathElement::getClipper(LayoutContext* conte
     return clipper;
 }
 
-std::unique_ptr<Node> ClipPathElement::clone() const
-{
-    return cloneElement<ClipPathElement>();
-}
+} // namespace lunasvg

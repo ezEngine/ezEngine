@@ -2,86 +2,71 @@
 #include "parser.h"
 #include "layoutcontext.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
 MaskElement::MaskElement()
-    : StyledElement(ElementId::Mask)
+    : StyledElement(ElementID::Mask)
 {
 }
 
 Length MaskElement::x() const
 {
-    auto& value = get(PropertyId::X);
-    if(value.empty())
-        return Length{-10, LengthUnits::Percent};
-
-    return Parser::parseLength(value, AllowNegativeLengths);
+    auto& value = get(PropertyID::X);
+    return Parser::parseLength(value, AllowNegativeLengths, Length::MinusTenPercent);
 }
 
 Length MaskElement::y() const
 {
-    auto& value = get(PropertyId::Y);
-    if(value.empty())
-        return Length{-10, LengthUnits::Percent};
-
-    return Parser::parseLength(value, AllowNegativeLengths);
+    auto& value = get(PropertyID::Y);
+    return Parser::parseLength(value, AllowNegativeLengths, Length::MinusTenPercent);
 }
 
 Length MaskElement::width() const
 {
-    auto& value = get(PropertyId::Width);
-    if(value.empty())
-        return Length{20, LengthUnits::Percent};
-
-    return Parser::parseLength(value, ForbidNegativeLengths);
+    auto& value = get(PropertyID::Width);
+    return Parser::parseLength(value, ForbidNegativeLengths, Length::OneTwentyPercent);
 }
 
 Length MaskElement::height() const
 {
-    auto& value = get(PropertyId::Height);
-    if(value.empty())
-        return Length{20, LengthUnits::Percent};
-
-    return Parser::parseLength(value, ForbidNegativeLengths);
+    auto& value = get(PropertyID::Height);
+    return Parser::parseLength(value, ForbidNegativeLengths, Length::OneTwentyPercent);
 }
 
 Units MaskElement::maskUnits() const
 {
-    auto& value = get(PropertyId::MaskUnits);
-    if(value.empty())
-        return Units::ObjectBoundingBox;
-
-    return Parser::parseUnits(value);
+    auto& value = get(PropertyID::MaskUnits);
+    return Parser::parseUnits(value, Units::ObjectBoundingBox);
 }
 
 Units MaskElement::maskContentUnits() const
 {
-    auto& value = get(PropertyId::MaskContentUnits);
-    if(value.empty())
-        return Units::UserSpaceOnUse;
-
-    return Parser::parseUnits(value);
+    auto& value = get(PropertyID::MaskContentUnits);
+    return Parser::parseUnits(value, Units::UserSpaceOnUse);
 }
 
-std::unique_ptr<LayoutMask> MaskElement::getMasker(LayoutContext* context) const
+std::unique_ptr<LayoutMask> MaskElement::getMasker(LayoutContext* context)
 {
-    auto masker = std::make_unique<LayoutMask>();
+    auto w = this->width();
+    auto h = this->height();
+    if(w.isZero() || h.isZero() || context->hasReference(this))
+        return nullptr;
+
+    LayoutBreaker layoutBreaker(context, this);
+    auto masker = makeUnique<LayoutMask>(this);
     masker->units = maskUnits();
     masker->contentUnits = maskContentUnits();
     masker->opacity = opacity();
-    masker->masker = context->getMasker(mask());
     masker->clipper = context->getClipper(clip_path());
+    masker->masker = context->getMasker(mask());
 
     LengthContext lengthContext(this, maskUnits());
     masker->x = lengthContext.valueForLength(x(), LengthMode::Width);
     masker->y = lengthContext.valueForLength(y(), LengthMode::Height);
-    masker->width = lengthContext.valueForLength(width(), LengthMode::Width);
-    masker->height = lengthContext.valueForLength(height(), LengthMode::Height);
+    masker->width = lengthContext.valueForLength(w, LengthMode::Width);
+    masker->height = lengthContext.valueForLength(h, LengthMode::Height);
     layoutChildren(context, masker.get());
     return masker;
 }
 
-std::unique_ptr<Node> MaskElement::clone() const
-{
-    return cloneElement<MaskElement>();
-}
+} // namespace lunasvg
