@@ -60,9 +60,8 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normalon>:/EditorFramework/Icons/ObjectsVisible.svg</normalon>
              <normaloff>:/EditorFramework/Icons/ObjectsHidden.svg</normaloff>
-            </iconset>
+             <normalon>:/EditorFramework/Icons/ObjectsVisible.svg</normalon>:/EditorFramework/Icons/ObjectsHidden.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -72,7 +71,25 @@
         </layout>
        </item>
        <item>
-        <widget class="QComboBox" name="TypeFilter"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QComboBox" name="TypeFilter"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="ResetTypeFilter">
+           <property name="toolTip">
+            <string>Reset the type filter to show all assets.</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+             <normaloff>:/GuiFoundation/Icons/Undo.svg</normaloff>:/GuiFoundation/Icons/Undo.svg</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QSplitter" name="LeftSplitter">
@@ -151,8 +168,7 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/ListView.svg</normaloff>:/EditorFramework/Icons/ListView.svg
-            </iconset>
+             <normaloff>:/EditorFramework/Icons/ListView.svg</normaloff>:/EditorFramework/Icons/ListView.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -169,8 +185,7 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/IconView.svg</normaloff>:/EditorFramework/Icons/IconView.svg
-            </iconset>
+             <normaloff>:/EditorFramework/Icons/IconView.svg</normaloff>:/EditorFramework/Icons/IconView.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>

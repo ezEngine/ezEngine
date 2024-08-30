@@ -24,6 +24,7 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
+  ResetTypeFilter->setEnabled(false);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pFilter->SetShowItemsInSubFolders(pPreferences->m_bAssetBrowserShowItemsInSubFolders);
@@ -289,6 +290,7 @@ void ezQtAssetBrowserWidget::SetMode(Mode mode)
       break;
     case Mode::FilePicker:
       TypeFilter->setVisible(false);
+      ResetTypeFilter->setVisible(false);
       [[fallthrough]];
     case Mode::AssetPicker:
       m_pToolbar->hide();
@@ -537,6 +539,20 @@ void ezQtAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentag
 {
   ezQtScopedBlockSignals block(IconSizeSlider);
   IconSizeSlider->setValue(iIconSizePercentage);
+}
+
+void ezQtAssetBrowserWidget::on_ResetTypeFilter_clicked()
+{
+  switch (m_Mode)
+  {
+    case Mode::Browser:
+      TypeFilter->setCurrentIndex(2);
+      break;
+    case Mode::AssetPicker:
+    case Mode::FilePicker:
+      TypeFilter->setCurrentIndex(0);
+      break;
+  }
 }
 
 void ezQtAssetBrowserWidget::OnTextFilterChanged()
@@ -864,14 +880,17 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
     case Mode::Browser:
       m_pFilter->SetShowNonImportableFiles(index == 0);
       m_pFilter->SetShowFiles(index == 0 || index == 1);
+      ResetTypeFilter->setEnabled(index != 2);
       break;
     case Mode::AssetPicker:
       m_pFilter->SetShowNonImportableFiles(false);
       m_pFilter->SetShowFiles(false);
+      ResetTypeFilter->setEnabled(index != 0);
       break;
     case Mode::FilePicker:
       m_pFilter->SetShowNonImportableFiles(true);
       m_pFilter->SetShowFiles(true);
+      ResetTypeFilter->setEnabled(false);
       break;
   }
 
