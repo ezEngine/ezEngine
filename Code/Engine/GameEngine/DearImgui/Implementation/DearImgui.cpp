@@ -86,12 +86,12 @@ ImTextureID ezImgui::RegisterTexture(const ezTexture2DResourceHandle& hTexture)
   return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(idx));
 }
 
-void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID id, const ezVec2& uv0, const ezVec2& uv1)
+void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1)
 {
   auto& img = m_Images[sName];
-  img.m_Id = id;
-  img.m_UV0 = uv0;
-  img.m_UV1 = uv1;
+  img.m_Id = pTexId;
+  img.m_UV0 = vUv0;
+  img.m_UV1 = vUv1;
 }
 
 bool ezImgui::AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor, const ezColor& tintColor) const
@@ -136,8 +136,8 @@ bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* 
 
   ImTextureID user_texture_id = pImg->m_Id;
   const ImVec2 image_size = reinterpret_cast<const ImVec2&>(vImageSize);
-  const ImVec2 uv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
-  const ImVec2 uv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
+  const ImVec2 vUv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
+  const ImVec2 vUv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
   ImGuiID id = window->GetID(szImguiID);
 
   const ImVec2 padding = g.Style.FramePadding;
@@ -161,7 +161,7 @@ bool ezImgui::AddImageButtonWithProgress(ezTempHashedString sImgId, const char* 
   //   window->DrawList->AddRectFilled(bb.Min + padding, bb.Max - padding, ImGui::GetColorU32(bg_col));
 
   const ImVec4 tintCol = reinterpret_cast<const ImVec4&>(tintColor);
-  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, uv0, uv1, ImGui::GetColorU32(tintCol));
+  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, vUv0, vUv1, ImGui::GetColorU32(tintCol));
 
   ImVec2 min = bb.Min;
   ImVec2 max = bb.Max;
@@ -190,8 +190,8 @@ void ezImgui::AddImageWithProgress(ezTempHashedString sImgId, const char* szImgu
 
   ImTextureID user_texture_id = pImg->m_Id;
   const ImVec2 image_size = reinterpret_cast<const ImVec2&>(vImageSize);
-  const ImVec2 uv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
-  const ImVec2 uv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
+  const ImVec2 vUv0 = reinterpret_cast<const ImVec2&>(pImg->m_UV0);
+  const ImVec2 vUv1 = reinterpret_cast<const ImVec2&>(pImg->m_UV1);
   ImGuiID id = window->GetID(szImguiID);
 
   const ImVec2 padding = g.Style.FramePadding;
@@ -205,7 +205,7 @@ void ezImgui::AddImageWithProgress(ezTempHashedString sImgId, const char* szImgu
   ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
 
   const ImVec4 tintCol = reinterpret_cast<const ImVec4&>(tintColor);
-  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, uv0, uv1, ImGui::GetColorU32(tintCol));
+  window->DrawList->AddImage(user_texture_id, bb.Min + padding, bb.Max - padding, vUv0, vUv1, ImGui::GetColorU32(tintCol));
 
   ImVec2 min = bb.Min;
   ImVec2 max = bb.Max;

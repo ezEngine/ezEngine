@@ -66,7 +66,7 @@ public:
     ezVec2 m_UV1;
   };
 
-  void RegisterImage(ezTempHashedString sImgId, ImTextureID id, const ezVec2& uv0, const ezVec2& uv1);
+  void RegisterImage(ezTempHashedString sImgId, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1);
 
   bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;
 
