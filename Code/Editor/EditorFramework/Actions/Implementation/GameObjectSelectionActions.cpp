@@ -88,7 +88,6 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  // TODO const cast
   m_pSceneDocument = const_cast<ezGameObjectDocument*>(static_cast<const ezGameObjectDocument*>(context.m_pDocument));
 
   switch (m_Type)
@@ -103,10 +102,10 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(
       SetIconPath(":/EditorFramework/Icons/FocusOnSelectionAllViews.svg");
       break;
     case ActionType::SnapCameraToObject:
-      // SetIconPath(":/EditorFramework/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorFramework/Icons/SnapToCamera.svg"); // TODO Icon
       break;
     case ActionType::MoveCameraHere:
-      // SetIconPath(":/EditorFramework/Icons/Duplicate.svg"); // TODO Icon
+      SetIconPath(":/EditorFramework/Icons/MoveCameraHere.svg");
       break;
     case ActionType::CreateGameObjectHere:
       SetIconPath(":/EditorFramework/Icons/CreateEmpty.svg");

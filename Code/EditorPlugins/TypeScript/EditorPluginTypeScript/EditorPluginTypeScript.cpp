@@ -13,7 +13,6 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <PhysXCooking/PhysXCooking.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 void OnLoadPlugin()

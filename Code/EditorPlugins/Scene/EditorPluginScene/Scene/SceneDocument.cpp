@@ -188,6 +188,26 @@ void ezSceneDocument::GroupSelection()
   ShowDocumentStatus(ezFmt("Grouped {} objects", numSel));
 }
 
+void ezSceneDocument::SelectParentObject()
+{
+  const auto& Sel = GetSelectionManager()->GetSelection();
+
+  if (Sel.IsEmpty())
+    return;
+
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  const ezDocumentObject* pObject = GetObjectManager()->GetObject(Sel[0]->GetGuid());
+
+  if (pObject->GetParent() && pObject->GetParent() != GetObjectManager()->GetRootObject())
+  {
+    GetSelectionManager()->SetSelection(pObject->GetParent());
+  }
+  else
+  {
+    ShowDocumentStatus("Object has no parent.");
+  }
+}
 
 void ezSceneDocument::DuplicateSpecial()
 {

@@ -212,16 +212,30 @@ void ezQtLayerDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& op
       {
         const QRect thumbnailRect = GetVisibleIconRect(opt);
         const bool bVisible = m_pDocument->IsLayerVisible(layerGuid);
-        const QIcon::Mode mode = bVisible ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerVisible.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+
+        if (bVisible)
+        {
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/ObjectsVisible.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, QIcon::Mode::Normal);
+        }
+        else
+        {
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/ObjectsHidden.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, QIcon::Mode::Normal);
+        }
       }
 
       if (layerGuid != m_pDocument->GetGuid())
       {
         const QRect thumbnailRect = GetLoadedIconRect(opt);
         const bool bLoaded = m_pDocument->IsLayerLoaded(layerGuid);
-        const QIcon::Mode mode = bLoaded ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+
+        if (bLoaded)
+        {
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, QIcon::Mode::Normal);
+        }
+        else
+        {
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerUnloaded.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, QIcon::Mode::Normal);
+        }
       }
     }
   }

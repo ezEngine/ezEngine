@@ -166,6 +166,7 @@ Selection.DeltaTransform;Delta Transform...
 Selection.Attach;Attach to This
 Selection.Detach;Detach
 Selection.CopyReference;Copy Object Reference
+Selection.SelectParent;Select Parent Object
 
 # Profile Configs
 

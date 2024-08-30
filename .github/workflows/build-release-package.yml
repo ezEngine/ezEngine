@@ -49,6 +49,10 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Exclude Unwanted Files
+        shell: pwsh
+        run: repo\Utilities\Scripts\exclude-unwanted-files.ps1 -marker platform-windows.ez-exclude
+
       - name: Run CMake
         run: |
           cmake.exe -S repo -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_UNITTESTS:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
@@ -64,10 +68,10 @@ jobs:
           path: repo\Output\Bin\WinVs2022Dev64
           retention-days: 3
 
-      - name: Compile Shaders
-        if: github.event.inputs.compile-shaders == 'true'
-        run: |
-          repo\Output\Bin\WinVs2022Dev64\ezShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
+      # - name: Compile Shaders
+      #   if: github.event.inputs.compile-shaders == 'true'
+      #   run: |
+      #     repo\Output\Bin\WinVs2022Dev64\ezShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
 
       - name: Transform All Projects
         if: github.event.inputs.transform-projects == 'true'
@@ -79,9 +83,6 @@ jobs:
           Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
           Get-ChildItem repo\Data\Samples\* -Include Build -Recurse | Remove-Item -Recurse -Force
 
-          rm -r -fo repo\Data\Platform
-          rm -r -fo repo\Data\UnitTests
-      
       - name: Generate Package
         run: |
           mkdir _package

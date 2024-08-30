@@ -179,7 +179,6 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
 
     case ActionType::AddAmbientLight:
       SetCheckable(true);
-      // SetIconPath(":/EditorPluginScene/Icons/ShapeIcons.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetAddAmbientLight());
       break;
 
@@ -190,7 +189,6 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
 
     case ActionType::PickTransparent:
       SetCheckable(true);
-      // SetIconPath(":/EditorFramework/Icons/Visualizers.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetPickTransparent());
       break;
   }

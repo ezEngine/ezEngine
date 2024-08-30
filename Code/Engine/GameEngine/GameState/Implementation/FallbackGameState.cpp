@@ -16,10 +16,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezFallbackGameState::ezFallbackGameState()
-{
-  m_iActiveCameraComponentIndex = -3;
-}
+ezFallbackGameState::ezFallbackGameState() = default;
 
 void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
@@ -47,6 +44,8 @@ void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosit
 
     if (sScenePath.IsEmpty())
     {
+      SwitchToLoadingScreen("");
+
       m_bShowMenu = true;
       m_State = State::NoScene;
     }
@@ -61,6 +60,8 @@ bool ezFallbackGameState::IsFallbackGameState() const
 
 ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
+  m_iActiveCameraComponentIndex = -3;
+
   if (SUPER::SpawnPlayer(sStartPosition, startPositionOffset).Succeeded())
     return EZ_SUCCESS;
 
@@ -223,6 +224,7 @@ void ezFallbackGameState::ProcessInput()
     }
   }
 
+  if (m_pMainWorld)
   {
     EZ_LOCK(m_pMainWorld->GetReadMarker());
 
@@ -271,6 +273,9 @@ void ezFallbackGameState::ProcessInput()
 
 void ezFallbackGameState::ConfigureMainCamera()
 {
+  if (!m_pMainWorld)
+    return;
+
   EZ_LOCK(m_pMainWorld->GetReadMarker());
 
   // Update the camera transform after world update so the owner node has its final position for this frame.

@@ -176,6 +176,8 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
     tmp.ToLower();
     m_FileExtensions.Insert(tmp);
   }
+
+  Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
@@ -257,9 +259,9 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       return true;
     }
   }
-  else if(m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
+  else if (m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
   {
-    if(!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
+    if (!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
     {
       return true;
     }

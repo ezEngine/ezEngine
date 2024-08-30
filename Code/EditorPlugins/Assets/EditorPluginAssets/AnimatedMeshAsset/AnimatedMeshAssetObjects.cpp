@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezAnimatedMeshAssetProperties>)
@@ -30,3 +31,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimatedMeshAssetProperties::ezAnimatedMeshAssetProperties() = default;
 ezAnimatedMeshAssetProperties::~ezAnimatedMeshAssetProperties() = default;
+
+void ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezAnimatedMeshAssetProperties>())
+  {
+    const bool bSimplify = e.m_pObject->GetTypeAccessor().GetValue("SimplifyMesh").ConvertTo<bool>();
+
+    auto& props = *e.m_pPropertyStates;
+
+    props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+}

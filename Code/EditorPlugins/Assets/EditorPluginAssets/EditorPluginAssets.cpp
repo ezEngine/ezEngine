@@ -10,6 +10,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/Dialogs/ShaderTemplateDlg.moc.h>
@@ -319,6 +320,8 @@ static void ConfigureSkeletonAsset()
 
 static void ConfigureAnimatedMeshAsset()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler);
+
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("AnimatedMeshAssetMenuBar", "AssetMenuBar");
@@ -450,6 +453,7 @@ void OnUnloadPlugin()
   ezMaterialAssetActions::UnregisterActions();
   ezSkeletonActions::UnregisterActions();
 
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezDecalAssetProperties::PropertyMetaStateEventHandler);

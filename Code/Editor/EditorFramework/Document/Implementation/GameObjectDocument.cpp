@@ -308,10 +308,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
     for (auto pProperty : properties)
     {
+      const auto type = pProperty->GetSpecificType();
+
       // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most
       // relevant property
-      if (
-        (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() || pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+      if ((type == ezGetStaticRTTI<const char*>() || type == ezGetStaticRTTI<ezString>() || type == ezGetStaticRTTI<ezStringView>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
       {
         ezStringBuilder sValue;
         if (pProperty->GetCategory() == ezPropertyCategory::Member)
