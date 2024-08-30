@@ -25,25 +25,22 @@ namespace ezRmlUiInternal
     }
   }
 
-  void Extractor::RenderGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle hTexture, const Rml::Vector2f& translation)
+  Rml::CompiledGeometryHandle Extractor::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
   {
-    // Should never be called since we are using compiled geometry
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+    const ezUInt32 uiNumVertices = static_cast<ezUInt32>(vertices.size());
+    const ezUInt32 uiNumIndices = static_cast<ezUInt32>(indices.size());
 
-  Rml::CompiledGeometryHandle Extractor::CompileGeometry(Rml::Vertex* pVertices, int iNum_vertices, int* pIndices, int iNum_indices, Rml::TextureHandle hTexture)
-  {
     CompiledGeometry geometry;
-    geometry.m_uiTriangleCount = iNum_indices / 3;
+    geometry.m_uiTriangleCount = uiNumIndices / 3;
 
     // vertices
     {
       ezDynamicArray<Vertex> vertexStorage(ezFrameAllocator::GetCurrentAllocator());
-      vertexStorage.SetCountUninitialized(iNum_vertices);
+      vertexStorage.SetCountUninitialized(uiNumVertices);
 
       for (ezUInt32 i = 0; i < vertexStorage.GetCount(); ++i)
       {
-        auto& srcVertex = pVertices[i];
+        auto& srcVertex = vertices[i];
         auto& destVertex = vertexStorage[i];
         destVertex.m_Position = ezVec3(srcVertex.position.x, srcVertex.position.y, 0);
         destVertex.m_TexCoord = ezVec2(srcVertex.tex_coord.x, srcVertex.tex_coord.y);
@@ -62,33 +59,30 @@ namespace ezRmlUiInternal
     {
       ezGALBufferCreationDescription desc;
       desc.m_uiStructSize = sizeof(ezUInt32);
-      desc.m_uiTotalSize = iNum_indices * desc.m_uiStructSize;
+      desc.m_uiTotalSize = uiNumIndices * desc.m_uiStructSize;
       desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
 
-      geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(pIndices, iNum_indices).ToByteArray());
-    }
-
-    // texture
-    {
-      ezTexture2DResourceHandle* phTexture = nullptr;
-      if (m_Textures.TryGetValue(TextureId::FromRml(hTexture), phTexture))
-      {
-        geometry.m_hTexture = *phTexture;
-      }
-      else
-      {
-        geometry.m_hTexture = m_hFallbackTexture;
-      }
+      geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(indices.data(), uiNumIndices).ToByteArray());
     }
 
     return m_CompiledGeometry.Insert(std::move(geometry)).ToRml();
   }
 
-  void Extractor::RenderCompiledGeometry(Rml::CompiledGeometryHandle hGeometry_handle, const Rml::Vector2f& translation)
+  void Extractor::RenderGeometry(Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture)
   {
     auto& batch = m_Batches.ExpandAndGetRef();
 
-    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(hGeometry_handle), batch.m_CompiledGeometry), "Invalid compiled geometry");
+    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(hGeometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
+
+    ezTexture2DResourceHandle* phTexture = nullptr;
+    if (m_Textures.TryGetValue(TextureId::FromRml(hTexture), phTexture))
+    {
+      batch.m_hTexture = *phTexture;
+    }
+    else
+    {
+      batch.m_hTexture = m_hFallbackTexture;
+    }
 
     ezMat4 offsetMat = ezMat4::MakeTranslation(m_vOffset.GetAsVec3(0));
 
@@ -106,44 +100,34 @@ namespace ezRmlUiInternal
     }
   }
 
-  void Extractor::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle hGeometry_handle)
+  void Extractor::ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry)
   {
-    m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(hGeometry_handle)});
+    m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(hGeometry)});
   }
 
-  void Extractor::EnableScissorRegion(bool bEnable)
-  {
-    m_bEnableScissorRect = bEnable;
-  }
-
-  void Extractor::SetScissorRegion(int x, int y, int iWidth, int iHeight)
-  {
-    m_ScissorRect = ezRectFloat(static_cast<float>(x), static_cast<float>(y), static_cast<float>(iWidth), static_cast<float>(iHeight));
-  }
-
-  bool Extractor::LoadTexture(Rml::TextureHandle& ref_hTexture_handle, Rml::Vector2i& ref_texture_dimensions, const Rml::String& sSource)
+  Rml::TextureHandle Extractor::LoadTexture(Rml::Vector2i& out_textureSize, const Rml::String& sSource)
   {
     ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sSource.c_str());
 
     ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::BlockTillLoaded);
     if (pTexture.GetAcquireResult() == ezResourceAcquireResult::Final)
     {
-      ref_hTexture_handle = m_Textures.Insert(hTexture).ToRml();
-      ref_texture_dimensions = Rml::Vector2i(pTexture->GetWidth(), pTexture->GetHeight());
+      out_textureSize = Rml::Vector2i(pTexture->GetWidth(), pTexture->GetHeight());
 
-      return true;
+      return m_Textures.Insert(hTexture).ToRml();
     }
 
-    return false;
+    return ezRmlUiInternal::TextureId().ToRml();
   }
 
-  bool Extractor::GenerateTexture(Rml::TextureHandle& ref_hTexture_handle, const Rml::byte* pSource, const Rml::Vector2i& source_dimensions)
+  Rml::TextureHandle Extractor::GenerateTexture(Rml::Span<const Rml::byte> source, Rml::Vector2i sourceSize)
   {
-    ezUInt32 uiWidth = source_dimensions.x;
-    ezUInt32 uiHeight = source_dimensions.y;
+    ezUInt32 uiWidth = sourceSize.x;
+    ezUInt32 uiHeight = sourceSize.y;
     ezUInt32 uiSizeInBytes = uiWidth * uiHeight * 4;
+    EZ_ASSERT_DEV(uiSizeInBytes == source.size(), "Invalid source size");
 
-    ezUInt64 uiHash = ezHashingUtils::xxHash64(pSource, uiSizeInBytes);
+    ezUInt64 uiHash = ezHashingUtils::xxHash64(source.data(), uiSizeInBytes);
 
     ezStringBuilder sTextureName;
     sTextureName.SetFormat("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
@@ -166,13 +150,26 @@ namespace ezRmlUiInternal
       hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
     }
 
-    ref_hTexture_handle = m_Textures.Insert(hTexture).ToRml();
-    return true;
+    return m_Textures.Insert(hTexture).ToRml();
   }
 
-  void Extractor::ReleaseTexture(Rml::TextureHandle hTexture_handle)
+  void Extractor::ReleaseTexture(Rml::TextureHandle hTexture)
   {
-    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(hTexture_handle)), "Invalid texture handle");
+    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(hTexture)), "Invalid texture handle");
+  }
+
+  void Extractor::EnableScissorRegion(bool bEnable)
+  {
+    m_bEnableScissorRect = bEnable;
+  }
+
+  void Extractor::SetScissorRegion(Rml::Rectanglei region)
+  {
+    m_ScissorRect = ezRectFloat(
+      static_cast<float>(region.Left()),
+      static_cast<float>(region.Top()),
+      static_cast<float>(region.Width()),
+      static_cast<float>(region.Height()));
   }
 
   void Extractor::SetTransform(const Rml::Matrix4f* pTransform)
@@ -249,8 +246,6 @@ namespace ezRmlUiInternal
 
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
     pGeometry->m_hIndexBuffer.Invalidate();
-
-    pGeometry->m_hTexture.Invalidate();
   }
 
 } // namespace ezRmlUiInternal

@@ -131,7 +131,7 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
       pRenderContext->BindMeshBuffer(rmlUiBatch.m_CompiledGeometry.m_hVertexBuffer, rmlUiBatch.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, rmlUiBatch.m_CompiledGeometry.m_uiTriangleCount);
 
-      pRenderContext->BindTexture2D("BaseTexture", rmlUiBatch.m_CompiledGeometry.m_hTexture);
+      pRenderContext->BindTexture2D("BaseTexture", rmlUiBatch.m_hTexture);
 
       pRenderContext->DrawMeshBuffer().IgnoreResult();
     }

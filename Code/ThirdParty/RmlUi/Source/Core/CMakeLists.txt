@@ -19,6 +19,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC RMLUI_CUSTOM_RTTI)
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../../Include")
 
 # Freetype
+target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_FONT_ENGINE_FREETYPE)
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
   set(RMLUI_FREETYPE_PATH ${EZ_ROOT}/Code/ThirdParty/RmlUi/Dependencies/freetype)
