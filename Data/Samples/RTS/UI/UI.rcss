@@ -47,8 +47,9 @@ input.radio
 {
   width: 16dp;
   height: 16dp;
-  margin-bottom: 4dp;
+  margin: 3dp 0 3dp 0;
   border: 1px white;
+  vertical-align: center;
 }
 
 input.radio:checked
