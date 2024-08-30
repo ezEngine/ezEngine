@@ -60,8 +60,8 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normalon>:/EditorFramework/Icons/ObjectsHidden.svg</normalon>
-             <normaloff>:/EditorFramework/Icons/ObjectsVisible.svg</normaloff>
+             <normalon>:/EditorFramework/Icons/ObjectsVisible.svg</normalon>
+             <normaloff>:/EditorFramework/Icons/ObjectsHidden.svg</normaloff>
             </iconset>
            </property>
            <property name="checkable">
@@ -151,7 +151,8 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/ListView.svg</normaloff>:/EditorFramework/Icons/ListView.svg</iconset>
+             <normaloff>:/EditorFramework/Icons/ListView.svg</normaloff>:/EditorFramework/Icons/ListView.svg
+            </iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -168,7 +169,8 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/IconView.svg</normaloff>:/EditorFramework/Icons/IconView.svg</iconset>
+             <normaloff>:/EditorFramework/Icons/IconView.svg</normaloff>:/EditorFramework/Icons/IconView.svg
+            </iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
