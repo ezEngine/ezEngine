@@ -20,8 +20,8 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
-ezRmlUiContext::ezRmlUiContext(const Rml::String& sName)
-  : Rml::Context(sName)
+ezRmlUiContext::ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* render_manager, Rml::TextInputHandler* text_input_handler)
+  : Rml::Context(sName, render_manager, text_input_handler)
 {
 }
 
@@ -219,9 +219,9 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event&
 
 //////////////////////////////////////////////////////////////////////////
 
-Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName)
+Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName, Rml::RenderManager* render_manager, Rml::TextInputHandler* text_input_handler)
 {
-  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName));
+  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName, render_manager, text_input_handler));
 }
 
 void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* pContext)

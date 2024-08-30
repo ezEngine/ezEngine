@@ -9,7 +9,7 @@ RMLUI_MODE
 
 BlendingEnabled0 = true
 DestBlend0 = Blend_InvSrcAlpha
-SourceBlend0 = Blend_SrcAlpha
+SourceBlend0 = Blend_One
 ScissorTest = true
 DepthTest = false
 DepthWrite = false

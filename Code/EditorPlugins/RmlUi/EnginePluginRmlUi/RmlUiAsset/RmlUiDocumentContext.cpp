@@ -1,7 +1,7 @@
 #include <EnginePluginRmlUi/EnginePluginRmlUiPCH.h>
 
-#include <EnginePluginRmlUi/RmlUiAsset/RmlUiContext.h>
-#include <EnginePluginRmlUi/RmlUiAsset/RmlUiView.h>
+#include <EnginePluginRmlUi/RmlUiAsset/RmlUiDocumentContext.h>
+#include <EnginePluginRmlUi/RmlUiAsset/RmlUiViewContext.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 // clang-format off

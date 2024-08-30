@@ -1,7 +1,7 @@
 #include <EnginePluginRmlUi/EnginePluginRmlUiPCH.h>
 
-#include <EnginePluginRmlUi/RmlUiAsset/RmlUiContext.h>
-#include <EnginePluginRmlUi/RmlUiAsset/RmlUiView.h>
+#include <EnginePluginRmlUi/RmlUiAsset/RmlUiDocumentContext.h>
+#include <EnginePluginRmlUi/RmlUiAsset/RmlUiViewContext.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 

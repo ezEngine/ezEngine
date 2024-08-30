@@ -22,7 +22,6 @@ namespace ezRmlUiInternal
     ezUInt32 m_uiTriangleCount = 0;
     ezGALBufferHandle m_hVertexBuffer;
     ezGALBufferHandle m_hIndexBuffer;
-    ezTexture2DResourceHandle m_hTexture;
   };
 
   struct Batch
@@ -30,6 +29,7 @@ namespace ezRmlUiInternal
     ezMat4 m_Transform = ezMat4::MakeIdentity();
     ezVec2 m_Translation = ezVec2(0);
     CompiledGeometry m_CompiledGeometry;
+    ezTexture2DResourceHandle m_hTexture;
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
     bool m_bEnableScissorRect = false;
     bool m_bTransformScissorRect = false;
