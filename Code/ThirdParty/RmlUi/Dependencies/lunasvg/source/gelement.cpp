@@ -1,28 +1,24 @@
 #include "gelement.h"
 #include "layoutcontext.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
 GElement::GElement()
-    : GraphicsElement(ElementId::G)
+    : GraphicsElement(ElementID::G)
 {
 }
 
-void GElement::layout(LayoutContext* context, LayoutContainer* current) const
+void GElement::layout(LayoutContext* context, LayoutContainer* current)
 {
     if(isDisplayNone())
         return;
-
-    auto group = std::make_unique<LayoutGroup>();
+    auto group = makeUnique<LayoutGroup>(this);
     group->transform = transform();
     group->opacity = opacity();
     group->masker = context->getMasker(mask());
     group->clipper = context->getClipper(clip_path());
     layoutChildren(context, group.get());
-    current->addChild(std::move(group));
+    current->addChildIfNotEmpty(std::move(group));
 }
 
-std::unique_ptr<Node> GElement::clone() const
-{
-    return cloneElement<GElement>();
-}
+} // namespace lunasvg

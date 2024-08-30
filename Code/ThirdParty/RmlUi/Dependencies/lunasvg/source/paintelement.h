@@ -6,20 +6,19 @@
 
 namespace lunasvg {
 
-class LayoutPaint;
+class LayoutObject;
 
-class PaintElement : public StyledElement
-{
+class PaintElement : public StyledElement {
 public:
-    PaintElement(ElementId id);
+    PaintElement(ElementID id);
 
-    virtual std::unique_ptr<LayoutPaint> getPainter(LayoutContext* context) const = 0;
+    bool isPaint() const final { return true; }
+    virtual std::unique_ptr<LayoutObject> getPainter(LayoutContext* context) = 0;
 };
 
-class GradientElement : public PaintElement
-{
+class GradientElement : public PaintElement {
 public:
-    GradientElement(ElementId id);
+    GradientElement(ElementID id);
 
     Transform gradientTransform() const;
     SpreadMethod spreadMethod() const;
@@ -28,8 +27,7 @@ public:
     GradientStops buildGradientStops() const;
 };
 
-class LinearGradientElement : public GradientElement
-{
+class LinearGradientElement final : public GradientElement {
 public:
     LinearGradientElement();
 
@@ -38,12 +36,10 @@ public:
     Length x2() const;
     Length y2() const;
 
-    std::unique_ptr<LayoutPaint> getPainter(LayoutContext* context) const;
-    std::unique_ptr<Node> clone() const;
+    std::unique_ptr<LayoutObject> getPainter(LayoutContext* context) final;
 };
 
-class RadialGradientElement : public GradientElement
-{
+class RadialGradientElement final : public GradientElement {
 public:
     RadialGradientElement();
 
@@ -53,12 +49,10 @@ public:
     Length fx() const;
     Length fy() const;
 
-    std::unique_ptr<LayoutPaint> getPainter(LayoutContext* context) const;
-    std::unique_ptr<Node> clone() const;
+    std::unique_ptr<LayoutObject> getPainter(LayoutContext* context) final;
 };
 
-class PatternElement : public PaintElement
-{
+class PatternElement final : public PaintElement {
 public:
     PatternElement();
 
@@ -74,21 +68,17 @@ public:
     PreserveAspectRatio preserveAspectRatio() const;
     std::string href() const;
 
-    std::unique_ptr<LayoutPaint> getPainter(LayoutContext* context) const;
-    std::unique_ptr<Node> clone() const;
+    std::unique_ptr<LayoutObject> getPainter(LayoutContext* context) final;
 };
 
-class SolidColorElement : public PaintElement
-{
+class SolidColorElement final : public PaintElement {
 public:
     SolidColorElement();
 
-    std::unique_ptr<LayoutPaint> getPainter(LayoutContext*) const;
-    std::unique_ptr<Node> clone() const;
+    std::unique_ptr<LayoutObject> getPainter(LayoutContext*) final;
 };
 
-class GradientAttributes
-{
+class GradientAttributes {
 public:
     GradientAttributes() = default;
 
@@ -102,26 +92,22 @@ public:
     bool hasGradientUnits() const { return m_hasGradientUnits; }
     bool hasGradientStops() const { return m_hasGradientStops; }
 
-    void setGradientTransform(const Transform& gradientTransform)
-    {
+    void setGradientTransform(const Transform& gradientTransform) {
         m_gradientTransform = gradientTransform;
         m_hasGradientTransform = true;
     }
 
-    void setSpreadMethod(SpreadMethod spreadMethod)
-    {
+    void setSpreadMethod(SpreadMethod spreadMethod) {
         m_spreadMethod = spreadMethod;
         m_hasSpreadMethod = true;
     }
 
-    void setGradientUnits(Units gradientUnits)
-    {
+    void setGradientUnits(Units gradientUnits) {
         m_gradientUnits = gradientUnits;
         m_hasGradientUnits = true;
     }
 
-    void setGradientStops(const GradientStops& gradientStops)
-    {
+    void setGradientStops(const GradientStops& gradientStops) {
         m_gradientStops = gradientStops;
         m_hasGradientStops = gradientStops.size();
     }
@@ -138,8 +124,7 @@ private:
     bool m_hasGradientStops{false};
 };
 
-class LinearGradientAttributes : public GradientAttributes
-{
+class LinearGradientAttributes : public GradientAttributes {
 public:
     LinearGradientAttributes() = default;
 
@@ -153,26 +138,22 @@ public:
     bool hasX2() const { return m_hasX2; }
     bool hasY2() const { return m_hasY2; }
 
-    void setX1(const Length& x1)
-    {
+    void setX1(const Length& x1) {
         m_x1 = x1;
         m_hasX1 = true;
     }
 
-    void setY1(const Length& y1)
-    {
+    void setY1(const Length& y1) {
         m_y1 = y1;
         m_hasY1 = true;
     }
 
-    void setX2(const Length& x2)
-    {
+    void setX2(const Length& x2) {
         m_x2 = x2;
         m_hasX2 = true;
     }
 
-    void setY2(const Length& y2)
-    {
+    void setY2(const Length& y2) {
         m_y2 = y2;
         m_hasY2 = true;
     }
@@ -189,8 +170,7 @@ private:
     bool m_hasY2{false};
 };
 
-class RadialGradientAttributes : public GradientAttributes
-{
+class RadialGradientAttributes : public GradientAttributes {
 public:
     RadialGradientAttributes() = default;
 
@@ -206,32 +186,27 @@ public:
     bool hasFx() const { return m_hasFx; }
     bool hasFy() const { return m_hasFy; }
 
-    void setCx(const Length& cx)
-    {
+    void setCx(const Length& cx) {
         m_cx = cx;
         m_hasCx = true;
     }
 
-    void setCy(const Length& cy)
-    {
+    void setCy(const Length& cy) {
         m_cy = cy;
         m_hasCy = true;
     }
 
-    void setR(const Length& r)
-    {
+    void setR(const Length& r) {
         m_r = r;
         m_hasR = true;
     }
 
-    void setFx(const Length& fx)
-    {
+    void setFx(const Length& fx) {
         m_fx = fx;
         m_hasFx = true;
     }
 
-    void setFy(const Length& fy)
-    {
+    void setFy(const Length& fy) {
         m_fy = fy;
         m_hasFy = true;
     }
@@ -251,8 +226,7 @@ private:
     bool m_hasFy{false};
 };
 
-class PatternAttributes
-{
+class PatternAttributes {
 public:
     PatternAttributes() = default;
 
@@ -265,7 +239,7 @@ public:
     Units patternContentUnits() const { return m_patternContentUnits; }
     const Rect& viewBox() const { return m_viewBox; }
     const PreserveAspectRatio& preserveAspectRatio() const { return m_preserveAspectRatio; }
-    const PatternElement* patternContentElement() const { return m_patternContentElement; }
+    PatternElement* patternContentElement() const { return m_patternContentElement; }
 
     bool hasX() const { return m_hasX; }
     bool hasY() const { return m_hasY; }
@@ -278,62 +252,52 @@ public:
     bool hasPreserveAspectRatio() const { return m_hasPreserveAspectRatio; }
     bool hasPatternContentElement() const { return m_hasPatternContentElement; }
 
-    void setX(const Length& x)
-    {
+    void setX(const Length& x) {
         m_x = x;
         m_hasX = true;
     }
 
-    void setY(const Length& y)
-    {
+    void setY(const Length& y) {
         m_y = y;
         m_hasY = true;
     }
 
-    void setWidth(const Length& width)
-    {
+    void setWidth(const Length& width) {
         m_width = width;
         m_hasWidth = true;
     }
 
-    void setHeight(const Length& height)
-    {
+    void setHeight(const Length& height) {
         m_height = height;
         m_hasHeight = true;
     }
 
-    void setPatternTransform(const Transform& patternTransform)
-    {
+    void setPatternTransform(const Transform& patternTransform) {
         m_patternTransform = patternTransform;
         m_hasPatternTransform = true;
     }
 
-    void setPatternUnits(Units patternUnits)
-    {
+    void setPatternUnits(Units patternUnits) {
         m_patternUnits = patternUnits;
         m_hasPatternUnits = true;
     }
 
-    void setPatternContentUnits(Units patternContentUnits)
-    {
+    void setPatternContentUnits(Units patternContentUnits) {
         m_patternContentUnits = patternContentUnits;
         m_hasPatternContentUnits = true;
     }
 
-    void setViewBox(const Rect& viewBox)
-    {
+    void setViewBox(const Rect& viewBox) {
         m_viewBox = viewBox;
         m_hasViewBox = true;
     }
 
-    void setPreserveAspectRatio(const PreserveAspectRatio& preserveAspectRatio)
-    {
+    void setPreserveAspectRatio(const PreserveAspectRatio& preserveAspectRatio) {
         m_preserveAspectRatio = preserveAspectRatio;
         m_hasPreserveAspectRatio = true;
     }
 
-    void setPatternContentElement(const PatternElement* patternContentElement)
-    {
+    void setPatternContentElement(PatternElement* patternContentElement) {
         m_patternContentElement = patternContentElement;
         m_hasPatternContentElement = true;
     }
@@ -346,9 +310,9 @@ private:
     Transform m_patternTransform;
     Units m_patternUnits{Units::ObjectBoundingBox};
     Units m_patternContentUnits{Units::UserSpaceOnUse};
-    Rect m_viewBox;
+    Rect m_viewBox{Rect::Invalid};
     PreserveAspectRatio m_preserveAspectRatio;
-    const PatternElement* m_patternContentElement{nullptr};
+    PatternElement* m_patternContentElement{nullptr};
 
     bool m_hasX{false};
     bool m_hasY{false};

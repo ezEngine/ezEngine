@@ -5,12 +5,9 @@
 
 namespace lunasvg {
 
-class DefsElement : public GraphicsElement
-{
+class DefsElement final : public GraphicsElement {
 public:
     DefsElement();
-
-    std::unique_ptr<Node> clone() const;
 };
 
 } // namespace lunasvg

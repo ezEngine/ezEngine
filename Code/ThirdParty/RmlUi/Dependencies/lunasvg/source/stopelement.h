@@ -5,15 +5,12 @@
 
 namespace lunasvg {
 
-class StopElement : public StyledElement
-{
+class StopElement final : public StyledElement {
 public:
     StopElement();
 
     double offset() const;
     Color stopColorWithOpacity() const;
-
-    std::unique_ptr<Node> clone() const;
 };
 
 } // namespace lunasvg

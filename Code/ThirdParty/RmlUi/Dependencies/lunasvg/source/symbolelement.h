@@ -5,15 +5,16 @@
 
 namespace lunasvg {
 
-class SymbolElement : public StyledElement
-{
+class SymbolElement final : public StyledElement {
 public:
     SymbolElement();
 
+    Length x() const;
+    Length y() const;
+    Length width() const;
+    Length height() const;
     Rect viewBox() const;
     PreserveAspectRatio preserveAspectRatio() const;
-
-    std::unique_ptr<Node> clone() const;
 };
 
 } // namespace lunasvg

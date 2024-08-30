@@ -1,30 +1,24 @@
 #include "stopelement.h"
 #include "parser.h"
 
-using namespace lunasvg;
+namespace lunasvg {
 
 StopElement::StopElement()
-    : StyledElement(ElementId::Stop)
+    : StyledElement(ElementID::Stop)
 {
 }
 
 double StopElement::offset() const
 {
-    auto& value = get(PropertyId::Offset);
-    if(value.empty())
-        return 1.0;
-
-    return Parser::parseNumberPercentage(value);
+    auto& value = get(PropertyID::Offset);
+    return Parser::parseNumberPercentage(value, 0.0);
 }
 
 Color StopElement::stopColorWithOpacity() const
 {
     auto color = stop_color();
-    color.a = stop_opacity();
+    color.combine(stop_opacity());
     return color;
 }
 
-std::unique_ptr<Node> StopElement::clone() const
-{
-    return cloneElement<StopElement>();
-}
+} // namespace lunasvg
