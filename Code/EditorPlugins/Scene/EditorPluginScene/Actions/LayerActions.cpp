@@ -153,7 +153,11 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
   }
 
   pSceneDocument->SetLayerLoaded(layerGuid, bLoad).LogFailure();
-  pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
+
+  if (bLoad)
+  {
+    pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
+  }
 }
 
 void ezLayerAction::Execute(const ezVariant& value)

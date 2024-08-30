@@ -33,6 +33,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hDetachFromParent;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEnginePrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEditorPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hCopyReference;
+ezActionDescriptorHandle ezSelectionActions::s_hSelectParent;
 
 
 
@@ -42,6 +43,8 @@ void ezSelectionActions::RegisterActions()
     ezSelectionAction::ActionType::GroupSelectedItems);
   s_hCreateEmptyChildObject = EZ_REGISTER_ACTION_1("Selection.CreateEmptyChildObject", ezActionScope::Document, "Scene - Selection", "",
     ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyChildObject);
+  s_hSelectParent = EZ_REGISTER_ACTION_1("Selection.SelectParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Q",
+    ezSelectionAction, ezSelectionAction::ActionType::SelectParent);
   s_hCreateEmptyObjectAtPosition = EZ_REGISTER_ACTION_1("Selection.CreateEmptyObjectAtPosition", ezActionScope::Document, "Scene - Selection",
     "Ctrl+Shift+X", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyObjectAtPosition);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1(
@@ -100,6 +103,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hConvertToEditorPrefab);
   ezActionManager::UnregisterAction(s_hConvertToEnginePrefab);
   ezActionManager::UnregisterAction(s_hCopyReference);
+  ezActionManager::UnregisterAction(s_hSelectParent);
 }
 
 void ezSelectionActions::MapActions(ezStringView sMapping)
@@ -110,6 +114,7 @@ void ezSelectionActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 1.0f);
   pMap->MapAction(s_hCreateEmptyObjectAtPosition, "G.Selection", 1.1f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 3.7f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 3.8f);
   pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, "G.Selection", 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, "G.Selection", 6.0f);
@@ -145,6 +150,7 @@ void ezSelectionActions::MapContextMenuActions(ezStringView sMapping)
 
   pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 0.5f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 2.5f);
   pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
   pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
   pMap->MapAction(s_hCopyReference, "G.Selection", 4.0f);
@@ -159,6 +165,7 @@ void ezSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 2.5f);
   pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
   pMap->MapAction(s_hAttachToObject, "G.Selection", 3.1f);
   pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
@@ -211,25 +218,28 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg");
       break;
     case ActionType::DeltaTransform:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/DeltaTransform.svg"); // TODO Icon
       break;
     case ActionType::SnapObjectToCamera:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/SnapToCamera.svg"); // TODO Icon
       break;
     case ActionType::AttachToObject:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Attach.svg"); // TODO Icon
       break;
     case ActionType::DetachFromParent:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Detach.svg"); // TODO Icon
       break;
     case ActionType::ConvertToEditorPrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEditorPrefab.png"); // TODO Icon
       break;
     case ActionType::ConvertToEnginePrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEnginePrefab.png"); // TODO Icon
       break;
     case ActionType::CopyReference:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      SetIconPath(":/EditorFramework/Icons/id.svg");
+      break;
+    case ActionType::SelectParent:
+      SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg");
       break;
   }
 
@@ -381,6 +391,12 @@ void ezSelectionAction::Execute(const ezVariant& value)
       }
     }
     break;
+
+    case ActionType::SelectParent:
+    {
+      m_pSceneDocument->SelectParentObject();
+      return;
+    }
   }
 }
 
@@ -471,6 +487,11 @@ void ezSelectionAction::UpdateEnableState()
   }
 
   if (m_Type == ActionType::CopyReference)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
+  }
+
+  if (m_Type == ActionType::SelectParent)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
   }

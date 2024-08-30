@@ -702,6 +702,13 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
+    // if this assert triggers because of a stringview, check the caller and make sure to copy the stringview into a string first
+    // something like this:
+    // const ezVariantType::Enum storageType = ezToolsReflectionUtils::GetStorageType(pProp);
+    // if (op.m_Value.GetType() != storageType)
+    //{
+    //  op.m_Value = op.m_Value.ConvertTo(storageType);
+    //}
     EZ_ASSERT_DEBUG(m_NewValue.GetType() != ezVariantType::StringView && m_NewValue.GetType() != ezVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
 
     if (m_Object.IsValid())

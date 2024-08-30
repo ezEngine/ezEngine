@@ -203,10 +203,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezManipulatorScaleGizmo::ezManipulatorScaleGizmo()
 {
+  const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+  const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+  const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
+
   // Overwrite axis to be boxes.
-  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 }
 
 void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transform)

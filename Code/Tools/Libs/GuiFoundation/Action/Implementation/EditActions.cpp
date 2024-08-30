@@ -110,7 +110,7 @@ ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, B
       SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
     case ezEditAction::ButtonType::PasteAsChild:
-      SetIconPath(":/GuiFoundation/Icons/Paste.svg"); /// \todo Icon
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg"); /// TODO Icon
       break;
     case ezEditAction::ButtonType::PasteAtOriginalLocation:
       SetIconPath(":/GuiFoundation/Icons/Paste.svg");

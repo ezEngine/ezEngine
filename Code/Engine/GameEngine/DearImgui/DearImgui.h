@@ -57,6 +57,25 @@ public:
   /// \brief Returns the shared font atlas
   ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
 
+  ImTextureID RegisterTexture(const ezTexture2DResourceHandle& hTexture);
+
+  struct Image
+  {
+    ImTextureID m_Id;
+    ezVec2 m_UV0;
+    ezVec2 m_UV1;
+  };
+
+  void RegisterImage(ezTempHashedString sImgId, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1);
+
+  bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;
+
+  void AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor = ezColor::White, const ezColor& borderColor = ezColor::MakeZero()) const;
+
+  bool AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
+
+  void AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
+
 private:
   friend class ezImguiExtractor;
   friend class ezImguiRenderer;
@@ -87,6 +106,7 @@ private:
 
   ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
+  ezHashTable<ezTempHashedString, Image> m_Images;
 };
 
 #endif
