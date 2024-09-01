@@ -21,7 +21,7 @@ export class ShootingStar2 extends ez.TypescriptComponent {
 
         if (!this.ragdollFinished) {
             
-            var col = this.GetOwner().TryGetComponentOfBaseType(ez.JoltBoneColliderComponent);
+            var col = this.GetOwner().TryGetComponentOfBaseType(ez.JoltHitboxComponent);
             
             if (col != null) {
                 // if present, deactivate the bone collider component, it isn't needed anymore
