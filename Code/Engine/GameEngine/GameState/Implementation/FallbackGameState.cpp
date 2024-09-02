@@ -67,8 +67,6 @@ ezResult ezFallbackGameState::SpawnPlayer(ezStringView sStartPosition, const ezT
 
   if (m_pMainWorld)
   {
-    m_iActiveCameraComponentIndex = -1; // set free camera
-
     // TODO: find sStartPosition as base location
 
     m_MainCamera.LookAt(startPositionOffset.m_vPosition, startPositionOffset.m_vPosition + startPositionOffset.m_qRotation * ezVec3(1, 0, 0),
