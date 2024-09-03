@@ -212,4 +212,3 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_FillLightComponent);
-

@@ -175,5 +175,3 @@ bool ezIntersectionUtils::IsPointOnLine(const ezVec3& vLineStart, const ezVec3& 
 
   return (fClosestDistSqr <= fMaxDist * fMaxDist);
 }
-
-

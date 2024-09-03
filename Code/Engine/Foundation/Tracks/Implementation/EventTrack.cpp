@@ -211,5 +211,3 @@ void ezEventTrack::Load(ezStreamReader& inout_stream)
     inout_stream >> cp.m_uiEvent;
   }
 }
-
-

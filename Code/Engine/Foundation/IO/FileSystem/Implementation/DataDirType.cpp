@@ -39,5 +39,3 @@ void ezDataDirectoryReaderWriterBase::Close()
 
   m_pDataDirType->OnReaderWriterClose(this);
 }
-
-

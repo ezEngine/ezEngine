@@ -1046,5 +1046,3 @@ bool ezGALCommandEncoderImplDX11::UnsetResourceViews(const ezGALResourceBase* pR
 
   return bResult;
 }
-
-

@@ -363,5 +363,3 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 /// \endcond
 
 #endif
-
-

@@ -217,5 +217,3 @@ ezUInt64 ezHashingUtils::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt6
 {
   return XXH64(pKey, uiSizeInByte, uiSeed);
 }
-
-

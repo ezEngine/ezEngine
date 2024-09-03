@@ -785,5 +785,3 @@ void ezWorldReader::InstantiationContext::SetSubProgressCompletion(double fCompl
     m_pSubProgressRange->SetCompletion(fCompletion);
   }
 }
-
-

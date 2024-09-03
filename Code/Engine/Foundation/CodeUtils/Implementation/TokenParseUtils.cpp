@@ -257,5 +257,3 @@ namespace ezTokenParseUtils
     }
   }
 } // namespace ezTokenParseUtils
-
-

@@ -170,5 +170,3 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
 }
 
 #endif
-
-

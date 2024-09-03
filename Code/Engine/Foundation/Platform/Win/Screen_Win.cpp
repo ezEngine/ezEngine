@@ -53,5 +53,3 @@ ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens)
 }
 
 #endif
-
-

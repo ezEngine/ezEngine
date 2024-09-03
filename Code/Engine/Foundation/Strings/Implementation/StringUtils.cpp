@@ -898,5 +898,3 @@ bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStri
 
   return true;
 }
-
-

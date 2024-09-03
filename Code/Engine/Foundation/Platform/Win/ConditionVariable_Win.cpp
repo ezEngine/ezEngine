@@ -57,5 +57,3 @@ ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(
 }
 
 #endif
-
-

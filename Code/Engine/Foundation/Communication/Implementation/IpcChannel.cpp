@@ -203,5 +203,3 @@ void ezIpcChannel::FlushPendingOperations()
 {
   m_pOwner->WaitForMessages(-1, this);
 }
-
-

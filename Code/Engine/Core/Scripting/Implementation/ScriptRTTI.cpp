@@ -119,5 +119,3 @@ ezAllocator* ezScriptAllocator::GetAllocator()
   static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
   return &s_ScriptAllocator;
 }
-
-

@@ -70,5 +70,3 @@ bool ezBlob::IsEmpty() const
 {
   return 0 == m_uiSize;
 }
-
-

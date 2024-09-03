@@ -166,5 +166,3 @@ ezInt32 ezTestBaseClass::FindEntryForIdentifier(ezInt32 iIdentifier) const
 
   return -1;
 }
-
-

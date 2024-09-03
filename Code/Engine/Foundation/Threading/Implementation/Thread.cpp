@@ -65,5 +65,3 @@ ezUInt32 RunThread(ezThread* pThread)
 
   return uiReturnCode;
 }
-
-

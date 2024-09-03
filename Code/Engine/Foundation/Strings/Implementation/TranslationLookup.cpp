@@ -349,5 +349,3 @@ ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUIn
 
   return ezTranslatorStorage::Translate(sString, uiStringHash, usage);
 }
-
-

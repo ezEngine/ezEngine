@@ -84,5 +84,3 @@ ezResult ezAssetFileHeader::Read(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
-
-

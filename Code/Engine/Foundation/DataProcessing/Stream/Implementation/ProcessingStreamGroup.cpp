@@ -294,5 +294,3 @@ void ezProcessingStreamGroup::SortProcessorsByPriority()
   ProcessorComparer cmp;
   m_Processors.Sort(cmp);
 }
-
-

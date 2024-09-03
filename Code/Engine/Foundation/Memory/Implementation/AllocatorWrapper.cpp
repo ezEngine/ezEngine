@@ -18,5 +18,3 @@ ezAllocator* ezLocalAllocatorWrapper::GetAllocator()
 {
   return s_pAllocator;
 }
-
-

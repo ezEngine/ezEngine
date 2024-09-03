@@ -664,5 +664,3 @@ ezResult ezArchiveUtils::ExtractZipTOC(const ezMemoryMappedFile& memFile, ezArch
 
   return EZ_SUCCESS;
 }
-
-

@@ -158,5 +158,3 @@ ezUInt32 ezVolumeSampler::ComputeSortingKey(float fSortOrder, float fMaxScale)
   uiSortingKey = (uiSortingKey << 16) | (0xFFFF - ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF));
   return uiSortingKey;
 }
-
-

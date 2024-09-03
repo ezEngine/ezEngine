@@ -46,5 +46,3 @@ void ezStagingBufferPoolVulkan::ReclaimBuffer(ezStagingBufferVulkan& buffer)
   // EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
   // ezMemoryAllocatorVulkan::DestroyBuffer(buffer.m_buffer, buffer.m_alloc);
 }
-
-

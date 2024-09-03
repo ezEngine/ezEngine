@@ -267,5 +267,3 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 }
 
 #endif
-
-

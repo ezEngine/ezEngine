@@ -38,5 +38,3 @@ bool ezThreadUtils::IsMainThread()
 }
 
 #endif
-
-

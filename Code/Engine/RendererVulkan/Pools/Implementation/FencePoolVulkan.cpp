@@ -142,5 +142,3 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*=
   }
   return ezGALAsyncResult::Pending;
 }
-
-

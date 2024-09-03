@@ -45,5 +45,3 @@ void ezSemaphorePoolVulkan::ReclaimSemaphore(vk::Semaphore& semaphore)
   EZ_ASSERT_DEBUG(s_device, "ezSemaphorePoolVulkan::Initialize not called");
   s_semaphores.PushBack(semaphore);
 }
-
-

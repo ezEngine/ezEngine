@@ -9,5 +9,3 @@ ezPlatformDesc g_PlatformDescWin("Windows");
 const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescWin;
 
 #endif
-
-

@@ -91,5 +91,3 @@ void ezIpcProcessMessageProtocol::SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMes
     return;
   messages.Swap(m_IncomingQueue);
 }
-
-

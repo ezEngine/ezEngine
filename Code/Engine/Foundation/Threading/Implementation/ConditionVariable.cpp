@@ -25,5 +25,3 @@ void ezConditionVariable::Unlock()
   --m_iLockCount;
   m_Mutex.Unlock();
 }
-
-

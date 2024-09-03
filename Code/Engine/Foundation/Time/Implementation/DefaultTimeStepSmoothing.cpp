@@ -55,5 +55,3 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime rawTimeStep, const
 
   return m_LastTimeStepTaken;
 }
-
-

@@ -122,5 +122,3 @@ ezResult ezTexConvProcessor::ChooseOutputFormat(ezEnum<ezImageFormat>& out_Forma
 
   return EZ_SUCCESS;
 }
-
-

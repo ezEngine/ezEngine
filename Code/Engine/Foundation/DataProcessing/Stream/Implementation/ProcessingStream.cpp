@@ -164,5 +164,3 @@ ezStringView ezProcessingStream::GetDataTypeName(DataType type)
 {
   return s_TypeName[(ezUInt32)type];
 }
-
-

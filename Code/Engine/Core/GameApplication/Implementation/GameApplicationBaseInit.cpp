@@ -280,5 +280,3 @@ void ezGameApplicationBase::Deinit_ShutdownLogging()
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
 #endif
 }
-
-

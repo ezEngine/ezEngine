@@ -596,5 +596,3 @@ void ezQtTestModel::UpdateModel()
 
 
 #endif
-
-

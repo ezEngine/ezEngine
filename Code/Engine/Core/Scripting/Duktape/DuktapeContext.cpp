@@ -113,5 +113,3 @@ void ezDuktapeContext::DukFree(void* pUserData, void* pPointer)
 }
 
 #endif
-
-

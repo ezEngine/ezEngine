@@ -61,5 +61,3 @@ void ezQuakeConsole::ExecuteBoundKey(ezStringView sKey)
     ExecuteCommand(it.Value());
   }
 }
-
-

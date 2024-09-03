@@ -22,5 +22,3 @@ ezTime ezTime::Now()
 }
 
 #endif
-
-

@@ -416,5 +416,3 @@ ezPluginRegister::ezPluginRegister(const char* szAddPlugin)
   }
 }
 #endif
-
-

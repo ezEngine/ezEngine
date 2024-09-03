@@ -155,5 +155,3 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 }
 
 #endif
-
-

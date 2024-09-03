@@ -192,5 +192,3 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
     inout_state.m_sInput.Append(FindCommonString(AutoCompleteOptions).GetData());
   }
 }
-
-

@@ -95,5 +95,3 @@ void ezRun(ezApplication* pApplicationInstance)
   }
   ezRun_Shutdown(pApplicationInstance);
 }
-
-

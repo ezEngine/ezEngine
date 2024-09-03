@@ -198,5 +198,3 @@ ezResult ezArchiveEntry::Deserialize(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
-
-

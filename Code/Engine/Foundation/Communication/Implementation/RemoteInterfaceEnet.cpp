@@ -286,5 +286,3 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
 }
 
 #endif
-
-

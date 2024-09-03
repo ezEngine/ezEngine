@@ -43,5 +43,3 @@ jobject ezAndroidUtils::GetAndroidNativeActivity()
 }
 
 #endif
-
-

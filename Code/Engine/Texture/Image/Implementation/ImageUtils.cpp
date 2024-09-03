@@ -2006,5 +2006,3 @@ void ezImageUtils::CreateImageDiffHtml(ezStringBuilder& out_sHtml, ezStringView 
                 "</div>\n"
                 "</BODY> </HTML>");
 }
-
-

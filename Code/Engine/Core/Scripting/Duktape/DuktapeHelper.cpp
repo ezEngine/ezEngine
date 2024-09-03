@@ -638,5 +638,3 @@ ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
 }
 
 #endif
-
-

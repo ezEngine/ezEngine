@@ -314,5 +314,3 @@ void ezDummyXRInput::UpdateInputSlotValues()
 void ezDummyXRInput::RegisterInputSlots()
 {
 }
-
-

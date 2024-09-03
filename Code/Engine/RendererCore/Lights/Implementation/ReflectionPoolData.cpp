@@ -414,5 +414,3 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
     pDevice->GetTexture(m_hSkyIrradianceTexture)->SetDebugName("Sky Irradiance Texture");
   }
 }
-
-

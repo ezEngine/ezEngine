@@ -351,5 +351,3 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
   m_bPreparedForUse = false;
   return EZ_SUCCESS;
 }
-
-

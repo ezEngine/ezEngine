@@ -155,5 +155,3 @@ ezEnum<ezGALAsyncResult> ezFenceQueueDX11::WaitForNextFence(ezTime timeout /*= e
 
   return fenceStatus;
 }
-
-

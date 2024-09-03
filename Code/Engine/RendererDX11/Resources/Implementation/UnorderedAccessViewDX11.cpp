@@ -203,5 +203,3 @@ ezResult ezGALBufferUnorderedAccessViewDX11::DeInitPlatform(ezGALDevice* pDevice
   EZ_GAL_DX11_RELEASE(m_pDXUnorderedAccessView);
   return EZ_SUCCESS;
 }
-
-

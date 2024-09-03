@@ -49,5 +49,3 @@ ezETWProvider& ezETWProvider::GetInstance()
   return instance;
 }
 #endif
-
-

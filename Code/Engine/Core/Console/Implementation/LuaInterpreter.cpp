@@ -348,5 +348,3 @@ __metatable = \"Access Denied\",\n\
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-

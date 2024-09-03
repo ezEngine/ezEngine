@@ -1839,5 +1839,3 @@ void ezGeometry::AddArch(const ezVec3& vSize0, ezUInt32 uiNumSegments, float fTh
     }
   }
 }
-
-

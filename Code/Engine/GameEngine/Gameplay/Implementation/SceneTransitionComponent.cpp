@@ -166,4 +166,3 @@ void ezSceneTransitionComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& re
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_SceneTransitionComponent);
-

@@ -150,5 +150,3 @@ bool ezArchiveBuilder::WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64
   EZ_IGNORE_UNUSED(bytesTotal);
   return true;
 }
-
-

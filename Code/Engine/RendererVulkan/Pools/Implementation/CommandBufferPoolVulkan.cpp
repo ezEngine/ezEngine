@@ -69,5 +69,3 @@ void ezCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& commandB
   commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
   m_CommandBuffers.PushBack(commandBuffer);
 }
-
-

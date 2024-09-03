@@ -63,5 +63,3 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
 
   return UnsetVariableImpl(sName);
 }
-
-

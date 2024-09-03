@@ -392,5 +392,3 @@ void ezJSONWriter::SetWriteErrorState()
 {
   m_bHadWriteError = true;
 }
-
-

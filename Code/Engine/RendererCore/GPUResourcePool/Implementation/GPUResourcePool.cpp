@@ -339,5 +339,3 @@ void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
     }
   }
 }
-
-

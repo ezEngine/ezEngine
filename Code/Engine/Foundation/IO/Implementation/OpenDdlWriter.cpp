@@ -738,5 +738,3 @@ void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
   WriteBinaryAsHex(pData, uiBytes);
   OutputString("\"", 1);
 }
-
-

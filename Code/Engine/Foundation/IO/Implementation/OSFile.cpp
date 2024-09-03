@@ -732,5 +732,3 @@ void ezFileSystemIterator::SkipFolder()
 }
 
 #endif
-
-

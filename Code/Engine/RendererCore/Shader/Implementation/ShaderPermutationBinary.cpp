@@ -98,5 +98,3 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& inout_stream, bool& out
 
   return EZ_SUCCESS;
 }
-
-

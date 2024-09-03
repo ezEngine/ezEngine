@@ -7,5 +7,3 @@
 #    include <Foundation/Platform/NoImpl/MemoryMappedFile_NoImpl.h>
 #  endif
 #endif
-
-

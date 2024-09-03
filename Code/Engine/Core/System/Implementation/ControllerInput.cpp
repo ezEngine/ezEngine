@@ -25,5 +25,3 @@ void ezControllerInput::SetDevice(ezInputDeviceController* pDevice)
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <Core/System/Implementation/glfw/ControllerInput_glfw.inl>
 #endif
-
-

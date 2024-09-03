@@ -153,5 +153,3 @@ ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& inout_stream)
   m_Items.Sort();
   return EZ_SUCCESS;
 }
-
-

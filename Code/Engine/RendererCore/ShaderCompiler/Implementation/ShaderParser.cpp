@@ -870,5 +870,3 @@ void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStrin
     out_sShaderStageSource.Append(sPart);
   }
 }
-
-

@@ -612,5 +612,3 @@ void ezStandardJSONWriter::WriteBinaryData(ezStringView sDataType, const void* p
   else
     OutputString("\" }");
 }
-
-

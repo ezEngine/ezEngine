@@ -428,5 +428,3 @@ void ezColorGradient::Load(ezStreamReader& inout_stream)
 
   PrecomputeLerpNormalizer();
 }
-
-

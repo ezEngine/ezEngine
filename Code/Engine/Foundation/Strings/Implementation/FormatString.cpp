@@ -446,5 +446,3 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
   return ezStringView(szTmp);
 }
 #endif
-
-

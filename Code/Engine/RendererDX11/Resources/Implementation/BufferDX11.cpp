@@ -122,5 +122,3 @@ void ezGALBufferDX11::SetDebugNamePlatform(const char* szName) const
     m_pDXBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
 }
-
-

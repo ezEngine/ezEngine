@@ -29,5 +29,3 @@ bool ezMessageLoop_Fallback::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFi
 
   return false;
 }
-
-

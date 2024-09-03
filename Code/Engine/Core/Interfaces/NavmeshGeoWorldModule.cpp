@@ -7,4 +7,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(Core, Core_Interfaces_NavmeshGeoWorldModule);
-

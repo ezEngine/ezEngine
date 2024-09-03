@@ -803,5 +803,3 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(
 
   return bestFormat;
 }
-
-

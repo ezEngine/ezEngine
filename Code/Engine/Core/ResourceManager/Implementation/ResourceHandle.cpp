@@ -117,5 +117,3 @@ void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezType
     ResourceHandle = ezResourceManager::LoadResourceByType(pRtti, sTemp);
   }
 }
-
-

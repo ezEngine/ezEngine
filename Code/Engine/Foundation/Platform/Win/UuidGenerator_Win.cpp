@@ -26,5 +26,3 @@ ezUuid ezUuid::MakeUuid()
 }
 
 #endif
-
-

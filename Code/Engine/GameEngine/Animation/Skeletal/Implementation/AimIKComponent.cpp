@@ -158,4 +158,3 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AimIKComponent);
-

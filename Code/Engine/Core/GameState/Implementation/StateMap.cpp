@@ -93,5 +93,3 @@ void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_s
     out_sValue = sDefaultValue;
   }
 }
-
-

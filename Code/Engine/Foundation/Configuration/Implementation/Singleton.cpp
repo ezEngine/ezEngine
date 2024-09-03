@@ -8,5 +8,3 @@ const ezMap<size_t, ezSingletonRegistry::SingletonEntry>& ezSingletonRegistry::G
 {
   return s_Singletons;
 }
-
-

@@ -45,5 +45,3 @@ void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const
 {
   EZ_IGNORE_UNUSED(szName);
 }
-
-

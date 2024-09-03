@@ -120,5 +120,3 @@ void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  undef printf
 #endif
-
-

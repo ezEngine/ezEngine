@@ -128,5 +128,3 @@ void ezProcess::BuildFullCommandLineString(const ezProcessOptions& opt, ezString
   opt.BuildCommandLineString(cmd);
 }
 #endif
-
-

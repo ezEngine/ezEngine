@@ -303,5 +303,3 @@ void ezCommandLineUtils::InjectCustomArgument(ezStringView sArgument)
 {
   m_Commands.PushBack(sArgument);
 }
-
-

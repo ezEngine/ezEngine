@@ -456,5 +456,3 @@ void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezR
     AddProperty(pNode, pProp, pObject);
   }
 }
-
-

@@ -1580,5 +1580,3 @@ const ezGALBufferUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetBu
   }
   return pUAV;
 }
-
-

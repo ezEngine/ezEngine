@@ -125,5 +125,3 @@ ezResult ezTexComparer::ExtractImages()
 
   return EZ_SUCCESS;
 }
-
-

@@ -105,5 +105,3 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
     }
   }
 }
-
-

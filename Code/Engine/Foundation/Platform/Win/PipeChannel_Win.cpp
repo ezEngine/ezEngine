@@ -352,5 +352,3 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
   }
 }
 #endif
-
-

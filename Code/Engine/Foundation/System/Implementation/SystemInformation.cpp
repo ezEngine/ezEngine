@@ -170,5 +170,3 @@ void ezCpuFeatures::Detect()
 }
 
 #endif
-
-

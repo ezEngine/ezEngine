@@ -367,5 +367,3 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
       return ezImageFormat::UNKNOWN;
   }
 }
-
-

@@ -91,5 +91,3 @@ VkResult ezVulkanDispatchContext::vkImportSemaphoreWin32HandleKHR(VkDevice devic
 
 #  endif
 #endif
-
-

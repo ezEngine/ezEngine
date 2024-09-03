@@ -130,5 +130,3 @@ bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResource* pResource)
 
   return true;
 }
-
-

@@ -178,5 +178,3 @@ bool ezArchiveReader::ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt6
   EZ_IGNORE_UNUSED(bytesTotal);
   return true;
 }
-
-
