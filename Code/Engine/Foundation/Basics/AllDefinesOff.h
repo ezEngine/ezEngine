@@ -27,6 +27,7 @@
 #define EZ_PLATFORM_LINUX EZ_OFF
 #define EZ_PLATFORM_IOS EZ_OFF
 #define EZ_PLATFORM_ANDROID EZ_OFF
+#define EZ_PLATFORM_WEB EZ_OFF
 
 // Different Bit OSes
 #define EZ_PLATFORM_32BIT EZ_OFF
@@ -35,6 +36,7 @@
 // Different CPU architectures
 #define EZ_PLATFORM_ARCH_X86 EZ_OFF
 #define EZ_PLATFORM_ARCH_ARM EZ_OFF
+#define EZ_PLATFORM_ARCH_WEB EZ_OFF
 
 // Endianess
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF

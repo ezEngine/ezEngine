@@ -108,3 +108,5 @@ namespace ezShaderHelper
     return ezHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
   }
 } // namespace ezShaderHelper
+
+

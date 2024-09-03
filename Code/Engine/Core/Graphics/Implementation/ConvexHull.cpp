@@ -763,3 +763,5 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertice
     }
   }
 }
+
+

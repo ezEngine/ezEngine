@@ -553,3 +553,5 @@ ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
+
+

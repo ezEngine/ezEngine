@@ -282,3 +282,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 #endif
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Input_XBoxController_InputDeviceXBox);
+

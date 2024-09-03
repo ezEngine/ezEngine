@@ -340,3 +340,5 @@ ezResult ezCompressedStreamWriterZlib::WriteBytes(const void* pWriteBuffer, ezUI
 }
 
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
+

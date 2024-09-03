@@ -108,3 +108,5 @@ const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) con
 
   return nullptr;
 }
+
+

@@ -752,3 +752,5 @@ double ezJSONParser::ReadNumber()
 
   return fResult;
 }
+
+

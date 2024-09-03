@@ -19,7 +19,7 @@ static void SetConsoleColor(WORD ui)
   EZ_IGNORE_UNUSED(ui);
 #  endif
 }
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
 static void SetConsoleColor(ezUInt8 ui) {}
 #else
 #  error "Unknown Platform."
@@ -120,3 +120,5 @@ void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  undef printf
 #endif
+
+

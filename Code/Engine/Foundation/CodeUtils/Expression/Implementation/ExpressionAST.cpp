@@ -1269,3 +1269,5 @@ bool ezExpressionAST::IsEqual(const Node* pNodeA, const Node* pNodeB)
   EZ_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
+
+

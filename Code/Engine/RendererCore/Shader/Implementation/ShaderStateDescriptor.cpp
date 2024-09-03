@@ -465,3 +465,5 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 
   return EZ_SUCCESS;
 }
+
+

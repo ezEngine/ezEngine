@@ -414,3 +414,5 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
 
   CloneProperties(pObject, pClone, pType);
 }
+
+

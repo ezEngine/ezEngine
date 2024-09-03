@@ -12,3 +12,5 @@ ezResult ezTexConvProcessor::Assemble3DTexture(ezImage& dst) const
 
   return ezImageUtils::CreateVolumeTextureFromSingleFile(dst, images[0]);
 }
+
+

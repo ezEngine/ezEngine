@@ -179,3 +179,5 @@ ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
   ezUInt32 uiCurToken = 0;
   return HandleDefine(Tokens, uiCurToken);
 }
+
+

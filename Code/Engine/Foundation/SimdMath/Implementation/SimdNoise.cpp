@@ -123,3 +123,5 @@ ezSimdVec4f ezSimdPerlinNoise::Noise(const ezSimdVec4f& inX, const ezSimdVec4f& 
 
   return Lerp(w, Lerp(v, c000_c100, c010_c110), Lerp(v, c001_c101, c011_c111));
 }
+
+

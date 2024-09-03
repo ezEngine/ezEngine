@@ -36,3 +36,5 @@ void ezGameStateWindow::OnResize(const ezSizeU32& newWindowSize)
 
   m_CreationDescription.m_Resolution = newWindowSize;
 }
+
+

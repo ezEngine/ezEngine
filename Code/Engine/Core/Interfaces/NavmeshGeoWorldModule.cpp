@@ -4,3 +4,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNavmeshGeoWorldModuleInterface, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(Core, Core_Interfaces_NavmeshGeoWorldModule);
+

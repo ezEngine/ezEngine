@@ -1090,3 +1090,5 @@ void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBuffer
   OutputFloat(szOutputBuffer, uiBufferSize, ref_uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
     false, bScientific, bRemoveTrailingZeroes);
 }
+
+

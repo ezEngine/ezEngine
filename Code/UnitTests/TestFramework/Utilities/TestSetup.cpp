@@ -160,3 +160,5 @@ ezInt32 ezTestSetup::GetFailedTestCount()
 {
   return ezTestFramework::GetInstance()->GetTestsFailedCount();
 }
+
+

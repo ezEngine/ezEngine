@@ -451,3 +451,5 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
 
   return true;
 }
+
+

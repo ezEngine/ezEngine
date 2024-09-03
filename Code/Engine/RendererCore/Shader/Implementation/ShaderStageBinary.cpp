@@ -265,3 +265,5 @@ void ezShaderStageBinary::OnEngineShutdown()
     s_ShaderStageBinaries[stage].Clear();
   }
 }
+
+

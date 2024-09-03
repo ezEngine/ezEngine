@@ -515,3 +515,5 @@ bool ezPipelineBarrierVulkan::IsDirtyInternal(const ImageState& state, const vk:
     return false;
   }
 }
+
+

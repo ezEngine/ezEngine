@@ -46,3 +46,5 @@ void ezConstantBufferStorageBase::UploadData(ezGALCommandEncoder* pCommandEncode
     m_uiLastHash = uiNewHash;
   }
 }
+
+

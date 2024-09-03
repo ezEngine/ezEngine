@@ -1750,3 +1750,5 @@ ezResult ezReflectionUtils::ClampValue(ezVariant& value, const ezClampValueAttri
   ClampVariantFunc func;
   return ezVariant::DispatchTo(func, type, value, pAttrib);
 }
+
+

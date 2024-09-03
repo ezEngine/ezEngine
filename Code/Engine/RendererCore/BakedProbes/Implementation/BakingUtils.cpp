@@ -45,3 +45,5 @@ void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressed
     uiOffset += s_BitsPerDir[i];
   }
 }
+
+

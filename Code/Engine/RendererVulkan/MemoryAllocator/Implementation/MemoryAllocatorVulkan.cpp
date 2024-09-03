@@ -241,3 +241,5 @@ vk::Result ezMemoryAllocatorVulkan::InvalidateAllocation(ezVulkanAllocation allo
 {
   return (vk::Result)vmaInvalidateAllocation(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), offset, size);
 }
+
+

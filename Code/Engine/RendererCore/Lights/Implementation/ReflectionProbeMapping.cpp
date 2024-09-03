@@ -273,3 +273,5 @@ void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
     m_Events.Broadcast(e);
   }
 }
+
+

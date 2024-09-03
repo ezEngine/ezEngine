@@ -772,3 +772,5 @@ const ezJniString ezJniNullPtr::GetTypeSignature() const
 }
 
 #endif
+
+

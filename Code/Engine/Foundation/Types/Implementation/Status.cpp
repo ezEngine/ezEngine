@@ -51,3 +51,5 @@ void ezStatus::AssertSuccess(const char* szMsg /*= nullptr*/) const
     EZ_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage.GetData());
   }
 }
+
+

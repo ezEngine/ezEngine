@@ -20,3 +20,5 @@ ezGALBufferResourceView::ezGALBufferResourceView(ezGALBuffer* pResource, const e
 }
 
 ezGALBufferResourceView::~ezGALBufferResourceView() = default;
+
+

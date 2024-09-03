@@ -206,3 +206,5 @@ vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice,
 
   return alignment;
 }
+
+

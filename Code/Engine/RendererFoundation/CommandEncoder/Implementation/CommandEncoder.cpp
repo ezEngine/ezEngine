@@ -694,3 +694,5 @@ void ezGALCommandEncoder::EndRendering()
 
   m_CommonImpl.EndRenderingPlatform();
 }
+
+

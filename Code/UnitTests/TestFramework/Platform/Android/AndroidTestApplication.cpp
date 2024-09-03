@@ -73,3 +73,5 @@ void ezAndroidTestApplication::ezAndroidHandleCmd(struct android_app* pApp, int3
 }
 
 #endif
+
+

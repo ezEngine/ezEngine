@@ -661,3 +661,5 @@ ezResult ezGraphicsUtils::ComputeBarycentricCoordinates(ezVec3& out_vCoordinates
 
   return EZ_SUCCESS;
 }
+
+

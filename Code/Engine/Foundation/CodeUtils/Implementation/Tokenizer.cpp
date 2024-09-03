@@ -680,3 +680,5 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<cons
 
   return EZ_SUCCESS;
 }
+
+

@@ -59,3 +59,5 @@ void ezTestLogInterface::ExpectMessage(const char* szMsg, ezLogMsgType::Enum typ
   em.m_iCount = iCount;
   em.m_Type = type;
 }
+
+

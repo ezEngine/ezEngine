@@ -184,3 +184,5 @@ ezSimdFloat ezImageFilterWeights::GetWeight(ezUInt32 uiDstSampleIndex, ezUInt32 
 
   return ezSimdFloat(m_Weights[(uiDstSampleIndex % m_uiDstSamplesReduced) * m_uiNumWeights + uiWeightIndex]);
 }
+
+

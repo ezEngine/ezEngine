@@ -21,6 +21,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Math);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_FrameAllocator);
+  EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_DirectoryWatcher_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyAttributes);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyPath);

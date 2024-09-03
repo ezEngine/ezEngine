@@ -262,3 +262,5 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 }
 
 #endif
+
+

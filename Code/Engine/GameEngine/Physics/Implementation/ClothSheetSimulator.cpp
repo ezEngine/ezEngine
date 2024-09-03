@@ -146,3 +146,5 @@ bool ezClothSimulator::HasEquilibrium(ezSimdFloat fAllowedMovement) const
 
   return true;
 }
+
+

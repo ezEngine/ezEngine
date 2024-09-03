@@ -527,3 +527,5 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
     }
   }
 }
+
+

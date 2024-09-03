@@ -146,3 +146,5 @@ double ezTaskWorkerThread::GetThreadUtilization(ezUInt32* pNumTasksExecuted /*= 
 
   return m_fLastThreadUtilization;
 }
+
+

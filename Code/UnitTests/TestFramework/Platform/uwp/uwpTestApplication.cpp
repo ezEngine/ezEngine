@@ -134,3 +134,5 @@ HRESULT ezUwpTestApplication::OnSessionRevoked(IInspectable* sender, IExtendedEx
 }
 
 #endif
+
+

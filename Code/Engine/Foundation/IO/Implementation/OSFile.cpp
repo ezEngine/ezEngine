@@ -334,9 +334,9 @@ ezStringView ezOSFile::GetApplicationDirectory()
   {
     // s_sApplicationPath is filled out and cached by GetApplicationPath(), so call that first, if necessary
     GetApplicationPath();
+    EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
   }
 
-  EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
   return s_sApplicationPath.GetFileDirectory();
 }
 
@@ -732,3 +732,5 @@ void ezFileSystemIterator::SkipFolder()
 }
 
 #endif
+
+

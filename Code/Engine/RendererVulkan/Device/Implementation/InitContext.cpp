@@ -149,3 +149,5 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
     m_pPipelineBarrier->EnsureImageLayout(pTexture, pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask(), true);
   }
 }
+
+

@@ -125,3 +125,5 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* szDe
 }
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
+

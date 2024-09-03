@@ -81,3 +81,5 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_gr
   GraphVisitor visitor(ref_graph);
   pWorld->Traverse(ezWorld::VisitorFunc(&GraphVisitor::Visit, &visitor), ezWorld::BreadthFirst);
 }
+
+

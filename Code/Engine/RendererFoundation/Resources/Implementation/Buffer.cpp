@@ -13,3 +13,5 @@ ezGALBuffer::~ezGALBuffer()
   EZ_ASSERT_DEV(m_ResourceViews.IsEmpty(), "Dangling resource views");
   EZ_ASSERT_DEV(m_UnorderedAccessViews.IsEmpty(), "Dangling unordered access views");
 }
+
+

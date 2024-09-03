@@ -67,3 +67,5 @@ ezResult ezStreamWriter::WriteString(const ezStringView sStringView)
 
   return EZ_SUCCESS;
 }
+
+

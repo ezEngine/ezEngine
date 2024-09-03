@@ -29,3 +29,5 @@ ezGraphPatch::PatchType ezGraphPatch::GetPatchType() const
 {
   return m_PatchType;
 }
+
+

@@ -85,3 +85,5 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
     return EZ_SUCCESS;
   }
 }
+
+

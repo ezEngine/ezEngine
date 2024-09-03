@@ -493,3 +493,5 @@ void ezTestFrameworkResult::ezTestResult::Reset()
     m_SubTests[uiSubTest].m_Result.Reset();
   }
 }
+
+

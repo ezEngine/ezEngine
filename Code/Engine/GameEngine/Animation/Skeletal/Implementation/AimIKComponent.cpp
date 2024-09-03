@@ -155,3 +155,7 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
     msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AimIKComponent);
+

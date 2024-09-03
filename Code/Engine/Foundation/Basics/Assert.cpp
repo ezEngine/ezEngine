@@ -136,3 +136,5 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   ezStringBuilder tmp;
   return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetTextCStr(tmp));
 }
+
+

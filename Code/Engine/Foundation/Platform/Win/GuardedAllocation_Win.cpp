@@ -108,3 +108,5 @@ void ezAllocPolicyGuarding::Deallocate(void* pPtr)
 EZ_MSVC_ANALYSIS_WARNING_POP
 
 #endif
+
+

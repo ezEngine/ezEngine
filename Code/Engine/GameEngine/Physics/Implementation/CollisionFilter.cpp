@@ -159,3 +159,5 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
     }
   }
 }
+
+

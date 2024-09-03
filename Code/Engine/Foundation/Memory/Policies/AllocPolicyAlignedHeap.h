@@ -19,7 +19,7 @@ public:
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Memory/Policies/Win/AllocPolicyAlignedHeap_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
 #  include <Foundation/Memory/Policies/Posix/AllocPolicyAlignedHeap_posix.h>
 #else
 #  error "ezAllocPolicyAlignedHeap is not implemented on current platform"

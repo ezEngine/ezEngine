@@ -171,3 +171,5 @@ void ezLogWriter::HTML::WriteString(ezStringView sText, ezUInt32 uiColor)
 
   m_File.WriteBytes(sTemp.GetData(), sizeof(char) * sTemp.GetElementCount()).IgnoreResult();
 }
+
+

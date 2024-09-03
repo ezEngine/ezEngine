@@ -1184,3 +1184,5 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEm
 
 #endif
 }
+
+

@@ -55,3 +55,5 @@ void ezGALShader::DestroyBindingMapping()
 ezGALShader::~ezGALShader() = default;
 
 ezDelegate<void(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader)> ezShaderUtils::g_RequestBuiltinShaderCallback;
+
+

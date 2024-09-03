@@ -185,3 +185,5 @@ void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
 {
   Send(tm, msg.GetSystemID(), msg.GetMessageID(), msg.GetReader(), (ezInt32)msg.m_Storage.GetStorageSize32());
 }
+
+

@@ -195,3 +195,5 @@ ezGALShaderByteCode::~ezGALShaderByteCode()
     }
   }
 }
+
+

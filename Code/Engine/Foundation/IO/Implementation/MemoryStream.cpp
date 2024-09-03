@@ -450,3 +450,5 @@ void ezDefaultMemoryStreamStorage::AddChunk(ezUInt32 uiMinimumSize)
   chunk.m_uiStartOffset = prevChunk.m_uiStartOffset + prevChunk.m_Bytes.GetCount();
   m_uiCapacity += chunk.m_Bytes.GetCount();
 }
+
+

@@ -877,6 +877,8 @@ ezResult ezFileSystem::DetectSdkRootDirectory(ezStringView sExpectedSubFolder /*
   sdkRoot = ezOSFile::GetApplicationDirectory();
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
   sdkRoot = ezOSFile::GetApplicationDirectory();
+#elif EZ_ENABLED(EZ_PLATFORM_WEB)
+  sdkRoot = ezOSFile::GetApplicationDirectory();
 #else
   if (ezFileSystem::FindFolderWithSubPath(sdkRoot, ezOSFile::GetApplicationDirectory(), sExpectedSubFolder, "ezSdkRoot.txt").Failed())
   {

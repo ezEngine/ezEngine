@@ -71,3 +71,5 @@ void ezApplication::RequestQuit()
 
 
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
+
+

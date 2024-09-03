@@ -19,3 +19,5 @@ ezGALBufferUnorderedAccessView::ezGALBufferUnorderedAccessView(ezGALBuffer* pRes
 }
 
 ezGALBufferUnorderedAccessView::~ezGALBufferUnorderedAccessView() = default;
+
+

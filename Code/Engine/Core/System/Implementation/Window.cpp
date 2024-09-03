@@ -239,3 +239,5 @@ ezUInt8 ezWindow::GetNextUnusedWindowNumber()
 {
   return s_uiNextUnusedWindowNumber;
 }
+
+

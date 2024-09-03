@@ -286,3 +286,5 @@ ID3D11Query* ezQueryPoolDX11::Pool::GetQuery(ezGALPoolHandle hPool)
 
   return nullptr;
 }
+
+

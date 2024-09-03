@@ -185,3 +185,5 @@ ezResult ezTexConvProcessor::AdjustUsage(ezStringView sFilename, const ezImage& 
 
   return EZ_SUCCESS;
 }
+
+

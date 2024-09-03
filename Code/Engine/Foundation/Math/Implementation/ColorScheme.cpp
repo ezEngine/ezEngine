@@ -324,3 +324,5 @@ ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsa
   ezLog::Warning("Color for category '{}' is undefined.", sCategory);
   return ezColor::MakeZero();
 }
+
+

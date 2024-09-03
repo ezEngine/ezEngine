@@ -823,3 +823,5 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ComputePipelineDesc& 
 {
   return a.m_layout == b.m_layout && a.m_pCurrentShader == b.m_pCurrentShader;
 }
+
+

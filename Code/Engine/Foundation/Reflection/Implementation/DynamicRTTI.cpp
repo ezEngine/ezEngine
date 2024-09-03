@@ -7,3 +7,5 @@ bool ezReflectedClass::IsInstanceOf(const ezRTTI* pType) const
 {
   return GetDynamicRTTI()->IsDerivedFrom(pType);
 }
+
+

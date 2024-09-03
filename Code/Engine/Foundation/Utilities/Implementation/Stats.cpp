@@ -43,3 +43,5 @@ void ezStats::SetStat(ezStringView sStatName, const ezVariant& value)
 
   s_StatsEvents.Broadcast(e);
 }
+
+

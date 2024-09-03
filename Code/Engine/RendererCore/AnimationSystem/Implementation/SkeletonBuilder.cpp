@@ -85,3 +85,5 @@ bool ezSkeletonBuilder::HasJoints() const
 {
   return !m_Joints.IsEmpty();
 }
+
+

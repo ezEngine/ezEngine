@@ -54,3 +54,5 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
   ezMemoryTracker::DumpMemoryLeaks();
   return EZ_SUCCESS;
 }
+
+

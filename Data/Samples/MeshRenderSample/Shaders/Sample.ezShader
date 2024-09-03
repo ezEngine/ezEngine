@@ -1,0 +1,34 @@
+[PLATFORMS]
+ALL
+
+[RENDERSTATE]
+
+CullMode = CullMode_None
+DepthTest = true
+
+[VERTEXSHADER]
+
+#include "Common.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  float4 PosWS = mul(ModelMatrix, float4(Input.Position, 1.0f));
+  RetVal.Position = mul(ViewProjectionMatrix, PosWS);
+  RetVal.TexCoord0 = Input.TexCoord0;
+
+  return RetVal;
+}
+
+
+[PIXELSHADER]
+
+#include "Common.h"
+
+Texture2D DiffuseTexture;
+SamplerState DiffuseTexture_AutoSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return DiffuseTexture.Sample(DiffuseTexture_AutoSampler, Input.TexCoord0);
+}

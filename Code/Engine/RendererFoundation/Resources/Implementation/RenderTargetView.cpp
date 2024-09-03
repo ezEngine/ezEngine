@@ -11,3 +11,5 @@ ezGALRenderTargetView::ezGALRenderTargetView(ezGALTexture* pTexture, const ezGAL
 }
 
 ezGALRenderTargetView::~ezGALRenderTargetView() = default;
+
+

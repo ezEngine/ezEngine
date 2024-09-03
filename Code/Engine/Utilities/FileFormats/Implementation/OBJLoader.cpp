@@ -306,3 +306,5 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
 
   return EZ_SUCCESS;
 }
+
+

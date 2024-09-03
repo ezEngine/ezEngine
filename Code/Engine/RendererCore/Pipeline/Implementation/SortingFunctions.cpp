@@ -42,3 +42,5 @@ ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderDat
   const ezUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiRenderDataSortingKey64;
   return uiSortingKey;
 }
+
+

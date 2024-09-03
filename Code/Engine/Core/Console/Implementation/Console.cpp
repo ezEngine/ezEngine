@@ -430,3 +430,5 @@ void ezConsole::LoadInputHistory(ezStringView sFile)
     AddToInputHistory(lines[lines.GetCount() - 1 - i]);
   }
 }
+
+

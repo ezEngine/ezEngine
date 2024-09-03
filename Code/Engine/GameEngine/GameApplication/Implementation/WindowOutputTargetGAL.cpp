@@ -117,3 +117,5 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_image)
 
   return EZ_SUCCESS;
 }
+
+

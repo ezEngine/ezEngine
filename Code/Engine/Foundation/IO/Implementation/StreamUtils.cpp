@@ -16,3 +16,5 @@ void ezStreamUtils::ReadAllAndAppend(ezStreamReader& inout_stream, ezDynamicArra
     ref_destination.PushBackRange(ezArrayPtr<ezUInt8>(temp, uiRead));
   }
 }
+
+

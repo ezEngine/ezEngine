@@ -61,3 +61,5 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
   ezLog::Warning("No known image file format for extension '{0}'", it);
   return EZ_FAILURE;
 }
+
+

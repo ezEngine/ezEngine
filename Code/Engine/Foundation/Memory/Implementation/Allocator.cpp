@@ -8,3 +8,5 @@ void* ezAllocator::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize
   Deallocate(pPtr);
   return pNewMem;
 }
+
+

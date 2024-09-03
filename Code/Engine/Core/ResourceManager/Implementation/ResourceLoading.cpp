@@ -445,3 +445,5 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     }
   }
 }
+
+

@@ -104,3 +104,5 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
     ezLog::Printf("Application crashed. Crash-dump written to '%s'\n.", m_sDumpFilePath.GetData());
   }
 }
+
+

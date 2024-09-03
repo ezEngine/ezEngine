@@ -564,3 +564,5 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
+
+

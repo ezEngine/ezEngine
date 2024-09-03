@@ -221,3 +221,5 @@ void ezRopeSimulator::UpdateNodePositions(const ezSimdFloat tDiffSqr)
     m_Nodes.PeekBack().m_vPreviousPosition = m_Nodes.PeekBack().m_vPosition;
   }
 }
+
+

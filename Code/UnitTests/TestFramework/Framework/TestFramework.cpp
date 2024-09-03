@@ -1884,3 +1884,5 @@ bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage
 
   return true;
 }
+
+

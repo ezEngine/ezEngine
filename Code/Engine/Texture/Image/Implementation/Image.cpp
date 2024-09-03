@@ -387,3 +387,5 @@ bool ezImage::UsesExternalStorage() const
 {
   return m_InternalStorage.GetBlobPtr<ezUInt8>() != m_DataPtr;
 }
+
+

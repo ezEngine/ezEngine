@@ -134,3 +134,5 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
     config.Apply();
   }
 }
+
+

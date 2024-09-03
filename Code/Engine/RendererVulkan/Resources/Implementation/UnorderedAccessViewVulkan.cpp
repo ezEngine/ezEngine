@@ -142,3 +142,5 @@ ezResult ezGALBufferUnorderedAccessViewVulkan::DeInitPlatform(ezGALDevice* pDevi
   pVulkanDevice->DeleteLater(m_bufferView);
   return EZ_SUCCESS;
 }
+
+

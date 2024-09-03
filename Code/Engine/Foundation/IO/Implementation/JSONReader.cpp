@@ -162,3 +162,5 @@ void ezJSONReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 u
 
   m_bParsingError = true;
 }
+
+

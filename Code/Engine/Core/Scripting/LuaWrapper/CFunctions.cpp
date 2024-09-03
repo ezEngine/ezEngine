@@ -130,3 +130,5 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 uiReturnValue) const
 
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
+
+

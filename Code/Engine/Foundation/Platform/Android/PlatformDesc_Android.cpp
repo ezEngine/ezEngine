@@ -7,3 +7,5 @@ ezPlatformDesc g_PlatformDescAndroid("Android");
 const ezPlatformDesc* ezPlatformDesc::s_pThisPlatform = &g_PlatformDescAndroid;
 
 #endif
+
+
