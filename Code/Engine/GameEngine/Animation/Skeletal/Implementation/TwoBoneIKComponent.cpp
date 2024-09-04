@@ -125,3 +125,6 @@ void ezTwoBoneIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGenera
     msg.m_pGenerator->SetFinalCommand(cmdIk.GetCommandID());
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_TwoBoneIKComponent);

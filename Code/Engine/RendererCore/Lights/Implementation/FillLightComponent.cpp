@@ -209,3 +209,6 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_FillLightComponent);

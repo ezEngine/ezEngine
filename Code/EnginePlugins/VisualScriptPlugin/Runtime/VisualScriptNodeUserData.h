@@ -391,7 +391,7 @@ namespace
     }
   };
 
-  static_assert(sizeof(NodeUserData_StartCoroutine) == 16);
+  static_assert(sizeof(NodeUserData_StartCoroutine) <= 16);
 
   //////////////////////////////////////////////////////////////////////////
 

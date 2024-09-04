@@ -27,6 +27,11 @@
 #  undef EZ_PLATFORM_LINUX
 #  define EZ_PLATFORM_LINUX EZ_ON
 
+#elif defined(__EMSCRIPTEN__)
+
+#  undef EZ_PLATFORM_WEB
+#  define EZ_PLATFORM_WEB EZ_ON
+
 // #elif defined(...)
 //   #undef EZ_PLATFORM_LINUX
 //   #define EZ_PLATFORM_LINUX EZ_ON

@@ -694,3 +694,6 @@ void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watche
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Platform_Win_DirectoryWatcher_Win);
