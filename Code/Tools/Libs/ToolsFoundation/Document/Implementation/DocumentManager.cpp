@@ -182,6 +182,7 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
 ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath2, ezDocument*& out_pDocument,
   ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats fs;
   ezStringBuilder sPath = sPath2;
   sPath.MakeCleanPath();
@@ -295,6 +296,10 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", sDocumentTypeName);
   return status;
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezStatus("Not implemented");
+#endif
 }
 
 ezStatus ezDocumentManager::CreateDocument(

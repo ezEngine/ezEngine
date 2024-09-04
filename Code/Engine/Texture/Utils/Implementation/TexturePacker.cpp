@@ -55,4 +55,3 @@ ezResult ezTexturePacker::PackTextures()
 }
 
 
-EZ_STATICLINK_FILE(Texture, Texture_Utils_Implementation_TexturePacker);

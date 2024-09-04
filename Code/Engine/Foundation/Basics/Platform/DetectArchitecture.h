@@ -8,6 +8,9 @@
 #  elif defined(__arm__) || defined(__aarch64__)
 #    undef EZ_PLATFORM_ARCH_ARM
 #    define EZ_PLATFORM_ARCH_ARM EZ_ON
+#  elif (__EMSCRIPTEN__)
+#    undef EZ_PLATFORM_ARCH_WEB
+#    define EZ_PLATFORM_ARCH_WEB EZ_ON
 #  else
 #    error unhandled target architecture
 #  endif
@@ -16,6 +19,9 @@
 #    undef EZ_PLATFORM_64BIT
 #    define EZ_PLATFORM_64BIT EZ_ON
 #  elif defined(__i386__) || defined(__arm__)
+#    undef EZ_PLATFORM_32BIT
+#    define EZ_PLATFORM_32BIT EZ_ON
+#  elif (__EMSCRIPTEN__)
 #    undef EZ_PLATFORM_32BIT
 #    define EZ_PLATFORM_32BIT EZ_ON
 #  else

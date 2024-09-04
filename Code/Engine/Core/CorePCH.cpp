@@ -23,6 +23,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_InputDevice);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_NavmeshGeoWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_PhysicsWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);

@@ -11,7 +11,3 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
 )
-
-add_dependencies(${PROJECT_NAME}
-  InspectorPlugin
-)

@@ -934,7 +934,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       const char* szAbsPath = "C:\\folder";
       const char* szAbsPathAppendResult = "C:\\folder/File.ext";
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
       const char* szAbsPath = "/folder";
       const char* szAbsPathAppendResult = "/folder/File.ext";
 #else
@@ -1235,7 +1235,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!p.IsRelativePath());
     EZ_TEST_BOOL(p.IsRootedPath());
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
 
     p = "C:\\temp.stuff";
     EZ_TEST_BOOL(!p.IsAbsolutePath());

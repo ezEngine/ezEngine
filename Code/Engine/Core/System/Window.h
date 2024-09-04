@@ -355,6 +355,8 @@ public:
 
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
+#elif EZ_ENABLED(EZ_PLATFORM_WEB)
+
 #else
 #  error "Missing code for ezWindow on this platform!"
 #endif
