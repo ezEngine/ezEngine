@@ -327,6 +327,7 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
 
 #if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
   // #TODO EZ_COMPILE_ENGINE_AS_DLL and being able to load plugins are not necessarily the same thing.
+  EZ_IGNORE_UNUSED(flags);
   return EZ_FAILURE;
 #else
 
