@@ -71,7 +71,7 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     vk::VertexInputBindingDescription& binding = m_bindings[Current.m_uiVertexBufferSlot];
     binding.binding = Current.m_uiVertexBufferSlot;
     binding.stride = 0;
-    binding.inputRate = Current.m_bInstanceData ? vk::VertexInputRate::eInstance : vk::VertexInputRate::eVertex;
+    binding.inputRate = /*Current.m_bInstanceData ? vk::VertexInputRate::eInstance :*/ vk::VertexInputRate::eVertex;
   }
   for (ezInt32 i = (ezInt32)m_bindings.GetCount() - 1; i >= 0; --i)
   {

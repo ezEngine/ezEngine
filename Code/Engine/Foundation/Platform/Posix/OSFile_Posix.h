@@ -358,7 +358,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 }
 #endif
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) && !defined(EZ_SKIP_FOLDER_PATHS)
 
 ezStringView ezOSFile::GetApplicationPath()
 {

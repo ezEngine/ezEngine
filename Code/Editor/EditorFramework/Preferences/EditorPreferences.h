@@ -35,7 +35,7 @@ public:
   ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
   float m_fSkyLightIntensity = 1.0f;
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(30.0f);
+  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(70.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;

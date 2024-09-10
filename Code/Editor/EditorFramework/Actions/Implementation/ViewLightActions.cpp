@@ -281,7 +281,7 @@ ezViewLightSliderAction::ezViewLightSliderAction(const ezActionContext& context,
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
       SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
-      SetRange(-90, 90);
+      SetRange(0, 360);
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
       SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
@@ -342,7 +342,7 @@ void ezViewLightSliderAction::UpdateAction()
     break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
     {
-      SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetDirectionalLightAngle().GetDegree()), -90, 90));
+      SetValue(ezMath::Clamp((ezInt32)(m_pSettings->GetDirectionalLightAngle().GetDegree()), 0, 360));
     }
     break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:

@@ -30,6 +30,31 @@ private:
   float m_Data[12];
 };
 
+/// \brief A wrapper class that converts a ezMat4 into the correct data layout for shaders.
+class ezShaderMat4
+{
+public:
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE ezShaderMat4() = default;
+
+  EZ_ALWAYS_INLINE ezShaderMat4(const ezMat4& m) { *this = m; }
+
+  EZ_FORCE_INLINE void operator=(const ezMat4& m)
+  {
+    for (ezUInt32 c = 0; c < 4; ++c)
+    {
+      m_Data[c * 4 + 0] = m.Element(c, 0);
+      m_Data[c * 4 + 1] = m.Element(c, 1);
+      m_Data[c * 4 + 2] = m.Element(c, 2);
+      m_Data[c * 4 + 3] = m.Element(c, 3);
+    }
+  }
+
+private:
+  float m_Data[16];
+};
+
 /// \brief A wrapper class that converts a ezTransform into the correct data layout for shaders.
 class ezShaderTransform
 {
