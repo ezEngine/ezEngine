@@ -281,8 +281,7 @@ struct ezGALCompareFunc
 
   enum Enum
   {
-    None = 0,
-    Never,
+    Never = 0,
     Less,
     Equal,
     LessEqual,
@@ -293,7 +292,7 @@ struct ezGALCompareFunc
 
     ENUM_COUNT,
 
-    Default = None
+    Default = Never
   };
 };
 
