@@ -38,7 +38,7 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform
   if (bApplyObjectTransform)
     cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
   else
-    cb.ObjectToWorldMatrix.SetIdentity();
+    cb.ObjectToWorldMatrix = ezMat4::MakeIdentity();
 }
 
 

@@ -49,7 +49,7 @@ float3x3 TransformToRotation(Transform t)
 #  define MAT4(Name) float4x4 Name
 #  define TRANSFORM(Name) Transform Name
 #  define COLOR4F(Name) float4 Name
-#  define COLOR4UB(Name) uint Name
+// #  define COLOR4UB(Name) uint Name // TODO: this doesn't actually work
 #  define BOOL1(Name) bool Name
 #  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
 #  define PACKEDCOLOR4H(Name)    \
@@ -87,10 +87,10 @@ float3x3 TransformToRotation(Transform t)
 #  define UINT3(Name) ezVec3U32 Name
 #  define UINT4(Name) ezVec4U32 Name
 #  define MAT3(Name) ezShaderMat3 Name
-#  define MAT4(Name) ezMat4 Name
+#  define MAT4(Name) ezShaderMat4 Name
 #  define TRANSFORM(Name) ezShaderTransform Name
 #  define COLOR4F(Name) ezColor Name
-#  define COLOR4UB(Name) ezColorGammaUB Name
+// #  define COLOR4UB(Name) ezColorGammaUB Name // TODO: this doesn't actually work (in the shader)
 #  define BOOL1(Name) ezShaderBool Name
 #  define PACKEDHALF2(Name1, Name2, CombinedName) \
     ezFloat16 Name1;                              \

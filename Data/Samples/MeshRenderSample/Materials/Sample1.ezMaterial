@@ -1,4 +1,4 @@
-string %Shader { "Shaders/Sample.ezShader" }
+string %Shader { "Shaders/Sample1.ezShader" }
 
 Texture2D
 {

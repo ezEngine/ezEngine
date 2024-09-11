@@ -1030,7 +1030,6 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
 
       // stream.m_Format
       ezGALVertexAttribute gal;
-      gal.m_bInstanceData = false;
       gal.m_eFormat = stream.m_Format;
       gal.m_eSemantic = stream.m_Semantic;
       gal.m_uiOffset = stream.m_uiOffset;

@@ -257,7 +257,9 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture2DResource, ezTexture2DResourceDescrip
   m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
-  pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
+  ezStringBuilder name;
+  name.SetFormat("{} ([{}] - {}x{})", GetResourceIdOrDescription(), m_uiLoadedTextures, m_uiWidth, m_uiHeight);
+  pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(name);
 
   if (!m_hSamplerState.IsInvalidated())
   {

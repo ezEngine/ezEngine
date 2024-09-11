@@ -23,8 +23,8 @@ constexpr const char* szDefaultRenderer = "Vulkan";
 constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-static ezUInt32 g_uiWindowWidth = 1280;
-static ezUInt32 g_uiWindowHeight = 720;
+static ezUInt32 g_uiWindowWidth = 800;
+static ezUInt32 g_uiWindowHeight = 600;
 
 /// \brief Custom window implementation to hook into the "Close" button
 class MeshRenderSampleWindow : public ezWindow
@@ -121,10 +121,12 @@ public:
     {
       // the shader (referenced by the material) also defines the render pipeline state
       // such as backface-culling and depth-testing
-      m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Sample.ezMaterial");
+      m_hMaterial1 = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Sample1.ezMaterial");
+      m_hMaterial2 = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Sample2.ezMaterial");
 
       // Create the mesh that we use for rendering
-      m_hMeshBuffer = CreateTorusMesh();
+      m_hMeshBuffer1 = CreateTorusMesh();
+      m_hMeshBuffer2 = CreateSphereMesh();
     }
 
     // Setup constant buffer that this sample uses
@@ -136,6 +138,8 @@ public:
 
   Execution Run() override
   {
+    EZ_LOG_BLOCK("Frame");
+
     m_pWindow->ProcessWindowMessages();
 
     if (m_pWindow->m_bCloseRequested)
@@ -162,7 +166,6 @@ public:
       const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezMeshRenderSampleConstants", m_hSampleConstants);
-      ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
       m_CameraRotation += ezAngle::MakeFromDegree(ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds() * 90.0f);
       m_CameraRotation.NormalizeRange();
@@ -179,10 +182,16 @@ public:
         ezMeshRenderSampleConstants& cb = m_pSampleConstantBuffer->GetDataForWriting();
         cb.ModelMatrix = mView;
         cb.ViewProjectionMatrix = mProj;
+        cb.TintColor = ezColor::CornflowerBlue;
       }
 
-      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hMeshBuffer);
-      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+      ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial1);
+      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hMeshBuffer1);
+      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+
+      ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial2);
+      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hMeshBuffer2);
+      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
 
       ezRenderContext::GetDefaultInstance()->EndRendering();
       m_pDevice->EndCommands(pCommandEncoder);
@@ -213,8 +222,10 @@ public:
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
     m_hDepthStencilTexture.Invalidate();
 
-    m_hMaterial.Invalidate();
-    m_hMeshBuffer.Invalidate();
+    m_hMaterial1.Invalidate();
+    m_hMaterial2.Invalidate();
+    m_hMeshBuffer1.Invalidate();
+    m_hMeshBuffer2.Invalidate();
 
     // tell the engine that we are about to destroy window and graphics device,
     // and that it therefore needs to cleanup anything that depends on that
@@ -238,7 +249,8 @@ public:
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    geom.AddTorus(1.0f, 2.5f, 64, 32, true, opt);
+    geom.AddTorus(2.0f, 3.5f, 24, 12, true, opt);
+    geom.TriangulatePolygons();
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -247,6 +259,23 @@ public:
     desc.AllocateStreamsFromGeometry(geom);
 
     return ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("TorusMesh", std::move(desc));
+  }
+
+  ezMeshBufferResourceHandle CreateSphereMesh()
+  {
+    ezGeometry geom;
+    ezGeometry::GeoOptions opt;
+    opt.m_Color = ezColor::Black;
+    geom.AddGeodesicSphere(1.0f, 1);
+    geom.TriangulatePolygons();
+
+    ezMeshBufferResourceDescriptor desc;
+    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+
+    desc.AllocateStreamsFromGeometry(geom);
+
+    return ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("SphereMesh", std::move(desc));
   }
 
 private:
@@ -260,8 +289,10 @@ private:
 
   ezConstantBufferStorageHandle m_hSampleConstants;
   ezConstantBufferStorage<ezMeshRenderSampleConstants>* m_pSampleConstantBuffer;
-  ezMaterialResourceHandle m_hMaterial;
-  ezMeshBufferResourceHandle m_hMeshBuffer;
+  ezMaterialResourceHandle m_hMaterial1;
+  ezMaterialResourceHandle m_hMaterial2;
+  ezMeshBufferResourceHandle m_hMeshBuffer1;
+  ezMeshBufferResourceHandle m_hMeshBuffer2;
   ezAngle m_CameraRotation = ezAngle::MakeZero();
 };
 

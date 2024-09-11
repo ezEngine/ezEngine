@@ -139,14 +139,12 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 {
   ezGALVertexAttribute() = default;
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot,
-    bool bInstanceData);
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
   ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
   ezUInt16 m_uiOffset = 0;
   ezUInt8 m_uiVertexBufferSlot = 0;
-  bool m_bInstanceData = false;
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
@@ -168,7 +166,7 @@ struct ezGALResourceAccess
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
   ezUInt32 m_uiTotalSize = 0;
-  ezUInt32 m_uiStructSize = 0; // Struct or texel size
+  ezUInt32 m_uiStructSize = 0;                                         // Struct or texel size
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
   ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid; // Only relevant for TexelBuffer

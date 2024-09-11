@@ -27,10 +27,10 @@ private:
   void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
 
   ezResult ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, const char* szName, const SpvReflectBlockVariable& block);
-  ezResult FillResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
-  ezResult FillSRVResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
-  ezResult FillUAVResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
+  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(const char* szName, const SpvReflectBlockVariable& block);
+  ezResult FillResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
+  ezResult FillSRVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
+  ezResult FillUAVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   static ezGALShaderTextureType::Enum GetTextureType(const SpvReflectDescriptorBinding& info);
   ezResult Initialize();
 

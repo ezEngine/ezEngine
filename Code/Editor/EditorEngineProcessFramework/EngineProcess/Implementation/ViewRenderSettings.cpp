@@ -257,11 +257,12 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
     }
   }
 
-  const bool bNeedGameObject = m_bDirectionalLight | m_bSkyLight;
+  const bool bNeedGameObject = m_bDirectionalLight || m_bSkyLight;
   if (ezGameObject* pParent = SyncGameObject(m_pWorld, m_hGameObject, bNeedGameObject))
   {
-    ezQuat rot = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), m_DirectionalLightAngle + ezAngle::MakeFromDegree(90.0));
-    pParent->SetLocalRotation(rot);
+    ezQuat rotY = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(120.0));
+    ezQuat rotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), m_DirectionalLightAngle);
+    pParent->SetLocalRotation(rotZ * rotY);
 
     if (ezDirectionalLightComponent* pDirLight = SyncComponent<ezDirectionalLightComponent>(m_pWorld, pParent, m_hDirLight, m_bDirectionalLight))
     {
@@ -278,9 +279,11 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
 
     if (ezFogComponent* pFog = SyncComponent<ezFogComponent>(m_pWorld, pParent, m_hFog, m_bFog))
     {
-      pFog->SetColor(ezColor(0.02f, 0.02f, 0.02f));
+      // pFog->SetColor(ezColor(0.1f, 0.1f, 0.1f));
       pFog->SetDensity(5.0f);
       pFog->SetHeightFalloff(0);
+      pFog->SetModulateWithSkyColor(m_bSkyBox);
+      pFog->SetSkyDistance(100.0f);
     }
   }
 }
