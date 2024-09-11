@@ -17,13 +17,14 @@ public:
 
   EZ_FORCE_INLINE void operator=(const ezMat3& m)
   {
-    for (ezUInt32 c = 0; c < 3; ++c)
-    {
-      m_Data[c * 4 + 0] = m.Element(c, 0);
-      m_Data[c * 4 + 1] = m.Element(c, 1);
-      m_Data[c * 4 + 2] = m.Element(c, 2);
-      m_Data[c * 4 + 3] = 0.0f;
-    }
+    ezMemoryUtils::Copy(&m_Data[0], &m.m_fElementsCM[0], 3);
+    m_Data[3] = 0.0f;
+
+    ezMemoryUtils::Copy(&m_Data[4], &m.m_fElementsCM[3], 3);
+    m_Data[7] = 0.0f;
+
+    ezMemoryUtils::Copy(&m_Data[8], &m.m_fElementsCM[6], 3);
+    m_Data[11] = 0.0f;
   }
 
 private:
@@ -42,13 +43,7 @@ public:
 
   EZ_FORCE_INLINE void operator=(const ezMat4& m)
   {
-    for (ezUInt32 c = 0; c < 4; ++c)
-    {
-      m_Data[c * 4 + 0] = m.Element(c, 0);
-      m_Data[c * 4 + 1] = m.Element(c, 1);
-      m_Data[c * 4 + 2] = m.Element(c, 2);
-      m_Data[c * 4 + 3] = m.Element(c, 3);
-    }
+    ezMemoryUtils::Copy(m_Data, m.m_fElementsCM, 16);
   }
 
 private:
