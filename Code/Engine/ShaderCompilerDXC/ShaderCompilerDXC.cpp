@@ -441,22 +441,22 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
   }
 }
 
-ezResult ezShaderCompilerDXC::FillResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+ezResult ezShaderCompilerDXC::FillResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
 {
   if ((info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV) != 0)
   {
-    return FillSRVResourceBinding(shaderBinary, binding, info);
+    return FillSRVResourceBinding(binding, info);
   }
 
   else if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV)
   {
-    return FillUAVResourceBinding(shaderBinary, binding, info);
+    return FillUAVResourceBinding(binding, info);
   }
 
   else if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV)
   {
     binding.m_ResourceType = ezGALShaderResourceType::ConstantBuffer;
-    binding.m_pLayout = ReflectConstantBufferLayout(shaderBinary, info.name, info.block);
+    binding.m_pLayout = ReflectConstantBufferLayout(info.name, info.block);
 
     return EZ_SUCCESS;
   }
@@ -578,7 +578,7 @@ ezGALShaderTextureType::Enum ezShaderCompilerDXC::GetTextureType(const SpvReflec
   return ezGALShaderTextureType::Unknown;
 }
 
-ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
 {
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER)
   {
@@ -620,7 +620,7 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezGALShaderByteCode& shader
   return EZ_FAILURE;
 }
 
-ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezGALShaderByteCode& shaderBinary, ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
+ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
 {
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE)
   {
@@ -700,7 +700,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
   EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_sSourceFile);
 
   ezGALShaderByteCode* pShader = inout_Data.m_ByteCode[Stage];
-  auto& bytecode = pShader->m_ByteCode;
+  const auto& bytecode = pShader->m_ByteCode;
 
   SpvReflectShaderModule module;
 
@@ -785,7 +785,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
       shaderResourceBinding.m_sName.Assign(info.name);
       shaderResourceBinding.m_Stages = ezGALShaderStageFlags::MakeFromShaderStage(Stage);
 
-      if (FillResourceBinding(*inout_Data.m_ByteCode[Stage], shaderResourceBinding, info).Failed())
+      if (FillResourceBinding(shaderResourceBinding, info).Failed())
         continue;
 
       EZ_ASSERT_DEV(shaderResourceBinding.m_ResourceType != ezGALShaderResourceType::Unknown, "FillResourceBinding should have failed.");
@@ -842,7 +842,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       shaderResourceBinding.m_sName.Assign(sName);
       shaderResourceBinding.m_Stages = ezGALShaderStageFlags::MakeFromShaderStage(Stage);
-      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(*inout_Data.m_ByteCode[Stage], info.name, info);
+      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(info.name, info);
       inout_Data.m_ByteCode[Stage]->m_ShaderResourceBindings.PushBack(shaderResourceBinding);
     }
   }
@@ -850,7 +850,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
   return EZ_SUCCESS;
 }
 
-ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, const char* szName, const SpvReflectBlockVariable& block)
+ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(const char* szName, const SpvReflectBlockVariable& block)
 {
   EZ_LOG_BLOCK("Constant Buffer Layout", szName);
   ezLog::Debug("Constant Buffer has {} variables, Size is {}", block.member_count, block.padded_size);

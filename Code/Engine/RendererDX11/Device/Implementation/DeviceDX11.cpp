@@ -162,7 +162,6 @@ retry:
   // Create default pass
   m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplDX11, *this);
   m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
-  m_pCommandEncoderImpl->m_pOwner = m_pCommandEncoder.Borrow();
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void**)&m_pDXGIDevice)))
   {

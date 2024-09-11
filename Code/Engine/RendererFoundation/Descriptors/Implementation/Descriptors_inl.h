@@ -38,12 +38,10 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(
   m_pExisitingNativeObject = nullptr;
 }
 
-EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(
-  ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
+EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot)
   : m_eSemantic(semantic)
   , m_eFormat(format)
   , m_uiOffset(uiOffset)
   , m_uiVertexBufferSlot(uiVertexBufferSlot)
-  , m_bInstanceData(bInstanceData)
 {
 }

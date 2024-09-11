@@ -129,7 +129,6 @@ private:
   ezResult FlushDeferredStateChanges();
 
   ezGALDeviceDX11& m_GALDeviceDX11;
-  ezGALCommandEncoder* m_pOwner = nullptr;
 
   ID3D11DeviceContext* m_pDXContext = nullptr;
   ID3DUserDefinedAnnotation* m_pDXAnnotation = nullptr;

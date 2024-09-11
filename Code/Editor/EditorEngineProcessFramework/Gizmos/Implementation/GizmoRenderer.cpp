@@ -84,9 +84,10 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     EZ_ASSERT_DEV(pRenderData->m_uiSubMeshIndex == uiSubMeshIndex, "Invalid batching (part)");
 
     ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
-    cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-    cb.WorldToObjectMatrix = cb.ObjectToWorldMatrix;
-    cb.WorldToObjectMatrix.Invert(0.001f).IgnoreResult(); // this can fail, if scale is 0 (which happens), doesn't matter in those cases
+    ezMat4 m = pRenderData->m_GlobalTransform.GetAsMat4();
+    cb.ObjectToWorldMatrix = m;
+    m.Invert(0.001f).IgnoreResult(); // this can fail, if scale is 0 (which happens), doesn't matter in those cases
+    cb.WorldToObjectMatrix = m;
     cb.GizmoColor = pRenderData->m_GizmoColor;
     cb.GizmoScale = fGizmoScale;
     cb.GameObjectID = pRenderData->m_uiUniqueID;

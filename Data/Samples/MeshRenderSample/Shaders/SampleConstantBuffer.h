@@ -6,4 +6,5 @@ CONSTANT_BUFFER(ezMeshRenderSampleConstants, 2)
 {
   MAT4(ModelMatrix);
   MAT4(ViewProjectionMatrix);
+  COLOR4F(TintColor);
 };

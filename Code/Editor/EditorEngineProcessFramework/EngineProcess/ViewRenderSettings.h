@@ -110,7 +110,7 @@ private:
   float m_fSkyLightIntensity = 1.0f;
 
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(30.0f);
+  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(70.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
 
