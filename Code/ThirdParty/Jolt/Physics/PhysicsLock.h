@@ -27,9 +27,20 @@ using PhysicsLockContext = const BodyManager *;
 
 #endif // !JPH_ENABLE_ASSERTS
 
+/// EZ Modification start
+/// This is a workaround for clang requiring dll export of static thread_local members.
+#ifdef __clang__
+  #undef EZ_CLANG_JPH_EXPORT
+  #define EZ_CLANG_JPH_EXPORT JPH_EXPORT
+#else
+  #undef EZ_CLANG_JPH_EXPORT
+  #define EZ_CLANG_JPH_EXPORT
+#endif
+/// EZ Modification end
+
 /// Helpers to safely lock the different mutexes that are part of the physics system while preventing deadlock
 /// Class that keeps track per thread which lock are taken and if the order of locking is correct
-class PhysicsLock
+class EZ_CLANG_JPH_EXPORT PhysicsLock
 {
 public:
 #ifdef JPH_ENABLE_ASSERTS
