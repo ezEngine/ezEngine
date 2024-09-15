@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#include <cstdint>
+
 namespace ert
 {
 	struct color_rgba { uint8_t m_c[4]; };

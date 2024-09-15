@@ -78,7 +78,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
           return EZ_FAILURE;
         }
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(SYS_pidfd_getfd)
         if (!m_pDevice->GetExtensions().m_bExternalMemoryFd)
         {
           ezLog::Error("Can not create shared textures because external memory fd is not supported");
@@ -155,7 +155,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         return EZ_FAILURE;
       }
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(SYS_pidfd_getfd)
       if (m_hSharedHandle.m_hSharedTexture == 0 || m_hSharedHandle.m_hSemaphore == 0)
       {
         ezLog::Error("Can not open shared texture: invalid handle given");
@@ -358,7 +358,7 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
   auto res = SUPER::DeInitPlatform(pDevice);
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(SYS_pidfd_getfd)
   if (m_hSharedHandle.m_hSharedTexture != 0)
   {
     pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_hSharedHandle.m_hSharedTexture), nullptr});

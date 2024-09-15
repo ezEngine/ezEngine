@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload Patch File
         if: ${{ steps.format_files.outputs.hasPatch == 'true' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ClangFormatPatch
           path: ${{github.workspace}}/clangFormat.patch

@@ -92,7 +92,7 @@ verlt() {
 }
 
 if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
-  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libomp-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5)
+  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libomp-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5 libomp-dev)
 
   if [ "$UseClang" = true ]; then
     packages+=(clang-14 libstdc++-12-dev)
@@ -104,6 +104,8 @@ else
   >&2 echo "Currently supported are:"
   >&2 echo "  * Ubuntu 22"
   >&2 echo "  * Linux Mint 21"
+  >&2 echo "Yours is: $Issue"
+  
   exit 1
 fi
 
@@ -129,8 +131,10 @@ if [ "$UseClang" = true ]; then
   CompilerShort=clang
 fi
 
+OsPostfix=""
+
 if [ "$RunCMake" = true ]; then
-  preset="linux-${CompilerShort}-${BuildType}"
+  preset="linux${OsPostfix}-${CompilerShort}-${BuildType}"
   cmake --preset ${preset} $NoUnity && \
   echo -e "\nRun 'ninja -C Workspace/${preset}' to build"
 fi
