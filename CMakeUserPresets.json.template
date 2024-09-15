@@ -10,7 +10,12 @@
       "name": "user-specific",
       "hidden": true,
       "cacheVariables": {
-        "EZ_QT_DIR" : "path to qt here"
+        "EZ_QT_DIR" : "directory to qt6 install location",
+        "CMAKE_C_COMPILER" : "clang-14",
+        "CMAKE_CXX_COMPILER" : "clang++-14"
+      },
+      "environment": {
+        "EZ_STEAMRT_SDK_ROOT" : "Directory to SteamRT Sniper SDK root"
       }
     },
     {
@@ -27,6 +32,21 @@
       "name": "Shipping",
       "displayName": "Shipping",
       "inherits": [ "linux-clang-shipping", "user-specific"]
+    },
+    {
+      "name": "Debug-SteamRT",
+      "displayName": "Debug-SteamRT",
+      "inherits": [ "linux-steam-clang-debug", "user-specific"]
+    },
+    {
+      "name": "Dev-SteamRT",
+      "displayName": "Dev-SteamRT",
+      "inherits": [ "linux-steam-clang-dev", "user-specific"]
+    },
+    {
+      "name": "Shipping-SteamRT",
+      "displayName": "Shipping-SteamRT",
+      "inherits": [ "linux-steam-clang-shipping", "user-specific"]
     }
   ]
 }
