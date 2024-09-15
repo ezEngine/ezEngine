@@ -115,6 +115,10 @@ public:
 #  error "Vulkan Platform not supported"
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    bool m_bSurfaceXcb = false;
+#endif
+
     bool m_bDebugUtils = false;
     bool m_bDebugUtilsMarkers = false;
     PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT = nullptr;

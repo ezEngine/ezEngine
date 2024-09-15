@@ -112,7 +112,7 @@ macro(ez_platformhook_set_library_properties TARGET_NAME)
     get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
     if(EZ_CMAKE_COMPILER_GCC)
         # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-        target_link_libraries(${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
+	target_link_libraries(${TARGET_NAME} PRIVATE -lgcc)
     endif()
 endmacro()
 
