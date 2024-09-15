@@ -2,8 +2,8 @@ WindowDesc
 {
 	string %Title{"Testing Chambers"}
 	string %Mode{"Window"}
-	Vec2u %Resolution{uint32{1280,500}}
-	bool %ClipMouseCursor{false}
-	bool %ShowMouseCursor{true}
-	bool %SetForegroundOnInit{false}
+    Vec2u %Resolution{uint32{1024,768}}
+    bool %ClipMouseCursor{true}
+    bool %ShowMouseCursor{false}
+    bool %SetForegroundOnInit{true}
 }
