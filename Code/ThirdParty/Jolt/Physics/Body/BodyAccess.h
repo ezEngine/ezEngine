@@ -8,17 +8,6 @@
 
 JPH_NAMESPACE_BEGIN
 
-/// EZ Modification start
-/// This is a workaround for clang requiring dll export of static thread_local members.
-#ifdef __clang__
-  #undef EZ_CLANG_JPH_EXPORT
-  #define EZ_CLANG_JPH_EXPORT JPH_EXPORT
-#else
-  #undef EZ_CLANG_JPH_EXPORT
-  #define EZ_CLANG_JPH_EXPORT
-#endif
-/// EZ Modification end
-
 class EZ_CLANG_JPH_EXPORT BodyAccess
 {
 public:

@@ -575,4 +575,15 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 	#error Undefined
 #endif
 
+/// EZ Modification start
+/// This is a workaround for clang requiring dll export of static thread_local members.
+/// Required on BodyAccess and PhysicsLock classes.
+#undef EZ_CLANG_JPH_EXPORT
+#if defined(__linux__) && defined(__clang__)
+  #define EZ_CLANG_JPH_EXPORT JPH_EXPORT
+#else
+  #define EZ_CLANG_JPH_EXPORT
+#endif
+/// EZ Modification end
+
 JPH_NAMESPACE_END
