@@ -91,11 +91,11 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
-if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
+if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Ubuntu" -a "$Version" = "24" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libomp-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5 libomp-dev)
 
   if [ "$UseClang" = true ]; then
-    packages+=(clang-14 libstdc++-12-dev)
+    packages+=(clang-14 libomp-14-dev libstdc++-12-dev)
   else
     packages+=(gcc-12 g++-12)
   fi
@@ -103,6 +103,7 @@ else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
   >&2 echo "Currently supported are:"
   >&2 echo "  * Ubuntu 22"
+  >&2 echo "  * Ubuntu 24"
   >&2 echo "  * Linux Mint 21"
   >&2 echo "Yours is: $Issue"
   
