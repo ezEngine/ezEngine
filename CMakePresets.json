@@ -96,7 +96,7 @@
     {
       "name": "android-x64-debug",
       "inherits" : ["android-base"],
-      "hidden" : true,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "ANDROID_ABI": "x86_64"
@@ -105,7 +105,7 @@
     {
       "name": "android-x64-dev",
       "inherits" : ["android-base"],
-      "hidden" : true,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Dev",
         "ANDROID_ABI": "x86_64"
@@ -114,7 +114,7 @@
     {
       "name": "android-x64-shipping",
       "inherits" : ["android-base"],
-      "hidden" : true,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping",
         "ANDROID_ABI": "x86_64"
