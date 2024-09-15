@@ -201,7 +201,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     break;
     case ezWindowHandle::Type::XCB:
     {
-      if(m_pVulkanDevice->GetExtensions().m_bSurfaceXcb)
+      if (m_pVulkanDevice->GetExtensions().m_bSurfaceXcb)
       {
         vk::XcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
         EZ_ASSERT_DEV(windowHandle.xcbWindow.m_pConnection != nullptr && windowHandle.xcbWindow.m_Window != 0, "Invalid xcb handle");
