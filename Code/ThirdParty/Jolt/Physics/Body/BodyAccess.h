@@ -46,8 +46,8 @@ public:
 	}
 
 	// Various permissions that can be granted
-	static thread_local EAccess			sVelocityAccess;
-	static thread_local EAccess			sPositionAccess;
+	static JPH_EXPORT_THREAD_LOCAL thread_local EAccess			sVelocityAccess;
+	static JPH_EXPORT_THREAD_LOCAL thread_local EAccess			sPositionAccess;
 };
 
 JPH_NAMESPACE_END

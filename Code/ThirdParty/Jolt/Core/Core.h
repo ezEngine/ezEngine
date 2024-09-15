@@ -231,9 +231,17 @@
 			#endif
 		#endif
 	#endif
+
+	#if defined(JPH_PLATFORM_LINUX) && defined(JPH_COMPILER_CLANG)
+		// Linux clang requires dll export on static thread_local variables, while Windows forbids it.
+		#define JPH_EXPORT_THREAD_LOCAL JPH_EXPORT
+	#else
+		#define JPH_EXPORT_THREAD_LOCAL
+	#endif
 #else
 	// If the define is not set, we use static linking and symbols don't need to be imported or exported
 	#define JPH_EXPORT
+	#define JPH_EXPORT_THREAD_LOCAL
 #endif
 
 #ifndef JPH_EXPORT_GCC_BUG_WORKAROUND
