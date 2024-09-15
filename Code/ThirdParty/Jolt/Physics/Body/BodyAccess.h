@@ -8,7 +8,7 @@
 
 JPH_NAMESPACE_BEGIN
 
-class EZ_CLANG_JPH_EXPORT BodyAccess
+class BodyAccess
 {
 public:
 	/// Access rules, used to detect race conditions during simulation
@@ -46,8 +46,8 @@ public:
 	}
 
 	// Various permissions that can be granted
-	static thread_local EAccess			sVelocityAccess;
-	static thread_local EAccess			sPositionAccess;
+	static JPH_EXPORT_THREAD_LOCAL thread_local EAccess			sVelocityAccess;
+	static JPH_EXPORT_THREAD_LOCAL thread_local EAccess			sPositionAccess;
 };
 
 JPH_NAMESPACE_END

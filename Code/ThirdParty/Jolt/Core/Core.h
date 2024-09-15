@@ -230,10 +230,18 @@
 				#define JPH_EXPORT_GCC_BUG_WORKAROUND [[gnu::visibility("default")]]
 			#endif
 		#endif
+        #endif
+
+	#if defined(JPH_PLATFORM_LINUX) && defined(JPH_COMPILER_CLANG)
+		// Linux clang requires dll export on static thread_local variables, while Windows forbids it.
+		#define JPH_EXPORT_THREAD_LOCAL JPH_EXPORT
+	#else
+		#define JPH_EXPORT_THREAD_LOCAL
 	#endif
 #else
 	// If the define is not set, we use static linking and symbols don't need to be imported or exported
 	#define JPH_EXPORT
+        #define JPH_EXPORT_THREAD_LOCAL
 #endif
 
 #ifndef JPH_EXPORT_GCC_BUG_WORKAROUND
@@ -574,16 +582,5 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 #else
 	#error Undefined
 #endif
-
-/// EZ Modification start
-/// This is a workaround for clang requiring dll export of static thread_local members.
-/// Required on BodyAccess and PhysicsLock classes.
-#undef EZ_CLANG_JPH_EXPORT
-#if defined(__linux__) && defined(__clang__)
-  #define EZ_CLANG_JPH_EXPORT JPH_EXPORT
-#else
-  #define EZ_CLANG_JPH_EXPORT
-#endif
-/// EZ Modification end
 
 JPH_NAMESPACE_END

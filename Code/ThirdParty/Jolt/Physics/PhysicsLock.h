@@ -29,7 +29,7 @@ using PhysicsLockContext = const BodyManager *;
 
 /// Helpers to safely lock the different mutexes that are part of the physics system while preventing deadlock
 /// Class that keeps track per thread which lock are taken and if the order of locking is correct
-class EZ_CLANG_JPH_EXPORT PhysicsLock
+class PhysicsLock
 {
 public:
 #ifdef JPH_ENABLE_ASSERTS
@@ -86,7 +86,7 @@ private:
 		PhysicsLockContext		mContext = nullptr;
 	};
 
-	static thread_local LockData sLocks[4];
+	static JPH_EXPORT_THREAD_LOCAL thread_local LockData sLocks[4];
 
 	// Helper function to find the locked mutexes for a particular context
 	static uint32 &				sGetLockedMutexes(PhysicsLockContext inContext)
