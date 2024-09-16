@@ -4,6 +4,9 @@
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+/// \brief Wrapper around ezGALBufferHandle that automates buffer updates.
+/// Created via ezRenderContext::CreateConstantBufferStorage. Retried via ezRenderContext::TryGetConstantBufferStorage, updated lazily via ezRenderContext::UploadConstants.
+///
 class EZ_RENDERERCORE_DLL ezConstantBufferStorageBase
 {
 protected:
@@ -16,6 +19,7 @@ protected:
 public:
   ezArrayPtr<ezUInt8> GetRawDataForWriting();
   ezArrayPtr<const ezUInt8> GetRawDataForReading() const;
+  void MarkDirty() {m_bHasBeenModified = true;}
 
   void UploadData(ezGALCommandEncoder* pCommandEncoder);
 

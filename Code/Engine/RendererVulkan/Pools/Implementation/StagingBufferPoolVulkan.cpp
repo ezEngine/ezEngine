@@ -17,7 +17,10 @@ void ezStagingBufferPoolVulkan::DeInitialize()
 
 ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize alignment, vk::DeviceSize size)
 {
-  // #TODO_VULKAN alignment
+  const vk::PhysicalDeviceProperties& properties = m_pDevice->GetPhysicalDeviceProperties();
+  alignment = ezMath::Max<vk::DeviceSize>(16, alignment, properties.limits.nonCoherentAtomSize);
+  size = ezMemoryUtils::AlignSize(size, alignment);
+
   ezStagingBufferVulkan buffer;
 
   EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
@@ -28,7 +31,6 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize a
   bufferCreateInfo.pQueueFamilyIndices = nullptr;
   bufferCreateInfo.queueFamilyIndexCount = 0;
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
-
 
   ezVulkanAllocationCreateInfo allocInfo;
   allocInfo.m_usage = ezVulkanMemoryUsage::Auto;

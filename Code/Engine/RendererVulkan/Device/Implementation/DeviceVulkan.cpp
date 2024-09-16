@@ -646,11 +646,18 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
   ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pInitialData.GetPtr(), pInitialData.GetCount());
   ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+  VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, pInitialData.GetCount()));
 
   vk::BufferCopy region;
   region.srcOffset = 0;
   region.dstOffset = dstOffset;
   region.size = pInitialData.GetCount();
+
+  pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, pInitialData.GetCount(), vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+  pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask(),vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+
+  pPipelineBarrier->Flush();
 
   // #TODO_VULKAN atomic min size violation?
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
@@ -678,7 +685,6 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
   };
 
   pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-  pPipelineBarrier->Flush();
 
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
@@ -703,6 +709,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
     ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pLayerData, uiTotalSize);
     ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+    VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, uiTotalSize));
 
     vk::BufferImageCopy region = {};
     region.imageSubresource = subResource;
@@ -712,6 +719,10 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     region.bufferOffset = 0;
     region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
     region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
+
+    pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    pPipelineBarrier->Flush();
 
     // #TODO_VULKAN atomic min size violation?
     commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);

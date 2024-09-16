@@ -8,6 +8,7 @@ struct ezPerInstanceData;
 class ezInstanceDataProvider;
 class ezInstancedMeshComponent;
 
+/// \brief Stores a couple of ezPerInstanceData structs inside a buffer. Used to do instanced rendering.
 struct EZ_RENDERERCORE_DLL ezInstanceData
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezInstanceData);

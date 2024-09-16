@@ -4,6 +4,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 
 ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU)
   : ezGALBuffer(Description)
@@ -86,20 +87,20 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, m_usage);
   m_size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
 
-  CreateBuffer();
-
   m_resourceBufferInfo.offset = 0;
   m_resourceBufferInfo.range = m_size;
 
+  if (m_Description.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Dynamic)
+  {
+    EZ_ASSERT_DEV(m_Description.m_BufferFlags == ezGALBufferUsageFlags::ConstantBuffer, "Only basic constant buffers support dynamic memory");
+    return EZ_SUCCESS;
+  }
+
+  CreateBuffer();
+
   if (!pInitialData.IsEmpty())
   {
-    //
-
-    void* pData = nullptr;
-    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(m_currentBuffer.m_alloc, &pData));
-    EZ_ASSERT_DEV(pData, "Implementation error");
-    ezMemoryUtils::Copy((ezUInt8*)pData, pInitialData.GetPtr(), pInitialData.GetCount());
-    ezMemoryAllocatorVulkan::UnmapMemory(m_currentBuffer.m_alloc);
+    m_pDeviceVulkan->GetInitContext().InitBuffer(this, pInitialData);
   }
   return EZ_SUCCESS;
 }

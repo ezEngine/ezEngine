@@ -26,10 +26,14 @@ ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& 
   : m_GALDeviceVulkan(device)
 {
   m_vkDevice = device.GetVulkanDevice();
+  m_UniformBufferPool = EZ_NEW(device.GetAllocator(), ezUniformBufferPoolVulkan, &device);
+  m_UniformBufferPool->Initialize();
 }
 
 ezGALCommandEncoderImplVulkan::~ezGALCommandEncoderImplVulkan()
 {
+  m_UniformBufferPool->DeInitialize();
+  m_UniformBufferPool = nullptr;
 }
 
 void ezGALCommandEncoderImplVulkan::Reset()
@@ -238,11 +242,12 @@ void ezGALCommandEncoderImplVulkan::CopyBufferPlatform(const ezGALBuffer* pDesti
 
   EZ_ASSERT_DEV(pSource->GetSize() != pDestination->GetSize(), "Source and destination buffer sizes mismatch!");
 
-  // TODO do this in an immediate command buffer?
   vk::BufferCopy bufferCopy = {};
   bufferCopy.size = pSource->GetSize();
 
-  // #TODO_VULKAN better barrier management of buffers.
+  m_pPipelineBarrier->AccessBuffer(pSourceVulkan, 0, bufferCopy.size, pDestinationVulkan->GetUsedByPipelineStage(), pDestinationVulkan->GetAccessMask(),vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+  m_pPipelineBarrier->AccessBuffer(pDestinationVulkan, 0, bufferCopy.size, pDestinationVulkan->GetUsedByPipelineStage(), pDestinationVulkan->GetAccessMask(),vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+
   m_pPipelineBarrier->Flush();
 
   m_pCommandBuffer->copyBuffer(pSourceVulkan->GetVkBuffer(), pDestinationVulkan->GetVkBuffer(), 1, &bufferCopy);
@@ -277,38 +282,59 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
   EZ_CHECK_ALIGNMENT(pSourceData.GetPtr(), 16);
 
   auto pVulkanDestination = static_cast<const ezGALBufferVulkan*>(pDestination);
-
-  switch (updateMode)
+  switch (pDestination->GetDescription().m_ResourceAccess.m_MemoryUsage)
   {
-    case ezGALUpdateMode::Discard:
-      pVulkanDestination->DiscardBuffer();
-      [[fallthrough]];
-    case ezGALUpdateMode::NoOverwrite:
+    case ezGALMemoryUsage::GPU:
     {
-      ezVulkanAllocation alloc = pVulkanDestination->GetAllocation();
-      void* pData = nullptr;
-      VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
-      EZ_ASSERT_DEV(pData, "Implementation error");
-      ezMemoryUtils::Copy(ezMemoryUtils::AddByteOffset((ezUInt8*)pData, uiDestOffset), pSourceData.GetPtr(), pSourceData.GetCount());
-      ezMemoryAllocatorVulkan::UnmapMemory(alloc);
-    }
-    break;
-    case ezGALUpdateMode::CopyToTempStorage:
-    {
-      if (m_bRenderPassActive)
-      {
-        m_pCommandBuffer->endRenderPass();
-        m_bRenderPassActive = false;
-      }
-
-      EZ_ASSERT_DEBUG(!m_bRenderPassActive, "Vulkan does not support copying buffers while a render pass is active. TODO: Fix high level render code to make this impossible.");
-
+      // Always ezGALUpdateMode::CopyToTempStorage
       m_GALDeviceVulkan.UploadBufferStaging(&m_GALDeviceVulkan.GetStagingBufferPool(), m_pPipelineBarrier, *m_pCommandBuffer, pVulkanDestination, pSourceData, uiDestOffset);
     }
     break;
+    case ezGALMemoryUsage::Staging:
+    {
+      switch (updateMode)
+      {
+        case ezGALUpdateMode::Discard:
+          EZ_REPORT_FAILURE("Discard not supported");
+          break;
+        case ezGALUpdateMode::NoOverwrite:
+        {
+          ezVulkanAllocation alloc = pVulkanDestination->GetAllocation();
+          void* pData = nullptr;
+          //VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
+          EZ_ASSERT_DEV(pData, "Implementation error");
+          ezMemoryUtils::Copy(ezMemoryUtils::AddByteOffset((ezUInt8*)pData, uiDestOffset), pSourceData.GetPtr(), pSourceData.GetCount());
+          //ezMemoryAllocatorVulkan::UnmapMemory(alloc);
+        }
+        break;
+        case ezGALUpdateMode::CopyToTempStorage:
+        {
+          m_GALDeviceVulkan.UploadBufferStaging(&m_GALDeviceVulkan.GetStagingBufferPool(), m_pPipelineBarrier, *m_pCommandBuffer, pVulkanDestination, pSourceData, uiDestOffset);
+        }
+        break;
+        default:
+          break;
+      }
+    }
+    break;
+    case ezGALMemoryUsage::Readback:
+    {
+      EZ_REPORT_FAILURE("Readback buffers can not be uploaded to");
+    }
+    break;
+    case ezGALMemoryUsage::Dynamic:
+    {
+      EZ_ASSERT_DEBUG(uiDestOffset == 0, "Offset not supported");
+      EZ_ASSERT_DEBUG(pVulkanDestination->GetDescription().m_uiTotalSize == pSourceData.GetCount(), "Dynamic buffers must be updated in their entirety");
+      m_UniformBufferPool->UpdateBuffer(pVulkanDestination, pSourceData);
+      // Always ezGALUpdateMode::Discard
+    }
+    break;
     default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
+
 }
 
 void ezGALCommandEncoderImplVulkan::CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)

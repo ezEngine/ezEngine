@@ -75,6 +75,10 @@ public:
   bool IsDirty(vk::Image image, const vk::ImageSubresourceRange& subResources) const;
   ///@}
 
+  bool AddBufferBarrierInternal(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length,
+    vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess,
+    vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess);
+
 private:
   struct SubElementState
   {
@@ -110,9 +114,6 @@ private:
     ezHybridArray<SubBufferState, 1> m_subBufferState;
   };
 
-  bool AddBufferBarrierInternal(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length,
-    vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess,
-    vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess);
   bool IsDirtyInternal(const BufferState& state, const SubBufferState& subState) const;
 
   bool AddImageBarrierInternal(vk::Image image, const vk::ImageSubresourceRange& subResources,

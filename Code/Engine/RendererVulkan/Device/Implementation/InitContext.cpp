@@ -78,7 +78,6 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
     m_pPipelineBarrier->SetInitialImageState(pTexture, createInfo.initialLayout);
 
-    ezDynamicArray<ezUInt8> tempData;
     ezDynamicArray<ezGALSystemMemoryDescription> initialData;
     if (pInitialData.IsEmpty())
     {
@@ -94,7 +93,8 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
           (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
           (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
         const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-        tempData.SetCount(uiTotalSize, 0);
+        if (m_TempData.GetCount() < uiTotalSize)
+          m_TempData.SetCount(uiTotalSize, 0);
       }
 
       for (ezUInt32 uiLayer = 0; uiLayer < createInfo.arrayLayers; uiLayer++)
@@ -111,7 +111,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
             (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
           ezGALSystemMemoryDescription data;
-          data.m_pData = tempData.GetData();
+          data.m_pData = m_TempData.GetData();
           data.m_uiRowPitch = uiBlockSize * blockCount.width;
           data.m_uiSlicePitch = data.m_uiRowPitch * blockCount.height;
           initialData.PushBack(data);
@@ -155,4 +155,41 @@ void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPt
   EZ_LOCK(m_Lock);
 
   EnsureCommandBufferExists();
+
+  const ezVulkanAllocationInfo& allocInfo = pBuffer->GetAllocationInfo();
+  if (allocInfo.m_pMappedData != nullptr)
+  {
+    ezMemoryUtils::Copy((ezUInt8*)allocInfo.m_pMappedData, pInitialData.GetPtr(), pInitialData.GetCount());
+
+    m_pPipelineBarrier->AccessBuffer(pBuffer, 0, pInitialData.GetCount(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
+  }
+  else
+  {
+    m_pDevice->UploadBufferStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pBuffer, pInitialData, 0);
+  }
+}
+
+void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer buffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  if (stagingBuffer)
+  {
+    m_pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer, 0, uiDataSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    m_pPipelineBarrier->Flush();
+
+    vk::BufferCopy bufferCopy = {};
+    bufferCopy.size = uiDataSize;
+    m_currentCommandBuffer.copyBuffer(stagingBuffer, buffer, 1, &bufferCopy);
+
+    m_pPipelineBarrier->AddBufferBarrierInternal(buffer, 0, uiDataSize, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+  }
+  else
+  {
+    m_pPipelineBarrier->AddBufferBarrierInternal(buffer, 0, uiDataSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+  }
+
 }

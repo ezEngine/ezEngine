@@ -17,8 +17,10 @@ struct ezVulkanAllocationCreateFlags
     CanAlias = 0x00000200,
     HostAccessSequentialWrite = 0x00000400,
     HostAccessRandom = 0x00000800,
+    AllowTransferInstead = 0x00001000,
     StrategyMinMemory = 0x00010000,
     StrategyMinTime = 0x00020000,
+
     Default = 0,
   };
 
@@ -103,6 +105,7 @@ public:
   static void DestroyBuffer(vk::Buffer& buffer, ezVulkanAllocation& alloc);
 
   static ezVulkanAllocationInfo GetAllocationInfo(ezVulkanAllocation alloc);
+  static vk::MemoryPropertyFlags GetAllocationFlags(ezVulkanAllocation alloc);
   static void SetAllocationUserData(ezVulkanAllocation alloc, const char* pUserData);
 
   static vk::Result MapMemory(ezVulkanAllocation alloc, void** pData);

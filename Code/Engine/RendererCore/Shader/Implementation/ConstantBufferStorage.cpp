@@ -5,7 +5,6 @@
 #include <RendererFoundation/Device/Device.h>
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
-
 {
   m_Data = ezMakeArrayPtr(static_cast<ezUInt8*>(ezFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
   ezMemoryUtils::ZeroFill(m_Data.GetPtr(), m_Data.GetCount());

@@ -218,6 +218,7 @@ void ezGALCommandEncoder::CopyBufferRegion(
 void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
+  EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render || updateMode == ezGALUpdateMode::Discard, "Only discard updates on dynamic buffers are supported within a render scope");
 
   EZ_ASSERT_DEV(!sourceData.IsEmpty(), "Source data for buffer update is invalid!");
 

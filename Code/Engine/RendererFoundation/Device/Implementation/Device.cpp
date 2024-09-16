@@ -633,6 +633,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   desc.m_uiTotalSize = uiBufferSize;
   desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
   desc.m_ResourceAccess.m_bImmutable = false;
+  desc.m_ResourceAccess.m_MemoryUsage = ezGALMemoryUsage::Dynamic;
 
   return CreateBuffer(desc);
 }

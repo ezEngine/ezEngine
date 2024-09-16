@@ -30,12 +30,15 @@ public:
   /// \brief Needs to be called by the ezGALDeviceVulkan just before a texture is destroyed to clean up stale barriers.
   void TextureDestroyed(const ezGALTextureVulkan* pTexture);
 
+  void UpdateDynamicUniformBuffer(vk::Buffer buffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize);
+
 private:
   void EnsureCommandBufferExists();
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
 
   ezMutex m_Lock;
+  ezDynamicArray<ezUInt8> m_TempData;
   vk::CommandBuffer m_currentCommandBuffer;
   ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;

@@ -1003,6 +1003,13 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
     if (s_pDefaultInstance)
       s_pDefaultInstance->m_pGALCommandEncoder = nullptr;
   }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
+  {
+    for (auto it = s_ConstantBufferStorageTable.GetIterator(); it.IsValid(); ++it)
+    {
+      it.Value()->MarkDirty();
+    }
+  }
 }
 
 // static
