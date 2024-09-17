@@ -13,9 +13,18 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
   - checkout: self
     submodules: recursive
+    fetchDepth: 1
     lfs: true
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
   - pwsh: |
       git fetch --no-recurse-submodules --depth=100 origin $(system.pullRequest.targetBranch)
       $curCommit = $(git rev-parse HEAD)
@@ -26,6 +35,7 @@ jobs:
       ./Data/Tools/Precompiled/7z x -oninja ninja-win.zip
       $WindowsSdkVersion = ((Get-ChildItem -Directory "C:\Program Files (x86)\Windows Kits\10\bin").Name | ? { $_ -match "^10\.0\." } | sort -Descending)[0]
       Write-Host "Windows SDK Found" $WindowsSdkVersion
+      Get-CimInstance -ClassName Win32_LogicalDisk
       $rcExe = "C:\Program Files (x86)\Windows Kits\10\bin\$WindowsSdkVersion\x64\rc.exe" -replace "\\","/"
       $clangCppExe = "$pwd\llvm\bin\clang++.exe" -replace "\\","/"
       $clangExe = "$pwd\llvm\bin\clang.exe" -replace "\\","/"
