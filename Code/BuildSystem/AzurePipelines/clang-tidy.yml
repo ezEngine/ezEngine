@@ -13,13 +13,24 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
   - checkout: self
     submodules: recursive
+    fetchDepth: 1
     lfs: true
+  - task: CmdLine@2
+    displayName: Free Disk Space
+    inputs:
+      script: dir C:\
   - pwsh: |
       git fetch --no-recurse-submodules --depth=100 origin $(system.pullRequest.targetBranch)
+      Get-CimInstance -ClassName Win32_LogicalDisk
       $curCommit = $(git rev-parse HEAD)
       git fetch --no-recurse-submodules --depth=100 origin $curCommit
+      Get-CimInstance -ClassName Win32_LogicalDisk
       Invoke-WebRequest https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/LLVM-16.0.6-win64.exe -OutFile "LLVM-16.0.6-win64.exe"
       Invoke-WebRequest https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip -OutFile ninja-win.zip
       ./Data/Tools/Precompiled/7z x -ollvm LLVM-16.0.6-win64.exe
