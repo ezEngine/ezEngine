@@ -1,10 +1,7 @@
 #pragma once
 
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/Communication/GlobalEvent.h>
-#include <emscripten/emscripten.h>
+#include <Foundation/Platform/Web/EmscriptenUtils.h>
 
 /// \file
 
@@ -50,7 +47,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
   {                                                                                                                              \
     g_pApp = new (appBuffer) AppClass(__VA_ARGS__);                                                                              \
     g_pApp->SetCommandLineArguments((ezUInt32)argc, argv);                                                                       \
-    emscripten_set_main_loop(ezWebRun, 0, true);                                                                                 \
+    ezEmscriptenUtils::SetMainLoopFunction(ezWebRun);                                                                            \
     /* There's no real 'shutdown' in web. Just ignore this. */                                                                   \
     return 0;                                                                                                                    \
   }
