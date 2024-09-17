@@ -214,6 +214,10 @@ function(ez_set_common_target_definitions TARGET_NAME)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
 	endif()
 
+	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT)
+	endif()
+
 	# on Windows, make sure to use the Unicode API
 	target_compile_definitions(${TARGET_NAME} PUBLIC UNICODE _UNICODE)
 endfunction()

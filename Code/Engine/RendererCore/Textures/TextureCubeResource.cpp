@@ -16,7 +16,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTextureCubeResource);
 // clang-format on
 
 ezTextureCubeResource::ezTextureCubeResource()
-  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;

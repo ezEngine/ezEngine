@@ -32,6 +32,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResource);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResourceDescriptor);
+  EZ_STATICLINK_REFERENCE(Core_Platform_Web_InputDevice_Web);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);

@@ -4,10 +4,16 @@
 
 macro(ez_requires_renderer)
 	# PLATFORM-TODO
+	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
+		ez_requires_webgpu()
+	endif()
+
+	if(EZ_BUILD_EXPERIMENTAL_VULKAN)
+		ez_requires_vulkan()
+	endif()
+
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		ez_requires_d3d()
-	else()
-		ez_requires_vulkan()
 	endif()
 endmacro()
 
@@ -23,9 +29,22 @@ function(ez_add_renderers TARGET_NAME)
 			RendererVulkan
 		)
 
-		if (TARGET ShaderCompilerDXC)
+		if (TARGET ShaderCompilerVulkan)
 			add_dependencies(${TARGET_NAME}
-				ShaderCompilerDXC
+				ShaderCompilerVulkan
+			)
+		endif()
+	endif()
+
+	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
+		target_link_libraries(${TARGET_NAME}
+			PRIVATE
+			RendererWebGPU
+		)
+
+		if (TARGET ShaderCompilerWebGPU)
+			add_dependencies(${TARGET_NAME}
+				ShaderCompilerWebGPU
 			)
 		endif()
 	endif()

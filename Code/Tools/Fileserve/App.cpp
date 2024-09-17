@@ -26,7 +26,8 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->StartServer();
 #endif
 
-  ezPlugin::LoadPlugin("ezShaderCompilerDXC", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  ezPlugin::LoadPlugin("ezShaderCompilerVulkan", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  ezPlugin::LoadPlugin("ezShaderCompilerWebGPU", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
   ezPlugin::LoadPlugin("ezShaderCompilerHLSL", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
 
   ezFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', ezMakeDelegate(&ezFileserverApp::ShaderMessageHandler, this));

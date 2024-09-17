@@ -11,3 +11,5 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
 )
+
+ez_add_renderers(${PROJECT_NAME})

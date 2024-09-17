@@ -22,7 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture3DResource);
 
 ezTexture3DResource::ezTexture3DResource()
-  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 

@@ -20,6 +20,9 @@
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Core/System/Implementation/android/InputDevice_android.inl>
 #  include <Core/System/Implementation/android/Window_android.inl>
+#elif EZ_ENABLED(EZ_PLATFORM_WEB)
+#  include <Core/System/Implementation/Web/InputDevice_Web.h>
+#  include <Core/System/Implementation/Web/Window_Web.inl>
 #else
 #  include <Core/System/Implementation/null/InputDevice_null.inl>
 #  include <Core/System/Implementation/null/Window_null.inl>
