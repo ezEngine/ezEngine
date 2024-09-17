@@ -14,7 +14,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDynamicMeshBufferResource);
 // clang-format on
 
 ezDynamicMeshBufferResource::ezDynamicMeshBufferResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
 }
 

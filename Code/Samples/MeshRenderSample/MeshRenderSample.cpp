@@ -17,7 +17,9 @@
 #include <RendererCore/../../../Data/Samples/MeshRenderSample/Shaders/SampleConstantBuffer.h>
 
 
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+#ifdef BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT
+constexpr const char* szDefaultRenderer = "WebGPU";
+#elif BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
 constexpr const char* szDefaultRenderer = "Vulkan";
 #else
 constexpr const char* szDefaultRenderer = "DX11";
@@ -66,7 +68,7 @@ public:
     ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
     ezShaderManager::Configure(szShaderModel, true);
-    ezPlugin::LoadPlugin(szShaderCompiler).AssertSuccess("Shader compiler plugin not found", szShaderCompiler);
+    ezPlugin::LoadPlugin(szShaderCompiler).IgnoreResult();
 
     // Create a window for rendering
     {

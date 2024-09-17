@@ -10,13 +10,17 @@ class EZ_CORE_DLL ezResource : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResource, ezReflectedClass);
 
-protected:
+public:
   enum class DoUpdate
   {
     OnMainThread,
-    OnAnyThread
+    OnAnyThread,
+    OnGraphicsResourceThreads ///< If set, the setting from UpdateGraphicsResource is used. This must be configured by the active renderer.
   };
 
+  static DoUpdate UpdateGraphicsResource /*= DoUpdate::OnAnyThread*/;
+
+protected:
   enum class Unload
   {
     AllQualityLevels,

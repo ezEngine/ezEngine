@@ -20,7 +20,7 @@ ezResult ezWindow::Initialize()
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
   if (m_bInitialized)
   {
-    Destroy().IgnoreResult();
+    Destroy().AssertSuccess();
   }
 
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowResizable)

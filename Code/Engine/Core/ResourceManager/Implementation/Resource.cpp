@@ -10,6 +10,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezResource::DoUpdate ezResource::UpdateGraphicsResource = ezResource::DoUpdate::OnAnyThread;
+
 EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner)
 {
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
@@ -75,6 +77,11 @@ ezResource::~ezResource()
 
 ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
+  if (ResourceUpdateThread == DoUpdate::OnGraphicsResourceThreads)
+  {
+    ResourceUpdateThread = UpdateGraphicsResource;
+  }
+
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;

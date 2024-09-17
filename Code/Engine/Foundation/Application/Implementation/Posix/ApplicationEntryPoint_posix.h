@@ -18,7 +18,6 @@
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
   int main(int argc, const char** argv)                                                                                          \
   {                                                                                                                              \
-                                                                                                                                 \
     AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__);                                                                      \
     pApp->SetCommandLineArguments((ezUInt32)argc, argv);                                                                         \
     ezRun(pApp); /* Life cycle & run method calling */                                                                           \
