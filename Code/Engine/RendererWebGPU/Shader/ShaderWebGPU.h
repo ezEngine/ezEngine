@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <RendererWebGPU/RendererWebGPUDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererWebGPU/RendererWebGPUDLL.h>
 
 class EZ_RENDERERWEBGPU_DLL ezGALShaderWebGPU : public ezGALShader
 {

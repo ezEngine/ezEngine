@@ -23,5 +23,3 @@ ezResult ezGALRenderTargetViewWebGPU::DeInitPlatform(ezGALDevice* pDevice)
   EZ_WEBGPU_TRACE();
   return EZ_SUCCESS;
 }
-
-

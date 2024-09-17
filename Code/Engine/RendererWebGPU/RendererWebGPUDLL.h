@@ -18,13 +18,13 @@ EZ_RENDERERWEBGPU_DLL void EnableWebGPUTrace(bool bEnable);
 EZ_RENDERERWEBGPU_DLL bool IsWebGPUTraceEnabled();
 
 #define EZ_WEBGPU_TRACE()                                            \
-  if (IsWebGPUTraceEnabled())                                             \
+  if (IsWebGPUTraceEnabled())                                        \
   {                                                                  \
     ezLog::Info("TRACE: {}:{}", EZ_SOURCE_FUNCTION, EZ_SOURCE_LINE); \
   }
 
 #define EZ_WEBGPU_TRACE_TEXT(text)                                              \
-  if (IsWebGPUTraceEnabled())                                                        \
+  if (IsWebGPUTraceEnabled())                                                   \
   {                                                                             \
     ezLog::Info("TRACE: {}:{} - {}", EZ_SOURCE_FUNCTION, EZ_SOURCE_LINE, text); \
   }

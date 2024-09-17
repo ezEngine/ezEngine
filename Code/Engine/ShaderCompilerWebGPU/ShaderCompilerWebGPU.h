@@ -1,8 +1,8 @@
 #pragma once
 
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <ShaderCompilerWebGPU/ShaderCompilerWebGPUDLL.h>
 #include <ShaderCompilerDXC/ShaderCompilerDXC.h>
+#include <ShaderCompilerWebGPU/ShaderCompilerWebGPUDLL.h>
 
 class EZ_SHADERCOMPILERWEBGPU_DLL ezShaderCompilerWebGPU : public ezShaderCompilerDXC
 {

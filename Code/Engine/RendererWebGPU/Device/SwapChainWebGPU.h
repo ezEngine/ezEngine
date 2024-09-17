@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <RendererWebGPU/RendererWebGPUDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererWebGPU/RendererWebGPUDLL.h>
 
 struct IDXGISwapChain;
 
