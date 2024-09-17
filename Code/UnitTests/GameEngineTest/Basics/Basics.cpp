@@ -60,10 +60,12 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     {
       ezLog::Info("Clean version {} != {} -> deleting asset cache.", uiTargetVersion, uiCleanVersion);
 
+#  if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
       if (ezOSFile::DeleteFolder(sProjectAssetDir).Failed())
       {
         ezLog::Warning("Deleting the asset cache folder failed.");
       }
+#  endif
 
       if (f.Open(sCleanFile, ezFileOpenMode::Write, ezFileShareMode::Default).Succeeded())
       {

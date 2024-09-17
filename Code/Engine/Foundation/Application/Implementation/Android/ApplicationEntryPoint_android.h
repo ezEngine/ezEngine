@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 /// \file
 #include <Foundation/Application/Application.h>
 #include <Foundation/Basics/Platform/Android/AndroidUtils.h>

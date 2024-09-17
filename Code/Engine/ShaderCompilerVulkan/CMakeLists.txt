@@ -1,6 +1,6 @@
 ez_cmake_init()
 
-ez_requires(EZ_CMAKE_PLATFORM_WINDOWS)
+ez_requires_desktop()
 ez_requires_vulkan()
 
 # Get the name of this folder as the project name

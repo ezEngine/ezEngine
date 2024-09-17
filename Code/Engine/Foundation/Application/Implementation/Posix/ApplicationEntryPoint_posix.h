@@ -1,8 +1,9 @@
-
 #pragma once
 
-/// \file
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
+/// \file
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT EZ_APPLICATION_ENTRY_POINT

@@ -1,5 +1,7 @@
-
 #pragma once
+
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Communication/GlobalEvent.h>
 #include <emscripten/emscripten.h>
