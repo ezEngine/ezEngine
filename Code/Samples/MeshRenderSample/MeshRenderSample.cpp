@@ -66,7 +66,7 @@ public:
     ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
     ezShaderManager::Configure(szShaderModel, true);
-    ezPlugin::LoadPlugin(szShaderCompiler).AssertSuccess("Shader compiler plugin not found", szShaderCompiler);
+    ezPlugin::LoadPlugin(szShaderCompiler).IgnoreResult();
 
     // Create a window for rendering
     {

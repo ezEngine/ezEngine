@@ -83,33 +83,28 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ShaderCompilerDXC, ShaderCompilerDXCPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<ezShaderCompilerDXC>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+EZ_BEGIN_ABSTRACT_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1)
+EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
-
-static const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum Stage)
+ezStringView ezShaderCompilerDXC::GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum Stage)
 {
-  if (sPlatform == "VULKAN")
+  switch (Stage)
   {
-    switch (Stage)
-    {
-      case ezGALShaderStage::VertexShader:
-        return "vs_6_0";
-      case ezGALShaderStage::HullShader:
-        return "hs_6_0";
-      case ezGALShaderStage::DomainShader:
-        return "ds_6_0";
-      case ezGALShaderStage::GeometryShader:
-        return "gs_6_0";
-      case ezGALShaderStage::PixelShader:
-        return "ps_6_0";
-      case ezGALShaderStage::ComputeShader:
-        return "cs_6_0";
-      default:
-        break;
-    }
+    case ezGALShaderStage::VertexShader:
+      return "vs_6_0";
+    case ezGALShaderStage::HullShader:
+      return "hs_6_0";
+    case ezGALShaderStage::DomainShader:
+      return "ds_6_0";
+    case ezGALShaderStage::GeometryShader:
+      return "gs_6_0";
+    case ezGALShaderStage::PixelShader:
+      return "ps_6_0";
+    case ezGALShaderStage::ComputeShader:
+      return "cs_6_0";
+    default:
+      break;
   }
 
   EZ_REPORT_FAILURE("Unknown Platform '{}' or Stage {}", sPlatform, Stage);
@@ -175,7 +170,7 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
     {
       const ezStringBuilder sSourceFile = inout_Data.m_sSourceFile;
 
-      if (CompileVulkanShader(sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_ByteCode[stage]->m_ByteCode).Succeeded())
+      if (CompileSPIRVShader(sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_ByteCode[stage]->m_ByteCode).Succeeded())
       {
         EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
       }
@@ -189,29 +184,35 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
   return EZ_SUCCESS;
 }
 
-ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
+void ezShaderCompilerDXC::ConfigureDxcArgs(ezDynamicArray<ezStringWChar>& inout_Args)
+{
+  inout_Args.PushBack(L"-spirv");
+  inout_Args.PushBack(L"-fvk-use-dx-position-w");
+  inout_Args.PushBack(L"-fspv-target-env=vulkan1.1");
+}
+
+ezResult ezShaderCompilerDXC::CompileSPIRVShader(ezStringView sFile, ezStringView sSource, bool bDebug, ezStringView sProfile, ezStringView sEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
   out_ByteCode.Clear();
 
-  const char* szCompileSource = szSource;
+  ezStringView sCompileSource = sSource;
   ezStringBuilder sDebugSource;
 
   ezDynamicArray<ezStringWChar> args;
-  args.PushBack(ezStringWChar(szFile));
+  args.PushBack(ezStringWChar(sFile));
   args.PushBack(L"-E");
-  args.PushBack(ezStringWChar(szEntryPoint));
+  args.PushBack(ezStringWChar(sEntryPoint));
   args.PushBack(L"-T");
-  args.PushBack(ezStringWChar(szProfile));
-  args.PushBack(L"-spirv");
-  args.PushBack(L"-fvk-use-dx-position-w");
-  args.PushBack(L"-fspv-target-env=vulkan1.1");
+  args.PushBack(ezStringWChar(sProfile));
+
+  ConfigureDxcArgs(args);
 
   if (bDebug)
   {
     // In debug mode we need to remove '#line' as any shader debugger won't work with them.
-    sDebugSource = szSource;
+    sDebugSource = sSource;
     sDebugSource.ReplaceAll("#line ", "//ine ");
-    szCompileSource = sDebugSource;
+    sCompileSource = sDebugSource;
 
     // ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
 
@@ -223,7 +224,7 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
   }
 
   ezComPtr<IDxcBlobEncoding> pSource;
-  s_pDxcUtils->CreateBlob(szCompileSource, (UINT32)strlen(szCompileSource), DXC_CP_UTF8, pSource.put());
+  s_pDxcUtils->CreateBlob(sCompileSource.GetStartPointer(), sCompileSource.GetElementCount(), DXC_CP_UTF8, pSource.put());
 
   DxcBuffer Source;
   Source.Ptr = pSource->GetBufferPointer();
@@ -247,7 +248,7 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
   pResults->GetStatus(&hrStatus);
   if (FAILED(hrStatus))
   {
-    ezLog::Error("Vulkan shader compilation failed.");
+    ezLog::Error("SPIR-V shader compilation failed.");
 
     if (pErrors != nullptr && pErrors->GetStringLength() != 0)
     {
@@ -270,7 +271,7 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
 
   if (pShader == nullptr)
   {
-    ezLog::Error("No Vulkan bytecode was generated.");
+    ezLog::Error("No SPIR-V bytecode was generated.");
     return EZ_FAILURE;
   }
 
@@ -350,25 +351,29 @@ ezResult ezShaderCompilerDXC::DefineShaderResourceBindings(const ezShaderProgram
     ezHashTable<ezHashedString, ezShaderResourceBinding>::Iterator itTexture;
   };
   ezHybridArray<TextureAndSamplerTuple, 2> autoSamplers;
-  for (auto itSampler : inout_resourceBinding)
+
+  if (AllowCombinedImageSamplers())
   {
-    if (itSampler.Value().m_ResourceType != ezGALShaderResourceType::Sampler || !itSampler.Key().GetView().EndsWith("_AutoSampler"))
-      continue;
+    for (auto itSampler : inout_resourceBinding)
+    {
+      if (itSampler.Value().m_ResourceType != ezGALShaderResourceType::Sampler || !itSampler.Key().GetView().EndsWith("_AutoSampler"))
+        continue;
 
-    ezStringBuilder sb = itSampler.Key().GetString();
-    sb.TrimWordEnd("_AutoSampler");
-    auto itTexture = inout_resourceBinding.Find(ezTempHashedString(sb));
-    if (!itTexture.IsValid())
-      continue;
+      ezStringBuilder sb = itSampler.Key().GetString();
+      sb.TrimWordEnd("_AutoSampler");
+      auto itTexture = inout_resourceBinding.Find(ezTempHashedString(sb));
+      if (!itTexture.IsValid())
+        continue;
 
-    if (itSampler.Value().m_iSet != itTexture.Value().m_iSet || itSampler.Value().m_iSlot != itTexture.Value().m_iSlot)
-      continue;
+      if (itSampler.Value().m_iSet != itTexture.Value().m_iSet || itSampler.Value().m_iSlot != itTexture.Value().m_iSlot)
+        continue;
 
-    itSampler.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
-    itTexture.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
-    // Sampler will match the slot of the texture at the end
-    orderInSet[itSampler.Value().m_iSet].RemoveAndCopy(itSampler.Key());
-    autoSamplers.PushBack({itSampler, itTexture});
+      itSampler.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
+      itTexture.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
+      // Sampler will match the slot of the texture at the end
+      orderInSet[itSampler.Value().m_iSet].RemoveAndCopy(itSampler.Key());
+      autoSamplers.PushBack({itSampler, itTexture});
+    }
   }
 
   // Assign slot to each resource in each set.
@@ -443,33 +448,33 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
 
 ezResult ezShaderCompilerDXC::FillResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info)
 {
-  if ((info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV) != 0)
+  if (info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SRV)
   {
     return FillSRVResourceBinding(binding, info);
   }
-
-  else if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV)
+  else if (info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_UAV)
   {
     return FillUAVResourceBinding(binding, info);
   }
-
-  else if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV)
+  else if (info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_CBV)
   {
     binding.m_ResourceType = ezGALShaderResourceType::ConstantBuffer;
     binding.m_pLayout = ReflectConstantBufferLayout(info.name, info.block);
 
     return EZ_SUCCESS;
   }
-
-  else if (info.resource_type == SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER)
+  else if (info.resource_type & SpvReflectResourceType::SPV_REFLECT_RESOURCE_FLAG_SAMPLER)
   {
     binding.m_ResourceType = ezGALShaderResourceType::Sampler;
 
-    if (binding.m_sName.GetString().EndsWith("_AutoSampler"))
+    if (AllowCombinedImageSamplers())
     {
-      ezStringBuilder sb = binding.m_sName.GetString();
-      sb.TrimWordEnd("_AutoSampler");
-      binding.m_sName.Assign(sb);
+      if (binding.m_sName.GetString().EndsWith("_AutoSampler"))
+      {
+        ezStringBuilder sb = binding.m_sName.GetString();
+        sb.TrimWordEnd("_AutoSampler");
+        binding.m_sName.Assign(sb);
+      }
     }
 
     return EZ_SUCCESS;
@@ -850,9 +855,9 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
   return EZ_SUCCESS;
 }
 
-ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(const char* szName, const SpvReflectBlockVariable& block)
+ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(ezStringView sName, const SpvReflectBlockVariable& block)
 {
-  EZ_LOG_BLOCK("Constant Buffer Layout", szName);
+  EZ_LOG_BLOCK("Constant Buffer Layout", sName);
   ezLog::Debug("Constant Buffer has {} variables, Size is {}", block.member_count, block.padded_size);
 
   ezShaderConstantBufferLayout* pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);

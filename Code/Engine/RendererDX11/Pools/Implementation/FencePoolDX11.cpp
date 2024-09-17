@@ -53,7 +53,7 @@ void ezFencePoolDX11::ReclaimFence(ID3D11Query*& ref_pFence)
 {
   if (ref_pFence)
   {
-    EZ_ASSERT_DEBUG(s_pDevice, "ezFencePoolVulkan::Initialize not called");
+    EZ_ASSERT_DEBUG(s_pDevice, "ezFencePoolDX11::Initialize not called");
     s_Fences.PushBack(ref_pFence);
   }
   ref_pFence = nullptr;

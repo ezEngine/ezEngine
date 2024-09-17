@@ -18,7 +18,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
 ezShaderPermutationResource::ezShaderPermutationResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_bShaderPermutationValid = false;
 

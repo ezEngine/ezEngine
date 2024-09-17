@@ -506,6 +506,11 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+ezMeshBufferResource::ezMeshBufferResource()
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
+{
+}
+
 ezMeshBufferResource::~ezMeshBufferResource()
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");

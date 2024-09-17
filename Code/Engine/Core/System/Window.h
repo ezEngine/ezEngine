@@ -20,6 +20,8 @@ class ezOpenDdlReaderElement;
 #  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Core/System/Implementation/android/InputDevice_android.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WEB)
+#  include <Core/System/Implementation/Web/InputDevice_Web.h>
 #else
 #  include <Core/System/Implementation/null/InputDevice_null.h>
 #endif
@@ -114,6 +116,13 @@ using ezWindowInternalHandle = ezWindowHandle;
 
 struct ANativeWindow;
 using ezWindowHandle = ANativeWindow*;
+using ezWindowInternalHandle = ezWindowHandle;
+#  define INVALID_WINDOW_HANDLE_VALUE nullptr
+
+#elif EZ_ENABLED(EZ_PLATFORM_WEB)
+
+struct DummyWindowHandle;
+using ezWindowHandle = DummyWindowHandle*;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE nullptr
 

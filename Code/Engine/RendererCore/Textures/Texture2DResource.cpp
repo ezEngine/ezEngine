@@ -22,7 +22,7 @@ ezCVarInt cvar_RenderingOffscreenTargetResolution2("Rendering.Offscreen.TargetRe
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 
 ezTexture2DResource::ezTexture2DResource()
-  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 

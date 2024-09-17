@@ -150,7 +150,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererVulkan, DeviceFactory)
 
 ON_CORESYSTEMS_STARTUP
 {
-  ezGALDeviceFactory::RegisterCreatorFunc("Vulkan", &CreateVulkanDevice, "VULKAN", "ezShaderCompilerDXC");
+  ezGALDeviceFactory::RegisterCreatorFunc("Vulkan", &CreateVulkanDevice, "VULKAN", "ezShaderCompilerVulkan");
 }
 
 ON_CORESYSTEMS_SHUTDOWN

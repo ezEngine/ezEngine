@@ -11,10 +11,12 @@ class EZ_SHADERCOMPILERDXC_DLL ezShaderCompilerDXC : public ezShaderProgramCompi
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerDXC, ezShaderProgramCompiler);
 
 public:
-  virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) override { out_platforms.PushBack("VULKAN"); }
-
   virtual ezResult ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
   virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
+
+protected:
+  virtual void ConfigureDxcArgs(ezDynamicArray<ezStringWChar>& inout_Args);
+  virtual bool AllowCombinedImageSamplers() const { return true; }
 
 private:
   /// \brief Sets fixed set / slot bindings to each resource.
@@ -27,12 +29,14 @@ private:
   void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
 
   ezResult ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(const char* szName, const SpvReflectBlockVariable& block);
+  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezStringView sName, const SpvReflectBlockVariable& block);
   ezResult FillResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   ezResult FillSRVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   ezResult FillUAVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   static ezGALShaderTextureType::Enum GetTextureType(const SpvReflectDescriptorBinding& info);
   ezResult Initialize();
+  ezResult CompileSPIRVShader(ezStringView sFile, ezStringView sSource, bool bDebug, ezStringView sProfile, ezStringView sEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
+  ezStringView GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum Stage);
 
 private:
   ezMap<const char*, ezGALVertexAttributeSemantic::Enum, CompareConstChar> m_VertexInputMapping;
