@@ -9,6 +9,7 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Shader/Types.h>
 #include <RendererWebGPU/CommandEncoder/CommandEncoderImplWebGPU.h>
 #include <RendererWebGPU/Device/DeviceWebGPU.h>
 #include <RendererWebGPU/Device/SwapChainWebGPU.h>
@@ -170,6 +171,8 @@ ezResult ezGALDeviceWebGPU::InitPlatform()
 
   // WebGPU cannot upload resources on anything other than the main thread
   ezResource::UpdateGraphicsResource = ezResource::DoUpdate::OnMainThread;
+  // at least at the moment the Dawn SPIR-V compiler can only deal with row-major matrices, which is why they all need to be transposed
+  ezShaderMat3::TransposeShaderMatrices = true;
 
   PreInitWebGPU();
 

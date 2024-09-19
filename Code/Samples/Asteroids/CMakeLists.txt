@@ -1,8 +1,10 @@
 ez_cmake_init()
 
 ez_requires_renderer()
+ez_requires_desktop()
 
 # Add content files for UWP version.
+# TODO: use ez_package_files() instead
 if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   #file(GLOB SAMPLE_FILES ../../Data/Samples/Asteroids/*)
   #set_property(SOURCE ${SAMPLE_FILES} PROPERTY VS_DEPLOYMENT_CONTENT 1)

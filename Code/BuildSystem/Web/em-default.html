@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>ezEngine</title>
+  <style>
+    {
+        {
+          {
+          SHELL_CSS
+        }
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="spinner" id='spinner'></div>
+  <div class="emscripten" id="status">Downloading...</div>
+
+  <div class="emscripten">
+    <progress value="0" max="100" id="progress" hidden=1></progress>
+  </div>
+
+  <div class="emscripten_border">
+    <canvas class="emscripten" id="framebuffer" oncontextmenu="event.preventDefault()" tabindex=-1 width="800" height="600"></canvas>
+  </div>
+  <textarea id="output" rows="8"></textarea>
+
+  <script type='text/javascript'>
+    var statusElement = document.getElementById('status');
+    var progressElement = document.getElementById('progress');
+    var spinnerElement = document.getElementById('spinner');
+
+    var Module = {
+
+      postRun: [function () {
+        setTimeout(function () {
+
+          window.addEventListener("keydown", function (event) {
+            window.Module.onWebKey(event.code, true);
+            window.Module.onWebChar(event.key);
+          });
+
+          window.addEventListener("keyup", function (event) {
+            window.Module.onWebKey(event.code, false);
+          });
+
+          window.addEventListener("mousedown", function (event) {
+            window.Module.onWebMouseClick(event.button, true);
+          });
+
+          window.addEventListener("mouseup", function (event) {
+            window.Module.onWebMouseClick(event.button, false);
+          });
+
+          window.addEventListener("mousemove", function (event) {
+            window.Module.onWebMouseMove(event.clientX, event.clientY);
+          });
+
+          window.addEventListener("mouseleave", function (event) {
+            // TODO: doesn't work
+            window.Module.onWebMouseLeave();
+          });
+
+          window.addEventListener("wheel", function (event) {
+            window.Module.onWebMouseWheel(event.deltaY);
+          });
+        }, 10);
+      }],
+
+      print: (function () {
+        var element = document.getElementById('output');
+        if (element) element.value = '';
+        return (...args) => {
+          var text = args.join(' ');
+          // These replacements are necessary if you render to raw HTML
+          //text = text.replace(/&/g, "&amp;");
+          //text = text.replace(/</g, "&lt;");
+          //text = text.replace(/>/g, "&gt;");
+          //text = text.replace('\n', '<br>', 'g');
+          console.log(text);
+          if (element) {
+            element.value += text + "\n";
+            element.scrollTop = element.scrollHeight;
+          }
+        };
+      })(),
+	  
+      canvas: (() => {
+        return document.getElementById('framebuffer');
+      })(),
+	  
+      setStatus: (text) => {
+        if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+        if (text === Module.setStatus.last.text) return;
+        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        var now = Date.now();
+        if (m && now - Module.setStatus.last.time < 30) return;
+        Module.setStatus.last.time = now;
+        Module.setStatus.last.text = text;
+        if (m) {
+          text = m[1];
+          progressElement.value = parseInt(m[2]) * 100;
+          progressElement.max = parseInt(m[4]) * 100;
+          progressElement.hidden = false;
+          spinnerElement.hidden = false;
+        } else {
+          progressElement.value = null;
+          progressElement.max = null;
+          progressElement.hidden = true;
+          if (!text) spinnerElement.style.display = 'none';
+        }
+        statusElement.innerHTML = text;
+      },
+	  
+      totalDependencies: 0,
+      monitorRunDependencies: (left) => {
+        this.totalDependencies = Math.max(this.totalDependencies, left);
+        Module.setStatus(left ? 'Preparing... ' : 'All downloads complete.');
+      }
+    };
+
+    window.onerror = (event) => {
+      Module.setStatus('Exception thrown, see JavaScript console');
+      spinnerElement.style.display = 'none';
+      Module.setStatus = (text) => {
+        if (text) console.error('[post-exception status] ' + text);
+      };
+    };
+  </script>
+  {{{ SCRIPT }}}
+</body>
+
+</html>

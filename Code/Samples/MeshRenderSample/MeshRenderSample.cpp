@@ -13,6 +13,11 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WEB)
+// for additional debugging
+#  include <RendererWebGPU/RendererWebGPUDLL.h>
+#endif
+
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/MeshRenderSample/Shaders/SampleConstantBuffer.h>
 
@@ -47,10 +52,15 @@ public:
   {
   }
 
-  void AfterCoreSystemsStartup() override
+  ezResult BeforeCoreSystemsStartup() override
   {
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
 
+    return ezApplication::BeforeCoreSystemsStartup();
+  }
+
+  void AfterCoreSystemsStartup() override
+  {
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/MeshRenderSample";
     ezStringBuilder sProjectDirResolved;
     ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).AssertSuccess();
@@ -209,6 +219,10 @@ public:
     // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
     // uploading GPU data etc.
     ezTaskSystem::FinishFrameTasks();
+
+#if EZ_ENABLED(EZ_PLATFORM_WEB)
+    EnableWebGPUTrace(false);
+#endif
 
     return ezApplication::Execution::Continue;
   }

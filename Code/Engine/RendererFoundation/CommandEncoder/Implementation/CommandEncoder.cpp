@@ -497,6 +497,7 @@ void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
 {
   if (m_State.m_hIndexBuffer == hIndexBuffer)
   {
+    // TODO WebGPU: this early out here doesn't work, if you only render the same mesh (?)
     return;
   }
 
