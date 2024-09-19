@@ -122,7 +122,7 @@ public:
   {
     return std::span(GetPtr(), static_cast<size_t>(GetCount()));
   }
-#  endif
+#endif
 
   /// \brief Convert to const version.
   operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]

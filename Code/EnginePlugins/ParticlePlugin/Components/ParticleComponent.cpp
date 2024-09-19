@@ -378,7 +378,7 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(m_MinRestartDelay.GetSeconds(), m_MinRestartDelay.GetSeconds()  + m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(m_MinRestartDelay.GetSeconds(), m_MinRestartDelay.GetSeconds() + m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }

@@ -224,4 +224,3 @@ EZ_ALWAYS_INLINE ezSimdMat4f MultiplyAffine(const ezSimdMat4f& lhs, const ezSimd
 
   return result;
 }
-
