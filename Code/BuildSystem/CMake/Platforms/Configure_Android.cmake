@@ -27,7 +27,7 @@ macro(ez_platform_detect_generator)
 
 endmacro()
 
-macro(ez_platformhook_link_target_vulkan)
+macro(ez_platformhook_link_target_vulkan TARGET_NAME)
 
 	# on linux is the loader a dll
 	get_target_property(_dll_location EzVulkan::Loader IMPORTED_LOCATION)
@@ -40,7 +40,7 @@ macro(ez_platformhook_link_target_vulkan)
 
 endmacro()
 
-macro(ez_platformhook_set_build_flags_clang)
+macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.

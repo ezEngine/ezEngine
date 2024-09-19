@@ -26,7 +26,7 @@ function(ez_link_target_vulkan TARGET_NAME)
 
 		if (COMMAND ez_platformhook_link_target_vulkan)
 			# call platform-specific hook for linking with Vulkan
-			ez_platformhook_link_target_vulkan()
+			ez_platformhook_link_target_vulkan(${TARGET_NAME})
 		endif()
 	endif()
 endfunction()

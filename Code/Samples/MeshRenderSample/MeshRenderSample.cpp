@@ -45,10 +45,15 @@ public:
   {
   }
 
-  void AfterCoreSystemsStartup() override
+  ezResult BeforeCoreSystemsStartup() override
   {
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
 
+    return ezApplication::BeforeCoreSystemsStartup();
+  }
+
+  void AfterCoreSystemsStartup() override
+  {
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/MeshRenderSample";
     ezStringBuilder sProjectDirResolved;
     ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).AssertSuccess();

@@ -17,6 +17,9 @@
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
 #define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_PP_CONCAT(x, =) 1) == (1 EZ_PP_CONCAT(y, =) 1))
 
+/// \brief Checks that exactly one of x, y and z is defined as EZ_ON
+#define EZ_IS_NOT_EXCLUSIVE3(x, y, z) ((EZ_ENABLED(x) + EZ_ENABLED(y) + EZ_ENABLED(z)) != 1)
+
 
 
 // All the supported Platforms
