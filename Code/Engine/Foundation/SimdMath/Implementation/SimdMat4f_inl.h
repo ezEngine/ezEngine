@@ -200,3 +200,28 @@ EZ_ALWAYS_INLINE bool ezSimdMat4f::operator!=(const ezSimdMat4f& other) const
 {
   return !(*this == other);
 }
+
+EZ_ALWAYS_INLINE ezSimdMat4f MultiplyAffine(const ezSimdMat4f& lhs, const ezSimdMat4f& rhs)
+{
+  ezSimdMat4f result;
+
+  result.m_col0 = lhs.m_col0 * rhs.m_col0.x();
+  result.m_col0 += lhs.m_col1 * rhs.m_col0.y();
+  result.m_col0 += lhs.m_col2 * rhs.m_col0.z();
+
+  result.m_col1 = lhs.m_col0 * rhs.m_col1.x();
+  result.m_col1 += lhs.m_col1 * rhs.m_col1.y();
+  result.m_col1 += lhs.m_col2 * rhs.m_col1.z();
+
+  result.m_col2 = lhs.m_col0 * rhs.m_col2.x();
+  result.m_col2 += lhs.m_col1 * rhs.m_col2.y();
+  result.m_col2 += lhs.m_col2 * rhs.m_col2.z();
+
+  result.m_col3 = lhs.m_col0 * rhs.m_col3.x();
+  result.m_col3 += lhs.m_col1 * rhs.m_col3.y();
+  result.m_col3 += lhs.m_col2 * rhs.m_col3.z();
+  result.m_col3 += lhs.m_col3;
+
+  return result;
+}
+

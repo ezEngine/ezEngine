@@ -52,6 +52,18 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength
 }
 
 template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetDistanceTo(const ezVec2Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLength();
+}
+
+template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetSquaredDistanceTo(const ezVec2Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLengthSquared();
+}
+
+template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec2Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)

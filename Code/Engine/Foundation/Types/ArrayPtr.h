@@ -9,6 +9,10 @@
 
 #include <Foundation/Math/Math.h>
 
+#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+#  include <span>
+#endif
+
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
 #  define ezInvalidIndex 0xFFFFFFFF
@@ -90,6 +94,35 @@ public:
     , m_uiCount(other.m_uiCount)
   {
   }
+
+#if EZ_ENABLED(EZ_INTEROP_STL_SPAN)
+  template <typename U>
+  EZ_ALWAYS_INLINE ezArrayPtr(const std::span<U>& other)
+    : m_pPtr(other.data())
+    , m_uiCount((ezUInt32)other.size())
+  {
+  }
+
+  operator std::span<const T>() const
+  {
+    return std::span(GetPtr(), static_cast<size_t>(GetCount()));
+  }
+
+  operator std::span<T>()
+  {
+    return std::span(GetPtr(), static_cast<size_t>(GetCount()));
+  }
+
+  std::span<T> GetSpan()
+  {
+    return std::span(GetPtr(), static_cast<size_t>(GetCount()));
+  }
+
+  std::span<const T> GetSpan() const
+  {
+    return std::span(GetPtr(), static_cast<size_t>(GetCount()));
+  }
+#  endif
 
   /// \brief Convert to const version.
   operator ezArrayPtr<const T>() const { return ezArrayPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); } // [tested]

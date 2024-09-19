@@ -90,7 +90,8 @@ EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4u::GetComponent() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_extract_epi32(m_v, N);
 #else
-  return m_v.m128i_i32[N];
+  return ((ezUInt32*)&m_v)[N];
+  //return m_v.m128i_i32[N];
 #endif
 }
 

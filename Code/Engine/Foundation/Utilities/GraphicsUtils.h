@@ -140,37 +140,30 @@ namespace ezGraphicsUtils
   /// \brief Returns a look-at matrix (only direction, no translation).
   ///
   /// Since this only creates a rotation matrix, vTarget can be interpreted both as a position or a direction.
-  EZ_FOUNDATION_DLL ezMat3 CreateLookAtViewMatrix(
-    const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat3 CreateLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
-  EZ_FOUNDATION_DLL ezMat3 CreateInverseLookAtViewMatrix(
-    const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
-
+  EZ_FOUNDATION_DLL ezMat3 CreateInverseLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Returns a look-at matrix with both rotation and translation
   EZ_FOUNDATION_DLL ezMat4 CreateLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
-  EZ_FOUNDATION_DLL ezMat4 CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a view matrix from the given camera vectors.
   ///
   /// The vectors are put into the appropriate matrix rows and depending on the handedness negated where necessary.
-  EZ_FOUNDATION_DLL ezMat4 CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Similar to CreateViewMatrix() but creates the inverse matrix.
-  EZ_FOUNDATION_DLL ezMat4 CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Extracts the forward, right and up dir and camera position from the given view matrix.
   ///
   /// The handedness should be the same as used in CreateViewMatrix() or CreateLookAtViewMatrix().
-  EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir,
-    const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir, const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
   ///

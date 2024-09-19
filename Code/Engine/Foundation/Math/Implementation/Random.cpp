@@ -98,21 +98,27 @@ ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
   return result % uiRange;
 }
 
-ezInt32 ezRandom::IntInRange(ezInt32 iMinValue, ezUInt32 uiRange)
+ezUInt32 ezRandom::UInt32Index(ezUInt32 uiArraySize, ezUInt32 uiFallbackValue /*= ezInvalidIndex*/)
 {
-  return iMinValue + (ezInt32)UIntInRange(uiRange);
+  if (uiArraySize == 0)
+    return uiFallbackValue;
+
+  return UIntInRange(uiArraySize);
+}
+
+ezUInt16 ezRandom::UInt16Index(ezUInt16 uiArraySize, ezUInt16 uiFallbackValue /*= 0xFFFF*/)
+{
+  if (uiArraySize == 0)
+    return uiFallbackValue;
+
+  return static_cast<ezUInt16>(UIntInRange(uiArraySize));
 }
 
 ezInt32 ezRandom::IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue)
 {
   EZ_ASSERT_DEBUG(iMinValue <= iMaxValue, "Invalid min/max values");
 
-  return IntInRange(iMinValue, iMaxValue - iMinValue + 1);
-}
-
-double ezRandom::DoubleInRange(double fMinValue, double fRange)
-{
-  return fMinValue + DoubleZeroToOneExclusive() * fRange;
+  return iMinValue + (ezInt32)UIntInRange(iMaxValue - iMinValue + 1);
 }
 
 double ezRandom::DoubleMinMax(double fMinValue, double fMaxValue)
@@ -187,7 +193,7 @@ void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
 
 ezUInt32 ezRandomGauss::UnsignedValue()
 {
-  const double fRand = m_Generator.DoubleInRange(0, m_fAreaSum);
+  const double fRand = m_Generator.DoubleMinMax(0, m_fAreaSum);
 
   const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
   for (ezUInt32 i = 0; i < uiMax; ++i)
@@ -201,7 +207,7 @@ ezUInt32 ezRandomGauss::UnsignedValue()
 
 ezInt32 ezRandomGauss::SignedValue()
 {
-  const double fRand = m_Generator.DoubleInRange(-m_fAreaSum, m_fAreaSum * 2.0);
+  const double fRand = m_Generator.DoubleMinMax(-m_fAreaSum, m_fAreaSum);
   const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
 
   if (fRand >= 0.0)

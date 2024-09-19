@@ -148,7 +148,7 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream)
 void ezParticleEmitter_Continuous::OnFinalize()
 {
   m_CountCurveTime = ezTime::MakeZero();
-  m_fCurSpawnPerSec = (float)GetRNG().DoubleInRange(m_uiSpawnCountPerSec, m_uiSpawnCountPerSecRange);
+  m_fCurSpawnPerSec = (float)GetRNG().DoubleMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange);
   m_TimeSinceRandom = ezTime::MakeZero();
   m_fCurSpawnCounter = 0;
 }
@@ -175,7 +175,7 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
   if (m_TimeSinceRandom >= ezTime::MakeFromMilliseconds(200))
   {
     m_TimeSinceRandom = ezTime::MakeZero();
-    m_fCurSpawnPerSec = (float)GetRNG().DoubleInRange(m_uiSpawnCountPerSec, m_uiSpawnCountPerSecRange);
+    m_fCurSpawnPerSec = (float)GetRNG().DoubleMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange);
   }
 
 

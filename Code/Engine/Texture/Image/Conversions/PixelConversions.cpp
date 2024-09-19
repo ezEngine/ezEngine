@@ -313,7 +313,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
       __m128i mask2 = _mm_set1_epi32(0x00ff00ff);
 
       // Intel optimization manual, Color Pixel Format Conversion Using SSE2
-      while (numElements >= elementsPerBatch)
+      while (uiNumElements >= elementsPerBatch)
       {
         __m128i in0 = reinterpret_cast<const __m128i*>(sourcePointer)[0];
         __m128i in1 = reinterpret_cast<const __m128i*>(sourcePointer)[1];
@@ -325,7 +325,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
-        numElements -= elementsPerBatch;
+        uiNumElements -= elementsPerBatch;
       }
 #  endif
     }

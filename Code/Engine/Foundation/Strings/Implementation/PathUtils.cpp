@@ -97,6 +97,13 @@ ezStringView ezPathUtils::GetFileName(ezStringView sPath, bool bRemoveFullExtens
   // reduce the problem to just the filename + extension
   sPath = GetFileNameAndExtension(sPath);
 
+  return GetWithoutExtension(sPath, bRemoveFullExtension);
+}
+
+ezStringView ezPathUtils::GetWithoutExtension(ezStringView sPath, bool bRemoveFullExtension)
+{
+  // TODO: unit test
+
   ezStringView ext = GetFileExtension(sPath, bRemoveFullExtension);
 
   if (ext.IsEmpty())

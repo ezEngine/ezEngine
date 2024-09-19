@@ -217,7 +217,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   // random rotation around the spawn direction
   {
-    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0);
 
     ezMat3 rotMat = ezMat3::MakeAxisRotation(vDir, ezAngle::MakeFromRadian((float)randomAngle));
 

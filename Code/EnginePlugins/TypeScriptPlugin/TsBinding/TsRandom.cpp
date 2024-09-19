@@ -81,7 +81,7 @@ static int __CPP_RNG_Get2(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0: // IntInRange()
-      duk.ReturnInt(pWorld->GetRandomNumberGenerator().IntInRange(duk.GetIntValue(0, 0), duk.GetUIntValue(1, 1)));
+      duk.ReturnInt(pWorld->GetRandomNumberGenerator().IntMinMax(duk.GetIntValue(0, 0), duk.GetIntValue(0, 0) + duk.GetUIntValue(1, 1)));
       break;
 
     case 1: // IntMinMax()
@@ -89,7 +89,7 @@ static int __CPP_RNG_Get2(duk_context* pDuk)
       break;
 
     case 2: // DoubleInRange()
-      duk.ReturnNumber(pWorld->GetRandomNumberGenerator().DoubleInRange(duk.GetNumberValue(0, 0), duk.GetNumberValue(1, 0)));
+      duk.ReturnNumber(pWorld->GetRandomNumberGenerator().DoubleMinMax(duk.GetNumberValue(0, 0), duk.GetNumberValue(0, 0) + duk.GetNumberValue(1, 0)));
       break;
 
     case 3: // DoubleMinMax()

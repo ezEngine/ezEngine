@@ -60,6 +60,7 @@
 // Disabling SSE in emulator to increase FPU test coverage. Uncomment code below if performance is an issue for you.
 // #  if __SSE4_1__ && __SSSE3__
 // #    define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_SSE
+// #    define EZ_SSE_LEVEL EZ_SSE_41
 // #  else
 #  define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU
 // #  endif
