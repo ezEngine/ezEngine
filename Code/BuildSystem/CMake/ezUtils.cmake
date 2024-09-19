@@ -696,6 +696,9 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	file(TOUCH ${EXTRACT_MARKER})
 endfunction()
 
+# #####################################
+# ## ez_get_export_location()
+# #####################################
 function(ez_get_export_location DST_VAR)
 	ez_pull_config_vars()
 	ez_pull_output_vars("" "${EZ_OUTPUT_DIRECTORY_DLL}")
@@ -713,4 +716,22 @@ function(ez_get_export_location DST_VAR)
 			message(FATAL_ERROR "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
 		endif()
 	endif()
+endfunction()
+
+# #####################################
+# ## ez_package_files(TARGET_NAME SRC_FOLDER DST_FOLDER)
+# #####################################
+#
+# Embeds all files in SRC_FOLDER (recursively) into the application package (e.g. APK or WASM)
+# and puts it into the virtual folder DST_FOLDER.
+#
+# It is platform-specific whether this does anyting.
+# Internally it just forwards to ez_platformhook_package_files.
+# #####################################
+function(ez_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+
+	if (COMMAND ez_platformhook_package_files)
+		ez_platformhook_package_files(${TARGET_NAME} ${SRC_FOLDER} ${DST_FOLDER})
+	endif()
+
 endfunction()

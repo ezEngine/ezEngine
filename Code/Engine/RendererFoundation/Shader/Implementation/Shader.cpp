@@ -2,6 +2,9 @@
 
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
+#include <RendererFoundation/Shader/Types.h>
+
+bool ezShaderMat3::TransposeShaderMatrices = false;
 
 ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)
   : ezGALObject(Description)

@@ -49,6 +49,13 @@ function(ez_add_renderers TARGET_NAME)
 		endif()
 	endif()
 
+	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
+		target_link_libraries(${TARGET_NAME}
+			PRIVATE
+			RendererWebGPU
+		)
+	endif()
+
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE

@@ -220,7 +220,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 
 	if(COMMAND ez_platformhook_set_build_flags_clang)
 		# call platform-specific hook
-		ez_platformhook_set_build_flags_clang()
+		ez_platformhook_set_build_flags_clang(${TARGET_NAME})
 	endif()
 endfunction()
 

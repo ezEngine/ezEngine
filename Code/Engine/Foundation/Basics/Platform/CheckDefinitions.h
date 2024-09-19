@@ -53,7 +53,7 @@
 #  error "EZ_MATH_CHECK_FOR_NAN is not defined."
 #endif
 
-#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_ARCH_X86, EZ_PLATFORM_ARCH_ARM)
+#if EZ_IS_NOT_EXCLUSIVE3(EZ_PLATFORM_ARCH_X86, EZ_PLATFORM_ARCH_ARM, EZ_PLATFORM_ARCH_WEB)
 #  error "Platform architecture is not correctly defined."
 #endif
 

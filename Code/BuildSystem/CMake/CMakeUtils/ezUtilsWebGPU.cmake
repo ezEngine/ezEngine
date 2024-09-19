@@ -20,7 +20,7 @@ function(ez_link_target_webgpu TARGET_NAME)
 
     if (COMMAND ez_platformhook_link_target_webgpu)
         # call platform-specific hook for linking with WebGPU
-        ez_platformhook_link_target_webgpu()
+        ez_platformhook_link_target_webgpu(${TARGET_NAME})
     endif()
 endfunction()
 
@@ -105,15 +105,15 @@ function(ez_webgpu_install_dawn)
 
         find_package(Python COMPONENTS Interpreter)
 
-        if(NOT PYTHON_FOUND)
+        if(NOT Python_FOUND)
             message(FATAL_ERROR "Could not find Python executable.")
         endif()
 
-        message(STATUS "Python Executable: '${PYTHON_EXECUTABLE}'")
+        message(STATUS "Python Executable: '${Python_EXECUTABLE}'")
 
         file(WRITE "${DAWN_TARGET_DIR}/empty.txt" "")
 
-        execute_process(COMMAND "${PYTHON_EXECUTABLE}" "tools/fetch_dawn_dependencies.py"
+        execute_process(COMMAND "${Python_EXECUTABLE}" "tools/fetch_dawn_dependencies.py"
                         WORKING_DIRECTORY "${DAWN_TARGET_DIR}"
                         RESULT_VARIABLE PYTHON_RESULT
                         INPUT_FILE "${DAWN_TARGET_DIR}/empty.txt" # work around for a bug in CMake/Python where it tries to read STDIN but has no handle to it and then fails

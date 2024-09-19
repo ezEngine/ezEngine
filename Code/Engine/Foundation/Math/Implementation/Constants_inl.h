@@ -159,6 +159,22 @@ namespace ezMath
     return 0xFFFFFFFFu;
   }
 
+#if EZ_ENABLED(EZ_COMPILER_CLANG)
+#  if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  template <>
+  constexpr size_t MaxValue()
+  {
+    return 0xFFFFFFFFu;
+  }
+#  else
+  template <>
+  constexpr size_t MaxValue()
+  {
+    return 0xFFFFFFFFFFFFFFFFull;
+  }
+#  endif
+#endif
+
   template <>
   constexpr ezUInt64 MaxValue()
   {
