@@ -581,15 +581,18 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(ezStringView sFile, ezFileSha
 
     ezDataDirectoryWriter* pWriter = s_pData->m_DataDirectories[i].m_pDataDirType->OpenFileToWrite(sRelPath, FileShareMode);
 
-    if (bAllowFileEvents && pWriter != nullptr)
+    if (pWriter != nullptr)
     {
-      // Broadcast that this file has been created.
-      FileEvent fe;
-      fe.m_EventType = FileEventType::CreateFileSucceeded;
-      fe.m_sFileOrDirectory = sRelPath;
-      fe.m_sOther = sRootName;
-      fe.m_pDataDir = s_pData->m_DataDirectories[i].m_pDataDirType;
-      s_pData->m_Event.Broadcast(fe);
+      if (bAllowFileEvents)
+      {
+        // Broadcast that this file has been created.
+        FileEvent fe;
+        fe.m_EventType = FileEventType::CreateFileSucceeded;
+        fe.m_sFileOrDirectory = sRelPath;
+        fe.m_sOther = sRootName;
+        fe.m_pDataDir = s_pData->m_DataDirectories[i].m_pDataDirType;
+        s_pData->m_Event.Broadcast(fe);
+      }
 
       return pWriter;
     }
