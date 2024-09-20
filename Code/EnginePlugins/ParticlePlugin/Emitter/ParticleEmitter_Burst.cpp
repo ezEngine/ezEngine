@@ -106,7 +106,7 @@ void ezParticleEmitter_Burst::OnFinalize()
 
   ezRandom& rng = GetRNG();
 
-  m_uiSpawnCountLeft = (ezUInt32)(rng.IntMinMax(m_uiSpawnCountMin, m_uiSpawnCountMin + 1 + m_uiSpawnCountRange) * fSpawnFactor);
+  m_uiSpawnCountLeft = (ezUInt32)(rng.IntMinMax(m_uiSpawnCountMin, m_uiSpawnCountMin + m_uiSpawnCountRange) * fSpawnFactor);
 
   m_fSpawnAccu = 0;
   m_fSpawnPerSecond = 0;

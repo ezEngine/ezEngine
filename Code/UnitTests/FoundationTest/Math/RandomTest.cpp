@@ -28,26 +28,26 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IntInRange")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IntMinMax")
   {
     ezRandom r;
     r.Initialize(0xBBCCDDEEFF0011AAULL);
 
-    EZ_TEST_INT(r.IntMinMax(5, 5 + 1), 5);
-    EZ_TEST_INT(r.IntMinMax(-5, -5 + 1), -5);
+    EZ_TEST_INT(r.IntMinMax(5, 5), 5);
+    EZ_TEST_INT(r.IntMinMax(-5, -5), -5);
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
       const ezInt32 val = r.IntMinMax(i, i + i);
       EZ_TEST_BOOL(val >= i);
-      EZ_TEST_BOOL(val < i + i);
+      EZ_TEST_BOOL(val <= i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
       const ezInt32 val = r.IntMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
-      EZ_TEST_BOOL(val < -i + 2 * i);
+      EZ_TEST_BOOL(val <= i);
     }
   }
 
