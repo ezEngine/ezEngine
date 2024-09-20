@@ -3,19 +3,14 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Timestamp.h>
 
-ezRandom::ezRandom()
-{
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_uiState); ++i)
-    m_uiState[i] = 0;
-
-  m_uiIndex = 0xFFFFFFFF;
-}
+ezRandom::ezRandom() = default;
+ezRandom::~ezRandom() = default;
 
 void ezRandom::Initialize(ezUInt64 uiSeed)
 {
   // make sure the seed is never zero
   // otherwise the state will become zero and the RNG will produce only zeros
-  uiSeed |= 0x0102030405060708;
+  uiSeed ^= 0x0102030405060708llu;
 
   m_uiIndex = 0;
 

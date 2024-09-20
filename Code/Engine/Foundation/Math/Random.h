@@ -9,6 +9,7 @@ class EZ_FOUNDATION_DLL ezRandom
 {
 public:
   ezRandom();
+  ~ezRandom();
 
   /// \brief Initializes the RNG with the given seed value. The value should not be zero.
   void Initialize(ezUInt64 uiSeed); // [tested]
@@ -84,7 +85,7 @@ public:
   EZ_ALWAYS_INLINE float FloatVarianceAroundZero(float fAbsMaxValue) { return static_cast<float>(DoubleVarianceAroundZero(fAbsMaxValue)); }
 
 private:
-  ezUInt32 m_uiIndex;
+  ezUInt32 m_uiIndex = 0;
   ezUInt32 m_uiState[16];
 };
 
