@@ -58,14 +58,18 @@ jobs:
       publishJUnitResults: true
   - task: Bash@3
     displayName: Bash Script
+    timeoutInMinutes: 180
     inputs:
       targetType: inline
       filePath: brew install Caskroom/cask/xquartz
       script: |
         # Brew update takes very long. Only enable if below steps start failing.
         brew update
+        echo "--- BREW LIST ---"
         brew list --versions qt@6
-        brew install qt@6
+        echo "--- BREW INSTALL QT6 ---"
+        brew install --verbose qt@6
+        echo "--- BREW INFO QT6 ---"
         brew info qt@6
         brew install Caskroom/cask/xquartz
         brew info Caskroom/cask/xquartz
