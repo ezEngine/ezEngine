@@ -94,6 +94,14 @@ public:
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
+  /// \brief Returns the length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetDistanceTo(const ezVec3Template<Type>& rhs) const;
+
+  /// \brief Returns the squared length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetSquaredDistanceTo(const ezVec3Template<Type>& rhs) const;
+
   /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
   EZ_DECLARE_IF_FLOAT_TYPE

@@ -358,6 +358,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
   return _mm_round_ps(m_v, _MM_FROUND_NINT);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return {};
 #endif
 }
 
@@ -367,6 +368,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
   return _mm_round_ps(m_v, _MM_FROUND_FLOOR);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return {};
 #endif
 }
 
@@ -376,6 +378,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
   return _mm_round_ps(m_v, _MM_FROUND_CEIL);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return {};
 #endif
 }
 
@@ -385,6 +388,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
   return _mm_round_ps(m_v, _MM_FROUND_TRUNC);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return {};
 #endif
 }
 
@@ -399,7 +403,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4b& vCmp, const 
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_blendv_ps(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
-  return _mm_or_ps(_mm_andnot_ps(cmp.m_v, ifFalse.m_v), _mm_and_ps(cmp.m_v, ifTrue.m_v));
+  return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
 #endif
 }
 

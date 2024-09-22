@@ -64,7 +64,7 @@ void ezTimedDeathComponent::OnSimulationStarted()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleMinMax(m_MinDelay.GetSeconds(), m_MinDelay.GetSeconds() + m_DelayRange.GetSeconds()));
 
   PostMessage(msg, tKill);
 

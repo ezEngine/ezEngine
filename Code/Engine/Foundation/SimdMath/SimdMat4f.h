@@ -80,6 +80,9 @@ public:
   ezSimdVec4f m_col3;
 };
 
+/// \brief Multiply two affine matrices, where the 4th row of each is 0,0,0,1.
+[[nodiscard]] ezSimdMat4f MultiplyAffine(const ezSimdMat4f& lhs, const ezSimdMat4f& rhs);
+
 #include <Foundation/SimdMath/Implementation/SimdMat4f_inl.h>
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE

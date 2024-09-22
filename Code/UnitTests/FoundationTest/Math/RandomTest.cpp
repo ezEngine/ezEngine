@@ -28,26 +28,26 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IntInRange")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IntMinMax")
   {
     ezRandom r;
     r.Initialize(0xBBCCDDEEFF0011AAULL);
 
-    EZ_TEST_INT(r.IntInRange(5, 1), 5);
-    EZ_TEST_INT(r.IntInRange(-5, 1), -5);
+    EZ_TEST_INT(r.IntMinMax(5, 5), 5);
+    EZ_TEST_INT(r.IntMinMax(-5, -5), -5);
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const ezInt32 val = r.IntInRange(i, i);
+      const ezInt32 val = r.IntMinMax(i, i + i);
       EZ_TEST_BOOL(val >= i);
-      EZ_TEST_BOOL(val < i + i);
+      EZ_TEST_BOOL(val <= i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const ezInt32 val = r.IntInRange(-i, 2 * i);
+      const ezInt32 val = r.IntMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
-      EZ_TEST_BOOL(val < -i + 2 * i);
+      EZ_TEST_BOOL(val <= i);
     }
   }
 
@@ -141,19 +141,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     ezRandom r;
     r.Initialize(0xFF0011AABBCCDDEEULL);
 
-    EZ_TEST_DOUBLE(r.DoubleInRange(5, 0), 5, 0.0);
-    EZ_TEST_DOUBLE(r.DoubleInRange(-5, 0), -5, 0.0);
+    EZ_TEST_DOUBLE(r.DoubleMinMax(5, 5), 5, 0.0);
+    EZ_TEST_DOUBLE(r.DoubleMinMax(-5, -5), -5, 0.0);
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const double val = r.DoubleInRange(i, i);
+      const double val = r.DoubleMinMax(i, i + i);
       EZ_TEST_BOOL(val >= i);
       EZ_TEST_BOOL(val < i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const double val = r.DoubleInRange(-i, 2 * i);
+      const double val = r.DoubleMinMax(-i, i);
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val < -i + 2 * i);
     }
@@ -213,19 +213,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     ezRandom r;
     r.Initialize(0xFF0011AABBCCDDEEULL);
 
-    EZ_TEST_FLOAT(r.FloatInRange(5, 0), 5, 0.f);
-    EZ_TEST_FLOAT(r.FloatInRange(-5, 0), -5, 0.f);
+    EZ_TEST_FLOAT(r.FloatMinMax(5, 5), 5, 0.f);
+    EZ_TEST_FLOAT(r.FloatMinMax(-5, -5), -5, 0.f);
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatInRange(static_cast<float>(i), static_cast<float>(i));
+      const float val = r.FloatMinMax(static_cast<float>(i), static_cast<float>(i + i));
       EZ_TEST_BOOL(val >= i);
       EZ_TEST_BOOL(val < i + i);
     }
 
     for (ezInt32 i = 2; i < 10000; ++i)
     {
-      const float val = r.FloatInRange(static_cast<float>(-i), 2 * static_cast<float>(i));
+      const float val = r.FloatMinMax(static_cast<float>(-i), static_cast<float>(i));
       EZ_TEST_BOOL(val >= -i);
       EZ_TEST_BOOL(val < -i + 2 * i);
     }

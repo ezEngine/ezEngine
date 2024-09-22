@@ -199,7 +199,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     t3.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::MakeFromDegree(90.01f));
 
     EZ_TEST_BOOL(t.IsEqual(t3, 0.01f));
-    EZ_TEST_BOOL(!t.IsEqual(t3, 0.0001f));
+    EZ_TEST_BOOL(!t.IsEqual(t3, 0.00001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezTransformT)")

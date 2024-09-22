@@ -180,7 +180,7 @@ bool ezQuatTemplate<Type>::IsNaN() const
 template <typename Type>
 bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, Type fEpsilon) const
 {
-  if (GetVectorPart().IsEqual(qOther.GetVectorPart(), (Type)0.00001) && ezMath::IsEqual(w, qOther.w, (Type)0.00001))
+  if (GetVectorPart().IsEqual(qOther.GetVectorPart(), fEpsilon) && ezMath::IsEqual(w, qOther.w, fEpsilon))
   {
     return true;
   }
@@ -191,10 +191,10 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, T
   GetRotationAxisAndAngle(vA1, A1);
   qOther.GetRotationAxisAndAngle(vA2, A2);
 
-  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(static_cast<float>(360.0f * fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(static_cast<float>(360.0f * fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
     return true;
 
   return false;

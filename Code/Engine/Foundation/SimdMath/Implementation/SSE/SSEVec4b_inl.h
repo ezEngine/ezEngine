@@ -112,6 +112,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& vCmp, const 
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_blendv_ps(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
-  return _mm_or_ps(_mm_andnot_ps(cmp.m_v, ifFalse.m_v), _mm_and_ps(cmp.m_v, ifTrue.m_v));
+  return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
 #endif
 }

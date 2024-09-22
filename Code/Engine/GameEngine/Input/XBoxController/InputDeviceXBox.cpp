@@ -125,16 +125,20 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   // update not connected controllers only every few milliseconds, apparently it takes quite some time to do this
   // even on not connected controllers
   static ezTime tLastControllerSearch;
+  static ezInt32 iControllerSearch = 0;
   const ezTime tNow = ezTime::Now();
   const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::MakeFromSeconds(0.5);
 
   if (bSearchControllers)
+  {
+    iControllerSearch = (iControllerSearch + 1) % MaxControllers;
     tLastControllerSearch = tNow;
+  }
 
   // get the data from all physical devices
   for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
   {
-    if (bSearchControllers || m_bControllerConnected[iPhysical])
+    if (m_bControllerConnected[iPhysical] || (bSearchControllers && iPhysical == iControllerSearch))
     {
       bIsAvailable[iPhysical] = (XInputGetState(iPhysical, &State[iPhysical]) == ERROR_SUCCESS);
 

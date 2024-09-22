@@ -71,7 +71,7 @@ void ezColorAnimationComponent::OnSimulationStarted()
 
   if (GetRandomStartOffset())
   {
-    m_CurAnimTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_Duration.GetSeconds()));
+    m_CurAnimTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_Duration.GetSeconds()));
   }
 }
 
