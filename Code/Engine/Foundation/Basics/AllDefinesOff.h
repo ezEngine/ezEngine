@@ -93,6 +93,15 @@
 #define EZ_SIMD_IMPLEMENTATION_SSE 2
 #define EZ_SIMD_IMPLEMENTATION_NEON 3
 
+// SSE levels
+#define EZ_SSE_20 0x20
+#define EZ_SSE_30 0x30
+#define EZ_SSE_31 0x31
+#define EZ_SSE_41 0x41
+#define EZ_SSE_42 0x42
+#define EZ_SSE_AVX 0x50
+#define EZ_SSE_AVX2 0x51
+
 #define EZ_SIMD_IMPLEMENTATION 0
 
 // Application entry point code injection (undef and redefine in UserConfig.h if needed)

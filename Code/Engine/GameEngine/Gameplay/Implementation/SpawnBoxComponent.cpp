@@ -128,7 +128,7 @@ void ezSpawnBoxComponent::InternalStartSpawning(bool bFirstTime)
 
   if (m_uiSpawnCountRange > 0)
   {
-    m_uiTotalToSpawn = GetWorld()->GetRandomNumberGenerator().IntInRange(m_uiMinSpawnCount, m_uiSpawnCountRange);
+    m_uiTotalToSpawn = GetWorld()->GetRandomNumberGenerator().IntMinMax(m_uiMinSpawnCount, m_uiMinSpawnCount + m_uiSpawnCountRange);
   }
 
   if (m_uiTotalToSpawn == 0)
@@ -234,12 +234,12 @@ void ezSpawnBoxComponent::Spawn(ezUInt32 uiCount)
 
     if (m_MaxTiltZ.GetRadian() > 0)
     {
-      const ezAngle tiltTurnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+      const ezAngle tiltTurnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0));
       const ezQuat qTiltTurn = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), tiltTurnAngle);
 
       const ezVec3 vTiltAxis = qTiltTurn * ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxTiltZ.GetRadian()));
+      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, (double)m_MaxTiltZ.GetRadian()));
       const ezQuat qTilt = ezQuat::MakeFromAxisAndAngle(vTiltAxis, tiltAngle);
 
       tLocal.m_qRotation = tLocal.m_qRotation * qTilt;

@@ -118,7 +118,8 @@ EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::GetComponent() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_extract_epi32(m_v, N);
 #else
-  return m_v.m128i_i32[N];
+  return ((ezInt32*)&m_v)[N];
+  // return m_v.m128i_i32[N];
 #endif
 }
 
@@ -376,7 +377,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const 
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(vFalse.m_v), _mm_castsi128_ps(vTrue.m_v), vCmp.m_v));
 #else
-  return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(cmp.m_v, _mm_castsi128_ps(ifFalse.m_v)), _mm_and_ps(cmp.m_v, _mm_castsi128_ps(ifTrue.m_v))));
+  return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(vCmp.m_v, _mm_castsi128_ps(vFalse.m_v)), _mm_and_ps(vCmp.m_v, _mm_castsi128_ps(vTrue.m_v))));
 #endif
 }
 

@@ -357,7 +357,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
       case Mode::NaturalDeviationZ:
       {
-        const ezAngle randomRotationZ = ezAngle::MakeFromDegree(rng.DoubleInRange(0, 360));
+        const ezAngle randomRotationZ = ezAngle::MakeFromDegree(rng.DoubleMinMax(0, 360));
 
         ezQuat qDeviation;
         qDeviation.SetIdentity();

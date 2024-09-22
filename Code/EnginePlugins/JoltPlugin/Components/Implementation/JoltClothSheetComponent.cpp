@@ -599,7 +599,7 @@ void ezJoltClothSheetComponent::ApplyWind()
       // randomize which vertices get the wind velocity applied,
       // both to save performance and also to introduce a nice ripple effect
       const ezUInt32 uiStart = GetWorld()->GetRandomNumberGenerator().UIntInRange(ezMath::Min<ezUInt32>(16u, (ezUInt32)particles.size()));
-      const ezUInt32 uiStep = GetWorld()->GetRandomNumberGenerator().IntInRange(16, 32);
+      const ezUInt32 uiStep = GetWorld()->GetRandomNumberGenerator().IntMinMax(16, 16 + 32);
 
       for (ezUInt32 i = uiStart; i < particles.size(); i += uiStep)
       {
