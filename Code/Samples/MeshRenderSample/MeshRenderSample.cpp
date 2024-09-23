@@ -2,6 +2,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DataDirTypeWeb.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -12,8 +14,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/DataDirTypeWeb.h>
 
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/MeshRenderSample/Shaders/SampleConstantBuffer.h>

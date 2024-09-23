@@ -142,7 +142,7 @@ namespace ezDataDirectory
 
   void FolderType::ReloadExternalConfigs()
   {
-      LoadRedirectionFile();
+    LoadRedirectionFile();
   }
 
   void FolderType::LoadRedirectionFile()
