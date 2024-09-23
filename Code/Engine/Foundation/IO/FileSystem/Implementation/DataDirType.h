@@ -51,7 +51,7 @@ public:
   /// \brief Some data directory types may use external configuration files (e.g. asset lookup tables)
   ///        that may get updated, while the directory is mounted. This function allows each directory type to implement
   ///        reloading and reapplying of configurations, without dismounting and remounting the data directory.
-  virtual void ReloadExternalConfigs() {};
+  virtual void ReloadExternalConfigs(){};
 
 protected:
   friend class ezFileSystem;
@@ -104,8 +104,7 @@ protected:
   /// Called by ezFileSystem::ResolveAssetRedirection
   virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
   {
-    EZ_IGNORE_UNUSED(sPathOrAssetGuid);
-    EZ_IGNORE_UNUSED(out_sRedirection);
+    out_sRedirection = sPathOrAssetGuid;
     return false;
   }
 

@@ -59,6 +59,7 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
 		# "-sMODULARIZE=1" # Doesn't work at startup
 		"-sDISABLE_EXCEPTION_CATCHING=1"
 		# "-sWASM_BIGINT" # depends on browser support (https://emscripten.org/docs/tools_reference/settings_reference.html?highlight=environment#wasm-bigint)
+		"-sFETCH=1"
 
 		# Webpage Template
 		"--shell-file" "${CMAKE_SOURCE_DIR}/Code/BuildSystem/Web/em-default.html"

@@ -12,15 +12,16 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DataDirTypeWeb.h>
+
+// Constant buffer definition is shared between shader code and C++
+#include <RendererCore/../../../Data/Samples/MeshRenderSample/Shaders/SampleConstantBuffer.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WEB)
 // for additional debugging
 #  include <RendererWebGPU/RendererWebGPUDLL.h>
 #endif
-
-// Constant buffer definition is shared between shader code and C++
-#include <RendererCore/../../../Data/Samples/MeshRenderSample/Shaders/SampleConstantBuffer.h>
-
 
 #ifdef BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT
 constexpr const char* szDefaultRenderer = "WebGPU";
@@ -61,15 +62,32 @@ public:
 
   void AfterCoreSystemsStartup() override
   {
+    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/Default.ezAidlt";
+    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
+    ezDataDirectoryTypeWeb::s_sRedirectionFile = "AssetCache/Default.ezAidlt";
+    ezDataDirectoryTypeWeb::s_sRedirectionPrefix = "AssetCache/";
+
+#if EZ_ENABLED(EZ_PLATFORM_WEB)
+    ezFileSystem::SetSpecialDirectory("sdk", "web:");
+
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    ezDataDirectoryTypeWeb::IgnoreClientCache = true;
+#  endif
+#endif
+
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/MeshRenderSample";
     ezStringBuilder sProjectDirResolved;
     ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).AssertSuccess();
 
     ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
+    if (ezFileSystem::AddDataDirectory(">sdk/Output", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).Failed())
+    {
+      ezFileSystem::AddDataDirectory(">sdk/Output", "ShaderCache", "shadercache", ezDataDirUsage::ReadOnly).AssertSuccess();
+    }
+
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezDataDirUsage::AllowWrites).AssertSuccess();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
 
     ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
 

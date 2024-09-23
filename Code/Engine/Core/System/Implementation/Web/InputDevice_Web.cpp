@@ -474,4 +474,4 @@ EMSCRIPTEN_BINDINGS(input)
 #endif
 
 
-EZ_STATICLINK_FILE(Core, Core_Platform_Web_InputDevice_Web);
+EZ_STATICLINK_FILE(Core, Core_System_Implementation_Web_InputDevice_Web);

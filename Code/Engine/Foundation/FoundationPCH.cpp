@@ -17,6 +17,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Archive_Implementation_DataDirTypeArchive);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirTypeFolder);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirTypeWeb);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileSystem);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Math);

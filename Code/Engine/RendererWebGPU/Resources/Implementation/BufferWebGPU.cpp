@@ -28,7 +28,7 @@ ezResult ezGALBufferWebGPU::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   if (m_Description.m_ResourceAccess.m_bReadBack)
   {
-    bd.usage |= wgpu::BufferUsage::CopySrc;
+    bd.usage |= wgpu::BufferUsage::CopyDst;
     bd.usage |= wgpu::BufferUsage::MapRead;
   }
 

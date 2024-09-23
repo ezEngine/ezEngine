@@ -142,7 +142,7 @@ namespace ezDataDirectory
 
   void FolderType::ReloadExternalConfigs()
   {
-    LoadRedirectionFile();
+      LoadRedirectionFile();
   }
 
   void FolderType::LoadRedirectionFile()
@@ -260,7 +260,7 @@ namespace ezDataDirectory
       m_sRedirectedDataDirPath = sDirectory;
     }
 
-    if (!ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
+    if (!m_sRedirectedDataDirPath.IsAbsolutePath() || !ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
       return EZ_FAILURE;
 
     ReloadExternalConfigs();
