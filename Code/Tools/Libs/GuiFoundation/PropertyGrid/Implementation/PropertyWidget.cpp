@@ -85,6 +85,16 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
 
   QSizePolicy policy = sizePolicy();
 
+  const char* szLabels[] = {"X",
+    "Y",
+    "Z",
+    "W"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Gray)};
+
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
@@ -96,6 +106,15 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
+
+    if (m_iNumComponents > 1)
+    {
+      QLabel* pLabel = new QLabel(szLabels[c]);
+      QPalette palette = pLabel->palette();
+      palette.setColor(pLabel->foregroundRole(), QColor(labelColors[c].r, labelColors[c].g, labelColors[c].b));
+      pLabel->setPalette(palette);
+      m_pLayout->addWidget(pLabel);
+    }
 
     m_pLayout->addWidget(m_pWidget[c]);
 
@@ -1041,6 +1060,17 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
 
   QSizePolicy policy = sizePolicy();
 
+  const char* szLabels[] = {"R",
+    "P",
+    "Y"};
+  const char* szTooltip[] = {"Roll (Rotation around the forward axis)",
+    "Pitch (Rotation around the side axis)",
+    "Yaw (Rotation around the up axis)"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue)};
+
   for (ezInt32 c = 0; c < 3; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
@@ -1054,6 +1084,13 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
 
+    QLabel* pLabel = new QLabel(szLabels[c]);
+    QPalette palette = pLabel->palette();
+    palette.setColor(pLabel->foregroundRole(), QColor(labelColors[c].r, labelColors[c].g, labelColors[c].b));
+    pLabel->setPalette(palette);
+    pLabel->setToolTip(szTooltip[c]);
+
+    m_pLayout->addWidget(pLabel);
     m_pLayout->addWidget(m_pWidget[c]);
 
     connect(m_pWidget[c], SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
