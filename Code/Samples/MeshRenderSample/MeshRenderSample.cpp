@@ -2,6 +2,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -54,15 +55,21 @@ public:
 
   void AfterCoreSystemsStartup() override
   {
+    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/Default.ezAidlt";
+    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
     ezStringBuilder sProjectDir = ">sdk/Data/Samples/MeshRenderSample";
     ezStringBuilder sProjectDirResolved;
     ezFileSystem::ResolveSpecialDirectory(sProjectDir, sProjectDirResolved).AssertSuccess();
 
     ezFileSystem::SetSpecialDirectory("project", sProjectDirResolved);
 
-    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
+    if (ezFileSystem::AddDataDirectory(">sdk/Output", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).Failed())
+    {
+      ezFileSystem::AddDataDirectory(">sdk/Output", "ShaderCache", "shadercache", ezDataDirUsage::ReadOnly).AssertSuccess();
+    }
+
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").AssertSuccess();
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezDataDirUsage::AllowWrites).AssertSuccess();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project").AssertSuccess();
 
     ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
 

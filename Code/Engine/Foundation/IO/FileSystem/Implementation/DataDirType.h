@@ -104,8 +104,7 @@ protected:
   /// Called by ezFileSystem::ResolveAssetRedirection
   virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
   {
-    EZ_IGNORE_UNUSED(sPathOrAssetGuid);
-    EZ_IGNORE_UNUSED(out_sRedirection);
+    out_sRedirection = sPathOrAssetGuid;
     return false;
   }
 

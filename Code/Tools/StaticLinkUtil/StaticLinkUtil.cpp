@@ -243,12 +243,37 @@ public:
     return EZ_SUCCESS;
   }
 
+  bool IsNearlyIdentical(ezStringView lhs, ezStringView rhs)
+  {
+    while (lhs.EndsWith("\n") || lhs.EndsWith("\r"))
+      lhs.Shrink(0, 1);
+    while (rhs.EndsWith("\n") || rhs.EndsWith("\r"))
+      rhs.Shrink(0, 1);
+
+    while (true)
+    {
+      while (lhs.StartsWith("\n") || lhs.StartsWith("\r"))
+        lhs.ChopAwayFirstCharacterAscii();
+      while (rhs.StartsWith("\n") || rhs.StartsWith("\r"))
+        rhs.ChopAwayFirstCharacterAscii();
+
+      if (lhs == rhs)
+        return true;
+
+      if (lhs.GetCharacter() != rhs.GetCharacter())
+        return false;
+
+      lhs.ChopAwayFirstCharacterUtf8();
+      rhs.ChopAwayFirstCharacterUtf8();
+    }
+  }
+
   void OverwriteFile(ezStringView sFile, const ezStringBuilder& sFileContent)
   {
     ezStringBuilder sOut = sFileContent;
     SanitizeSourceCode(sOut);
 
-    if (m_ModifiedFiles[sFile].m_sFileContent == sOut)
+    if (IsNearlyIdentical(m_ModifiedFiles[sFile].m_sFileContent, sOut))
       return;
 
     m_bAnyFileChanged = true;
