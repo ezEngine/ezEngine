@@ -18,10 +18,6 @@
 
 #  include <Foundation/Application/Implementation/Android/ApplicationEntryPoint_android.h>
 
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-
-#  include <Foundation/Application/Implementation/Web/ApplicationEntryPoint_web.h>
-
 #else
 #  error "Missing definition of platform specific entry point!"
 #endif
