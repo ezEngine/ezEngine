@@ -38,8 +38,6 @@
 #  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-#  include <Foundation/Basics/Platform/Web/Platform_Web.h>
 #else
 #  error "Undefined platform!"
 #endif
