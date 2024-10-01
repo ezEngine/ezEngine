@@ -11,6 +11,7 @@ ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocumen
 {
   m_pDocument = pDocument;
   m_sContextMenuMapping = szContextMenuMapping;
+  m_pDelegate = new ezQtGameObjectDelegate(this, pDocument);
 
   setLayout(new QVBoxLayout());
   setContentsMargins(0, 0, 0, 0);
@@ -25,6 +26,7 @@ ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocumen
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(true);
   layout()->addWidget(m_pTreeWidget);
+  m_pTreeWidget->setItemDelegate(m_pDelegate);
 
   m_pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
 

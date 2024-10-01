@@ -146,12 +146,14 @@ bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int
 
 Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int iRow, int iColumn) const
 {
+  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+
   if (iColumn == 0)
   {
-    return (Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+    return flags | Qt::ItemIsEditable;
   }
 
-  return Qt::ItemFlag::NoItemFlags;
+  return flags;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,7 +183,9 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* pAdapter)
     auto index = ComputeModelIndex(pObject);
     if (!index.isValid())
       return;
-    dataChanged(index, index, roles); });
+
+    QModelIndex idx2 = index.siblingAtColumn(columnCount() - 1); // mark the entire row as modified
+    Q_EMIT dataChanged(index, idx2, roles); });
   m_Adapters.Insert(pAdapter->GetType(), pAdapter);
   beginResetModel();
   endResetModel();

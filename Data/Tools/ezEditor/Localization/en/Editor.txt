@@ -167,6 +167,8 @@ Selection.Attach;Attach to This
 Selection.Detach;Detach
 Selection.CopyReference;Copy Object Reference
 Selection.SelectParent;Select Parent Object
+Selection.SetActiveParent;Set Active Parent
+Selection.ClearActiveParent;Clear Active Parent
 
 # Profile Configs
 

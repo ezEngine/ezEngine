@@ -20,7 +20,7 @@ void ezJoltCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropIn
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
   if (pInfo->m_sTargetContext == "viewport")
-    CreateDropObject(pInfo->m_vDropPosition, "ezJoltStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezJoltStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
   else
   {
     if (pInfo->m_iTargetObjectInsertChildIndex == -1) // dropped directly on a node -> attach component only

@@ -25,14 +25,14 @@ void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   if (pInfo->m_bShiftKeyDown)
   {
     if (pInfo->m_sTargetContext == "viewport")
-      CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo), ezUuid(), -1);
+      CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo), pInfo->m_ActiveParentObject, -1);
     else
       CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
   }
   else
   {
     if (pInfo->m_sTargetContext == "viewport")
-      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), ezUuid(), -1);
+      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
     else
       CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
         pInfo->m_iTargetObjectInsertChildIndex);

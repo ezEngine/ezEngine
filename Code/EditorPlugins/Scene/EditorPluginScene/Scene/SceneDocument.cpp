@@ -209,6 +209,21 @@ void ezSceneDocument::SelectParentObject()
   }
 }
 
+void ezSceneDocument::SetSelectedAsActiveParent()
+{
+  const auto& sel = GetSelectionManager()->GetSelection();
+
+  if (sel.IsEmpty())
+    return;
+
+  SetActiveParent(sel.PeekBack()->GetGuid());
+}
+
+void ezSceneDocument::ClearActiveParent()
+{
+  SetActiveParent(ezUuid::MakeInvalid());
+}
+
 void ezSceneDocument::DuplicateSpecial()
 {
   if (GetSelectionManager()->IsSelectionEmpty())
@@ -427,6 +442,15 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
     cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
+    if (!bAttachToParent)
+    {
+      // the object may not exist anymore
+      if (auto pParentObj = GetObjectManager()->GetObject(GetActiveParent()))
+      {
+        cmdAdd.m_Parent = GetActiveParent();
+      }
+    }
+
     auto res = history->AddCommand(cmdAdd);
     if (res.Failed())
     {
@@ -460,6 +484,14 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
     cmdSet.m_NewValue = position;
     cmdSet.m_Object = NewNode;
     cmdSet.m_sProperty = "LocalPosition";
+
+    if (auto pParentObj = GetObjectManager()->GetObject(cmdAdd.m_Parent))
+    {
+      const ezTransform tParent = GetGlobalTransform(pParentObj);
+      const ezTransform tRel = ezTransform::MakeLocalTransform(tParent, ezTransform(position, ezQuat::MakeIdentity()));
+
+      cmdSet.m_NewValue = tRel.m_vPosition;
+    }
 
     auto res = history->AddCommand(cmdSet);
     if (res.Failed())
@@ -533,9 +565,6 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 
     ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
       {
-      // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-      // return;
-
       auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
       if (pMeta->m_bHidden != bHide)
       {

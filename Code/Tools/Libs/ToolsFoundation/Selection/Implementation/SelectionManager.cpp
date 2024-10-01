@@ -149,6 +149,7 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
 
   for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
   {
+    // actually == nullptr should never happen, unless we have an error somewhere else
     if (selection[i] != nullptr)
     {
       EZ_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
@@ -158,9 +159,12 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
         ezLog::Error("{0}", res.m_sMessage);
         continue;
       }
-      // actually == nullptr should never happen, unless we have an error somewhere else
-      m_pSelectionStorage->m_SelectionList.PushBack(selection[i]);
-      m_pSelectionStorage->m_SelectionSet.Insert(selection[i]->GetGuid());
+
+      if (!m_pSelectionStorage->m_SelectionSet.Contains(selection[i]->GetGuid()))
+      {
+        m_pSelectionStorage->m_SelectionList.PushBack(selection[i]);
+        m_pSelectionStorage->m_SelectionSet.Insert(selection[i]->GetGuid());
+      }
     }
   }
 

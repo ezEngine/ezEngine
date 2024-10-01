@@ -40,10 +40,16 @@ public:
     Hide
   };
 
+  /// \brief Creates a new object and attaches all currently selected objects to it.
   void GroupSelection();
 
   /// \brief Changes the selection to the parent object.
   void SelectParentObject();
+
+  /// \brief Sets the last selected object as the 'active parent'.
+  void SetSelectedAsActiveParent();
+  /// \brief Clears the 'active parent' object.
+  void ClearActiveParent();
 
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();

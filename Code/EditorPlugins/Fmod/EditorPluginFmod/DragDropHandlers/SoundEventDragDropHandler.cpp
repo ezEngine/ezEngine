@@ -20,7 +20,7 @@ void ezSoundEventComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pIn
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
   if (pInfo->m_sTargetContext == "viewport")
-    CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezFmodEventComponent", "SoundEvent", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
       pInfo->m_iTargetObjectInsertChildIndex);

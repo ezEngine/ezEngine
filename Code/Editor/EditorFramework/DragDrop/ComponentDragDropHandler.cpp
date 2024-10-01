@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
@@ -106,6 +107,8 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   auto history = m_pDocument->GetCommandHistory();
 
+  ezGameObjectDocument* pGameDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocument);
+
   history->StartTransaction("Move to Position");
 
   ezQuat rot;
@@ -118,7 +121,23 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   for (const auto& guid : m_DraggedObjects)
   {
-    MoveObjectToPosition(guid, vPosition, rot);
+    ezVec3 vNewPos = vPosition;
+    ezQuat qNewRot = rot;
+
+    if (pGameDoc)
+    {
+      const ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(guid);
+      if (const ezDocumentObject* pParent = pObject->GetParent())
+      {
+        const ezTransform tParent = pGameDoc->GetGlobalTransform(pParent);
+        const ezTransform rRel = ezTransform::MakeLocalTransform(tParent, ezTransform(vNewPos, qNewRot));
+
+        vNewPos = rRel.m_vPosition;
+        qNewRot = rRel.m_qRotation;
+      }
+    }
+
+    MoveObjectToPosition(guid, vNewPos, qNewRot);
   }
 
   history->FinishTransaction();
