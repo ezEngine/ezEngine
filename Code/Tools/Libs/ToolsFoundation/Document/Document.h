@@ -33,13 +33,12 @@ public:
   {
     HiddenFlag = EZ_BIT(0),
     PrefabFlag = EZ_BIT(1),
+    ActiveParentFlag = EZ_BIT(2), /// This flag is used to update an entry, even though there is no meta data for it.
 
     AllFlags = 0xFFFFFFFF
   };
 
-  ezDocumentObjectMetaData() { m_bHidden = false; }
-
-  bool m_bHidden;            /// Whether the object should be rendered in the editor view (no effect on the runtime)
+  bool m_bHidden = false;    /// Whether the object should be rendered in the editor view (no effect on the runtime)
   ezUuid m_CreateFromPrefab; /// The asset GUID of the prefab from which this object was created. Invalid GUID, if this is not a prefab instance.
   ezUuid m_PrefabSeedGuid;   /// The seed GUID used to remap the object GUIDs from the prefab asset into this instance.
   ezString m_sBasePrefab;    /// The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for

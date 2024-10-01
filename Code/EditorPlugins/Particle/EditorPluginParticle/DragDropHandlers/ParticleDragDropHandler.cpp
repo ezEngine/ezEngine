@@ -21,7 +21,7 @@ void ezParticleComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo
 
   if (pInfo->m_sTargetContext == "viewport")
   {
-    CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
 
     m_vAlignAxisWithNormal = ezVec3::MakeAxisZ();
   }

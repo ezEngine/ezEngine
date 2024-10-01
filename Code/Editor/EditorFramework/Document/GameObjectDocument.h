@@ -191,10 +191,21 @@ public:
   bool GetPickTransparent() const { return m_bPickTransparent; }
   void SetPickTransparent(bool b);
 
+  /// \brief Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
+  void SetActiveParent(ezUuid object);
+  /// \brief Returns the object under which newly created objects should be parented.
+  ///
+  /// \note The object may not exist anymore! So check with the ObjectManager first.
+  ezUuid GetActiveParent() const { return m_ActiveParent; }
+
+private:
+  ezUuid m_ActiveParent = ezUuid::MakeInvalid();
+
   ///@}
   /// \name Transform
   ///@{
 
+public:
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
   /// some work can be spared.

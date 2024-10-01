@@ -102,6 +102,17 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
+    if (ezSceneDocument* pSceneDoc = ezDynamicCast<ezSceneDocument*>(m_pDocumentWindow->GetDocument()))
+    {
+      const ezUuid guid = pSceneDoc->GetActiveParent();
+
+      // the object may not exist anymore
+      if (pSceneDoc->GetObjectManager()->GetObject(guid) != nullptr)
+      {
+        info.m_ActiveParentObject = guid;
+      }
+    }
+
     ezDragDropConfig cfg;
     if (ezDragDropHandler::BeginDragDropOperation(&info, &cfg))
     {

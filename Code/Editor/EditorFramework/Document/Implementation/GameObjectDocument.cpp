@@ -203,6 +203,24 @@ void ezGameObjectDocument::SetPickTransparent(bool b)
   }
 }
 
+void ezGameObjectDocument::SetActiveParent(ezUuid object)
+{
+  if (m_ActiveParent != object)
+  {
+    if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
+    {
+      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+    }
+
+    m_ActiveParent = object;
+
+    if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
+    {
+      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+    }
+  }
+}
+
 void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
@@ -742,6 +760,12 @@ ezStatus ezGameObjectDocument::CreateGameObjectHere()
   cmdAdd.m_sParentProperty = "Children";
   cmdAdd.m_Index = -1;
 
+  // the object may not exist anymore
+  if (GetObjectManager()->GetObject(m_ActiveParent) != nullptr)
+  {
+    cmdAdd.m_Parent = m_ActiveParent;
+  }
+
   ezUuid NewNode;
 
   const auto& Sel = GetSelectionManager()->GetSelection();
@@ -766,6 +790,14 @@ ezStatus ezGameObjectDocument::CreateGameObjectHere()
   cmdSet.m_NewValue = vCreatePos;
   cmdSet.m_Object = NewNode;
   cmdSet.m_sProperty = "LocalPosition";
+
+  if (auto pParentObj = GetObjectManager()->GetObject(cmdAdd.m_Parent))
+  {
+    const ezTransform tParent = GetGlobalTransform(pParentObj);
+    const ezTransform tRel = ezTransform::MakeLocalTransform(tParent, ezTransform(vCreatePos, ezQuat::MakeIdentity()));
+
+    cmdSet.m_NewValue = tRel.m_vPosition;
+  }
 
   auto res = history->AddCommand(cmdSet);
   if (res.Failed())

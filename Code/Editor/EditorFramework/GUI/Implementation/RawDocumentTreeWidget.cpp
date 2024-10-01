@@ -68,7 +68,7 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
 
   foreach (QModelIndex index, selection)
   {
-    if (index.isValid())
+    if (index.isValid() && index.column() == 0)
     {
       index = m_pFilterModel->mapToSource(index);
 
@@ -114,8 +114,7 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
         // We need to change the current index as well because the current index can trigger side effects. E.g. deleting the current index row triggers a selection change event.
         selectionModel()->setCurrentIndex(currentIndex, QItemSelectionModel::SelectCurrent);
       }
-      selectionModel()
-        ->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
+      selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
       m_bBlockSelectionSignal = false;
     }
     break;

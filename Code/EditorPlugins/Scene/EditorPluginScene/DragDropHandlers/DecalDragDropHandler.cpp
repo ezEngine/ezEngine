@@ -24,7 +24,7 @@ void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
 
   if (pInfo->m_sTargetContext == "viewport")
   {
-    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, pInfo->m_ActiveParentObject, -1);
 
     m_vAlignAxisWithNormal = -ezVec3::MakeAxisX();
   }

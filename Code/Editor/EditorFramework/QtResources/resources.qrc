@@ -64,6 +64,7 @@
     <file>Icons/VisualStudio.svg</file>
     <file>Icons/MoveCameraHere.svg</file>
     <file>Icons/id.svg</file>
+    <file>Icons/ActiveParent.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezDragToPositionGizmoEditTool.svg</file>

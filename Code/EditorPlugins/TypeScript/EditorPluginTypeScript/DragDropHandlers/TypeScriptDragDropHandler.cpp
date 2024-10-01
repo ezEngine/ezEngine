@@ -21,7 +21,7 @@ void ezTypeScriptComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pIn
 
   if (pInfo->m_sTargetContext == "viewport")
   {
-    CreateDropObject(pInfo->m_vDropPosition, "ezTypeScriptComponent", "Script", GetAssetGuidString(pInfo), ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezTypeScriptComponent", "Script", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
   }
   else
   {
