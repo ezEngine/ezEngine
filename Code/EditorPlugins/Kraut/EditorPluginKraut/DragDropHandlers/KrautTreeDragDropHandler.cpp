@@ -19,11 +19,27 @@ void ezKrautTreeComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInf
 {
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
+  constexpr const char* szComponentType = "ezKrautTreeComponent";
+  constexpr const char* szPropertyName = "KrautTree";
+
   if (pInfo->m_sTargetContext == "viewport")
-    CreateDropObject(pInfo->m_vDropPosition, "ezKrautTreeComponent", "KrautTree", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
+  {
+    CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
+  }
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezKrautTreeComponent", "KrautTree", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-      pInfo->m_iTargetObjectInsertChildIndex);
+  {
+    if (!pInfo->m_bCtrlKeyDown && pInfo->m_iTargetObjectInsertChildIndex == -1) // dropped directly on a node -> attach component only
+    {
+      AttachComponentToObject(szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject);
+
+      // make sure this object gets selected
+      m_DraggedObjects.PushBack(pInfo->m_TargetObject);
+    }
+    else
+    {
+      CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    }
+  }
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

@@ -19,16 +19,27 @@ void ezProcPlacementComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* 
 {
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
-  ezUuid targetObject;
-  ezInt32 iTargetInsertChildIndex = -1;
+  constexpr const char* szComponentType = "ezProcPlacementComponent";
+  constexpr const char* szPropertyName = "Resource";
 
-  if (pInfo->m_sTargetContext != "viewport")
+  if (pInfo->m_sTargetContext == "viewport")
   {
-    targetObject = pInfo->m_TargetObject;
-    iTargetInsertChildIndex = pInfo->m_iTargetObjectInsertChildIndex;
+    CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
   }
+  else
+  {
+    if (!pInfo->m_bCtrlKeyDown && pInfo->m_iTargetObjectInsertChildIndex == -1) // dropped directly on a node -> attach component only
+    {
+      AttachComponentToObject(szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject);
 
-  CreateDropObject(pInfo->m_vDropPosition, "ezProcPlacementComponent", "Resource", GetAssetGuidString(pInfo), targetObject, iTargetInsertChildIndex);
+      // make sure this object gets selected
+      m_DraggedObjects.PushBack(pInfo->m_TargetObject);
+    }
+    else
+    {
+      CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    }
+  }
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

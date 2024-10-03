@@ -19,20 +19,26 @@ void ezJoltCollisionMeshComponentDragDropHandler::OnDragBegin(const ezDragDropIn
 {
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
+  constexpr const char* szComponentType = "ezJoltStaticActorComponent";
+  constexpr const char* szPropertyName = "CollisionMesh";
+
   if (pInfo->m_sTargetContext == "viewport")
-    CreateDropObject(pInfo->m_vDropPosition, "ezJoltStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
+  {
+    CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_ActiveParentObject, -1);
+  }
   else
   {
-    if (pInfo->m_iTargetObjectInsertChildIndex == -1) // dropped directly on a node -> attach component only
+    if (!pInfo->m_bCtrlKeyDown && pInfo->m_iTargetObjectInsertChildIndex == -1) // dropped directly on a node -> attach component only
     {
-      AttachComponentToObject("ezJoltStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject);
+      AttachComponentToObject(szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject);
 
       // make sure this object gets selected
       m_DraggedObjects.PushBack(pInfo->m_TargetObject);
     }
     else
-      CreateDropObject(pInfo->m_vDropPosition, "ezJoltStaticActorComponent", "CollisionMesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-        pInfo->m_iTargetObjectInsertChildIndex);
+    {
+      CreateDropObject(pInfo->m_vDropPosition, szComponentType, szPropertyName, GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    }
   }
 
   SelectCreatedObjects();
