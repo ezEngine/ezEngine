@@ -5,6 +5,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -189,24 +190,21 @@ ezGALCommandEncoder* ezGALDevice::BeginCommands(const char* szName)
     e.m_Type = ezGALDeviceEvent::BeforeBeginCommands;
     s_Events.Broadcast(e, 1);
   }
-  ezGALCommandEncoder* pCommandEncoder = nullptr;
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
 
-    EZ_ASSERT_DEV(!m_bBeginCommandsCalled, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
-    m_bBeginCommandsCalled = true;
-
-    pCommandEncoder = BeginCommandsPlatform(szName);
+    EZ_ASSERT_DEV(m_pCommandEncoder == nullptr, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
+    m_pCommandEncoder = BeginCommandsPlatform(szName);
   }
   {
     EZ_PROFILE_SCOPE("AfterBeginCommands");
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterBeginCommands;
-    e.m_pCommandEncoder = pCommandEncoder;
+    e.m_pCommandEncoder = m_pCommandEncoder;
     s_Events.Broadcast(e, 1);
   }
-  return pCommandEncoder;
+  return m_pCommandEncoder;
 }
 
 void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
@@ -221,8 +219,8 @@ void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
   }
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-    EZ_ASSERT_DEV(m_bBeginCommandsCalled, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
-    m_bBeginCommandsCalled = false;
+    EZ_ASSERT_DEV(m_pCommandEncoder != nullptr, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
+    m_pCommandEncoder = nullptr;
     EndCommandsPlatform(pCommandEncoder);
   }
   {
@@ -538,6 +536,15 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     return ezGALBufferHandle();
   }
 
+  if (desc.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Staging || desc.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Readback)
+  {
+    if (!desc.m_BufferFlags.IsNoFlagSet())
+    {
+      ezLog::Error("Staging and Readback buffers are not allowed to have buffer flags!");
+      return ezGALBufferHandle();
+    }
+  }
+
   if (desc.m_ResourceAccess.IsImmutable())
   {
     if (initialData.IsEmpty())
@@ -650,6 +657,36 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
+  }
+
+  if (desc.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Dynamic)
+  {
+    ezLog::Error("Textures do not support ezGALMemoryUsage::Dynamic!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Staging || desc.m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Readback)
+  {
+    if (desc.m_SampleCount != ezGALMSAASampleCount::None)
+    {
+      ezLog::Error("Staging and Readback textures do not support MSAA!");
+      return ezGALTextureHandle();
+    }
+    else if (desc.m_Type == ezGALTextureType::Texture2DProxy || desc.m_Type == ezGALTextureType::Texture2DShared)
+    {
+      ezLog::Error("Staging and Readback textures do not support proxy or shared textures!");
+      return ezGALTextureHandle();
+    }
+    else if (desc.m_bAllowShaderResourceView || desc.m_bAllowUAV || desc.m_bCreateRenderTarget || desc.m_bAllowDynamicMipGeneration)
+    {
+      ezLog::Error("Staging and Readback textures do not support binding on the GPU!");
+      return ezGALTextureHandle();
+    }
+    else if (desc.m_pExisitingNativeObject != nullptr)
+    {
+      ezLog::Error("Staging and Readback textures do not support an existing native object ptr!");
+      return ezGALTextureHandle();
+    }
   }
 
   if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
@@ -1310,6 +1347,16 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   {
     ezLog::Warning("DestroyVertexDeclaration called on invalid handle (double free?)");
   }
+}
+
+ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
+{
+  if (hFence == 0)
+    return ezGALAsyncResult::Expired;
+
+  EZ_ASSERT_DEBUG(timeout.IsZero() || m_pCommandEncoder == nullptr || !m_pCommandEncoder->IsInRenderingScope(), "Waiting for a fence is only allowed outside of a rendering scope");
+
+  return GetFenceResultPlatform(hFence, timeout);
 }
 
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)

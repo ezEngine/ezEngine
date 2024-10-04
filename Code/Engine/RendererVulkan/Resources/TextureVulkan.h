@@ -36,23 +36,21 @@ public:
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
 
-  EZ_ALWAYS_INLINE bool IsLinearLayout() const;
-
   vk::Extent3D GetMipLevelSize(ezUInt32 uiMipLevel) const;
   vk::ImageSubresourceRange GetFullRange() const;
   vk::ImageAspectFlags GetAspectMask() const;
 
   // Read-back staging resources
   EZ_ALWAYS_INLINE StagingMode GetStagingMode() const;
-  EZ_ALWAYS_INLINE ezGALTextureHandle GetStagingTexture() const;
-  EZ_ALWAYS_INLINE ezGALBufferHandle GetStagingBuffer() const;
   ezUInt32 ComputeSubResourceOffsets(ezDynamicArray<SubResourceOffset>& out_subResourceOffsets) const;
+  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_buffer; }
+  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_bufferAlloc;}
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU, bool bStaging);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description);
 
   ~ezGALTextureVulkan();
 
@@ -66,9 +64,10 @@ protected:
   static void ComputeAllocInfo(bool bLinearCPU, ezVulkanAllocationCreateInfo& ref_allocInfo);
   static StagingMode ComputeStagingMode(ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, const vk::ImageCreateInfo& createInfo);
 
-  ezResult CreateStagingBuffer(const vk::ImageCreateInfo& createInfo);
+  ezResult CreateStagingBuffer();
 
-  vk::Image m_image;
+protected:
+  vk::Image m_image = {};
   vk::Format m_imageFormat = vk::Format::eUndefined;
   vk::ImageLayout m_preferredLayout = vk::ImageLayout::eUndefined;
   vk::PipelineStageFlags m_stages = {};
@@ -79,12 +78,11 @@ protected:
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
 
-  bool m_bLinearCPU = false;
-  bool m_bStaging = false;
-
+  // Staging
   StagingMode m_stagingMode = StagingMode::None;
-  ezGALTextureHandle m_hStagingTexture;
-  ezGALBufferHandle m_hStagingBuffer;
+  vk::Buffer m_buffer = {};
+  ezVulkanAllocation m_bufferAlloc;
+  ezVulkanAllocationInfo m_bufferAllocInfo;
 };
 
 

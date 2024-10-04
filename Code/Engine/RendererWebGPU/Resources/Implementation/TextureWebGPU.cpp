@@ -192,8 +192,21 @@ ezResult ezGALTextureWebGPU::InitPlatform(ezGALDevice* pDevice0, ezArrayPtr<ezGA
   if (m_Description.m_bCreateRenderTarget)
     desc.usage |= wgpu::TextureUsage::RenderAttachment;
 
-  if (m_Description.m_ResourceAccess.m_bReadBack)
-    desc.usage |= wgpu::TextureUsage::CopySrc;
+  switch (m_Description.m_ResourceAccess.m_MemoryUsage)
+  {
+    case ezGALMemoryUsage::Staging:
+      desc.usage |= wgpu::BufferUsage::CopySrc;
+      desc.usage |= wgpu::BufferUsage::MapWrite;
+      break;
+    case ezGALMemoryUsage::Readback:
+      desc.usage |= wgpu::BufferUsage::CopyDst;
+      desc.usage |= wgpu::BufferUsage::MapRead;
+      break;
+    default:
+      desc.usage |= wgpu::BufferUsage::CopySrc;
+      desc.usage |= wgpu::BufferUsage::CopyDst;
+      break;
+  }
 
   if (!m_Description.m_ResourceAccess.m_bImmutable || !pInitialData.IsEmpty())
     desc.usage |= wgpu::TextureUsage::CopyDst;

@@ -35,14 +35,6 @@ EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(e
   return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
 }
 
-EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)
-{
-  if (hFence == 0)
-    return ezGALAsyncResult::Ready;
-
-  return GetFenceResultPlatform(hFence, timeout);
-}
-
 template <typename IdTableType, typename ReturnType>
 EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {

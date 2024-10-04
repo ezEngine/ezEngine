@@ -662,6 +662,87 @@ ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandl
   return m_pFenceQueue->GetFenceResult(hFence, timeout);
 }
 
+ezResult ezGALDeviceDX11::LockBufferPlatform(const ezGALBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const
+{
+  EZ_ASSERT_DEBUG(pBuffer->GetDescription().m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Readback, "Only readback buffers can be locked");
+  const ezGALBufferDX11* pDXBuffer = static_cast<const ezGALBufferDX11*>(pBuffer);
+
+  D3D11_MAPPED_SUBRESOURCE Mapped;
+  HRESULT hr = GetDXImmediateContext()->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_READ, 0, &Mapped);
+  if (FAILED(hr))
+  {
+    return EZ_FAILURE;
+  }
+  out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(Mapped.pData), pDXBuffer->GetSize());
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALDeviceDX11::UnlockBufferPlatform(const ezGALBuffer* pBuffer) const
+{
+  const ezGALBufferDX11* pDXBuffer = static_cast<const ezGALBufferDX11*>(pBuffer);
+  GetDXImmediateContext()->Unmap(pDXBuffer->GetDXBuffer(), 0);
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const
+{
+  out_Memory.Clear();
+  EZ_ASSERT_DEBUG(pTexture->GetDescription().m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Readback, "Only readback textures can be locked");
+  const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    D3D11_MAPPED_SUBRESOURCE Mapped;
+    if (FAILED(GetDXImmediateContext()->Map(pDXTexture->GetDXTexture(), uiSubResourceIndex, D3D11_MAP_READ, 0, &Mapped)))
+    {
+      ezLog::Error("Failed to map sub resource with miplevel {} and array slice {}.", subRes.m_uiMipLevel, subRes.m_uiArraySlice);
+    }
+    else
+    {
+      switch (pTexture->GetDescription().m_Type)
+      {
+        case ezGALTextureType::Texture2D:
+        case ezGALTextureType::Texture2DProxy:
+        case ezGALTextureType::Texture2DShared:
+        case ezGALTextureType::TextureCube:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = 0;
+        case ezGALTextureType::Texture3D:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.DepthPitch * pTexture->GetDescription().m_uiDepth);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = Mapped.DepthPitch;
+          break;
+        default:
+          break;
+      }
+
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALDeviceDX11::UnlockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const
+{
+  EZ_ASSERT_DEBUG(pTexture->GetDescription().m_ResourceAccess.m_MemoryUsage == ezGALMemoryUsage::Readback, "Only readback textures can be unlocked");
+  const ezGALTextureDX11* pDXTexture = static_cast<const ezGALTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    GetDXImmediateContext()->Unmap(pDXTexture->GetDXTexture(), uiSubResourceIndex);
+  }
+  return EZ_SUCCESS;
+}
+
 // Swap chain functions
 
 void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)

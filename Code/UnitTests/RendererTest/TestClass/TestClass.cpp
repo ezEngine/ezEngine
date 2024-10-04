@@ -380,24 +380,20 @@ ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTes
 
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBBTexture);
-  pCommandEncoder->ReadbackTexture(hBBTexture);
-  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
+  m_Readback.ReadbackTexture(*pCommandEncoder, hBBTexture);
+  pCommandEncoder->Flush();
+  // Wait for results
+  {
+    ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+    EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+  }
 
-  ezImageHeader header;
-  header.SetWidth(m_pWindow->GetClientAreaSize().width);
-  header.SetHeight(m_pWindow->GetClientAreaSize().height);
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  ref_img.ResetAndAlloc(header);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_pData = ref_img.GetPixelPointer<ezUInt8>();
-  MemDesc.m_uiRowPitch = 4 * m_pWindow->GetClientAreaSize().width;
-  MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
-
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, sourceSubResources, SysMemDescs);
+  ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  m_Readback.LockTexture(sourceSubResources, memory).AssertSuccess("Failed to lock readback texture");
+  EZ_SCOPE_EXIT(m_Readback.UnlockTexture(sourceSubResources).AssertSuccess(""));
+  ezTextureUtils::CreateSubResourceImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], ref_img);
 
   return EZ_SUCCESS;
 }

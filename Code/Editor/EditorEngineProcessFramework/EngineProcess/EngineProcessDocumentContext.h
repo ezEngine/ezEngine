@@ -5,6 +5,7 @@
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Resources/Readback.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
@@ -185,6 +186,8 @@ private:
   ezGALRenderTargets m_ThumbnailRenderTargets;
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
+  ezGALReadbackTexture m_ThumbnailReadback;
+
   bool m_bWorldSimStateBeforeThumbnail = false;
   ezString m_sDocumentType;
 

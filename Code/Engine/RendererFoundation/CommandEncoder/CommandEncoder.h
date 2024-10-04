@@ -64,6 +64,7 @@ public:
 
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
+
   void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
 
   void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
@@ -73,8 +74,7 @@ public:
 
   void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource);
 
-  void ReadbackTexture(ezGALTextureHandle hTexture);
-  void CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData);
+  void ReadbackTexture(ezGALTextureHandle hDestination, ezGALTextureHandle hSource);
 
   void GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView);
 
@@ -102,6 +102,7 @@ public:
 
   void BeginRendering(const ezGALRenderingSetup& renderingSetup, const char* szName = "");
   void EndRendering();
+  bool IsInRenderingScope() const;
 
   /// \brief Clears active rendertargets.
   ///

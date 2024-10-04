@@ -130,7 +130,10 @@ protected:
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
   virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
   virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
-
+  virtual ezResult LockBufferPlatform(const ezGALBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const override;
+  virtual ezResult UnlockBufferPlatform(const ezGALBuffer* pBuffer) const override;
+  virtual ezResult LockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const override;
+  virtual ezResult UnlockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const override;
   // Swap chain functions
 
   void PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync);

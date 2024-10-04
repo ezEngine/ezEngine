@@ -208,7 +208,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     for (ezUInt32 m = 0; m < desc.m_uiMipLevelCount; m++)
     {
       ezGALSystemMemoryDescription& memoryDesc = initialData[m];
-      memoryDesc.m_pData = coloredMips.GetPixelPointer<ezUInt8>(m);
+      memoryDesc.m_pData = coloredMips.GetSubImageView(m).GetByteBlobPtr();
       memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips.GetRowPitch(m));
       memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips.GetDepthPitch(m));
     }
@@ -248,7 +248,8 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       for (ezUInt32 m = 0; m < desc.m_uiMipLevelCount; m++)
       {
         ezGALSystemMemoryDescription& memoryDesc = initialData[m + l * desc.m_uiMipLevelCount];
-        memoryDesc.m_pData = coloredMips[l].GetPixelPointer<ezUInt8>(m);
+
+        memoryDesc.m_pData = coloredMips[l].GetSubImageView(m).GetByteBlobPtr();
         memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips[l].GetRowPitch(m));
         memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips[l].GetDepthPitch(m));
       }

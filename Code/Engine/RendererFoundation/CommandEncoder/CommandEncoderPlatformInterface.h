@@ -51,9 +51,7 @@ public:
 
   virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) = 0;
 
-  virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
-
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) = 0;
+  virtual void ReadbackTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) = 0;
 
   virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) = 0;
 

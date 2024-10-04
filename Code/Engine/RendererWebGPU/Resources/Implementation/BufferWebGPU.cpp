@@ -26,10 +26,18 @@ ezResult ezGALBufferWebGPU::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
   // m_Description.m_Format // unused ?
   // m_Description.m_uiStructSize // unused ?
 
-  if (m_Description.m_ResourceAccess.m_bReadBack)
+  switch (m_Description.m_ResourceAccess.m_MemoryUsage)
   {
-    bd.usage |= wgpu::BufferUsage::CopySrc;
-    bd.usage |= wgpu::BufferUsage::MapRead;
+    case ezGALMemoryUsage::Staging:
+      bd.usage |= wgpu::BufferUsage::CopySrc;
+      bd.usage |= wgpu::BufferUsage::MapWrite;
+      break;
+    case ezGALMemoryUsage::Readback:
+      bd.usage |= wgpu::BufferUsage::CopyDst;
+      bd.usage |= wgpu::BufferUsage::MapRead;
+      break;
+    default:
+      break;
   }
 
   if (m_Description.m_ResourceAccess.IsImmutable() == false)

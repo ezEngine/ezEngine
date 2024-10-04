@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererFoundation/Resources/Readback.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezPickingRenderPass : public ezRenderPipelinePass
@@ -49,6 +50,8 @@ private:
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
   ezGALRenderTargetSetup m_RenderTargetSetup;
+  ezGALReadbackTexture m_PickingReadback;
+  ezGALReadbackTexture m_PickingDepthReadback;
 
   ezHashSet<ezGameObjectHandle> m_SelectionSet;
 

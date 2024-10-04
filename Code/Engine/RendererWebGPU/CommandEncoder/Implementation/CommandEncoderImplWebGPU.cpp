@@ -232,12 +232,7 @@ void ezGALCommandEncoderImplWebGPU::ResolveTexturePlatform(const ezGALTexture* p
   EZ_WEBGPU_TRACE();
 }
 
-void ezGALCommandEncoderImplWebGPU::ReadbackTexturePlatform(const ezGALTexture* pTexture)
-{
-  EZ_WEBGPU_TRACE();
-}
-
-void ezGALCommandEncoderImplWebGPU::CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData)
+void ezGALCommandEncoderImplWebGPU::ReadbackTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource)
 {
   EZ_WEBGPU_TRACE();
 }

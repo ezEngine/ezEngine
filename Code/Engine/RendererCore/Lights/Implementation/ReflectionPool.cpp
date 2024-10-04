@@ -318,8 +318,8 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
         destBox.m_vMin.Set(0, i, 0);
         destBox.m_vMax.Set(6, i + 1, 1);
         ezGALSystemMemoryDescription memDesc;
-        memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
         memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+        memDesc.m_pData = ezMakeByteBlobPtr(&skyIrradianceStorage[i].m_Values[0], memDesc.m_uiRowPitch * 1);
         pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
 
         uiSkyIrradianceChanged &= ~EZ_BIT(i);

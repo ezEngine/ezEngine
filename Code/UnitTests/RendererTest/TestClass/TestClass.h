@@ -7,6 +7,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Readback.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
 #undef CreateWindow
@@ -88,4 +89,5 @@ protected:
   ezInt32 m_iFrame = 0;
   bool m_bCaptureImage = false;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+  ezGALReadbackTexture m_Readback;
 };

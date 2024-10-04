@@ -4,6 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation//Containers/Blob.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -334,9 +335,9 @@ struct ezGALUpdateMode
 {
   enum Enum
   {
-    Discard,          ///< Buffer must be completely overwritten. No old data will be read. Data will not persist across frames.
-    NoOverwrite,      ///< User is responsible for synchronizing access between GPU and CPU.
-    CopyToTempStorage ///< Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
+    Discard,          ///< Buffer must be completely overwritten. No old data will be read. Data will not persist across frames. Only allowed on transient uniform buffers. Can be executed at any time in a command encoder.
+    NoOverwrite,      ///< Copy will be executed at some point before the next command in the command encoder. Note that no GPU access must have happened to the modified memory range in the current command encoder before this call or undefined behaviour will occur. Can be executed at any time in a command encoder.
+    CopyToTempStorage ///< Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer. Only allowed outside a render pass.
   };
 };
 
@@ -354,16 +355,32 @@ struct ezGALAsyncResult
   };
 };
 
-// Basic structs
+/// \brief Defines the sub resource of a texture.
 struct ezGALTextureSubresource
 {
   ezUInt32 m_uiMipLevel = 0;
   ezUInt32 m_uiArraySlice = 0;
 };
 
+/// \brief Defines the location of a region in a texture.
+struct ezGALTextureRegion
+{
+  ezGALTextureSubresource m_SubResource;
+  ezVec3U32 m_vOffset; ///< z is only valid for 3D textures.
+  ezVec3U32 m_vExtent; ///< z is only valid for 3D textures.
+};
+
+/// \brief Describes the memory layout of a buffer storing a texture sub-resource.
+struct ezGALBufferMemoryDescription
+{
+  ezUInt32 m_uiOffset = 0;
+  ezUInt32 m_uiRowPitch = 0;
+  ezUInt32 m_uiSlicePitch = 0;
+};
+
 struct ezGALSystemMemoryDescription
 {
-  void* m_pData = nullptr;
+  ezConstByteBlobPtr m_pData;
   ezUInt32 m_uiRowPitch = 0;
   ezUInt32 m_uiSlicePitch = 0;
 };

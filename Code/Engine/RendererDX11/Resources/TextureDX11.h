@@ -33,11 +33,9 @@ protected:
   static ezResult Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc);
   static ezResult Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_Tex3DDesc);
   static void ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_InitialData);
-  ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
 protected:
   ID3D11Resource* m_pDXTexture = nullptr;
-  ID3D11Resource* m_pDXStagingTexture = nullptr;
 };
 
 

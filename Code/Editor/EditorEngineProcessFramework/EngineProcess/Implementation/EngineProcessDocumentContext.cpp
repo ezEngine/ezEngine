@@ -435,49 +435,38 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
-      // Download image
+      // Start readback image
       {
         auto pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("Thumbnail Readback");
         EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndCommands(pCommandEncoder));
 
-        pCommandEncoder->BeginRendering(ezGALRenderingSetup());
-        EZ_SCOPE_EXIT(pCommandEncoder->EndRendering());
+        m_ThumbnailReadback.ReadbackTexture(*pCommandEncoder, m_hThumbnailColorRT);
+      }
+      // Wait for results
+      {
+        ezEnum<ezGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+        EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
 
-        pCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
         const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
-        const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
-
-        ezGALSystemMemoryDescription MemDesc;
-        {
-          MemDesc.m_uiRowPitch = 4 * m_uiThumbnailWidth;
-          MemDesc.m_uiSlicePitch = 4 * m_uiThumbnailWidth * m_uiThumbnailHeight;
-        }
-
-        ezImageHeader header;
-        header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-        header.SetWidth(m_uiThumbnailWidth);
-        header.SetHeight(m_uiThumbnailHeight);
-        ezImage image;
-        image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
-
-        MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
-        ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
 
         ezGALTextureSubresource sourceSubResource;
         ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+        ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
 
-        pCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
+        m_ThumbnailReadback.LockTexture(sourceSubResources, memory).AssertSuccess("Failed to lock readback texture");
+        EZ_SCOPE_EXIT(m_ThumbnailReadback.UnlockTexture(sourceSubResources).AssertSuccess(""));
+
+        ezImage tmp;
+        ezImageView imageView = ezTextureUtils::CreateSubResourceView(pThumbnailColor->GetDescription(), sourceSubResource, memory[0], tmp);
 
         ezImage imageSwap;
-        ezImage* pImage = &image;
+        ezImage* pImage = &tmp;
         ezImage* pImageSwap = &imageSwap;
         for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
         {
-          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2).IgnoreResult();
+          ezImageUtils::Scale(uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2).IgnoreResult();
           ezMath::Swap(pImage, pImageSwap);
         }
-
 
         ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());

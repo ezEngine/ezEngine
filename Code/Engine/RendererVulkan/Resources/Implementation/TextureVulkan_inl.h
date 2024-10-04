@@ -35,22 +35,7 @@ const ezVulkanAllocationInfo& ezGALTextureVulkan::GetAllocationInfo() const
   return m_allocInfo;
 }
 
-bool ezGALTextureVulkan::IsLinearLayout() const
-{
-  return m_bLinearCPU;
-}
-
 ezGALTextureVulkan::StagingMode ezGALTextureVulkan::GetStagingMode() const
 {
   return m_stagingMode;
-}
-
-ezGALTextureHandle ezGALTextureVulkan::GetStagingTexture() const
-{
-  return m_hStagingTexture;
-}
-
-ezGALBufferHandle ezGALTextureVulkan::GetStagingBuffer() const
-{
-  return m_hStagingBuffer;
 }

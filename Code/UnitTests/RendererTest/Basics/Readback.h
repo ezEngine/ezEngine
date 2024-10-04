@@ -48,4 +48,5 @@ private:
   mutable ezImage m_ReadBackResult;
   mutable ezString m_sReadBackReferenceImage;
   bool m_bReadbackInProgress = true;
+  ezGALReadbackTexture m_Readback;
 };

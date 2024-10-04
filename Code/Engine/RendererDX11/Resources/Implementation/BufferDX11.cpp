@@ -65,12 +65,33 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   {
     case ezGALMemoryUsage::GPU:
       BufferDesc.CPUAccessFlags = 0;
-      BufferDesc.Usage = D3D11_USAGE_DEFAULT;
-      if (m_Description.m_ResourceAccess.IsImmutable())
+      if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
       {
-        BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+        BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+        // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
+        BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
       }
-      break;
+      else
+      {
+        if (m_Description.m_ResourceAccess.IsImmutable())
+        {
+          BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+        }
+        else
+        {
+          if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
+          {
+            BufferDesc.Usage = D3D11_USAGE_DEFAULT;
+          }
+          else
+          {
+            BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+          }
+        }
+      }
     case ezGALMemoryUsage::Staging:
       BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
       BufferDesc.Usage = D3D11_USAGE_STAGING;
@@ -86,34 +107,6 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
-  }
-
-  if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
-  {
-    BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-
-    // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-    BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(BufferDesc.ByteWidth, 64u);
-  }
-  else
-  {
-    if (m_Description.m_ResourceAccess.IsImmutable())
-    {
-      BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-    }
-    else
-    {
-      if (m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
-      {
-        BufferDesc.Usage = D3D11_USAGE_DEFAULT;
-      }
-      else
-      {
-        BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-      }
-    }
   }
 
   D3D11_SUBRESOURCE_DATA DXInitialData;

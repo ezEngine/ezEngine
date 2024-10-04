@@ -355,3 +355,63 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
       break;
   }
 }
+
+void ezTextureUtils::CreateSubResourceImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_Image)
+{
+  ezImageHeader headerTemp;
+  headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, true));
+  headerTemp.SetWidth(desc.m_uiWidth);
+  headerTemp.SetHeight(desc.m_uiHeight);
+
+  ezImageHeader header;
+  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, true));
+  header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
+  header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
+
+  out_Image.ResetAndAlloc(header);
+
+  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
+  {
+    const void* pSource = memory.m_pData.GetPtr();
+    ezUInt8* pDest = out_Image.GetPixelPointer<ezUInt8>();
+    ezUInt32 uiSize = header.GetHeight() * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8;
+    EZ_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
+    memcpy(pDest, pSource, uiSize);
+  }
+  else
+  {
+    // Copy row by row
+    const ezUInt32 uiHeight = header.GetHeight();
+    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    {
+      const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
+      ezUInt8* pDest = out_Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
+      memcpy(pDest, pSource, ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8);
+    }
+  }
+}
+
+ezImageView ezTextureUtils::CreateSubResourceView(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& ref_Temp)
+{
+  ezImageView view;
+  ezImageHeader headerTemp;
+  headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, true));
+  headerTemp.SetWidth(desc.m_uiWidth);
+  headerTemp.SetHeight(desc.m_uiHeight);
+
+  ezImageHeader header;
+  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, true));
+  header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
+  header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
+
+  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
+  {
+    view.ResetAndViewExternalStorage(header, ezConstByteBlobPtr(memory.m_pData.GetPtr(), memory.m_pData.GetCount()));
+  }
+  else
+  {
+    CreateSubResourceImage(desc, subResource, memory, ref_Temp);
+    view = ref_Temp.GetSubImageView();
+  }
+  return view;
+}

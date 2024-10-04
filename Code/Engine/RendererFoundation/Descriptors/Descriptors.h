@@ -162,9 +162,9 @@ struct ezGALMemoryUsage
 
   enum Enum : ezUInt8
   {
-    GPU, ///< Memory resides on the GPU and is inaccessible via the CPU
-    Staging, ///< CPU buffer to transfer data to the GPU. Can not be mapped as a resource, copy operations only.
-    Readback, ///< CPU buffer to readback data from the GPU. Can not be mapped as a resource, copy operations only.
+    GPU, ///< Memory resides on the GPU and is inaccessible via the CPU.
+    Staging, ///< CPU buffer to transfer data to the GPU. Can not be mapped as a resource, copy source operations only.
+    Readback, ///< CPU buffer to readback data from the GPU. Can not be mapped as a resource, copy target operations only.
     Dynamic, ///< Memory can be written by the CPU and read be the GPU. Use for frequent dynamic updates. Does not persist across frames.
     ENUM_COUNT,
     Default = GPU
@@ -176,7 +176,6 @@ struct ezGALResourceAccess
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
   ezEnum<ezGALMemoryUsage> m_MemoryUsage;
-  bool m_bReadBack = false;
   bool m_bImmutable = true;
 };
 

@@ -6,6 +6,7 @@
 #include <Foundation/Math/Size.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/Readback.h>
 
 struct ezGALDeviceEvent;
 
@@ -30,4 +31,5 @@ public:
   ezSizeU32 m_Size = ezSizeU32(0, 0);
   ezGALWindowSwapChainCreationDescription m_currentDesc;
   ezGALSwapChainHandle m_hSwapChain;
+  ezGALReadbackTexture m_Readback;
 };

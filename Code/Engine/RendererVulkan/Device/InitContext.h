@@ -25,12 +25,21 @@ public:
   /// \param pInitialData The initial data of the texture. If not set, the initial content will be undefined.
   void InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
 
-  void InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
+  void UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData);
 
   /// \brief Needs to be called by the ezGALDeviceVulkan just before a texture is destroyed to clean up stale barriers.
   void TextureDestroyed(const ezGALTextureVulkan* pTexture);
 
-  void UpdateDynamicUniformBuffer(vk::Buffer buffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize);
+
+  void InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
+
+  void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData);
+
+  /// \brief Used by ezUniformBufferPoolVulkan to write the entire uniform scratch pool to the GPU
+  /// \param gpuBuffer The device local buffer to update.
+  /// \param stagingBuffer The staging buffer that contains the data to be copied to gpuBuffer. If null, buffer is CPU writable and already contains the data.
+  /// \param uiDataSize The size of the data to be copied from stagingBuffer to gpuBuffer.
+  void UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize);
 
 private:
   void EnsureCommandBufferExists();

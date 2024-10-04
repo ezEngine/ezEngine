@@ -299,6 +299,8 @@ protected:
   // These functions need to be implemented by a render API abstraction
 protected:
   friend class ezMemoryUtils;
+  friend class ezGALReadbackBuffer;
+  friend class ezGALReadbackTexture;
 
   // Init & shutdown functions
 
@@ -368,6 +370,10 @@ protected:
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) = 0;
   virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) = 0;
   virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) = 0;
+  virtual ezResult LockBufferPlatform(const ezGALBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const = 0;
+  virtual ezResult UnlockBufferPlatform(const ezGALBuffer* pBuffer) const = 0;
+  virtual ezResult LockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const = 0;
+  virtual ezResult UnlockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const = 0;
 
   // Misc functions
 
@@ -389,7 +395,7 @@ private:
   bool m_bBeginFrameCalled = false;
   ezHybridArray<ezGALSwapChain*, 8> m_FrameSwapChains;
   bool m_bBeginPipelineCalled = false;
-  bool m_bBeginCommandsCalled = false;
+  ezGALCommandEncoder* m_pCommandEncoder = nullptr;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

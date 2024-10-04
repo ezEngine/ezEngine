@@ -173,7 +173,7 @@ public:
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
   ezInitContextVulkan& GetInitContext() const;
 
-  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU = false, bool bStaging = false);
+  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
   ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU = false);
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
@@ -361,6 +361,10 @@ protected:
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
   virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
   virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
+  virtual ezResult LockBufferPlatform(const ezGALBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const override;
+  virtual ezResult UnlockBufferPlatform(const ezGALBuffer* pBuffer) const override;
+  virtual ezResult LockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const override;
+  virtual ezResult UnlockTexturePlatform(const ezGALTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const override;
 
   // Misc functions
 

@@ -37,11 +37,8 @@ vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
   return mask;
 }
 
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU, bool bStaging)
+ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
-  , m_image(nullptr)
-  , m_bLinearCPU(bLinearCPU)
-  , m_bStaging(bStaging)
 {
 }
 
@@ -54,14 +51,58 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
 
+  m_stagingMode = ezGALTextureVulkan::ComputeStagingMode(m_pDevice, m_Description, createInfo);
+
+  bool m_bStaging = false;
+  bool bNeedsTexture = true;
+  bool bNeedsBuffer = false;
+  const bool m_bLinearCPU = m_stagingMode == StagingMode::Texture;
+  switch (m_Description.m_ResourceAccess.m_MemoryUsage)
+  {
+    case ezGALMemoryUsage::GPU:
+      break;
+    case ezGALMemoryUsage::Staging:
+    case ezGALMemoryUsage::Readback:
+      bNeedsTexture = m_stagingMode == StagingMode::Texture || m_stagingMode == StagingMode::TextureAndBuffer;
+      bNeedsBuffer = m_stagingMode == StagingMode::Buffer || m_stagingMode == StagingMode::TextureAndBuffer;
+      m_bStaging = true;
+      break;
+    case ezGALMemoryUsage::Dynamic:
+      break;
+    default:
+      break;
+  }
+
   m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats, m_bStaging);
   ComputeCreateInfo(m_pDevice, m_Description, createInfo, m_stages, m_access, m_preferredLayout);
   if (m_bLinearCPU)
   {
     ComputeCreateInfoLinear(createInfo, m_stages, m_access);
   }
+  if (m_bStaging)
+  {
+    const bool bIsDepth = ezConversionUtilsVulkan::IsDepthFormat(createInfo.format);
+    if (bIsDepth)
+    {
+      m_stages |= vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+      m_access |= vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+      m_preferredLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+    }
+    else
+    {
+      createInfo.usage |= vk::ImageUsageFlagBits::eColorAttachment;
+      m_stages |= vk::PipelineStageFlagBits::eColorAttachmentOutput;
+      m_access |= vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
+      m_preferredLayout = vk::ImageLayout::eColorAttachmentOptimal;
+    }
+  }
 
-  if (m_Description.m_pExisitingNativeObject == nullptr)
+  if (m_Description.m_pExisitingNativeObject != nullptr)
+  {
+    m_image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
+    m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
+  }
+  else if (bNeedsTexture)
   {
     ezVulkanAllocationCreateInfo allocInfo;
     ComputeAllocInfo(m_bLinearCPU, allocInfo);
@@ -69,12 +110,13 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
     vk::ImageFormatProperties props2;
     VK_ASSERT_DEBUG(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
+    m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
   }
-  else
+
+  if (bNeedsBuffer)
   {
-    m_image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
+    CreateStagingBuffer().IgnoreResult();
   }
-  m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
   return EZ_SUCCESS;
 }
@@ -220,9 +262,6 @@ void ezGALTextureVulkan::ComputeAllocInfo(bool m_bLinearCPU, ezVulkanAllocationC
 
 ezGALTextureVulkan::StagingMode ezGALTextureVulkan::ComputeStagingMode(ezGALDeviceVulkan* m_pDevice, const ezGALTextureCreationDescription& m_Description, const vk::ImageCreateInfo& createInfo)
 {
-  //if (!m_Description.m_ResourceAccess.m_bReadBack)
-  //  return StagingMode::None;
-
   // We want the staging texture to always have the intended format and not the override format given by the parent texture.
   vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
 
@@ -282,47 +321,25 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(ezDynamicArray<SubResourc
   return uiOffset;
 }
 
-ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& createInfo)
+ezResult ezGALTextureVulkan::CreateStagingBuffer()
 {
-  m_stagingMode = ezGALTextureVulkan::ComputeStagingMode(m_pDevice, m_Description, createInfo);
-  if (m_stagingMode == StagingMode::Texture || m_stagingMode == StagingMode::TextureAndBuffer)
-  {
-    ezGALTextureCreationDescription stagingDesc = m_Description;
-    stagingDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    stagingDesc.m_bAllowShaderResourceView = false;
-    stagingDesc.m_bAllowUAV = false;
-    stagingDesc.m_bCreateRenderTarget = true;
-    stagingDesc.m_bAllowDynamicMipGeneration = false;
-    stagingDesc.m_ResourceAccess.m_bImmutable = false;
-    stagingDesc.m_pExisitingNativeObject = nullptr;
-
-    const bool bLinearCPU = m_stagingMode == StagingMode::Texture;
-
-    m_hStagingTexture = m_pDevice->CreateTextureInternal(stagingDesc, {}, bLinearCPU, true);
-    if (m_hStagingTexture.IsInvalidated())
-    {
-      ezLog::Error("Failed to create staging texture for read-back");
-      return EZ_FAILURE;
-    }
-  }
   if (m_stagingMode == StagingMode::Buffer || m_stagingMode == StagingMode::TextureAndBuffer)
   {
-    ezGALBufferCreationDescription stagingBuffer;
-    stagingBuffer.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer;
+    vk::BufferCreateInfo bufferCreateInfo;
+    bufferCreateInfo.usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst;
+    bufferCreateInfo.pQueueFamilyIndices = nullptr;
+    bufferCreateInfo.queueFamilyIndexCount = 0;
+    bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+
     ezHybridArray<SubResourceOffset, 8> subResourceSizes;
-    stagingBuffer.m_uiTotalSize = ComputeSubResourceOffsets(subResourceSizes);
-    stagingBuffer.m_uiStructSize = 1;
+    bufferCreateInfo.size = ComputeSubResourceOffsets(subResourceSizes);
 
-    stagingBuffer.m_ResourceAccess.m_bImmutable = false;
+    ezVulkanAllocationCreateInfo allocCreateInfo;
+    allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
+    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom | ezVulkanAllocationCreateFlags::Mapped;
 
-    m_hStagingBuffer = m_pDevice->CreateBufferInternal(stagingBuffer, {}, true);
-    if (m_hStagingBuffer.IsInvalidated())
-    {
-      ezLog::Error("Failed to create staging buffer for read-back");
-      return EZ_FAILURE;
-    }
+    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_buffer, m_bufferAlloc, &m_bufferAllocInfo));
   }
-
   return EZ_SUCCESS;
 }
 ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
@@ -331,18 +348,15 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
   if (m_image && !m_Description.m_pExisitingNativeObject)
   {
     pVulkanDevice->DeleteLater(m_image, m_alloc);
+    m_allocInfo = {};
   }
   m_image = nullptr;
 
-  if (!m_hStagingTexture.IsInvalidated())
+  if (m_buffer)
   {
-    pDevice->DestroyTexture(m_hStagingTexture);
-    m_hStagingTexture.Invalidate();
-  }
-  if (!m_hStagingBuffer.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(m_hStagingBuffer);
-    m_hStagingBuffer.Invalidate();
+    pVulkanDevice->DeleteLater(m_buffer, m_bufferAlloc);
+    m_bufferAllocInfo = {};
+    m_buffer = nullptr;
   }
 
   return EZ_SUCCESS;
@@ -351,16 +365,8 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_pDevice->SetDebugName(szName, m_image, m_alloc);
-  if (!m_hStagingTexture.IsInvalidated())
-  {
-    auto pStagingTexture = static_cast<const ezGALTextureVulkan*>(m_pDevice->GetTexture(m_hStagingTexture));
-    pStagingTexture->SetDebugName(szName);
-  }
-  if (!m_hStagingBuffer.IsInvalidated())
-  {
-    auto pStagingBuffer = static_cast<const ezGALBufferVulkan*>(m_pDevice->GetBuffer(m_hStagingBuffer));
-    pStagingBuffer->SetDebugName(szName);
-  }
+  if (m_buffer)
+    m_pDevice->SetDebugName(szName, m_buffer, m_bufferAlloc);
 }
 
 

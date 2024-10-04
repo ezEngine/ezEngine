@@ -13,11 +13,9 @@ protected:
   friend class ezGALDevice;
 
   ezGALBuffer(const ezGALBufferCreationDescription& Description);
-
   virtual ~ezGALBuffer();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) = 0;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
 protected:

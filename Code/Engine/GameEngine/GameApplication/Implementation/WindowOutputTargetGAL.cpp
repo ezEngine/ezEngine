@@ -75,45 +75,29 @@ void ezWindowOutputTargetGAL::AcquireImage()
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_image)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALTextureHandle hBackbuffer;
+  // Start readback image
+  {
+    auto pCommandEncoder = pDevice->BeginCommands("CaptureImage");
+    EZ_SCOPE_EXIT(pDevice->EndCommands(pCommandEncoder));
 
-  auto pCommandEncoder = pDevice->BeginCommands("CaptureImage");
-  EZ_SCOPE_EXIT(pDevice->EndCommands(pCommandEncoder));
+    const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
+    hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
+    m_Readback.ReadbackTexture(*pCommandEncoder, hBackbuffer);
+  }
+  // Wait for results
+  {
+    ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+    EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+  }
 
-  pCommandEncoder->BeginRendering(ezGALRenderingSetup());
-  EZ_SCOPE_EXIT(pCommandEncoder->EndRendering());
-
-  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
-  ezGALTextureHandle hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
-
-  pCommandEncoder->ReadbackTexture(hBackbuffer);
-
-  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
-  const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
-  const ezUInt32 uiHeight = pBackbuffer->GetDescription().m_uiHeight;
-  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
-
-  ezDynamicArray<ezUInt8> backbufferData;
-  backbufferData.SetCountUninitialized(uiWidth * uiHeight * 4);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_uiRowPitch = 4 * uiWidth;
-  MemDesc.m_uiSlicePitch = 4 * uiWidth * uiHeight;
-
-  /// \todo Make this more efficient
-  MemDesc.m_pData = backbufferData.GetData();
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  pCommandEncoder->CopyTextureReadbackResult(hBackbuffer, sourceSubResources, SysMemDescsDepth);
+  ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  m_Readback.LockTexture(sourceSubResources, memory).AssertSuccess("Failed to lock readback texture");
+  EZ_SCOPE_EXIT(m_Readback.UnlockTexture(sourceSubResources).AssertSuccess(""));
 
-  ezImageHeader header;
-  header.SetWidth(uiWidth);
-  header.SetHeight(uiHeight);
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  out_image.ResetAndAlloc(header);
-  ezUInt8* pData = out_image.GetPixelPointer<ezUInt8>();
-
-  ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
-
+  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
+  ezTextureUtils::CreateSubResourceImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], out_image);
   return EZ_SUCCESS;
 }

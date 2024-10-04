@@ -132,7 +132,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
       {
         ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
 
-        id.m_pData = pImage->GetPixelPointer<ezUInt8>(mip, face, array_index);
+        id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
 
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
 

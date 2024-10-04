@@ -14,7 +14,7 @@
 #endif
 
 ezGALSharedTextureVulkan::ezGALSharedTextureVulkan(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle)
-  : ezGALTextureVulkan(Description, false, false)
+  : ezGALTextureVulkan(Description)
   , m_SharedType(sharedType)
   , m_hSharedHandle(hSharedHandle)
 {
@@ -31,13 +31,9 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
 
-  m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats, m_bStaging);
+  m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats, false);
 
   ComputeCreateInfo(m_pDevice, m_Description, createInfo, m_stages, m_access, m_preferredLayout);
-  if (m_bLinearCPU)
-  {
-    ComputeCreateInfoLinear(createInfo, m_stages, m_access);
-  }
 
   if (m_Description.m_pExisitingNativeObject == nullptr)
   {
@@ -59,7 +55,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
     {
 
       ezVulkanAllocationCreateInfo allocInfo;
-      ComputeAllocInfo(m_bLinearCPU, allocInfo);
+      ComputeAllocInfo(false, allocInfo);
 
       if (m_SharedType == ezGALSharedTextureType::Exported)
       {

@@ -311,27 +311,24 @@ void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTe
   }
 }
 
-void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hTexture)
+void ezGALCommandEncoder::ReadbackTexture(ezGALTextureHandle hDestination, ezGALTextureHandle hSource)
 {
   AssertRenderingThread();
 
-  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
+  const ezGALTexture* pDestination = m_Device.GetTexture(hDestination);
+  const ezGALTexture* pSource = m_Device.GetTexture(hSource);
 
-  if (pTexture != nullptr)
+  EZ_ASSERT_DEBUG(pDestination != nullptr && pSource != nullptr, "Invalid handle provided");
+
+  const ezGALTextureCreationDescription& sourceDesc = pSource->GetDescription();
+  const ezGALTextureCreationDescription& destinationDesc = pDestination->GetDescription();
+
+  bool bMissmatch = sourceDesc.m_uiWidth != destinationDesc.m_uiWidth || sourceDesc.m_uiHeight != destinationDesc.m_uiHeight || sourceDesc.m_uiDepth != destinationDesc.m_uiDepth || sourceDesc.m_uiMipLevelCount != destinationDesc.m_uiMipLevelCount || sourceDesc.m_uiArraySize != destinationDesc.m_uiArraySize || sourceDesc.m_Format != destinationDesc.m_Format || sourceDesc.m_Type != destinationDesc.m_Type || sourceDesc.m_Format != destinationDesc.m_Format || sourceDesc.m_SampleCount != destinationDesc.m_SampleCount;
+  EZ_ASSERT_DEBUG(!bMissmatch, "Source and destination formats do not match");
+
+  if (pDestination != nullptr && pSource != nullptr)
   {
-    m_CommonImpl.ReadbackTexturePlatform(pTexture);
-  }
-}
-
-void ezGALCommandEncoder::CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData)
-{
-  AssertRenderingThread();
-
-  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
-
-  if (pTexture != nullptr)
-  {
-    m_CommonImpl.CopyTextureReadbackResultPlatform(pTexture, sourceSubResource, targetData);
+    m_CommonImpl.ReadbackTexturePlatform(pDestination, pSource);
   }
 }
 
@@ -688,4 +685,9 @@ void ezGALCommandEncoder::EndRendering()
   EZ_ASSERT_DEBUG(m_hPendingOcclusionQuery.IsInvalidated(), "An occlusion query was started and not stopped within this render scope.");
 
   m_CommonImpl.EndRenderingPlatform();
+}
+
+bool ezGALCommandEncoder::IsInRenderingScope() const
+{
+  return m_CurrentCommandEncoderType == CommandEncoderType::Render;
 }

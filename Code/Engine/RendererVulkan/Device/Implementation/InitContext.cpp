@@ -55,11 +55,6 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
   }
 }
 
-void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
-{
-  EZ_LOCK(m_Lock);
-  m_pPipelineBarrier->TextureDestroyed(pTexture);
-}
 
 void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
@@ -111,7 +106,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
             (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
           ezGALSystemMemoryDescription data;
-          data.m_pData = m_TempData.GetData();
+          data.m_pData = m_TempData.GetByteArrayPtr();
           data.m_uiRowPitch = uiBlockSize * blockCount.width;
           data.m_uiSlicePitch = data.m_uiRowPitch * blockCount.height;
           initialData.PushBack(data);
@@ -150,6 +145,17 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
   }
 }
 
+void ezInitContextVulkan::UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
+{
+  EZ_LOCK(m_Lock);
+  m_pPipelineBarrier->TextureDestroyed(pTexture);
+}
+
 void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData)
 {
   EZ_LOCK(m_Lock);
@@ -169,7 +175,27 @@ void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPt
   }
 }
 
-void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer buffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize)
+void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
+{
+  // #TODO_VULKAN same as above?
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  const ezVulkanAllocationInfo& allocInfo = pBuffer->GetAllocationInfo();
+  if (allocInfo.m_pMappedData != nullptr)
+  {
+    ezMemoryUtils::Copy((ezUInt8*)allocInfo.m_pMappedData + uiDestOffset, pSourceData.GetPtr(), pSourceData.GetCount());
+
+    m_pPipelineBarrier->AccessBuffer(pBuffer, uiDestOffset, pSourceData.GetCount(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
+  }
+  else
+  {
+    m_pDevice->UploadBufferStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pBuffer, pSourceData, uiDestOffset);
+  }
+}
+
+void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiDataSize)
 {
   EZ_LOCK(m_Lock);
 
@@ -177,19 +203,20 @@ void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer buffer, vk::Buff
 
   if (stagingBuffer)
   {
+    // gpuBuffer can't be accessed on the CPU, so the data is present in stagingBuffer and needs to be copied over.
     m_pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer, 0, uiDataSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
 
     m_pPipelineBarrier->Flush();
 
     vk::BufferCopy bufferCopy = {};
     bufferCopy.size = uiDataSize;
-    m_currentCommandBuffer.copyBuffer(stagingBuffer, buffer, 1, &bufferCopy);
+    m_currentCommandBuffer.copyBuffer(stagingBuffer, gpuBuffer, 1, &bufferCopy);
 
-    m_pPipelineBarrier->AddBufferBarrierInternal(buffer, 0, uiDataSize, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+    m_pPipelineBarrier->AddBufferBarrierInternal(gpuBuffer, 0, uiDataSize, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
   }
   else
   {
-    m_pPipelineBarrier->AddBufferBarrierInternal(buffer, 0, uiDataSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+    // gpuBuffer is writable on the CPU and thus we only need to add a barrier.
+    m_pPipelineBarrier->AddBufferBarrierInternal(gpuBuffer, 0, uiDataSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
   }
-
 }

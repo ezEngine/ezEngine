@@ -72,14 +72,8 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     }
   }
 
-  // if (m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
-    m_access |= vk::AccessFlagBits::eTransferRead;
-  }
-
-
-
+  m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
+  m_access |= vk::AccessFlagBits::eTransferRead;
   m_usage |= vk::BufferUsageFlagBits::eTransferDst;
   m_access |= vk::AccessFlagBits::eTransferWrite;
 
@@ -107,16 +101,12 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
 ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  if (m_currentBuffer.m_buffer)
+  if (m_buffer)
   {
-    m_pDeviceVulkan->DeleteLater(m_currentBuffer.m_buffer, m_currentBuffer.m_alloc);
+    m_pDeviceVulkan->DeleteLater(m_buffer, m_alloc);
     m_allocInfo = {};
   }
-  for (auto& bufferVulkan : m_usedBuffers)
-  {
-    m_pDeviceVulkan->DeleteLater(bufferVulkan.m_buffer, bufferVulkan.m_alloc);
-  }
-  m_usedBuffers.Clear();
+
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
 
   m_stages = {};
@@ -131,35 +121,12 @@ ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-void ezGALBufferVulkan::DiscardBuffer() const
-{
-  m_usedBuffers.PushBack(m_currentBuffer);
-  m_currentBuffer = {};
-
-  ezUInt64 uiSafeFrame = m_pDeviceVulkan->GetSafeFrame();
-  if (m_usedBuffers.PeekFront().m_currentFrame <= uiSafeFrame)
-  {
-    m_currentBuffer = m_usedBuffers.PeekFront();
-    m_usedBuffers.PopFront();
-    m_allocInfo = ezMemoryAllocatorVulkan::GetAllocationInfo(m_currentBuffer.m_alloc);
-  }
-  else
-  {
-    CreateBuffer();
-    SetDebugNamePlatform(m_sDebugName);
-  }
-}
-
 const vk::DescriptorBufferInfo& ezGALBufferVulkan::GetBufferInfo() const
 {
-  m_currentBuffer.m_currentFrame = m_pDeviceVulkan->GetCurrentFrame();
-  // Vulkan buffers get constantly swapped out for new ones so the vk::Buffer pointer is not persistent.
-  // We need to acquire the latest one on every request for rendering.
-  m_resourceBufferInfo.buffer = m_currentBuffer.m_buffer;
   return m_resourceBufferInfo;
 }
 
-void ezGALBufferVulkan::CreateBuffer() const
+void ezGALBufferVulkan::CreateBuffer()
 {
   vk::BufferCreateInfo bufferCreateInfo;
   bufferCreateInfo.usage = m_usage;
@@ -189,13 +156,14 @@ void ezGALBufferVulkan::CreateBuffer() const
       break;
   }
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc, &m_allocInfo));
+  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_buffer, m_alloc, &m_allocInfo));
+  m_resourceBufferInfo.buffer = m_buffer;
 }
 
 void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_sDebugName = szName;
-  m_pDeviceVulkan->SetDebugName(szName, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc);
+  m_pDeviceVulkan->SetDebugName(szName, m_buffer, m_alloc);
 }
 
 vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage)

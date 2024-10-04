@@ -53,6 +53,13 @@ public:
   {
   }
 
+  /// \brief Initializes the ezBlobPtr to be a copy of \a other. No memory is allocated or copied.
+  EZ_ALWAYS_INLINE ezBlobPtr(const ezArrayPtr<T>& other)
+    : m_pPtr(other.GetPtr())
+    , m_uiCount(other.GetCount())
+  {
+  }
+
   /// \brief Convert to const version.
   operator ezBlobPtr<const T>() const { return ezBlobPtr<const T>(static_cast<const T*>(GetPtr()), GetCount()); }
 
@@ -61,6 +68,13 @@ public:
   {
     m_pPtr = other.m_pPtr;
     m_uiCount = other.m_uiCount;
+  }
+
+  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  EZ_ALWAYS_INLINE void operator=(const ezArrayPtr<T>& other)
+  {
+    m_pPtr = other.GetPtr();
+    m_uiCount = other.GetCount();
   }
 
   /// \brief Clears the array
