@@ -59,7 +59,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       return EZ_FAILURE;
   }
 
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
+  if (m_Description.m_ResourceAccess.m_bReadBack)
     return CreateStagingTexture(pDXDevice);
 
   return EZ_SUCCESS;

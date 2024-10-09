@@ -10,11 +10,9 @@
 #  undef PLATFORM_WEB
 #  define PLATFORM_WEB EZ_ON
 
-#  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT EZ_PP_CONCAT(Name, _PushConstants)
-#  define END_PUSH_CONSTANTS(Name) \
-    ;                              \
-    [[vk::push_constant]] EZ_PP_CONCAT(Name, _PushConstants) Name;
-#  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
+#  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name
+#  define END_PUSH_CONSTANTS(Name) ;
+#  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels

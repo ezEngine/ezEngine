@@ -156,5 +156,3 @@ ezResult ezGALBufferResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
   pVulkanDevice->DeleteLater(m_bufferView);
   return EZ_SUCCESS;
 }
-
-

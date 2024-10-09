@@ -1085,6 +1085,9 @@ ezResult ezFileSystem::CreateDirectoryStructure(ezStringView sPath)
     ezFileSystem::ResolvePath(sRedir, &sRedir, nullptr).AssertSuccess();
   }
 
+  if (!sRedir.IsAbsolutePath())
+    return EZ_FAILURE;
+
   return ezOSFile::CreateDirectoryStructure(sRedir);
 }
 

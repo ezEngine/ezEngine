@@ -168,6 +168,11 @@ public:
 
       ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezMeshRenderSampleMainPass");
 
+      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+
+      m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+      m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
+
       ezGALRenderingSetup renderingSetup;
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
@@ -278,7 +283,7 @@ public:
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    geom.AddGeodesicSphere(1.0f, 1);
+    geom.AddGeodesicSphere(1.5f, 1);
     geom.TriangulatePolygons();
 
     ezMeshBufferResourceDescriptor desc;

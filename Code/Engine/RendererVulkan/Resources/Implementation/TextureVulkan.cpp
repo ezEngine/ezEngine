@@ -180,7 +180,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(ezGALDeviceVulkan* m_pDevice, const e
     case ezGALTextureType::TextureCube:
     {
       createInfo.imageType = vk::ImageType::e2D;
-      const bool bTexture2D = m_Description.m_Type == ezGALTextureType::Texture2D || m_Description.m_Type == ezGALTextureType::Texture2DShared;
+      const bool bTexture2D = m_Description.m_Type != ezGALTextureType::TextureCube;
       createInfo.arrayLayers = bTexture2D ? m_Description.m_uiArraySize : (m_Description.m_uiArraySize * 6);
 
       if (m_Description.m_Type == ezGALTextureType::TextureCube)

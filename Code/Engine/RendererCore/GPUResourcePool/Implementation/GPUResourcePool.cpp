@@ -86,18 +86,17 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(
-  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceCount, ezGALTextureType::Enum textureType)
 {
   ezGALTextureCreationDescription TextureDesc;
   TextureDesc.m_bCreateRenderTarget = true;
   TextureDesc.m_bAllowShaderResourceView = true;
   TextureDesc.m_Format = format;
-  TextureDesc.m_Type = ezGALTextureType::Texture2D;
+  TextureDesc.m_Type = textureType;
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
   TextureDesc.m_SampleCount = sampleCount;
-  TextureDesc.m_uiArraySize = uiSliceColunt;
+  TextureDesc.m_uiArraySize = uiSliceCount;
 
   return GetRenderTarget(TextureDesc);
 }

@@ -54,11 +54,11 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   {
+    UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
+
     SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
     SetupPermutationVars(renderViewContext);
     SetupLighting(renderViewContext);
-
-    UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
 
     ezGALTextureResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
     renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
@@ -98,8 +98,7 @@ void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& re
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitScreenFX);
 }
 
-void ezTransparentForwardRenderPass::UpdateSceneColorTexture(
-  const ezRenderViewContext& renderViewContext, ezGALTextureHandle hSceneColorTexture, ezGALTextureHandle hCurrentColorTexture)
+void ezTransparentForwardRenderPass::UpdateSceneColorTexture(const ezRenderViewContext& renderViewContext, ezGALTextureHandle hSceneColorTexture, ezGALTextureHandle hCurrentColorTexture)
 {
   ezGALTextureSubresource subresource;
   subresource.m_uiMipLevel = 0;

@@ -28,7 +28,7 @@ float3 FibonacciSphere(int sampleIndex, int numSamples)
 #define NUM_SAMPLES_PER_THREAD 1
 
 TextureCube InputCubemap;
-RWTexture2D<float4> IrradianceOutput;
+RWTexture2D<half4> IrradianceOutput;
 
 groupshared AmbientCubeFloat3 SharedACs[NUM_THREADS];
 

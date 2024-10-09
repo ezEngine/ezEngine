@@ -22,7 +22,7 @@ CullMode = CullMode_None
 #include "ReflectionFilteredSpecularConstants.h"
 
 TextureCube InputCubemap;
-RWTexture2DArray<float4> ReflectionOutput;
+RWTexture2DArray<half4> ReflectionOutput;
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
 float radicalInverse_VdC(uint bits) {
