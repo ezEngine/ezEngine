@@ -212,7 +212,7 @@ namespace ezDataDirectory
 
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
     sPath.AppendPath(sRedirectedAsset);
-    return ezOSFile::ExistsFile(sPath);
+    return sPath.IsAbsolutePath() && ezOSFile::ExistsFile(sPath);
   }
 
   ezResult FolderType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
