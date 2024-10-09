@@ -6,10 +6,12 @@
 
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/InternalEdgeRemovingCollector.h>
 #include <Jolt/Core/QuickSort.h>
 #include <Jolt/Geometry/ConvexSupport.h>
@@ -103,6 +105,30 @@ CharacterVirtual::CharacterVirtual(const CharacterVirtualSettings *inSettings, R
 	// Copy settings
 	SetMaxStrength(inSettings->mMaxStrength);
 	SetMass(inSettings->mMass);
+
+	// Create an inner rigid body if requested
+	if (inSettings->mInnerBodyShape != nullptr)
+	{
+		BodyCreationSettings settings(inSettings->mInnerBodyShape, GetInnerBodyPosition(), mRotation, EMotionType::Kinematic, inSettings->mInnerBodyLayer);
+		settings.mAllowSleeping = false; // Disable sleeping so that we will receive sensor callbacks
+		settings.mUserData = inUserData;
+		mInnerBodyID = inSystem->GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
+	}
+}
+
+CharacterVirtual::~CharacterVirtual()
+{
+	if (!mInnerBodyID.IsInvalid())
+	{
+		mSystem->GetBodyInterface().RemoveBody(mInnerBodyID);
+		mSystem->GetBodyInterface().DestroyBody(mInnerBodyID);
+	}
+}
+
+void CharacterVirtual::UpdateInnerBodyTransform()
+{
+	if (!mInnerBodyID.IsInvalid())
+		mSystem->GetBodyInterface().SetPositionAndRotation(mInnerBodyID, GetInnerBodyPosition(), mRotation, EActivation::DontActivate);
 }
 
 void CharacterVirtual::GetAdjustedBodyVelocity(const Body& inBody, Vec3 &outLinearVelocity, Vec3 &outAngularVelocity) const
@@ -321,6 +347,9 @@ void CharacterVirtual::CheckCollision(RVec3Arg inPosition, QuatArg inRotation, V
 	settings.mActiveEdgeMovementDirection = inMovementDirection;
 	settings.mMaxSeparationDistance = mCharacterPadding + inMaxSeparationDistance;
 
+	// Body filter
+	IgnoreSingleBodyFilterChained body_filter(mInnerBodyID, inBodyFilter);
+
 	// Collide shape
 	if (mEnhancedInternalEdgeRemoval)
 	{
@@ -385,7 +414,7 @@ void CharacterVirtual::CheckCollision(RVec3Arg inPosition, QuatArg inRotation, V
 		bounds.ExpandBy(Vec3::sReplicate(settings.mMaxSeparationDistance));
 
 		// Do broadphase test
-		MyCollector collector(inShape, transform, settings, inBaseOffset, ioCollector, mSystem->GetBodyLockInterface(), inBodyFilter, inShapeFilter);
+		MyCollector collector(inShape, transform, settings, inBaseOffset, ioCollector, mSystem->GetBodyLockInterface(), body_filter, inShapeFilter);
 		mSystem->GetBroadPhaseQuery().CollideAABox(bounds, collector, inBroadPhaseLayerFilter, inObjectLayerFilter);
 	}
 	else
@@ -393,7 +422,7 @@ void CharacterVirtual::CheckCollision(RVec3Arg inPosition, QuatArg inRotation, V
 		// Version that uses the cached active edges
 		settings.mActiveEdgeMode = EActiveEdgeMode::CollideOnlyWithActive;
 
-		mSystem->GetNarrowPhaseQuery().CollideShape(inShape, Vec3::sReplicate(1.0f), transform, settings, inBaseOffset, ioCollector, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter);
+		mSystem->GetNarrowPhaseQuery().CollideShape(inShape, Vec3::sReplicate(1.0f), transform, settings, inBaseOffset, ioCollector, inBroadPhaseLayerFilter, inObjectLayerFilter, body_filter, inShapeFilter);
 	}
 
 	// Also collide with other characters
@@ -409,9 +438,12 @@ void CharacterVirtual::GetContactsAtPosition(RVec3Arg inPosition, Vec3Arg inMove
 	// Remove previous results
 	outContacts.clear();
 
+	// Body filter
+	IgnoreSingleBodyFilterChained body_filter(mInnerBodyID, inBodyFilter);
+
 	// Collide shape
 	ContactCollector collector(mSystem, this, mMaxNumHits, mHitReductionCosMaxAngle, mUp, mPosition, outContacts);
-	CheckCollision(inPosition, mRotation, inMovementDirection, mPredictiveContactDistance, inShape, mPosition, collector, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter);
+	CheckCollision(inPosition, mRotation, inMovementDirection, mPredictiveContactDistance, inShape, mPosition, collector, inBroadPhaseLayerFilter, inObjectLayerFilter, body_filter, inShapeFilter);
 
 	// The broadphase bounding boxes will not be deterministic, which means that the order in which the contacts are received by the collector is not deterministic.
 	// Therefore we need to sort the contacts to preserve determinism. Note that currently this will fail if we exceed mMaxNumHits hits.
@@ -481,15 +513,26 @@ bool CharacterVirtual::ValidateContact(const Contact &inContact) const
 		return mListener->OnContactValidate(this, inContact.mBodyB, inContact.mSubShapeIDB);
 }
 
+void CharacterVirtual::ContactAdded(const Contact &inContact, CharacterContactSettings &ioSettings) const
+{
+	if (mListener != nullptr)
+	{
+		if (inContact.mCharacterB != nullptr)
+			mListener->OnCharacterContactAdded(this, inContact.mCharacterB, inContact.mSubShapeIDB, inContact.mPosition, -inContact.mContactNormal, ioSettings);
+		else
+			mListener->OnContactAdded(this, inContact.mBodyB, inContact.mSubShapeIDB, inContact.mPosition, -inContact.mContactNormal, ioSettings);
+	}
+}
+
 template <class T>
-inline static bool sCorrectFractionForCharacterPadding(const Shape *inShape, Mat44Arg inStart, Vec3Arg inDisplacement, const T &inPolygon, float &ioFraction)
+inline static bool sCorrectFractionForCharacterPadding(const Shape *inShape, Mat44Arg inStart, Vec3Arg inDisplacement, Vec3Arg inScale, const T &inPolygon, float &ioFraction)
 {
 	if (inShape->GetType() == EShapeType::Convex)
 	{
 		// Get the support function for the shape we're casting
 		const ConvexShape *convex_shape = static_cast<const ConvexShape *>(inShape);
 		ConvexShape::SupportBuffer buffer;
-		const ConvexShape::Support *support = convex_shape->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, Vec3::sReplicate(1.0f));
+		const ConvexShape::Support *support = convex_shape->GetSupportFunction(ConvexShape::ESupportMode::IncludeConvexRadius, buffer, inScale);
 
 		// Cast the shape against the polygon
 		GJKClosestPoint gjk;
@@ -498,7 +541,12 @@ inline static bool sCorrectFractionForCharacterPadding(const Shape *inShape, Mat
 	else if (inShape->GetSubType() == EShapeSubType::RotatedTranslated)
 	{
 		const RotatedTranslatedShape *rt_shape = static_cast<const RotatedTranslatedShape *>(inShape);
-		return sCorrectFractionForCharacterPadding(rt_shape->GetInnerShape(), inStart * Mat44::sRotation(rt_shape->GetRotation()), inDisplacement, inPolygon, ioFraction);
+		return sCorrectFractionForCharacterPadding(rt_shape->GetInnerShape(), inStart * Mat44::sRotation(rt_shape->GetRotation()), inDisplacement, rt_shape->TransformScale(inScale), inPolygon, ioFraction);
+	}
+	else if (inShape->GetSubType() == EShapeSubType::Scaled)
+	{
+		const ScaledShape *scaled_shape = static_cast<const ScaledShape *>(inShape);
+		return sCorrectFractionForCharacterPadding(scaled_shape->GetInnerShape(), inStart, inDisplacement, inScale * scaled_shape->GetScale(), inPolygon, ioFraction);
 	}
 	else
 	{
@@ -528,6 +576,9 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 	// Calculate how much extra fraction we need to add to the cast to account for the character padding
 	float character_padding_fraction = mCharacterPadding / sqrt(displacement_len_sq);
 
+	// Body filter
+	IgnoreSingleBodyFilterChained body_filter(mInnerBodyID, inBodyFilter);
+
 	// Cast shape
 	Contact contact;
 	contact.mFraction = 1.0f + character_padding_fraction;
@@ -535,7 +586,7 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 	ContactCastCollector collector(mSystem, this, inDisplacement, mUp, inIgnoredContacts, base_offset, contact);
 	collector.ResetEarlyOutFraction(contact.mFraction);
 	RShapeCast shape_cast(mShape, Vec3::sReplicate(1.0f), start, inDisplacement);
-	mSystem->GetNarrowPhaseQuery().CastShape(shape_cast, settings, base_offset, collector, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter);
+	mSystem->GetNarrowPhaseQuery().CastShape(shape_cast, settings, base_offset, collector, inBroadPhaseLayerFilter, inObjectLayerFilter, body_filter, inShapeFilter);
 
 	// Also collide with other characters
 	if (mCharacterVsCharacterCollision != nullptr)
@@ -579,7 +630,7 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 		AddConvexRadius add_cvx(polygon, character_padding);
 
 		// Correct fraction to hit this inflated face instead of the inner shape
-		corrected = sCorrectFractionForCharacterPadding(mShape, start.GetRotation(), inDisplacement, add_cvx, outContact.mFraction);
+		corrected = sCorrectFractionForCharacterPadding(mShape, start.GetRotation(), inDisplacement, Vec3::sReplicate(1.0f), add_cvx, outContact.mFraction);
 	}
 	if (!corrected)
 	{
@@ -646,13 +697,7 @@ bool CharacterVirtual::HandleContact(Vec3Arg inVelocity, Constraint &ioConstrain
 
 	// Send contact added event
 	CharacterContactSettings settings;
-	if (mListener != nullptr)
-	{
-		if (contact.mCharacterB != nullptr)
-			mListener->OnCharacterContactAdded(this, contact.mCharacterB, contact.mSubShapeIDB, contact.mPosition, -contact.mContactNormal, settings);
-		else
-			mListener->OnContactAdded(this, contact.mBodyB, contact.mSubShapeIDB, contact.mPosition, -contact.mContactNormal, settings);
-	}
+	ContactAdded(contact, settings);
 	contact.mCanPushCharacter = settings.mCanPushCharacter;
 
 	// We don't have any further interaction with sensors beyond an OnContactAdded notification
@@ -1241,6 +1286,14 @@ void CharacterVirtual::MoveShape(RVec3 &ioPosition, Vec3Arg inVelocity, float in
 	}
 }
 
+void CharacterVirtual::SetUserData(uint64 inUserData)
+{
+	mUserData = inUserData;
+
+	if (!mInnerBodyID.IsInvalid())
+		mSystem->GetBodyInterface().SetUserData(mInnerBodyID, inUserData);
+}
+
 Vec3 CharacterVirtual::CancelVelocityTowardsSteepSlopes(Vec3Arg inDesiredVelocity) const
 {
 	// If we're not pushing against a steep slope, return the desired velocity
@@ -1287,6 +1340,9 @@ void CharacterVirtual::Update(float inDeltaTime, Vec3Arg inGravity, const BroadP
 	// Determine the object that we're standing on
 	UpdateSupportingContact(false, inAllocator);
 
+	// Ensure that the rigid body ends up at the new position
+	UpdateInnerBodyTransform();
+
 	// If we're on the ground
 	if (!mGroundBodyID.IsInvalid() && mMass > 0.0f)
 	{
@@ -1331,6 +1387,10 @@ void CharacterVirtual::MoveToContact(RVec3Arg inPosition, const Contact &inConta
 	// Set the new position
 	SetPosition(inPosition);
 
+	// Trigger contact added callback
+	CharacterContactSettings dummy;
+	ContactAdded(inContact, dummy);
+
 	// Determine the contacts
 	TempContactList contacts(inAllocator);
 	contacts.reserve(mMaxNumHits + 1); // +1 because we can add one extra below
@@ -1355,6 +1415,9 @@ void CharacterVirtual::MoveToContact(RVec3Arg inPosition, const Contact &inConta
 
 	StoreActiveContacts(contacts, inAllocator);
 	JPH_ASSERT(mGroundState != EGroundState::InAir);
+
+	// Ensure that the rigid body ends up at the new position
+	UpdateInnerBodyTransform();
 }
 
 bool CharacterVirtual::SetShape(const Shape *inShape, float inMaxPenetrationDepth, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter, TempAllocator &inAllocator)
@@ -1389,6 +1452,11 @@ bool CharacterVirtual::SetShape(const Shape *inShape, float inMaxPenetrationDept
 	}
 
 	return mShape == inShape;
+}
+
+void CharacterVirtual::SetInnerBodyShape(const Shape *inShape)
+{
+	mSystem->GetBodyInterface().SetShape(mInnerBodyID, inShape, false, EActivation::DontActivate);
 }
 
 bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const

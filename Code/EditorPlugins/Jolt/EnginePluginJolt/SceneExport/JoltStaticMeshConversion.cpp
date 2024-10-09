@@ -2,6 +2,7 @@
 
 #include <EnginePluginJolt/SceneExport/JoltStaticMeshConversion.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <JoltCooking/JoltCooking.h>
@@ -100,9 +101,23 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   file.SetOutput(sOutputFile);
 
   ezAssetFileHeader header;
+  header.SetFileHashAndVersion(0, 9); // ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>()->GetTypeVersion();
   header.Write(file).IgnoreResult();
 
+  const ezUInt8 uiVersion = 3;
+  ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd compressor(&file, 0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezChunkStreamWriter chunk(compressor);
+#else
   ezChunkStreamWriter chunk(file);
+#endif
+
+  file << uiVersion;
+  file << uiCompressionMode;
+
   chunk.BeginStream(1);
 
   if (ezJoltCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezJoltCooking::MeshType::Triangle).LogFailure())
@@ -112,6 +127,17 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   }
 
   chunk.EndStream();
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  if (compressor.FinishCompressedStream().Failed())
+  {
+    ezLog::Error("Failed to finish compressing stream.");
+    return;
+  }
+
+  ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+
+#endif
 
   if (file.Close().Failed())
   {

@@ -150,4 +150,3 @@ bool ezJoltObjectLayerPairFilter::ShouldCollide(JPH::ObjectLayer inObject1, JPH:
 }
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltCollisionFiltering);

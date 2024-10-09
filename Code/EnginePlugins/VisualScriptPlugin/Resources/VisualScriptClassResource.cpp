@@ -204,3 +204,7 @@ ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflect
 {
   return EZ_SCRIPT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc, m_pInstanceDataMapping);
 }
+
+
+EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Resources_VisualScriptClassResource);
+

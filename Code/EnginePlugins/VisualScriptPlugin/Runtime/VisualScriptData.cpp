@@ -67,7 +67,7 @@ ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream
     uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
     if (typeInfo.m_uiStartOffset != uiOffset)
     {
-      ezLog::Error("VisualScriptDataDescription data offset mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
+      ezLog::Error("VisualScriptDataDescription data offset mismatch for type '{}'. Expected: {}, Actual: {}. If a type changed in size or alignment the script needs to be re-transformed.", ezVisualScriptDataType::GetName(dataType), typeInfo.m_uiStartOffset, uiOffset);
       return EZ_FAILURE;
     }
 

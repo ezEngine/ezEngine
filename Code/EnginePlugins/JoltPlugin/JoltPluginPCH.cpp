@@ -12,7 +12,8 @@ EZ_STATICLINK_LIBRARY(JoltPlugin)
   EZ_STATICLINK_REFERENCE(JoltPlugin_Actors_Implementation_JoltTriggerComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Character_Implementation_JoltCharacterControllerComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);
-  EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltBoneColliderComponent);
+  EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltClothSheetComponent);
+  EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltHitboxComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltRagdollComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltRopeComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Components_Implementation_JoltSettingsComponent);
@@ -28,7 +29,6 @@ EZ_STATICLINK_LIBRARY(JoltPlugin)
   EZ_STATICLINK_REFERENCE(JoltPlugin_Constraints_Implementation_JoltSliderConstraintComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Constraints_Implementation_JoltSwingTwistConstraintComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Resources_JoltMeshResource);
-  EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltCustomShapeInfo);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltShapeBoxComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltShapeCapsuleComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltShapeComponent);
@@ -36,10 +36,7 @@ EZ_STATICLINK_LIBRARY(JoltPlugin)
   EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);
   EZ_STATICLINK_REFERENCE(JoltPlugin_Startup);
-  EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltCollisionFiltering);
   EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltContacts);
   EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltCore);
-  EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltDebugRenderer);
-  EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltQueries);
   EZ_STATICLINK_REFERENCE(JoltPlugin_System_JoltWorldModule);
 }

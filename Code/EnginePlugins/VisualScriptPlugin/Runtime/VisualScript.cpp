@@ -356,3 +356,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptSendMessageMode, 1)
   EZ_ENUM_CONSTANTS(ezVisualScriptSendMessageMode::Direct, ezVisualScriptSendMessageMode::Recursive, ezVisualScriptSendMessageMode::Event)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScript);
+

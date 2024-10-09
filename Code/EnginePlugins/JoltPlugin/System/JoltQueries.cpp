@@ -82,7 +82,8 @@ bool ezJoltWorldModule::Raycast(ezPhysicsCastResult& out_result, const ezVec3& v
   if (params.m_bIgnoreInitialOverlap)
   {
     JPH::RayCastSettings opt;
-    opt.mBackFaceMode = JPH::EBackFaceMode::IgnoreBackFaces;
+    opt.mBackFaceModeTriangles = JPH::EBackFaceMode::IgnoreBackFaces;
+    opt.mBackFaceModeConvex = JPH::EBackFaceMode::IgnoreBackFaces;
     opt.mTreatConvexAsSolid = false;
 
     query.CastRay(ray, opt, collector, broadphaseFilter, objectFilter, bodyFilter);
@@ -136,7 +137,8 @@ bool ezJoltWorldModule::RaycastAll(ezPhysicsCastResultArray& out_results, const 
   ezJoltObjectLayerFilter objectFilter(params.m_uiCollisionLayer);
 
   JPH::RayCastSettings opt;
-  opt.mBackFaceMode = params.m_bIgnoreInitialOverlap ? JPH::EBackFaceMode::IgnoreBackFaces : JPH::EBackFaceMode::CollideWithBackFaces;
+  opt.mBackFaceModeTriangles = params.m_bIgnoreInitialOverlap ? JPH::EBackFaceMode::IgnoreBackFaces : JPH::EBackFaceMode::CollideWithBackFaces;
+  opt.mBackFaceModeConvex = opt.mBackFaceModeTriangles;
   opt.mTreatConvexAsSolid = !params.m_bIgnoreInitialOverlap;
 
   query.CastRay(ray, opt, collector, broadphaseFilter, objectFilter, bodyFilter);
@@ -416,5 +418,3 @@ void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& param
     }
   }
 }
-
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltQueries);

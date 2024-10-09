@@ -32,6 +32,12 @@ bool Shape::sDrawSubmergedVolumes = false;
 
 ShapeFunctions ShapeFunctions::sRegistry[NumSubShapeTypes];
 
+const Shape *Shape::GetLeafShape([[maybe_unused]] const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const
+{
+	outRemainder = inSubShapeID;
+	return this;
+}
+
 TransformedShape Shape::GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const
 {
 	// We have reached the leaf shape so there is no remainder
@@ -117,7 +123,7 @@ void Shape::SaveWithChildren(StreamOut &inStream, ShapeToIDMap &ioShapeMap, Mate
 		// Write the ID's of all sub shapes
 		ShapeList sub_shapes;
 		SaveSubShapeState(sub_shapes);
-		inStream.Write(sub_shapes.size());
+		inStream.Write(uint32(sub_shapes.size()));
 		for (const Shape *shape : sub_shapes)
 		{
 			if (shape == nullptr)
@@ -173,7 +179,7 @@ Shape::ShapeResult Shape::sRestoreWithChildren(StreamIn &inStream, IDToShapeMap 
 	ioShapeMap.push_back(result.Get());
 
 	// Read the sub shapes
-	size_t len;
+	uint32 len;
 	inStream.Read(len);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{
@@ -305,7 +311,7 @@ void Shape::sCollidePointUsingRayCast(const Shape &inShape, Vec3Arg inPoint, con
 
 		// Configure the raycast
 		RayCastSettings settings;
-		settings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
+		settings.SetBackFaceMode(EBackFaceMode::CollideWithBackFaces);
 
 		// Cast a ray that's 10% longer than the height of our bounding box
 		inShape.CastRay(RayCast { inPoint, 1.1f * bounds.GetSize().GetY() * Vec3::sAxisY() }, settings, inSubShapeIDCreator, collector, inShapeFilter);
