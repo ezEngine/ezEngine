@@ -152,13 +152,22 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezUInt8 uiVersion = 1;
+  // version specified in ezJoltCollisionMeshAssetDocument::InternalTransformAsset()
+  // and also in ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld() !
+  ezUInt8 uiVersion = 0;
   ezUInt8 uiCompressionMode = 0;
 
   if (AssetHash.GetFileVersion() >= 6) // asset document version, in version 6 the 'resource file format version' was added
   {
     *Stream >> uiVersion;
     *Stream >> uiCompressionMode;
+  }
+
+  if (uiVersion < 3)
+  {
+    // older cooked Jolt meshes are incompatible
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
   }
 
   ezStreamReader* pCompressor = Stream;
@@ -395,6 +404,12 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
       return nullptr;
     }
 
+    if (jStream.IsFailed())
+    {
+      EZ_REPORT_FAILURE("Failed to read Jolt triangle mesh from stream.");
+      return nullptr;
+    }
+
     ezHybridArray<JPH::PhysicsMaterialRefC, 32> materials;
     materials.SetCount(m_Surfaces.GetCount());
 
@@ -461,7 +476,13 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
 
     if (shapeRes.HasError())
     {
-      EZ_REPORT_FAILURE("Failed to instantiate Jolt triangle mesh: {}", shapeRes.GetError().c_str());
+      EZ_REPORT_FAILURE("Failed to instantiate Jolt convex mesh: {}", shapeRes.GetError().c_str());
+      return nullptr;
+    }
+
+    if (jStream.IsFailed())
+    {
+      EZ_REPORT_FAILURE("Failed to read Jolt convex mesh from stream.");
       return nullptr;
     }
 

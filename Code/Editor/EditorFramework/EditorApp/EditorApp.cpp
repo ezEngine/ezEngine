@@ -7,6 +7,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QFileDialog>
@@ -577,6 +578,13 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
     args << "-safe";
   if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
     args << "-noRecent";
+
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
+  {
+    ezStringBuilder sRenderer = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
+    args << "-renderer";
+    args << sRenderer.GetData();
+  }
 
   QProcess proc;
   proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);

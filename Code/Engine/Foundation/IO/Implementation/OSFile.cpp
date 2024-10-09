@@ -234,6 +234,8 @@ bool ezOSFile::ExistsFile(ezStringView sFile)
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sFile);
+
   const bool bRes = InternalExistsFile(s);
 
   const ezTime t1 = ezTime::Now();
@@ -260,7 +262,7 @@ bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute");
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sDirectory);
 
   const bool bRes = InternalExistsDirectory(s);
 

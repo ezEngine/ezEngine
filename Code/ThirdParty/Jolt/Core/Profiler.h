@@ -220,7 +220,7 @@ public:
 	static inline ProfileThread *sGetInstance()														{ return sInstance; }
 
 private:
-	static JPH_EXPORT_THREAD_LOCAL thread_local ProfileThread *sInstance;
+	static thread_local ProfileThread *sInstance;
 #endif
 };
 

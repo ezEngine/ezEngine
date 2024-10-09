@@ -2,6 +2,7 @@
 
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAsset.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <JoltCooking/JoltCooking.h>
@@ -13,7 +14,7 @@
 #endif
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetDocument, 8, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -60,7 +61,10 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
-  const ezUInt8 uiVersion = 2;
+  EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 9, "Version change");
+  // Please check that the code here is in sync with ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld()
+
+  const ezUInt8 uiVersion = 3; // read in ezJoltMeshResource::UpdateContent()
   stream << uiVersion;
 
   ezUInt8 uiCompressionMode = 0;

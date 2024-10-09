@@ -14,7 +14,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
 ezUInt32 ezMeshResource::s_uiMeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }

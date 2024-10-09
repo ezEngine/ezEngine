@@ -131,6 +131,7 @@ ezResult ezFileSystem::AddDataDirectory(ezStringView sDataDirectory, ezStringVie
           s_pData->m_Event.Broadcast(fe);
         }
 
+        ezLog::Dev("Added Data Directory '{}' -> '{}'", sRootName, sDataDirectory);
         return EZ_SUCCESS;
       }
     }
@@ -923,6 +924,7 @@ void ezFileSystem::SetSpecialDirectory(ezStringView sName, ezStringView sReplace
   else
   {
     s_SpecialDirectories[tmp] = sReplacement;
+    ezLog::Dev("Setting special directory '{}' to '{}'", sName, sReplacement);
   }
 }
 

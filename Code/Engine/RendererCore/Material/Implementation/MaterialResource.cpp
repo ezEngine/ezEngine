@@ -70,7 +70,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezDeque<ezMaterialResource::CachedValues> ezMaterialResource::s_CachedValues;
 
 ezMaterialResource::ezMaterialResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;

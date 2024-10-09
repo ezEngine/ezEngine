@@ -286,7 +286,10 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #endif
 
-  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+  if (ezPlugin::LoadPlugin(szShaderCompiler, ezPluginLoadFlags::PluginIsOptional).Failed())
+  {
+    ezLog::Warning("Shader compiler plugin '{}' not found", szShaderCompiler);
+  }
 }
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()
