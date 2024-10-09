@@ -207,4 +207,3 @@ ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflect
 
 
 EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Resources_VisualScriptClassResource);
-

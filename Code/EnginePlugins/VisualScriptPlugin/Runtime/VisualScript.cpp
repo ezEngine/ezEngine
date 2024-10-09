@@ -359,4 +359,3 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 
 EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScript);
-

@@ -380,4 +380,3 @@ ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) 
 
 
 EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScriptDataType);
-
