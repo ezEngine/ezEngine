@@ -97,6 +97,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32
   TextureDesc.m_uiHeight = uiHeight;
   TextureDesc.m_SampleCount = sampleCount;
   TextureDesc.m_uiArraySize = uiSliceCount;
+  TextureDesc.m_Type = ezGALTextureType::Texture2DArray;
 
   return GetRenderTarget(TextureDesc);
 }
