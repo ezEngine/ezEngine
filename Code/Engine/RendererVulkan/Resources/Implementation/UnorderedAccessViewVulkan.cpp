@@ -6,11 +6,6 @@
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
-{
-  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
-}
-
 ezGALTextureUnorderedAccessViewVulkan::ezGALTextureUnorderedAccessViewVulkan(
   ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
   : ezGALTextureUnorderedAccessView(pResource, Description)
@@ -37,15 +32,13 @@ ezResult ezGALTextureUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevic
   auto image = pParentTexture->GetImage();
   const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
-
   ezGALResourceFormat::Enum viewFormat = m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : m_Description.m_OverrideViewFormat;
   vk::ImageViewCreateInfo viewCreateInfo;
   viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
   viewCreateInfo.image = image;
   viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
-  viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type, bIsArrayView);
-  if (texDesc.m_Type == ezGALTextureType::TextureCube)
+  viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
+  if (texDesc.m_Type == ezGALTextureType::TextureCube || texDesc.m_Type == ezGALTextureType::TextureCubeArray)
     viewCreateInfo.viewType = vk::ImageViewType::e2DArray; // There is no RWTextureCube / RWTextureCubeArray in HLSL
 
   m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;

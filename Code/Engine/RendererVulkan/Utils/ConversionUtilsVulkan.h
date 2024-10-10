@@ -33,7 +33,8 @@ public:
   static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc);
   static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc);
   static vk::ImageSubresourceRange GetSubresourceRange(const vk::ImageSubresourceLayers& layers);
-  static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType, bool bIsArray);
+  static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType);
+  static vk::ImageViewType GetImageArrayViewType(ezEnum<ezGALTextureType> texType);
 
   static bool IsDepthFormat(vk::Format format);
   static bool IsStencilFormat(vk::Format format);

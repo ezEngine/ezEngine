@@ -512,7 +512,7 @@ void ezGALCommandEncoderImplVulkan::CopyImageToBuffer(const ezGALTextureVulkan* 
   const ezUInt32 uiBufferSize = pSource->ComputeSubResourceOffsets(subResourceOffsets);
 
   ezHybridArray<vk::BufferImageCopy, 8> imageCopy;
-  const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+  const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
   const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
 
   for (ezUInt32 uiLayer = 0; uiLayer < arraySize; uiLayer++)
@@ -592,7 +592,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
 
     ezImageCopyVulkan copy(m_GALDeviceVulkan);
 
-    const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+    const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
     const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
     const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bVertexShaderRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
     if (arraySize > 1 && bStereoSupport)
@@ -889,7 +889,7 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTextureRe
       else
       {
         copy.Init(pVulkanTexture, pVulkanTexture, ezShaderUtils::ezBuiltinShaderType::DownscaleImage);
-        const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+        const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
         const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
 
         for (ezUInt32 uiLayer = viewRange.baseArrayLayer; uiLayer < (viewRange.baseArrayLayer + viewRange.layerCount); uiLayer++)
