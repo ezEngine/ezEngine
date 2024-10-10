@@ -52,6 +52,7 @@ ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView&
   const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
 
   ezGALTextureCreationDescription desc;
+  desc.m_Type = ezGALTextureType::Texture2DArray;
 
   // Color
   if (format == ezSourceFormat::Color4Channel8BitNormalized || format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)

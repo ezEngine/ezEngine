@@ -46,6 +46,7 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
 
   ezGALTextureCreationDescription desc;
   desc.SetAsRenderTarget(uiWidth, uiHeight, pColorInput->m_Desc.m_Format);
+  desc.m_Type = ezGALTextureType::Texture2DArray;
   desc.m_uiArraySize = pColorInput->m_Desc.m_uiArraySize;
   desc.m_uiMipLevelCount = 1;
 

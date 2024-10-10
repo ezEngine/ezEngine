@@ -132,7 +132,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       desc.m_uiWidth = uiHzbWidth / 2;
       desc.m_uiHeight = uiHzbHeight / 2;
       desc.m_uiMipLevelCount = 3;
-      desc.m_Type = ezGALTextureType::Texture2D;
+      desc.m_Type = ezGALTextureType::Texture2DArray;
       desc.m_Format = ezGALResourceFormat::RHalf;
       desc.m_bCreateRenderTarget = true;
       desc.m_bAllowShaderResourceView = true;
@@ -168,7 +168,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       }
     }
 
-    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize);
+    tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize, ezGALTextureType::Texture2DArray);
   }
 
   // Mip map passes

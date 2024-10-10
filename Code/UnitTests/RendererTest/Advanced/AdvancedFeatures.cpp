@@ -108,6 +108,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     // Texture2DArray
     ezGALTextureCreationDescription desc;
     desc.SetAsRenderTarget(320 / 2, 240, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
+    desc.m_Type = ezGALTextureType::Texture2DArray;
     desc.m_uiArraySize = 2;
     m_hTexture2DArray = m_pDevice->CreateTexture(desc);
 

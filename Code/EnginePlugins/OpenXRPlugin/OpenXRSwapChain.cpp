@@ -247,6 +247,7 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
     // Create depth buffer in case the API does not support it
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
     ezGALTextureCreationDescription tcd;
+    tcd.m_Type = ezGALTextureType::Texture2DArray;
     tcd.SetAsRenderTarget(m_CurrentSize.width, m_CurrentSize.height, ezGALResourceFormat::DFloat, msaaCount);
     tcd.m_uiArraySize = 2;
     m_hDepthRT = pDevice->CreateTexture(tcd);

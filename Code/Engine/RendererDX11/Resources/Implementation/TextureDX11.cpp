@@ -24,7 +24,9 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
   switch (m_Description.m_Type)
   {
     case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DArray:
     case ezGALTextureType::TextureCube:
+    case ezGALTextureType::TextureCubeArray:
     {
       D3D11_TEXTURE2D_DESC Tex2DDesc;
       EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
@@ -85,8 +87,39 @@ ezResult ezGALTextureDX11::InitFromNativeObject(ezGALDeviceDX11* pDXDevice)
 
 ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc)
 {
-  out_Tex2DDesc.ArraySize = (description.m_Type == ezGALTextureType::Texture2D ? description.m_uiArraySize : (description.m_uiArraySize * 6));
+  out_Tex2DDesc.ArraySize = 1;
+  out_Tex2DDesc.MiscFlags = 0;
   out_Tex2DDesc.BindFlags = 0;
+
+  switch (description.m_Type)
+  {
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DShared:
+      EZ_ASSERT_DEV(description.m_uiArraySize == 1, "Use ezGALTextureType::Texture2DArray instead.");
+      break;
+
+    case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DArray:
+      out_Tex2DDesc.ArraySize = description.m_uiArraySize;
+      break;
+
+    case ezGALTextureType::Texture3D:
+      EZ_ASSERT_DEV(description.m_uiArraySize == 1, "3D array textures not supported.");
+      break;
+
+    case ezGALTextureType::TextureCube:
+      EZ_ASSERT_DEV(description.m_uiArraySize == 1, "Use ezGALTextureType::TextureCubeArray instead.");
+      out_Tex2DDesc.ArraySize = 6;
+      out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      break;
+
+    case ezGALTextureType::TextureCubeArray:
+      out_Tex2DDesc.ArraySize = description.m_uiArraySize * 6;
+      out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
 
   if (description.m_bAllowShaderResourceView || description.m_bAllowDynamicMipGeneration)
     out_Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
@@ -114,13 +147,8 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
   out_Tex2DDesc.Height = description.m_uiHeight;
   out_Tex2DDesc.MipLevels = description.m_uiMipLevelCount;
 
-  out_Tex2DDesc.MiscFlags = 0;
-
   if (description.m_bAllowDynamicMipGeneration)
     out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-  if (description.m_Type == ezGALTextureType::TextureCube)
-    out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 
   out_Tex2DDesc.SampleDesc.Count = description.m_SampleCount;
   out_Tex2DDesc.SampleDesc.Quality = 0;
@@ -178,15 +206,24 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
     switch (description.m_Type)
     {
       case ezGALTextureType::Texture2D:
+        EZ_ASSERT_DEV(description.m_uiArraySize == 1, "Use ezGALTextureType::Texture2DArray instead.");
+        break;
+      case ezGALTextureType::Texture2DArray:
         uiArraySize = description.m_uiArraySize;
         break;
       case ezGALTextureType::TextureCube:
+        EZ_ASSERT_DEV(description.m_uiArraySize == 1, "Use ezGALTextureType::TextureCubeArray instead.");
+        uiArraySize = 6;
+        break;
+      case ezGALTextureType::TextureCubeArray:
         uiArraySize = description.m_uiArraySize * 6;
         break;
-      case ezGALTextureType::Texture3D:
+
       default:
+        EZ_ASSERT_DEV(description.m_uiArraySize == 1, "This type of texture doesn't support arrays.");
         break;
     }
+
     const ezUInt32 uiInitialDataCount = (description.m_uiMipLevelCount * uiArraySize);
 
     EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
@@ -227,7 +264,9 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
   switch (m_Description.m_Type)
   {
     case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DArray:
     case ezGALTextureType::TextureCube:
+    case ezGALTextureType::TextureCubeArray:
     {
       D3D11_TEXTURE2D_DESC Desc;
       static_cast<ID3D11Texture2D*>(m_pDXTexture)->GetDesc(&Desc);
@@ -259,5 +298,3 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
 
   return EZ_SUCCESS;
 }
-
-

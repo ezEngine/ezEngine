@@ -18,8 +18,7 @@ inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage
   return m_ByteCodes[stage] != nullptr && m_ByteCodes[stage]->IsValid();
 }
 
-inline void ezGALTextureCreationDescription::SetAsRenderTarget(
-  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
 {
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;

@@ -7,11 +7,6 @@
 
 #include <d3d11.h>
 
-bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
-{
-  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
-}
-
 ezGALTextureResourceViewDX11::ezGALTextureResourceViewDX11(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
   : ezGALTextureResourceView(pResource, Description)
 
@@ -63,67 +58,62 @@ ezResult ezGALTextureResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
   const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
-
   switch (texDesc.m_Type)
   {
     case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DProxy:
     case ezGALTextureType::Texture2DShared:
+      EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && m_Description.m_uiFirstArraySlice == 0, "These options can only be used with array texture types.");
 
-      if (!bIsArrayView)
+      if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
       {
-        if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-        {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-          DXSRVDesc.Texture2D.MipLevels = m_Description.m_uiMipLevelsToUse;
-          DXSRVDesc.Texture2D.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-        }
-        else
-        {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-        }
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        DXSRVDesc.Texture2D.MipLevels = m_Description.m_uiMipLevelsToUse;
+        DXSRVDesc.Texture2D.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
       }
       else
       {
-        if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
-        {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-          DXSRVDesc.Texture2DArray.MipLevels = m_Description.m_uiMipLevelsToUse;
-          DXSRVDesc.Texture2DArray.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-          DXSRVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
-          DXSRVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-        }
-        else
-        {
-          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
-          DXSRVDesc.Texture2DMSArray.ArraySize = m_Description.m_uiArraySize;
-          DXSRVDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-        }
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+      }
+      break;
+
+    case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DArray:
+
+      if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+      {
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+        DXSRVDesc.Texture2DArray.MipLevels = m_Description.m_uiMipLevelsToUse;
+        DXSRVDesc.Texture2DArray.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
+        DXSRVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
+        DXSRVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
+      }
+      else
+      {
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
+        DXSRVDesc.Texture2DMSArray.ArraySize = m_Description.m_uiArraySize;
+        DXSRVDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
       }
 
       break;
 
     case ezGALTextureType::TextureCube:
+      EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && m_Description.m_uiFirstArraySlice == 0, "These options can only be used with array texture types.");
 
-      if (!bIsArrayView)
-      {
-        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-        DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
-        DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-      }
-      else
-      {
-        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-        DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
-        DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
-        DXSRVDesc.TextureCubeArray.NumCubes = m_Description.m_uiArraySize;
-        DXSRVDesc.TextureCubeArray.First2DArrayFace = m_Description.m_uiFirstArraySlice;
-      }
+      DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+      DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
+      DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
+      break;
 
+    case ezGALTextureType::TextureCubeArray:
+      DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
+      DXSRVDesc.TextureCube.MipLevels = m_Description.m_uiMipLevelsToUse;
+      DXSRVDesc.TextureCube.MostDetailedMip = m_Description.m_uiMostDetailedMipLevel;
+      DXSRVDesc.TextureCubeArray.NumCubes = m_Description.m_uiArraySize;
+      DXSRVDesc.TextureCubeArray.First2DArrayFace = m_Description.m_uiFirstArraySlice;
       break;
 
     case ezGALTextureType::Texture3D:
+      EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && m_Description.m_uiFirstArraySlice == 0, "These options can only be used with array texture types.");
 
       DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
       DXSRVDesc.Texture3D.MipLevels = m_Description.m_uiMipLevelsToUse;
@@ -237,5 +227,3 @@ ezResult ezGALBufferResourceViewDX11::DeInitPlatform(ezGALDevice* pDevice)
   EZ_GAL_DX11_RELEASE(m_pDXResourceView);
   return EZ_SUCCESS;
 }
-
-

@@ -234,7 +234,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_uiHeight = 8;
     desc.m_uiMipLevelCount = 4;
     desc.m_uiArraySize = 2;
-    desc.m_Type = ezGALTextureType::Texture2D;
+    desc.m_Type = ezGALTextureType::Texture2DArray;
     desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
     ezImage coloredMips[2];

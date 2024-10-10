@@ -118,6 +118,22 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   if (pImage->GetNumFaces() == 6)
     texDesc.m_Type = ezGALTextureType::TextureCube;
 
+  if (texDesc.m_uiArraySize > 1)
+  {
+    if (texDesc.m_Type == ezGALTextureType::TextureCube)
+    {
+      texDesc.m_Type = ezGALTextureType::TextureCubeArray;
+    }
+    else if (texDesc.m_Type == ezGALTextureType::Texture2D)
+    {
+      texDesc.m_Type = ezGALTextureType::Texture2DArray;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;

@@ -7,11 +7,6 @@
 
 #include <d3d11.h>
 
-bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
-{
-  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
-}
-
 ezGALTextureUnorderedAccessViewDX11::ezGALTextureUnorderedAccessViewDX11(
   ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
   : ezGALTextureUnorderedAccessView(pResource, Description)
@@ -65,29 +60,26 @@ ezResult ezGALTextureUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
   ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
   const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
-
   switch (texDesc.m_Type)
   {
     case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DProxy:
     case ezGALTextureType::Texture2DShared:
+      EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && m_Description.m_uiFirstArraySlice == 0, "These options can only be used with array texture types.");
 
-      if (!bIsArrayView)
-      {
-        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-        DXUAVDesc.Texture2D.MipSlice = m_Description.m_uiMipLevelToUse;
-      }
-      else
-      {
-        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
-        DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
-        DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
-        DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-      }
+      DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+      DXUAVDesc.Texture2D.MipSlice = m_Description.m_uiMipLevelToUse;
+      break;
+
+    case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DArray:
+      DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+      DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
+      DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
+      DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
       break;
 
     case ezGALTextureType::TextureCube:
+    case ezGALTextureType::TextureCubeArray:
       DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
       DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
       DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;

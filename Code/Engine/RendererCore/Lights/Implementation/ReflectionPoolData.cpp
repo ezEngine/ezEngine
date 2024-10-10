@@ -304,7 +304,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     desc.m_uiMipLevelCount = GetMipLevels();
     desc.m_uiArraySize = 1;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
-    desc.m_Type = ezGALTextureType::TextureCube;
+    desc.m_Type = ezGALTextureType::TextureCubeArray;
     desc.m_bCreateRenderTarget = true;
     desc.m_bAllowUAV = true;
     desc.m_ResourceAccess.m_bReadBack = true;
