@@ -58,7 +58,18 @@ ezResult ezGALTextureResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
       break;
 
     case ezGALTextureType::Texture2DProxy: // Can only be array
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+      break;
+
     case ezGALTextureType::Texture2DArray:
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2D);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+      break;
+
     case ezGALTextureType::TextureCubeArray:
       viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
