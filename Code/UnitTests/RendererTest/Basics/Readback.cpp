@@ -220,7 +220,6 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
         {
           shader = m_hUVColorShader;
         }
-        
       }
       renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
