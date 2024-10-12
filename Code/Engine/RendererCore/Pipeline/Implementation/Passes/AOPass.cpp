@@ -200,6 +200,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
       ezDownscaleDepthConstants* constants = ezRenderContext::GetConstantBufferData<ezDownscaleDepthConstants>(m_hDownscaleConstantBuffer);
       constants->PixelSize = pixelSize;
+      constants->FadeOutEnd = m_fFadeOutEnd;
       constants->LinearizeDepth = (i == 0);
 
       renderViewContext.m_pRenderContext->BindConstantBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
@@ -231,6 +232,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     constants->PositionBias = m_fPositionBias / 1000.0f;
     constants->MipLevelScale = m_fMipLevelScale;
     constants->DepthBlurScale = 1.0f / m_fDepthBlurThreshold;
+    constants->FadeOutEnd = m_fFadeOutEnd;
   }
 
   // SSAO pass

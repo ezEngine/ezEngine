@@ -81,4 +81,20 @@ float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumM
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
+float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+{
+  // Get the texture size at the specified mip level
+  uint width, height, elements, levels;
+  DepthTexture.GetDimensions(0, width, height, elements, levels);
+  // Convert normalized coordinates to texel space
+  float2 texelCoords = SamplePos * int2(width, height);
+  // Get the integer parts of the coordinates
+  int2 texelBase = int2(floor(texelCoords));
+  float4 texel = DepthTexture.Load(int4(texelBase, ArrayIndex, MipLevel));
+  // validUV is one on each axis if within [0, 1] range.
+  float2 validUV = step(float2(0, 0), SamplePos) - step(float2(1, 1), SamplePos);
+  // Apply border color if out of [0, 1] bounds.
+  return lerp(BorderColor, texel, validUV.x * validUV.y);
+}
+
 #endif

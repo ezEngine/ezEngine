@@ -74,6 +74,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
   {
     imageViewCreationInfo.viewType = vk::ImageViewType::e2D;
     imageViewCreationInfo.subresourceRange.baseMipLevel = m_Description.m_uiMipLevel;
+    imageViewCreationInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstSlice;
     imageViewCreationInfo.subresourceRange.levelCount = 1;
     imageViewCreationInfo.subresourceRange.layerCount = 1;
   }

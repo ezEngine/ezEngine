@@ -63,7 +63,9 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
     ezGALTextureCreationDescription desc = *inputs[m_PinInput.m_uiInputIndex];
     desc.m_uiWidth = desc.m_uiWidth / 2;
     desc.m_uiHeight = desc.m_uiHeight / 2;
-    desc.m_Format = ezGALResourceFormat::RG11B10Float;
+    const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+    const bool bSupportsRG11B10Float = caps.m_FormatSupport[ezGALResourceFormat::RG11B10Float].AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture);
+    desc.m_Format = bSupportsRG11B10Float ? ezGALResourceFormat::RG11B10Float : ezGALResourceFormat::RGBAHalf;
 
     outputs[m_PinOutput.m_uiOutputIndex] = desc;
   }

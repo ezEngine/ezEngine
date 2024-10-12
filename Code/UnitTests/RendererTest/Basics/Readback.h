@@ -39,6 +39,7 @@ private:
   ezGALResourceFormat::Enum m_Format = ezGALResourceFormat::Invalid;
   ezShaderResourceHandle m_hUVColorShader;
   ezShaderResourceHandle m_hUVColorIntShader;
+  ezShaderResourceHandle m_hUVColorUIntShader;
   ezShaderResourceHandle m_hUVColorDepthShader;
   ezShaderResourceHandle m_hTexture2DShader;
   ezShaderResourceHandle m_hTexture2DIntShader;

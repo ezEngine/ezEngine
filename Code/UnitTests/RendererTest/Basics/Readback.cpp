@@ -60,6 +60,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 
   m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
   m_hUVColorIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackInt.ezShader");
+  m_hUVColorUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackUInt.ezShader");
   m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
 
   m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
@@ -97,6 +98,7 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hShader.Invalidate();
   m_hUVColorShader.Invalidate();
   m_hUVColorIntShader.Invalidate();
+  m_hUVColorUIntShader.Invalidate();
   m_hTexture2DShader.Invalidate();
   m_hTexture2DIntShader.Invalidate();
   m_hTexture2DUIntShader.Invalidate();
@@ -192,6 +194,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   const bool bIsDepthTexture = ezGALResourceFormat::IsDepthFormat(m_Format);
   const bool bIsIntTexture = ezGALResourceFormat::IsIntegerFormat(m_Format);
+  const bool bIsSigned = ezGALResourceFormat::IsSignedFormat(m_Format);
   if (m_iFrame == 1)
   {
     BeginCommands("Offscreen");
@@ -209,7 +212,15 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       else
       {
         renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
-        shader = bIsIntTexture ? m_hUVColorIntShader : m_hUVColorShader;
+        if (bIsIntTexture)
+        {
+          shader = bIsSigned ? m_hUVColorIntShader : m_hUVColorUIntShader;
+        }
+        else
+        {
+          shader = m_hUVColorShader;
+        }
+        
       }
       renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
       renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;

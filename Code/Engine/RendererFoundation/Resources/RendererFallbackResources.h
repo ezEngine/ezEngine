@@ -49,11 +49,11 @@ private:
     static bool Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b);
   };
 
-  static ezHashTable<Key, ezGALTextureResourceViewHandle, KeyHash> m_TextureResourceViews;
-  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, KeyHash> m_BufferResourceViews;
-  static ezHashTable<Key, ezGALTextureUnorderedAccessViewHandle, KeyHash> m_TextureUAVs;
-  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferUnorderedAccessViewHandle, KeyHash> m_BufferUAVs;
+  static ezHashTable<Key, ezGALTextureResourceViewHandle, KeyHash> s_TextureResourceViews;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, KeyHash> s_BufferResourceViews;
+  static ezHashTable<Key, ezGALTextureUnorderedAccessViewHandle, KeyHash> s_TextureUAVs;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferUnorderedAccessViewHandle, KeyHash> s_BufferUAVs;
 
-  static ezDynamicArray<ezGALBufferHandle> m_Buffers;
-  static ezDynamicArray<ezGALTextureHandle> m_Textures;
+  static ezDynamicArray<ezGALBufferHandle> s_Buffers;
+  static ezDynamicArray<ezGALTextureHandle> s_Textures;
 };

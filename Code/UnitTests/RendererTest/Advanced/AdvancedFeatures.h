@@ -18,6 +18,8 @@ private:
     ST_SharedTexture,
     ST_Tessellation,
     ST_Compute,
+    ST_FloatSampling, // Either natively or emulated sampling of floating point textures e.g. depth textures.
+    ST_ProxyTexture,
   };
 
   enum ImageCaptureFrames
@@ -33,6 +35,8 @@ private:
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
   void ReadRenderTarget();
+  void FloatSampling();
+  void ProxyTexture();
   void VertexShaderRenderTargetArrayIndex();
   void Tessellation();
   void Compute();
@@ -42,10 +46,18 @@ private:
 
 private:
   ezShaderResourceHandle m_hShader2;
+  ezShaderResourceHandle m_hShader3;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALTextureResourceViewHandle m_hTexture2DMips[4];
+  ezGALTextureResourceViewHandle m_hTexture2DView;
   ezGALTextureHandle m_hTexture2DArray;
+
+  // Proxy texture test
+  ezGALTextureHandle m_hProxyTexture2D[2];
+  ezGALTextureResourceViewHandle m_hTexture2DArrayView[2];
+
+  // Float sampling test
+  ezGALSamplerStateHandle m_hDepthSamplerState;
 
   // Tessellation Test
   ezMeshBufferResourceHandle m_hSphereMesh;

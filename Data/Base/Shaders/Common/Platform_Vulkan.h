@@ -83,4 +83,8 @@ float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumM
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
+float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+{
+  return DepthTexture.SampleLevel(DepthSampler, float3(SamplePos, ArrayIndex), MipLevel);
+}
 #endif

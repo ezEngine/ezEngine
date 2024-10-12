@@ -51,7 +51,8 @@ float4 main(PS_IN Input) : SV_Target
   for (int i = 0; i < 4; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * PixelSize;
-    depth = max(depth, DepthTexture.SampleLevel(DepthSampler, float3(samplePos, s_ActiveCameraEyeIndex), 0).r);
+    
+    depth = max(depth, ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, samplePos, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r);
   }
 
   if (LinearizeDepth)
