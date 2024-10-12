@@ -114,7 +114,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     samplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
     samplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
     samplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
-    samplerDesc.m_BorderColor = ezColor::White * 0.5f;
+    samplerDesc.m_BorderColor = ezColor::White;
 
     m_hDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(samplerDesc);
   }

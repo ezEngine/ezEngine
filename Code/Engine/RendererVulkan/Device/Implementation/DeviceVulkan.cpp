@@ -299,6 +299,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
       m_extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
     }
+    else
+    {
+      ezLog::Warning("Custom border color samplers are not supported.");
+    }
   }
 
   AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_extensions.m_bImageFormatList);

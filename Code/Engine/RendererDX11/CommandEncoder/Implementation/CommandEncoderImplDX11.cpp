@@ -134,14 +134,14 @@ void ezGALCommandEncoderImplDX11::SetSamplerStatePlatform(const ezShaderResource
 
 void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView)
 {
-  if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
+  if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()->GetParentResource()))
   {
     FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALTextureResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
 
-  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource() : nullptr, pResourceViewDX11);
+  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr, pResourceViewDX11);
 }
 
 void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView)
@@ -175,13 +175,13 @@ void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding&
 
 void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView)
 {
-  if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
+  if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()->GetParentResource()))
   {
     FlushDeferredStateChanges().IgnoreResult();
   }
 
   ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
-  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
+  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr);
 }
 
 void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView)
@@ -195,7 +195,7 @@ void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderR
   SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
 }
 
-void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, ezGALResourceBase* pResource)
+void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource)
 {
   m_BoundUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
   m_ResourcesForUnorderedAccessViews.EnsureCount(binding.m_iSlot + 1);
