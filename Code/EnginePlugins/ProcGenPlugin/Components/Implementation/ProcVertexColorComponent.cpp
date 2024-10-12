@@ -49,10 +49,17 @@ void ezProcVertexColorComponentManager::Initialize()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezUInt32);
     desc.m_uiTotalSize = desc.m_uiStructSize * VERTEX_COLOR_BUFFER_SIZE;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
     desc.m_ResourceAccess.m_bImmutable = false;
-    desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
 
+    if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bTexelBuffer)
+    {
+      desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    }
+    else
+    {
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    }
     m_hVertexColorBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
 
     m_VertexColorData.SetCountUninitialized(VERTEX_COLOR_BUFFER_SIZE);

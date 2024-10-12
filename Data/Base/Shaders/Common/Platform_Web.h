@@ -14,6 +14,8 @@
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
+#  define SUPPORTS_TEXEL_BUFFER EZ_ON
+
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
 static const float2 offsets[] =

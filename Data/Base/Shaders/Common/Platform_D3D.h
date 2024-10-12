@@ -11,10 +11,11 @@
 #  define PLATFORM_DX11 EZ_ON
 
 // DX11 does not support push constants, so we just emulate them via a normal constant buffer.
-
 #  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
+
+#  define SUPPORTS_TEXEL_BUFFER EZ_ON
 
 float ezEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
 {

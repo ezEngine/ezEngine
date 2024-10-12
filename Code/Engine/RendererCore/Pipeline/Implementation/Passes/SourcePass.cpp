@@ -103,8 +103,12 @@ ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView&
         desc.m_Format = ezGALResourceFormat::RGBAFloat;
         break;
       case ezSourceFormat::Color3Channel11_11_10BitFloat:
-        desc.m_Format = ezGALResourceFormat::RG11B10Float;
+      {
+        const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+        const bool bSupportsRG11B10Float = caps.m_FormatSupport[ezGALResourceFormat::RG11B10Float].AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture);
+        desc.m_Format = bSupportsRG11B10Float ? ezGALResourceFormat::RG11B10Float : ezGALResourceFormat::RGBAHalf;
         break;
+      }
       case ezSourceFormat::Depth16Bit:
         desc.m_Format = ezGALResourceFormat::D16;
         break;
