@@ -17,7 +17,7 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
-#include "Common.h"
+#  include "Common.h"
 StructuredBuffer<ezPerInstanceData> perInstanceData;
 
 #  if defined(USE_SKINNING)
@@ -27,7 +27,7 @@ StructuredBuffer<Transform> skinningTransforms;
 #  if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
 Buffer<float4> perInstanceVertexColors;
 #  else
-StructuredBuffer<uint> perInstanceVertexColors;  
+StructuredBuffer<uint> perInstanceVertexColors;
 #  endif
 
 
