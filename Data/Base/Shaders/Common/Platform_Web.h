@@ -14,7 +14,7 @@
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
-#  define SUPPORTS_TEXEL_BUFFER EZ_ON
+#  define SUPPORTS_TEXEL_BUFFER EZ_OFF
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
@@ -93,10 +93,10 @@ float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState 
   // Get the integer parts of the coordinates
   int2 texelBase = int2(floor(texelCoords));
   float4 texel = DepthTexture.Load(int4(texelBase, ArrayIndex, MipLevel));
-  // validUV is one on each axis if within [0, 1] range.
-  float2 validUV = step(float2(0, 0), SamplePos) - step(float2(1, 1), SamplePos);
+  // validUV is one if within [0, 1] range on each axis.
+  bool validUV = all(saturate(SamplePos) == SamplePos);
   // Apply border color if out of [0, 1] bounds.
-  return lerp(BorderColor, texel, validUV.x * validUV.y);
+  return validUV ? texel : BorderColor;
 }
 
 #endif
