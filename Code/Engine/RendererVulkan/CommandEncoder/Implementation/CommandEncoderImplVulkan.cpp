@@ -1,5 +1,6 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <RendererFoundation/Resources/RendererFallbackResources.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
@@ -8,7 +9,6 @@
 #include <RendererVulkan/Pools/QueryPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -512,7 +512,7 @@ void ezGALCommandEncoderImplVulkan::CopyImageToBuffer(const ezGALTextureVulkan* 
   const ezUInt32 uiBufferSize = pSource->ComputeSubResourceOffsets(subResourceOffsets);
 
   ezHybridArray<vk::BufferImageCopy, 8> imageCopy;
-  const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+  const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
   const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
 
   for (ezUInt32 uiLayer = 0; uiLayer < arraySize; uiLayer++)
@@ -592,7 +592,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
 
     ezImageCopyVulkan copy(m_GALDeviceVulkan);
 
-    const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+    const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
     const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
     const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bVertexShaderRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
     if (arraySize > 1 && bStereoSupport)
@@ -889,7 +889,7 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTextureRe
       else
       {
         copy.Init(pVulkanTexture, pVulkanTexture, ezShaderUtils::ezBuiltinShaderType::DownscaleImage);
-        const ezUInt32 arraySize = textureDesc.m_Type == ezGALTextureType::TextureCube ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
+        const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
         const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
 
         for (ezUInt32 uiLayer = viewRange.baseArrayLayer; uiLayer < (viewRange.baseArrayLayer + viewRange.layerCount); uiLayer++)
@@ -1529,7 +1529,7 @@ const ezGALTextureResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetTextureR
   {
     ezStringBuilder sName = mapping.m_sName.GetData();
     bool bDepth = sName.FindSubString_NoCase("shadow") != nullptr || sName.FindSubString_NoCase("depth");
-    pResourceView = ezFallbackResourcesVulkan::GetFallbackTextureResourceView(mapping.m_ResourceType, mapping.m_TextureType, bDepth);
+    pResourceView = static_cast<const ezGALTextureResourceViewVulkan*>(ezGALRendererFallbackResources::GetFallbackTextureResourceView(mapping.m_ResourceType, mapping.m_TextureType, bDepth));
   }
   return pResourceView;
 }
@@ -1544,9 +1544,7 @@ const ezGALBufferResourceViewVulkan* ezGALCommandEncoderImplVulkan::GetBufferRes
 
   if (!pResourceView)
   {
-    ezStringBuilder sName = mapping.m_sName.GetData();
-    bool bDepth = sName.FindSubString_NoCase("shadow") != nullptr || sName.FindSubString_NoCase("depth");
-    pResourceView = ezFallbackResourcesVulkan::GetFallbackBufferResourceView(mapping.m_ResourceType);
+    pResourceView = static_cast<const ezGALBufferResourceViewVulkan*>(ezGALRendererFallbackResources::GetFallbackBufferResourceView(mapping.m_ResourceType));
   }
   return pResourceView;
 }
@@ -1561,7 +1559,7 @@ const ezGALTextureUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetT
 
   if (!pUAV)
   {
-    pUAV = ezFallbackResourcesVulkan::GetFallbackTextureUnorderedAccessView(mapping.m_ResourceType, mapping.m_TextureType);
+    pUAV = static_cast<const ezGALTextureUnorderedAccessViewVulkan*>(ezGALRendererFallbackResources::GetFallbackTextureUnorderedAccessView(mapping.m_ResourceType, mapping.m_TextureType));
   }
   return pUAV;
 }
@@ -1576,7 +1574,7 @@ const ezGALBufferUnorderedAccessViewVulkan* ezGALCommandEncoderImplVulkan::GetBu
 
   if (!pUAV)
   {
-    pUAV = ezFallbackResourcesVulkan::GetFallbackBufferUnorderedAccessView(mapping.m_ResourceType);
+    pUAV = static_cast<const ezGALBufferUnorderedAccessViewVulkan*>(ezGALRendererFallbackResources::GetFallbackBufferUnorderedAccessView(mapping.m_ResourceType));
   }
   return pUAV;
 }

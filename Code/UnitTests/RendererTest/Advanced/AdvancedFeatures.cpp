@@ -39,6 +39,8 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   {
     AddSubTest("05 - Compute", SubTests::ST_Compute);
   }
+  AddSubTest("06 - FloatSampling", SubTests::ST_FloatSampling);
+  AddSubTest("07 - ProxyTexture", SubTests::ST_ProxyTexture);
 
   ShutdownRenderer();
   ezStartup::ShutdownCoreSystems();
@@ -59,14 +61,62 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMipLevelsToUse = 1;
-    for (ezUInt32 i = 0; i < 4; i++)
-    {
-      viewDesc.m_uiMostDetailedMipLevel = 0;
-      m_hTexture2DMips[i] = m_pDevice->CreateResourceView(viewDesc);
-    }
+    viewDesc.m_uiMostDetailedMipLevel = 0;
+    m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
+
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+  }
+
+  if (iIdentifier == ST_ProxyTexture)
+  {
+    // Texture2DArray
+    ezGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
+    desc.m_Type = ezGALTextureType::Texture2DArray;
+    desc.m_uiArraySize = 2;
+    m_hTexture2DArray = m_pDevice->CreateTexture(desc);
+
+    // Proxy texture
+    m_hProxyTexture2D[0] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 0);
+    m_hProxyTexture2D[1] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 1);
+
+    // Direct view
+    ezGALTextureResourceViewCreationDescription viewDesc;
+    viewDesc.m_hTexture = m_hTexture2DArray;
+    viewDesc.m_uiMipLevelsToUse = 1;
+    viewDesc.m_uiMostDetailedMipLevel = 0;
+    m_hTexture2DArrayView[0] = m_pDevice->CreateResourceView(viewDesc);
+    viewDesc.m_uiFirstArraySlice = 1;
+    m_hTexture2DArrayView[1] = m_pDevice->CreateResourceView(viewDesc);
+
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
+    m_hShader3 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor2.ezShader");
+  }
+
+  if (iIdentifier == ST_FloatSampling)
+  {
+    // Texture2DArray
+    ezGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::D16, ezGALMSAASampleCount::None);
+    desc.m_Type = ezGALTextureType::Texture2DArray;
+    m_hTexture2DArray = m_pDevice->CreateTexture(desc);
+
+    m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SampleLevel_PointClampBorder.ezShader");
+
+    ezGALSamplerStateCreationDescription samplerDesc;
+    samplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_BorderColor = ezColor::White;
+
+    m_hDepthSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(samplerDesc);
   }
 
   if (iIdentifier == ST_Compute)
@@ -97,7 +147,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMipLevelsToUse = 1;
     viewDesc.m_uiMostDetailedMipLevel = 0;
-    m_hTexture2DMips[0] = m_pDevice->CreateResourceView(viewDesc);
+    m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
@@ -108,6 +158,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     // Texture2DArray
     ezGALTextureCreationDescription desc;
     desc.SetAsRenderTarget(320 / 2, 240, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
+    desc.m_Type = ezGALTextureType::Texture2DArray;
     desc.m_uiArraySize = 2;
     m_hTexture2DArray = m_pDevice->CreateTexture(desc);
 
@@ -233,6 +284,12 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_Compute:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
       break;
+    case SubTests::ST_FloatSampling:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_ProxyTexture:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -276,7 +333,29 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     *pProfilingThreshold = m_fOldProfilingThreshold;
   }
 #endif
+  else if (iIdentifier == ST_FloatSampling)
+  {
+    if (!m_hDepthSamplerState.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hDepthSamplerState);
+      m_hDepthSamplerState.Invalidate();
+    }
+  }
+  if (iIdentifier == ST_ProxyTexture)
+  {
+    m_hTexture2DArrayView[0].Invalidate();
+    m_hTexture2DArrayView[1].Invalidate();
+    for (ezUInt32 i = 0; i < 2; i++)
+    {
+      if (!m_hProxyTexture2D[i].IsInvalidated())
+      {
+        ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hProxyTexture2D[i]);
+        m_hProxyTexture2D[i].Invalidate();
+      }
+    }
+  }
   m_hShader2.Invalidate();
+  m_hShader3.Invalidate();
 
   if (!m_hTexture2D.IsInvalidated())
   {
@@ -290,10 +369,7 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     m_hTexture2DArray.Invalidate();
   }
 
-  for (ezUInt32 i = 0; i < 4; i++)
-  {
-    m_hTexture2DMips[i].Invalidate();
-  }
+  m_hTexture2DView.Invalidate();
 
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
@@ -329,6 +405,12 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       break;
     case SubTests::ST_Compute:
       Compute();
+      break;
+    case SubTests::ST_FloatSampling:
+      FloatSampling();
+      break;
+    case SubTests::ST_ProxyTexture:
+      ProxyTexture();
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -377,14 +459,111 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
   BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DView);
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DMips[0]);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DMips[0]);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DMips[0]);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
+  }
+  EndCommands();
+}
+
+void ezRendererTestAdvancedFeatures::FloatSampling()
+{
+  BeginCommands("Offscreen");
+  {
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_bDiscardDepth = true;
+    renderingSetup.m_bClearDepth = true;
+    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
+
+    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    SetClipSpace();
+
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    ezRenderContext::GetDefaultInstance()->EndRendering();
+  }
+  EndCommands();
+
+
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = 2;
+  const ezUInt32 uiRows = 2;
+  const float fElementWidth = fWidth / uiColumns;
+  const float fElementHeight = fHeight / uiRows;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  BeginCommands("FloatSampling");
+  {
+    ezRenderContext::GetDefaultInstance()->BindSamplerState("DepthSampler", m_hDepthSamplerState);
+    ezRenderContext::GetDefaultInstance()->BindTexture2D("DepthTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
+
+    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    {
+      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+      RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+      if (m_ImgCompFrames.Contains(m_iFrame))
+      {
+        EZ_TEST_IMAGE(m_iFrame, 100);
+      }
+      EndRendering();
+    }
+  }
+  EndCommands();
+}
+
+
+void ezRendererTestAdvancedFeatures::ProxyTexture()
+{
+  // We render normal pattern to layer 0 and the blue pattern to layer 1.
+  BeginCommands("Offscreen");
+  for (ezUInt32 i = 0; i < 2; i++)
+  {
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hProxyTexture2D[i]));
+    renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
+    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+
+    ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
+    SetClipSpace();
+
+    ezRenderContext::GetDefaultInstance()->BindShader(i == 0 ? m_hShader2 : m_hShader3);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
+
+    ezRenderContext::GetDefaultInstance()->EndRendering();
+  }
+  EndCommands();
+
+  // Render both layers using proxy texture (2D) and manually created resource view (2DArray).
+  const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+  const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+  const ezUInt32 uiColumns = 2;
+  const ezUInt32 uiRows = 2;
+  const float fElementWidth = fWidth / uiColumns;
+  const float fElementHeight = fHeight / uiRows;
+
+  const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+  BeginCommands("Texture2DProxy");
+  {
+    ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hProxyTexture2D[0]));
+    viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_pDevice->GetDefaultResourceView(m_hProxyTexture2D[1]));
+    viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArrayView[0]);
+    m_bCaptureImage = true;
+    viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArrayView[1]);
   }
   EndCommands();
 }
@@ -504,7 +683,7 @@ void ezRendererTestAdvancedFeatures::Compute()
   {
     m_bCaptureImage = true;
     ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DMips[0]);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DView);
   }
   EndCommands();
 }

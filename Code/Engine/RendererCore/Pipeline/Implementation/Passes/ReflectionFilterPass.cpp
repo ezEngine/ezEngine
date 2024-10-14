@@ -88,7 +88,6 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 
   if (pInputCubemap->GetDescription().m_bAllowDynamicMipGeneration)
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, ezGALRenderingSetup(), "MipMaps");
     renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
   }
 

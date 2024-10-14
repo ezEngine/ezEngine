@@ -31,15 +31,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezBloomPass::ezBloomPass()
   : ezRenderPipelinePass("BloomPass", true)
 {
-  {
-    // Load shader.
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Bloom.ezShader");
-    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load bloom shader!");
-  }
+  // Load shader.
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Bloom.ezShader");
+  EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load bloom shader!");
 
-  {
-    m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezBloomConstants>();
-  }
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezBloomConstants>();
+
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  const bool bSupportsRG11B10Float = caps.m_FormatSupport[ezGALResourceFormat::RG11B10Float].AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture);
+  m_TextureFormat = bSupportsRG11B10Float ? ezGALResourceFormat::RG11B10Float : ezGALResourceFormat::RGBAHalf;
 }
 
 ezBloomPass::~ezBloomPass()
@@ -63,7 +63,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
     ezGALTextureCreationDescription desc = *inputs[m_PinInput.m_uiInputIndex];
     desc.m_uiWidth = desc.m_uiWidth / 2;
     desc.m_uiHeight = desc.m_uiHeight / 2;
-    desc.m_Format = ezGALResourceFormat::RG11B10Float;
+    desc.m_Format = m_TextureFormat;
 
     outputs[m_PinOutput.m_uiOutputIndex] = desc;
   }
@@ -109,12 +109,12 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     targetSizes.PushBack(ezVec2((float)uiWidth, (float)uiHeight));
     auto uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
-    tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+    tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
 
     // biggest upscale target is the output and lowest is not needed
     if (i > 0 && i < uiNumBlurPasses - 1)
     {
-      tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+      tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
     }
     else
     {

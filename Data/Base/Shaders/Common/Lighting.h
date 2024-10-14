@@ -74,7 +74,9 @@ float3 SampleSceneColor(float2 screenPosition)
 
 float SampleSceneDepth(float2 screenPosition)
 {
-  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, s_ActiveCameraEyeIndex), 0.0f).r;
+  int2 screenXY = clamp(screenPosition.xy, 0, ViewportSize.xy - 1);
+
+  float depthFromZBuffer = SceneDepth.Load(int4(screenXY, s_ActiveCameraEyeIndex, 0)).r;
   return LinearizeZBufferDepth(depthFromZBuffer);
 }
 

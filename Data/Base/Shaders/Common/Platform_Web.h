@@ -10,11 +10,11 @@
 #  undef PLATFORM_WEB
 #  define PLATFORM_WEB EZ_ON
 
-#  define BEGIN_PUSH_CONSTANTS(Name) struct EZ_SHADER_STRUCT EZ_PP_CONCAT(Name, _PushConstants)
-#  define END_PUSH_CONSTANTS(Name) \
-    ;                              \
-    [[vk::push_constant]] EZ_PP_CONCAT(Name, _PushConstants) Name;
-#  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
+#  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name
+#  define END_PUSH_CONSTANTS(Name) ;
+#  define GET_PUSH_CONSTANT(Name, Constant) Constant
+
+#  define SUPPORTS_TEXEL_BUFFER EZ_OFF
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
@@ -81,6 +81,22 @@ float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumM
 {
   float2 sampleOffset = offsets[NumMsaaSamples + SampleIndex - 1] * 0.125f;
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
+}
+
+float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+{
+  // Get the texture size at the specified mip level
+  uint width, height, elements, levels;
+  DepthTexture.GetDimensions(0, width, height, elements, levels);
+  // Convert normalized coordinates to texel space
+  float2 texelCoords = SamplePos * int2(width, height);
+  // Get the integer parts of the coordinates
+  int2 texelBase = int2(floor(texelCoords));
+  float4 texel = DepthTexture.Load(int4(texelBase, ArrayIndex, MipLevel));
+  // validUV is one if within [0, 1] range on each axis.
+  bool validUV = all(saturate(SamplePos) == SamplePos);
+  // Apply border color if out of [0, 1] bounds.
+  return validUV ? texel : BorderColor;
 }
 
 #endif

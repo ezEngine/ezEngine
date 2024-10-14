@@ -58,6 +58,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bIndirectDraw = false;
   bool m_bConservativeRasterization = false;
   bool m_bVertexShaderRenderTargetArrayIndex = false;
+  bool m_bTexelBuffer = true; ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
   ezUInt16 m_uiMaxConstantBuffers = 0;
   ezUInt16 m_uiMaxPushConstantsSize = 0;
 

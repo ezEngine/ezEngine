@@ -5,11 +5,6 @@
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
-{
-  return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstSlice > 0;
-}
-
 ezGALRenderTargetViewVulkan::ezGALRenderTargetViewVulkan(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
   : ezGALRenderTargetView(pTexture, Description)
 {
@@ -49,7 +44,6 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
 
   vk::Image vkImage = pTextureVulkan->GetImage();
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
   vk::ImageViewCreateInfo imageViewCreationInfo;
   if (bIsDepthFormat)
@@ -68,14 +62,7 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
   imageViewCreationInfo.image = vkImage;
   imageViewCreationInfo.format = vkViewFormat;
 
-  if (!bIsArrayView)
-  {
-    imageViewCreationInfo.viewType = vk::ImageViewType::e2D;
-    imageViewCreationInfo.subresourceRange.baseMipLevel = m_Description.m_uiMipLevel;
-    imageViewCreationInfo.subresourceRange.levelCount = 1;
-    imageViewCreationInfo.subresourceRange.layerCount = 1;
-  }
-  else
+  if (texDesc.m_Type == ezGALTextureType::Texture2DArray || texDesc.m_Type == ezGALTextureType::TextureCubeArray)
   {
     imageViewCreationInfo.viewType = vk::ImageViewType::e2DArray;
     imageViewCreationInfo.subresourceRange.baseMipLevel = m_Description.m_uiMipLevel;
@@ -83,6 +70,15 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     imageViewCreationInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstSlice;
     imageViewCreationInfo.subresourceRange.layerCount = m_Description.m_uiSliceCount;
   }
+  else
+  {
+    imageViewCreationInfo.viewType = vk::ImageViewType::e2D;
+    imageViewCreationInfo.subresourceRange.baseMipLevel = m_Description.m_uiMipLevel;
+    imageViewCreationInfo.subresourceRange.baseArrayLayer = m_Description.m_uiFirstSlice;
+    imageViewCreationInfo.subresourceRange.levelCount = 1;
+    imageViewCreationInfo.subresourceRange.layerCount = 1;
+  }
+
   m_range = imageViewCreationInfo.subresourceRange;
   m_bfullRange = m_range == pTextureVulkan->GetFullRange();
 

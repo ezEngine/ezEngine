@@ -38,16 +38,16 @@ Texture2D NoiseTexture;
 
 float SampleDepth(float2 texCoords)
 {
-  return DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
+  return ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r;
 }
 
 float SampleLowResDepth(float2 texCoords, float mipLevel)
 {
 #if 0
-  return LinearizeZBufferDepth(DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r);
+  return LinearizeZBufferDepth(ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r);
 #else
   texCoords = texCoords * TexCoordsScale;
-  return LowResDepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), mipLevel).r;
+  return ezSampleLevel_PointClampBorder(LowResDepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, mipLevel, FadeOutEnd.xxxx).r;
 #endif
 }
 
@@ -142,7 +142,7 @@ float4 main(PS_IN Input) : SV_Target
 
   float2 fovFixXY = fovCorrection.xy / centerPos.z;
   float aoRadius = WorldRadius;
-  aoRadius = min(aoRadius * fovFixXY, MaxScreenSpaceRadius);
+  aoRadius = min(aoRadius * fovFixXY.x, MaxScreenSpaceRadius);
 
   //float noise = InterleavedGradientNoise(Input.Position.xy);
   //float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
@@ -150,7 +150,7 @@ float4 main(PS_IN Input) : SV_Target
   float2 noiseCoords = Input.TexCoord0 * (ViewportSize.xy / 4.0f);
   float2 randomAngle = NoiseTexture.SampleLevel(PointSampler, noiseCoords, 0).rg * 2.0f - 1.0f;
 
-  randomAngle *= aoRadius;;
+  randomAngle *= aoRadius;
   float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   float occlusion = 0.0f;

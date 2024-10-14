@@ -81,6 +81,7 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
   {
     ezGALTextureCreationDescription textureDesc;
     textureDesc.SetAsRenderTarget(m_Info.m_vEyeRenderTargetSize.width, m_Info.m_vEyeRenderTargetSize.height, ezGALResourceFormat::RGBAUByteNormalizedsRGB, msaaCount);
+    textureDesc.m_Type = ezGALTextureType::Texture2DArray;
     textureDesc.m_uiArraySize = 2;
     textureDesc.m_bAllowShaderResourceView = true;
 

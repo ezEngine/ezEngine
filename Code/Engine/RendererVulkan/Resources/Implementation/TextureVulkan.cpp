@@ -24,8 +24,14 @@ vk::ImageSubresourceRange ezGALTextureVulkan::GetFullRange() const
   range.aspectMask = GetAspectMask();
   range.baseArrayLayer = 0;
   range.baseMipLevel = 0;
-  range.layerCount = m_Description.m_Type == ezGALTextureType::TextureCube ? m_Description.m_uiArraySize * 6 : m_Description.m_uiArraySize;
+  range.layerCount = m_Description.m_uiArraySize;
   range.levelCount = m_Description.m_uiMipLevelCount;
+
+  if (m_Description.m_Type == ezGALTextureType::TextureCube || m_Description.m_Type == ezGALTextureType::TextureCubeArray)
+  {
+    range.layerCount *= 6;
+  }
+
   return range;
 }
 
@@ -175,16 +181,19 @@ void ezGALTextureVulkan::ComputeCreateInfo(ezGALDeviceVulkan* m_pDevice, const e
 
   switch (m_Description.m_Type)
   {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DShared:
     case ezGALTextureType::TextureCube:
+    case ezGALTextureType::TextureCubeArray:
+      createInfo.imageType = vk::ImageType::e2D;
+      createInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+      createInfo.arrayLayers = m_Description.m_uiArraySize * 6;
+      break;
+
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DArray:
+    case ezGALTextureType::Texture2DShared:
     {
       createInfo.imageType = vk::ImageType::e2D;
-      const bool bTexture2D = m_Description.m_Type == ezGALTextureType::Texture2D || m_Description.m_Type == ezGALTextureType::Texture2DShared;
-      createInfo.arrayLayers = bTexture2D ? m_Description.m_uiArraySize : (m_Description.m_uiArraySize * 6);
-
-      if (m_Description.m_Type == ezGALTextureType::TextureCube)
-        createInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+      createInfo.arrayLayers = m_Description.m_uiArraySize;
     }
     break;
 
@@ -260,7 +269,7 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(ezDynamicArray<SubResourc
   const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
   const ezUInt8 uiBlockSize = vk::blockSize(stagingFormat);
   const auto blockExtent = vk::blockExtent(stagingFormat);
-  const ezUInt32 arrayLayers = (m_Description.m_Type == ezGALTextureType::TextureCube ? (m_Description.m_uiArraySize * 6) : m_Description.m_uiArraySize);
+  const ezUInt32 arrayLayers = (m_Description.m_Type == ezGALTextureType::TextureCube || m_Description.m_Type == ezGALTextureType::TextureCubeArray) ? (m_Description.m_uiArraySize * 6) : m_Description.m_uiArraySize;
   const ezUInt32 mipLevels = m_Description.m_uiMipLevelCount;
 
   subResourceSizes.Reserve(arrayLayers * mipLevels);
@@ -367,5 +376,3 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
     pStagingBuffer->SetDebugName(szName);
   }
 }
-
-

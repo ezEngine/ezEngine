@@ -16,6 +16,8 @@
     [[vk::push_constant]] EZ_PP_CONCAT(Name, _PushConstants) Name;
 #  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
 
+#  define SUPPORTS_TEXEL_BUFFER EZ_ON
+
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
 static const float2 offsets[] =
@@ -83,4 +85,8 @@ float4 ezEvaluateAttributeAtSample(float4 Attribute, uint SampleIndex, uint NumM
   return Attribute + ddx(Attribute) * sampleOffset.x + ddy(Attribute) * sampleOffset.y;
 }
 
+float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState DepthSampler, float2 SamplePos, int ArrayIndex, int MipLevel, float4 BorderColor)
+{
+  return DepthTexture.SampleLevel(DepthSampler, float3(SamplePos, ArrayIndex), MipLevel);
+}
 #endif

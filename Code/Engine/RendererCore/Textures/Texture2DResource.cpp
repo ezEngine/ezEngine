@@ -94,6 +94,22 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
   if (pImage->GetNumFaces() == 6)
     ref_td.m_DescGAL.m_Type = ezGALTextureType::TextureCube;
 
+  if (ref_td.m_DescGAL.m_uiArraySize > 1)
+  {
+    if (ref_td.m_DescGAL.m_Type == ezGALTextureType::TextureCube)
+    {
+      ref_td.m_DescGAL.m_Type = ezGALTextureType::TextureCubeArray;
+    }
+    else if (ref_td.m_DescGAL.m_Type == ezGALTextureType::Texture2D)
+    {
+      ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture2DArray;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces");
 
   out_uiMemoryUsed = 0;

@@ -10,4 +10,5 @@ EZ_STATICLINK_LIBRARY(RendererFoundation)
   EZ_STATICLINK_REFERENCE(RendererFoundation_Device_Implementation_SwapChain);
   EZ_STATICLINK_REFERENCE(RendererFoundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(RendererFoundation_RendererReflection);
+  EZ_STATICLINK_REFERENCE(RendererFoundation_Resources_Implementation_RendererFallbackResources);
 }

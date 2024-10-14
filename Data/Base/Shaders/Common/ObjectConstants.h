@@ -17,13 +17,19 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
+#  include "Common.h"
 StructuredBuffer<ezPerInstanceData> perInstanceData;
 
 #  if defined(USE_SKINNING)
 StructuredBuffer<Transform> skinningTransforms;
 #  endif
 
+#  if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
 Buffer<float4> perInstanceVertexColors;
+#  else
+StructuredBuffer<uint> perInstanceVertexColors;
+#  endif
+
 
 #else // C++
 
@@ -61,7 +67,12 @@ float4 GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorI
 {
   uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
   uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
+#  if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
   return (colorIndex < numColorsPerVertex) ? perInstanceVertexColors[offset] : 0;
+#  else
+  uint packedColor = (colorIndex < numColorsPerVertex) ? perInstanceVertexColors[offset] : 0;
+  return RGBA8ToFloat4(packedColor);
+#  endif
 }
 
 #  define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)

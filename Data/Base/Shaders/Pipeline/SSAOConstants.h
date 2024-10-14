@@ -16,5 +16,5 @@ CONSTANT_BUFFER(ezSSAOConstants, 3)
   FLOAT1(PositionBias);
   FLOAT1(MipLevelScale);
   FLOAT1(DepthBlurScale);
-  FLOAT1(Padding);
+  FLOAT1(FadeOutEnd);
 };

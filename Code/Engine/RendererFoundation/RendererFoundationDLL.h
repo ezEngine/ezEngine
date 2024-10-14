@@ -204,6 +204,8 @@ struct ezGALTextureType
     Texture3D,
     Texture2DProxy,
     Texture2DShared,
+    Texture2DArray,
+    TextureCubeArray,
 
     ENUM_COUNT,
 

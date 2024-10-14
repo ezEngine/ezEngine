@@ -13,6 +13,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/RendererReflection.h>
+#include <RendererFoundation/Resources/RendererFallbackResources.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
@@ -25,7 +26,6 @@
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Resources/FallbackResourcesVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
@@ -146,7 +146,7 @@ ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator,
 }
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererVulkan, DeviceFactory)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererVulkan, DeviceFactoryVulkan)
 
 ON_CORESYSTEMS_STARTUP
 {
@@ -298,6 +298,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     {
       m_extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
+    }
+    else
+    {
+      ezLog::Warning("Custom border color samplers are not supported.");
     }
   }
 

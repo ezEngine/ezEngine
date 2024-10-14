@@ -1033,11 +1033,11 @@ ezShaderConstantBufferLayout* ezShaderCompilerDXC::ReflectConstantBufferLayout(e
 
     if (constant.m_uiArrayElements > 1)
     {
-      ezLog::Info("{1} {3}[{2}] {0}", constant.m_sName, ezArgU(constant.m_uiOffset, 3, true), constant.m_uiArrayElements, typeNames[constant.m_Type]);
+      ezLog::Debug("{1} {3}[{2}] {0}", constant.m_sName, ezArgU(constant.m_uiOffset, 3, true), constant.m_uiArrayElements, typeNames[constant.m_Type]);
     }
     else
     {
-      ezLog::Info("{1} {3} {0}", constant.m_sName, ezArgU(constant.m_uiOffset, 3, true), constant.m_uiArrayElements, typeNames[constant.m_Type]);
+      ezLog::Debug("{1} {3} {0}", constant.m_sName, ezArgU(constant.m_uiOffset, 3, true), constant.m_uiArrayElements, typeNames[constant.m_Type]);
     }
 
     pLayout->m_Constants.PushBack(constant);

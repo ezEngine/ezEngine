@@ -74,7 +74,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALMSAASampleCount, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALTextureType, 1)
-  EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared)
+  EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared, ezGALTextureType::Texture2DArray, ezGALTextureType::TextureCubeArray)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALResourceAccess>)

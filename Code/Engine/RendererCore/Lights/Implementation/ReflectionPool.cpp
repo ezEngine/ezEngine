@@ -297,7 +297,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   EZ_LOCK(s_pData->m_Mutex);
 
   ezUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
-  ezUInt64 uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
+  ezUInt64& uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
   if ((~uiWorldHasSkyLight & uiSkyIrradianceChanged) == 0)
     return;
 
@@ -308,30 +308,26 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   auto pCommandEncoder = pDevice->BeginCommands("Sky Irradiance Texture Update");
   ezHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
+  for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
-    pCommandEncoder->BeginCompute();
-    for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
+    if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
     {
-      if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
+      ezBoundingBoxu32 destBox;
+      destBox.m_vMin.Set(0, i, 0);
+      destBox.m_vMax.Set(6, i + 1, 1);
+      ezGALSystemMemoryDescription memDesc;
+      memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
+      memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+      pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+
+      uiSkyIrradianceChanged &= ~EZ_BIT(i);
+
+      if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
       {
-        ezBoundingBoxu32 destBox;
-        destBox.m_vMin.Set(0, i, 0);
-        destBox.m_vMax.Set(6, i + 1, 1);
-        ezGALSystemMemoryDescription memDesc;
-        memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
-        memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-        pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
-
-        uiSkyIrradianceChanged &= ~EZ_BIT(i);
-
-        if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
-        {
-          ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
-          atlasToClear.PushBack(data.m_mapping.GetTexture());
-        }
+        ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
+        atlasToClear.PushBack(data.m_mapping.GetTexture());
       }
     }
-    pCommandEncoder->EndCompute();
   }
 
   {
@@ -354,7 +350,6 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
           renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
           pCommandEncoder->BeginRendering(renderingSetup, "ClearSkySpecular");
-          pCommandEncoder->Clear(ezColor::Black);
           pCommandEncoder->EndRendering();
         }
       }
