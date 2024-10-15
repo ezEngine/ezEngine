@@ -518,4 +518,4 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResource*
   return res;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(TextureSample);
+EZ_APPLICATION_ENTRY_POINT(TextureSample);

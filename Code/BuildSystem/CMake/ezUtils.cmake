@@ -277,6 +277,7 @@ endfunction()
 # #####################################
 function(ez_make_winmain_executable TARGET_NAME)
 	set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE ON)
+	target_compile_definitions(${TARGET_NAME} PRIVATE EZ_WIN32_EXECUTABLE=1)
 endfunction()
 
 # #####################################

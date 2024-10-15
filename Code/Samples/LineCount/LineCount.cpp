@@ -314,5 +314,4 @@ public:
   }
 };
 
-
-EZ_CONSOLEAPP_ENTRY_POINT(ezLineCountApp);
+EZ_APPLICATION_ENTRY_POINT(ezLineCountApp);

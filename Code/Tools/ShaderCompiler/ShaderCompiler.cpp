@@ -279,4 +279,4 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
   return ezApplication::Execution::Quit;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezShaderCompilerApplication);
+EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

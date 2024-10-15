@@ -328,4 +328,4 @@ ezApplication::Execution ezTexConv::Run()
   return ezApplication::Execution::Quit;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);
+EZ_APPLICATION_ENTRY_POINT(ezTexConv);

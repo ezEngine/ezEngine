@@ -516,4 +516,4 @@ void ezShaderExplorerApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatch
 }
 #endif
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezShaderExplorerApp);
+EZ_APPLICATION_ENTRY_POINT(ezShaderExplorerApp);

@@ -1147,4 +1147,4 @@ void CollectDependenciesTask::OnParsingFinished(ezTaskGroupID taskGroupId)
   }
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezDependencyAnalysisApp);
+EZ_APPLICATION_ENTRY_POINT(ezDependencyAnalysisApp);

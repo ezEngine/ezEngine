@@ -84,4 +84,4 @@ public:
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezMiniDumpTool);
+EZ_APPLICATION_ENTRY_POINT(ezMiniDumpTool);

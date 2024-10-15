@@ -799,4 +799,4 @@ public:
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStaticLinkerApp);
+EZ_APPLICATION_ENTRY_POINT(ezStaticLinkerApp);

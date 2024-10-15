@@ -13,7 +13,7 @@ class ezApplication;
 
 /// \brief Platform independent run function for main loop based systems (e.g. Win32, ..)
 ///
-/// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
+/// This is automatically called by EZ_APPLICATION_ENTRY_POINT().
 ///
 /// ezRun simply calls ezRun_Startup(), ezRun_MainLoop() and ezRun_Shutdown().
 EZ_FOUNDATION_DLL void ezRun(ezApplication* pApplicationInstance);
@@ -31,7 +31,7 @@ EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 /// (traditional or event-based). Derive an application specific class from ezApplication and implement at least the abstract Run()
 /// function. Additional virtual functions allow to hook into specific events to run application specific code at the correct times.
 ///
-/// Finally pass the name of your derived class to one of the macros EZ_APPLICATION_ENTRY_POINT() or EZ_CONSOLEAPP_ENTRY_POINT().
+/// Finally pass the name of your derived class to the macro EZ_APPLICATION_ENTRY_POINT().
 /// Those are used to abstract away the platform specific code to run an application.
 ///
 /// A simple example how to get started is as follows:
@@ -156,7 +156,7 @@ public:
   virtual const char* TranslateReturnCode() const { return ""; }
 
   /// \brief Will set the command line arguments that were passed to the app by the OS.
-  /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
+  /// This is automatically called by EZ_APPLICATION_ENTRY_POINT().
   void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** pArguments);
 
   /// \brief Returns the one instance of ezApplication that is available.

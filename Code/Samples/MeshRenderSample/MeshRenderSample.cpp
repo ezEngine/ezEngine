@@ -37,7 +37,7 @@ public:
 };
 
 /// \brief The application class.
-/// Instantiated and run through the EZ_CONSOLEAPP_ENTRY_POINT macro at the end of this file.
+/// Instantiated and run through the EZ_APPLICATION_ENTRY_POINT macro at the end of this file.
 class MeshRenderSample : public ezApplication
 {
 public:
@@ -313,4 +313,4 @@ private:
   ezAngle m_CameraRotation = ezAngle::MakeZero();
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(MeshRenderSample);
+EZ_APPLICATION_ENTRY_POINT(MeshRenderSample);

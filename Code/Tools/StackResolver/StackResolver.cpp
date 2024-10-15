@@ -378,4 +378,4 @@ ezApplication::Execution ezStackResolver::Run()
   return Execution::Quit;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStackResolver);
+EZ_APPLICATION_ENTRY_POINT(ezStackResolver);

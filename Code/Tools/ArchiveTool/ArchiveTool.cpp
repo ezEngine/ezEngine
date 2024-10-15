@@ -416,4 +416,4 @@ public:
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezArchiveTool);
+EZ_APPLICATION_ENTRY_POINT(ezArchiveTool);
