@@ -21,6 +21,13 @@ namespace
     return uiSize;
   }
 
+  
+  template <typename T>
+  static constexpr ezUInt32 GetUserDataAlignment()
+  {
+    return ezVisualScriptGraphDescription::Node::GetUserDataAlignment<T>();
+  }
+
   struct NodeUserData_Type
   {
     const ezRTTI* m_pType = nullptr;
@@ -34,7 +41,7 @@ namespace
       inout_stream << nodeDesc.m_sTargetTypeName;
 
       out_uiSize = sizeof(NodeUserData_Type);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Type);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_Type>();
       return EZ_SUCCESS;
     }
 
@@ -91,7 +98,7 @@ namespace
       inout_stream << propertiesVar[0].Get<ezHashedString>();
 
       out_uiSize = sizeof(NodeUserData_TypeAndProperty);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperty);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndProperty>();
       return EZ_SUCCESS;
     }
 
@@ -190,7 +197,7 @@ namespace
 
       static_assert(sizeof(void*) <= sizeof(ezUInt64));
       out_uiSize = GetDynamicSize<NodeUserData_TypeAndProperties, ezUInt64>(uiCount);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperties);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndProperties>();
       return EZ_SUCCESS;
     }
 
@@ -251,7 +258,7 @@ namespace
       }
 
       out_uiSize = GetDynamicSize<NodeUserData_Switch, ezInt64>(uiCount);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Switch);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_Switch>();
       return EZ_SUCCESS;
     }
 
@@ -278,6 +285,8 @@ namespace
     }
   };
 
+  static_assert(sizeof(NodeUserData_Switch) == 16);
+
   //////////////////////////////////////////////////////////////////////////
 
   struct NodeUserData_Comparison
@@ -290,7 +299,7 @@ namespace
       inout_stream << compOp;
 
       out_uiSize = sizeof(NodeUserData_Comparison);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Comparison);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_Comparison>();
       return EZ_SUCCESS;
     }
 
@@ -311,11 +320,17 @@ namespace
     }
   };
 
+  static_assert(sizeof(NodeUserData_Comparison) == 1);
+
   //////////////////////////////////////////////////////////////////////////
 
   struct NodeUserData_Expression
   {
     ezExpressionByteCode m_ByteCode;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt32 m_uiPadding[4];
+#endif
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
@@ -327,7 +342,7 @@ namespace
       EZ_SUCCEED_OR_RETURN(byteCode.Save(inout_stream));
 
       out_uiSize = sizeof(NodeUserData_Expression) + uiDataSize;
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Expression);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_Expression>();
       return EZ_SUCCESS;
     }
 
@@ -352,11 +367,17 @@ namespace
     }
   };
 
+  static_assert(sizeof(NodeUserData_Expression) == 64);
+
   //////////////////////////////////////////////////////////////////////////
 
   struct NodeUserData_StartCoroutine : public NodeUserData_Type
   {
     ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt32 m_uiPadding;
+#endif
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
@@ -366,7 +387,7 @@ namespace
       inout_stream << creationMode;
 
       out_uiSize = sizeof(NodeUserData_StartCoroutine);
-      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_StartCoroutine);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_StartCoroutine>();
       return EZ_SUCCESS;
     }
 
@@ -391,7 +412,7 @@ namespace
     }
   };
 
-  static_assert(sizeof(NodeUserData_StartCoroutine) <= 16);
+  static_assert(sizeof(NodeUserData_StartCoroutine) == 16);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -512,6 +533,6 @@ namespace
 
 const UserDataContext& GetUserDataContext(ezVisualScriptNodeDescription::Type::Enum nodeType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_TypeToUserDataContexts), "Out of bounds access");
+  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_TypeToUserDataContexts), "Out of bounds access");
   return s_TypeToUserDataContexts[nodeType];
 }

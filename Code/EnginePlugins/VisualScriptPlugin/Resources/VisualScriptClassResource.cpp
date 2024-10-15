@@ -101,10 +101,47 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           return ld;
         }
       }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "ConstantData")
+      {
+        ezSharedPtr<ezVisualScriptDataDescription> pConstantDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        if (pConstantDataDesc->Deserialize(chunk).Failed())
+        {
+          return ld;
+        }
+
+        ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
+        if (pConstantDataStorage->Deserialize(chunk).Succeeded())
+        {
+          m_pConstantDataStorage = pConstantDataStorage;
+        }
+      }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
+      {
+        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
+        {
+          m_pInstanceDataDesc = pInstanceDataDesc;
+        }
+
+        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_SCRIPT_NEW(ezVisualScriptInstanceDataMapping);
+        if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
+        {
+          m_pInstanceDataMapping = pInstanceDataMapping;
+
+          // calculate byte offsets from indices
+          for (auto& it : m_pInstanceDataMapping->m_Content)
+          {
+            auto& dataOffset = it.Value().m_DataOffset;
+            dataOffset = m_pInstanceDataDesc->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
+          }
+        }
+      }
       else if (chunk.GetCurrentChunk().m_sChunkName == "FunctionGraphs")
       {
         ezUInt32 uiNumFunctions;
         chunk >> uiNumFunctions;
+
+        EZ_ASSERT_DEBUG(m_pInstanceDataDesc != nullptr && m_pConstantDataStorage != nullptr, "Instance and constant data must be loaded at this point");
 
         for (ezUInt32 i = 0; i < uiNumFunctions; ++i)
         {
@@ -116,7 +153,7 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           chunk >> coroutineCreationMode;
 
           ezUniquePtr<ezVisualScriptGraphDescription> pDesc = EZ_SCRIPT_NEW(ezVisualScriptGraphDescription);
-          if (pDesc->Deserialize(chunk).Failed())
+          if (pDesc->Deserialize(chunk, *m_pInstanceDataDesc, m_pConstantDataStorage->GetDesc()).Failed())
           {
             ezLog::Error("Invalid visual script desc");
             return ld;
@@ -153,34 +190,6 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
             ezLog::Error("Invalid event handler type '{}' for event handler '{}'", ezVisualScriptNodeDescription::Type::GetName(functionType), sFunctionName);
             return ld;
           }
-        }
-      }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "ConstantData")
-      {
-        ezSharedPtr<ezVisualScriptDataDescription> pConstantDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-        if (pConstantDataDesc->Deserialize(chunk).Failed())
-        {
-          return ld;
-        }
-
-        ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
-        if (pConstantDataStorage->Deserialize(chunk).Succeeded())
-        {
-          m_pConstantDataStorage = pConstantDataStorage;
-        }
-      }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
-      {
-        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-        if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
-        {
-          m_pInstanceDataDesc = pInstanceDataDesc;
-        }
-
-        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_SCRIPT_NEW(ezVisualScriptInstanceDataMapping);
-        if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
-        {
-          m_pInstanceDataMapping = pInstanceDataMapping;
         }
       }
 

@@ -135,7 +135,7 @@ public:
   ~ezVisualScriptGraphDescription();
 
   static ezResult Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream);
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  ezResult Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc);
 
   template <typename T, ezUInt32 Size>
   struct EmbeddedArrayOrPointer
@@ -149,7 +149,7 @@ public:
     static void AddAdditionalDataSize(ezArrayPtr<const T> a, ezUInt32& inout_uiAdditionalDataSize);
     static void AddAdditionalDataSize(ezUInt32 uiSize, ezUInt32 uiAlignment, ezUInt32& inout_uiAdditionalDataSize);
 
-    T* Init(ezUInt8 uiCount, ezUInt8*& inout_pAdditionalData);
+    T* Init(ezUInt8 uiCount, ezUInt32 uiAlignment, ezUInt8*& inout_pAdditionalData);
     ezResult ReadFromStream(ezUInt8& out_uiCount, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
   };
 
@@ -208,11 +208,17 @@ public:
     DataOffset GetInputDataOffset(ezUInt32 uiSlot) const;
     DataOffset GetOutputDataOffset(ezUInt32 uiSlot) const;
 
+    DataOffset* GetInputDataOffsets();
+    DataOffset* GetOutputDataOffsets();
+
+    template <typename T>
+    static constexpr ezUInt32 GetUserDataAlignment();
+
     template <typename T>
     const T& GetUserData() const;
 
     template <typename T>
-    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T));
+    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T), ezUInt32 uiAlignment = GetUserDataAlignment<T>());
   };
 
   const Node* GetNode(ezUInt32 uiIndex) const;

@@ -27,7 +27,7 @@ const char* ezVisualScriptDataDescription::DataOffset::Source::GetName(Enum sour
 
 //////////////////////////////////////////////////////////////////////////
 
-static const ezTypeVersion s_uiVisualScriptDataDescriptionVersion = 1;
+static const ezTypeVersion s_uiVisualScriptDataDescriptionVersion = 2;
 
 ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) const
 {
@@ -35,11 +35,8 @@ ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) 
 
   for (auto& typeInfo : m_PerTypeInfo)
   {
-    inout_stream << typeInfo.m_uiStartOffset;
     inout_stream << typeInfo.m_uiCount;
   }
-
-  inout_stream << m_uiStorageSizeNeeded;
 
   return EZ_SUCCESS;
 }
@@ -47,40 +44,18 @@ ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) 
 ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptDataDescriptionVersion);
-  EZ_IGNORE_UNUSED(uiVersion);
+  if (uiVersion < 2)
+  {
+    ezLog::Error("Invalid visual script data desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
+    return EZ_FAILURE;
+  }
 
   for (auto& typeInfo : m_PerTypeInfo)
   {
-    inout_stream >> typeInfo.m_uiStartOffset;
     inout_stream >> typeInfo.m_uiCount;
   }
 
-  // Validate type info
-  ezUInt32 uiOffset = 0;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerTypeInfo); ++i)
-  {
-    auto dataType = static_cast<ezVisualScriptDataType::Enum>(i);
-    const auto& typeInfo = m_PerTypeInfo[i];
-    if (typeInfo.m_uiCount == 0)
-      continue;
-
-    uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
-    if (typeInfo.m_uiStartOffset != uiOffset)
-    {
-      ezLog::Error("VisualScriptDataDescription data offset mismatch for type '{}'. Expected: {}, Actual: {}. If a type changed in size or alignment the script needs to be re-transformed.", ezVisualScriptDataType::GetName(dataType), typeInfo.m_uiStartOffset, uiOffset);
-      return EZ_FAILURE;
-    }
-
-    uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
-  }
-
-  inout_stream >> m_uiStorageSizeNeeded;
-
-  if (m_uiStorageSizeNeeded != uiOffset)
-  {
-    ezLog::Error("VisualScriptDataDescription storage size mismatch. If a type changed in size or alignment the script needs to be re-transformed.");
-    return EZ_FAILURE;
-  }
+  CalculatePerTypeStartOffsets();
 
   return EZ_SUCCESS;
 }
@@ -266,6 +241,14 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
         EZ_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(*pVariantMaps));
         ++pVariantMaps;
       }
+    }
+    else if (scriptDataType == ezVisualScriptDataType::GameObject ||
+             scriptDataType == ezVisualScriptDataType::Component ||
+             scriptDataType == ezVisualScriptDataType::TypedPointer ||
+             scriptDataType == ezVisualScriptDataType::Coroutine)
+    {
+      ezLog::Error("Cannot serialize visual script data type '{}'", ezVisualScriptDataType::GetName(static_cast<ezVisualScriptDataType::Enum>(scriptDataType)));
+      return EZ_FAILURE;
     }
     else
     {
