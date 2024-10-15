@@ -65,7 +65,7 @@ namespace ezApplicationDetails
     return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                \
   }
 
-#if EZ_WIN32_EXECUTABLE
+#if EZ_WINDOWAPP
 #  define EZ_APPLICATION_ENTRY_POINT EZ_WINDOWAPP_ENTRY_POINT
 #else
 #  define EZ_APPLICATION_ENTRY_POINT EZ_CONSOLEAPP_ENTRY_POINT

@@ -58,3 +58,7 @@ macro(ez_platform_detect_generator)
         message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on UWP! Please extend ez_platform_detect_generator()")
     endif()
 endmacro()
+
+macro (ez_platformhook_make_windowapp TARGET_NAME)
+    set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE ON)
+endmacro()
