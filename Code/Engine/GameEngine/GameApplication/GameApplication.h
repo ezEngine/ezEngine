@@ -88,7 +88,6 @@ protected:
 
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
-  bool m_bIgnoreErrors = false;
 
 protected:
   static ezGameApplication* s_pGameApplicationInstance;

@@ -984,11 +984,14 @@ public:
     }
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     auto start = ezTimestamp::CurrentTimestamp();
 
@@ -1039,7 +1042,7 @@ public:
     ezLog::Info("Time to write out results: {0}s", (writeOutResultsEnd - checkDependendtFilesEnd).AsFloatInSeconds());
     ezLog::Info("Total time taken: {0}s", (writeOutResultsEnd - start).AsFloatInSeconds());
 
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 
@@ -1147,4 +1150,4 @@ void CollectDependenciesTask::OnParsingFinished(ezTaskGroupID taskGroupId)
   }
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezDependencyAnalysisApp);
+EZ_APPLICATION_ENTRY_POINT(ezDependencyAnalysisApp);

@@ -58,9 +58,15 @@ namespace ezApplicationDetails
 ///
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.
-#define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                   \
+#define EZ_WINDOWAPP_ENTRY_POINT(AppClass, ...)                                                     \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                         \
   int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) \
   {                                                                                                 \
     return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                \
   }
+
+#if EZ_WINDOWAPP
+#  define EZ_APPLICATION_ENTRY_POINT EZ_WINDOWAPP_ENTRY_POINT
+#else
+#  define EZ_APPLICATION_ENTRY_POINT EZ_CONSOLEAPP_ENTRY_POINT
+#endif

@@ -37,7 +37,7 @@ public:
 };
 
 /// \brief The application class.
-/// Instantiated and run through the EZ_CONSOLEAPP_ENTRY_POINT macro at the end of this file.
+/// Instantiated and run through the EZ_APPLICATION_ENTRY_POINT macro at the end of this file.
 class MeshRenderSample : public ezApplication
 {
 public:
@@ -148,14 +148,17 @@ public:
   }
 
 
-  Execution Run() override
+  void Run() override
   {
     EZ_LOG_BLOCK("Frame");
 
     m_pWindow->ProcessWindowMessages();
 
     if (m_pWindow->m_bCloseRequested)
-      return Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     // make sure time goes on
     ezClock::GetGlobalClock()->Update();
@@ -224,8 +227,6 @@ public:
     // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
     // uploading GPU data etc.
     ezTaskSystem::FinishFrameTasks();
-
-    return ezApplication::Execution::Continue;
   }
 
   void BeforeCoreSystemsShutdown() override
@@ -313,4 +314,4 @@ private:
   ezAngle m_CameraRotation = ezAngle::MakeZero();
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(MeshRenderSample);
+EZ_APPLICATION_ENTRY_POINT(MeshRenderSample);

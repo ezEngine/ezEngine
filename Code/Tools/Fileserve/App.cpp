@@ -57,12 +57,13 @@ void ezFileserverApp::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezApplication::Execution ezFileserverApp::Run()
+void ezFileserverApp::Run()
 {
   // if there are no more connections, and we have a timeout to close when no connections are left, we return Quit
   if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::MakeFromSeconds(0) && ezTime::Now() > m_TimeTillClosing)
   {
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
+    return;
   }
 
   if (ezFileserver::GetSingleton()->UpdateServer() == false)
@@ -84,6 +85,4 @@ ezApplication::Execution ezFileserverApp::Run()
   {
     m_uiSleepCounter = 0;
   }
-
-  return ezApplication::Execution::Continue;
 }

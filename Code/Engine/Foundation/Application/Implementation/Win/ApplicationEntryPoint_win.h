@@ -37,7 +37,7 @@ namespace ezApplicationDetails
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
       pApp->SetReturnCode(ctrlType);
-      pApp->RequestQuit();
+      pApp->RequestApplicationQuit();
       EZ_LOCK(GetShutdownMutex());
       return 1; // returns TRUE, which deactivates the default console control handler
     };
@@ -95,7 +95,7 @@ namespace ezApplicationDetails
   }
 } // namespace ezApplicationDetails
 
-/// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
+/// \brief Same as EZ_WINDOWAPP_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                \
   /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */           \
   extern "C"                                                                                    \
@@ -111,14 +111,14 @@ namespace ezApplicationDetails
 
 // If windows.h is already included use the native types, otherwise use types from ezMinWindows
 //
-// In EZ_APPLICATION_ENTRY_POINT we use macro magic to concatenate strings in such a way that depending on whether windows.h has
+// In EZ_WINDOWAPP_ENTRY_POINT we use macro magic to concatenate strings in such a way that depending on whether windows.h has
 // been included in the mean time, either the macro is chosen which expands to the proper Windows.h type
 // or the macro that expands to our ezMinWindows type.
 // Unfortunately we cannot do the decision right here, as Windows.h may not yet be included, but may get included later.
-#define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE HINSTANCE
-#define _EZ_APPLICATION_ENTRY_POINT_LPSTR LPSTR
-#define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE_WINDOWS_ ezMinWindows::HINSTANCE
-#define _EZ_APPLICATION_ENTRY_POINT_LPSTR_WINDOWS_ ezMinWindows::LPSTR
+#define _EZ_WINDOWAPP_ENTRY_POINT_HINSTANCE HINSTANCE
+#define _EZ_WINDOWAPP_ENTRY_POINT_LPSTR LPSTR
+#define _EZ_WINDOWAPP_ENTRY_POINT_HINSTANCE_WINDOWS_ ezMinWindows::HINSTANCE
+#define _EZ_WINDOWAPP_ENTRY_POINT_LPSTR_WINDOWS_ ezMinWindows::LPSTR
 
 #ifndef _In_
 #  define UndefSAL
@@ -130,20 +130,26 @@ namespace ezApplicationDetails
 ///
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.
-#define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                \
-  /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */                                            \
-  extern "C"                                                                                                                     \
-  {                                                                                                                              \
-    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                   \
-    _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;                                  \
-  }                                                                                                                              \
-  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
-  int EZ_WINDOWS_CALLBACK WinMain(_In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance, \
-    _In_opt_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                       \
-    _In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(APPLICATION_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, _In_ int nCmdShow)                \
-  {                                                                                                                              \
-    return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                        \
+#define EZ_WINDOWAPP_ENTRY_POINT(AppClass, ...)                                                                                \
+  /* Enables that on machines with multiple GPUs the NVIDIA / AMD GPU is preferred */                                          \
+  extern "C"                                                                                                                   \
+  {                                                                                                                            \
+    _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                 \
+    _declspec(dllexport) ezMinWindows::DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;                                \
+  }                                                                                                                            \
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                    \
+  int EZ_WINDOWS_CALLBACK WinMain(_In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(WINDOWAPP_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance, \
+    _In_opt_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(WINDOWAPP_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                       \
+    _In_ EZ_PP_CONCAT(_EZ_, EZ_PP_CONCAT(WINDOWAPP_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, _In_ int nCmdShow)                \
+  {                                                                                                                            \
+    return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                      \
   }
+
+#if EZ_WINDOWAPP
+#  define EZ_APPLICATION_ENTRY_POINT EZ_WINDOWAPP_ENTRY_POINT
+#else
+#  define EZ_APPLICATION_ENTRY_POINT EZ_CONSOLEAPP_ENTRY_POINT
+#endif
 
 #ifdef UndefSAL
 #  undef _In_

@@ -209,17 +209,23 @@ ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
   }
 }
 
-ezApplication::Execution ezTexConv::Run()
+void ezTexConv::Run()
 {
   SetReturnCode(-1);
 
   if (ParseCommandLine().Failed())
-    return ezApplication::Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   if (m_Mode == ezTexConvMode::Compare)
   {
     if (m_Comparer.Compare().Failed())
-      return ezApplication::Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     SetReturnCode(0);
 
@@ -257,7 +263,10 @@ ezApplication::Execution ezTexConv::Run()
   else
   {
     if (m_Processor.Process().Failed())
-      return ezApplication::Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     {
@@ -280,7 +289,8 @@ ezApplication::Execution ezTexConv::Run()
         ezLog::Error("Failed to write atlas output image.");
       }
 
-      return ezApplication::Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     if (!m_sOutputFile.IsEmpty() && m_Processor.m_OutputImage.IsValid())
@@ -288,7 +298,8 @@ ezApplication::Execution ezTexConv::Run()
       if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
       {
         ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
 
       ezLog::Success("Wrote main result to '{}'", m_sOutputFile);
@@ -299,7 +310,8 @@ ezApplication::Execution ezTexConv::Run()
       if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
       {
         ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
 
       ezLog::Success("Wrote thumbnail to '{}'", m_sOutputThumbnailFile);
@@ -315,7 +327,8 @@ ezApplication::Execution ezTexConv::Run()
         if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
         {
           ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
-          return ezApplication::Execution::Quit;
+          RequestApplicationQuit();
+          return;
         }
 
         ezLog::Success("Wrote low-res result to '{}'", m_sOutputLowResFile);
@@ -325,7 +338,7 @@ ezApplication::Execution ezTexConv::Run()
     SetReturnCode(0);
   }
 
-  return ezApplication::Execution::Quit;
+  RequestApplicationQuit();
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);
+EZ_APPLICATION_ENTRY_POINT(ezTexConv);

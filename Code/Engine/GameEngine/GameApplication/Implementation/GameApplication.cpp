@@ -457,7 +457,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == ezKeyState::Pressed)
   {
-    RequestQuit();
+    RequestApplicationQuit();
   }
 
   return true;

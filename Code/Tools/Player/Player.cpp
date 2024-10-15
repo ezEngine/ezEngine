@@ -78,7 +78,7 @@ void ezPlayerApplication::Run_InputUpdate()
   {
     if (pGameState->WasQuitRequested())
     {
-      RequestQuit();
+      RequestApplicationQuit();
     }
   }
 }

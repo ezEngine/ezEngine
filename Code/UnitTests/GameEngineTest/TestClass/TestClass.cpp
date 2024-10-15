@@ -65,11 +65,12 @@ ezResult ezGameEngineTest::DeInitializeTest()
 {
   if (m_pApplication)
   {
-    m_pApplication->RequestQuit();
+    m_pApplication->RequestApplicationQuit();
 
     ezInt32 iSteps = 2;
-    while (m_pApplication->Run() == ezApplication::Execution::Continue && iSteps > 0)
+    while (!m_pApplication->ShouldApplicationQuit() && iSteps > 0)
     {
+      m_pApplication->Run();
       --iSteps;
     }
 

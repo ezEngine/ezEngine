@@ -75,7 +75,7 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 
   m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  m_bIgnoreErrors = opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
+  opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
@@ -212,7 +212,7 @@ void ezShaderCompilerApplication::PrintConfig()
   ezLog::Info("Platform: '{0}'", m_sPlatforms);
 }
 
-ezApplication::Execution ezShaderCompilerApplication::Run()
+void ezShaderCompilerApplication::Run()
 {
   PrintConfig();
 
@@ -269,14 +269,15 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
   {
     if (CompileShader(shader).Failed())
     {
-      if (!m_bIgnoreErrors)
+      if (!opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Never))
       {
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
   }
 
-  return ezApplication::Execution::Quit;
+  RequestApplicationQuit();
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezShaderCompilerApplication);
+EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

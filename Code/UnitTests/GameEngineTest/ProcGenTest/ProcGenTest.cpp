@@ -46,7 +46,8 @@ ezTestAppRun ezGameEngineTestProcGen::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
   const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
-  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  m_pOwnApplication->Run();
+  if (m_pOwnApplication->ShouldApplicationQuit())
   {
     return ezTestAppRun::Quit;
   }

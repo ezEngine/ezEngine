@@ -64,7 +64,7 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 }
 
 
-void ezApplication::RequestQuit()
+void ezApplication::RequestApplicationQuit()
 {
   m_bWasQuitRequested = true;
 }

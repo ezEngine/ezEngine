@@ -318,7 +318,7 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
   // If one of the init functions already requested the application to quit,
   // something must have gone wrong. Don't continue initialization and let the
   // application exit.
-  if (WasQuitRequested())
+  if (ShouldApplicationQuit())
   {
     return;
   }
@@ -387,13 +387,9 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
   s_bUpdatePluginsExecuted = true;
 }
 
-ezApplication::Execution ezGameApplicationBase::Run()
+void ezGameApplicationBase::Run()
 {
-  if (m_bWasQuitRequested)
-    return ezApplication::Execution::Quit;
-
   RunOneFrame();
-  return ezApplication::Execution::Continue;
 }
 
 void ezGameApplicationBase::RunOneFrame()

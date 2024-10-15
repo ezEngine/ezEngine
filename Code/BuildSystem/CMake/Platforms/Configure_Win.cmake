@@ -68,6 +68,10 @@ macro(ez_platform_detect_generator)
     endif()
 endmacro()
 
+macro (ez_platformhook_make_windowapp TARGET_NAME)
+    set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE ON)
+endmacro()
+
 macro(ez_platformhook_find_vulkan)
     if(EZ_CMAKE_ARCHITECTURE_64BIT)
         if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))

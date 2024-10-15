@@ -54,7 +54,7 @@ public:
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
 
   ezResult LoadModules();
   ezResult ParseModules();
@@ -301,10 +301,13 @@ void ezStackResolver::FormatAsJSON(ezStringBuilder& ref_sOutput)
   ref_sOutput.Append(text);
 }
 
-ezApplication::Execution ezStackResolver::Run()
+void ezStackResolver::Run()
 {
   if (ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_app"))
-    return Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   ezString sMissingOpt;
   if (ezCommandLineOption::RequireOptions("-ModuleList;-Callstack", &sMissingOpt).Failed())
@@ -312,7 +315,8 @@ ezApplication::Execution ezStackResolver::Run()
     ezLog::Error("Command line option '{}' was not specified.", sMissingOpt);
 
     ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::Always, "_app");
-    return Execution::Quit;
+    RequestApplicationQuit();
+    return;
   }
 
   m_hProcess = GetCurrentProcess();
@@ -326,13 +330,22 @@ ezApplication::Execution ezStackResolver::Run()
   m_SystemRootDir.Trim("", "/");
 
   if (ParseModules().Failed())
-    return Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   if (ParseCallstack().Failed())
-    return Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   if (LoadModules().Failed())
-    return Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   ResolveStackFrames();
 
@@ -355,7 +368,8 @@ ezApplication::Execution ezStackResolver::Run()
     if (file.Open(opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never), ezFileOpenMode::Write).Failed())
     {
       ezLog::Error("Could not open file for writing: '{}'", opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never));
-      return Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     file.Write(output.GetData(), output.GetElementCount()).IgnoreResult();
@@ -375,7 +389,7 @@ ezApplication::Execution ezStackResolver::Run()
     }
   }
 
-  return Execution::Quit;
+  RequestApplicationQuit();
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStackResolver);
+EZ_APPLICATION_ENTRY_POINT(ezStackResolver);

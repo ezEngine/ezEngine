@@ -2,10 +2,6 @@
 
 /// \file
 
-/// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
-#define EZ_CONSOLEAPP_ENTRY_POINT EZ_APPLICATION_ENTRY_POINT
-
-
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).

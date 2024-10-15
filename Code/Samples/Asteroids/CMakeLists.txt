@@ -22,7 +22,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(APPLICATION ${PROJECT_NAME})
 
-ez_make_winmain_executable(${PROJECT_NAME})
+ez_make_windowapp(${PROJECT_NAME})
 
 ez_add_renderers(${PROJECT_NAME})
 

@@ -779,11 +779,14 @@ public:
     MakeSureStaticLinkLibraryMacroExists();
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     GatherInformation();
 
@@ -794,9 +797,8 @@ public:
     // RewritePrecompiledHeaderIncludes();
 
     OverwriteModifiedFiles();
-
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStaticLinkerApp);
+EZ_APPLICATION_ENTRY_POINT(ezStaticLinkerApp);

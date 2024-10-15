@@ -10,7 +10,7 @@ public:
 
   ezShaderCompilerApplication();
 
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
 
 private:
   void PrintConfig();

@@ -47,9 +47,9 @@ ezResult ezRun_Startup(ezApplication* pApplicationInstance)
 
 void ezRun_MainLoop(ezApplication* pApplicationInstance)
 {
-  while (pApplicationInstance->Run() == ezApplication::Execution::Continue)
+  while (!pApplicationInstance->ShouldApplicationQuit())
   {
-    // do nothing
+    pApplicationInstance->Run();
   }
 }
 
@@ -78,7 +78,7 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = nullptr;
 
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && defined(LIVEPP_ENABLED)
   // destroy the Live++ agent
   lpp::LppDestroyDefaultAgent(&lppAgent);
 #endif

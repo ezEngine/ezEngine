@@ -376,7 +376,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (iCurFrame > 3)
@@ -451,7 +452,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   pCamera->RotateGlobally(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(iCurFrame * 80.0f));
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (iCurFrame < 5)
@@ -553,7 +555,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
   }
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -585,7 +588,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezIn
     ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
   }
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -609,7 +613,8 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)
@@ -636,7 +641,8 @@ void ezGameEngineTestApplication_Basics::SubTestGoReferenceSetup()
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestGoReferenceExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

@@ -240,7 +240,7 @@ protected:
   ///@{
 
 public:
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
 
   void RunOneFrame();
 

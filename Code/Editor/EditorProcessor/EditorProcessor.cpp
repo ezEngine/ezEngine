@@ -149,14 +149,15 @@ public:
     }
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
 
@@ -181,7 +182,8 @@ public:
       if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
       {
         SetReturnCode(2);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
 
       // before we transform any assets, make sure the C++ code is properly built
@@ -192,7 +194,8 @@ public:
           if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
           {
             SetReturnCode(3);
-            return ezApplication::Execution::Quit;
+            RequestApplicationQuit();
+            return;
           }
 
           ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
@@ -288,8 +291,7 @@ public:
     }
 
     ezQtEditorApp::GetSingleton()->ShutdownEditor();
-
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 
 private:

@@ -24,7 +24,7 @@ ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
 
 ezComputeShaderHistogramApp::~ezComputeShaderHistogramApp() = default;
 
-ezApplication::Execution ezComputeShaderHistogramApp::Run()
+void ezComputeShaderHistogramApp::Run()
 {
   ezActorManager::GetSingleton()->Update();
 
@@ -137,8 +137,6 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
   ezTaskSystem::FinishFrameTasks();
-
-  return WasQuitRequested() ? ezApplication::Execution::Quit : ezApplication::Execution::Continue;
 }
 
 void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()

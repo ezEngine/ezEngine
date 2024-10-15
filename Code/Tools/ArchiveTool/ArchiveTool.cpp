@@ -368,14 +368,15 @@ public:
     return EZ_SUCCESS;
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ArchiveTool"))
       {
         ezLog::Print(cmdHelp);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
 
@@ -384,7 +385,8 @@ public:
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     if (m_Mode == ArchiveMode::Pack)
@@ -396,7 +398,8 @@ public:
       }
 
       ezLog::Success("Finished packing archive in {}", sw.GetRunningTotal());
-      return ezApplication::Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     if (m_Mode == ArchiveMode::Unpack)
@@ -408,12 +411,13 @@ public:
       }
 
       ezLog::Success("Finished extracting archive in {}", sw.GetRunningTotal());
-      return ezApplication::Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     ezLog::Error("Unknown mode");
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezArchiveTool);
+EZ_APPLICATION_ENTRY_POINT(ezArchiveTool);

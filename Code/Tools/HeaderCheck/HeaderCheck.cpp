@@ -548,16 +548,18 @@ public:
     }
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      RequestApplicationQuit();
+      return;
+    }
 
     IterateOverFiles();
-
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezHeaderCheckApp);
+EZ_APPLICATION_ENTRY_POINT(ezHeaderCheckApp);

@@ -75,7 +75,7 @@ public:
     return ezApplication::BeforeCoreSystemsStartup();
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     int iArgs = GetArgumentCount();
     char** cArgs = (char**)GetArgumentsArray();
@@ -115,8 +115,7 @@ public:
     SetReturnCode(app.exec());
 
     ezTelemetry::CloseConnection();
-
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 

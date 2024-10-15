@@ -23,7 +23,7 @@ public:
   ezEditorTestApplication();
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsShutdown() override;
-  virtual Execution Run() override;
+  virtual void Run() override;
 
 
   virtual void AfterCoreSystemsStartup() override;

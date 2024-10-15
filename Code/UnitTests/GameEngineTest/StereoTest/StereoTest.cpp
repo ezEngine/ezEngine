@@ -103,7 +103,8 @@ ezTestAppRun ezStereoTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocation
 
   ezDebugRenderer::Draw2DText(m_pApplication->GetWorld(), sb, ezVec2I32(50, 50), ezColor::Brown, 60);
 
-  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  m_pOwnApplication->Run();
+  if (m_pOwnApplication->ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
