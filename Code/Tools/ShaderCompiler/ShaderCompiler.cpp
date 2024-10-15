@@ -212,7 +212,7 @@ void ezShaderCompilerApplication::PrintConfig()
   ezLog::Info("Platform: '{0}'", m_sPlatforms);
 }
 
-ezApplication::Execution ezShaderCompilerApplication::Run()
+void ezShaderCompilerApplication::Run()
 {
   PrintConfig();
 
@@ -271,12 +271,13 @@ ezApplication::Execution ezShaderCompilerApplication::Run()
     {
       if (!m_bIgnoreErrors)
       {
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
   }
 
-  return ezApplication::Execution::Quit;
+  RequestApplicationQuit();
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

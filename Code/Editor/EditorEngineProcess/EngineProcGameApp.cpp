@@ -155,7 +155,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezApplication::Execution ezEngineProcessGameApplication::Run()
+void ezEngineProcessGameApplication::Run()
 {
   bool bPendingOpInProgress = false;
   do
@@ -170,9 +170,8 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
   m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
 
   // Normally rendering is done in EventHandlerIPC as a response to ezSyncWithProcessMsgToEngine. However, when playing or when pending operations are in progress we need to render even if we didn't receive a draw request.
-  ezApplication::Execution res = SUPER::Run();
+  SUPER::Run();
   ezRenderWorld::ClearMainViews();
-  return res;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -293,7 +292,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     // in non-remote mode, the process needs to be properly killed, to prevent error messages
     // this is taken care of by the editor process
     if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
-      RequestQuit();
+      RequestApplicationQuit();
 
     return;
   }
@@ -607,8 +606,8 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezDataDirUsage::AllowWrites).AssertSuccess();                       // for absolute paths
   ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezDataDirUsage::ReadOnly).AssertSuccess();                // writing to the binary directory
   ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess(); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                 // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();        // for writing app user data
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                   // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();          // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 

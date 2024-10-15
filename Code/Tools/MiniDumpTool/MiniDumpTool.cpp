@@ -62,25 +62,27 @@ public:
     SUPER::BeforeCoreSystemsShutdown();
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
       {
         ezLog::Print(cmdHelp);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
 
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Execution::Quit;
+      RequestApplicationQuit();
+      return;
     }
 
     ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 };
 

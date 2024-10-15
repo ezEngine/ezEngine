@@ -51,12 +51,11 @@ EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///       // Close log file, etc.
 ///     }
 ///
-///     virtual ezApplication::Execution Run() override
+///     virtual void Run() override
 ///     {
-///       // Either run a one-time application (e.g. console script) and return ezApplication::Quit
-///       // Or run one update (frame) of your game loop and return ezApplication::Continue
+///       // Run will be called repeatedly, until RequestApplicationQuit() has been called (at any time in the frame).
 ///
-///       return ezApplication::Quit;
+///       RequestApplicationQuit();
 ///     }
 ///   };
 ///
@@ -67,13 +66,6 @@ class EZ_FOUNDATION_DLL ezApplication
   EZ_DISALLOW_COPY_AND_ASSIGN(ezApplication);
 
 public:
-  /// \brief Defines the possible return values for the ezApplication::Run() function.
-  enum class Execution
-  {
-    Continue, ///< The 'Run' function should return this to keep the application running
-    Quit,     ///< The 'Run' function should return this to quit the application
-  };
-
   /// \brief Constructor.
   ezApplication(ezStringView sAppName);
 
@@ -141,8 +133,8 @@ public:
 
   /// \brief Main run function which is called periodically. This function must be overridden.
   ///
-  /// Return Execution::Quit when the application should quit. You may set a return code via SetReturnCode() beforehand.
-  virtual Execution Run() = 0;
+  /// Call RequestApplicationQuit() at any point to prevent Run() from being called again.
+  virtual void Run() = 0;
 
   /// \brief Sets the value that the application will return to the OS.
   /// You can call this function at any point during execution to update the return value of the application.
@@ -183,10 +175,10 @@ public:
   /// Can be overridden to implement custom behavior. There is no other logic associated with this
   /// function and flag so the respective derived application class has to implement logic to perform the actual
   /// quit when this function is called or m_bWasQuitRequested is set to true.
-  virtual void RequestQuit();
+  virtual void RequestApplicationQuit();
 
   /// \brief Returns whether RequestQuit() was called.
-  EZ_ALWAYS_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
+  EZ_ALWAYS_INLINE bool ShouldApplicationQuit() const { return m_bWasQuitRequested; }
 
 protected:
   bool m_bWasQuitRequested = false;

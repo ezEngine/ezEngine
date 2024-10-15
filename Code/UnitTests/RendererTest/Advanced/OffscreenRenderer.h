@@ -61,7 +61,7 @@ public:
   ezOffscreenRendererTest();
   ~ezOffscreenRendererTest();
 
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
   void OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue);
 
   virtual void AfterCoreSystemsStartup() override;

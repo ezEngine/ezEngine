@@ -38,7 +38,7 @@ public:
   ezTexConv();
 
 public:
-  virtual Execution Run() override;
+  virtual void Run() override;
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeCoreSystemsShutdown() override;

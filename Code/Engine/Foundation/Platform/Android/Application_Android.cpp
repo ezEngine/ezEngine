@@ -52,11 +52,17 @@ void ezAndroidApplication::AndroidRun()
     if (!m_bStarted)
       continue;
 
-    if (bRun && m_pEzApp->Run() != ezApplication::Execution::Continue)
+    if (bRun)
     {
-      bRun = false;
-      ANativeActivity_finish(m_pApp->activity);
+      m_pEzApp->Run();
+
+      if (m_pEzApp->ShouldApplicationQuit())
+      {
+        bRun = false;
+        ANativeActivity_finish(m_pApp->activity);
+      }
     }
+
     if (m_pApp->destroyRequested)
     {
       break;
@@ -80,7 +86,7 @@ void ezAndroidApplication::HandleCmd(int32_t cmd)
       }
       break;
     case APP_CMD_TERM_WINDOW:
-      m_pEzApp->RequestQuit();
+      m_pEzApp->RequestApplicationQuit();
       break;
     default:
       break;

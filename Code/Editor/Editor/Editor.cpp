@@ -42,14 +42,15 @@ public:
     m_pEditorApp = nullptr;
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_Editor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
-        return ezApplication::Execution::Quit;
+        RequestApplicationQuit();
+        return;
       }
     }
 
@@ -60,7 +61,7 @@ public:
     }
     ezQtEditorApp::GetSingleton()->ShutdownEditor();
 
-    return ezApplication::Execution::Quit;
+    RequestApplicationQuit();
   }
 
 private:

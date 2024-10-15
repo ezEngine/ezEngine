@@ -65,7 +65,7 @@ ezOffscreenRendererTest::ezOffscreenRendererTest()
 
 ezOffscreenRendererTest::~ezOffscreenRendererTest() = default;
 
-ezApplication::Execution ezOffscreenRendererTest::Run()
+void ezOffscreenRendererTest::Run()
 {
   EZ_PROFILE_SCOPE("Run");
 
@@ -123,7 +123,7 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
   if (m_RequestedFrames.IsEmpty() && m_bExiting)
   {
     SetReturnCode(0);
-    RequestQuit();
+    RequestApplicationQuit();
   }
 
   // needs to be called once per frame
@@ -133,8 +133,6 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
   ezTaskSystem::FinishFrameTasks();
-
-  return WasQuitRequested() ? ezApplication::Execution::Quit : ezApplication::Execution::Continue;
 }
 
 void ezOffscreenRendererTest::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
@@ -169,7 +167,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
     SetReturnCode(-1);
-    RequestQuit();
+    RequestApplicationQuit();
     return;
   }
 
@@ -177,7 +175,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
     SetReturnCode(-2);
-    RequestQuit();
+    RequestApplicationQuit();
     return;
   }
 
@@ -186,7 +184,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line -PID parameter could not be converted to int");
     SetReturnCode(-3);
-    RequestQuit();
+    RequestApplicationQuit();
     return;
   }
 
@@ -259,7 +257,7 @@ void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
     {
       EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
       SetReturnCode(-4);
-      RequestQuit();
+      RequestApplicationQuit();
     }
   }
   else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(pMsg))

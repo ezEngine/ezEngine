@@ -60,13 +60,13 @@ ezShaderExplorerApp::ezShaderExplorerApp()
 {
 }
 
-ezApplication::Execution ezShaderExplorerApp::Run()
+void ezShaderExplorerApp::Run()
 {
   m_pWindow->ProcessWindowMessages();
   if (!m_pWindow->IsVisible())
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
-    return Execution::Continue;
+    return;
   }
 
   if (g_bWindowResized)
@@ -76,7 +76,10 @@ ezApplication::Execution ezShaderExplorerApp::Run()
   }
 
   if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-    return Execution::Quit;
+  {
+    RequestApplicationQuit();
+    return;
+  }
 
   // make sure time goes on
   ezClock::GetGlobalClock()->Update();
@@ -217,8 +220,6 @@ ezApplication::Execution ezShaderExplorerApp::Run()
 
   // for plugins (like FileServe) that need to hook into the game update
   EZ_BROADCAST_EVENT(GameApp_UpdatePlugins);
-
-  return ezApplication::Execution::Continue;
 }
 
 void ezShaderExplorerApp::AfterCoreSystemsStartup()

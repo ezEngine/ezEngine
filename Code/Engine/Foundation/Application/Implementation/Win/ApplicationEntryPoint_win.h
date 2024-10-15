@@ -37,7 +37,7 @@ namespace ezApplicationDetails
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
       pApp->SetReturnCode(ctrlType);
-      pApp->RequestQuit();
+      pApp->RequestApplicationQuit();
       EZ_LOCK(GetShutdownMutex());
       return 1; // returns TRUE, which deactivates the default console control handler
     };

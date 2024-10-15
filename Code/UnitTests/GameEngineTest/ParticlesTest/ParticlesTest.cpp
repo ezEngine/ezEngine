@@ -198,7 +198,8 @@ void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szF
 
 ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)
