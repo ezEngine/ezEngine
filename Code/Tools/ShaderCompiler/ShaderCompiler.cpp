@@ -75,7 +75,7 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 
   m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  m_bIgnoreErrors = opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
+  opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
@@ -269,7 +269,7 @@ void ezShaderCompilerApplication::Run()
   {
     if (CompileShader(shader).Failed())
     {
-      if (!m_bIgnoreErrors)
+      if (!opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Never))
       {
         RequestApplicationQuit();
         return;
