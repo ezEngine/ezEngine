@@ -184,7 +184,7 @@ namespace
 
 const char* ezExpressionByteCode::OpCode::GetName(Enum code)
 {
-  EZ_ASSERT_DEBUG(code >= 0 && code < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(code >= 0 && static_cast<ezUInt32>(code) < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
   return s_szOpCodeNames[code];
 }
 

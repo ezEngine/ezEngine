@@ -132,7 +132,7 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
 // static
 const char* ezVisualScriptNodeDescription::Type::GetName(Enum type)
 {
-  EZ_ASSERT_DEBUG(type >= 0 && type < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(type >= 0 && static_cast<ezUInt32>(type) < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
   return s_NodeDescTypeNames[type];
 }
 

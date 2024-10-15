@@ -21,7 +21,7 @@ static_assert(ezVisualScriptDataDescription::DataOffset::Source::Count <= EZ_BIT
 // static
 const char* ezVisualScriptDataDescription::DataOffset::Source::GetName(Enum source)
 {
-  EZ_ASSERT_DEBUG(source >= 0 && source < EZ_ARRAY_SIZE(s_DataOffsetSourceNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(source >= 0 && static_cast<ezUInt32>(source) < EZ_ARRAY_SIZE(s_DataOffsetSourceNames), "Out of bounds access");
   return s_DataOffsetSourceNames[source];
 }
 

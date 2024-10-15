@@ -367,7 +367,7 @@ static ezResult VerifyEndMarker(ezUInt64 uiArchiveDataSize, const void* pArchive
     return EZ_FAILURE;
   }
 
-  const void* pStart = ezMemoryUtils::AddByteOffset(pArchiveDataBuffer, uiArchiveDataSize - uiEndMarkerSize);
+  const void* pStart = ezMemoryUtils::AddByteOffset(pArchiveDataBuffer, static_cast<ptrdiff_t>(uiArchiveDataSize - uiEndMarkerSize));
 
   ezRawMemoryStreamReader reader(pStart, uiEndMarkerSize);
 
@@ -401,7 +401,7 @@ ezResult ezArchiveUtils::ExtractTOCMeta(ezUInt64 uiArchiveEndingDataSize, const 
       return EZ_FAILURE;
     }
 
-    const void* pTocMetaStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, uiArchiveEndingDataSize - uiEndMarkerSize - uiTocMetaSize);
+    const void* pTocMetaStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, static_cast<ptrdiff_t>(uiArchiveEndingDataSize - uiEndMarkerSize - uiTocMetaSize));
 
     ezRawMemoryStreamReader tocMetaReader(pTocMetaStart, uiTocMetaSize);
 
@@ -452,7 +452,7 @@ ezResult ezArchiveUtils::ExtractTOC(ezUInt64 uiArchiveEndingDataSize, const void
   }
 
   // get toc data ptr
-  const void* pTocStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, uiArchiveEndingDataSize - tocMeta.m_uiTocOffsetFromArchiveEnd);
+  const void* pTocStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, static_cast<ptrdiff_t>(uiArchiveEndingDataSize - tocMeta.m_uiTocOffsetFromArchiveEnd));
 
   // validate the TOC hash
   if (uiArchiveVersion >= 2)

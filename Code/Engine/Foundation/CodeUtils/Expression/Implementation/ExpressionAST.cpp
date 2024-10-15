@@ -287,7 +287,7 @@ namespace
 // static
 const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_szNodeTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_szNodeTypeNames), "Out of bounds access");
   return s_szNodeTypeNames[nodeType];
 }
 
@@ -380,7 +380,7 @@ namespace
 // static
 ezVariantType::Enum ezExpressionAST::DataType::GetVariantType(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_DataTypeVariantTypes), "Out of bounds access");
+  EZ_ASSERT_DEBUG(dataType >= 0 && static_cast<ezUInt32>(dataType) < EZ_ARRAY_SIZE(s_DataTypeVariantTypes), "Out of bounds access");
   return s_DataTypeVariantTypes[dataType];
 }
 
@@ -394,7 +394,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::DataType::FromStreamType(ezProc
 // static
 const char* ezExpressionAST::DataType::GetName(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_szDataTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(dataType >= 0 && static_cast<ezUInt32>(dataType) < EZ_ARRAY_SIZE(s_szDataTypeNames), "Out of bounds access");
   return s_szDataTypeNames[dataType];
 }
 
@@ -423,7 +423,7 @@ namespace
 // static
 const char* ezExpressionAST::VectorComponent::GetName(Enum vectorComponent)
 {
-  EZ_ASSERT_DEBUG(vectorComponent >= 0 && vectorComponent < EZ_ARRAY_SIZE(s_szVectorComponentNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(vectorComponent >= 0 && static_cast<ezUInt32>(vectorComponent) < EZ_ARRAY_SIZE(s_szVectorComponentNames), "Out of bounds access");
   return s_szVectorComponentNames[vectorComponent];
 }
 
