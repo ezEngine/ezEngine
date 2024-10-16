@@ -16,3 +16,5 @@ target_link_libraries(${PROJECT_NAME}
 
 # needed for shader files to compile
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Base")
+
+ez_copy_plugin_bundle(${PROJECT_NAME} "Kraut")

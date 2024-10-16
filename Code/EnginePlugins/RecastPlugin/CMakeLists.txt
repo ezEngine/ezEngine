@@ -18,3 +18,5 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
   Utilities
 )
+
+ez_copy_plugin_bundle(${PROJECT_NAME} "Recast")

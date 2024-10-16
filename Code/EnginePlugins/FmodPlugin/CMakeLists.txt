@@ -14,3 +14,5 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 ez_link_target_fmod(${PROJECT_NAME})
+
+ez_copy_plugin_bundle(${PROJECT_NAME} "Fmod")

@@ -21,7 +21,4 @@ add_dependencies(${PROJECT_NAME}
   EnginePluginParticle
 )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/Particles.ezPluginBundle" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  )
+

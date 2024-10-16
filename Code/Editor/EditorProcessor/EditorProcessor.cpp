@@ -26,13 +26,13 @@ Example:\n\
 ",
   "");
 
-class ezEditorApplication : public ezApplication
+class ezEditorProcessorApplication : public ezApplication
 {
 public:
   using SUPER = ezApplication;
 
-  ezEditorApplication()
-    : ezApplication("ezEditor")
+  ezEditorProcessorApplication()
+    : ezApplication("ezEditorProcessor")
   {
     EnableMemoryLeakReporting(true);
     m_pEditorEngineProcessAppDummy = EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
@@ -264,7 +264,7 @@ public:
       ezResult res = m_IPC.ConnectToHostProcess();
       if (res.Succeeded())
       {
-        m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
+        m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorProcessorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
@@ -300,4 +300,4 @@ private:
   ezUniquePtr<ezEditorEngineProcessApp> m_pEditorEngineProcessAppDummy;
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
+EZ_APPLICATION_ENTRY_POINT(ezEditorProcessorApplication);

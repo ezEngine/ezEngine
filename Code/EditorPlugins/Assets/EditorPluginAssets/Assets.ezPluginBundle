@@ -12,7 +12,7 @@ PluginInfo
 	// List of plugins (without path or extension) to load into the editor engine process.
 	string %EditorEnginePlugins{"ezEnginePluginAssets"}
 
-	// List of plugins (without path or extension) to load into the engine process (e.g. also Player.exe and stand-alone apps).
+	// List of plugins (without path or extension) to load into the engine process (e.g. also ezPlayer.exe and stand-alone apps).
 	string %RuntimePlugins{}
 	
 	// List of bundles (without path or extension) that are always needed for this bundle to work.
