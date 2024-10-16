@@ -381,7 +381,7 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
     }
 
     chunk.EndChunk();
-  }  
+  }
 
   chunk.EndStream();
 

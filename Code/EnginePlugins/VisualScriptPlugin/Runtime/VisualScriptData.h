@@ -94,7 +94,7 @@ public:
   ~ezVisualScriptDataStorage();
 
   const ezVisualScriptDataDescription& GetDesc() const;
-  
+
   bool IsAllocated() const;
   void AllocateStorage();
   void DeallocateStorage();
