@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16927455850298769950,10486899710480667627}}
-		u4 %Hash{4227029527180157315}
+		u4 %Hash{9631990123865255145}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -41,6 +41,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0,0,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
@@ -196,6 +197,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0,0,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
@@ -255,6 +257,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0,0,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
@@ -314,6 +317,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0,0,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1e3694a1-abdf-46e6-81fe-bf87a86ccb89 }"}
@@ -551,7 +555,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
