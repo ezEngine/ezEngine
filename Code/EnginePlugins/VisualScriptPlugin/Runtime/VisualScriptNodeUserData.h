@@ -21,7 +21,7 @@ namespace
     return uiSize;
   }
 
-  
+
   template <typename T>
   static constexpr ezUInt32 GetUserDataAlignment()
   {
@@ -77,6 +77,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_Type) == 8);
+  static_assert(GetUserDataAlignment<NodeUserData_Type>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -162,6 +163,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_TypeAndProperty) == 16);
+  static_assert(GetUserDataAlignment<NodeUserData_TypeAndProperty>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -234,6 +236,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_TypeAndProperties) == 24);
+  static_assert(GetUserDataAlignment<NodeUserData_TypeAndProperties>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -286,6 +289,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_Switch) == 16);
+  static_assert(GetUserDataAlignment<NodeUserData_Switch>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -321,6 +325,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_Comparison) == 1);
+  static_assert(GetUserDataAlignment<NodeUserData_Comparison>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -368,6 +373,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_Expression) == 64);
+  static_assert(GetUserDataAlignment<NodeUserData_Expression>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -413,6 +419,7 @@ namespace
   };
 
   static_assert(sizeof(NodeUserData_StartCoroutine) == 16);
+  static_assert(GetUserDataAlignment<NodeUserData_StartCoroutine>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
