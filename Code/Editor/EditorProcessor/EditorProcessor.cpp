@@ -32,7 +32,7 @@ public:
   using SUPER = ezApplication;
 
   ezEditorProcessorApplication()
-    : ezApplication("ezEditorProcessor")
+    : ezApplication("ezEditor")
   {
     EnableMemoryLeakReporting(true);
     m_pEditorEngineProcessAppDummy = EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
