@@ -263,11 +263,9 @@ void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameO
 {
 }
 
-void ezExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
 }
-
 
 ezResult ezExtractor::Serialize(ezStreamWriter& inout_stream) const
 {
@@ -299,8 +297,7 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 
 ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
 
-void ezVisibleObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
