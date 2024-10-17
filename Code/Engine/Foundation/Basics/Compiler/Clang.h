@@ -12,8 +12,6 @@
 #    define EZ_FORCE_INLINE __attribute__((always_inline)) inline
 #  endif
 
-#  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(__alignof(type), EZ_ALIGNMENT_MINIMUM)
-
 #  if __has_builtin(__builtin_debugtrap)
 #    define EZ_DEBUG_BREAK     \
       {                        \

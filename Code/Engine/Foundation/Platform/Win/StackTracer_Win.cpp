@@ -104,7 +104,7 @@ namespace
   {
     if (s_pImplementation == nullptr)
     {
-      alignas(EZ_ALIGNMENT_OF(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
+      alignas(alignof(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
     }

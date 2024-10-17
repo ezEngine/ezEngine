@@ -21,10 +21,6 @@
 #  error "EZ_ALWAYS_INLINE is not defined."
 #endif
 
-#ifndef EZ_ALIGNMENT_OF
-#  error "EZ_ALIGNMENT_OF is not defined."
-#endif
-
 #if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_32BIT, EZ_PLATFORM_64BIT)
 #  error "Platform is not defined as 32 Bit or 64 Bit"
 #endif

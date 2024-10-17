@@ -74,14 +74,14 @@ namespace ezRmlUiInternal
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(hFile)];
 
-    return pOpenFile->m_Reader.GetReadPosition();
+    return static_cast<size_t>(pOpenFile->m_Reader.GetReadPosition());
   }
 
   size_t FileInterface::Length(Rml::FileHandle hFile)
   {
     auto& pOpenFile = m_OpenFiles[FileId::FromRml(hFile)];
 
-    return pOpenFile->m_Reader.GetByteCount64();
+    return static_cast<size_t>(pOpenFile->m_Reader.GetByteCount64());
   }
 
 } // namespace ezRmlUiInternal

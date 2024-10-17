@@ -37,7 +37,7 @@ public:
 
 protected:
   /// \brief The fixed size array.
-  struct alignas(EZ_ALIGNMENT_OF(T))
+  struct alignas(alignof(T))
   {
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };

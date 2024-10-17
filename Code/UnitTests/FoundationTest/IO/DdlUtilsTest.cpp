@@ -604,7 +604,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
   // this test also covers all the types that Variant supports
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVariant")
   {
-    alignas(EZ_ALIGNMENT_OF(float)) ezUInt8 rawData[sizeof(float) * 16]; // enough for mat4
+    alignas(alignof(float)) ezUInt8 rawData[sizeof(float) * 16]; // enough for mat4
 
     for (ezUInt8 i = 0; i < EZ_ARRAY_SIZE(rawData); ++i)
     {

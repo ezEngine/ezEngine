@@ -32,7 +32,7 @@ namespace
 // static
 const char* RegisterType::GetName(Enum registerType)
 {
-  EZ_ASSERT_DEBUG(registerType >= 0 && registerType < EZ_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(registerType >= 0 && static_cast<ezUInt32>(registerType) < EZ_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
   return s_szRegisterTypeNames[registerType];
 }
 

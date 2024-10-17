@@ -43,7 +43,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   ezAllocator* pAllocator = ezFoundation::GetAlignedAllocator();
   EZ_TEST_BOOL(pAllocator != nullptr);
 
-  size_t uiAlignment = EZ_ALIGNMENT_OF(T);
+  size_t uiAlignment = alignof(T);
   EZ_TEST_INT(uiAlignment, uiExpectedAlignment);
 
   T testOnStack = T();

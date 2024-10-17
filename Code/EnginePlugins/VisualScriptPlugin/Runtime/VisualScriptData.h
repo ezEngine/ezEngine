@@ -93,6 +93,8 @@ public:
   ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc);
   ~ezVisualScriptDataStorage();
 
+  const ezVisualScriptDataDescription& GetDesc() const;
+
   bool IsAllocated() const;
   void AllocateStorage();
   void DeallocateStorage();

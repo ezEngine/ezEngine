@@ -33,7 +33,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 namespace
 {
-  static ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
+  static constexpr ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
     ezVariantType::Invalid,           // Invalid,
 
     ezVariantType::Bool,              // Bool,
@@ -60,7 +60,7 @@ namespace
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
 
-  static ezUInt32 s_ScriptDataTypeSizes[] = {
+  static constexpr ezUInt32 s_ScriptDataTypeSizes[] = {
     0,                                      // Invalid,
 
     sizeof(bool),                           // Bool,
@@ -87,34 +87,34 @@ namespace
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
-  static ezUInt32 s_ScriptDataTypeAlignments[] = {
-    0,                                               // Invalid,
+  static constexpr ezUInt32 s_ScriptDataTypeAlignments[] = {
+    0,                                       // Invalid,
 
-    EZ_ALIGNMENT_OF(bool),                           // Bool,
-    EZ_ALIGNMENT_OF(ezUInt8),                        // Byte,
-    EZ_ALIGNMENT_OF(ezInt32),                        // Int,
-    EZ_ALIGNMENT_OF(ezInt64),                        // Int64,
-    EZ_ALIGNMENT_OF(float),                          // Float,
-    EZ_ALIGNMENT_OF(double),                         // Double,
-    EZ_ALIGNMENT_OF(ezColor),                        // Color,
-    EZ_ALIGNMENT_OF(ezVec3),                         // Vector3,
-    EZ_ALIGNMENT_OF(ezQuat),                         // Quaternion,
-    EZ_ALIGNMENT_OF(ezTransform),                    // Transform,
-    EZ_ALIGNMENT_OF(ezTime),                         // Time,
-    EZ_ALIGNMENT_OF(ezAngle),                        // Angle,
-    EZ_ALIGNMENT_OF(ezString),                       // String,
-    EZ_ALIGNMENT_OF(ezHashedString),                 // HashedString,
-    EZ_ALIGNMENT_OF(ezVisualScriptGameObjectHandle), // GameObject,
-    EZ_ALIGNMENT_OF(ezVisualScriptComponentHandle),  // Component,
-    EZ_ALIGNMENT_OF(ezTypedPointer),                 // TypedPointer,
-    EZ_ALIGNMENT_OF(ezVariant),                      // Variant,
-    EZ_ALIGNMENT_OF(ezVariantArray),                 // Array,
-    EZ_ALIGNMENT_OF(ezVariantDictionary),            // Map,
-    EZ_ALIGNMENT_OF(ezScriptCoroutineHandle),        // Coroutine,
+    alignof(bool),                           // Bool,
+    alignof(ezUInt8),                        // Byte,
+    alignof(ezInt32),                        // Int,
+    alignof(ezInt64),                        // Int64,
+    alignof(float),                          // Float,
+    alignof(double),                         // Double,
+    alignof(ezColor),                        // Color,
+    alignof(ezVec3),                         // Vector3,
+    alignof(ezQuat),                         // Quaternion,
+    alignof(ezTransform),                    // Transform,
+    alignof(ezTime),                         // Time,
+    alignof(ezAngle),                        // Angle,
+    alignof(ezString),                       // String,
+    alignof(ezHashedString),                 // HashedString,
+    alignof(ezVisualScriptGameObjectHandle), // GameObject,
+    alignof(ezVisualScriptComponentHandle),  // Component,
+    alignof(ezTypedPointer),                 // TypedPointer,
+    alignof(ezVariant),                      // Variant,
+    alignof(ezVariantArray),                 // Array,
+    alignof(ezVariantDictionary),            // Map,
+    alignof(ezScriptCoroutineHandle),        // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeAlignments) == (size_t)ezVisualScriptDataType::Count);
 
-  static const char* s_ScriptDataTypeNames[] = {
+  static constexpr const char* s_ScriptDataTypeNames[] = {
     "Invalid",
 
     "Bool",

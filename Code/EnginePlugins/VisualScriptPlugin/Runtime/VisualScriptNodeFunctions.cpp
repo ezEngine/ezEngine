@@ -1510,7 +1510,7 @@ namespace
 
 ezVisualScriptGraphDescription::ExecuteFunction GetExecuteFunction(ezVisualScriptNodeDescription::Type::Enum nodeType, ezVisualScriptDataType::Enum dataType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
+  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
   auto& context = s_TypeToExecuteFunctions[nodeType];
   if (context.m_Func != nullptr)
   {

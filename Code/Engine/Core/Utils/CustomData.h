@@ -84,7 +84,7 @@ protected:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  struct alignas(EZ_ALIGNMENT_OF(T))
+  struct alignas(alignof(T))
   {
     ezUInt8 m_Data[sizeof(T)];
   };

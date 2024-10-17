@@ -84,7 +84,7 @@ EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::Allo
   static_assert(
     Helper::BLOCK_CAPACITY >= 1, "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
 
-  ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
+  ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(alignof(T))), 0);
   return block;
 }
 

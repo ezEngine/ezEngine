@@ -354,6 +354,20 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
   }
 
   {
+    chunk.BeginChunk("ConstantData", 1);
+    EZ_SUCCEED_OR_RETURN(m_ConstantDataDesc.Serialize(chunk));
+    EZ_SUCCEED_OR_RETURN(m_ConstantDataStorage.Serialize(chunk));
+    chunk.EndChunk();
+  }
+
+  {
+    chunk.BeginChunk("InstanceData", 1);
+    EZ_SUCCEED_OR_RETURN(m_InstanceDataDesc.Serialize(chunk));
+    EZ_SUCCEED_OR_RETURN(chunk.WriteHashTable(m_InstanceDataMapping.m_Content));
+    chunk.EndChunk();
+  }
+
+  {
     chunk.BeginChunk("FunctionGraphs", 1);
     chunk << m_Functions.GetCount();
 
@@ -366,20 +380,6 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
       EZ_SUCCEED_OR_RETURN(ezVisualScriptGraphDescription::Serialize(function.m_NodeDescriptions, function.m_LocalDataDesc, chunk));
     }
 
-    chunk.EndChunk();
-  }
-
-  {
-    chunk.BeginChunk("ConstantData", 1);
-    EZ_SUCCEED_OR_RETURN(m_ConstantDataDesc.Serialize(chunk));
-    EZ_SUCCEED_OR_RETURN(m_ConstantDataStorage.Serialize(chunk));
-    chunk.EndChunk();
-  }
-
-  {
-    chunk.BeginChunk("InstanceData", 1);
-    EZ_SUCCEED_OR_RETURN(m_InstanceDataDesc.Serialize(chunk));
-    EZ_SUCCEED_OR_RETURN(chunk.WriteHashTable(m_InstanceDataMapping.m_Content));
     chunk.EndChunk();
   }
 
@@ -498,7 +498,6 @@ ezResult ezVisualScriptCompiler::Compile(ezStringView sDebugAstOutputPath)
     m_PinIdToDataDesc.Clear();
   }
 
-  EZ_SUCCEED_OR_RETURN(FinalizeDataOffsets());
   EZ_SUCCEED_OR_RETURN(FinalizeConstantData());
 
   return EZ_SUCCESS;
@@ -1769,57 +1768,9 @@ ezResult ezVisualScriptCompiler::TraverseAllConnections(AstNode* pEntryAstNode, 
     bDeduplicate);
 }
 
-ezResult ezVisualScriptCompiler::FinalizeDataOffsets()
-{
-  m_Module.m_InstanceDataDesc.CalculatePerTypeStartOffsets();
-  m_Module.m_ConstantDataDesc.CalculatePerTypeStartOffsets();
-
-  auto GetDataDesc = [this](const CompiledFunction& function, DataOffset dataOffset) -> const ezVisualScriptDataDescription*
-  {
-    switch (dataOffset.GetSource())
-    {
-      case DataOffset::Source::Local:
-        return &function.m_LocalDataDesc;
-      case DataOffset::Source::Instance:
-        return &m_Module.m_InstanceDataDesc;
-      case DataOffset::Source::Constant:
-        return &m_Module.m_ConstantDataDesc;
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-    }
-
-    return nullptr;
-  };
-
-  for (auto& function : m_Module.m_Functions)
-  {
-    function.m_LocalDataDesc.CalculatePerTypeStartOffsets();
-
-    for (auto& nodeDesc : function.m_NodeDescriptions)
-    {
-      for (auto& dataOffset : nodeDesc.m_InputDataOffsets)
-      {
-        dataOffset = GetDataDesc(function, dataOffset)->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
-      }
-
-      for (auto& dataOffset : nodeDesc.m_OutputDataOffsets)
-      {
-        EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Cannot write to constant data");
-        dataOffset = GetDataDesc(function, dataOffset)->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
-      }
-    }
-  }
-
-  for (auto& it : m_Module.m_InstanceDataMapping.m_Content)
-  {
-    auto& dataOffset = it.Value().m_DataOffset;
-    dataOffset = m_Module.m_InstanceDataDesc.GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
-  }
-
-  return EZ_SUCCESS;
-}
-
 ezResult ezVisualScriptCompiler::FinalizeConstantData()
 {
+  m_Module.m_ConstantDataDesc.CalculatePerTypeStartOffsets();
   m_Module.m_ConstantDataStorage.AllocateStorage();
 
   for (auto& it : m_ConstantDataToIndex)

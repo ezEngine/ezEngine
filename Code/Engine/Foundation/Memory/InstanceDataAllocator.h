@@ -24,7 +24,7 @@ struct EZ_FOUNDATION_DLL ezInstanceDataDesc
   EZ_ALWAYS_INLINE void FillFromType()
   {
     m_uiTypeSize = sizeof(T);
-    m_uiTypeAlignment = EZ_ALIGNMENT_OF(T);
+    m_uiTypeAlignment = alignof(T);
     m_ConstructorFunction = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, T>();
     m_DestructorFunction = ezMemoryUtils::MakeDestructorFunction<T>();
   }

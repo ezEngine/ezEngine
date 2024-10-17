@@ -74,7 +74,7 @@ namespace ezInternal
   EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocator* pAllocator, size_t uiCount)
   {
     ezUInt64 safeAllocationSize = ezMath::SafeMultiply64(uiCount, sizeof(T));
-    return static_cast<T*>(pAllocator->Allocate(static_cast<size_t>(safeAllocationSize), EZ_ALIGNMENT_OF(T))); // Down-cast to size_t for 32-bit
+    return static_cast<T*>(pAllocator->Allocate(static_cast<size_t>(safeAllocationSize), alignof(T))); // Down-cast to size_t for 32-bit
   }
 
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocator* pAllocator, void* pPtr)
@@ -108,13 +108,13 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsPod)
   {
-    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), alignof(T));
   }
 
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* pPtr, ezAllocator* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsMemRelocatable)
   {
-    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+    return (T*)pAllocator->Reallocate(pPtr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), alignof(T));
   }
 
   template <typename T>
