@@ -50,10 +50,9 @@ public:
   /// \brief Gathers all RTTI types that are derived from pRtti.
   ///
   /// This includes all classes that have pRtti as a base class, either direct or indirect.
-  /// If bOnlyCreatable is true, types that cannot be created because they are abstract or have no allocator, are excluded.
   ///
   /// \sa GatherDependentTypes
-  static void GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bOnlyCreatable);
+  static void GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types);
 
   /// \brief Gathers all RTTI types that pRtti depends on and adds them to inout_types.
   ///

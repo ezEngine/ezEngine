@@ -259,14 +259,6 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   }
 }
 
-void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
-void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
 ezResult ezExtractor::Serialize(ezStreamWriter& inout_stream) const
 {
   inout_stream << m_bActive;
