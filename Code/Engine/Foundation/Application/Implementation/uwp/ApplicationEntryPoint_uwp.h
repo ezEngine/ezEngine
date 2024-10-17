@@ -45,13 +45,13 @@ namespace ezApplicationDetails
 } // namespace ezApplicationDetails
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
-#define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                                 \
+#define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...)                                                                         \
   alignas(alignof(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
-                                                                                                                                 \
-  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
-  int main(int argc, const char** argv)                                                                                          \
-  {                                                                                                                              \
-    return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                                             \
+                                                                                                                         \
+  EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                              \
+  int main(int argc, const char** argv)                                                                                  \
+  {                                                                                                                      \
+    return ::ezApplicationDetails::EntryFunc<AppClass>(__VA_ARGS__);                                                     \
   }
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)

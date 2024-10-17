@@ -88,7 +88,7 @@ namespace
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
   static constexpr ezUInt32 s_ScriptDataTypeAlignments[] = {
-    0,                                         // Invalid,
+    0,                                       // Invalid,
 
     alignof(bool),                           // Bool,
     alignof(ezUInt8),                        // Byte,
