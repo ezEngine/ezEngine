@@ -20,6 +20,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistorySourcePass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("ClearColor", m_ClearColor)->AddAttributes(new ezExposeColorAlphaAttribute())
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Input")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

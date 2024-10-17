@@ -20,6 +20,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

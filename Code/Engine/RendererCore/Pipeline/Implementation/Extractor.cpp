@@ -98,6 +98,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
+      new ezCategoryAttribute("Extractors")
     }
     EZ_END_ATTRIBUTES;
   }

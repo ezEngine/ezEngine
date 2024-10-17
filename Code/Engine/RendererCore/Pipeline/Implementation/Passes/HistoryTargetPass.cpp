@@ -15,6 +15,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHistoryTargetPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("SourcePassName", m_sSourcePassName)->AddAttributes(new ezDefaultValueAttribute("HistorySourcePass"))
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Output")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

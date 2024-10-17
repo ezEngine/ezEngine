@@ -858,13 +858,15 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
   return nullptr;
 }
 
-void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types)
+void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types, bool bOnlyCreatable)
 {
-  ezRTTI::ForEachDerivedType(pBaseRtti,
+  ezRTTI::ForEachDerivedType(
+    pBaseRtti,
     [&](const ezRTTI* pRtti)
     {
       out_types.Insert(pRtti);
-    });
+    },
+    bOnlyCreatable ? ezRTTI::ForEachOptions::ExcludeNotConcrete : ezRTTI::ForEachOptions::None);
 }
 
 void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_typesAsSet, ezDynamicArray<const ezRTTI*>* out_pTypesAsStack /*= nullptr*/)

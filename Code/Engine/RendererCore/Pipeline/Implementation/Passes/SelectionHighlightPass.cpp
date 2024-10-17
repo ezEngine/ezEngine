@@ -25,6 +25,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new ezDefaultValueAttribute(0.1f))
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Effects")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

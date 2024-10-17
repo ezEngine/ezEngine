@@ -19,6 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlendPass, 1, ezRTTIDefaultAllocator<ezBlendPa
     EZ_MEMBER_PROPERTY("BlendFactor", m_fBlendFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Utilities")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
