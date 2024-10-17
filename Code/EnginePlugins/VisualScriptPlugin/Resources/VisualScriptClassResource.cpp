@@ -141,7 +141,11 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
         ezUInt32 uiNumFunctions;
         chunk >> uiNumFunctions;
 
-        EZ_ASSERT_DEBUG(m_pInstanceDataDesc != nullptr && m_pConstantDataStorage != nullptr, "Instance and constant data must be loaded at this point");
+        if (m_pInstanceDataDesc == nullptr || m_pConstantDataStorage == nullptr)
+        {
+          ezLog::Error("Old visual script, needs re-export");
+          return ld;
+        }
 
         for (ezUInt32 i = 0; i < uiNumFunctions; ++i)
         {
