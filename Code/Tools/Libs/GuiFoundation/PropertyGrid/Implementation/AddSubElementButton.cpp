@@ -135,7 +135,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       m_SupportedTypes.Clear();
-      ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, true);
+      ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, false);
     }
     m_SupportedTypes.Insert(pProp->GetSpecificType());
 
