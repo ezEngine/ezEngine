@@ -22,7 +22,7 @@ ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified,
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
 \n\
 Example:\n\
-  -transform PC\n\
+  -transform Default\n\
 ",
   "");
 
