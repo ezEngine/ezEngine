@@ -11,7 +11,7 @@
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                \
-  alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
+  alignas(alignof(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
                                                                                                                                  \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
   int main(int argc, const char** argv)                                                                                          \

@@ -268,7 +268,7 @@ private:
   EZ_FORCE_INLINE void CopyFunctionToInplaceStorage(Function function)
   {
     EZ_ASSERT_DEBUG(
-      ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Function));
+      ezMemoryUtils::IsAligned(&m_Data, alignof(Function)), "Wrong alignment. Expected {0} bytes alignment", alignof(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DataSize - sizeof(Function));

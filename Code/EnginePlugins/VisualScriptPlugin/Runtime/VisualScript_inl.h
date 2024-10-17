@@ -5,7 +5,7 @@ void ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::AddAdditio
 {
   if (a.GetCount() > Size)
   {
-    inout_uiAdditionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_uiAdditionalDataSize, EZ_ALIGNMENT_OF(T));
+    inout_uiAdditionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_uiAdditionalDataSize, alignof(T));
     inout_uiAdditionalDataSize += a.GetCount() * sizeof(T);
   }
 }
@@ -47,7 +47,7 @@ ezResult ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::ReadFr
   }
   out_uiCount = static_cast<ezUInt8>(uiCount);
 
-  T* pTargetPtr = Init(out_uiCount, EZ_ALIGNMENT_OF(T), inout_pAdditionalData);
+  T* pTargetPtr = Init(out_uiCount, alignof(T), inout_pAdditionalData);
   const ezUInt64 uiNumBytesToRead = uiCount * sizeof(T);
   if (inout_stream.ReadBytes(pTargetPtr, uiNumBytesToRead) != uiNumBytesToRead)
     return EZ_FAILURE;
@@ -102,7 +102,7 @@ template <typename T>
 EZ_ALWAYS_INLINE constexpr ezUInt32 ezVisualScriptGraphDescription::Node::GetUserDataAlignment()
 {
   // Ensures at least 8 byte alignment, thus making it compatible between 32 and 64 bit platforms.
-  return ezMath::Max<ezUInt32>(EZ_ALIGNMENT_OF(T), 8u);
+  return ezMath::Max<ezUInt32>(alignof(T), 8u);
 }
 
 template <typename T>

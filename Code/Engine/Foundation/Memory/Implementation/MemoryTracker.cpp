@@ -77,14 +77,14 @@ namespace
 
     if (s_pTrackerDataAllocator == nullptr)
     {
-      alignas(EZ_ALIGNMENT_OF(TrackerDataAllocator)) static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
+      alignas(alignof(TrackerDataAllocator)) static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
       s_pTrackerDataAllocator = new (TrackerDataAllocatorBuffer) TrackerDataAllocator("MemoryTracker");
       EZ_ASSERT_DEV(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
     }
 
     if (s_pTrackerData == nullptr)
     {
-      alignas(EZ_ALIGNMENT_OF(TrackerData)) static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
+      alignas(alignof(TrackerData)) static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
       s_pTrackerData = new (TrackerDataBuffer) TrackerData();
       EZ_ASSERT_DEV(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
     }
