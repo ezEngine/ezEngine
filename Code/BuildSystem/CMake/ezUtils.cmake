@@ -743,3 +743,20 @@ function(ez_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
 	endif()
 
 endfunction()
+
+
+# #####################################
+# ## ez_copy_plugin_bundle(TARGET_NAME FILE_NAME)
+# #####################################
+#
+# Copies the given file with the .ezPluginBundle extension from the current source directory into the target directory.
+#
+# #####################################
+function(ez_copy_plugin_bundle TARGET_NAME FILE_NAME)
+
+	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${FILE_NAME}.ezPluginBundle" $<TARGET_FILE_DIR:${TARGET_NAME}>
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		)
+
+endfunction()

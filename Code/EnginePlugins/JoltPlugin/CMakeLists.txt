@@ -13,3 +13,4 @@ target_link_libraries(${PROJECT_NAME}
   Jolt
 )
 
+ez_copy_plugin_bundle(${PROJECT_NAME} "Jolt")
