@@ -32,8 +32,7 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
 
 ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() = default;
 
-void ezEditorShapeIconsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
