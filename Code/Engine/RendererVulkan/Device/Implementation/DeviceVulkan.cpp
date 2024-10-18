@@ -1463,11 +1463,12 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(systemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
     m_Capabilities.m_bHardwareAccelerated = m_properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    m_Capabilities.m_bSupportsTexelBuffer = true;
   }
 
-  m_Capabilities.m_bMultithreadedResourceCreation = true;
+  m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;
 
-  m_Capabilities.m_bNoOverwriteBufferUpdate = true; // TODO how to check
+  m_Capabilities.m_bSupportsNoOverwriteBufferUpdate = true; // TODO how to check
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = features.tessellationShader;
@@ -1475,31 +1476,19 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = features.geometryShader;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true; // we check this when creating the queue, always has to be supported
-  m_Capabilities.m_bInstancing = true;
-  m_Capabilities.m_b32BitIndices = true;
-  m_Capabilities.m_bIndirectDraw = true;
-  m_Capabilities.m_uiMaxConstantBuffers = ezMath::Min(m_properties.limits.maxDescriptorSetUniformBuffers, (ezUInt32)ezMath::MaxValue<ezUInt16>());
+  m_Capabilities.m_bSupportsIndirectDraw = true;
   m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   ;
-  m_Capabilities.m_bTextureArrays = true;
-  m_Capabilities.m_bCubemapArrays = true;
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  m_Capabilities.m_bSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryFd && m_extensions.m_bExternalSemaphoreFd;
+  m_Capabilities.m_bSupportsSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryFd && m_extensions.m_bExternalSemaphoreFd;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  m_Capabilities.m_bSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryWin32 && m_extensions.m_bExternalSemaphoreWin32;
+  m_Capabilities.m_bSupportsSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryWin32 && m_extensions.m_bExternalSemaphoreWin32;
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
-  m_Capabilities.m_uiMaxTextureDimension = m_properties.limits.maxImageDimension1D;
-  m_Capabilities.m_uiMaxCubemapDimension = m_properties.limits.maxImageDimensionCube;
-  m_Capabilities.m_uiMax3DTextureDimension = m_properties.limits.maxImageDimension3D;
-  m_Capabilities.m_uiMaxAnisotropy = static_cast<ezUInt16>(m_properties.limits.maxSamplerAnisotropy);
-  m_Capabilities.m_uiMaxRendertargets = m_properties.limits.maxColorAttachments;
-  m_Capabilities.m_uiUAVCount = ezMath::Min(ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages), (ezUInt32)ezMath::MaxValue<ezUInt16>());
-  m_Capabilities.m_bAlphaToCoverage = true;
-  m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
+  m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
 
-  m_Capabilities.m_bConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
+  m_Capabilities.m_bSupportsConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
 
   m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
   for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)

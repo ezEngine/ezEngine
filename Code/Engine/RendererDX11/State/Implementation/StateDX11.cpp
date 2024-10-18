@@ -204,7 +204,7 @@ ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
       m_Description.m_bConservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
     DXDesc2.ForcedSampleCount = 0;
 
-    if (!pDevice->GetCapabilities().m_bConservativeRasterization && m_Description.m_bConservativeRasterization)
+    if (!pDevice->GetCapabilities().m_bSupportsConservativeRasterization && m_Description.m_bConservativeRasterization)
     {
       ezLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
       return EZ_FAILURE;

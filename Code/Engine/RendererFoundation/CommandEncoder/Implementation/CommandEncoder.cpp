@@ -225,7 +225,7 @@ void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestO
 
   if (pDest != nullptr)
   {
-    if (updateMode == ezGALUpdateMode::NoOverwrite && !(GetDevice().GetCapabilities().m_bNoOverwriteBufferUpdate))
+    if (updateMode == ezGALUpdateMode::NoOverwrite && !(GetDevice().GetCapabilities().m_bSupportsNoOverwriteBufferUpdate))
     {
       updateMode = ezGALUpdateMode::CopyToTempStorage;
     }

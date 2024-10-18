@@ -8,10 +8,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WEB)
-  return false;
-#else
-
   ezOSFile status;
   if (status.Open("/proc/self/status", ezFileOpenMode::Read).Failed())
   {
@@ -39,7 +35,6 @@ bool ezSystemInformation::IsDebuggerAttached()
   }
 
   return *tracerPid == '0' ? false : true;
-#endif
 }
 
 void ezSystemInformation::Initialize()

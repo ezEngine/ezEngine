@@ -20,12 +20,12 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
 
   AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
-  if (caps.m_bVertexShaderRenderTargetArrayIndex)
+  if (caps.m_bSupportsVSRenderTargetArrayIndex)
   {
     AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
   }
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-  if (caps.m_bSharedTextures)
+  if (caps.m_bSupportsSharedTextures)
   {
     AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
   }
@@ -396,7 +396,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
       ReadRenderTarget();
       break;
     case SubTests::ST_VertexShaderRenderTargetArrayIndex:
-      if (!m_pDevice->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
+      if (!m_pDevice->GetCapabilities().m_bSupportsVSRenderTargetArrayIndex)
         return ezTestAppRun::Quit;
       VertexShaderRenderTargetArrayIndex();
       break;
