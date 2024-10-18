@@ -129,9 +129,9 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   // On platforms where this is disabled, one can usually only write to the user directory
   // e.g. on UWP and mobile platforms
   writableBinRoot = sUserDataPath;
-  shaderCacheRoot = sUserDataPath;
 #endif
-  ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).AssertSuccess();
+
+  ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).IgnoreResult();
 
   // for absolute paths, read-only
   ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezDataDirUsage::ReadOnly).AssertSuccess();
@@ -140,7 +140,11 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":shadercache/" for reading and writing shader files
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezDataDirUsage::ReadOnly).AssertSuccess();
+#else
   ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
+#endif
 
   // ":appdata/" for reading and writing app user data
   ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();
@@ -155,7 +159,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   {
     ezStringBuilder dir;
     ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir).IgnoreResult();
-    if (ezOSFile::ExistsDirectory(dir))
+    if (dir.IsAbsolutePath() && ezOSFile::ExistsDirectory(dir))
     {
       ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezDataDirUsage::ReadOnly).IgnoreResult();
     }

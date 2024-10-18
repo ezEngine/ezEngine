@@ -19,6 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 3, ezRTTIDefaultAllocator<ezSource
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Input")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 

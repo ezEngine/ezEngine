@@ -98,6 +98,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
+      new ezCategoryAttribute("Extractors")
     }
     EZ_END_ATTRIBUTES;
   }
@@ -258,16 +259,6 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   }
 }
 
-void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
-void ezExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
-
 ezResult ezExtractor::Serialize(ezStreamWriter& inout_stream) const
 {
   inout_stream << m_bActive;
@@ -298,8 +289,7 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 
 ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
 
-void ezVisibleObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;

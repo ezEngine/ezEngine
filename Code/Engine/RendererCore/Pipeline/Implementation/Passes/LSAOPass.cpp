@@ -29,6 +29,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass
     EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Post Processing")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

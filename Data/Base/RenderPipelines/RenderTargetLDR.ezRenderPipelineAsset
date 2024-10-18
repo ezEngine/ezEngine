@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{16933738427425888119}
+		u4 %Hash{13816272085590592866}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -25,14 +25,14 @@ Objects
 o
 {
 	Uuid %id{u4{9963617456588679781,1563984026728741796}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{1830566290297324010,1982282547191046195}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -46,14 +46,14 @@ o
 o
 {
 	Uuid %id{u4{8040735581810481776,3111516178881208199}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{1682614381082869817,4554886938269951957}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -94,7 +94,7 @@ o
 		Uuid %Color{u4{13466193223350061225,5517917346024768411}}
 		Uuid %DepthStencil{u4{1830566290297324010,1982282547191046195}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0xA0372A44,0xD393DC43}}
+		Vec2 %Node::Pos{f{0xA0814B44,0x17B3E243}}
 		Uuid %SSAO{u4{5468046685546711420,8801164129771791513}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 		b %WriteDepth{0}
@@ -123,13 +123,13 @@ o
 		b %Active{1}
 		Uuid %DepthStencil{u4{14034198369995003864,10700101904229972968}}
 		s %Name{"DepthPrePass"}
-		Vec2 %Node::Pos{f{0xC14DB643,0x283FF443}}
+		Vec2 %Node::Pos{f{0xE5700B44,0xE7B1ED43}}
 	}
 }
 o
 {
 	Uuid %id{u4{12011283833418556728,4973465496662681475}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -157,7 +157,7 @@ o
 		Uuid %Color{u4{9274128713222767741,12582973123368255024}}
 		Uuid %DepthStencil{u4{4961064452071646744,10524575577794025786}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x1B897944,0xA81BE543}}
+		Vec2 %Node::Pos{f{0x96CD8444,0xEFCFE243}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -179,7 +179,7 @@ o
 		Uuid %Color7{u4{5004863338951224826,5537335954945371348}}
 		Uuid %DepthStencil{u4{9963617456588679781,1563984026728741796}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x51BBBD44,0xD69CE143}}
+		Vec2 %Node::Pos{f{0xAFABBA44,0xA724E343}}
 	}
 }
 o
@@ -191,7 +191,7 @@ o
 	{
 		b %Active{1}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x868C7B44,0x4F000C43}}
+		Vec2 %Node::Pos{f{0xFC6E5644,0xBFE4A443}}
 	}
 }
 o
@@ -238,7 +238,7 @@ o
 		Color %MoodColor{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 		f %MoodStrength{0}
 		s %Name{"TonemapPass"}
-		Vec2 %Node::Pos{f{0x8C62A044,0x15B1E143}}
+		Vec2 %Node::Pos{f{0x1636A444,0xE638E343}}
 		Uuid %Output{u4{7642371703623570691,6852461079880770907}}
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{""}
@@ -257,21 +257,21 @@ o
 		s %Format{"ezSourceFormat::Depth24BitStencil8Bit"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{"DepthStencil"}
-		Vec2 %Node::Pos{f{0x78392B43,0x5CD4FF43}}
+		Vec2 %Node::Pos{f{0xC099CB43,0x6AB4ED43}}
 		Uuid %Output{u4{9559375821426009877,9124962636108765151}}
 	}
 }
 o
 {
 	Uuid %id{u4{13466193223350061225,5517917346024768411}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{5004863338951224826,5537335954945371348}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -284,7 +284,7 @@ o
 	{
 		b %Active{1}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0xB0C97A44,0x69613F43}}
+		Vec2 %Node::Pos{f{0x569A8144,0x3E18A643}}
 	}
 }
 o
@@ -313,7 +313,7 @@ o
 		s %Format{"ezSourceFormat::Color4Channel16BitFloat"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
 		s %Name{"ColorSource"}
-		Vec2 %Node::Pos{f{0xD6058F43,0x1832A743}}
+		Vec2 %Node::Pos{f{0xC1B31D44,0x49BDB343}}
 		Uuid %Output{u4{12443079280382946204,2690749705785395176}}
 	}
 }
@@ -349,7 +349,7 @@ o
 o
 {
 	Uuid %id{u4{13162408282571977990,6726657047997906559}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -377,21 +377,21 @@ o
 o
 {
 	Uuid %id{u4{4961064452071646744,10524575577794025786}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14034198369995003864,10700101904229972968}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14221510315544340884,11413729483061947107}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -405,7 +405,7 @@ o
 o
 {
 	Uuid %id{u4{9274128713222767741,12582973123368255024}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -419,20 +419,37 @@ o
 o
 {
 	Uuid %id{u4{11901666973795776724,16118629092518833407}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{13739049269993280616,17251731516556959719}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 }
 Types
 {
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{16131442096234646376,3633548161366985290}}
@@ -537,7 +554,7 @@ o
 }
 o
 {
-	Uuid %id{u4{15216058421323166906,8231784628729714341}}
+	Uuid %id{u4{15609827276967304487,8593125870141909041}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -545,10 +562,10 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderPipelineNodePin"}
+		s %ParentTypeName{"ezRenderPipelineNodeInputPin"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezRenderPipelineNodePassThrougPin"}
+		s %TypeName{"ezRenderPipelineNodeInputProviderPin"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -639,6 +656,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14792521444929178455,11978570214717498967}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodePassThroughPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{8467220497620689550,12026266692995877405}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -713,7 +747,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}

@@ -175,7 +175,6 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_mullo_epi32(m_v, v.m_v);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED; // not sure whether this code works so better assert
   __m128i tmp1 = _mm_mul_epu32(m_v, v.m_v);
   __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(m_v, 4), _mm_srli_si128(v.m_v, 4));
   return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, EZ_SHUFFLE(0, 2, 0, 0)), _mm_shuffle_epi32(tmp2, EZ_SHUFFLE(0, 2, 0, 0)));

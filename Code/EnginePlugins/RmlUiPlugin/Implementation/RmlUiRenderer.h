@@ -20,8 +20,7 @@ public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
   virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
 
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 private:
   void SetScissorRect(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect, bool bEnable, bool bTransformRect) const;

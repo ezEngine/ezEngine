@@ -18,6 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezSt
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Unit Tests")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
