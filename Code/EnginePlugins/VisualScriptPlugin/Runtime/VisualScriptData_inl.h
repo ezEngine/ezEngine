@@ -30,6 +30,11 @@ EZ_FORCE_INLINE ezVisualScriptDataDescription::DataOffset ezVisualScriptDataDesc
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE const ezVisualScriptDataDescription& ezVisualScriptDataStorage::GetDesc() const
+{
+  return *m_pDesc;
+}
+
 EZ_ALWAYS_INLINE bool ezVisualScriptDataStorage::IsAllocated() const
 {
   return m_Storage.GetByteBlobPtr().IsEmpty() == false;

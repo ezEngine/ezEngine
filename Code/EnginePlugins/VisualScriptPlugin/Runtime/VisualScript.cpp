@@ -132,7 +132,7 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
 // static
 const char* ezVisualScriptNodeDescription::Type::GetName(Enum type)
 {
-  EZ_ASSERT_DEBUG(type >= 0 && type < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(type >= 0 && static_cast<ezUInt32>(type) < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
   return s_NodeDescTypeNames[type];
 }
 
@@ -155,12 +155,14 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 3;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 4;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
 {
   inout_stream.WriteVersion(s_uiVisualScriptGraphDescriptionVersion);
+
+  EZ_SUCCEED_OR_RETURN(localDataDesc.Serialize(inout_stream));
 
   ezDefaultMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter stream(&streamStorage);
@@ -195,18 +197,22 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
 
   EZ_SUCCEED_OR_RETURN(streamStorage.CopyToStream(inout_stream));
 
-  EZ_SUCCEED_OR_RETURN(localDataDesc.Serialize(inout_stream));
-
   return EZ_SUCCESS;
 }
 
-ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream)
+ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
-  if (uiVersion < 3)
+  if (uiVersion < 4)
   {
-    ezLog::Error("Invalid visual script desc version. Expected >= 3 but got {}. Visual Script needs re-export", uiVersion);
+    ezLog::Error("Invalid visual script desc version. Expected >= 4 but got {}. Visual Script needs re-export", uiVersion);
     return EZ_FAILURE;
+  }
+
+  {
+    ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+    EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
+    m_pLocalDataDesc = std::move(pLocalDataDesc);
   }
 
   {
@@ -225,6 +231,33 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
 
   ezUInt8* pAdditionalData = pData + uiNumNodes * sizeof(Node);
 
+  auto GetDataDesc = [&](DataOffset dataOffset) -> const ezVisualScriptDataDescription*
+  {
+    switch (dataOffset.GetSource())
+    {
+      case DataOffset::Source::Local:
+        return m_pLocalDataDesc.Borrow();
+      case DataOffset::Source::Instance:
+        return &instanceDataDesc;
+      case DataOffset::Source::Constant:
+        return &constantDataDesc;
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    }
+
+    return nullptr;
+  };
+
+  auto CalculateDataOffsets = [&](DataOffset* pDataOffsets, ezUInt32 uiNumDataOffsets)
+  {
+    DataOffset* pDataOffsetsEnd = pDataOffsets + uiNumDataOffsets;
+    while (pDataOffsets < pDataOffsetsEnd)
+    {
+      auto& dataOffset = *pDataOffsets;
+      dataOffset = GetDataDesc(dataOffset)->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
+      ++pDataOffsets;
+    }
+  };
+
   for (auto& node : nodes)
   {
     inout_stream >> node.m_Type;
@@ -236,6 +269,9 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
     EZ_SUCCEED_OR_RETURN(node.m_InputDataOffsets.ReadFromStream(node.m_NumInputDataOffsets, inout_stream, pAdditionalData));
     EZ_SUCCEED_OR_RETURN(node.m_OutputDataOffsets.ReadFromStream(node.m_NumOutputDataOffsets, inout_stream, pAdditionalData));
 
+    CalculateDataOffsets(node.GetInputDataOffsets(), node.m_NumInputDataOffsets);
+    CalculateDataOffsets(node.GetOutputDataOffsets(), node.m_NumOutputDataOffsets);
+
     if (auto func = GetUserDataContext(node.m_Type).m_DeserializeFunc)
     {
       EZ_SUCCEED_OR_RETURN(func(node, inout_stream, pAdditionalData));
@@ -243,10 +279,6 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
   }
 
   m_Nodes = nodes;
-
-  ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-  EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
-  m_pLocalDataDesc = pLocalDataDesc;
 
   return EZ_SUCCESS;
 }

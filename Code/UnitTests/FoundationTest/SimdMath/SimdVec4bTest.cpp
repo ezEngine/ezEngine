@@ -16,7 +16,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     static_assert(sizeof(ezSimdVec4b) == 16);
-    static_assert(EZ_ALIGNMENT_OF(ezSimdVec4b) == 16);
+    static_assert(alignof(ezSimdVec4b) == 16);
 #endif
 
     ezSimdVec4b vInit1B(true);

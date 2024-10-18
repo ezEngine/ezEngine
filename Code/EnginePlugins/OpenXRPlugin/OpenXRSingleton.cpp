@@ -41,7 +41,7 @@ EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 
 static ezOpenXR g_OpenXRSingleton;
 
-XrBool32 xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity, XrDebugUtilsMessageTypeFlagsEXT messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+XrBool32 XRAPI_CALL xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity, XrDebugUtilsMessageTypeFlagsEXT messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
   switch (messageSeverity)
   {
