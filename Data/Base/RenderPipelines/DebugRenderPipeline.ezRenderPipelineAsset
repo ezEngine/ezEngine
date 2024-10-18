@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{7043523074066889094}
+		u4 %Hash{5807112971234407308}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -25,28 +25,28 @@ Objects
 o
 {
 	Uuid %id{u4{15807519551064411215,77247858918918714}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{16998811057447923592,572523296855257901}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{6721390770883104716,998600222607665395}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{13116152701087377115,1648196401408124046}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -60,21 +60,21 @@ o
 o
 {
 	Uuid %id{u4{1016260233301000877,2746538673464075022}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{1882383531854882164,2868685346905570095}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{10595549824126491381,4370258425242549633}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -407,7 +407,7 @@ o
 o
 {
 	Uuid %id{u4{456603718717937082,5168073436205112191}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -715,14 +715,14 @@ o
 o
 {
 	Uuid %id{u4{11669331867603469393,9454679715653354898}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{13615128775514053706,10199407929446804203}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -736,7 +736,7 @@ o
 o
 {
 	Uuid %id{u4{880926667688341349,11367579072065247955}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -750,42 +750,42 @@ o
 o
 {
 	Uuid %id{u4{311524437466510679,11785173779620026207}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{1247854000474290526,11883575433841546478}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14123438881861949690,12337044987432749122}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{2284003576583065243,12497344949940094184}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{11520475379869260063,14353781294673675876}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{4869963993431716571,14650361824762467471}}
-	s %t{"ezRenderPipelineNodePassThrougPin"}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -813,7 +813,7 @@ o
 o
 {
 	Uuid %id{u4{6734737347752682025,17501800443868956318}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -827,7 +827,7 @@ o
 o
 {
 	Uuid %id{u4{5135810480576470487,18136527895071051131}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -951,6 +951,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaxScreenSize"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1104,23 +1121,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15216058421323166906,8231784628729714341}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderPipelineNodePin"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderPipelineNodePassThrougPin"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{7675242589113543915,8382118129985241365}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -1143,6 +1143,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"DocumentType"}
 		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{15609827276967304487,8593125870141909041}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodeInputPin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodeInputProviderPin"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1306,6 +1323,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14792521444929178455,11978570214717498967}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodePassThroughPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{8467220497620689550,12026266692995877405}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1397,7 +1431,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}

@@ -357,8 +357,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_NINT);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return {};
+  return ezSimdVec4f(floorf(static_cast<float>(x()) + 0.5f), floorf(static_cast<float>(y()) + 0.5f), floorf(static_cast<float>(z()) + 0.5f), floorf(static_cast<float>(w()) + 0.5f));
 #endif
 }
 
@@ -367,8 +366,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_FLOOR);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return {};
+  return ezSimdVec4f(floorf(static_cast<float>(x())), floorf(static_cast<float>(y())), floorf(static_cast<float>(z())), floorf(static_cast<float>(w())));
 #endif
 }
 
@@ -377,8 +375,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_CEIL);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return {};
+  return ezSimdVec4f(ceilf(static_cast<float>(x())), ceilf(static_cast<float>(y())), ceilf(static_cast<float>(z())), ceilf(static_cast<float>(w())));
 #endif
 }
 
@@ -387,7 +384,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_TRUNC);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4f(int(x()), int(y()), int(z()), int(w()));
   return {};
 #endif
 }

@@ -17,6 +17,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAntialiasingPass, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Post Processing")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

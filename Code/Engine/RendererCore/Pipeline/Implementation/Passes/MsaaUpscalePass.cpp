@@ -18,6 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezM
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Utilities")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

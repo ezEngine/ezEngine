@@ -197,8 +197,7 @@ ezRenderData::Category ezDefaultRenderDataCategories::GUI = ezRenderData::Regist
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezMsgExtractRenderData::AddRenderData(
-  const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior)
+void ezMsgExtractRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior)
 {
   auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
   cached.m_pRenderData = pRenderData;
