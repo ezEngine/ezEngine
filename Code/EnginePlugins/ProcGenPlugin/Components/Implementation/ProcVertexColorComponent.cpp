@@ -51,7 +51,7 @@ void ezProcVertexColorComponentManager::Initialize()
     desc.m_uiTotalSize = desc.m_uiStructSize * VERTEX_COLOR_BUFFER_SIZE;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bTexelBuffer)
+    if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsTexelBuffer)
     {
       desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;

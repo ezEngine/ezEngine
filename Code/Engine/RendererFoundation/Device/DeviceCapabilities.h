@@ -48,33 +48,19 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bHardwareAccelerated = false;
 
   // General capabilities
-  bool m_bMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
-  bool m_bNoOverwriteBufferUpdate = false;
+  bool m_bSupportsMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
+  bool m_bSupportsNoOverwriteBufferUpdate = false;
 
   // Draw related capabilities
   bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT] = {};
-  bool m_bInstancing = false;
-  bool m_b32BitIndices = false;
-  bool m_bIndirectDraw = false;
-  bool m_bConservativeRasterization = false;
-  bool m_bVertexShaderRenderTargetArrayIndex = false;
-  bool m_bTexelBuffer = true; ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
-  ezUInt16 m_uiMaxConstantBuffers = 0;
+  bool m_bSupportsIndirectDraw = false;
+  bool m_bSupportsConservativeRasterization = false;
+  bool m_bSupportsVSRenderTargetArrayIndex = false;
+  bool m_bSupportsTexelBuffer = false; ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
   ezUInt16 m_uiMaxPushConstantsSize = 0;
 
 
   // Texture related capabilities
-  bool m_bTextureArrays = false;
-  bool m_bCubemapArrays = false;
-  bool m_bSharedTextures = false;
-  ezUInt16 m_uiMaxTextureDimension = 0;
-  ezUInt16 m_uiMaxCubemapDimension = 0;
-  ezUInt16 m_uiMax3DTextureDimension = 0;
-  ezUInt16 m_uiMaxAnisotropy = 0;
+  bool m_bSupportsSharedTextures = false;
   ezDynamicArray<ezBitflags<ezGALResourceFormatSupport>> m_FormatSupport;
-
-  // Output related capabilities
-  ezUInt16 m_uiMaxRendertargets = 0;
-  ezUInt16 m_uiUAVCount = 0;
-  bool m_bAlphaToCoverage = false;
 };

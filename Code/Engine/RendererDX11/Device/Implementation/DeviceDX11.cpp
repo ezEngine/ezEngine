@@ -761,14 +761,15 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(adapterDesc.DedicatedSystemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(adapterDesc.SharedSystemMemory);
     m_Capabilities.m_bHardwareAccelerated = (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
+    m_Capabilities.m_bSupportsTexelBuffer = true;
   }
 
-  m_Capabilities.m_bMultithreadedResourceCreation = true;
+  m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;
 
   switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
-      m_Capabilities.m_bNoOverwriteBufferUpdate = true;
+      m_Capabilities.m_bSupportsNoOverwriteBufferUpdate = true;
       [[fallthrough]];
 
     case D3D_FEATURE_LEVEL_11_0:
@@ -778,66 +779,36 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = true;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = true;
-      m_Capabilities.m_bCubemapArrays = true;
-      m_Capabilities.m_bSharedTextures = true;
-      m_Capabilities.m_uiMaxTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D11_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
-      m_Capabilities.m_uiMaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
-      m_Capabilities.m_uiMaxRendertargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_11_1 ? 64 : 8);
-      m_Capabilities.m_bAlphaToCoverage = true;
+      m_Capabilities.m_bSupportsIndirectDraw = true;
+      m_Capabilities.m_bSupportsSharedTextures = true;
       break;
 
-    case D3D_FEATURE_LEVEL_10_1:
-    case D3D_FEATURE_LEVEL_10_0:
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = true;
-      m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
-      m_Capabilities.m_uiMaxTextureDimension = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D10_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
-      m_Capabilities.m_uiMaxAnisotropy = D3D10_REQ_MAXANISOTROPY;
-      m_Capabilities.m_uiMaxRendertargets = D3D10_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = 0;
-      m_Capabilities.m_bAlphaToCoverage = true;
-      break;
+      // not supported any longer
 
-    case D3D_FEATURE_LEVEL_9_3:
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = false;
-      m_Capabilities.m_bCubemapArrays = false;
-      m_Capabilities.m_uiMaxTextureDimension = D3D_FL9_3_REQ_TEXTURE1D_U_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D_FL9_3_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = 0;
-      m_Capabilities.m_uiMaxAnisotropy = 16;
-      m_Capabilities.m_uiMaxRendertargets = D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = 0;
-      m_Capabilities.m_bAlphaToCoverage = false;
-      break;
+      // case D3D_FEATURE_LEVEL_10_1:
+      // case D3D_FEATURE_LEVEL_10_0:
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
+      //   m_Capabilities.m_bSupportsIndirectDraw = false;
+      //   m_Capabilities.m_bTextureArrays = true;
+      //   m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
+      //   break;
+
+      // case D3D_FEATURE_LEVEL_9_3:
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = false;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
+      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
+      //   m_Capabilities.m_bSupportsIndirectDraw = false;
+      //   m_Capabilities.m_bTextureArrays = false;
+      //   m_Capabilities.m_bCubemapArrays = false;
+      //   break;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -849,13 +820,13 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureOpts2;
     if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS2, &featureOpts2, sizeof(featureOpts2))))
     {
-      m_Capabilities.m_bConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
+      m_Capabilities.m_bSupportsConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
     }
 
     D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureOpts3;
     if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureOpts3, sizeof(featureOpts3))))
     {
-      m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
+      m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
     }
   }
 

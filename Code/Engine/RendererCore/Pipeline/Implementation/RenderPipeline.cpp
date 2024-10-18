@@ -1170,7 +1170,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
 
-  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bVertexShaderRenderTargetArrayIndex)
+  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsVSRenderTargetArrayIndex)
     pRenderContext->SetShaderPermutationVariable(sVSRTAI, sTrue);
   else
     pRenderContext->SetShaderPermutationVariable(sVSRTAI, sFalse);

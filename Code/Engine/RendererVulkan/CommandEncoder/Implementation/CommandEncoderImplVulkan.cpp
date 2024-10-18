@@ -594,7 +594,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
 
     const ezUInt32 arraySize = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
     const ezUInt32 mipLevels = textureDesc.m_uiMipLevelCount;
-    const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bVertexShaderRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
+    const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bSupportsVSRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
     if (arraySize > 1 && bStereoSupport)
     {
       copy.Init(pVulkanTexture, pStagingTexture, ezShaderUtils::ezBuiltinShaderType::CopyImageArray);
@@ -862,7 +862,7 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTextureRe
       }
 
       ezImageCopyVulkan copy(m_GALDeviceVulkan);
-      const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bVertexShaderRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
+      const bool bStereoSupport = m_GALDeviceVulkan.GetCapabilities().m_bSupportsVSRenderTargetArrayIndex || m_GALDeviceVulkan.GetCapabilities().m_bShaderStageSupported[ezGALShaderStage::GeometryShader];
       if (bStereoSupport)
       {
         copy.Init(pVulkanTexture, pVulkanTexture, ezShaderUtils::ezBuiltinShaderType::DownscaleImageArray);
