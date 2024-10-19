@@ -100,7 +100,6 @@ void ezProcVertexColorComponentManager::Deinitialize()
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
 {
   m_UpdateTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-  m_ModifiedDataRange.Reset();
 
   for (const auto& componentToUpdate : m_ComponentsToUpdate)
   {
@@ -221,6 +220,8 @@ void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExt
     dataCopy.m_Data = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_ModifiedDataRange.GetCount());
     dataCopy.m_Data.CopyFrom(m_VertexColorData.GetArrayPtr().GetSubArray(m_ModifiedDataRange.m_uiMin, m_ModifiedDataRange.GetCount()));
     dataCopy.m_uiStart = m_ModifiedDataRange.m_uiMin;
+
+    m_ModifiedDataRange.Reset();
   }
 }
 
