@@ -115,7 +115,10 @@ ezRmlUi::ezRmlUi()
 
   for (auto& font : m_pData->m_Config.m_Fonts)
   {
-    if (Rml::LoadFontFace(font.GetData()) == false)
+    // Treat last font as fall back
+    bool bIsFallbackFont = (font == m_pData->m_Config.m_Fonts.PeekBack());
+
+    if (Rml::LoadFontFace(font.GetData(), bIsFallbackFont) == false)
     {
       ezLog::Warning("Failed to load font face '{0}'.", font);
     }
