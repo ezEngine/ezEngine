@@ -708,7 +708,7 @@ void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains,
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
-  sb.SetFormat("Frame {}", uiAppFrame);
+  sb.SetFormat("GPU FRAME {}", uiAppFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #else
   EZ_IGNORE_UNUSED(uiAppFrame);

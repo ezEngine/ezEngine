@@ -532,7 +532,10 @@ void ezRenderWorld::ExtractMainViews()
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_SCOPE("ezRenderWorld::Render");
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  ezStringBuilder sb;
+  sb.SetFormat("RENDER FRAME {}", uiRenderFrame);
+  EZ_PROFILE_SCOPE(sb.GetData());
 
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
@@ -604,11 +607,6 @@ void ezRenderWorld::BeginFrame()
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  // On most platforms it doesn't matter that much how early this happens.
-  // But on HoloLens this executes something that needs to be done at the right time,
-  // for the reprojection to work properly.
-  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
-
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
   for (auto& pRenderPipeline : filteredRenderPipelines)
   {
@@ -618,6 +616,8 @@ void ezRenderWorld::BeginFrame()
       pDevice->EnqueueFrameSwapChain(hSwapChain);
     }
   }
+
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
   pDevice->BeginFrame(uiRenderFrame);
 }
 

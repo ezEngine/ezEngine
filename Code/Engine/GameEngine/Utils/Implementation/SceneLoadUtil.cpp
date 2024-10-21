@@ -102,6 +102,8 @@ void ezSceneLoadUtility::TickSceneLoading()
       break;
   }
 
+  EZ_PROFILE_SCOPE("TickSceneLoading");
+
   // update our current loading progress
   {
     m_fLoadingProgress = fCollectionPreloadPiece;
