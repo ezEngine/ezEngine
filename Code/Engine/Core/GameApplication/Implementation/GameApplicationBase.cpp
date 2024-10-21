@@ -394,6 +394,8 @@ void ezGameApplicationBase::Run()
 
 void ezGameApplicationBase::RunOneFrame()
 {
+  ezProfilingSystem::StartNewFrame();
+
   EZ_PROFILE_SCOPE("Run");
   s_bUpdatePluginsExecuted = false;
 
@@ -546,7 +548,6 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezResourceManager::PerFrameUpdate();
   ezTaskSystem::FinishFrameTasks();
   ezFrameAllocator::Swap();
-  ezProfilingSystem::StartNewFrame();
 
   // if many messages have been logged, make sure they get written to disk
   ezLog::Flush(100, ezTime::MakeFromSeconds(10));
