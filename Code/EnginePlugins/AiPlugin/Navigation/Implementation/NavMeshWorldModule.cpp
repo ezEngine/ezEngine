@@ -165,4 +165,3 @@ const dtQueryFilter& ezAiNavMeshWorldModule::GetPathSearchFilter(ezStringView sN
 
 
 EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Implementation_NavMeshWorldModule);
-

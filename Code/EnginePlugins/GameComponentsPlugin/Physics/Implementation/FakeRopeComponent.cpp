@@ -497,4 +497,3 @@ void ezFakeRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Physics_Implementation_FakeRopeComponent);
-

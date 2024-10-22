@@ -138,4 +138,3 @@ void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeComponent);
-

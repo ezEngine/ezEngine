@@ -190,4 +190,3 @@ void ezCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBou
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeVolumeComponent);
-

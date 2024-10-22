@@ -649,4 +649,3 @@ void ezHeightfieldComponentManager::AddToUpdateList(ezHeightfieldComponent* pCom
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Terrain_Implementation_HeightfieldComponent);
-

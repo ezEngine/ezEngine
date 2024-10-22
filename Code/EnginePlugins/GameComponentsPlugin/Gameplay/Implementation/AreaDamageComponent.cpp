@@ -177,4 +177,3 @@ void ezAreaDamageComponentManager::Initialize()
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_AreaDamageComponent);
-

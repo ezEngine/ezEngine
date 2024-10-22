@@ -392,4 +392,3 @@ void ezPowerConnectorComponent::OutputChanged(ezUInt16 uiOutput)
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_PowerConnectorComponent);
-

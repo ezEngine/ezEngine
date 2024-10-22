@@ -137,4 +137,3 @@ void ezAiNavMeshPathTestComponent::Update()
 
 
 EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavMeshPathTestComponent);
-

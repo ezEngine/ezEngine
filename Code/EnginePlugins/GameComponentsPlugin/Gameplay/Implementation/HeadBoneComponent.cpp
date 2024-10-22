@@ -84,4 +84,3 @@ void ezHeadBoneComponent::ChangeVerticalRotation(float fRadians)
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_HeadBoneComponent);
-

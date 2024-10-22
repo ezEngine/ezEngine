@@ -338,4 +338,3 @@ void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform, float tDiff)
 
 
 EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavigationComponent);
-
