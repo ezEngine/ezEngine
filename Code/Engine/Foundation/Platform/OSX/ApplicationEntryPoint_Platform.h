@@ -1,3 +1,3 @@
 #pragma once
 
-#include <Foundation/Platform/Posix/ApplicationEntryPoint_posix.h>
+#include <Foundation/Platform/Posix/ApplicationEntryPoint_Posix.h>
