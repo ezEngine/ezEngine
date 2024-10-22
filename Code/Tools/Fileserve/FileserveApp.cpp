@@ -26,8 +26,23 @@ void ezFileserverApp::AfterCoreSystemsStartup()
   ezFileserver::GetSingleton()->StartServer();
 #endif
 
-  ezPlugin::LoadPlugin("ezShaderCompilerVulkan", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
-  ezPlugin::LoadPlugin("ezShaderCompilerHLSL", ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+  // Load all available shader compiler plugins
+  {
+    ezFileSystemIterator it;
+    ezStringBuilder sShaderCompilerSearch(ezOSFile::GetApplicationDirectory(), "/ezShaderCompiler*");
+    sShaderCompilerSearch.MakeCleanPath();
+
+    for (it.StartSearch(sShaderCompilerSearch, ezFileSystemIteratorFlags::ReportFiles); it.IsValid(); it.Next())
+    {
+      ezStringBuilder sName = it.GetStats().m_sName;
+
+      if (sName.HasExtension("DLL"))
+      {
+        sName.RemoveFileExtension();
+        ezPlugin::LoadPlugin(sName, ezPluginLoadFlags::PluginIsOptional).IgnoreResult();
+      }
+    }
+  }
 
   ezFileserver::GetSingleton()->SetCustomMessageHandler('SHDR', ezMakeDelegate(&ezFileserverApp::ShaderMessageHandler, this));
 
