@@ -6,6 +6,7 @@
 #  include <Foundation/Basics.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
+#  include <Foundation/System/Screen.h>
 #  include <Foundation/Types/UniquePtr.h>
 #  include <android_native_app_glue.h>
 
