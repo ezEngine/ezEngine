@@ -127,6 +127,9 @@ macro(ez_create_target TYPE TARGET_NAME)
 		endif()
 	endif()
 
+	# add a platform specific include directory
+	target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Platform/${EZ_CMAKE_PLATFORM_POSTFIX}")
+
 	# PLATFORM-TODO (use general hook as above?)
 	if(EZ_CMAKE_PLATFORM_ANDROID)
 		# Add the location for native_app_glue.h to the include directories.
