@@ -134,3 +134,6 @@ void ezAiNavMeshPathTestComponent::Update()
   // GetOwner()->SetGlobalPosition(m_Steering.m_vPosition);
   // GetOwner()->SetGlobalRotation(m_Steering.m_qRotation);
 }
+
+
+EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavMeshPathTestComponent);

@@ -162,3 +162,6 @@ const dtQueryFilter& ezAiNavMeshWorldModule::GetPathSearchFilter(ezStringView sN
   ezLog::Warning("Ai Path Search Filter '{}' does not exist.", sName);
   return it.Value();
 }
+
+
+EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Implementation_NavMeshWorldModule);

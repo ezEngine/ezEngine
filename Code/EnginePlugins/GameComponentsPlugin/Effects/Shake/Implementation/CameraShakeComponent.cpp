@@ -135,3 +135,6 @@ void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_MinShake;
   s >> m_MaxShake;
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeComponent);

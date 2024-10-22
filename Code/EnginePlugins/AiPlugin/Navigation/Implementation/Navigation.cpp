@@ -358,6 +358,7 @@ bool ezAiNavigation::UpdatePathSearch()
     // the target position here may already differ from the target position when the search was started
     // so we need to use m_vPathSearchTargetPos
     // the final target position will be updated in the next Update()
+    m_PathCorridor.reset(resultPolys[0], ezRcPos(m_vCurrentPosition));
     m_PathCorridor.setCorridor(ezRcPos(m_vPathSearchTargetPos), resultPolys, (ezUInt32)iPathCorridorLength);
 
     m_uiOptimizeTopologyCounter = 0;

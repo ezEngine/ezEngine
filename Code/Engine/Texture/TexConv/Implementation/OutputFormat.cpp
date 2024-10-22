@@ -14,7 +14,10 @@ static ezImageFormat::Enum DetermineOutputFormatPC(
     if (compressionMode >= ezTexConvCompressionMode::Medium)
       return ezImageFormat::R8G8_UNORM;
 
-    return ezImageFormat::R16G16_UNORM;
+    // TODO: in the rare case that the input texture has higher precision, we could use R16G16_UNORM or R16G16_FLOAT here
+    // R16G16_UNORM isn't supported on all platforms, so R16G16_FLOAT may be better
+    // return ezImageFormat::R16G16_FLOAT;
+    return ezImageFormat::R8G8_UNORM;
   }
 
   if (targetFormat == ezTexConvUsage::Color)
