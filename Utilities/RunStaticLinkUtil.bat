@@ -9,4 +9,6 @@
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\Engine\Utilities
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\JoltPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\VisualScriptPlugin
+..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\AiPlugin
+..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\GameComponentsPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\UnitTests\TestFramework

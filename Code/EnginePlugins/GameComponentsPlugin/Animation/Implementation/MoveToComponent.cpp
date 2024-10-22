@@ -135,3 +135,7 @@ void ezMoveToComponent::Update()
 
   pOwner->SetGlobalPosition(vCurPos + vDir * fTravelDist);
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Animation_Implementation_MoveToComponent);
+

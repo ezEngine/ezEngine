@@ -212,6 +212,8 @@ namespace ezDataDirectory
 
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
     sPath.AppendPath(sRedirectedAsset);
+    sPath.MakeCleanPath();
+
     return sPath.IsAbsolutePath() && ezOSFile::ExistsFile(sPath);
   }
 

@@ -312,3 +312,7 @@ void ezCreatureCrawlComponent::Update()
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Animation_Implementation_CreatureCrawlComponent);
+

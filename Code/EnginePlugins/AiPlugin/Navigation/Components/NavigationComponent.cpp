@@ -335,3 +335,7 @@ void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform, float tDiff)
     transform.m_vPosition.z += fFallDist;
   }
 }
+
+
+EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavigationComponent);
+

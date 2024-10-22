@@ -174,3 +174,7 @@ void ezAreaDamageComponentManager::Initialize()
 
   m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Gameplay_Implementation_AreaDamageComponent);
+

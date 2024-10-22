@@ -647,3 +647,7 @@ void ezClothSheetComponentManager::UpdateBounds(const ezWorldModule::UpdateConte
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Physics_Implementation_ClothSheetComponent);
+

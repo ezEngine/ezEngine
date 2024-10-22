@@ -646,3 +646,7 @@ void ezHeightfieldComponentManager::AddToUpdateList(ezHeightfieldComponent* pCom
     m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Terrain_Implementation_HeightfieldComponent);
+

@@ -187,3 +187,7 @@ void ezCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBou
 {
   msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeVolumeComponent);
+

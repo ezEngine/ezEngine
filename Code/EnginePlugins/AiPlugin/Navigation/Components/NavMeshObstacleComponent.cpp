@@ -75,3 +75,7 @@ void ezNavMeshObstacleComponent::InvalidateSectors()
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavMeshObstacleComponent);
+
