@@ -58,8 +58,9 @@
 #pragma warning(disable:4244)
 
 // BEGIN EZ SPECIFIC UWP FIX
+#include <winapifamily.h>
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#define LUA_USE_WINDOWS  /* enable goodies for Desktop Windows */
 #else
   // system and getenv are not supported on UWP
   inline char* getenv(const char* name) { (void)name; return "NOT SUPPORTED ON UWP"; }

@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
-#  error "This header should only be included on Desktop Windows"
+#  error "This header should only be included on Windows UWP"
 #endif
 
 #ifdef _WIN64
@@ -19,8 +19,8 @@
 #undef EZ_PLATFORM_WINDOWS_UWP
 #undef EZ_PLATFORM_WINDOWS_DESKTOP
 
-#define EZ_PLATFORM_WINDOWS_UWP EZ_OFF
-#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
+#define EZ_PLATFORM_WINDOWS_UWP EZ_ON
+#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF
 
 #ifndef NULL
 #  define NULL 0
