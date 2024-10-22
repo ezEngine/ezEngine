@@ -1,9 +1,13 @@
-#include <Core/System/Implementation/android/InputDevice_android.h>
+#include <Core/CorePCH.h>
 
-#include <Core/Input/InputManager.h>
-#include <Foundation/Platform/Android/Utils/AndroidUtils.h>
-#include <android/log.h>
-#include <android_native_app_glue.h>
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+#  include <Core/System/Implementation/android/InputDevice_android.h>
+
+#  include <Core/Input/InputManager.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
+#  include <android/log.h>
+#  include <android_native_app_glue.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
@@ -13,11 +17,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // Comment in to get verbose output on android input
 // #  define DEBUG_ANDROID_INPUT
 
-#ifdef DEBUG_ANDROID_INPUT
-#  define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
-#else
-#  define DEBUG_LOG(...)
-#endif
+#  ifdef DEBUG_ANDROID_INPUT
+#    define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
+#  else
+#    define DEBUG_LOG(...)
+#  endif
 
 ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 {
@@ -224,3 +228,5 @@ bool ezStandardInputDevice::AndroidHandleInput(AInputEvent* pEvent)
   }
   return false;
 }
+
+#endif

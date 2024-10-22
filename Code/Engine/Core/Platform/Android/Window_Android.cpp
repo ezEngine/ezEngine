@@ -1,11 +1,13 @@
 #include <Core/CorePCH.h>
 
-#include <Core/System/Window.h>
-#include <Foundation/Basics.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Platform/Android/Utils/AndroidUtils.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <android_native_app_glue.h>
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+#  include <Core/System/Window.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
+#  include <Foundation/Types/UniquePtr.h>
+#  include <android_native_app_glue.h>
 
 struct ANativeWindow;
 
@@ -95,3 +97,5 @@ ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }
+
+#endif

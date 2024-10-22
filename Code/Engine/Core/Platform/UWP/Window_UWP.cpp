@@ -1,12 +1,14 @@
 #include <Core/CorePCH.h>
 
-#include <Core/System/Window.h>
-#include <Foundation/Basics.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Platform/UWP/Utils/UWPUtils.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <windows.applicationmodel.core.h>
-#include <windows.ui.core.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+#  include <Core/System/Window.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
+#  include <Foundation/Types/UniquePtr.h>
+#  include <windows.applicationmodel.core.h>
+#  include <windows.ui.core.h>
 
 namespace
 {
@@ -190,3 +192,5 @@ ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }
+
+#endif

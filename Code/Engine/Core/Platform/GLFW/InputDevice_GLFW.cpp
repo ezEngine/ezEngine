@@ -1,5 +1,9 @@
-#include <Core/System/Implementation/glfw/InputDevice_glfw.h>
-#include <GLFW/glfw3.h>
+#include <Core/CorePCH.h>
+
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+
+#  include <Core/Platform/GLFW/InputDevice_GLFW.h>
+#  include <GLFW/glfw3.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
@@ -514,3 +518,5 @@ void ezStandardInputDevice::OnScroll(double xoffset, double yoffset)
     m_InputSlotValues[ezInputSlot_MouseWheelDown] = static_cast<float>(-yoffset);
   }
 }
+
+#endif

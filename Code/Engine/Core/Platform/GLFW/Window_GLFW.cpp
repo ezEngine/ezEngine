@@ -1,17 +1,21 @@
-#include <Core/System/Window.h>
-#include <Foundation/Configuration/Startup.h>
+#include <Core/CorePCH.h>
 
-#include <GLFW/glfw3.h>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  ifdef APIENTRY
-#    undef APIENTRY
+#  include <Core/System/Window.h>
+#  include <Foundation/Configuration/Startup.h>
+
+#  include <GLFW/glfw3.h>
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#    ifdef APIENTRY
+#      undef APIENTRY
+#    endif
+
+#    include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#    define GLFW_EXPOSE_NATIVE_WIN32
+#    include <GLFW/glfw3native.h>
 #  endif
-
-#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-#  define GLFW_EXPOSE_NATIVE_WIN32
-#  include <GLFW/glfw3native.h>
-#endif
 
 namespace
 {
@@ -76,12 +80,12 @@ namespace
   }
 } // namespace
 
-#define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
-  do                                              \
-  {                                               \
-    if (ezGlfwError(__FILE__, __LINE__).Failed()) \
-      return EZ_FAILURE;                          \
-  } while (false)
+#  define EZ_GLFW_RETURN_FAILURE_ON_ERROR()         \
+    do                                              \
+    {                                               \
+      if (ezGlfwError(__FILE__, __LINE__).Failed()) \
+        return EZ_FAILURE;                          \
+    } while (false)
 
 ezResult ezWindow::Initialize()
 {
@@ -162,12 +166,12 @@ ezResult ezWindow::Initialize()
     ezLog::Error("Failed to create glfw window");
     return EZ_FAILURE;
   }
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   m_hWindowHandle.type = ezWindowHandle::Type::GLFW;
   m_hWindowHandle.glfwWindow = pWindow;
-#else
+#  else
   m_hWindowHandle = pWindow;
-#endif
+#  endif
 
   if (m_CreationDescription.m_Position != ezVec2I32(0x80000000, 0x80000000))
   {
@@ -188,12 +192,12 @@ ezResult ezWindow::Initialize()
   glfwSetScrollCallback(pWindow, &ezWindow::ScrollCallback);
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle.glfwWindow);
-#else
+#  else
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle);
-#endif
+#  endif
 
   m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
   m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
@@ -212,12 +216,12 @@ ezResult ezWindow::Destroy()
 
     m_pInputDevice = nullptr;
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
     EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "GLFW handle expected");
     glfwDestroyWindow(m_hWindowHandle.glfwWindow);
-#else
+#  else
     glfwDestroyWindow(m_hWindowHandle);
-#endif
+#  endif
     m_hWindowHandle = INVALID_INTERNAL_WINDOW_HANDLE_VALUE;
 
     m_bInitialized = false;
@@ -231,12 +235,12 @@ ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
   if (!m_bInitialized)
     return EZ_FAILURE;
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
   glfwSetWindowSize(m_hWindowHandle.glfwWindow, newWindowSize.width, newWindowSize.height);
-#else
+#  else
   glfwSetWindowSize(m_hWindowHandle, newWindowSize.width, newWindowSize.height);
-#endif
+#  endif
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
   return EZ_SUCCESS;
@@ -253,18 +257,18 @@ void ezWindow::ProcessWindowMessages()
     glfwPollEvents();
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
   if (glfwWindowShouldClose(m_hWindowHandle.glfwWindow))
   {
     Destroy().IgnoreResult();
   }
-#else
+#  else
   if (glfwWindowShouldClose(m_hWindowHandle))
   {
     Destroy().IgnoreResult();
   }
-#endif
+#  endif
 }
 
 void ezWindow::OnResize(const ezSizeU32& newWindowSize)
@@ -362,9 +366,11 @@ void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
 
 ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));
-#else
+#  else
   return m_hWindowHandle;
-#endif
+#  endif
 }
+
+#endif

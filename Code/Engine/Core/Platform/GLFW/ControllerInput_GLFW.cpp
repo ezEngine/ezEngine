@@ -1,9 +1,13 @@
-#include <Core/Input/DeviceTypes/Controller.h>
-#include <Core/Input/InputManager.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Types/UniquePtr.h>
+#include <Core/CorePCH.h>
 
-#include <GLFW/glfw3.h>
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+
+#  include <Core/Input/DeviceTypes/Controller.h>
+#  include <Core/Input/InputManager.h>
+#  include <Foundation/Configuration/Startup.h>
+#  include <Foundation/Types/UniquePtr.h>
+
+#  include <GLFW/glfw3.h>
 
 class ezControllerInputGlfw : public ezInputDeviceController
 {
@@ -254,3 +258,5 @@ void ezControllerInputGlfw::ApplyVibration(ezUInt8 uiPhysicalController, Motor::
 {
   // Unfortunately GLFW does not have vibration support
 }
+
+#endif

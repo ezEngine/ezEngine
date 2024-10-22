@@ -1,9 +1,13 @@
-#include <Core/Input/InputManager.h>
-#include <Core/System/Implementation/Win/InputDevice_win32.h>
-#include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-#include <Foundation/Strings/StringConversion.h>
+#include <Core/CorePCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Core/Input/InputManager.h>
+#  include <Core/Platform/Win/InputDevice_Platform.h>
+#  include <Foundation/Containers/HybridArray.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Strings/StringConversion.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
@@ -378,13 +382,13 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 
 // WM_INPUT mouse clicks do not work in some VMs.
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
-#define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
+#  define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
 void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
-#if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+#  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
-#endif
+#  endif
 
   if (m_bFirstWndMsg)
   {
@@ -469,7 +473,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       //  m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
       //  return;
 
-#if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+#  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 
     case WM_LBUTTONDOWN:
       m_uiMouseButtonReceivedDown[0]++;
@@ -562,13 +566,13 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       s_iMouseCaptureCount = 0;
       return;
 
-#else
+#  else
 
     case WM_LBUTTONUP:
       ApplyClipRect(m_ClipCursorMode, hWnd);
       return;
 
-#endif
+#  endif
 
     case WM_INPUT:
     {
@@ -668,7 +672,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
 // therefore in 'compatibility mode' it is just queried via standard WM_LBUTTONDOWN etc.
 // to get 'high performance' mouse clicks, this code would work fine though
 // but I doubt it makes much difference in latency
-#if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+#  if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
           for (ezInt32 mb = 0; mb < 5; ++mb)
           {
             char szTemp[32];
@@ -680,7 +684,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
               m_InputSlotValues[szTemp] = 0.0f;
           }
-#endif
+#  endif
         }
         else if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
         {
@@ -925,3 +929,5 @@ void ezStandardInputDevice::OnFocusLost(ezMinWindows::HWND hWnd)
     m_InputSlotValues[slotDown[i]] = 0;
   }
 }
+
+#endif

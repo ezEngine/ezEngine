@@ -2,6 +2,8 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
+
 extern "C"
 {
   typedef struct GLFWwindow GLFWwindow;
@@ -45,3 +47,5 @@ private:
   GLFWwindow* m_pWindow = nullptr;
   ezVec2d m_LastPos = ezVec2d(ezMath::MaxValue<double>());
 };
+
+#endif

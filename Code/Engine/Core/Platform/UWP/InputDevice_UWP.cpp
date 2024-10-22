@@ -1,10 +1,14 @@
-#include <Core/Input/InputManager.h>
-#include <Core/System/Implementation/uwp/InputDevice_uwp.h>
-#include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Platform/UWP/Utils/UWPUtils.h>
-#include <Foundation/Strings/StringConversion.h>
-#include <wrl/event.h>
+#include <Core/CorePCH.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+
+#  include <Core/Input/InputManager.h>
+#  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
+#  include <Foundation/Containers/HybridArray.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
+#  include <Foundation/Strings/StringConversion.h>
+#  include <wrl/event.h>
 
 using namespace ABI::Windows::UI::Core;
 
@@ -610,3 +614,5 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
+
+#endif

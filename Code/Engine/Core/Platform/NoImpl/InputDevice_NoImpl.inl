@@ -1,4 +1,4 @@
-#include <Core/System/Implementation/null/InputDevice_null.h>
+#include <Core/Platform/NoImpl/InputDevice_NoImpl.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)

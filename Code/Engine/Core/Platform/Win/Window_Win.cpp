@@ -1,9 +1,11 @@
 #include <Core/CorePCH.h>
 
-#include <Core/System/Window.h>
-#include <Foundation/Basics.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/System/SystemInformation.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Core/System/Window.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/System/SystemInformation.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -326,3 +328,5 @@ ezWindowHandle ezWindow::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }
+
+#endif
