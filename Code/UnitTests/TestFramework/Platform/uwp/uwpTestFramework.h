@@ -5,7 +5,7 @@
 #  include <TestFramework/Framework/TestFramework.h>
 #  include <TestFramework/TestFrameworkDLL.h>
 
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 
 /// \brief Derived ezTestFramework which signals the GUI to update whenever a new tests result comes in.
 class EZ_TEST_DLL ezUwpTestFramework : public ezTestFramework

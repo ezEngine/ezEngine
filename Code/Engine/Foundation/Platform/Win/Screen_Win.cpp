@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/Screen.h>
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)

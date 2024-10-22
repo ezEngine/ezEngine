@@ -11,7 +11,7 @@
 #  endif
 
 #  include <Core/System/Window.h>
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 #  include <windows_base.h>
 namespace ezMinWindows
 {

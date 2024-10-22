@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Time/Time.h>
 
 static double g_fInvQpcFrequency;

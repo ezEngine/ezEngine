@@ -2,7 +2,7 @@
 
 #include <TestFramework/Framework/TestFramework.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>

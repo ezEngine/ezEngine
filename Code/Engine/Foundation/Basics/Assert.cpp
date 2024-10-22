@@ -1,7 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/System/EnvironmentVariableUtils.h>

@@ -5,8 +5,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || (EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(BUILDSYSTEM_ENABLE_TRACELOGGING_LTTNG_SUPPORT))
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#    include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #    include <Foundation/Platform/Win/ETWProvider_Win.h>
+#    include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  else
 #    include <Foundation/Platform/Linux/ETWProvider_Linux.h>
 #  endif

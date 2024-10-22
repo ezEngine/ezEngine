@@ -4,7 +4,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 // Needed for vulkan.hpp which includes headers that include windows.h which then define min, breaking std::min used in vulkan.hpp :-/
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

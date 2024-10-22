@@ -1,8 +1,8 @@
 #include <Core/Input/InputManager.h>
 #include <Core/System/Implementation/Win/InputDevice_win32.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Strings/StringConversion.h>
 
 // clang-format off

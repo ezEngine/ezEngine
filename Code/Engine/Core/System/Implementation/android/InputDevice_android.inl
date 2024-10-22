@@ -1,7 +1,7 @@
 #include <Core/System/Implementation/android/InputDevice_android.h>
 
 #include <Core/Input/InputManager.h>
-#include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 

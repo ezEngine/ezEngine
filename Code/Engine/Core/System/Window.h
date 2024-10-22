@@ -39,7 +39,7 @@ extern "C"
 }
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#    include <Foundation/Basics/Platform/Win/MinWindows.h>
+#    include <Foundation/Platform/Win/Utils/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
 using ezWindowInternalHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
@@ -101,7 +101,7 @@ using ezWindowInternalHandle = GLFWwindow*;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)

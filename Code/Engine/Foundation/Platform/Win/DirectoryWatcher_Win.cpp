@@ -2,13 +2,13 @@
 
 #if (EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER))
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/Containers/DynamicArray.h>
 #  include <Foundation/IO/DirectoryWatcher.h>
 #  include <Foundation/IO/Implementation/FileSystemMirror.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Win/DosDevicePath_Win.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 // Comment in to get verbose output on the function of the directory watcher
 // #define DEBUG_FILE_WATCHER

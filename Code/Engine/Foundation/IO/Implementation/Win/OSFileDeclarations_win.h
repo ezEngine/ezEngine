@@ -16,7 +16,7 @@
 
 #if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 struct ezOSFileData
 {

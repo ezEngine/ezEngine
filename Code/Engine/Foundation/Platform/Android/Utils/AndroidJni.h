@@ -573,6 +573,6 @@ public:
   const ezJniString GetTypeSignature() const;
 };
 
-#  include <Foundation/Basics/Platform/Android/AndroidJni.inl>
+#  include <Foundation/Platform/Android/Utils/AndroidJni.inl>
 
 #endif

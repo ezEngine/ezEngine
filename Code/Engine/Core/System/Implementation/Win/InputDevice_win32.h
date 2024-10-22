@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
+#include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {

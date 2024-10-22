@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 #include <QWidget>
 

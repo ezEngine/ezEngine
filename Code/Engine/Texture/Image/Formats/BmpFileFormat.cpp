@@ -1,7 +1,7 @@
 #include <Texture/TexturePCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/ImageConversion.h>

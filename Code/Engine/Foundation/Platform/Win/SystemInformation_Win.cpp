@@ -4,10 +4,10 @@
 
 #  include <Foundation/System/SystemInformation.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#    include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#    include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #    include <windows.networking.connectivity.h>
 #  endif
 

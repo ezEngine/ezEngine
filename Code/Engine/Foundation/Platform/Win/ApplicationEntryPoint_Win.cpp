@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/ApplicationEntryPoint_Platform.h>
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 namespace ezApplicationDetails
 {

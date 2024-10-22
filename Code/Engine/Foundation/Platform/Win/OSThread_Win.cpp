@@ -5,7 +5,7 @@
 #  include <Foundation/Threading/Implementation/OSThread.h>
 #  include <Foundation/Threading/Thread.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Strings/StringConversion.h>
 
 ezAtomicInteger32 ezOSThread::s_iThreadCount;

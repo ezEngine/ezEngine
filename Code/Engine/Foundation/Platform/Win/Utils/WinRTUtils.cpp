@@ -2,8 +2,6 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Basics/Platform/Win/WinRTUtils.h>
-
-
+#  include <Foundation/Platform/Win/Utils/WinRTUtils.h>
 
 #endif

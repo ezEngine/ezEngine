@@ -2,7 +2,7 @@
 
 /// \file
 #include <Foundation/Application/Application.h>
-#include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 
 class ezApplication;
 

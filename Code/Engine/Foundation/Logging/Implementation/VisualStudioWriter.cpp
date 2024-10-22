@@ -4,7 +4,7 @@
 #include <Foundation/Strings/StringConversion.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {

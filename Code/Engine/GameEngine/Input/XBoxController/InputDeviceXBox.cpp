@@ -1,8 +1,8 @@
 #include <Core/Input/InputManager.h>
 #include <Core/System/ControllerInput.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <GameEngine/Input/XBoxController/InputDeviceXBox.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

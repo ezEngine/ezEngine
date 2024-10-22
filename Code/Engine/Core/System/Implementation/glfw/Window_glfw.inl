@@ -8,7 +8,7 @@
 #    undef APIENTRY
 #  endif
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  define GLFW_EXPOSE_NATIVE_WIN32
 #  include <GLFW/glfw3native.h>
 #endif

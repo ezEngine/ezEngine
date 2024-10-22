@@ -8,7 +8,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <Foundation/Basics.h>
 #  include <Foundation/Strings/String.h>
 
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <winrt/base.h>
 
 #  include <winrt/Windows.ApplicationModel.Activation.h>

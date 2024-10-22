@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <Foundation/Types/Uuid.h>
 #  include <Windows.Foundation.numerics.h>
 

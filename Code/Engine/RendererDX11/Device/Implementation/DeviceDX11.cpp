@@ -1,8 +1,8 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <Core/System/Window.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/System/SystemInformation.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>

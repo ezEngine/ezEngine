@@ -1,6 +1,6 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/ETWWriter.h>

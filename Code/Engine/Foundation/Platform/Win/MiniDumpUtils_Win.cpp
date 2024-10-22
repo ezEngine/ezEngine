@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Platform/Win/DosDevicePath_Win.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 #  include <Foundation/System/MiniDumpUtils.h>
 #  include <Foundation/System/ProcessGroup.h>
 #  include <Foundation/Types/ScopeExit.h>

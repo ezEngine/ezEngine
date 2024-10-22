@@ -29,7 +29,7 @@
 #  undef OPAQUE
 #  undef SetPort
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 namespace ezMinWindows
 {

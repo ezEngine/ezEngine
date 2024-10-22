@@ -2,9 +2,9 @@
 
 /// \file
 
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/Platform/Win/Utils/MinWindows.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 

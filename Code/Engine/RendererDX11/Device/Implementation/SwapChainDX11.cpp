@@ -1,16 +1,16 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <Core/System/Window.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #include <d3d11.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <dxgi1_3.h>
 #endif
 
@@ -294,5 +294,3 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
   }
   return EZ_SUCCESS;
 }
-
-

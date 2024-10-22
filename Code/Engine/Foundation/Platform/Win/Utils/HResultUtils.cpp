@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#  include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #  include <Foundation/Strings/StringBuilder.h>
 #  include <Foundation/Strings/StringConversion.h>
 
@@ -29,7 +29,7 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 }
 #else
 
-#  include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#  include <Foundation/Platform/Win/Utils/HResultUtils.h>
 
 EZ_FOUNDATION_DLL ezString ezHRESULTtoString(ezMinWindows::HRESULT result)
 {

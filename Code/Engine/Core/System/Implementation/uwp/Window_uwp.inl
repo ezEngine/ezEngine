@@ -2,8 +2,8 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <windows.applicationmodel.core.h>
 #include <windows.ui.core.h>

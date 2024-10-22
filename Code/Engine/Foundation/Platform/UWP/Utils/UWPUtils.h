@@ -4,10 +4,10 @@
 #  error "uwp util header should only be included in UWP builds!"
 #endif
 
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #include <Foundation/Types/Types.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 #include <asyncinfo.h>
 #include <guiddef.h>
