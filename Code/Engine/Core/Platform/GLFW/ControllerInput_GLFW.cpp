@@ -4,6 +4,7 @@
 
 #  include <Core/Input/DeviceTypes/Controller.h>
 #  include <Core/Input/InputManager.h>
+#  include <Core/Platform/GLFW/InputDevice_GLFW.h>
 #  include <Foundation/Configuration/Startup.h>
 #  include <Foundation/Types/UniquePtr.h>
 

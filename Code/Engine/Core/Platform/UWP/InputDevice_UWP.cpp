@@ -3,7 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #  include <Core/Input/InputManager.h>
-#  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
+#  include <Core/Platform/UWP/InputDevice_Platform.h>
 #  include <Foundation/Containers/HybridArray.h>
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/UWP/Utils/UWPUtils.h>

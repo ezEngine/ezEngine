@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Core/System/Implementation/android/InputDevice_android.h>
+#  include <Core/Platform/Android/InputDevice_Platform.h>
 
 #  include <Core/Input/InputManager.h>
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>

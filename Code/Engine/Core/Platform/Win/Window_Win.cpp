@@ -5,6 +5,7 @@
 #  include <Core/System/Window.h>
 #  include <Foundation/Basics.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/SystemInformation.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
