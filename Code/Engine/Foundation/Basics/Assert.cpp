@@ -12,16 +12,9 @@
 #include <cstdlib>
 #include <ctime>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-#  include <crtdbg.h>
-#endif
+bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
-void MSVC_OutOfLine_DebugBreak(...)
-{
-  __debugbreak();
-}
-#endif
+#include <Assert_Platform.inl>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -64,50 +57,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   if (bSilentAsserts)
     return true;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-
-    // make sure the cursor is definitely shown, since the user must be able to click buttons
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // Todo: Use modern Windows API to show cursor in current window.
-    // http://stackoverflow.com/questions/37956628/change-mouse-pointer-in-uwp-app
-#  else
-  ezInt32 iHideCursor = 1;
-  while (ShowCursor(true) < 0)
-    ++iHideCursor;
-#  endif
-
-#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && defined(_DEBUG)
-
-  ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
-
-  // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
-  if (iRes == 0)
-  {
-    // when the user ignores the assert, restore the cursor show/hide state to the previous count
-#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // Todo: Use modern Windows API to restore cursor.
-#    else
-    for (ezInt32 i = 0; i < iHideCursor; ++i)
-      ShowCursor(false);
-#    endif
-
-    return false;
-  }
-
-#  else
-
-
-#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  MessageBoxA(nullptr, szTemp, "Assertion", MB_ICONERROR);
-#    endif
-
-#  endif
-
-#endif
-
-  // always do a debug-break
-  // in release-builds this will just crash the app
-  return true;
+  return ezDefaultAssertHandler_Platform(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
 }
 
 static ezAssertHandler g_AssertHandler = &ezDefaultAssertHandler;
