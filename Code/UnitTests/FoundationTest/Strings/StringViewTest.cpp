@@ -729,7 +729,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(!p.IsRelativePath());
     EZ_TEST_BOOL(p.IsRootedPath());
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
+#else
 
     p = "C:\\temp.stuff";
     EZ_TEST_BOOL(!p.IsAbsolutePath());
@@ -756,8 +756,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(p.IsRelativePath());
     EZ_TEST_BOOL(!p.IsRootedPath());
 
-#else
-#  error "Unknown platform."
 #endif
   }
 
