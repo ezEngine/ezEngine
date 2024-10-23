@@ -18,4 +18,4 @@ public:
 };
 
 // include the platform specific implementation
-#include <AllocPolicyAlignedHeap_Platform.inl>
+#include <AllocPolicyAlignedHeap_Platform.h>
