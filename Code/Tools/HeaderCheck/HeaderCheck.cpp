@@ -348,7 +348,7 @@ public:
         // file extensions are always converted to lower-case actually
         sExt = currentFile.GetFileExtension();
 
-        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
+        if (sExt.IsEqual_NoCase("h"))
         {
           ezLog::Info("Checking: {}", currentFile);
 
