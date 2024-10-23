@@ -387,10 +387,13 @@ void ezFmod::DetectPlatform()
   m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
 
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode (Android)
+  m_pData->m_sPlatform = "Desktop";
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   m_pData->m_sPlatform = "Desktop";
+
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  m_pData->m_sPlatform = "Mobile";
 
 #elif EZ_ENABLED(EZ_PLATFORM_IOS)
   m_pData->m_sPlatform = "Mobile";

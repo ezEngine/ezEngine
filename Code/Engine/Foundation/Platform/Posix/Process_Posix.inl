@@ -1,6 +1,3 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/Process.h>
