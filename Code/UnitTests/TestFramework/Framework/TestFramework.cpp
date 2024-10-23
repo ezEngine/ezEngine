@@ -2,12 +2,12 @@
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/Process.h>

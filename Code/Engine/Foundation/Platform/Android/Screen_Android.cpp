@@ -5,7 +5,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
 ezResult ezScreen::EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_Screens)

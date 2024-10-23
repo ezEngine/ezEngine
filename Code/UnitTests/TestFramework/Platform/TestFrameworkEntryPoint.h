@@ -13,7 +13,7 @@
 #  endif
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#    include <Foundation/Basics/Platform/Win/MinWindows.h>
+#    include <Foundation/Platform/Win/Utils/MinWindows.h>
 #    define EZ_NV_OPTIMUS                                                                           \
       extern "C"                                                                                    \
       {                                                                                             \

@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // TODO: This should not be included in a header, it exposes Windows.h to the outside
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <dxgi.h>
 
 struct ID3D11Device;

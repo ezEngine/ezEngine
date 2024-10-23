@@ -53,7 +53,7 @@ inline ezResult ezMutex::TryLock()
 
 #else
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 inline void ezMutex::Lock()
 {

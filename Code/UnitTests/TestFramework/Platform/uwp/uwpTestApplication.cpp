@@ -1,7 +1,7 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <Foundation/Strings/StringConversion.h>
 #  include <TestFramework/Framework/uwp/uwpTestApplication.h>
 #  include <TestFramework/Framework/uwp/uwpTestFramework.h>

@@ -406,7 +406,8 @@ public:
       ezStringBuilder currentFileLower = sCurrentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
-      bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower);
+      // ignore includes ending in "_Platform.h", they redirect to platform specific EZ headers
+      const bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower) || includeFileLower.EndsWith_NoCase("_Platform.h");
 
       if (!ignore)
       {

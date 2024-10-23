@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #  include <Foundation/Application/Application.h>
-#  include <Foundation/Application/Implementation/uwp/Application_uwp.h>
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Platform/UWP/Application_UWP.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Strings/StringConversion.h>
 
 // Disable warning produced by CppWinRT

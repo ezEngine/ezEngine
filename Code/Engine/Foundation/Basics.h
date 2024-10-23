@@ -32,15 +32,7 @@
 #include <Foundation/FoundationInternal.h>
 
 // include the different headers for the supported platforms
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/Platform_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
-#else
-#  error "Undefined platform!"
-#endif
+#include <Basics_Platform.h>
 
 // include headers for the supported compilers
 #include <Foundation/Basics/Compiler/Clang.h>

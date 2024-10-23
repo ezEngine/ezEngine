@@ -1,8 +1,8 @@
 #include <Texture/TexturePCH.h>
 
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Formats/WicFileFormat.h>
 #include <Texture/Image/Image.h>

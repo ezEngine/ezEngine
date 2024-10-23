@@ -1,9 +1,9 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "Basics.h"
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>

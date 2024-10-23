@@ -48,7 +48,7 @@ EZ_WARNING_POP()
 /// Does this by stringifying the available defines, concatenating them into one long word, which is a known #define that evaluates to 0 or 1
 #define EZ_CHECK_WINDOWS_INCLUDE(EZ_WINH_INCLUDED, WINH_INCLUDED)                               \
   static_assert(EZ_PP_CONCAT(EZ_WINCHECK_, EZ_PP_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
-    "Windows.h has been included but not through ez. #include <Foundation/Basics/Platform/Win/IncludeWindows.h> instead of Windows.h");
+    "Windows.h has been included but not through ez. #include <Foundation/Platform/Win/Utils/IncludeWindows.h> instead of Windows.h");
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 

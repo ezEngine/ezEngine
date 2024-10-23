@@ -2,8 +2,8 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <TestFramework/Platform/Android/AndroidTestApplication.h>
 #  include <TestFramework/Utilities/TestSetup.h>
 #  include <android/native_activity.h>

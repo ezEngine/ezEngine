@@ -3,7 +3,7 @@
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
+#include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
 struct alignas(4) ezMutexHandle

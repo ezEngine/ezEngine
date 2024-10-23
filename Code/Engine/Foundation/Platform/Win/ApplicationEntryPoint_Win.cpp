@@ -1,8 +1,8 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Application/Implementation/Win/ApplicationEntryPoint_win.h>
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/ApplicationEntryPoint_Platform.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 namespace ezApplicationDetails
 {

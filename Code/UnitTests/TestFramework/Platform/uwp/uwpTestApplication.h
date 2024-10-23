@@ -2,7 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <Windows.ApplicationModel.ExtendedExecution.h>
 #  include <Windows.ApplicationModel.core.h>
 #  include <Windows.Applicationmodel.h>

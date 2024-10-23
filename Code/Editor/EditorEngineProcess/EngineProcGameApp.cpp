@@ -1,9 +1,9 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>

@@ -11,19 +11,12 @@ class ezOpenDdlWriter;
 class ezOpenDdlReader;
 class ezOpenDdlReaderElement;
 
+
 // Include the proper Input implementation to use
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
-#  include <Core/System/Implementation/glfw/InputDevice_glfw.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Core/System/Implementation/Win/InputDevice_win32.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Core/System/Implementation/uwp/InputDevice_uwp.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Core/System/Implementation/android/InputDevice_android.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-#  include <Core/System/Implementation/Web/InputDevice_Web.h>
+#  include <Core/Platform/GLFW/InputDevice_GLFW.h>
 #else
-#  include <Core/System/Implementation/null/InputDevice_null.h>
+#  include <InputDevice_Platform.h>
 #endif
 
 // Currently the following scenarios are possible
@@ -39,7 +32,7 @@ extern "C"
 }
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#    include <Foundation/Basics/Platform/Win/MinWindows.h>
+#    include <Foundation/Platform/Win/Utils/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
 using ezWindowInternalHandle = GLFWwindow*;
 #    define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
@@ -101,7 +94,7 @@ using ezWindowInternalHandle = GLFWwindow*;
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 using ezWindowHandle = ezMinWindows::HWND;
 using ezWindowInternalHandle = ezWindowHandle;
 #  define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)

@@ -6,17 +6,7 @@
 #  define EZ_SUPPORTS_GLFW EZ_OFF
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/PlatformFeatures_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/Basics/Platform/OSX/PlatformFeatures_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Basics/Platform/Linux/PlatformFeatures_Linux.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Basics/Platform/Android/PlatformFeatures_Android.h>
-#else
-#  error "Undefined platform!"
-#endif
+#include <Features_Platform.h>
 
 // now check that the defines for each feature are set (either to 1 or 0, but they must be defined)
 

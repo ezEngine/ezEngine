@@ -1,7 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Foundation/Application/Implementation/Uwp/ApplicationEntryPoint_uwp.h>
+#  include <Foundation/Platform/UWP/ApplicationEntryPoint_Platform.h>
 #  include <roapi.h>
 
 namespace ezApplicationDetails

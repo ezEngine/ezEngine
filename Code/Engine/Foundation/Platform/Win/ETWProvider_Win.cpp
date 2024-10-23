@@ -4,7 +4,7 @@
 
 #  include <Foundation/Platform/Win/ETWProvider_Win.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <TraceLoggingProvider.h>
 
 // Workaround to support TraceLoggingProvider.h and /utf-8 compiler switch.

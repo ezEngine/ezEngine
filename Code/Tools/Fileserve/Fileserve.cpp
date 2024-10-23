@@ -9,7 +9,7 @@
 
 #ifdef EZ_USE_QT
 #  include <Fileserve/Gui.moc.h>
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <QApplication>
 #  include <QFileDialog>
 #  include <QSettings>

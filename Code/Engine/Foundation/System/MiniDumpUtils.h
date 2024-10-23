@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
+#include <Foundation/Platform/Win/Utils/MinWindows.h>
 #include <Foundation/Types/Status.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

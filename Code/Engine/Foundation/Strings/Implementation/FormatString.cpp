@@ -402,7 +402,7 @@ ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* szTmp, ezU
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
