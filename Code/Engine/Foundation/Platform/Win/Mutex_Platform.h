@@ -1,9 +1,3 @@
-#ifdef EZ_MUTEX_WIN_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
-
-#define EZ_MUTEX_WIN_INL_H_INCLUDED
-
 #if EZ_ENABLED(EZ_COMPILER_MSVC) && EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
 
 extern "C"
