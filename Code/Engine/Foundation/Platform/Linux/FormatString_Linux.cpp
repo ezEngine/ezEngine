@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  include <Foundation/Strings/FormatString.h>
 #  include <Foundation/Strings/String.h>
