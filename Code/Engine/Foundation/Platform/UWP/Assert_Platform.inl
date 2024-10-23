@@ -10,8 +10,15 @@ void MSVC_OutOfLine_DebugBreak(...)
 }
 #endif
 
-bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp)
 {
+  EZ_IGNORE_UNUSED(szSourceFile);
+  EZ_IGNORE_UNUSED(uiLine);
+  EZ_IGNORE_UNUSED(szFunction);
+  EZ_IGNORE_UNUSED(szExpression);
+  EZ_IGNORE_UNUSED(szAssertMsg);
+  EZ_IGNORE_UNUSED(szTemp);
+
   // make sure the cursor is definitely shown, since the user must be able to click buttons
   // Todo: Use modern Windows API to show cursor in current window.
   // http://stackoverflow.com/questions/37956628/change-mouse-pointer-in-uwp-app

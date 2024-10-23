@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <ctime>
 
-bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+bool ezDefaultAssertHandler_Platform(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg, const char* szTemp);
 
 #include <Assert_Platform.inl>
 
@@ -57,7 +57,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   if (bSilentAsserts)
     return true;
 
-  return ezDefaultAssertHandler_Platform(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+  return ezDefaultAssertHandler_Platform(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg, szTemp);
 }
 
 static ezAssertHandler g_AssertHandler = &ezDefaultAssertHandler;
