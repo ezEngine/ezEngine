@@ -8,9 +8,11 @@
 // Set all feature #defines to EZ_OFF
 #include <Foundation/Basics/AllDefinesOff.h>
 
+// include the platform specific header
+#include <Basics_Platform.h>
+
 // General detection of the OS and hardware
 #include <Foundation/Basics/Platform/DetectArchitecture.h>
-#include <Foundation/Basics/Platform/DetectPlatform.h>
 
 // Options by the user to override the build
 #include <Foundation/UserConfig.h>
@@ -30,9 +32,6 @@
 #endif
 
 #include <Foundation/FoundationInternal.h>
-
-// include the different headers for the supported platforms
-#include <Basics_Platform.h>
 
 // include headers for the supported compilers
 #include <Foundation/Basics/Compiler/Clang.h>

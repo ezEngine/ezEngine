@@ -1,8 +1,7 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_ANDROID)
-#  error "This header should only be included on Android"
-#endif
+#undef EZ_PLATFORM_ANDROID
+#define EZ_PLATFORM_ANDROID EZ_ON
 
 #include <cstdio>
 #include <malloc.h>

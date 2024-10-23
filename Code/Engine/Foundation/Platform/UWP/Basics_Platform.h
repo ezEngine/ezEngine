@@ -1,8 +1,12 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
-#  error "This header should only be included on Windows UWP"
-#endif
+#undef EZ_PLATFORM_WINDOWS
+#undef EZ_PLATFORM_WINDOWS_UWP
+#undef EZ_PLATFORM_WINDOWS_DESKTOP
+
+#define EZ_PLATFORM_WINDOWS EZ_ON
+#define EZ_PLATFORM_WINDOWS_UWP EZ_ON
+#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF
 
 #ifdef _WIN64
 #  undef EZ_PLATFORM_64BIT
@@ -15,12 +19,6 @@
 #ifndef _CRT_SECURE_NO_WARNINGS
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
-
-#undef EZ_PLATFORM_WINDOWS_UWP
-#undef EZ_PLATFORM_WINDOWS_DESKTOP
-
-#define EZ_PLATFORM_WINDOWS_UWP EZ_ON
-#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF
 
 #ifndef NULL
 #  define NULL 0

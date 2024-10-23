@@ -1,8 +1,7 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_LINUX)
-#  error "This header should only be included on Linux"
-#endif
+#undef EZ_PLATFORM_LINUX
+#define EZ_PLATFORM_LINUX EZ_ON
 
 #include <cstdio>
 #include <malloc.h>

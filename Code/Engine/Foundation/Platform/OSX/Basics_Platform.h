@@ -1,8 +1,7 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_OSX)
-#  error "This header should only be included on OSX"
-#endif
+#undef EZ_PLATFORM_OSX
+#define EZ_PLATFORM_OSX EZ_ON
 
 #include <cstdio>
 #include <pthread.h>
