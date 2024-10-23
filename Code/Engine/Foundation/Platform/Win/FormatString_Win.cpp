@@ -1,7 +1,9 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Strings/StringConversion.h>
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
