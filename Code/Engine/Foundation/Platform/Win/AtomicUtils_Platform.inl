@@ -1,9 +1,3 @@
-#ifdef EZ_ATOMICUTLS_WIN_INL_H_INCLUDED
-#  error "This file must not be included twice."
-#endif
-
-#define EZ_ATOMICUTLS_WIN_INL_H_INCLUDED
-
 #include <intrin.h>
 
 EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Read(const ezInt32& iSrc)

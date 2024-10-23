@@ -106,11 +106,5 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
   static ezInt64 CompareAndSwap(ezInt64& ref_iDest, ezInt64 iExpected, ezInt64 value); // [tested]
 };
 
-// Include inline file
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Threading/Implementation/Win/AtomicUtils_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-#  include <Foundation/Threading/Implementation/Posix/AtomicUtils_posix.h>
-#else
-#  error "Atomics are not implemented on current platform"
-#endif
+// include platforma specific implementation
+#include <AtomicUtils_Platform.inl>
