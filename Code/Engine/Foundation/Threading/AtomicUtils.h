@@ -107,4 +107,4 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
 };
 
 // include platforma specific implementation
-#include <AtomicUtils_Platform.inl>
+#include <AtomicUtils_Platform.h>
