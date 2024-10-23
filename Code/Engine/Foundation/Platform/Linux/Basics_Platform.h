@@ -3,6 +3,12 @@
 #undef EZ_PLATFORM_LINUX
 #define EZ_PLATFORM_LINUX EZ_ON
 
+#undef EZ_PLATFORM_LITTLE_ENDIAN
+#define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
+
+#undef EZ_PLATFORM_PATH_SEPARATOR
+#define EZ_PLATFORM_PATH_SEPARATOR '/'
+
 #include <cstdio>
 #include <malloc.h>
 #include <pthread.h>
@@ -17,6 +23,3 @@
 #ifdef max
 #  undef max
 #endif
-
-#undef EZ_PLATFORM_LITTLE_ENDIAN
-#define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
