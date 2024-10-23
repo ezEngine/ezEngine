@@ -1,9 +1,3 @@
 #pragma once
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Threading/Implementation/Win/ThreadingDeclarations_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-#  include <Foundation/Threading/Implementation/Posix/ThreadingDeclarations_posix.h>
-#else
-#  error "Unknown Platform."
-#endif
+#include <ThreadingDeclarations_Platform.h>

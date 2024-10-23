@@ -16,7 +16,9 @@ EZ_WARNING_DISABLE_MSVC(4985)
 EZ_WARNING_POP()
 
 // redefine NULL to nullptr
-#undef NULL
+#ifdef NULL
+#  undef NULL
+#endif
 #define NULL nullptr
 
 // include c++11 specific header

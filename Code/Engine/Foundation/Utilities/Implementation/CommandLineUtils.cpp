@@ -104,18 +104,6 @@ void ezCommandLineUtils::SetCommandLine()
   LocalFree(argvw);
 }
 
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-// Not implemented on Windows UWP.
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-// Not implemented on OSX.
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-// Not implemented on Linux.
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-// Not implemented on Android.
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-// Not implemented on Web.
-#else
-#  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
 
 const ezDynamicArray<ezString>& ezCommandLineUtils::GetCommandLineArray() const

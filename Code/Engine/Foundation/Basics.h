@@ -10,7 +10,9 @@
 
 // General detection of the OS and hardware
 #include <Foundation/Basics/Platform/DetectArchitecture.h>
-#include <Foundation/Basics/Platform/DetectPlatform.h>
+
+// Here all the different features that each platform supports are declared.
+#include <Foundation/Basics/Platform/PlatformFeatures.h>
 
 // Options by the user to override the build
 #include <Foundation/UserConfig.h>
@@ -31,19 +33,10 @@
 
 #include <Foundation/FoundationInternal.h>
 
-// include the different headers for the supported platforms
-#include <Basics_Platform.h>
-
 // include headers for the supported compilers
 #include <Foundation/Basics/Compiler/Clang.h>
 #include <Foundation/Basics/Compiler/GCC.h>
 #include <Foundation/Basics/Compiler/MSVC.h>
-
-// Here all the different features that each platform supports are declared.
-#include <Foundation/Basics/Platform/PlatformFeatures.h>
-
-// Include this last, it will ensure the previous includes have setup everything correctly
-#include <Foundation/Basics/Platform/CheckDefinitions.h>
 
 // Include common definitions and macros (e.g. static_assert)
 #include <Foundation/Basics/Platform/Common.h>

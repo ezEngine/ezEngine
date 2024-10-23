@@ -130,15 +130,7 @@ ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
   return ezStringView(sPath.GetStartPointer(), szSeparator + 1);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-const char ezPathUtils::OsSpecificPathSeparator = '\\';
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-const char ezPathUtils::OsSpecificPathSeparator = '/';
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-const char ezPathUtils::OsSpecificPathSeparator = '/';
-#else
-#  error "Unknown platform."
-#endif
+const char ezPathUtils::OsSpecificPathSeparator = EZ_PLATFORM_PATH_SEPARATOR;
 
 bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
 {
@@ -158,12 +150,8 @@ bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
   /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
   /// not sure if we should handle '//' identical to '\\' (currently we do)
   return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-  return (szPath[0] == '/');
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  return (szPath[0] == '/');
 #else
-#  error "Unknown platform."
+  return (szPath[0] == '/');
 #endif
 }
 

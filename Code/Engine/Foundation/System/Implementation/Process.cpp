@@ -1,14 +1,9 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-// Include inline file
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#    include <Foundation/System/Implementation/Win/Process_win.h>
-#  elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_OSX)
-#    include <Foundation/System/Implementation/Posix/Process_posix.h>
-#  else
-#    error "Process functions are not implemented on current platform"
-#  endif
+
+// Include platform specific implementation
+#  include <Process_Platform.inl>
 
 #  include <Foundation/Strings/Implementation/StringIterator.h>
 

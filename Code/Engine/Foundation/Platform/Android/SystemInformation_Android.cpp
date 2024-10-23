@@ -2,6 +2,6 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Foundation/Platform/Posix/SystemInformation_Posix.h>
+#  include <Foundation/Platform/Posix/SystemInformation_Posix.inl>
 
 #endif

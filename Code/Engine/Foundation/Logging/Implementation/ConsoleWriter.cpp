@@ -3,28 +3,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Time/Timestamp.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <android/log.h>
-#  define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "ezEngine", __VA_ARGS__)
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-
-static void SetConsoleColor(WORD ui)
-{
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
-#  else
-  EZ_IGNORE_UNUSED(ui);
-#  endif
-}
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-static void SetConsoleColor(ezUInt8 ui) {}
-#else
-#  error "Unknown Platform."
-static void SetConsoleColor(ezUInt8 ui) {}
-#endif
+#include <ConsoleWriter_Platform.inl>
 
 ezLog::TimestampMode ezLogWriter::Console::s_TimestampMode = ezLog::TimestampMode::None;
 
@@ -117,6 +96,3 @@ void ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode mode)
 {
   s_TimestampMode = mode;
 }
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  undef printf
-#endif

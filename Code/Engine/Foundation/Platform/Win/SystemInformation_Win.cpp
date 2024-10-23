@@ -1,15 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/System/SystemInformation.h>
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#    include <Foundation/Platform/UWP/Utils/UWPUtils.h>
-#    include <windows.networking.connectivity.h>
-#  endif
 
 #  include <Foundation/Strings/String.h>
 
@@ -61,11 +56,7 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_uiInstalledMainMemory = memStatus.ullTotalPhys;
   s_SystemInformation.m_bB64BitOS = Is64BitWindows();
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  s_SystemInformation.m_szPlatformName = "Windows - UWP";
-#  else
-  s_SystemInformation.m_szPlatformName = "Windows - Desktop";
-#  endif
+  s_SystemInformation.m_szPlatformName = EZ_PLATFORM_NAME;
 
 #  if defined BUILDSYSTEM_BUILDTYPE
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_BUILDTYPE;
@@ -74,42 +65,8 @@ void ezSystemInformation::Initialize()
 #  endif
 
   //  Get host name
-
-
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  using namespace ABI::Windows::Networking::Connectivity;
-  using namespace ABI::Windows::Networking;
-  ComPtr<INetworkInformationStatics> networkInformation;
-  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(
-        HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
-  {
-    ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
-    if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
-    {
-      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName)
-        {
-        HostNameType hostNameType;
-        if (FAILED(hostName->get_Type(&hostNameType)))
-          return true;
-
-        if (hostNameType == HostNameType_DomainName)
-        {
-          HString name;
-          if (FAILED(hostName->get_CanonicalName(name.GetAddressOf())))
-            return true;
-
-          ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(name).GetData());
-          return false;
-        }
-
-        return true; });
-    }
-  }
-
-#  else
   DWORD bufCharCount = sizeof(s_SystemInformation.m_sHostName);
   GetComputerNameA(s_SystemInformation.m_sHostName, &bufCharCount);
-#  endif
 
   s_SystemInformation.m_bIsInitialized = true;
 }
@@ -125,8 +82,6 @@ ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
 
 float ezSystemInformation::GetCPUUtilization() const
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
   LARGE_INTEGER kernel, user, idle;
   GetSystemTimes((FILETIME*)&idle, (FILETIME*)&kernel, (FILETIME*)&user);
 
@@ -143,11 +98,6 @@ float ezSystemInformation::GetCPUUtilization() const
   auto util = static_cast<float>(kernelTime + userTime - idleTime) / (kernelTime + userTime);
 
   return ezMath::Clamp(util, 0.f, 1.f) * 100.f;
-
-#  else
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0.0f;
-#  endif
 }
 
 #  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)

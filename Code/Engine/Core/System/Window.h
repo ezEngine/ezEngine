@@ -339,7 +339,6 @@ public:
   /// \brief Called when the close button of the window is clicked. Does nothing by default.
   virtual void OnClickClose() {}
 
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   /// \brief Called on any window message.
   ///
@@ -350,17 +349,6 @@ public:
   ///
   /// \see OnResizeMessage
   virtual void OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
-
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-
-#else
-#  error "Missing code for ezWindow on this platform!"
 #endif
 
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
