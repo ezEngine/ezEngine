@@ -1,14 +1,8 @@
-
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-
-#  include <Foundation/Configuration/Plugin.h>
-#  include <Foundation/IO/OSFile.h>
-#  include <Foundation/Logging/Log.h>
-#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
-#  include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 using ezPluginModule = HMODULE;
 
@@ -62,13 +56,13 @@ ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule,
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   ezStringBuilder relativePath = sFileToLoad;
   EZ_SUCCEED_OR_RETURN(relativePath.MakeRelativeTo(ezOSFile::GetApplicationDirectory()));
   ref_pModule = LoadPackagedLibrary(ezStringWChar(relativePath).GetData(), 0);
-#  else
+#else
   ref_pModule = LoadLibraryW(ezStringWChar(sFileToLoad).GetData());
-#  endif
+#endif
 
   if (ref_pModule == nullptr)
   {
@@ -86,7 +80,3 @@ ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule,
 
   return EZ_SUCCESS;
 }
-
-#else
-#  error "This file should not have been included."
-#endif

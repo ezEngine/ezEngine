@@ -1,6 +1,3 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <dlfcn.h>
 
 #include <Foundation/Configuration/Plugin.h>

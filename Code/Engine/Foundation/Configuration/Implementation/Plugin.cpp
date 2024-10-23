@@ -5,15 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID) || EZ_ENABLED(EZ_PLATFORM_WEB)
-#  include <Foundation/Configuration/Implementation/Android/Plugin_Android.h>
-#else
-#  error "Plugins not implemented on this Platform."
-#endif
+#include <Plugin_Platform.inl>
 
 ezResult UnloadPluginModule(ezPluginModule& ref_pModule, ezStringView sPluginFile);
 ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule, ezStringView sPluginFile);
