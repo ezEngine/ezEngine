@@ -7,13 +7,6 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Logging/ETWWriter.h>
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <android/log.h>
-#endif
-
 #include <stdarg.h>
 
 // Comment in to log into ezLog::Print any message that is output while no logger is registered.
@@ -245,29 +238,6 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->m_uiLoggedMsgsSinceFlush++;
 }
 
-void ezLog::Print(const char* szText)
-{
-  printf("%s", szText);
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  ezLogWriter::ETW::LogMessage(ezLogMsgType::ErrorMsg, 0, szText);
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szText).GetData());
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
-#endif
-
-  if (s_CustomPrintFunction)
-  {
-    s_CustomPrintFunction(szText);
-  }
-
-  fflush(stdout);
-  fflush(stderr);
-}
-
 void ezLog::Printf(const char* szFormat, ...)
 {
   va_list args;
@@ -284,26 +254,6 @@ void ezLog::Printf(const char* szFormat, ...)
 void ezLog::SetCustomPrintFunction(PrintFunction func)
 {
   s_CustomPrintFunction = func;
-}
-
-void ezLog::OsMessageBox(const ezFormatString& text)
-{
-  ezStringBuilder tmp;
-  ezStringBuilder display = text.GetText(tmp);
-  display.Trim(" \n\r\t");
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  const char* title = "";
-  if (ezApplication::GetApplicationInstance())
-  {
-    title = ezApplication::GetApplicationInstance()->GetApplicationName();
-  }
-
-  MessageBoxW(nullptr, ezStringWChar(display).GetData(), ezStringWChar(title), MB_OK);
-#else
-  ezLog::Print(display);
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#endif
 }
 
 void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_sTimestampOut)
