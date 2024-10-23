@@ -66,3 +66,7 @@
 #if !defined(EZ_SIMD_IMPLEMENTATION) || (EZ_SIMD_IMPLEMENTATION == 0)
 #  error "EZ_SIMD_IMPLEMENTATION is not correctly defined."
 #endif
+
+#ifndef EZ_PLATFORM_NAME
+#  error "EZ_PLATFORM_NAME is not defined."
+#endif

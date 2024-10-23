@@ -1,12 +1,14 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #  include <Foundation/System/SystemInformation.h>
 
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
+#  include <Foundation/Platform/UWP/Utils/UWPUtils.h>
 #  include <Foundation/Strings/String.h>
+#  include <windows.networking.connectivity.h>
 
 // Helper function to detect a 64-bit Windows
 bool Is64BitWindows()
@@ -65,8 +67,34 @@ void ezSystemInformation::Initialize()
 #  endif
 
   //  Get host name
-  DWORD bufCharCount = sizeof(s_SystemInformation.m_sHostName);
-  GetComputerNameA(s_SystemInformation.m_sHostName, &bufCharCount);
+  using namespace ABI::Windows::Networking::Connectivity;
+  using namespace ABI::Windows::Networking;
+  ComPtr<INetworkInformationStatics> networkInformation;
+  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(
+        HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
+  {
+    ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
+    if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
+    {
+      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName)
+        {
+        HostNameType hostNameType;
+        if (FAILED(hostName->get_Type(&hostNameType)))
+          return true;
+
+        if (hostNameType == HostNameType_DomainName)
+        {
+          HString name;
+          if (FAILED(hostName->get_CanonicalName(name.GetAddressOf())))
+            return true;
+
+          ezStringUtils::Copy(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName), ezStringUtf8(name).GetData());
+          return false;
+        }
+
+        return true; });
+    }
+  }
 
   s_SystemInformation.m_bIsInitialized = true;
 }
@@ -82,22 +110,8 @@ ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
 
 float ezSystemInformation::GetCPUUtilization() const
 {
-  LARGE_INTEGER kernel, user, idle;
-  GetSystemTimes((FILETIME*)&idle, (FILETIME*)&kernel, (FILETIME*)&user);
-
-  static thread_local uint64_t lastKernel = 0u, lastIdle = 0u, lastUser = 0u;
-
-  auto kernelTime = kernel.QuadPart - lastKernel;
-  auto idleTime = idle.QuadPart - lastIdle;
-  auto userTime = user.QuadPart - lastUser;
-
-  lastKernel = kernel.QuadPart;
-  lastUser = user.QuadPart;
-  lastIdle = idle.QuadPart;
-
-  auto util = static_cast<float>(kernelTime + userTime - idleTime) / (kernelTime + userTime);
-
-  return ezMath::Clamp(util, 0.f, 1.f) * 100.f;
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0.0f;
 }
 
 #  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)

@@ -2,6 +2,8 @@
 
 /// \file
 
+#define EZ_PLATFORM_NAME "Windows - Desktop"
+
 #undef EZ_PLATFORM_WINDOWS
 #undef EZ_PLATFORM_WINDOWS_UWP
 #undef EZ_PLATFORM_WINDOWS_DESKTOP

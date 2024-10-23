@@ -15,6 +15,8 @@
 #  undef max
 #endif
 
+#define EZ_PLATFORM_NAME "Linux"
+
 #undef EZ_PLATFORM_LINUX
 #define EZ_PLATFORM_LINUX EZ_ON
 

@@ -1,6 +1,3 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/System/SystemInformation.h>
 
 #include <Foundation/IO/OSFile.h>
@@ -58,9 +55,6 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_bB64BitOS = true;
 #else
   s_SystemInformation.m_bB64BitOS = false;
-#  if EZ_ENABLED(EZ_PLATFORM_OSX)
-#    error "32 Bit builds are not supported on OSX"
-#  endif
 #endif
 
 #if defined BUILDSYSTEM_BUILDTYPE
@@ -69,16 +63,7 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_szBuildConfiguration = "undefined";
 #endif
 
-  // Each posix system should have its correct name so they can be distinguished.
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  s_SystemInformation.m_szPlatformName = "Linux";
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  s_SystemInformation.m_szPlatformName = "Android";
-#elif EZ_ENABLED(EZ_PLATFORM_WEB)
-  s_SystemInformation.m_szPlatformName = "Web";
-#else
-#  error "Platform name not defined on current posix platform"
-#endif
+  s_SystemInformation.m_szPlatformName = EZ_PLATFORM_NAME;
 
   //  Get host name
   if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)

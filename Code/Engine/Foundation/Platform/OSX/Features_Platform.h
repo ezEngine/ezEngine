@@ -9,6 +9,8 @@
 #undef min
 #undef max
 
+#define EZ_PLATFORM_NAME "OSX"
+
 #undef EZ_PLATFORM_OSX
 #define EZ_PLATFORM_OSX EZ_ON
 

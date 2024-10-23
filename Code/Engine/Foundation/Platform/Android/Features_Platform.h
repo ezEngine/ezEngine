@@ -15,6 +15,8 @@
 #  undef max
 #endif
 
+#define EZ_PLATFORM_NAME "Android"
+
 #undef EZ_PLATFORM_ANDROID
 #define EZ_PLATFORM_ANDROID EZ_ON
 
