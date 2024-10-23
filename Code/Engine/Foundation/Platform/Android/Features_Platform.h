@@ -1,5 +1,29 @@
 #pragma once
 
+#include <cstdio>
+#include <malloc.h>
+#include <pthread.h>
+#include <stdarg.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+// unset common macros
+#ifdef min
+#  undef min
+#endif
+#ifdef max
+#  undef max
+#endif
+
+#undef EZ_PLATFORM_ANDROID
+#define EZ_PLATFORM_ANDROID EZ_ON
+
+#undef EZ_PLATFORM_LITTLE_ENDIAN
+#define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
+
+#undef EZ_PLATFORM_PATH_SEPARATOR
+#define EZ_PLATFORM_PATH_SEPARATOR '/'
+
 /// If set to 1, the POSIX file implementation will be used. Otherwise a platform specific implementation must be available.
 #undef EZ_USE_POSIX_FILE_API
 #define EZ_USE_POSIX_FILE_API EZ_ON

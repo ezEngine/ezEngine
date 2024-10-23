@@ -16,7 +16,9 @@ EZ_WARNING_DISABLE_MSVC(4985)
 EZ_WARNING_POP()
 
 // redefine NULL to nullptr
-#undef NULL
+#ifdef NULL
+#  undef NULL
+#endif
 #define NULL nullptr
 
 // include c++11 specific header
@@ -30,7 +32,7 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)

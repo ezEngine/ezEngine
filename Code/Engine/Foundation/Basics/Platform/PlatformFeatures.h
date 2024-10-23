@@ -1,12 +1,13 @@
 #pragma once
 
+// include the platform specific header
+#include <Features_Platform.h>
+
 #ifdef BUILDSYSTEM_ENABLE_GLFW_SUPPORT
 #  define EZ_SUPPORTS_GLFW EZ_ON
 #else
 #  define EZ_SUPPORTS_GLFW EZ_OFF
 #endif
-
-#include <Features_Platform.h>
 
 // now check that the defines for each feature are set (either to 1 or 0, but they must be defined)
 
@@ -44,4 +45,24 @@
 
 #ifndef EZ_SUPPORTS_LONG_PATHS
 #  error "EZ_SUPPORTS_LONG_PATHS is not defined."
+#endif
+
+#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_32BIT, EZ_PLATFORM_64BIT)
+#  error "Platform is not defined as 32 Bit or 64 Bit"
+#endif
+
+#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN)
+#  error "Endianess is not correctly defined."
+#endif
+
+#ifndef EZ_MATH_CHECK_FOR_NAN
+#  error "EZ_MATH_CHECK_FOR_NAN is not defined."
+#endif
+
+#if EZ_IS_NOT_EXCLUSIVE3(EZ_PLATFORM_ARCH_X86, EZ_PLATFORM_ARCH_ARM, EZ_PLATFORM_ARCH_WEB)
+#  error "Platform architecture is not correctly defined."
+#endif
+
+#if !defined(EZ_SIMD_IMPLEMENTATION) || (EZ_SIMD_IMPLEMENTATION == 0)
+#  error "EZ_SIMD_IMPLEMENTATION is not correctly defined."
 #endif

@@ -2,6 +2,32 @@
 
 /// \file
 
+#undef EZ_PLATFORM_WINDOWS
+#undef EZ_PLATFORM_WINDOWS_UWP
+#undef EZ_PLATFORM_WINDOWS_DESKTOP
+
+#define EZ_PLATFORM_WINDOWS EZ_ON
+#define EZ_PLATFORM_WINDOWS_UWP EZ_OFF
+#define EZ_PLATFORM_WINDOWS_DESKTOP EZ_ON
+
+#undef EZ_PLATFORM_LITTLE_ENDIAN
+#define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
+
+#undef EZ_PLATFORM_PATH_SEPARATOR
+#define EZ_PLATFORM_PATH_SEPARATOR '\\'
+
+#ifdef _WIN64
+#  undef EZ_PLATFORM_64BIT
+#  define EZ_PLATFORM_64BIT EZ_ON
+#else
+#  undef EZ_PLATFORM_32BIT
+#  define EZ_PLATFORM_32BIT EZ_ON
+#endif
+
+#ifndef _CRT_SECURE_NO_WARNINGS
+#  define _CRT_SECURE_NO_WARNINGS
+#endif
+
 /// If set to 1, the POSIX file implementation will be used. Otherwise a platform specific implementation must be available.
 #undef EZ_USE_POSIX_FILE_API
 #define EZ_USE_POSIX_FILE_API EZ_OFF
