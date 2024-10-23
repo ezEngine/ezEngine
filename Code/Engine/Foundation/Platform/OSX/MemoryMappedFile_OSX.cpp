@@ -1,5 +1,9 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/Platform/Posix/MemoryMappedFile_Posix.h>
+
+#  include <unistd.h>
+
+#  include <Foundation/Platform/Posix/MemoryMappedFile_Posix.inl>
+
 #endif

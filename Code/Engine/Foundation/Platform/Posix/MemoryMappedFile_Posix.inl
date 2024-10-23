@@ -1,6 +1,3 @@
-#include <Foundation/FoundationPCH.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
@@ -9,14 +6,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <linux/version.h>
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <unistd.h>
-#endif
 
 struct ezMemoryMappedFileImpl
 {
@@ -39,7 +28,7 @@ struct ezMemoryMappedFileImpl
       close(m_hFile);
       m_hFile = -1;
     }
-#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  ifdef EZ_POSIX_MMAP_SKIPUNLINK
     // shm_open / shm_unlink deprecated.
     // There is an alternative in ASharedMemory_create but that is only
     // available in API 26 upwards.
@@ -88,11 +77,11 @@ ezResult ezMemoryMappedFile::Open(ezStringView sAbsolutePath, Mode mode)
     prot |= PROT_WRITE;
     flags = MAP_SHARED;
   }
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-#    if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22)
+
+#  ifdef EZ_POSIX_MMAP_MAP_POPULATE
   flags |= MAP_POPULATE;
-#    endif
 #  endif
+
   m_pImpl->m_hFile = open(sPath, access | O_CLOEXEC, 0);
   if (m_pImpl->m_hFile == -1)
   {
@@ -138,10 +127,9 @@ ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSiz
   int prot = PROT_READ;
   int oflag = O_RDONLY;
   int flags = MAP_SHARED;
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-#    if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22)
+
+#  ifdef EZ_POSIX_MMAP_MAP_POPULATE
   flags |= MAP_POPULATE;
-#    endif
 #  endif
 
   if (mode == Mode::ReadWrite)
