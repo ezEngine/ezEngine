@@ -2,8 +2,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Platform/Win/ETWProvider_Win.h>
-
+#  include <Foundation/Logging/ETW.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <TraceLoggingProvider.h>
 
@@ -25,27 +24,20 @@ TRACELOGGING_DECLARE_PROVIDER(g_ezETWLogProvider);
 
 TRACELOGGING_DEFINE_PROVIDER(g_ezETWLogProvider, "ezLogProvider", EZ_LOGGER_GUID);
 
-ezETWProvider::ezETWProvider()
-{
-  TraceLoggingRegister(g_ezETWLogProvider);
-}
+static bool g_bRegistered = false;
 
-ezETWProvider::~ezETWProvider()
+void ezETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText)
 {
-  TraceLoggingUnregister(g_ezETWLogProvider);
-}
+  if (!g_bRegistered)
+  {
+    g_bRegistered = true;
+    TraceLoggingRegister(g_ezETWLogProvider);
+  }
 
-void ezETWProvider::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, ezStringView sText)
-{
   const ezStringBuilder sTemp = sText;
 
   TraceLoggingWrite(g_ezETWLogProvider, "LogMessage", TraceLoggingValue((int)eventType, "Type"), TraceLoggingValue(uiIndentation, "Indentation"),
     TraceLoggingValue(sTemp.GetData(), "Text"));
 }
 
-ezETWProvider& ezETWProvider::GetInstance()
-{
-  static ezETWProvider instance;
-  return instance;
-}
 #endif

@@ -8,12 +8,12 @@ ezGameStateWindow::ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezD
   m_CreationDescription = windowdesc;
   m_CreationDescription.AdjustWindowSizeAndPosition().IgnoreResult();
 
-  Initialize().IgnoreResult();
+  InitializeWindow().IgnoreResult();
 }
 
 ezGameStateWindow::~ezGameStateWindow()
 {
-  Destroy().IgnoreResult();
+  DestroyWindow();
 }
 
 

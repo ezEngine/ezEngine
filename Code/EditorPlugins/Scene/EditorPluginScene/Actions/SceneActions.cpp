@@ -519,12 +519,6 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine
   ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sWndCfgPathOld = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-  sWndCfgPathOld.AppendPath("Window.ddl");
-  sWndCfgPath = ezFileSystem::MigrateFileLocation(sWndCfgPathOld, sWndCfgPath);
-#endif
-
   if (ezOSFile::ExistsFile(sWndCfgPath))
   {
     arguments << "-wnd";

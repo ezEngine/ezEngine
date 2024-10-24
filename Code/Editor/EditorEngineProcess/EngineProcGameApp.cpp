@@ -2,7 +2,7 @@
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Logging/ETW.h>
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/System/CrashHandler.h>
@@ -649,7 +649,7 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-  ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezETW::LogMessageHandler);
 
   ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 

@@ -101,13 +101,6 @@ ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const
 
 ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
 {
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  if (sFile == s_sConfigFile)
-  {
-    sFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", s_sConfigFile);
-  }
-#endif
-
   ezFileReader file;
   if (file.Open(sFile).Failed())
     return EZ_FAILURE;

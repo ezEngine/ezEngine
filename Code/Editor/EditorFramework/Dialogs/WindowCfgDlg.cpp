@@ -81,12 +81,6 @@ void ezQtWindowCfgDlg::LoadDescs()
     sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-    ezStringBuilder sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    sOldPath.AppendPath("Window.ddl");
-    sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
-#endif
-
     if (m_Descs[0].LoadFromDDL(sPath).Failed())
     {
       m_Descs[0].SaveToDDL(sPath).IgnoreResult(); // make sure the file exists
@@ -98,12 +92,6 @@ void ezQtWindowCfgDlg::LoadDescs()
   {
     sPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
-
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-    ezStringBuilder sOldPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sOldPath.AppendPath("Window.ddl");
-    sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
-#endif
 
     m_bOverrideProjectDefault[1] = m_Descs[1].LoadFromDDL(sPath).Succeeded();
   }

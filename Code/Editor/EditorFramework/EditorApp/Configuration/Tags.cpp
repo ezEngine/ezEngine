@@ -36,13 +36,6 @@ void ezQtEditorApp::ReadTagRegistry()
   sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/Tags.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sOldPath;
-  sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sOldPath.AppendPath("Tags.ddl");
-  sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
-#endif
-
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {

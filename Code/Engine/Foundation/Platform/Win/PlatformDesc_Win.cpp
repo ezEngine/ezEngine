@@ -2,7 +2,7 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezPlatformDesc);
 
-ezPlatformDesc g_PlatformDescWin("Windows");
+ezPlatformDesc g_PlatformDescWin("Windows", "Desktop");
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 

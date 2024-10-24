@@ -20,13 +20,18 @@ namespace
   ezUniquePtr<ezWindowUwpData> s_uwpWindowData;
 } // namespace
 
-ezResult ezWindow::Initialize()
+ezWindowUWP::~ezWindowUWP()
+{
+  DestroyWindow();
+}
+
+ezResult ezWindowUWP::InitializeWindow()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 
   // Checking and adjustments to creation desc.
@@ -142,30 +147,27 @@ ezResult ezWindow::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindow::Destroy()
+void ezWindowUWP::DestroyWindow()
 {
   if (!m_bInitialized)
-    return EZ_SUCCESS;
+    return;
 
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
   m_pInputDevice = nullptr;
   s_uwpWindowData = nullptr;
 
-
   ezLog::Success("Window destroyed.");
-
-  return EZ_SUCCESS;
 }
 
-ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowUWP::Resize(const ezSizeU32& newWindowSize)
 {
   // #TODO Resizing fails on UWP already via the init code.
   EZ_IGNORE_UNUSED(newWindowSize);
   return EZ_FAILURE;
 }
 
-void ezWindow::ProcessWindowMessages()
+void ezWindowUWP::ProcessWindowMessages()
 {
   EZ_ASSERT_RELEASE(s_uwpWindowData != nullptr, "No uwp window data available.");
 
@@ -183,12 +185,12 @@ void ezWindow::ProcessWindowMessages()
   }
 }
 
-void ezWindow::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowUWP::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
-ezWindowHandle ezWindow::GetNativeWindowHandle() const
+ezWindowHandle ezWindowUWP::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

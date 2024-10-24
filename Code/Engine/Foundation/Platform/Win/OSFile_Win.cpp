@@ -19,7 +19,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
   return (uiHigh64 << 32) | uiLow64;
 }
 
-#  if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #    include <Shlobj.h>
 
@@ -289,7 +289,7 @@ ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezSt
   return EZ_SUCCESS;
 }
 
-#  endif // not EZ_USE_POSIX_FILE_API
+#  endif
 
 ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
 {
@@ -554,36 +554,12 @@ ezStringView ezOSFile::GetApplicationPath()
   return s_sApplicationPath;
 }
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#    include <Foundation/Platform/UWP/Utils/UWPUtils.h>
-#    include <windows.storage.h>
-#  endif
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
-    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
-    {
-      ComPtr<ABI::Windows::Storage::IApplicationData> applicationData;
-      if (SUCCEEDED(appDataStatics->get_Current(&applicationData)))
-      {
-        ComPtr<ABI::Windows::Storage::IStorageFolder> applicationDataLocal;
-        if (SUCCEEDED(applicationData->get_LocalFolder(&applicationDataLocal)))
-        {
-          ComPtr<ABI::Windows::Storage::IStorageItem> localFolderItem;
-          if (SUCCEEDED(applicationDataLocal.As(&localFolderItem)))
-          {
-            HSTRING path;
-            localFolderItem->get_Path(&path);
-            s_sUserDataPath = ezStringUtf8(path).GetData();
-          }
-        }
-      }
-    }
-#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -594,7 +570,6 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
     {
       CoTaskMemFree(pPath);
     }
-#  endif
   }
 
   ezStringBuilder s = s_sUserDataPath;
@@ -609,27 +584,6 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
 
   if (s_sTempDataPath.IsEmpty())
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    ComPtr<ABI::Windows::Storage::IApplicationDataStatics> appDataStatics;
-    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), &appDataStatics)))
-    {
-      ComPtr<ABI::Windows::Storage::IApplicationData> applicationData;
-      if (SUCCEEDED(appDataStatics->get_Current(&applicationData)))
-      {
-        ComPtr<ABI::Windows::Storage::IStorageFolder> applicationTempData;
-        if (SUCCEEDED(applicationData->get_TemporaryFolder(&applicationTempData)))
-        {
-          ComPtr<ABI::Windows::Storage::IStorageItem> tempFolderItem;
-          if (SUCCEEDED(applicationTempData.As(&tempFolderItem)))
-          {
-            HSTRING path;
-            tempFolderItem->get_Path(&path);
-            s_sTempDataPath = ezStringUtf8(path).GetData();
-          }
-        }
-      }
-    }
-#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -642,7 +596,6 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
     {
       CoTaskMemFree(pPath);
     }
-#  endif
   }
 
   s = s_sTempDataPath;
@@ -655,9 +608,6 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
 {
   if (s_sUserDocumentsPath.IsEmpty())
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    EZ_ASSERT_NOT_IMPLEMENTED;
-#  else
     wchar_t* pPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_PublicDocuments, KF_FLAG_DEFAULT, nullptr, &pPath)))
     {
@@ -668,7 +618,6 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
     {
       CoTaskMemFree(pPath);
     }
-#  endif
   }
 
   ezStringBuilder s = s_sUserDocumentsPath;
@@ -676,6 +625,8 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
   s.MakeCleanPath();
   return s;
 }
+
+#  endif
 
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {

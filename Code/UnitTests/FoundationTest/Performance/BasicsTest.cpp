@@ -91,20 +91,16 @@ public:
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
 #  define EZ_FASTCALL __fastcall
 #  define EZ_NO_INLINE __declspec(noinline)
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#else
 #  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_32BIT)
 #    define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
 #  else
 #    define EZ_FASTCALL
 #  endif
 #  define EZ_NO_INLINE __attribute__((noinline))
-#else
-#  warning Unknown Platform.
-#  define EZ_FASTCALL
-#  define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
 #endif
 
 class Derived1 : public Base

@@ -25,10 +25,6 @@ void ezQtJoltProjectSettingsDlg::EnsureConfigFileExists()
 {
   ezStringView sConfigFile = ezCollisionFilterConfig::s_sConfigFile;
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  sConfigFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", sConfigFile);
-#endif
-
   if (ezFileSystem::ExistsFile(sConfigFile))
     return;
 

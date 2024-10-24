@@ -8,7 +8,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
-ezUInt8 ezWindow::s_uiNextUnusedWindowNumber = 0;
+ezUInt8 ezWindowPlatformShared::s_uiNextUnusedWindowNumber = 0;
 
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
@@ -194,31 +194,17 @@ ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
   return EZ_SUCCESS;
 }
 
-ezWindow::ezWindow()
+ezWindowPlatformShared::ezWindowPlatformShared()
 {
   ++s_uiNextUnusedWindowNumber;
 }
 
-ezWindow::~ezWindow()
+ezWindowPlatformShared::~ezWindowPlatformShared()
 {
-  if (m_bInitialized)
-  {
-    Destroy().IgnoreResult();
-  }
   EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
-{
-  EZ_IGNORE_UNUSED(hWnd);
-  EZ_IGNORE_UNUSED(msg);
-  EZ_IGNORE_UNUSED(wparam);
-  EZ_IGNORE_UNUSED(lparam);
-}
-#endif
-
-ezUInt8 ezWindow::GetNextUnusedWindowNumber()
+ezUInt8 ezWindowPlatformShared::GetNextUnusedWindowNumber()
 {
   return s_uiNextUnusedWindowNumber;
 }

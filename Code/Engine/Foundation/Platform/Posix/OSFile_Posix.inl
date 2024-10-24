@@ -1,6 +1,3 @@
-#include <Foundation/FoundationPCH.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
@@ -9,9 +6,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <stdio.h>
 #include <sys/stat.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#ifdef EZ_POSIX_FILE_USEOLDAPI
 #  include <direct.h>
-#  define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
 #else
 #  include <dirent.h>
 #  include <fnmatch.h>
@@ -19,17 +15,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <sys/file.h>
 #  include <sys/types.h>
 #  include <unistd.h>
-#  define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <CoreFoundation/CoreFoundation.h>
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Platform/Android/Utils/AndroidJni.h>
-#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
-#  include <android_native_app_glue.h>
 #endif
 
 #ifndef PATH_MAX
@@ -41,7 +26,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   ezStringBuilder sFileCopy = sFile;
   const char* szFile = sFileCopy;
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) // UWP does not support these functions
+#ifndef EZ_POSIX_FILE_USEOLDAPI // UWP does not support these functions
   int fd = -1;
   switch (OpenMode)
   {
@@ -222,7 +207,7 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
 
 ezUInt64 ezOSFile::InternalGetFilePosition() const
 {
-#if EZ_ENABLED(EZ_USE_OLD_POSIX_FUNCTIONS)
+#ifdef EZ_POSIX_FILE_USEOLDAPI
   return static_cast<ezUInt64>(ftell(m_FileData.m_pFileHandle));
 #else
   return static_cast<ezUInt64>(ftello(m_FileData.m_pFileHandle));
@@ -231,7 +216,7 @@ ezUInt64 ezOSFile::InternalGetFilePosition() const
 
 void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const
 {
-#if EZ_ENABLED(EZ_USE_OLD_POSIX_FUNCTIONS)
+#ifdef EZ_POSIX_FILE_USEOLDAPI
   switch (Pos)
   {
     case ezFileSeekMode::FromStart:
@@ -279,7 +264,7 @@ bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
 
 ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#ifdef EZ_POSIX_FILE_USEWINDOWSAPI
   int iRes = _unlink(ezString(sFile));
 #else
   int iRes = unlink(ezString(sFile));
@@ -293,7 +278,7 @@ ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 
 ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#ifdef EZ_POSIX_FILE_USEWINDOWSAPI
   int iRes = _rmdir(ezString(sDirectory));
 #else
   int iRes = rmdir(ezString(sDirectory));
@@ -311,7 +296,7 @@ ezResult ezOSFile::InternalCreateDirectory(ezStringView sDirectory)
   if (ezStringUtils::GetCharacterCount(sDirectory.GetStartPointer(), sDirectory.GetEndPointer()) <= 1) // '/'
     return EZ_SUCCESS;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#ifdef EZ_POSIX_FILE_USEWINDOWSAPI
   int iRes = _mkdir(ezString(sDirectory));
 #else
   int iRes = mkdir(ezString(sDirectory), 0777);
@@ -338,7 +323,10 @@ ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezSt
   return EZ_SUCCESS;
 }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+#  ifndef EZ_POSIX_FILE_NOINTERNALGETFILESTATS
+
 ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
 {
   struct stat tempStat;
@@ -356,9 +344,12 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 
   return EZ_SUCCESS;
 }
+
+#  endif
+
 #endif
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) && !defined(EZ_SKIP_FOLDER_PATHS)
+#ifndef EZ_POSIX_FILE_NOGETAPPLICATIONPATH
 
 ezStringView ezOSFile::GetApplicationPath()
 {
@@ -409,6 +400,10 @@ ezStringView ezOSFile::GetApplicationPath()
   return s_sApplicationPath;
 }
 
+#endif
+
+#ifndef EZ_POSIX_FILE_NOGETUSERDATAFOLDER
+
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
@@ -429,6 +424,10 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
   s.MakeCleanPath();
   return s;
 }
+
+#endif
+
+#ifndef EZ_POSIX_FILE_NOGETTEMPDATAFOLDER
 
 ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
 {
@@ -451,6 +450,10 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
   return s;
 }
 
+#endif
+
+#ifndef EZ_POSIX_FILE_NOGETUSERDOCUMENTSFOLDER
+
 ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
 {
   if (s_sUserDocumentsPath.IsEmpty())
@@ -471,6 +474,10 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
   return s;
 }
 
+#endif
+
+#ifndef EZ_POSIX_FILE_NOGETCURRENTWORKINGDIRECTORY
+
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
   char tmp[PATH_MAX];
@@ -481,7 +488,10 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
   return clean;
 }
 
-#  if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#endif
+
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
 ezFileSystemIterator::ezFileSystemIterator() = default;
 
@@ -680,6 +690,4 @@ ezInt32 ezFileSystemIterator::InternalNext()
   return EZ_SUCCESS;
 }
 
-#  endif
-
-#endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#endif

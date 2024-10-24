@@ -51,7 +51,7 @@
 #include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Logging/ETW.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
@@ -341,9 +341,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
     ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezDataDirUsage::AllowWrites).IgnoreResult();           // for absolute paths
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();   // writing to the binary directory
-    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                  // app specific data
+    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezDataDirUsage::AllowWrites).IgnoreResult();             // for absolute paths
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();     // writing to the binary directory
+    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                    // app specific data
     ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
   }
 
@@ -357,7 +357,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-    ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezETW::LogMessageHandler);
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   m_pTranslatorFromFiles = pTranslatorEn.Borrow();
