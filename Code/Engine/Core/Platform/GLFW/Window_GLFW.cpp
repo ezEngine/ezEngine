@@ -98,7 +98,7 @@ ezResult ezWindowGLFW::InitializeWindow()
 
   if (m_bInitialized)
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 
   EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
@@ -264,12 +264,12 @@ void ezWindowGLFW::ProcessWindowMessages()
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "Expected GLFW handle");
   if (glfwWindowShouldClose(m_hWindowHandle.glfwWindow))
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 #  else
   if (glfwWindowShouldClose(m_hWindowHandle))
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 #  endif
 }

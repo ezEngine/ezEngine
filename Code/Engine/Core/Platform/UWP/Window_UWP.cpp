@@ -31,7 +31,7 @@ ezResult ezWindowUWP::InitializeWindow()
 
   if (m_bInitialized)
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 
   // Checking and adjustments to creation desc.
