@@ -21,6 +21,10 @@ void OutputToConsole(ezTestOutput::Enum type, const char* szMsg)
     case ezTestOutput::EndBlock:
       iIndentation -= 2;
       break;
+    case ezTestOutput::Details:
+      break;
+    case ezTestOutput::ImportantInfo:
+      break;
     case ezTestOutput::Success:
       uiColor = 0x0A;
       break;
