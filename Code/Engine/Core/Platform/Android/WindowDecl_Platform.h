@@ -1,3 +1,4 @@
+#  include <InputDevice_Platform.h>
 
 struct ANativeWindow;
 using ezWindowHandle = ANativeWindow*;

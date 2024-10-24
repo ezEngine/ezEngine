@@ -1,3 +1,4 @@
+#include <InputDevice_Platform.h>
 
 using ezWindowHandle = IUnknown*;
 using ezWindowInternalHandle = ezWindowHandle;
