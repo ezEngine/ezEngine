@@ -23,3 +23,8 @@
 #define EZ_TESTFRAMEWORK_ENTRY_POINT_END() \
   return 0;                                \
   }
+
+#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)             \
+  /* Execute custom init code here by using the BEGIN/END macros directly */ \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_END()
