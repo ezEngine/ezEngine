@@ -55,6 +55,3 @@
 /// Whether game objects compute and store their velocity since the last frame (increases object size)
 #define EZ_GAMEOBJECT_VELOCITY EZ_ON
 
-// Migration code path. Added in March 2023, should be removed after a 'save' time.
-#undef EZ_MIGRATE_RUNTIMECONFIGS
-#define EZ_MIGRATE_RUNTIMECONFIGS EZ_ON

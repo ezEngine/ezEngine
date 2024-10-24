@@ -64,16 +64,6 @@ void ezApplicationFileSystemConfig::Load(ezStringView sPath)
 
   m_DataDirs.Clear();
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sOldLoc;
-  if (sPath.FindSubString("RuntimeConfigs/"))
-  {
-    sOldLoc = sPath;
-    sOldLoc.ReplaceLast("RuntimeConfigs/", "");
-    sPath = ezFileSystem::MigrateFileLocation(sOldLoc, sPath);
-  }
-#endif
-
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {

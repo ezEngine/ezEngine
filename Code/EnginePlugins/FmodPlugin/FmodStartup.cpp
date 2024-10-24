@@ -162,13 +162,6 @@ ezResult ezFmodAssetProfiles::Load(ezStringView sFile)
 {
   m_AssetProfiles.Clear();
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  if (sFile == s_sConfigFile)
-  {
-    sFile = ezFileSystem::MigrateFileLocation(":project/FmodConfig.ddl", s_sConfigFile);
-  }
-#endif
-
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 

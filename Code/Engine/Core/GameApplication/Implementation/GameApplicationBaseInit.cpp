@@ -213,10 +213,6 @@ void ezGameApplicationBase::Init_ConfigureTags()
 
   ezStringView sFile = ":project/RuntimeConfigs/Tags.ddl";
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  sFile = ezFileSystem::MigrateFileLocation(":project/Tags.ddl", sFile);
-#endif
-
   ezFileReader file;
   if (file.Open(sFile).Failed())
   {

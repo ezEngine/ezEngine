@@ -13,12 +13,6 @@ void UpdateInputDynamicEnumValues()
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sOldPath.AppendPath("InputConfig.ddl");
-  sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
-#endif
-
   ezFileReader file;
   if (file.Open(sPath).Failed())
     return;
@@ -172,12 +166,6 @@ void ezQtInputConfigDlg::LoadActions()
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
-
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sOldPath.AppendPath("InputConfig.ddl");
-  sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
-#endif
 
   ezFileReader file;
   if (file.Open(sPath).Failed())

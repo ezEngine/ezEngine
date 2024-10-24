@@ -386,10 +386,6 @@ void ezGameApplication::Init_ConfigureInput()
   {
     ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-    sConfigFile = ezFileSystem::MigrateFileLocation(":project/InputConfig.ddl", sConfigFile);
-#endif
-
     ezFileReader file;
     if (file.Open(sConfigFile).Succeeded())
     {

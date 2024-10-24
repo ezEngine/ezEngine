@@ -41,13 +41,6 @@ ezResult ezRmlUiConfiguration::Load(ezStringView sFile)
 
   m_Fonts.Clear();
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  if (sFile == s_sConfigFile)
-  {
-    sFile = ezFileSystem::MigrateFileLocation(":project/RmlUiConfig.ddl", s_sConfigFile);
-  }
-#endif
-
   ezFileReader file;
   if (file.Open(sFile).Failed())
     return EZ_FAILURE;

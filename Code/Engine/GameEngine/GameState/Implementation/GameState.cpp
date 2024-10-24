@@ -458,13 +458,8 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
   if (sWndCfg.IsEmpty())
   {
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-    const ezStringView sCfgAppData = ezFileSystem::MigrateFileLocation(":appdata/Window.ddl", ":appdata/RuntimeConfigs/Window.ddl");
-    const ezStringView sCfgProject = ezFileSystem::MigrateFileLocation(":project/Window.ddl", ":project/RuntimeConfigs/Window.ddl");
-#else
     const ezStringView sCfgAppData = ":appdata/RuntimeConfigs/Window.ddl";
     const ezStringView sCfgProject = ":project/RuntimeConfigs/Window.ddl";
-#endif
 
     if (ezFileSystem::ExistsFile(sCfgAppData))
       sWndCfg = sCfgAppData;
