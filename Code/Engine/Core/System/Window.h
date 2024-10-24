@@ -239,7 +239,6 @@ protected:
   /// \remarks That means that messages like Resize will also have no effect on this variable.
   ezWindowCreationDesc m_CreationDescription;
 
-private:
   bool m_bInitialized = false;
   bool m_bVisible = true;
 

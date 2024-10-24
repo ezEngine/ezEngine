@@ -322,45 +322,45 @@ void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->m_pInputDevice)
+  if (self && self->GetInputDevice())
   {
-    self->m_pInputDevice->OnKey(key, scancode, action, mods);
+    self->GetInputDevice()->OnKey(key, scancode, action, mods);
   }
 }
 
 void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->m_pInputDevice)
+  if (self && self->GetInputDevice())
   {
-    self->m_pInputDevice->OnCharacter(codepoint);
+    self->GetInputDevice()->OnCharacter(codepoint);
   }
 }
 
 void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->m_pInputDevice)
+  if (self && self->GetInputDevice())
   {
-    self->m_pInputDevice->OnCursorPosition(xpos, ypos);
+    self->GetInputDevice()->OnCursorPosition(xpos, ypos);
   }
 }
 
 void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->m_pInputDevice)
+  if (self && self->GetInputDevice())
   {
-    self->m_pInputDevice->OnMouseButton(button, action, mods);
+    self->GetInputDevice()->OnMouseButton(button, action, mods);
   }
 }
 
 void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->m_pInputDevice)
+  if (self && self->GetInputDevice())
   {
-    self->m_pInputDevice->OnScroll(xoffset, yoffset);
+    self->GetInputDevice()->OnScroll(xoffset, yoffset);
   }
 }
 
