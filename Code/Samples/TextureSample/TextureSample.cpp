@@ -390,7 +390,7 @@ public:
     EZ_DEFAULT_DELETE(m_pDevice);
 
     // finally destroy the window
-    m_pWindow->Destroy().IgnoreResult();
+    m_pWindow->DestroyWindow();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 

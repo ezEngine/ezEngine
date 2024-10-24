@@ -8,6 +8,15 @@
 class EZ_CORE_DLL ezWindowWin : public ezWindowPlatformShared
 {
 public:
+  ~ezWindowWin();
+
+  virtual ezResult InitializeWindow() override;
+  virtual void DestroyWindow() override;
+  virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual void ProcessWindowMessages() override;
+  virtual void OnResize(const ezSizeU32& newWindowSize) override;
+  virtual ezWindowHandle GetNativeWindowHandle() const override;
+
   /// \brief Called on any window message.
   ///
   /// You can use this function for example to dispatch the message to another system.

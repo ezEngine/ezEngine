@@ -258,7 +258,7 @@ public:
     EZ_DEFAULT_DELETE(m_pDevice);
 
     // finally destroy the window
-    m_pWindow->Destroy().AssertSuccess();
+    m_pWindow->DestroyWindow();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 

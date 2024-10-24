@@ -87,7 +87,12 @@ namespace
         return EZ_FAILURE;                          \
     } while (false)
 
-ezResult ezWindowPlatformShared::Initialize()
+ezWindowGLFW::~ezWindowGLFW()
+{
+  DestroyWindow();
+}
+
+ezResult ezWindowGLFW::InitializeWindow()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
@@ -208,7 +213,7 @@ ezResult ezWindowPlatformShared::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindowPlatformShared::Destroy()
+void ezWindowGLFW::DestroyWindow()
 {
   if (m_bInitialized)
   {
@@ -226,11 +231,9 @@ ezResult ezWindowPlatformShared::Destroy()
 
     m_bInitialized = false;
   }
-
-  return EZ_SUCCESS;
 }
 
-ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowGLFW::Resize(const ezSizeU32& newWindowSize)
 {
   if (!m_bInitialized)
     return EZ_FAILURE;
@@ -246,7 +249,7 @@ ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
   return EZ_SUCCESS;
 }
 
-void ezWindowPlatformShared::ProcessWindowMessages()
+void ezWindowGLFW::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -271,7 +274,7 @@ void ezWindowPlatformShared::ProcessWindowMessages()
 #  endif
 }
 
-void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowGLFW::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
@@ -364,7 +367,7 @@ void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yof
   }
 }
 
-ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
+ezWindowHandle ezWindowGLFW::GetNativeWindowHandle() const
 {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));

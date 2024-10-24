@@ -1,34 +1,37 @@
-#include <Core/System/Window.h>
+#include <Core/Platform/NoImpl/Window_NoImpl.h>
 
-ezResult ezWindowPlatformShared::Initialize()
+ezWindowNoImpl::~ezWindowNoImpl()
+{
+}
+
+ezResult ezWindowNoImpl::InitializeWindow()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-ezResult ezWindowPlatformShared::Destroy()
+void ezWindowNoImpl::DestroyWindow()
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezResult ezWindowNoImpl::Resize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return EZ_FAILURE;
-}
-
-void ezWindowPlatformShared::ProcessWindowMessages()
+void ezWindowNoImpl::ProcessWindowMessages()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowNoImpl::OnResize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
+ezWindowHandle ezWindowNoImpl::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

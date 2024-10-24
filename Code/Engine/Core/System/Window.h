@@ -25,6 +25,8 @@ public:
   virtual ~ezWindowBase() = default;
 
   virtual ezSizeU32 GetClientAreaSize() const = 0;
+
+  /// \brief Returns the platform specific window handle.
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
 
   /// \brief Whether the window is a fullscreen window
@@ -37,6 +39,9 @@ public:
   /// Windows that are minimized or hidden are not visible.
   virtual bool IsVisible() const = 0;
 
+  /// \brief Runs the platform specific message pump.
+  ///
+  /// You should call ProcessWindowMessages every frame to keep the window responsive.
   virtual void ProcessWindowMessages() = 0;
 
   virtual void AddReference() = 0;
@@ -139,16 +144,13 @@ public:
   ezWindowPlatformShared();
 
   /// \brief Destroys the window if not already done.
-  virtual ~ezWindowPlatformShared();
+  ~ezWindowPlatformShared();
 
   /// \brief Returns the currently active description struct.
   inline const ezWindowCreationDesc& GetCreationDescription() const { return m_CreationDescription; }
 
   /// \brief Returns the size of the client area / ie. the window resolution.
   virtual ezSizeU32 GetClientAreaSize() const override { return m_CreationDescription.m_Resolution; }
-
-  /// \brief Returns the platform specific window handle.
-  virtual ezWindowHandle GetNativeWindowHandle() const override;
 
   /// \brief Returns whether the window covers an entire monitor.
   ///
@@ -166,18 +168,12 @@ public:
   virtual void AddReference() override { m_iReferenceCount.Increment(); }
   virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
-
-  /// \brief Runs the platform specific message pump.
-  ///
-  /// You should call ProcessWindowMessages every frame to keep the window responsive.
-  virtual void ProcessWindowMessages() override;
-
   /// \brief Creates a new platform specific window with the current settings
   ///
   /// Will automatically call ezWindow::Destroy if window is already initialized.
   ///
   /// \see ezWindow::Destroy, ezWindow::Initialize
-  ezResult Initialize();
+  virtual ezResult InitializeWindow() = 0;
 
   /// \brief Creates a new platform specific window with the given settings.
   ///
@@ -190,25 +186,25 @@ public:
   ezResult Initialize(const ezWindowCreationDesc& creationDescription)
   {
     m_CreationDescription = creationDescription;
-    return Initialize();
+    return InitializeWindow();
   }
 
   /// \brief Gets if the window is up and running.
   inline bool IsInitialized() const { return m_bInitialized; }
 
   /// \brief Destroys the window.
-  ezResult Destroy();
+  virtual void DestroyWindow() = 0;
 
   /// \brief Tries to resize the window.
   /// Override OnResize to get the actual new window size.
-  ezResult Resize(const ezSizeU32& newWindowSize);
+  virtual ezResult Resize(const ezSizeU32& newWindowSize) = 0;
 
   /// \brief Called on window resize messages.
   ///
   /// \param newWindowSize
   ///   New window size in pixel.
   /// \see OnWindowMessage
-  virtual void OnResize(const ezSizeU32& newWindowSize);
+  virtual void OnResize(const ezSizeU32& newWindowSize) = 0;
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
   virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)

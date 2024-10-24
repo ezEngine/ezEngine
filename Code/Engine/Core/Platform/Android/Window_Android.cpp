@@ -18,7 +18,12 @@ namespace
   ezEventSubscriptionID s_androidCommandID = 0;
 } // namespace
 
-ezResult ezWindowPlatformShared::Initialize()
+ezWindowAndroid::~ezWindowAndroid()
+{
+  DestroyWindow();
+}
+
+ezResult ezWindowAndroid::InitializeWindow()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
   if (m_bInitialized)
@@ -57,10 +62,10 @@ ezResult ezWindowPlatformShared::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindowPlatformShared::Destroy()
+void ezWindowAndroid::DestroyWindow()
 {
   if (!m_bInitialized)
-    return EZ_SUCCESS;
+    return;
 
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
@@ -72,11 +77,9 @@ ezResult ezWindowPlatformShared::Destroy()
   }
 
   ezLog::Success("Window destroyed.");
-
-  return EZ_SUCCESS;
 }
 
-ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowAndroid::Resize(const ezSizeU32& newWindowSize)
 {
   // No need to resize on Android, swapchain can take any size at any time.
   m_CreationDescription.m_Resolution.width = newWindowSize.width;
@@ -84,17 +87,17 @@ ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
   return EZ_SUCCESS;
 }
 
-void ezWindowPlatformShared::ProcessWindowMessages()
+void ezWindowAndroid::ProcessWindowMessages()
 {
-  EZ_ASSERT_RELEASE(s_androidWindow != nullptr, "No uwp window data available.");
+  EZ_ASSERT_RELEASE(s_androidWindow != nullptr, "No window data available.");
 }
 
-void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowAndroid::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
-ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
+ezWindowHandle ezWindowAndroid::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

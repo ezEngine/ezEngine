@@ -10,7 +10,7 @@
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-  ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+  ezWindowWin* pWindow = reinterpret_cast<ezWindowWin*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
   if (pWindow != nullptr && pWindow->IsInitialized())
   {
@@ -60,13 +60,18 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
   return DefWindowProcW(hWnd, msg, wparam, lparam);
 }
 
-ezResult ezWindowPlatformShared::Initialize()
+ezWindowWin::~ezWindowWin()
+{
+  DestroyWindow();
+}
+
+ezResult ezWindowWin::InitializeWindow()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
-    Destroy().IgnoreResult();
+    DestroyWindow();
   }
 
   EZ_ASSERT_RELEASE(m_CreationDescription.m_Resolution.HasNonZeroArea(), "The client area size can't be zero sized!");
@@ -232,10 +237,10 @@ ezResult ezWindowPlatformShared::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindowPlatformShared::Destroy()
+void ezWindowWin::DestroyWindow()
 {
   if (!m_bInitialized)
-    return EZ_SUCCESS;
+    return;
 
   if (GetInputDevice() && GetInputDevice()->GetClipMouseCursor() != ezMouseCursorClipMode::NoClip)
   {
@@ -243,8 +248,6 @@ ezResult ezWindowPlatformShared::Destroy()
   }
 
   EZ_LOG_BLOCK("ezWindow::Destroy");
-
-  ezResult Res = EZ_SUCCESS;
 
   m_pInputDevice = nullptr;
 
@@ -258,13 +261,10 @@ ezResult ezWindowPlatformShared::Destroy()
   // Set the window ptr to null before calling DestroyWindow as it might trigger callbacks and we are potentially already in the destructor, making any virtual function call unsafe.
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
-  if (!DestroyWindow(hWindow))
+  if (!(hWindow))
   {
     ezLog::SeriousWarning("DestroyWindow failed.");
-    Res = EZ_FAILURE;
   }
-
-
 
   // actually nobody cares about this, all Window Classes are cleared when the application closes
   // in the mean time, having multiple windows will just result in errors when one is closed,
@@ -278,22 +278,17 @@ ezResult ezWindowPlatformShared::Destroy()
   m_bInitialized = false;
   m_hWindowHandle = INVALID_WINDOW_HANDLE_VALUE;
 
-  if (Res == EZ_SUCCESS)
-    ezLog::Success("Window destroyed.");
-  else
-    ezLog::SeriousWarning("There were problems to destroy the window properly.");
-
-  return Res;
+  ezLog::Success("Window destroyed.");
 }
 
-ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowWin::Resize(const ezSizeU32& newWindowSize)
 {
   auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
   BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
   return res != FALSE ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-void ezWindowPlatformShared::ProcessWindowMessages()
+void ezWindowWin::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -303,7 +298,7 @@ void ezWindowPlatformShared::ProcessWindowMessages()
   {
     if (msg.message == WM_QUIT)
     {
-      Destroy().IgnoreResult();
+      DestroyWindow();
       return;
     }
 
@@ -320,12 +315,12 @@ void ezWindowPlatformShared::ProcessWindowMessages()
   }
 }
 
-void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowWin::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
-ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
+ezWindowHandle ezWindowWin::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

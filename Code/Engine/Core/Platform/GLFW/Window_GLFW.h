@@ -1,9 +1,17 @@
 
 class EZ_CORE_DLL ezWindowGLFW : public ezWindowPlatformShared
 {
-private:
-  friend class ezWindowPlatformShared;
+public:
+  ~ezWindowGLFW();
 
+  virtual ezResult InitializeWindow() override;
+  virtual ezResult DestroyWindow() override;
+  virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
+  virtual void ProcessWindowMessages() override;
+  virtual void OnResize(const ezSizeU32& newWindowSize) override;
+  virtual ezWindowHandle GetNativeWindowHandle() const override;
+
+private:
   static void IconifyCallback(GLFWwindow* window, int iconified);
   static void SizeCallback(GLFWwindow* window, int width, int height);
   static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
