@@ -7,13 +7,14 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Platform/PlatformDesc.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
 static ezFmod g_FmodSingleton;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
@@ -97,7 +98,7 @@ void ezFmod::Startup()
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     // mutex handle will be closed automatically on process termination
     GetLastError(); // clear any pending error codes
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
@@ -116,8 +117,6 @@ void ezFmod::Startup()
         g_hLiveUpdateMutex = NULL;
       }
     }
-#  else
-    studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #  endif
   }
 #endif
@@ -380,25 +379,7 @@ void ezFmod::DetectPlatform()
   if (!m_pData->m_sPlatform.IsEmpty())
     return;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  m_pData->m_sPlatform = "Desktop";
-
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
-
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_pData->m_sPlatform = "Desktop";
-
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  m_pData->m_sPlatform = "Desktop";
-
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  m_pData->m_sPlatform = "Mobile";
-
-#elif
-#  error "Unknown Platform"
-
-#endif
+  m_pData->m_sPlatform = ezPlatformDesc::GetThisPlatformDesc().GetType();
 }
 
 ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)

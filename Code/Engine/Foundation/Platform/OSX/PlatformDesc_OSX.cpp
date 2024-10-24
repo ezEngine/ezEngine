@@ -1,6 +1,6 @@
 #include <Foundation/Platform/PlatformDesc.h>
 
-ezPlatformDesc g_PlatformDescOSX("OSX");
+ezPlatformDesc g_PlatformDescOSX("OSX", "Desktop");
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 

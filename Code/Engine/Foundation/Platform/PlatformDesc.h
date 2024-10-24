@@ -9,14 +9,20 @@ class EZ_FOUNDATION_DLL ezPlatformDesc : public ezEnumerable<ezPlatformDesc>
   EZ_DECLARE_ENUMERABLE_CLASS(ezPlatformDesc);
 
 public:
-  ezPlatformDesc(const char* szName)
+  ezPlatformDesc(const char* szName, const char* szType)
   {
     m_szName = szName;
+    m_szType = szType;
   }
 
   const char* GetName() const
   {
     return m_szName;
+  }
+
+  const char* GetType() const
+  {
+    return m_szType;
   }
 
   static const ezPlatformDesc& GetThisPlatformDesc()
@@ -28,4 +34,5 @@ private:
   static const ezPlatformDesc* s_pThisPlatform;
 
   const char* m_szName;
+  const char* m_szType;
 };
