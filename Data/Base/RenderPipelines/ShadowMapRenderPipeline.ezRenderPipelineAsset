@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17711001407536439736,5505436445966180118}}
-		u4 %Hash{16434915182375127939}
+		u4 %Hash{15878658635949810051}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -54,13 +54,14 @@ o
 {
 	Uuid %id{u4{6092888042282166442,4702730995123121724}}
 	s %t{"ezDepthOnlyPass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Uuid %DepthStencil{u4{12374590631366029646,4661154216989813148}}
 		s %Name{"ShadowDepth"}
 		Vec2 %Node::Pos{f{0xC8069C43,0xE821AC43}}
+		b %RenderTransparentObjects{1}
 	}
 }
 o
@@ -326,7 +327,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

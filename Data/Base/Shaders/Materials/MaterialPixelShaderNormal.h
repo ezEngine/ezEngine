@@ -1,22 +1,36 @@
 #pragma once
 
-#if BLEND_MODE == BLEND_MODE_MASKED && RENDER_PASS != RENDER_PASS_WIREFRAME
+#if (BLEND_MODE == BLEND_MODE_MASKED || BLEND_MODE == BLEND_MODE_DITHERED) && RENDER_PASS != RENDER_PASS_WIREFRAME
 
 // No need to do alpha test again if we have a depth prepass
 #  if defined(FORWARD_PASS_WRITE_DEPTH) && (RENDER_PASS == RENDER_PASS_FORWARD || RENDER_PASS == RENDER_PASS_EDITOR)
 #    if FORWARD_PASS_WRITE_DEPTH == TRUE
 #      define USE_ALPHA_TEST
+#      if (BLEND_MODE == BLEND_MODE_DITHERED)
+#        define USE_DITHERING
+#      endif
 #    endif
 #  else
 #    define USE_ALPHA_TEST
+#    if (BLEND_MODE == BLEND_MODE_DITHERED)
+#      define USE_DITHERING
+#    endif
 #  endif
 
 #  if defined(USE_ALPHA_TEST) && defined(MSAA)
 #    if MSAA == TRUE
-#      define USE_ALPHA_TEST_SUPER_SAMPLING
+#      define WRITE_COVERAGE
 #    endif
 #  endif
 
+#endif
+
+#if BLEND_MODE == BLEND_MODE_TRANSPARENT && RENDER_PASS == RENDER_PASS_DEPTH_ONLY
+#  define USE_ALPHA_TEST
+#  define USE_DITHERING
+#  if MSAA == TRUE
+#    define WRITE_COVERAGE
+#  endif
 #endif
 
 #include <Shaders/Common/Lighting.h>
@@ -28,7 +42,7 @@ struct PS_OUT
   float4 Color : SV_Target;
 #endif
 
-#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+#if defined(WRITE_COVERAGE)
   uint Coverage : SV_Coverage;
 #endif
 };
@@ -53,7 +67,7 @@ PS_OUT main(PS_IN Input)
     discard;
   }
 
-#  if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+#  if defined(WRITE_COVERAGE)
   Output.Coverage = coverage;
 #  endif
 #endif

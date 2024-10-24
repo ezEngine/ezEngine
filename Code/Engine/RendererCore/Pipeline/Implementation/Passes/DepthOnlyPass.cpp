@@ -8,12 +8,15 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
+
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 1, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 2, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    EZ_MEMBER_PROPERTY("RenderTransparentObjects", m_bRenderTransparentObjects),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -69,6 +72,29 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+
+  if (m_bRenderTransparentObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
+  }
+}
+
+ezResult ezDepthOnlyPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_bRenderTransparentObjects;
+  return EZ_SUCCESS;
+}
+
+ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_bRenderTransparentObjects;
+  }
+  return EZ_SUCCESS;
 }
 
 

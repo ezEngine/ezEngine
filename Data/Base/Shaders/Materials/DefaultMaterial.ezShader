@@ -26,6 +26,7 @@ bool UseBaseTexture;
 Texture2D BaseTexture;
 
 float MaskThreshold @Default(0.25);
+Texture2D DitherNoiseTexture @Default("{ ac614d7c-2b31-4a7b-aa0c-c5d8200b7b89 }");
 
 bool UseNormalTexture;
 Texture2D NormalTexture;
@@ -107,6 +108,7 @@ VS_OUT main(VS_IN Input)
 #define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
 #define USE_FOG
+#define USE_CUSTOM_DITHER_NOISE
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -135,6 +137,8 @@ SamplerState OcclusionTexture_AutoSampler;
 
 Texture2D OrmTexture;
 SamplerState OrmTexture_AutoSampler;
+
+Texture2D DitherNoiseTexture;
 
 float3 GetNormal()
 {
@@ -252,4 +256,12 @@ float GetOcclusion()
   {
     return 1.0f;
   }
+}
+
+float4 GetDitherNoise(float2 pixelCoord)
+{
+  uint2 noiseTextureSize;
+  DitherNoiseTexture.GetDimensions(noiseTextureSize.x, noiseTextureSize.y);
+
+  return DitherNoiseTexture.SampleLevel(PointSampler, pixelCoord / noiseTextureSize, 0);
 }

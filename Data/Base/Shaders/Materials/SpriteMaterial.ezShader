@@ -111,7 +111,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 [PIXELSHADER]
 
 #if BLEND_MODE == BLEND_MODE_MASKED && MSAA
-  #define USE_ALPHA_TEST_SUPER_SAMPLING
+  #define WRITE_COVERAGE
 #endif
 
 #include <Shaders/Materials/MaterialHelper.h>
@@ -122,7 +122,7 @@ struct PS_OUT
     float4 Color : SV_Target;
   #endif
 
-  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+  #if defined(WRITE_COVERAGE)
     uint Coverage : SV_Coverage;
   #endif
 };
@@ -182,7 +182,7 @@ PS_OUT main(PS_IN Input)
     Output.Color = color;
   #endif
 
-  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+  #if defined(WRITE_COVERAGE)
     Output.Coverage = coverage;
   #endif
 
