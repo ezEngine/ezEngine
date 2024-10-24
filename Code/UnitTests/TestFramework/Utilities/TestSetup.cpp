@@ -2,7 +2,6 @@
 
 #include <TestFramework/Utilities/TestSetup.h>
 
-#include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
 #include <Foundation/System/CrashHandler.h>
@@ -21,6 +20,8 @@
 
 int ezTestSetup::s_iArgc = 0;
 const char** ezTestSetup::s_pArgv = nullptr;
+
+void OutputToConsole(ezTestOutput::Enum type, const char* szMsg);
 
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
