@@ -149,7 +149,7 @@ Only concrete and clocks.\n\
     FileIn.Close();
   }
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read File (Absolute Path)")
   {

@@ -117,14 +117,7 @@ void ezTestFramework::Initialize()
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // Not supported
-#else
-    if (ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).Failed())
-    {
-      ezLog::Print("Failed to set 'EZ_SILENT_ASSERTS' environment variable!");
-    }
-#endif
+    ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).IgnoreResult();
   }
 
   if (m_Settings.m_bShowTimestampsInLog)
