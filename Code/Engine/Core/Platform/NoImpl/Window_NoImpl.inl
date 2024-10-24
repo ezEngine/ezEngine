@@ -1,34 +1,34 @@
 #include <Core/System/Window.h>
 
-ezResult ezWindow::Initialize()
+ezResult ezWindowPlatformShared::Initialize()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-ezResult ezWindow::Destroy()
+ezResult ezWindowPlatformShared::Destroy()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-void ezWindow::ProcessWindowMessages()
+void ezWindowPlatformShared::ProcessWindowMessages()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezWindow::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-ezWindowHandle ezWindow::GetNativeWindowHandle() const
+ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }

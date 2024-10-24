@@ -87,7 +87,7 @@ namespace
         return EZ_FAILURE;                          \
     } while (false)
 
-ezResult ezWindow::Initialize()
+ezResult ezWindowPlatformShared::Initialize()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
@@ -180,16 +180,16 @@ ezResult ezWindow::Initialize()
   }
 
   glfwSetWindowUserPointer(pWindow, this);
-  glfwSetWindowIconifyCallback(pWindow, &ezWindow::IconifyCallback);
-  glfwSetWindowSizeCallback(pWindow, &ezWindow::SizeCallback);
-  glfwSetWindowPosCallback(pWindow, &ezWindow::PositionCallback);
-  glfwSetWindowCloseCallback(pWindow, &ezWindow::CloseCallback);
-  glfwSetWindowFocusCallback(pWindow, &ezWindow::FocusCallback);
-  glfwSetKeyCallback(pWindow, &ezWindow::KeyCallback);
-  glfwSetCharCallback(pWindow, &ezWindow::CharacterCallback);
-  glfwSetCursorPosCallback(pWindow, &ezWindow::CursorPositionCallback);
-  glfwSetMouseButtonCallback(pWindow, &ezWindow::MouseButtonCallback);
-  glfwSetScrollCallback(pWindow, &ezWindow::ScrollCallback);
+  glfwSetWindowIconifyCallback(pWindow, &ezWindowGLFW::IconifyCallback);
+  glfwSetWindowSizeCallback(pWindow, &ezWindowGLFW::SizeCallback);
+  glfwSetWindowPosCallback(pWindow, &ezWindowGLFW::PositionCallback);
+  glfwSetWindowCloseCallback(pWindow, &ezWindowGLFW::CloseCallback);
+  glfwSetWindowFocusCallback(pWindow, &ezWindowGLFW::FocusCallback);
+  glfwSetKeyCallback(pWindow, &ezWindowGLFW::KeyCallback);
+  glfwSetCharCallback(pWindow, &ezWindowGLFW::CharacterCallback);
+  glfwSetCursorPosCallback(pWindow, &ezWindowGLFW::CursorPositionCallback);
+  glfwSetMouseButtonCallback(pWindow, &ezWindowGLFW::MouseButtonCallback);
+  glfwSetScrollCallback(pWindow, &ezWindowGLFW::ScrollCallback);
   EZ_GLFW_RETURN_FAILURE_ON_ERROR();
 
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
@@ -208,7 +208,7 @@ ezResult ezWindow::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindow::Destroy()
+ezResult ezWindowPlatformShared::Destroy()
 {
   if (m_bInitialized)
   {
@@ -230,7 +230,7 @@ ezResult ezWindow::Destroy()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
 {
   if (!m_bInitialized)
     return EZ_FAILURE;
@@ -246,7 +246,7 @@ ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
   return EZ_SUCCESS;
 }
 
-void ezWindow::ProcessWindowMessages()
+void ezWindowPlatformShared::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -271,19 +271,19 @@ void ezWindow::ProcessWindowMessages()
 #  endif
 }
 
-void ezWindow::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
-void ezWindow::IconifyCallback(GLFWwindow* window, int iconified)
+void ezWindowGLFW::IconifyCallback(GLFWwindow* window, int iconified)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
     self->OnVisibleChange(!iconified);
 }
 
-void ezWindow::SizeCallback(GLFWwindow* window, int width, int height)
+void ezWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && width > 0 && height > 0)
@@ -292,7 +292,7 @@ void ezWindow::SizeCallback(GLFWwindow* window, int width, int height)
   }
 }
 
-void ezWindow::PositionCallback(GLFWwindow* window, int xpos, int ypos)
+void ezWindowGLFW::PositionCallback(GLFWwindow* window, int xpos, int ypos)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
@@ -301,7 +301,7 @@ void ezWindow::PositionCallback(GLFWwindow* window, int xpos, int ypos)
   }
 }
 
-void ezWindow::CloseCallback(GLFWwindow* window)
+void ezWindowGLFW::CloseCallback(GLFWwindow* window)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
@@ -310,7 +310,7 @@ void ezWindow::CloseCallback(GLFWwindow* window)
   }
 }
 
-void ezWindow::FocusCallback(GLFWwindow* window, int focused)
+void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
@@ -319,7 +319,7 @@ void ezWindow::FocusCallback(GLFWwindow* window, int focused)
   }
 }
 
-void ezWindow::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && self->m_pInputDevice)
@@ -328,7 +328,7 @@ void ezWindow::KeyCallback(GLFWwindow* window, int key, int scancode, int action
   }
 }
 
-void ezWindow::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
+void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && self->m_pInputDevice)
@@ -337,7 +337,7 @@ void ezWindow::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
   }
 }
 
-void ezWindow::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
+void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && self->m_pInputDevice)
@@ -346,7 +346,7 @@ void ezWindow::CursorPositionCallback(GLFWwindow* window, double xpos, double yp
   }
 }
 
-void ezWindow::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && self->m_pInputDevice)
@@ -355,7 +355,7 @@ void ezWindow::MouseButtonCallback(GLFWwindow* window, int button, int action, i
   }
 }
 
-void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self && self->m_pInputDevice)
@@ -364,7 +364,7 @@ void ezWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
   }
 }
 
-ezWindowHandle ezWindow::GetNativeWindowHandle() const
+ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
 {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   return ezMinWindows::FromNative<HWND>(glfwGetWin32Window(m_hWindowHandle));

@@ -1,6 +1,6 @@
 #include <Core/CorePCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_DISABLED(EZ_SUPPORTS_GLFW)
 
 #  include <Core/System/Window.h>
 #  include <Foundation/Basics.h>
@@ -60,7 +60,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
   return DefWindowProcW(hWnd, msg, wparam, lparam);
 }
 
-ezResult ezWindow::Initialize()
+ezResult ezWindowPlatformShared::Initialize()
 {
   EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
 
@@ -232,7 +232,7 @@ ezResult ezWindow::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezWindow::Destroy()
+ezResult ezWindowPlatformShared::Destroy()
 {
   if (!m_bInitialized)
     return EZ_SUCCESS;
@@ -286,14 +286,14 @@ ezResult ezWindow::Destroy()
   return Res;
 }
 
-ezResult ezWindow::Resize(const ezSizeU32& newWindowSize)
+ezResult ezWindowPlatformShared::Resize(const ezSizeU32& newWindowSize)
 {
   auto windowHandle = ezMinWindows::ToNative(m_hWindowHandle);
   BOOL res = ::SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, newWindowSize.width, newWindowSize.height, SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
   return res != FALSE ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-void ezWindow::ProcessWindowMessages()
+void ezWindowPlatformShared::ProcessWindowMessages()
 {
   if (!m_bInitialized)
     return;
@@ -320,12 +320,12 @@ void ezWindow::ProcessWindowMessages()
   }
 }
 
-void ezWindow::OnResize(const ezSizeU32& newWindowSize)
+void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
-ezWindowHandle ezWindow::GetNativeWindowHandle() const
+ezWindowHandle ezWindowPlatformShared::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;
 }
