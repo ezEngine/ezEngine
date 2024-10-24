@@ -2,9 +2,10 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
+#  include <Foundation/Logging/ETW.h>
+
 #  if defined(BUILDSYSTEM_ENABLE_TRACELOGGING_LTTNG_SUPPORT)
 
-#    include <Foundation/Logging/ETW.h>
 #    include <tracelogging/TraceLoggingProvider.h>
 
 TRACELOGGING_DECLARE_PROVIDER(g_ezETWLogProvider);
