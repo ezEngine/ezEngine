@@ -395,9 +395,6 @@ void ezFmod::DetectPlatform()
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
   m_pData->m_sPlatform = "Mobile";
 
-#elif EZ_ENABLED(EZ_PLATFORM_IOS)
-  m_pData->m_sPlatform = "Mobile";
-
 #elif
 #  error "Unknown Platform"
 
