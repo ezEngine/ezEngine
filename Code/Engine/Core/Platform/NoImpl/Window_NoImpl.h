@@ -6,7 +6,7 @@ public:
   ~ezWindowNoImpl();
 
   virtual ezResult InitializeWindow() override;
-  virtual ezResult Destroy() override;
+  virtual void DestroyWindow() override;
   virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
   virtual void ProcessWindowMessages() override;
   virtual void OnResize(const ezSizeU32& newWindowSize) override;

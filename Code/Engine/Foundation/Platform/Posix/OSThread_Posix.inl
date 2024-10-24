@@ -1,6 +1,3 @@
-#include <Foundation/FoundationInternal.h>
-EZ_FOUNDATION_INTERNAL_HEADER
-
 #include <Foundation/Threading/Implementation/OSThread.h>
 #include <Foundation/Threading/Thread.h>
 
@@ -8,8 +5,7 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class
 
-ezOSThread::ezOSThread(
-  ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, ezStringView sName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -38,7 +34,7 @@ void ezOSThread::Start()
   EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#ifdef EZ_POSIX_THREAD_SETNAME
   if (iReturnCode == 0 && !m_sName.IsEmpty())
   {
     // pthread has a thread name limit of 16 bytes.
