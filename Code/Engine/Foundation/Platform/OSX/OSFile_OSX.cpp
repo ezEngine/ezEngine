@@ -1,5 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/Platform/Posix/OSFile_Posix.h>
+#  include <CoreFoundation/CoreFoundation.h>
+
+#  include <Foundation/Platform/Posix/OSFile_Posix.inl>
 #endif
