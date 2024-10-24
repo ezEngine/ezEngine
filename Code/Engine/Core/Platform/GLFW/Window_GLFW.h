@@ -2,6 +2,8 @@
 class EZ_CORE_DLL ezWindowGLFW : public ezWindowPlatformShared
 {
 private:
+  friend class ezWindowPlatformShared;
+
   static void IconifyCallback(GLFWwindow* window, int iconified);
   static void SizeCallback(GLFWwindow* window, int width, int height);
   static void PositionCallback(GLFWwindow* window, int xpos, int ypos);
