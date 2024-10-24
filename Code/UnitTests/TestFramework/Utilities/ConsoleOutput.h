@@ -8,7 +8,7 @@
 #  include <android/log.h>
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Logging/ETWWriter.h>
+#  include <Foundation/Logging/ETW.h>
 inline void SetConsoleColorInl(WORD ui)
 {
 #  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -116,7 +116,7 @@ inline void OutputToConsole(ezTestOutput::Enum type, const char* szMsg)
   }
   if (logType != ezLogMsgType::None)
   {
-    ezLogWriter::ETW::LogMessage(ezLogMsgType::InfoMsg, iIndentation, szMsg);
+    ezETW::LogMessage(ezLogMsgType::InfoMsg, iIndentation, szMsg);
   }
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

@@ -1,4 +1,5 @@
 #include <Core/Platform/NoImpl/Window_NoImpl.h>
+#include <Core/System/Window.h>
 
 ezWindowNoImpl::~ezWindowNoImpl()
 {
