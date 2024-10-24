@@ -115,11 +115,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   {
     RenderObjects(ezShaderBindFlags::Default);
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
     EZ_TEST_IMAGE(m_iFrame, 300);
-#else
-    EZ_TEST_IMAGE(m_iFrame, 100);
-#endif
   }
   EndRendering();
   EndCommands();
@@ -236,11 +232,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   RenderObjects(ezShaderBindFlags::Default);
 
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
   EZ_TEST_IMAGE(m_iFrame, 200);
-#else
-  EZ_TEST_IMAGE(m_iFrame, 100);
-#endif
+
   EndRendering();
   EndCommands();
   EndFrame();
