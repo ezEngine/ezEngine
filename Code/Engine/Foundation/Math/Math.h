@@ -441,6 +441,9 @@ namespace ezMath
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
   [[nodiscard]] EZ_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
 
+  /// \brief Combines the two 32 bit uint values into one 64 bit value.
+  [[nodiscard]] constexpr ezUInt64 MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32);
+
 } // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>

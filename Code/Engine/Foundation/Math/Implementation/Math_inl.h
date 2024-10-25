@@ -530,3 +530,8 @@ EZ_ALWAYS_INLINE float ezMath::WrapFloat(float fValue, float fMinValue, float fM
   const float range = fMaxValue - fMinValue;
   return fMinValue + WrapFloat01((fValue - fMinValue) / range) * range;
 }
+
+EZ_ALWAYS_INLINE constexpr ezUInt64 ezMath::MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
+{
+  return (static_cast<ezUInt64>(uiHigh32) << 32) | static_cast<ezUInt64>(uiLow32);
+}

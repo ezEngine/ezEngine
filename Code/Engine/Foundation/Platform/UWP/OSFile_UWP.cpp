@@ -9,6 +9,7 @@
 #  define EZ_POSIX_FILE_NOGETTEMPDATAFOLDER
 #  define EZ_POSIX_FILE_NOGETUSERDOCUMENTSFOLDER
 #  define EZ_POSIX_FILE_NOGETCURRENTWORKINGDIRECTORY
+#  define EZ_POSIX_FILE_NOGETAPPLICATIONPATH
 
 // For UWP we're currently using a mix of WinRT functions and Posix.
 #  include <Foundation/Platform/Posix/OSFile_Posix.inl>
