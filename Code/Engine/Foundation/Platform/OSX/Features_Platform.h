@@ -64,6 +64,10 @@
 #undef EZ_SUPPORTS_PROCESSES
 #define EZ_SUPPORTS_PROCESSES EZ_ON
 
+/// Whether inter-process communication via pipes is supported
+#undef EZ_SUPPORTS_IPC
+#define EZ_SUPPORTS_IPC EZ_OFF
+
 // SIMD support
 #undef EZ_SIMD_IMPLEMENTATION
 #define EZ_SIMD_IMPLEMENTATION EZ_SIMD_IMPLEMENTATION_FPU

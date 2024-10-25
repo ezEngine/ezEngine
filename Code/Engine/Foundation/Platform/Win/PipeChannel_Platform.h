@@ -66,4 +66,6 @@ private:
   ezUInt8 m_InputBuffer[BUFFER_SIZE];
 };
 
+using ezPipeChannel_Platform = ezPipeChannel_win;
+
 #endif

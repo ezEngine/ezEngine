@@ -42,4 +42,7 @@ private:
   ezUInt8 m_InputBuffer[4096];
   ezUInt64 m_previousSendOffset = 0;
 };
+
+using ezPipeChannel_Platform = ezPipeChannel_linux;
+
 #endif

@@ -47,6 +47,10 @@
 #  error "EZ_SUPPORTS_LONG_PATHS is not defined."
 #endif
 
+#ifndef EZ_SUPPORTS_IPC
+#  error "EZ_SUPPORTS_IPC is not defined."
+#endif
+
 #if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_32BIT, EZ_PLATFORM_64BIT)
 #  error "Platform is not defined as 32 Bit or 64 Bit"
 #endif

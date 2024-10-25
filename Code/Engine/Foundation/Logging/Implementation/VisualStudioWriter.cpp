@@ -1,8 +1,9 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Logging/VisualStudioWriter.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Logging/VisualStudioWriter.h>
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/Strings/StringConversion.h>
 

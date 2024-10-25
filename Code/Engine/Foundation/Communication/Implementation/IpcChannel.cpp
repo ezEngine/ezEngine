@@ -6,10 +6,8 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Platform/Win/PipeChannel_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
+#if EZ_ENABLED(EZ_SUPPORTS_IPC)
+#  include <PipeChannel_Platform.h>
 #endif
 
 static_assert((ezInt32)ezIpcChannel::ConnectionState::Disconnected == (ezInt32)ezIpcChannelEvent::Disconnected);
@@ -25,25 +23,23 @@ ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
 
 ezIpcChannel::~ezIpcChannel()
 {
-
-
   m_pOwner->RemoveChannel(this);
 }
 
 ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreatePipeChannel(ezStringView sAddress, Mode::Enum mode)
 {
+  EZ_IGNORE_UNUSED(sAddress);
+  EZ_IGNORE_UNUSED(mode);
+
   if (sAddress.IsEmpty() || sAddress.GetElementCount() > 200)
   {
     ezLog::Error("Failed co create pipe '{0}', name is not valid", sAddress);
     return nullptr;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  return EZ_DEFAULT_NEW(ezPipeChannel_win, sAddress, mode);
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  return EZ_DEFAULT_NEW(ezPipeChannel_linux, sAddress, mode);
+#if EZ_ENABLED(EZ_SUPPORTS_IPC)
+  return EZ_DEFAULT_NEW(ezPipeChannel_Platform, sAddress, mode);
 #else
-  EZ_IGNORE_UNUSED(mode);
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 #endif
