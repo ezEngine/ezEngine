@@ -8,7 +8,7 @@
 #  include <Foundation/Strings/StringConversion.h>
 #  include <Foundation/Threading/ThreadUtils.h>
 
-// Defined in Timestamp_win.h
+// Defined in Timestamp_Win.cpp
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
 
 ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
