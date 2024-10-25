@@ -3,8 +3,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/Communication/IpcChannel.h>
-#  include <Foundation/Platform/Win/MessageLoop_Win.h>
-#  include <Foundation/Platform/Win/PipeChannel_Win.h>
+#  include <Foundation/Platform/Win/MessageLoop_Platform.h>
+#  include <Foundation/Platform/Win/PipeChannel_Platform.h>
 
 ezMessageLoop_win::ezMessageLoop_win()
 {

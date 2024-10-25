@@ -63,4 +63,6 @@ private:
   int m_wakeupPipeWriteEndFd = -1;
 };
 
+using ezMessageLoop_Platform = ezMessageLoop_linux;
+
 #endif

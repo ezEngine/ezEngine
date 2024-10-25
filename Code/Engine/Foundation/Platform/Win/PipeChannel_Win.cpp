@@ -5,8 +5,8 @@
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 #  include <Foundation/Communication/RemoteMessage.h>
 #  include <Foundation/Logging/Log.h>
-#  include <Foundation/Platform/Win/MessageLoop_Win.h>
-#  include <Foundation/Platform/Win/PipeChannel_Win.h>
+#  include <Foundation/Platform/Win/MessageLoop_Platform.h>
+#  include <Foundation/Platform/Win/PipeChannel_Platform.h>
 #  include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)

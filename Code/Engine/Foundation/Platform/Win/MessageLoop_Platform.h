@@ -45,4 +45,6 @@ private:
   HANDLE m_hPort = INVALID_HANDLE_VALUE;
 };
 
+using ezMessageLoop_Platform = ezMessageLoop_win;
+
 #endif

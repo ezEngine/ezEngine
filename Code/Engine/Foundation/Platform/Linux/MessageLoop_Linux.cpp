@@ -3,8 +3,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  include <Foundation/Logging/Log.h>
-#  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
-#  include <Foundation/Platform/Linux/PipeChannel_Linux.h>
+#  include <Foundation/Platform/Linux/MessageLoop_Platform.h>
+#  include <Foundation/Platform/Linux/PipeChannel_Platform.h>
 
 #  include <fcntl.h>
 #  include <poll.h>
