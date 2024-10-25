@@ -8,7 +8,9 @@
 
 void ezMemoryUtils::ReserveLower4GBAddressSpace()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_PLATFORM_64BIT)
+  // TODO: if this ever should be implemented for another platform, it should be moved into a platform-specific implementation file
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) && EZ_ENABLED(EZ_PLATFORM_64BIT)
   // The following code was taken from http://randomascii.wordpress.com/2012/02/14/64-bit-made-easy/
   // and adapted to our coding guidelines.
 

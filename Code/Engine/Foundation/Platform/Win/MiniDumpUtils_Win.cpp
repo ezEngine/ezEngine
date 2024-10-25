@@ -1,6 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Platform/Win/DosDevicePath_Win.h>
@@ -11,12 +11,10 @@
 #  include <Foundation/Utilities/CommandLineOptions.h>
 #  include <Foundation/Utilities/CommandLineUtils.h>
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
-#    include <Dbghelp.h>
-#    include <Shlwapi.h>
-#    include <tchar.h>
-#    include <werapi.h>
+#  include <Dbghelp.h>
+#  include <Shlwapi.h>
+#  include <tchar.h>
+#  include <werapi.h>
 
 ezCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
 
@@ -108,11 +106,8 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, e
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
 }
 
-#  endif
-
 ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   HANDLE hProcess = ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(uiProcessID);
 
   if (hProcess == nullptr)
@@ -121,18 +116,10 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, e
   }
 
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
-
-#  else
-  EZ_IGNORE_UNUSED(sDumpFile);
-  EZ_IGNORE_UNUSED(uiProcessID);
-  EZ_IGNORE_UNUSED(dumpTypeOverride);
-  return ezStatus("Not implemented on UWP");
-#  endif
 }
 
 ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
   sDumpToolPath.AppendPath("ezMiniDumpTool.exe");
   sDumpToolPath.MakeCleanPath();
@@ -161,12 +148,6 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
     return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
 
   return ezStatus(EZ_SUCCESS);
-
-#  else
-  EZ_IGNORE_UNUSED(sDumpFile);
-  EZ_IGNORE_UNUSED(dumpTypeOverride);
-  return ezStatus("Not implemented on UWP");
-#  endif
 }
 
 #endif

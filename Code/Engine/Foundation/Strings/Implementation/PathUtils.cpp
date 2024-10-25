@@ -139,12 +139,12 @@ bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
 
   const char* szPath = sPath.GetStartPointer();
 
-  // szPath[0] will not be \0 -> so we can access szPath[1] without problems
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   if (sPath.GetElementCount() < 2)
     return false;
+
+  // szPath[0] will not be \0 -> so we can access szPath[1] without problems
 
   /// if it is an absolute path, character 0 must be ASCII (A - Z)
   /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
