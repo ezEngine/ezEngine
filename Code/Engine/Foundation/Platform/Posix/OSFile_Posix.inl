@@ -392,7 +392,7 @@ ezStringView ezOSFile::GetApplicationPath()
     }
 #  else
     char result[PATH_MAX];
-    ssize_t length = readlink("/proc/self/exe", result, PATH_MAX);
+    size_t length = readlink("/proc/self/exe", result, PATH_MAX);
     s_sApplicationPath = ezStringView(result, result + length);
 #  endif
   }
