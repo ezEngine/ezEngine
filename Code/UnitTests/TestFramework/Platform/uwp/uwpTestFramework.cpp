@@ -16,15 +16,15 @@ ezUwpTestFramework::~ezUwpTestFramework()
   RoUninitialize();
 }
 
-void ezUwpTestFramework::Run()
+ezTestAppRun ezUwpTestFramework::RunTests()
 {
   ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplication> coreApplication;
   HRESULT result = ABI::Windows::Foundation::GetActivationFactory(
     HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
+
   if (FAILED(result))
   {
     std::cout << "Failed to create core application." << std::endl;
-    return;
   }
   else
   {
@@ -32,6 +32,8 @@ void ezUwpTestFramework::Run()
     coreApplication->Run(application.Get());
     application.Detach(); // Was already deleted by uwp.
   }
+
+  return ezTestAppRun::Quit;
 }
 
 #endif

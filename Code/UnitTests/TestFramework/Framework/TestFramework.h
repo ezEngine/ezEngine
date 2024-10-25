@@ -59,6 +59,9 @@ public:
   void ResetTests();
   ezTestAppRun RunTestExecutionLoop();
 
+  /// \brief Top-level function to run tests, can be overridden by platform specific implementations
+  virtual ezTestAppRun RunTests() { return RunTestExecutionLoop(); }
+
   void StartTests();
   void ExecuteNextTest();
   void EndTests();

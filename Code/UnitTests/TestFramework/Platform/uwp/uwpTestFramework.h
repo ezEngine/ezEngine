@@ -17,7 +17,7 @@ public:
   ezUwpTestFramework(ezUwpTestFramework&) = delete;
   void operator=(ezUwpTestFramework&) = delete;
 
-  void Run();
+  virtual ezTestAppRun RunTests() override;
 };
 
 #endif

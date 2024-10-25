@@ -10,12 +10,8 @@
 #ifdef EZ_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <TestFramework/Framework/Uwp/uwpTestFramework.h>
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <conio.h>
+#else
+#  include <TestFramework_Platform.h>
 #endif
 
 int ezTestSetup::s_iArgc = 0;
@@ -29,10 +25,7 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   s_pArgv = pArgv;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
-  {
-    std::cout << "Failed to init WinRT." << std::endl;
-  }
+  RoInitialize(RO_INIT_MULTITHREADED);
 #endif
 
   // without a proper file system the current working directory is pretty much useless
@@ -47,11 +40,8 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 
 #ifdef EZ_USE_QT
   ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Command line args in UWP are handled differently and can't be retrieved from the main function.
-  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), 0, nullptr);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
+  ezTestFramework* pTestFramework = new ezTestFramework_Platform(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file
@@ -116,12 +106,9 @@ ezTestAppRun ezTestSetup::RunTests()
   }
 
   return ezTestAppRun::Quit;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  static_cast<ezUwpTestFramework*>(pTestFramework)->Run();
-  return ezTestAppRun::Quit;
 #else
   // Run all the tests with the given order
-  return pTestFramework->RunTestExecutionLoop();
+  return pTestFramework->RunTests();
 #endif
 }
 
@@ -130,14 +117,6 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
   ezStartup::ShutdownCoreSystems();
-
-  // In the UWP case we never initialized this thread for ez, so we can't do log output now.
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (!bSilent)
-  {
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  }
-#endif
 
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bKeepConsoleOpen && !bSilent)

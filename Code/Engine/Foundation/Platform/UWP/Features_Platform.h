@@ -2,7 +2,7 @@
 
 /// \file
 
-#define EZ_PLATFORM_NAME "Windows - UWP"
+#define EZ_PLATFORM_NAME "UWP"
 
 #undef EZ_PLATFORM_WINDOWS
 #undef EZ_PLATFORM_WINDOWS_UWP
