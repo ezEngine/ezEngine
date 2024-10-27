@@ -2,19 +2,19 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
+#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
-#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/State/State.h>
-#include <Foundation/Time/Stopwatch.h>
 
 namespace
 {
@@ -901,7 +901,7 @@ ezGALReadbackBufferHandle ezGALDevice::CreateReadbackBuffer(const ezGALBufferCre
 void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
-  
+
   ezGALReadbackBuffer* pBuffer = nullptr;
   if (m_ReadbackBuffers.TryGetValue(hBuffer, pBuffer))
   {

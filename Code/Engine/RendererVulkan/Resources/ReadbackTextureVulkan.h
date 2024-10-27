@@ -13,7 +13,7 @@ class ezGALReadbackTextureVulkan : public ezGALReadbackTexture
 {
 public:
   EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_buffer; }
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_bufferAlloc;}
+  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_bufferAlloc; }
 
 protected:
   friend class ezGALDeviceVulkan;

@@ -3,9 +3,9 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
-#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/ReadbackBuffer.h>
 #include <RendererFoundation/Resources/ReadbackHelper.h>
+#include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 ezEnum<ezGALAsyncResult> ezGALReadbackHelper::GetReadbackResult(ezTime timeout) const

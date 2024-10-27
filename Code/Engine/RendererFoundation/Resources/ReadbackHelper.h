@@ -38,7 +38,7 @@ private:
 };
 
 /// \brief Helper class that automatically creates a readback texture and controls it's lifetime.
-class  EZ_RENDERERFOUNDATION_DLL ezGALReadbackTextureHelper : public ezGALReadbackHelper
+class EZ_RENDERERFOUNDATION_DLL ezGALReadbackTextureHelper : public ezGALReadbackHelper
 {
 public:
   ezGALReadbackTextureHelper() = default;
@@ -55,6 +55,3 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALReadbackTextureHelper);
   ezGALReadbackTextureHandle m_hReadbackTexture;
 };
-
-
-

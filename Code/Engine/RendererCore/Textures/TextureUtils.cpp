@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <Foundation/Memory/MemoryUtils.h>
 
 bool ezTextureUtils::s_bForceFullQualityAlways = false;
 

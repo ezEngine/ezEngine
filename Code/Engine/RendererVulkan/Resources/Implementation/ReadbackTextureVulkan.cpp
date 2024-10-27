@@ -3,7 +3,7 @@
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
 
 ezGALReadbackTextureVulkan::ezGALReadbackTextureVulkan(const ezGALTextureCreationDescription& Description)
-: ezGALReadbackTexture(Description)
+  : ezGALReadbackTexture(Description)
 {
 }
 

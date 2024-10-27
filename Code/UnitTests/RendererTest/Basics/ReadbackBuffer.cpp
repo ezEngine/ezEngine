@@ -110,7 +110,7 @@ ezResult ezRendererTestReadbackBuffer::InitializeSubTest(ezInt32 iIdentifier)
     default:
       break;
   }
-  
+
   return EZ_SUCCESS;
 }
 
@@ -122,9 +122,9 @@ ezResult ezRendererTestReadbackBuffer::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyBuffer(m_hBufferReadback);
     m_hBufferReadback.Invalidate();
   }
- 
+
   m_hComputeShader.Invalidate();
- 
+
   DestroyWindow();
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
@@ -174,7 +174,6 @@ ezTestAppRun ezRendererTestReadbackBuffer::ReadbackBuffer(ezUInt32 uiInvocationC
           EZ_TEST_INT(ezMemoryUtils::Compare(memory.GetPtr(), m_BufferData.GetData(), memory.GetCount()), 0);
         }
       }
-
     }
     EndCommands();
   }

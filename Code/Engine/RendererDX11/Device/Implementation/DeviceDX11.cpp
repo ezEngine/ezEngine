@@ -528,7 +528,7 @@ void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
 ezGALReadbackBuffer* ezGALDeviceDX11::CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description)
 {
   ezGALReadbackBufferDX11* pReadbackBuffer = EZ_NEW(&m_Allocator, ezGALReadbackBufferDX11, Description);
-  
+
   if (!pReadbackBuffer->InitPlatform(this).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pReadbackBuffer);
@@ -549,7 +549,7 @@ void ezGALDeviceDX11::DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadba
 ezGALReadbackTexture* ezGALDeviceDX11::CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description)
 {
   ezGALReadbackTextureDX11* pReadbackTexture = EZ_NEW(&m_Allocator, ezGALReadbackTextureDX11, Description);
-  
+
   if (!pReadbackTexture->InitPlatform(this).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pReadbackTexture);
@@ -562,7 +562,7 @@ ezGALReadbackTexture* ezGALDeviceDX11::CreateReadbackTexturePlatform(const ezGAL
 void ezGALDeviceDX11::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture)
 {
   ezGALReadbackTextureDX11* pDX11ReadbackTexture = static_cast<ezGALReadbackTextureDX11*>(pReadbackTexture);
-  
+
   pDX11ReadbackTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11ReadbackTexture);
 }
@@ -768,7 +768,6 @@ ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTextu
         default:
           break;
       }
-
     }
   }
   return EZ_SUCCESS;

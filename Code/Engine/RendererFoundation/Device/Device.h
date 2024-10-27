@@ -7,8 +7,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Device/ReadbackLock.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezColor;
 
@@ -75,10 +75,10 @@ public:
 
   ezGALReadbackBufferHandle CreateReadbackBuffer(const ezGALBufferCreationDescription& description);
   void DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer);
-  
+
   ezGALReadbackTextureHandle CreateReadbackTexture(const ezGALTextureCreationDescription& description);
   void DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture);
-    
+
   // Resource views
   ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
@@ -372,10 +372,10 @@ protected:
 
   virtual ezGALReadbackBuffer* CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description) = 0;
   virtual void DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer) = 0;
-  
+
   virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) = 0;
   virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) = 0;
-  
+
   virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) = 0;
   virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) = 0;
 

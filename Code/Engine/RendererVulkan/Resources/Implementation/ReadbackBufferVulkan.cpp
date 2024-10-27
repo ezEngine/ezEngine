@@ -48,4 +48,3 @@ void ezGALReadbackBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_pDeviceVulkan->SetDebugName(szName, m_buffer, m_alloc);
 }
-

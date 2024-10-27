@@ -161,7 +161,7 @@ struct ezGALResourceAccess
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiTotalSize = 0; // Total size in bytes
+  ezUInt32 m_uiTotalSize = 0;                                          // Total size in bytes
   ezUInt32 m_uiStructSize = 0;                                         // Struct or texel size in bytes
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;

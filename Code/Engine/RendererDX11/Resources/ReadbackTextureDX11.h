@@ -11,7 +11,7 @@ class ezGALDeviceDX11;
 class ezGALReadbackTextureDX11 : public ezGALReadbackTexture
 {
 public:
-  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const { return m_pDXTexture;}
+  EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const { return m_pDXTexture; }
 
 protected:
   friend class ezGALDeviceDX11;

@@ -4,8 +4,8 @@
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Resources/Texture.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<ezPickingRenderPass>)
