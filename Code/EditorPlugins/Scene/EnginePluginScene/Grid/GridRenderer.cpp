@@ -46,7 +46,7 @@ void ezGridRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData
 
 void ezGridRenderer::CreateVertexBuffer()
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  if (m_VertexBuffer.IsInitialized())
     return;
 
   // load the shader
@@ -59,10 +59,10 @@ void ezGridRenderer::CreateVertexBuffer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(GridVertex);
     desc.m_uiTotalSize = s_uiBufferSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_VertexBuffer.Initialize(desc, "GridRenderer - VertexBuffer");
   }
 
   // Setup the vertex declaration
@@ -188,12 +188,13 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
     while (uiNumLineVertices > 0)
     {
+      ezGALBufferHandle hBuffer = m_VertexBuffer.GetNewBuffer();
       const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, s_uiLineVerticesPerBatch);
       EZ_ASSERT_DEBUG(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
 
-      pRenderContext->GetCommandEncoder()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+      pRenderContext->GetCommandEncoder()->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-      pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+      pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
       pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;

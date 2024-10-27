@@ -52,7 +52,7 @@ void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewConte
 
   if (m_LensFlareData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
   {
-    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr());
+    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
 
     pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
@@ -64,7 +64,7 @@ ezGALBufferHandle ezLensFlareRenderer::CreateLensFlareDataBuffer(ezUInt32 uiBuff
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerLensFlareData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);

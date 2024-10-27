@@ -1,7 +1,6 @@
 
 vk::Buffer ezGALBufferVulkan::GetVkBuffer() const
 {
-  m_currentBuffer.m_currentFrame = m_pDeviceVulkan->GetCurrentFrame();
   return m_currentBuffer.m_buffer;
 }
 

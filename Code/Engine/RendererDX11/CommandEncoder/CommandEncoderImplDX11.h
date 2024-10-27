@@ -25,6 +25,8 @@ public:
   ezGALCommandEncoderImplDX11(ezGALDeviceDX11& ref_deviceDX11);
   ~ezGALCommandEncoderImplDX11();
 
+  void EndFrame();
+
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
 
@@ -162,6 +164,9 @@ private:
 
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+
+  ezHashSet<const ezGALBuffer*> m_AlreadyUpdatedTransientBuffers;
+
   void SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
   void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource);
 };

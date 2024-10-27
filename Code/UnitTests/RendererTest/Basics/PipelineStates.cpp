@@ -160,6 +160,9 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
+    desc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;
+    m_hInstancingDataTransient = m_pDevice->CreateBuffer(desc);
+
     ezGALBufferResourceViewCreationDescription viewDesc;
     viewDesc.m_hBuffer = m_hInstancingData;
     viewDesc.m_uiFirstElement = 8;
@@ -291,9 +294,10 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       break;
     case SubTests::ST_StructuredBuffer:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_InitialData);
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Discard);
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_NoOverwrite);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_CopyToTempStorage);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient1);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient2);
       break;
     case SubTests::ST_GenerateMipMaps:
     case SubTests::ST_Texture2D:
@@ -345,6 +349,11 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   {
     m_pDevice->DestroyBuffer(m_hInstancingData);
     m_hInstancingData.Invalidate();
+  }
+  if (!m_hInstancingDataTransient.IsInvalidated())
+  {
+    m_pDevice->DestroyBuffer(m_hInstancingDataTransient);
+    m_hInstancingDataTransient.Invalidate();
   }
   m_hInstancingDataView_8_4.Invalidate();
   m_hInstancingDataView_12_4.Invalidate();
@@ -638,48 +647,60 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
 {
   BeginCommands("InstancingTest");
   {
-
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
-    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Discard)
+    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage)
     {
-      // Discard previous buffer.
+      // Replace the elements at [0, 3] with more green ones by offsetting the color by 16.
       ezHybridArray<ezTestShaderData, 16> instanceData;
-      FillStructuredBuffer(instanceData, 16);
-      pCommandEncoder->UpdateBuffer(m_hInstancingData, 0, instanceData.GetArrayPtr().ToByteArray(), ezGALUpdateMode::Discard);
+      FillStructuredBuffer(instanceData, 16 /*green*/);
+      m_pEncoder->UpdateBuffer(m_hInstancingData, 0, instanceData.GetArrayPtr().GetSubArray(0, 4).ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
     }
-    else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_NoOverwrite)
+    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2)
     {
-      // Nothing has touched the second half of the new buffer yet. Fill it with the original data of the first 8 elements.
+      // Replace the elements at [8, 15] with the same data as the original 8 elements. We will render these afterwards using custom buffer views.
       ezHybridArray<ezTestShaderData, 16> instanceData;
       FillStructuredBuffer(instanceData);
-      instanceData.SetCount(8);
-      pCommandEncoder->UpdateBuffer(m_hInstancingData, 8 * sizeof(ezTestShaderData), instanceData.GetArrayPtr().ToByteArray(), ezGALUpdateMode::NoOverwrite);
+      m_pEncoder->UpdateBuffer(m_hInstancingData, sizeof(ezTestShaderData) * 8, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
     }
-    else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage)
-    {
-      // Now we replace the first 4 elements of the second half of the buffer.
-      ezHybridArray<ezTestShaderData, 16> instanceData;
-      FillStructuredBuffer(instanceData, 16);
-      instanceData.SetCount(4);
-      pCommandEncoder->UpdateBuffer(m_hInstancingData, 8 * sizeof(ezTestShaderData), instanceData.GetArrayPtr().ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
-    }
-
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+   
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
 
-      if (m_iFrame < ImageCaptureFrames::StructuredBuffer_NoOverwrite)
+      if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_CopyToTempStorage)
       {
         pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
-      else if (m_iFrame >= ImageCaptureFrames::StructuredBuffer_NoOverwrite)
+      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2)
       {
+        // Use the second half of the buffer to render the 8 triangles using two draw calls.
         pContext->BindBuffer("instancingData", m_hInstancingDataView_8_4);
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
         pContext->BindBuffer("instancingData", m_hInstancingDataView_12_4);
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
+      }
+      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient1)
+      {
+        ezHybridArray<ezTestShaderData, 16> instanceData;
+        FillStructuredBuffer(instanceData, 16 /*green*/);
+        // Update the entire buffer in lots of little upload calls with greener versions.
+        for (ezUInt32 i = 0; i < 16; i++)
+        {
+          pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, i * sizeof(ezTestShaderData), instanceData.GetArrayPtr().GetSubArray(i, 1).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+        }
+        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient));
+        pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
+      }
+      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
+      {
+        ezHybridArray<ezTestShaderData, 16> instanceData;
+        FillStructuredBuffer(instanceData);
+        // Update with one single update call for the first 8 elements matching the initial state.
+        pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient));
+        pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
     }
   }

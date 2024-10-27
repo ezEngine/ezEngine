@@ -46,6 +46,9 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
       case ezGALBufferUsageFlags::DrawIndirect:
         out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
         break;
+      case ezGALBufferUsageFlags::Transient:
+        // Nothing to set here. We only use this flag to decide whether its safe to use D3D11_MAP_WRITE_NO_OVERWRITE / D3D11_MAP_WRITE_DISCARD inside ezGALCommandEncoderImplDX11::UpdateBufferPlatform.
+        break;
       default:
         ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
         return EZ_FAILURE;

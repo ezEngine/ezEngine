@@ -28,12 +28,24 @@ public:
   /// \brief Needs to be called by the ezGALDeviceVulkan just before a texture is destroyed to clean up stale barriers.
   void TextureDestroyed(const ezGALTextureVulkan* pTexture);
 
+  /// \brief Initializes a buffer with the given data.
+  /// \param pBuffer The buffer to initialize.
+  /// \param pInitialData The initial data that the buffer should be filled with.
+  void InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
+
+  /// \brief Updates a buffer range
+  /// \param pBuffer The buffer to update.
+  /// \param uiOffset The offset inside the buffer where the new data should be placed.
+  /// \param pSourceData The new data to update the buffer with.
+  void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezArrayPtr<const ezUInt8> pSourceData);
+
 private:
   void EnsureCommandBufferExists();
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
 
   ezMutex m_Lock;
+  ezDynamicArray<ezUInt8> m_TempData;
   vk::CommandBuffer m_currentCommandBuffer;
   ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;

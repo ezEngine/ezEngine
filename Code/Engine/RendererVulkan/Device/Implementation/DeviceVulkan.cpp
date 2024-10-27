@@ -851,9 +851,9 @@ ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCr
   return FinalizeTextureInternal(Description, pTexture);
 }
 
-ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU)
+ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
 {
-  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, Description, bCPU);
+  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, Description);
 
   if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
   {

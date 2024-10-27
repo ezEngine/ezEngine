@@ -113,18 +113,16 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
   else
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, ezGALRenderingSetup(), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
     ezGALTextureSubresource subresource;
     subresource.m_uiMipLevel = 0;
     subresource.m_uiArraySlice = 0;
 
-    pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
 
     if (renderViewContext.m_pCamera->IsStereoscopic())
     {
       subresource.m_uiArraySlice = 1;
-      pCommandEncoder->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
+      renderViewContext.m_pRenderContext->GetCommandEncoder()->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
     }
   }
 }

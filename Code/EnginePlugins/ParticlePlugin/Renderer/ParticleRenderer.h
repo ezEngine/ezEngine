@@ -9,6 +9,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
+class ezGALBufferPool;
 class ezRenderContext;
 
 /// \brief Implements rendering of particle systems
@@ -36,8 +37,8 @@ protected:
     ezConstantBufferStorageHandle m_hConstantBuffer;
   };
 
-  void CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch);
-  void DestroyParticleDataBuffer(ezGALBufferHandle& inout_hBuffer);
+  void CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch);
+  void DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer);
   void BindParticleShader(ezRenderContext* pRenderContext, const char* szShader) const;
 
 protected:

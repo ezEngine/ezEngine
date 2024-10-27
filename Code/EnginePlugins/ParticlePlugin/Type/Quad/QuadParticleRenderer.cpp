@@ -15,18 +15,18 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleQuadRenderer::ezParticleQuadRenderer()
 {
-  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
-  CreateParticleDataBuffer(m_hTangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_TangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/QuadParticle.ezShader");
 }
 
 ezParticleQuadRenderer::~ezParticleQuadRenderer()
 {
-  DestroyParticleDataBuffer(m_hBaseDataBuffer);
-  DestroyParticleDataBuffer(m_hBillboardDataBuffer);
-  DestroyParticleDataBuffer(m_hTangentDataBuffer);
+  DestroyParticleDataBuffer(m_BaseDataBuffer);
+  DestroyParticleDataBuffer(m_BillboardDataBuffer);
+  DestroyParticleDataBuffer(m_TangentDataBuffer);
 }
 
 void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
@@ -44,13 +44,9 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
   pRenderContext->BindShader(m_hShader);
 
-  // make sure our structured buffer is allocated and bound
+  // Bind mesh buffer
   {
     pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
-
-    pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
-    pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
-    pRenderContext->BindBuffer("particleTangentQuadData", pDevice->GetDefaultResourceView(m_hTangentDataBuffer));
   }
 
   // now render all particle effects of type Quad
@@ -75,22 +71,31 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
     while (uiNumParticles > 0)
     {
+      // Request new buffers and bind them
+      ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
+      ezGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
+      ezGALBufferHandle hTangentDataBuffer = m_TangentDataBuffer.GetNewBuffer();
+
+      pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(hBaseDataBuffer));
+      pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(hBillboardDataBuffer));
+      pRenderContext->BindBuffer("particleTangentQuadData", pDevice->GetDefaultResourceView(hTangentDataBuffer));
+
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
       uiNumParticles -= uiNumParticlesInBatch;
 
-      pGALCommandEncoder->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALCommandEncoder->UpdateBuffer(hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
       pParticleBaseData += uiNumParticlesInBatch;
 
       if (pParticleBillboardData != nullptr)
       {
-        pGALCommandEncoder->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         pParticleBillboardData += uiNumParticlesInBatch;
       }
 
       if (pParticleTangentData != nullptr)
       {
-        pGALCommandEncoder->UpdateBuffer(m_hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray());
+        pGALCommandEncoder->UpdateBuffer(hTangentDataBuffer, 0, ezMakeArrayPtr(pParticleTangentData, uiNumParticlesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         pParticleTangentData += uiNumParticlesInBatch;
       }
 

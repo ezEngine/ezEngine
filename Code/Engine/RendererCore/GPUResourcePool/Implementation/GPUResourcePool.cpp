@@ -137,6 +137,8 @@ ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescript
 {
   EZ_LOCK(m_Lock);
 
+  EZ_ASSERT_DEBUG(bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient), "Resource pool buffers must be transient");
+
   const ezUInt32 uiBufferDescHash = bufferDesc.CalculateHash();
 
   // Check if there is a fitting buffer available
@@ -196,19 +198,7 @@ void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
 #endif
 
   m_BuffersInUse.Remove(hBuffer);
-
-  if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
-  {
-    const ezUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
-
-    auto it = m_AvailableBuffers.Find(uiBufferDescHash);
-    if (!it.IsValid())
-    {
-      it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
-    }
-
-    it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
-  }
+  m_BuffersToBeReused.PushBack(hBuffer);
 }
 
 void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
@@ -331,6 +321,23 @@ void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
   {
+    for (ezGALBufferHandle hBuffer : m_BuffersToBeReused)
+    {
+      if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
+      {
+        const ezUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
+
+        auto it = m_AvailableBuffers.Find(uiBufferDescHash);
+        if (!it.IsValid())
+        {
+          it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
+        }
+
+        it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
+      }
+    }
+    m_BuffersToBeReused.Clear();
+
     ++m_uiFramesSinceLastGC;
     if (m_uiFramesSinceLastGC >= m_uiFramesThresholdSinceLastGC)
     {

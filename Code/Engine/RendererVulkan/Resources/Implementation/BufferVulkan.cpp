@@ -4,10 +4,10 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 
-ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU)
+ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description)
-  , m_bCPU(bCPU)
 {
 }
 
@@ -66,18 +66,16 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
         m_stages |= vk::PipelineStageFlagBits::eDrawIndirect;
         m_access |= vk::AccessFlagBits::eIndirectCommandRead;
         break;
+      case ezGALBufferUsageFlags::Transient:
+        break;
       default:
         ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
         return EZ_FAILURE;
     }
   }
 
-  // if (m_Description.m_ResourceAccess.m_bReadBack)
-  {
-    m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
-    m_access |= vk::AccessFlagBits::eTransferRead;
-  }
-
+  m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
+  m_access |= vk::AccessFlagBits::eTransferRead;
   m_usage |= vk::BufferUsageFlagBits::eTransferDst;
   m_access |= vk::AccessFlagBits::eTransferWrite;
 
@@ -92,11 +90,7 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
   if (!pInitialData.IsEmpty())
   {
-    void* pData = nullptr;
-    VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(m_currentBuffer.m_alloc, &pData));
-    EZ_ASSERT_DEV(pData, "Implementation error");
-    ezMemoryUtils::Copy((ezUInt8*)pData, pInitialData.GetPtr(), pInitialData.GetCount());
-    ezMemoryAllocatorVulkan::UnmapMemory(m_currentBuffer.m_alloc);
+    m_pDeviceVulkan->GetInitContext().InitBuffer(this, pInitialData);
   }
   return EZ_SUCCESS;
 }
@@ -166,14 +160,7 @@ void ezGALBufferVulkan::CreateBuffer() const
 
   ezVulkanAllocationCreateInfo allocCreateInfo;
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
-  if (m_bCPU)
-  {
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessRandom;
-  }
-  else
-  {
-    allocCreateInfo.m_flags = ezVulkanAllocationCreateFlags::HostAccessSequentialWrite;
-  }
+
   VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_currentBuffer.m_buffer, m_currentBuffer.m_alloc, &m_allocInfo));
 }
 

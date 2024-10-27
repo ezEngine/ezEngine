@@ -40,7 +40,7 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
     {
       // if this is the first renderer that is supposed to actually render the skinned mesh, upload the skinning matrices
       *pSkinnedRenderData->m_bTransformsUpdated = true;
-      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningTransforms, 0, pSkinnedRenderData->m_pNewSkinningTransformData);
+      pContext->GetCommandEncoder()->UpdateBuffer(pSkinnedRenderData->m_hSkinningTransforms, 0, pSkinnedRenderData->m_pNewSkinningTransformData, ezGALUpdateMode::AheadOfTime);
 
       // TODO: could expose this somewhere (ezStats?)
       s_uiSkinningBufferUpdates++;

@@ -72,12 +72,11 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
 
 void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
   SetupLighting(renderViewContext);
 
+  SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
   RenderObjects(renderViewContext);
-
   renderViewContext.m_pRenderContext->EndRendering();
 }
 

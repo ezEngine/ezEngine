@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData final : public ezRenderData
 {
@@ -34,6 +35,6 @@ public:
 
 protected:
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferHandle m_hBaseDataBuffer;
-  ezGALBufferHandle m_hBillboardDataBuffer;
+  ezGALBufferPool m_BaseDataBuffer;
+  ezGALBufferPool m_BillboardDataBuffer;
 };

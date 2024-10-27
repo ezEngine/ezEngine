@@ -856,6 +856,7 @@ void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif
 
+  m_pCommandEncoderImpl->EndFrame();
   m_pQueryPool->EndFrame();
 
   auto& currentFrameData = m_PerFrameData[m_uiCurrentPerFrameData];

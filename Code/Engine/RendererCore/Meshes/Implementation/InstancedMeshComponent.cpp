@@ -92,7 +92,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezInstancedMeshRenderData::FillBatchIdAndSortingKey()
 {
-  FillBatchIdAndSortingKeyInternal(m_pExplicitInstanceData->m_hInstanceDataBuffer.GetInternalID().m_Data);
+  void* pData = &m_pExplicitInstanceData->m_InstanceDataBuffer;
+  FillBatchIdAndSortingKeyInternal(ezHashingUtils::xxHash32(pData, sizeof(pData)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +146,7 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
     if (pComp->m_pExplicitInstanceData)
     {
       ezUInt32 uiOffset = 0;
-      auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(componentToUpdate.m_InstanceData.GetCount(), uiOffset);
+      auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(pRenderContext,componentToUpdate.m_InstanceData.GetCount(), uiOffset);
       instanceData.CopyFrom(componentToUpdate.m_InstanceData);
 
       pComp->m_pExplicitInstanceData->UpdateInstanceData(pRenderContext, instanceData.GetCount());
@@ -218,7 +219,7 @@ void ezInstancedMeshComponent::OnActivated()
   SUPER::OnActivated();
 
   EZ_ASSERT_DEV(m_pExplicitInstanceData == nullptr, "Instance data must not be initialized at this point");
-  m_pExplicitInstanceData = EZ_DEFAULT_NEW(ezInstanceData);
+  m_pExplicitInstanceData = EZ_DEFAULT_NEW(ezInstanceData, 1024, false);
 }
 
 void ezInstancedMeshComponent::OnDeactivated()

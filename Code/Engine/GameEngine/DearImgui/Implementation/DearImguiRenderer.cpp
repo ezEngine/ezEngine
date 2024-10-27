@@ -141,18 +141,6 @@ ezImguiRenderer::ezImguiRenderer()
 ezImguiRenderer::~ezImguiRenderer()
 {
   m_hShader.Invalidate();
-
-  if (!m_hVertexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-    m_hVertexBuffer.Invalidate();
-  }
-
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-    m_hIndexBuffer.Invalidate();
-  }
 }
 
 void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
@@ -184,10 +172,13 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < s_uiVertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < s_uiIndexBufferSize, "GUI has too many elements to render in one drawcall");
 
-    pCommandEncoder->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
-    pCommandEncoder->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
+    ezGALBufferHandle hVertexBuffer = m_VertexBuffer.GetNewBuffer();
+    ezGALBufferHandle hIndexBuffer = m_IndexBuffer.GetNewBuffer();
 
-    pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
+    pCommandEncoder->UpdateBuffer(hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+    pCommandEncoder->UpdateBuffer(hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+    pRenderContext->BindMeshBuffer(hVertexBuffer, hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
 
     ezUInt32 uiFirstIndex = 0;
     const ezUInt32 numBatches = pRenderData->m_Batches.GetCount();
@@ -209,7 +200,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
 
 void ezImguiRenderer::SetupRenderer()
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  if (m_hShader.IsValid())
     return;
 
   // load the shader
@@ -220,13 +211,13 @@ void ezImguiRenderer::SetupRenderer()
   // Create the vertex buffer
   {
     ezGALBufferCreationDescription desc;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::Transient;
 
     desc.m_uiStructSize = sizeof(ezImguiVertex);
     desc.m_uiTotalSize = s_uiVertexBufferSize * desc.m_uiStructSize;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_VertexBuffer.Initialize(desc, "DearImguiRenderer - VertexBuffer");
   }
 
   // Create the index buffer
@@ -234,10 +225,10 @@ void ezImguiRenderer::SetupRenderer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ImDrawIdx);
     desc.m_uiTotalSize = s_uiIndexBufferSize * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_IndexBuffer.Initialize(desc, "DearImguiRenderer - IndexBuffer");
   }
 
   // Setup the vertex declaration

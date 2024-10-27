@@ -657,7 +657,7 @@ void ezJoltClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderView
     pRenderContext->BindMaterial(pRenderData->m_hMaterial);
 
     ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(1, uiInstanceDataOffset);
+    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(pRenderContext, 1, uiInstanceDataOffset);
 
     instanceData[0].ObjectToWorld = pRenderData->m_GlobalTransform;
     instanceData[0].ObjectToWorldNormal = instanceData[0].ObjectToWorld;

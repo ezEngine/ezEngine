@@ -74,7 +74,7 @@ void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
 
     ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
+    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(pRenderContext, uiRemainingInstances, uiInstanceDataOffset);
 
     ezUInt32 uiFilteredCount = 0;
     FillPerInstanceData(vLodCamPos, instanceData, batch, bIsShadowView, uiStartIndex, uiFilteredCount);

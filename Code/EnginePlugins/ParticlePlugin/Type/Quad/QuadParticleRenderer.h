@@ -4,6 +4,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>
@@ -52,7 +53,7 @@ protected:
   void ConfigureRenderMode(const ezParticleQuadRenderData* pRenderData, ezRenderContext* pRenderContext) const;
 
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferHandle m_hBaseDataBuffer;
-  ezGALBufferHandle m_hBillboardDataBuffer;
-  ezGALBufferHandle m_hTangentDataBuffer;
+  ezGALBufferPool m_BaseDataBuffer;
+  ezGALBufferPool m_BillboardDataBuffer;
+  ezGALBufferPool m_TangentDataBuffer;
 };

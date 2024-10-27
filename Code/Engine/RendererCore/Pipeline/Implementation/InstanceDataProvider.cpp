@@ -7,20 +7,17 @@
 
 #include <Shaders/Common/ObjectConstants.h>
 
-ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount /*= 1024*/)
+ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount, bool bTransient)
 
 {
-  CreateBuffer(uiMaxInstanceCount);
+  CreateBuffer(uiMaxInstanceCount, bTransient);
 
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezObjectConstants>();
 }
 
 ezInstanceData::~ezInstanceData()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  pDevice->DestroyBuffer(m_hInstanceDataBuffer);
-
+  m_InstanceDataBuffer.Deinitialize();
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
@@ -28,11 +25,11 @@ void ezInstanceData::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  pRenderContext->BindBuffer("perInstanceData", pDevice->GetDefaultResourceView(m_hInstanceDataBuffer));
+  pRenderContext->BindBuffer("perInstanceData", pDevice->GetDefaultResourceView(m_InstanceDataBuffer.GetCurrentBuffer()));
   pRenderContext->BindConstantBuffer("ezObjectConstants", m_hConstantBuffer);
 }
 
-ezArrayPtr<ezPerInstanceData> ezInstanceData::GetInstanceData(ezUInt32 uiCount, ezUInt32& out_uiOffset)
+ezArrayPtr<ezPerInstanceData> ezInstanceData::GetInstanceData(ezRenderContext* pRenderContext, ezUInt32 uiCount, ezUInt32& out_uiOffset)
 {
   uiCount = ezMath::Min(uiCount, m_uiBufferSize);
   if (m_uiBufferOffset + uiCount > m_uiBufferSize)
@@ -40,22 +37,30 @@ ezArrayPtr<ezPerInstanceData> ezInstanceData::GetInstanceData(ezUInt32 uiCount, 
     m_uiBufferOffset = 0;
   }
 
+  if (m_uiBufferOffset == 0)
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALBufferHandle hBuffer = m_InstanceDataBuffer.GetNewBuffer();
+    pRenderContext->BindBuffer("perInstanceData", pDevice->GetDefaultResourceView(hBuffer));
+  }
+
+
   out_uiOffset = m_uiBufferOffset;
   return m_PerInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
 }
 
 void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt32 uiCount)
 {
+
   EZ_ASSERT_DEV(m_uiBufferOffset + uiCount <= m_uiBufferSize, "Implementation error");
 
   ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
-
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezUInt32 uiDestOffset = m_uiBufferOffset * sizeof(ezPerInstanceData);
   auto pSourceData = m_PerInstanceData.GetArrayPtr().GetSubArray(m_uiBufferOffset, uiCount);
-  ezGALUpdateMode::Enum updateMode = (m_uiBufferOffset == 0) ? ezGALUpdateMode::Discard : ezGALUpdateMode::NoOverwrite;
+  ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::AheadOfTime;
 
-  pGALCommandEncoder->UpdateBuffer(m_hInstanceDataBuffer, uiDestOffset, pSourceData.ToByteArray(), updateMode);
-
+  pGALCommandEncoder->UpdateBuffer(m_InstanceDataBuffer.GetCurrentBuffer(), uiDestOffset, pSourceData.ToByteArray(), updateMode);
 
   ezObjectConstants* pConstants = pRenderContext->GetConstantBufferData<ezObjectConstants>(m_hConstantBuffer);
   pConstants->InstanceDataOffset = m_uiBufferOffset;
@@ -63,20 +68,20 @@ void ezInstanceData::UpdateInstanceData(ezRenderContext* pRenderContext, ezUInt3
   m_uiBufferOffset += uiCount;
 }
 
-void ezInstanceData::CreateBuffer(ezUInt32 uiSize)
+void ezInstanceData::CreateBuffer(ezUInt32 uiSize, bool bTransient)
 {
   m_uiBufferSize = uiSize;
   m_PerInstanceData.SetCountUninitialized(m_uiBufferSize);
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerInstanceData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource ;
   desc.m_ResourceAccess.m_bImmutable = false;
+  if (bTransient)
+    desc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;
 
-  m_hInstanceDataBuffer = pDevice->CreateBuffer(desc);
+  m_InstanceDataBuffer.Initialize(desc, "InstanceDataProvider - StructuredBuffer");
 }
 
 void ezInstanceData::Reset()

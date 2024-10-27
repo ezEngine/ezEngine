@@ -51,12 +51,19 @@ void ezGALRendererFallbackResources::DeInitialize()
 }
 void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
+  struct FallbackTexture
+  {
+    ezGALTextureHandle m_hTexture;
+    ezGALTextureResourceViewHandle m_hDefault;
+    ezGALTextureResourceViewHandle m_hArray;
+  };
+
   switch (e.m_Type)
   {
     case ezGALDeviceEvent::AfterInit:
     {
       s_pDevice = e.m_pDevice;
-      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> ezGALTextureResourceViewHandle
+      auto CreateTexture = [](ezGALTextureType::Enum type, ezGALMSAASampleCount::Enum samples, bool bDepth) -> FallbackTexture
       {
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 4;
@@ -74,21 +81,40 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
         // Debug device not set yet.
         s_pDevice->GetTexture(hTexture)->SetDebugName("FallbackResource");
         s_Textures.PushBack(hTexture);
-        return s_pDevice->GetDefaultResourceView(hTexture);
+
+        ezGALTextureResourceViewHandle hDefault = s_pDevice->GetDefaultResourceView(hTexture);
+        ezGALTextureResourceViewHandle hArray = {};
+
+        ezGALTextureResourceViewCreationDescription arrayViewDesk;
+        arrayViewDesk.m_hTexture = hTexture;
+        switch (type)
+        {
+          case ezGALTextureType::Texture2D:
+            arrayViewDesk.m_OverrideViewType = ezGALTextureType::Texture2DArray;
+            hArray = s_pDevice->CreateResourceView(arrayViewDesk);
+            break;
+          case ezGALTextureType::TextureCube:
+            arrayViewDesk.m_OverrideViewType = ezGALTextureType::TextureCubeArray;
+            hArray = s_pDevice->CreateResourceView(arrayViewDesk);
+            break;
+          default:
+            break;
+        }
+        return {hTexture, hDefault, hArray};
       };
       {
-        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, false);
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, false}] = hView;
+        FallbackTexture tex = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, false);
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, false}] = tex.m_hArray;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, false}] = tex.m_hArray;
       }
       {
-        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, true);
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, true}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, true}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, true}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, true}] = hView;
+        FallbackTexture tex = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::None, true);
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D, true}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray, true}] = tex.m_hArray;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2D, true}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DArray, true}] = tex.m_hArray;
       }
 
       // Swift shader can only do 4x MSAA. Add a check anyways.
@@ -96,23 +122,23 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
 
       if (bSupported)
       {
-        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples, false);
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMS, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMSArray, false}] = hView;
+        FallbackTexture tex = CreateTexture(ezGALTextureType::Texture2D, ezGALMSAASampleCount::FourSamples, false);
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray, false}] = tex.m_hArray;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMS, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture2DMSArray, false}] = tex.m_hArray;
       }
       {
-        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None, false);
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCube, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCubeArray, false}] = hView;
+        FallbackTexture tex = CreateTexture(ezGALTextureType::TextureCube, ezGALMSAASampleCount::None, false);
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCube, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::TextureCubeArray, false}] = tex.m_hDefault;
       }
       {
-        ezGALTextureResourceViewHandle hView = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None, false);
-        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D, false}] = hView;
-        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture3D, false}] = hView;
+        FallbackTexture tex = CreateTexture(ezGALTextureType::Texture3D, ezGALMSAASampleCount::None, false);
+        s_TextureResourceViews[{ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D, false}] = tex.m_hDefault;
+        s_TextureResourceViews[{ezGALShaderResourceType::TextureAndSampler, ezGALShaderTextureType::Texture3D, false}] = tex.m_hDefault;
       }
       {
         ezGALBufferCreationDescription desc;

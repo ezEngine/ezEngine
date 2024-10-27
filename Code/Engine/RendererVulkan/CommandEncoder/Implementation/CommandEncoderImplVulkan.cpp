@@ -282,36 +282,17 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
   EZ_CHECK_ALIGNMENT(pSourceData.GetPtr(), 16);
 
   auto pVulkanDestination = static_cast<const ezGALBufferVulkan*>(pDestination);
-
   switch (updateMode)
   {
-    case ezGALUpdateMode::Discard:
+    case ezGALUpdateMode::TransientConstantBuffer:
       pVulkanDestination->DiscardBuffer();
       [[fallthrough]];
-    case ezGALUpdateMode::NoOverwrite:
-    {
-      ezVulkanAllocation alloc = pVulkanDestination->GetAllocation();
-      void* pData = nullptr;
-      VK_ASSERT_DEV(ezMemoryAllocatorVulkan::MapMemory(alloc, &pData));
-      EZ_ASSERT_DEV(pData, "Implementation error");
-      ezMemoryUtils::Copy(ezMemoryUtils::AddByteOffset((ezUInt8*)pData, uiDestOffset), pSourceData.GetPtr(), pSourceData.GetCount());
-      ezMemoryAllocatorVulkan::UnmapMemory(alloc);
-    }
-    break;
+
+    case ezGALUpdateMode::AheadOfTime:
+      m_GALDeviceVulkan.GetInitContext().UpdateBuffer(pVulkanDestination, uiDestOffset, pSourceData);
+      break;
     case ezGALUpdateMode::CopyToTempStorage:
-    {
-      if (m_bRenderPassActive)
-      {
-        m_pCommandBuffer->endRenderPass();
-        m_bRenderPassActive = false;
-      }
-
-      EZ_ASSERT_DEBUG(!m_bRenderPassActive, "Vulkan does not support copying buffers while a render pass is active. TODO: Fix high level render code to make this impossible.");
-
       m_GALDeviceVulkan.UploadBufferStaging(&m_GALDeviceVulkan.GetStagingBufferPool(), m_pPipelineBarrier, *m_pCommandBuffer, pVulkanDestination, pSourceData, uiDestOffset);
-    }
-    break;
-    default:
       break;
   }
 }

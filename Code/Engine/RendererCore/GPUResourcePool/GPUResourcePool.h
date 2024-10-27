@@ -76,6 +76,7 @@ protected:
 
   ezMap<ezUInt32, ezDynamicArray<BufferHandleWithAge>> m_AvailableBuffers;
   ezSet<ezGALBufferHandle> m_BuffersInUse;
+  ezDynamicArray<ezGALBufferHandle> m_BuffersToBeReused;
 
   ezMutex m_Lock;
 

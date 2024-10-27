@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/Renderer.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 class ezRenderDataBatch;
 class ezSceneContext;
@@ -71,7 +72,7 @@ protected:
   static constexpr ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
 
   ezShaderResourceHandle m_hShader;
-  ezGALBufferHandle m_hVertexBuffer;
+  ezGALBufferPool m_VertexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
   mutable ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
 

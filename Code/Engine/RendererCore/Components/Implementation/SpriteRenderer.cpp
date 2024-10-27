@@ -59,7 +59,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
 
   if (m_SpriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
   {
-    pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr());
+    pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
 
     pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_SpriteData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
@@ -71,7 +71,7 @@ ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer(ezUInt32 uiBufferSize
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerSpriteData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);

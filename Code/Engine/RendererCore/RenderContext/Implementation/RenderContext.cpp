@@ -836,6 +836,7 @@ void ezRenderContext::DeleteConstantBufferStorage(ezConstantBufferStorageHandle 
     // already deleted
     return;
   }
+  pStorage->BeforeBeginFrame();
 
   ezUInt32 uiSizeInBytes = pStorage->m_Data.GetCount();
 
@@ -1002,6 +1003,13 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
     s_pCommandEncoder = nullptr;
     if (s_pDefaultInstance)
       s_pDefaultInstance->m_pGALCommandEncoder = nullptr;
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
+  {
+    for (auto it = s_ConstantBufferStorageTable.GetIterator(); it.IsValid(); ++it)
+    {
+      it.Value()->BeforeBeginFrame();
+    }
   }
 }
 

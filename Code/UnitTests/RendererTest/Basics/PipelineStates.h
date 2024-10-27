@@ -30,9 +30,10 @@ private:
   {
     DefaultCapture = 5,
     StructuredBuffer_InitialData = 5,
-    StructuredBuffer_Discard = 6,
-    StructuredBuffer_NoOverwrite = 8,
-    StructuredBuffer_CopyToTempStorage = 9,
+    StructuredBuffer_CopyToTempStorage = 6,
+    StructuredBuffer_CopyToTempStorage2 = 7,
+    StructuredBuffer_Transient1 = 8,
+    StructuredBuffer_Transient2 = 9,
     Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
   };
 
@@ -88,6 +89,7 @@ private:
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
   ezGALBufferHandle m_hInstancingData;
+  ezGALBufferHandle m_hInstancingDataTransient;
   ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
   ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
 

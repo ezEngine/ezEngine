@@ -338,7 +338,7 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     pRenderContext->BindMaterial(pRenderData->m_hMaterial);
 
     ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(1, uiInstanceDataOffset);
+    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(pRenderContext,1, uiInstanceDataOffset);
 
     instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
     instanceData[0].Color = pRenderData->m_Color;

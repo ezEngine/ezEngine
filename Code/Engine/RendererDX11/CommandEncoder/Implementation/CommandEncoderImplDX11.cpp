@@ -35,6 +35,12 @@ ezGALCommandEncoderImplDX11::~ezGALCommandEncoderImplDX11()
   EZ_GAL_DX11_RELEASE(m_pDXAnnotation);
 }
 
+
+void ezGALCommandEncoderImplDX11::EndFrame()
+{
+  m_AlreadyUpdatedTransientBuffers.Clear();
+}
+
 // State setting functions
 
 void ezGALCommandEncoderImplDX11::SetShaderPlatform(const ezGALShader* pShader)
@@ -286,7 +292,8 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
 
   ID3D11Buffer* pDXDestination = static_cast<const ezGALBufferDX11*>(pDestination)->GetDXBuffer();
 
-  if (pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
+  // On DX11 we can treat non-transient and transient constant buffers equally.
+  if (updateMode == ezGALUpdateMode::TransientConstantBuffer || pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
   {
     EZ_ASSERT_DEV(uiDestOffset == 0 && sourceData.GetCount() == pDestination->GetSize(),
       "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
@@ -301,7 +308,8 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
   }
   else
   {
-    if (updateMode == ezGALUpdateMode::CopyToTempStorage)
+    const bool bTransient = pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient);
+    if (updateMode == ezGALUpdateMode::CopyToTempStorage || !bTransient)
     {
       if (ID3D11Resource* pDXTempBuffer = m_GALDeviceDX11.FindTempBuffer(sourceData.GetCount()))
       {
@@ -324,7 +332,14 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
     }
     else
     {
-      D3D11_MAP mapType = (updateMode == ezGALUpdateMode::Discard) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+      D3D11_MAP mapType = D3D11_MAP_WRITE_NO_OVERWRITE;
+      if (!m_AlreadyUpdatedTransientBuffers.Contains(pDestination))
+      {
+        // If this is the first time we update a transient buffer this frame, we can use DISCARD which will allow us to safely use NO_OVERWRITE on this buffer for this frame afterwards.
+        // This is guaranteed by the constraint that the buffer must not be updated twice on the same memory location within one frame.
+        m_AlreadyUpdatedTransientBuffers.Insert(pDestination);
+        mapType = D3D11_MAP_WRITE_DISCARD;
+      }
 
       D3D11_MAPPED_SUBRESOURCE MapResult;
       if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, mapType, 0, &MapResult)))

@@ -184,6 +184,7 @@ struct ezGALBufferUsageFlags
     ShaderResource = EZ_BIT(6),    ///< Can be used for ezGALShaderResourceType in the SRV section.
     UnorderedAccess = EZ_BIT(7),   ///< Can be used for ezGALShaderResourceType in the UAV section.
     DrawIndirect = EZ_BIT(8),      ///< Can be used in an indirect draw call.
+    Transient = EZ_BIT(9),      ///< Does not persist across frames. If ConstantBuffer is also set, it can be updated multiple times per frame in the middle of any operation as new memory is created on every update call.
 
     Default = 0
   };
@@ -199,6 +200,7 @@ struct ezGALBufferUsageFlags
     StorageType ShaderResource : 1;
     StorageType UnorderedAccess : 1;
     StorageType DrawIndirect : 1;
+    StorageType Transient : 1;
   };
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);

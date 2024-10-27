@@ -45,6 +45,7 @@ static_assert(VMA_ALLOCATION_CREATE_MAPPED_BIT == (ezUInt32)ezVulkanAllocationCr
 static_assert(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::CanAlias);
 static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
 static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessRandom);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::AllowTransferInstead);
 static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinMemory);
 static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinTime);
 
@@ -117,10 +118,10 @@ void ezMemoryAllocatorVulkan::DeInitialize()
   m_pImpl->m_exportedSharedPools.Clear();
 
   // Uncomment below to debug leaks in VMA.
-  /*
+
   char* pStats = nullptr;
   vmaBuildStatsString(m_pImpl->m_allocator, &pStats, true);
-  */
+
   vmaDestroyAllocator(m_pImpl->m_allocator);
   EZ_DEFAULT_DELETE(m_pImpl);
 }
@@ -215,6 +216,13 @@ ezVulkanAllocationInfo ezMemoryAllocatorVulkan::GetAllocationInfo(ezVulkanAlloca
   vmaGetAllocationInfo(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), &info);
 
   return reinterpret_cast<ezVulkanAllocationInfo&>(info);
+}
+
+vk::MemoryPropertyFlags ezMemoryAllocatorVulkan::GetAllocationFlags(ezVulkanAllocation alloc)
+{
+  VkMemoryPropertyFlags memPropFlags;
+  vmaGetAllocationMemoryProperties(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), &memPropFlags);
+  return reinterpret_cast<vk::MemoryPropertyFlags&>(memPropFlags);
 }
 
 void ezMemoryAllocatorVulkan::SetAllocationUserData(ezVulkanAllocation alloc, const char* pUserData)

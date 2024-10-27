@@ -3,6 +3,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleRenderer, 1, ezRTTINoAllocator)
@@ -57,27 +58,26 @@ void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRender
   ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
 }
 
-void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
+void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
 {
-  if (inout_hBuffer.IsInvalidated())
+  if (!inout_Buffer.IsInitialized())
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiDataTypeSize;
     desc.m_uiTotalSize = uiNumParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    inout_hBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    inout_Buffer.Initialize(desc, "ParticleRenderer - StructuredBuffer");
   }
 }
 
 
-void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferHandle& inout_hBuffer)
+void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer)
 {
-  if (!inout_hBuffer.IsInvalidated())
+  if (inout_Buffer.IsInitialized())
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(inout_hBuffer);
-    inout_hBuffer.Invalidate();
+    inout_Buffer.Deinitialize();
   }
 }
 

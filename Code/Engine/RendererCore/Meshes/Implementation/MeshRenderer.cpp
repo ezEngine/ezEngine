@@ -59,7 +59,6 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
   ezInstanceData* pInstanceData = bHasExplicitInstanceData ? static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_pExplicitInstanceData : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
 
-  pInstanceData->BindResources(pContext);
 
   if (pRenderData->m_uiFlipWinding)
   {
@@ -75,6 +74,8 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
   SetAdditionalData(renderViewContext, pRenderData);
 
+  pInstanceData->BindResources(pContext);
+
   if (!bHasExplicitInstanceData)
   {
     ezUInt32 uiStartIndex = 0;
@@ -83,7 +84,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
 
       ezUInt32 uiInstanceDataOffset = 0;
-      ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
+      ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(pContext, uiRemainingInstances, uiInstanceDataOffset);
 
       ezUInt32 uiFilteredCount = 0;
       FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);

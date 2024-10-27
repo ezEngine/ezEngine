@@ -6,6 +6,7 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
 struct ezGALRenderingSetup;
+struct ezGALDeviceEvent;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {
@@ -64,7 +65,8 @@ public:
 
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
-  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
+
+  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::TransientConstantBuffer);
 
   void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
   void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box);
@@ -142,9 +144,16 @@ public:
 protected:
   friend class ezGALDevice;
 
+  void GALStaticDeviceEventHandler(const ezGALDeviceEvent& e);
+
   void AssertRenderingThread()
   {
     EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function can only be executed on the main thread.");
+  }
+
+  void AssertOutsideRenderingScope()
+  {
+    EZ_ASSERT_DEBUG(m_CurrentCommandEncoderType != CommandEncoderType::Render, "This function can only be executed outside a render scope.");
   }
 
 private:
@@ -165,6 +174,21 @@ private:
     Render,
     Compute
   };
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // This code ensures in debug build that a buffer is not updated twice per frame in the same location (without using CopyToTempStorage)
+  struct BufferRange
+  {
+    inline bool overlapRange(ezUInt32 uiOffset, ezUInt32 uiLength) const
+    {
+      return !(m_uiOffset > (uiOffset + uiLength - 1) || (m_uiOffset + m_uiLength - 1) < uiOffset);
+    }
+    ezUInt32 m_uiOffset = 0;
+    ezUInt32 m_uiLength = 0;
+    EZ_DECLARE_POD_TYPE();
+  };
+  ezMap<ezGALBufferHandle, ezHybridArray<BufferRange, 1>> m_BufferUpdates;
+#endif
 
   CommandEncoderType m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
   bool m_bMarker = false;

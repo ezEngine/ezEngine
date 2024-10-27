@@ -1071,7 +1071,7 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   {
     EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
-    pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr());
+    pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
   }
 
   pCommandEncoder->EndRendering();

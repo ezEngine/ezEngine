@@ -32,7 +32,7 @@ protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU = false);
+  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description);
 
   virtual ~ezGALBufferVulkan();
 
@@ -56,7 +56,6 @@ protected:
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
   vk::Device m_device;
 
-  bool m_bCPU = false;
   mutable ezString m_sDebugName;
 };
 

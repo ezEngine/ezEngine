@@ -165,10 +165,12 @@ void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk:
   {
     if (IsDirtyInternal(*pState, subState))
     {
+      pState = nullptr;
       Flush();
     }
   }
-  else
+
+  if (!pState)
   {
     BufferState state;
     state.m_pBuffer = pBuffer;
@@ -177,6 +179,7 @@ void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk:
 
   AddBufferBarrierInternal(pBuffer->GetVkBuffer(), offset, length, srcStages, srcAccess, dstStages, dstAccess);
   pState->m_subBufferState.PushBack(subState);
+  pState->m_dirty.SetCount(pState->m_subBufferState.GetCount(), true);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)

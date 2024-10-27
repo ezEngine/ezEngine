@@ -5,6 +5,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
@@ -52,12 +53,12 @@ protected:
   bool ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const;
 
   static const ezUInt32 s_uiParticlesPerBatch = 512;
-  ezGALBufferHandle m_hBaseDataBuffer;
-  ezGALBufferHandle m_hTrailDataBuffer;
-  ezGALBufferHandle m_hTrailPointsDataBuffer8;
-  ezGALBufferHandle m_hTrailPointsDataBuffer16;
-  ezGALBufferHandle m_hTrailPointsDataBuffer32;
-  ezGALBufferHandle m_hTrailPointsDataBuffer64;
+  ezGALBufferPool m_BaseDataBuffer;
+  ezGALBufferPool m_TrailDataBuffer;
+  ezGALBufferPool m_TrailPointsDataBuffer8;
+  ezGALBufferPool m_TrailPointsDataBuffer16;
+  ezGALBufferPool m_TrailPointsDataBuffer32;
+  ezGALBufferPool m_TrailPointsDataBuffer64;
 
-  mutable ezGALBufferHandle m_hActiveTrailPointsDataBuffer;
+  mutable const ezGALBufferPool* m_pActiveTrailPointsDataBuffer = nullptr;
 };

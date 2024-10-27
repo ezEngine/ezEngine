@@ -235,14 +235,12 @@ void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderE
   {
     ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
     ezGALCommandEncoder* pCommandEncoder = pGALDevice->BeginCommands("ProcVertexUpdate");
-    pCommandEncoder->BeginCompute();
 
     ezUInt32 uiByteOffset = dataCopy.m_uiStart * sizeof(ezUInt32);
-    pCommandEncoder->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
+    pCommandEncoder->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
     dataCopy = DataCopy();
 
-    pCommandEncoder->EndCompute();
     pGALDevice->EndCommands(pCommandEncoder);
   }
 }

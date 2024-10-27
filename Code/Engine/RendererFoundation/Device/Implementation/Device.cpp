@@ -556,6 +556,11 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     }
   }
 
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
+  {
+    EZ_ASSERT_DEBUG(initialData.IsEmpty(), "Transient buffers cannot have initial data");
+  }
+
   /// \todo Platform independent validation (buffer type supported)
 
   ezGALBuffer* pBuffer = CreateBufferPlatform(desc, initialData);
@@ -633,7 +638,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = 0;
   desc.m_uiTotalSize = uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer | ezGALBufferUsageFlags::Transient;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return CreateBuffer(desc);

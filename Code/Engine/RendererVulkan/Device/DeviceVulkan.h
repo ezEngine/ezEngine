@@ -174,7 +174,7 @@ public:
   ezInitContextVulkan& GetInitContext() const;
 
   ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
-  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData, bool bCPU = false);
+  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData);
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 

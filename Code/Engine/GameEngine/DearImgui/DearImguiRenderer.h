@@ -10,6 +10,7 @@
 #  include <RendererCore/Pipeline/Extractor.h>
 #  include <RendererCore/Pipeline/RenderData.h>
 #  include <RendererCore/Pipeline/Renderer.h>
+#  include <RendererFoundation/Resources/BufferPool.h>
 
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
@@ -76,8 +77,8 @@ protected:
   static constexpr ezUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
 
   ezShaderResourceHandle m_hShader;
-  ezGALBufferHandle m_hVertexBuffer;
-  ezGALBufferHandle m_hIndexBuffer;
+  ezGALBufferPool m_VertexBuffer;
+  ezGALBufferPool m_IndexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
 };
 
