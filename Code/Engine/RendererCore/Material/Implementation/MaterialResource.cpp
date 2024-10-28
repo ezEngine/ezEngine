@@ -1026,7 +1026,7 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
       {
         m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
       }
-      else if (sBlendModeValue == ezTempHashedString("BLEND_MODE_MASKED"))
+      else if (sBlendModeValue == ezTempHashedString("BLEND_MODE_MASKED") || sBlendModeValue == ezTempHashedString("BLEND_MODE_DITHERED"))
       {
         m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitMasked;
       }

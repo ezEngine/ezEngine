@@ -105,12 +105,12 @@ uint CalculateCoverage()
 
   for (uint i = 0; i < NumMsaaSamples; ++i)
   {
-    coverage |= (opacity > ditherNoise[i % 4u]) ? (1u << i) : 0;
+    coverage |= (opacity >= ditherNoise[i % 4u]) ? (1u << i) : 0;
   }
 
   return coverage;
 #  else
-  return opacity > ditherNoise.x;
+  return opacity >= ditherNoise.x;
 #  endif
 
 #elif defined(WRITE_COVERAGE) && defined(USE_TEXCOORD0)
