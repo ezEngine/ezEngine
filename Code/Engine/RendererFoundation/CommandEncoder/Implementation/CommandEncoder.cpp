@@ -343,11 +343,7 @@ void ezGALCommandEncoder::ReadbackBuffer(ezGALReadbackBufferHandle hDestination,
   const ezGALBuffer* pSource = m_Device.GetBuffer(hSource);
 
   EZ_ASSERT_DEBUG(pDestination != nullptr && pSource != nullptr, "Invalid handle provided");
-
-  const ezGALBufferCreationDescription& sourceDesc = pSource->GetDescription();
-  const ezGALBufferCreationDescription& destinationDesc = pDestination->GetDescription();
-
-  EZ_ASSERT_DEBUG(sourceDesc.m_uiTotalSize == destinationDesc.m_uiTotalSize, "Source and destination size do not match");
+  EZ_ASSERT_DEBUG(pSource->GetDescription().m_uiTotalSize == pDestination->GetDescription().m_uiTotalSize, "Source and destination size do not match");
 
   if (pDestination != nullptr && pSource != nullptr)
   {
