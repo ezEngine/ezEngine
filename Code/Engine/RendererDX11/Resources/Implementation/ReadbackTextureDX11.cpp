@@ -4,6 +4,8 @@
 #include <RendererDX11/Resources/ReadbackTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 
+#include <d3d11.h>
+
 ezGALReadbackTextureDX11::ezGALReadbackTextureDX11(const ezGALTextureCreationDescription& Description)
   : ezGALReadbackTexture(Description)
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererVulkan/RendererVulkanDLL.h>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 
 #include <vulkan/vulkan.hpp>
 

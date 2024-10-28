@@ -1,6 +1,8 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
 #include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
+#include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Resources/BufferVulkan.h>
 
 ezGALReadbackBufferVulkan::ezGALReadbackBufferVulkan(const ezGALBufferCreationDescription& Description)
   : ezGALReadbackBuffer(Description)

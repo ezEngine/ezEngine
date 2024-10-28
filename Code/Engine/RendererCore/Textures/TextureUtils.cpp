@@ -7,6 +7,18 @@
 
 bool ezTextureUtils::s_bForceFullQualityAlways = false;
 
+namespace
+{
+  ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
+  {
+    for (ezUInt32 i = 0; i < uiMipLevel; i++)
+    {
+      uiSize = uiSize / 2;
+    }
+    return ezMath::Max(1u, uiSize);
+  }
+} // namespace
+
 ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::Enum format, bool bSRGB)
 {
   switch (format)
@@ -415,15 +427,6 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
     view = ref_Temp.GetSubImageView();
   }
   return view;
-}
-
-ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
-{
-  for (ezUInt32 i = 0; i < uiMipLevel; i++)
-  {
-    uiSize = uiSize / 2;
-  }
-  return ezMath::Max(1u, uiSize);
 }
 
 void ezTextureUtils::CopySubResourceToMemory(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& sourceMemory, ezArrayPtr<ezUInt8> targetData, ezUInt32 uiTargetRowPitch)
