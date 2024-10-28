@@ -518,6 +518,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetLodCamera(pReferenceCamera);
+      pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pDirLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 
@@ -636,7 +637,8 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / cvar_RenderingShadowsMinShadowMapSize)); // at least one texel for hardware pcf
   float fFov = AddSafeBorder(ezAngle::MakeFromDegree(90.0f), fPenumbraSize);
 
-  float fNearPlane = 0.1f;                                                                                           ///\todo expose somewhere
+  ///\todo expose somewhere
+  float fNearPlane = 0.1f;
   float fFarPlane = pPointLight->GetEffectiveRange();
 
   for (ezUInt32 i = 0; i < 6; ++i)
@@ -649,6 +651,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     {
       pView->SetName(viewNames[i]);
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
+      pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pPointLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 
@@ -694,6 +697,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     pView->SetName("SpotLightView");
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
+    pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pSpotLight->GetTransparentShadows());
     CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
   }
 

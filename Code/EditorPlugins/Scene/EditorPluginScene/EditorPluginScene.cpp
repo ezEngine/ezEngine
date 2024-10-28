@@ -353,6 +353,7 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
   if (bIsLight)
   {
     const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
+    props["TransparentShadows"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;

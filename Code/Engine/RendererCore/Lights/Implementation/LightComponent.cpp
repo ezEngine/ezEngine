@@ -19,7 +19,7 @@ void ezLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 6)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,6 +30,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("SpecularMultiplier", GetSpecularMultiplier, SetSpecularMultiplier)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
+    EZ_ACCESSOR_PROPERTY("TransparentShadows", GetTransparentShadows, SetTransparentShadows),
     EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.1f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("SlopeBias", GetSlopeBias, SetSlopeBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.25f)),
     EZ_ACCESSOR_PROPERTY("ConstantBias", GetConstantBias, SetConstantBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.1f))
@@ -136,6 +137,18 @@ bool ezLightComponent::GetCastShadows() const
   return m_bCastShadows;
 }
 
+void ezLightComponent::SetTransparentShadows(bool bShadows)
+{
+  m_bTransparentShadows = bShadows;
+
+  InvalidateCachedRenderData();
+}
+
+bool ezLightComponent::GetTransparentShadows() const
+{
+  return m_bTransparentShadows;
+}
+
 void ezLightComponent::SetPenumbraSize(float fPenumbraSize)
 {
   m_fPenumbraSize = fPenumbraSize;
@@ -183,6 +196,7 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fSlopeBias;
   s << m_fConstantBias;
   s << m_bCastShadows;
+  s << m_bTransparentShadows;
   s << m_bUseColorTemperature;
   s << m_uiTemperature;
   s << m_fSpecularMultiplier;
@@ -211,9 +225,13 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   s >> m_bCastShadows;
 
+  if (uiVersion >= 6)
+  {
+    s >> m_bTransparentShadows;
+  }
+
   if (uiVersion >= 5)
   {
-
     s >> m_bUseColorTemperature;
     s >> m_uiTemperature;
     s >> m_fSpecularMultiplier;

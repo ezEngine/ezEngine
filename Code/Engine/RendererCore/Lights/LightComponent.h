@@ -62,6 +62,10 @@ public:
   void SetCastShadows(bool bCastShadows); // [ property ]
   bool GetCastShadows() const;            // [ property ]
 
+  /// \brief Sets whether transparent objects should cast shadows (emulated through dithering).
+  void SetTransparentShadows(bool bShadows); // [ property ]
+  bool GetTransparentShadows() const;        // [ property ]
+
   /// \brief Sets the fuzziness of the shadow edges.
   void SetPenumbraSize(float fPenumbraSize); // [ property ]
   float GetPenumbraSize() const;             // [ property ]
@@ -94,5 +98,6 @@ protected:
   float m_fSlopeBias = 0.25f;
   float m_fConstantBias = 0.1f;
   bool m_bCastShadows = false;
+  bool m_bTransparentShadows = false;
   bool m_bUseColorTemperature = false;
 };
