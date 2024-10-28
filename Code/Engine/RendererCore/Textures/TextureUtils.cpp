@@ -357,7 +357,7 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
   }
 }
 
-void ezTextureUtils::CreateSubResourceImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_Image, bool bRemoveSRGB)
+void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_Image, bool bRemoveSRGB)
 {
   ezImageHeader headerTemp;
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
@@ -392,7 +392,7 @@ void ezTextureUtils::CreateSubResourceImage(const ezGALTextureCreationDescriptio
   }
 }
 
-ezImageView ezTextureUtils::CreateSubResourceView(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& ref_Temp, bool bRemoveSRGB)
+ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& ref_Temp, bool bRemoveSRGB)
 {
   ezImageView view;
   ezImageHeader headerTemp;
@@ -411,7 +411,7 @@ ezImageView ezTextureUtils::CreateSubResourceView(const ezGALTextureCreationDesc
   }
   else
   {
-    CreateSubResourceImage(desc, subResource, memory, ref_Temp, bRemoveSRGB);
+    CopySubResourceToImage(desc, subResource, memory, ref_Temp, bRemoveSRGB);
     view = ref_Temp.GetSubImageView();
   }
   return view;
@@ -426,7 +426,7 @@ ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
   return ezMath::Max(1u, uiSize);
 }
 
-void ezTextureUtils::CopySubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& sourceMemory, ezArrayPtr<ezUInt8> targetData, ezUInt32 uiTargetRowPitch)
+void ezTextureUtils::CopySubResourceToMemory(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& sourceMemory, ezArrayPtr<ezUInt8> targetData, ezUInt32 uiTargetRowPitch)
 {
   if (sourceMemory.m_uiRowPitch == uiTargetRowPitch)
   {

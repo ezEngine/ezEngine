@@ -458,7 +458,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
 
         ezImage tmp;
-        ezImageView imageView = ezTextureUtils::CreateSubResourceView(pThumbnailColor->GetDescription(), sourceSubResource, memory[0], tmp, true);
+        ezImageView imageView = ezTextureUtils::MakeImageViewFromSubResource(pThumbnailColor->GetDescription(), sourceSubResource, memory[0], tmp, true);
 
         ezImage imageSwap;
         ezImage* pImage = &tmp;

@@ -186,7 +186,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       ezReadbackTextureLock lock = m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
       EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
       const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
-      ezTextureUtils::CopySubResource(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
+      ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
     }
     {
       m_PickingResultsID.Clear();
@@ -195,7 +195,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       ezReadbackTextureLock lock = m_PickingReadback.LockTexture(sourceSubResources, memory);
       EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
       const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
-      ezTextureUtils::CopySubResource(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
+      ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
     }
   }
 }

@@ -257,7 +257,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
         ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
         ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
         EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-        ezTextureUtils::CreateSubResourceImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], readBackResult, false);
+        ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], readBackResult, false);
       }
 
       {

@@ -181,4 +181,4 @@ ezTestAppRun ezRendererTestReadbackBuffer::ReadbackBuffer(ezUInt32 uiInvocationC
   return m_bReadbackInProgress ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 
-static ezRendererTestReadbackBuffer g_ReadbackTest;
+static ezRendererTestReadbackBuffer g_ReadbackBufferTest;
