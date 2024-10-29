@@ -86,7 +86,7 @@ uint CalculateCoverage()
     float4(16.0 / 16.0, 08.0 / 16.0, 14.0 / 16.0, 06.0 / 16.0),
   };
 
-  uint2 pos = pixelPos;
+  uint2 pos = pixelPos - 4 * floor(pixelPos / 4);
 #    if defined(WRITE_COVERAGE)
   float4 ditherNoise;
   ditherNoise.x = bayerMatrix[(pos.y + 0) % 4u][(pos.x + 0) % 4u];
