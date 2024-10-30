@@ -1,6 +1,10 @@
 #pragma once
 
-#include <Foundation/Platform/Win/Utils/MinWindows.h>
+#include <Foundation/Basics.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 
 extern "C"
 {
@@ -28,3 +32,5 @@ namespace ezMiniDumpUtils
   ezStatus EZ_FOUNDATION_DLL WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverrideType = ezDumpType::Auto);
 
 }; // namespace ezMiniDumpUtils
+
+#endif
