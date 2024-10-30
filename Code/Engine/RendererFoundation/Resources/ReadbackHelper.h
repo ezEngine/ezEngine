@@ -28,9 +28,9 @@ public:
   /// \brief Free the memory of the readback buffer.
   void Reset();
   /// \brief Starts a readback of a buffer. A new readback buffer will be created if the current one does not match the new buffer.
-  ezGALFenceHandle ReadbackBuffer(ezGALCommandEncoder& encoder, ezGALBufferHandle hBuffer);
+  ezGALFenceHandle ReadbackBuffer(ezGALCommandEncoder& ref_encoder, ezGALBufferHandle hBuffer);
   /// \brief Same as ezGALDevice::LockBuffer, but checks that the fence has been reached. If not, returns an invalid lock object.
-  ezReadbackBufferLock LockBuffer(ezArrayPtr<const ezUInt8>& out_Memory);
+  ezReadbackBufferLock LockBuffer(ezArrayPtr<const ezUInt8>& out_memory);
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALReadbackBufferHelper);
@@ -47,9 +47,9 @@ public:
   /// \brief Free the memory of the readback texture.
   void Reset();
   /// \brief Starts a readback of a texture. A new readback texture will be created if the current one does not match the new texture.
-  ezGALFenceHandle ReadbackTexture(ezGALCommandEncoder& encoder, ezGALTextureHandle hTexture);
+  ezGALFenceHandle ReadbackTexture(ezGALCommandEncoder& ref_encoder, ezGALTextureHandle hTexture);
   /// \brief Same as ezGALDevice::LockTexture, but checks that the fence has been reached. If not, returns an invalid lock object.
-  ezReadbackTextureLock LockTexture(const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory);
+  ezReadbackTextureLock LockTexture(const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory);
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALReadbackTextureHelper);

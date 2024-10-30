@@ -140,16 +140,16 @@ public:
 
   /// \brief Tries to lock a readback buffer for reading. Only fails if the handle is invalid.
   /// \param hReadbackBuffer The buffer to lock.
-  /// \param out_Memory If successful, contains the memory of the buffer. Only allowed to be accessed within the lifetime of the returns lock object.
+  /// \param out_memory If successful, contains the memory of the buffer. Only allowed to be accessed within the lifetime of the returns lock object.
   /// \return Returns the lock. ezReadbackBufferLock::IsValid needs to be called to ensure the locking was successful.
-  ezReadbackBufferLock LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_Memory);
+  ezReadbackBufferLock LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_memory);
 
   /// \brief Tries to lock a readback texture for reading. Only fails if the handle is invalid.
   /// \param hReadbackTexture The texture to lock.
   /// \param subResources The sub-resources that should to be locked.
-  /// \param out_Memory If successful, contains the memory locations of each sub-resource. Only allowed to be accessed within the lifetime of the returns lock object.
+  /// \param out_memory If successful, contains the memory locations of each sub-resource. Only allowed to be accessed within the lifetime of the returns lock object.
   /// \return Returns the lock. ezReadbackTextureLock::IsValid needs to be called to ensure the locking was successful.
-  ezReadbackTextureLock LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory);
+  ezReadbackTextureLock LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory);
 
 
   // Swap chain functions
@@ -401,9 +401,9 @@ protected:
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) = 0;
   virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) = 0;
   virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) = 0;
-  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const = 0;
+  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_memory) const = 0;
   virtual void UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const = 0;
-  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const = 0;
+  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory) const = 0;
   virtual void UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const = 0;
 
   // Misc functions

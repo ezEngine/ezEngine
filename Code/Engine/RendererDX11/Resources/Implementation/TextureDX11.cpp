@@ -74,11 +74,11 @@ ezResult ezGALTextureDX11::InitFromNativeObject(ezGALDeviceDX11* pDXDevice)
 }
 
 
-ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc)
+ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_tex2DDesc)
 {
-  out_Tex2DDesc.ArraySize = 1;
-  out_Tex2DDesc.MiscFlags = 0;
-  out_Tex2DDesc.BindFlags = 0;
+  out_tex2DDesc.ArraySize = 1;
+  out_tex2DDesc.MiscFlags = 0;
+  out_tex2DDesc.BindFlags = 0;
 
   switch (description.m_Type)
   {
@@ -89,7 +89,7 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
 
     case ezGALTextureType::Texture2DProxy:
     case ezGALTextureType::Texture2DArray:
-      out_Tex2DDesc.ArraySize = description.m_uiArraySize;
+      out_tex2DDesc.ArraySize = description.m_uiArraySize;
       break;
 
     case ezGALTextureType::Texture3D:
@@ -98,93 +98,93 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
 
     case ezGALTextureType::TextureCube:
       EZ_ASSERT_DEV(description.m_uiArraySize == 1, "Use ezGALTextureType::TextureCubeArray instead.");
-      out_Tex2DDesc.ArraySize = 6;
-      out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      out_tex2DDesc.ArraySize = 6;
+      out_tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
       break;
 
     case ezGALTextureType::TextureCubeArray:
-      out_Tex2DDesc.ArraySize = description.m_uiArraySize * 6;
-      out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      out_tex2DDesc.ArraySize = description.m_uiArraySize * 6;
+      out_tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   if (description.m_bAllowShaderResourceView || description.m_bAllowDynamicMipGeneration)
-    out_Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+    out_tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
   if (description.m_bAllowUAV)
-    out_Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+    out_tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
   if (description.m_bCreateRenderTarget || description.m_bAllowDynamicMipGeneration)
-    out_Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
+    out_tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
-  out_Tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+  out_tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
   if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
-    out_Tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
+    out_tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
-  out_Tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
+  out_tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
 
-  if (out_Tex2DDesc.Format == DXGI_FORMAT_UNKNOWN)
+  if (out_tex2DDesc.Format == DXGI_FORMAT_UNKNOWN)
   {
     ezLog::Error("No storage format available for given format: {0}", description.m_Format);
     return EZ_FAILURE;
   }
 
-  out_Tex2DDesc.Width = description.m_uiWidth;
-  out_Tex2DDesc.Height = description.m_uiHeight;
-  out_Tex2DDesc.MipLevels = description.m_uiMipLevelCount;
+  out_tex2DDesc.Width = description.m_uiWidth;
+  out_tex2DDesc.Height = description.m_uiHeight;
+  out_tex2DDesc.MipLevels = description.m_uiMipLevelCount;
 
   if (description.m_bAllowDynamicMipGeneration)
-    out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+    out_tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-  out_Tex2DDesc.SampleDesc.Count = description.m_SampleCount;
-  out_Tex2DDesc.SampleDesc.Quality = 0;
+  out_tex2DDesc.SampleDesc.Count = description.m_SampleCount;
+  out_tex2DDesc.SampleDesc.Quality = 0;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_Tex3DDesc)
+ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_tex3DDesc)
 {
-  out_Tex3DDesc.BindFlags = 0;
+  out_tex3DDesc.BindFlags = 0;
 
   if (description.m_bAllowShaderResourceView)
-    out_Tex3DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+    out_tex3DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
   if (description.m_bAllowUAV)
-    out_Tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+    out_tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
   if (description.m_bCreateRenderTarget)
-    out_Tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
+    out_tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
-  out_Tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
-  out_Tex3DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+  out_tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
+  out_tex3DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
   if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
-    out_Tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
+    out_tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
 
-  out_Tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
+  out_tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
 
-  if (out_Tex3DDesc.Format == DXGI_FORMAT_UNKNOWN)
+  if (out_tex3DDesc.Format == DXGI_FORMAT_UNKNOWN)
   {
     ezLog::Error("No storage format available for given format: {0}", description.m_Format);
     return EZ_FAILURE;
   }
 
-  out_Tex3DDesc.Width = description.m_uiWidth;
-  out_Tex3DDesc.Height = description.m_uiHeight;
-  out_Tex3DDesc.Depth = description.m_uiDepth;
-  out_Tex3DDesc.MipLevels = description.m_uiMipLevelCount;
+  out_tex3DDesc.Width = description.m_uiWidth;
+  out_tex3DDesc.Height = description.m_uiHeight;
+  out_tex3DDesc.Depth = description.m_uiDepth;
+  out_tex3DDesc.MipLevels = description.m_uiMipLevelCount;
 
-  out_Tex3DDesc.MiscFlags = 0;
+  out_tex3DDesc.MiscFlags = 0;
 
   if (description.m_bAllowDynamicMipGeneration)
-    out_Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+    out_tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   return EZ_SUCCESS;
 }
 
 
-void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_InitialData)
+void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_initialData)
 {
   if (!pInitialData.IsEmpty())
   {
@@ -214,13 +214,13 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
 
     EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
-    out_InitialData.SetCountUninitialized(uiInitialDataCount);
+    out_initialData.SetCountUninitialized(uiInitialDataCount);
 
     for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
     {
-      out_InitialData[i].pSysMem = pInitialData[i].m_pData.GetPtr();
-      out_InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
-      out_InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
+      out_initialData[i].pSysMem = pInitialData[i].m_pData.GetPtr();
+      out_initialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
+      out_initialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
     }
   }
 }

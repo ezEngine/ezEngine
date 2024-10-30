@@ -10,7 +10,7 @@ struct D3D11_BUFFER_DESC;
 class EZ_RENDERERDX11_DLL ezGALBufferDX11 : public ezGALBuffer
 {
 public:
-  static ezResult CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_BufferDesc, DXGI_FORMAT& out_IndexFormat);
+  static ezResult CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat);
 
 public:
   ID3D11Buffer* GetDXBuffer() const;

@@ -32,10 +32,10 @@ void ezGALReadbackBufferHelper::Reset()
   m_pDevice = nullptr;
 }
 
-ezGALFenceHandle ezGALReadbackBufferHelper::ReadbackBuffer(ezGALCommandEncoder& encoder, ezGALBufferHandle hBuffer)
+ezGALFenceHandle ezGALReadbackBufferHelper::ReadbackBuffer(ezGALCommandEncoder& ref_encoder, ezGALBufferHandle hBuffer)
 {
-  EZ_ASSERT_DEV(!encoder.IsInRenderingScope(), "Readback is only supported outside rendering scope");
-  m_pDevice = &encoder.GetDevice();
+  EZ_ASSERT_DEV(!ref_encoder.IsInRenderingScope(), "Readback is only supported outside rendering scope");
+  m_pDevice = &ref_encoder.GetDevice();
   const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
   EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle passed in for readback");
   const ezGALBufferCreationDescription& desc = pBuffer->GetDescription();
@@ -59,17 +59,17 @@ ezGALFenceHandle ezGALReadbackBufferHelper::ReadbackBuffer(ezGALCommandEncoder& 
     m_hReadbackBuffer = m_pDevice->CreateReadbackBuffer(readbackDesc);
   }
 
-  encoder.ReadbackBuffer(m_hReadbackBuffer, hBuffer);
-  m_hFence = encoder.InsertFence();
+  ref_encoder.ReadbackBuffer(m_hReadbackBuffer, hBuffer);
+  m_hFence = ref_encoder.InsertFence();
   return m_hFence;
 }
 
-ezReadbackBufferLock ezGALReadbackBufferHelper::LockBuffer(ezArrayPtr<const ezUInt8>& out_Memory)
+ezReadbackBufferLock ezGALReadbackBufferHelper::LockBuffer(ezArrayPtr<const ezUInt8>& out_memory)
 {
   if (m_pDevice == nullptr || m_hFence == 0 || m_pDevice->GetFenceResult(m_hFence) != ezGALAsyncResult::Ready)
     return {};
 
-  return m_pDevice->LockBuffer(m_hReadbackBuffer, out_Memory);
+  return m_pDevice->LockBuffer(m_hReadbackBuffer, out_memory);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,10 +90,10 @@ void ezGALReadbackTextureHelper::Reset()
   m_pDevice = nullptr;
 }
 
-ezGALFenceHandle ezGALReadbackTextureHelper::ReadbackTexture(ezGALCommandEncoder& encoder, ezGALTextureHandle hTexture)
+ezGALFenceHandle ezGALReadbackTextureHelper::ReadbackTexture(ezGALCommandEncoder& ref_encoder, ezGALTextureHandle hTexture)
 {
-  EZ_ASSERT_DEV(!encoder.IsInRenderingScope(), "Readback is only supported outside rendering scope");
-  m_pDevice = &encoder.GetDevice();
+  EZ_ASSERT_DEV(!ref_encoder.IsInRenderingScope(), "Readback is only supported outside rendering scope");
+  m_pDevice = &ref_encoder.GetDevice();
   const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
   EZ_ASSERT_DEV(pTexture != nullptr, "Invalid texture handle passed in for readback");
   ezGALTextureCreationDescription desc = pTexture->GetDescription();
@@ -122,15 +122,15 @@ ezGALFenceHandle ezGALReadbackTextureHelper::ReadbackTexture(ezGALCommandEncoder
     EZ_ASSERT_DEV(desc.m_SampleCount == ezGALMSAASampleCount::None, "Readback of Multi-sampled images is unsupported");
     m_hReadbackTexture = m_pDevice->CreateReadbackTexture(desc);
   }
-  encoder.ReadbackTexture(m_hReadbackTexture, hTexture);
-  m_hFence = encoder.InsertFence();
+  ref_encoder.ReadbackTexture(m_hReadbackTexture, hTexture);
+  m_hFence = ref_encoder.InsertFence();
   return m_hFence;
 }
 
-ezReadbackTextureLock ezGALReadbackTextureHelper::LockTexture(const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory)
+ezReadbackTextureLock ezGALReadbackTextureHelper::LockTexture(const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory)
 {
   if (m_pDevice == nullptr || m_hFence == 0 || m_pDevice->GetFenceResult(m_hFence) != ezGALAsyncResult::Ready)
     return {};
 
-  return m_pDevice->LockTexture(m_hReadbackTexture, subResources, out_Memory);
+  return m_pDevice->LockTexture(m_hReadbackTexture, subResources, out_memory);
 }

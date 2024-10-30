@@ -1377,7 +1377,7 @@ ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ez
   return res;
 }
 
-ezReadbackBufferLock ezGALDevice::LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_Memory)
+ezReadbackBufferLock ezGALDevice::LockBuffer(ezGALReadbackBufferHandle hReadbackBuffer, ezArrayPtr<const ezUInt8>& out_memory)
 {
   if (hReadbackBuffer.IsInvalidated())
     return {};
@@ -1385,10 +1385,10 @@ ezReadbackBufferLock ezGALDevice::LockBuffer(ezGALReadbackBufferHandle hReadback
   if (pReadbackBuffer == nullptr)
     return {};
 
-  return ezReadbackBufferLock(this, pReadbackBuffer, out_Memory);
+  return ezReadbackBufferLock(this, pReadbackBuffer, out_memory);
 }
 
-ezReadbackTextureLock ezGALDevice::LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory)
+ezReadbackTextureLock ezGALDevice::LockTexture(ezGALReadbackTextureHandle hReadbackTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory)
 {
   if (hReadbackTexture.IsInvalidated())
     return {};
@@ -1396,7 +1396,7 @@ ezReadbackTextureLock ezGALDevice::LockTexture(ezGALReadbackTextureHandle hReadb
   if (pReadbackTexture == nullptr)
     return {};
 
-  return ezReadbackTextureLock(this, pReadbackTexture, subResources, out_Memory);
+  return ezReadbackTextureLock(this, pReadbackTexture, subResources, out_memory);
 }
 
 ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)

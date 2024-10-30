@@ -8,7 +8,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReadbackBufferLock);
 
   ezReadbackBufferLock() = default;
-  ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory);
+  ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_memory);
   EZ_ALWAYS_INLINE ezReadbackBufferLock(ezReadbackBufferLock&& rhs) { *this = std::move(rhs); }
   ~ezReadbackBufferLock();
 
@@ -29,7 +29,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReadbackTextureLock);
 
   ezReadbackTextureLock() = default;
-  ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory);
+  ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory);
   EZ_ALWAYS_INLINE ezReadbackTextureLock(ezReadbackTextureLock&& rhs) { *this = std::move(rhs); }
   ~ezReadbackTextureLock();
 
@@ -42,5 +42,5 @@ public:
 private:
   const ezGALDevice* m_pDevice = nullptr;
   const ezGALReadbackTexture* m_pTexture = nullptr;
-  ezArrayPtr<const ezGALTextureSubresource> m_subResources;
+  ezArrayPtr<const ezGALTextureSubresource> m_SubResources;
 };

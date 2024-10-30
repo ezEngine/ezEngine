@@ -13,38 +13,38 @@ ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Descripti
 
 ezGALBufferDX11::~ezGALBufferDX11() = default;
 
-ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_BufferDesc, DXGI_FORMAT& out_IndexFormat)
+ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription& description, D3D11_BUFFER_DESC& out_bufferDesc, DXGI_FORMAT& out_indexFormat)
 {
   for (ezGALBufferUsageFlags::Enum flag : description.m_BufferFlags)
   {
     switch (flag)
     {
       case ezGALBufferUsageFlags::ConstantBuffer:
-        out_BufferDesc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
+        out_bufferDesc.BindFlags |= D3D11_BIND_CONSTANT_BUFFER;
         break;
       case ezGALBufferUsageFlags::IndexBuffer:
-        out_BufferDesc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
-        out_IndexFormat = description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+        out_bufferDesc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
+        out_indexFormat = description.m_uiStructSize == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
         break;
       case ezGALBufferUsageFlags::VertexBuffer:
-        out_BufferDesc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
+        out_bufferDesc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
         break;
       case ezGALBufferUsageFlags::TexelBuffer:
         break;
       case ezGALBufferUsageFlags::StructuredBuffer:
-        out_BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+        out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
         break;
       case ezGALBufferUsageFlags::ByteAddressBuffer:
-        out_BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+        out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
         break;
       case ezGALBufferUsageFlags::ShaderResource:
-        out_BufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+        out_bufferDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         break;
       case ezGALBufferUsageFlags::UnorderedAccess:
-        out_BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+        out_bufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
         break;
       case ezGALBufferUsageFlags::DrawIndirect:
-        out_BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+        out_bufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
         break;
       default:
         ezLog::Error("Unknown buffer type supplied to CreateBuffer()!");
@@ -52,35 +52,35 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
     }
   }
 
-  out_BufferDesc.ByteWidth = description.m_uiTotalSize;
-  out_BufferDesc.CPUAccessFlags = 0;
-  out_BufferDesc.StructureByteStride = description.m_uiStructSize;
+  out_bufferDesc.ByteWidth = description.m_uiTotalSize;
+  out_bufferDesc.CPUAccessFlags = 0;
+  out_bufferDesc.StructureByteStride = description.m_uiStructSize;
 
-  out_BufferDesc.CPUAccessFlags = 0;
+  out_bufferDesc.CPUAccessFlags = 0;
   if (description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ConstantBuffer))
   {
-    out_BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    out_BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    out_bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    out_bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
     // If constant buffer: Patch size to be aligned to 64 bytes for easier usability
-    out_BufferDesc.ByteWidth = ezMemoryUtils::AlignSize(out_BufferDesc.ByteWidth, 64u);
+    out_bufferDesc.ByteWidth = ezMemoryUtils::AlignSize(out_bufferDesc.ByteWidth, 64u);
   }
   else
   {
     if (description.m_ResourceAccess.IsImmutable())
     {
-      out_BufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+      out_bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
     }
     else
     {
       if (description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess)) // UAVs allow writing from the GPU which cannot be combined with CPU write access.
       {
-        out_BufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        out_bufferDesc.Usage = D3D11_USAGE_DEFAULT;
       }
       else
       {
-        out_BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        out_BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+        out_bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        out_bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
       }
     }
   }

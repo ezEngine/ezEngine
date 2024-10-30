@@ -369,7 +369,7 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
   }
 }
 
-void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_Image, bool bRemoveSRGB)
+void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_image, bool bRemoveSRGB)
 {
   ezImageHeader headerTemp;
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
@@ -381,12 +381,12 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
-  out_Image.ResetAndAlloc(header);
+  out_image.ResetAndAlloc(header);
 
   if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
   {
     const void* pSource = memory.m_pData.GetPtr();
-    ezUInt8* pDest = out_Image.GetPixelPointer<ezUInt8>();
+    ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>();
     ezUInt32 uiSize = header.GetHeight() * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8;
     EZ_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
     memcpy(pDest, pSource, uiSize);
@@ -398,13 +398,13 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
     for (ezUInt32 y = 0; y < uiHeight; ++y)
     {
       const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
-      ezUInt8* pDest = out_Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
+      ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
       memcpy(pDest, pSource, ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8);
     }
   }
 }
 
-ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& ref_Temp, bool bRemoveSRGB)
+ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& ref_memory, ezImage& ref_Temp, bool bRemoveSRGB)
 {
   ezImageView view;
   ezImageHeader headerTemp;
@@ -417,13 +417,13 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
-  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
+  if (headerTemp.GetRowPitch() == ref_memory.m_uiRowPitch)
   {
-    view.ResetAndViewExternalStorage(header, ezConstByteBlobPtr(memory.m_pData.GetPtr(), memory.m_pData.GetCount()));
+    view.ResetAndViewExternalStorage(header, ezConstByteBlobPtr(ref_memory.m_pData.GetPtr(), ref_memory.m_pData.GetCount()));
   }
   else
   {
-    CopySubResourceToImage(desc, subResource, memory, ref_Temp, bRemoveSRGB);
+    CopySubResourceToImage(desc, subResource, ref_memory, ref_Temp, bRemoveSRGB);
     view = ref_Temp.GetSubImageView();
   }
   return view;

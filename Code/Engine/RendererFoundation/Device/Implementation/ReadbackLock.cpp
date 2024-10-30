@@ -4,11 +4,11 @@
 #include <RendererFoundation/Device/ReadbackLock.h>
 
 
-ezReadbackBufferLock::ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory)
+ezReadbackBufferLock::ezReadbackBufferLock(ezGALDevice* pDevice, const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_memory)
   : m_pDevice(pDevice)
   , m_pBuffer(pBuffer)
 {
-  if (m_pDevice->LockBufferPlatform(m_pBuffer, out_Memory).Failed())
+  if (m_pDevice->LockBufferPlatform(m_pBuffer, out_memory).Failed())
   {
     m_pDevice = nullptr;
     m_pBuffer = nullptr;
@@ -39,16 +39,16 @@ void ezReadbackBufferLock::operator=(ezReadbackBufferLock&& rhs)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezReadbackTextureLock::ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory)
+ezReadbackTextureLock::ezReadbackTextureLock(ezGALDevice* pDevice, const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_memory)
   : m_pDevice(pDevice)
   , m_pTexture(pTexture)
-  , m_subResources(subResources)
+  , m_SubResources(subResources)
 {
-  if (m_pDevice->LockTexturePlatform(m_pTexture, subResources, out_Memory).Failed())
+  if (m_pDevice->LockTexturePlatform(m_pTexture, subResources, out_memory).Failed())
   {
     m_pDevice = nullptr;
     m_pTexture = nullptr;
-    m_subResources = {};
+    m_SubResources = {};
   }
 }
 
@@ -56,7 +56,7 @@ ezReadbackTextureLock::~ezReadbackTextureLock()
 {
   if (m_pDevice)
   {
-    m_pDevice->UnlockTexturePlatform(m_pTexture, m_subResources);
+    m_pDevice->UnlockTexturePlatform(m_pTexture, m_SubResources);
   }
 }
 
@@ -64,13 +64,13 @@ void ezReadbackTextureLock::operator=(ezReadbackTextureLock&& rhs)
 {
   if (m_pDevice)
   {
-    m_pDevice->UnlockTexturePlatform(m_pTexture, m_subResources);
+    m_pDevice->UnlockTexturePlatform(m_pTexture, m_SubResources);
   }
 
   m_pDevice = rhs.m_pDevice;
   rhs.m_pDevice = nullptr;
   m_pTexture = rhs.m_pTexture;
   rhs.m_pTexture = nullptr;
-  m_subResources = rhs.m_subResources;
-  rhs.m_subResources = {};
+  m_SubResources = rhs.m_SubResources;
+  rhs.m_SubResources = {};
 }
