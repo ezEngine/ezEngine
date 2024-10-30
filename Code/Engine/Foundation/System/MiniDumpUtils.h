@@ -18,12 +18,12 @@ namespace ezMiniDumpUtils
   /// \brief Tries to write a mini-dump for the external process with the given process ID.
   ///
   /// \sa WriteProcessMiniDump()
-  ezStatus EZ_FOUNDATION_DLL WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride = ezDumpType::Auto);
+  EZ_FOUNDATION_DLL ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride = ezDumpType::Auto);
 
   /// \brief Tries to launch ez's 'MiniDumpTool' to write a mini-dump for THIS process (the recommended way when an application is crashing).
   ///
   /// \note On Windows: The command line option '-fullcrashdumps' is passed if either set in this application's command line or if overridden through dumpTypeOverride = ezDumpType::MiniDumpWithFullMemory.
-  ezStatus EZ_FOUNDATION_DLL LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride = ezDumpType::Auto);
+  EZ_FOUNDATION_DLL ezStatus LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride = ezDumpType::Auto);
 
 }; // namespace ezMiniDumpUtils
 
