@@ -674,8 +674,8 @@ ezUInt64 ezProfilingSystem::GetFrameCount()
 
 // static
 void ezProfilingSystem::StartNewFrame()
-  {
-    ++s_uiFrameCount;
+{
+  ++s_uiFrameCount;
 
   if (!s_FrameStartTimes.CanAppend())
   {
