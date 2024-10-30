@@ -447,6 +447,14 @@ namespace
     ezTime m_Timeout;
   };
 
+  struct PersistentInfoTextData
+  {
+    ezString m_sText;
+    ezDebugTextPlacement::Enum m_Placement;
+    ezColor m_Color;
+    ezTime m_Timeout;
+  };
+
   struct PersistentPerContextData
   {
     ezTime m_Now;
@@ -454,6 +462,7 @@ namespace
     ezDeque<PersistentSphereData> m_Spheres;
     ezDeque<PersistentBoxData> m_Boxes;
     ezDeque<PersistentLineData> m_Lines;
+    ezDeque<PersistentInfoTextData> m_InfoText;
   };
 
   static ezHashTable<ezDebugRendererContext, PersistentPerContextData> s_PersistentPerContextData;
@@ -1083,6 +1092,21 @@ void ezDebugRenderer::AddPersistentLines(const ezDebugRendererContext& context, 
   item.m_Timeout = data.m_Now + duration;
 }
 
+
+void ezDebugRenderer::AddPersistentInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, const ezFormatString& text, ezTime duration, const ezColor& color /*= ezColor::White*/)
+{
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder tmp;
+
+  auto& data = s_PersistentPerContextData[context];
+  auto& item = data.m_InfoText.ExpandAndGetRef();
+  item.m_sText = text.GetText(tmp);
+  item.m_Placement = placement;
+  item.m_Color = color;
+  item.m_Timeout = data.m_Now + duration;
+}
+
 void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
   ezHybridArray<Triangle, 64> tris;
@@ -1684,6 +1708,34 @@ void ezDebugRenderer::RenderScreenSpace(const ezRenderViewContext& renderViewCon
 // static
 void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& context, const ezRenderViewContext& renderViewContext)
 {
+  {
+    EZ_LOCK(s_Mutex);
+
+    auto& data = s_PersistentPerContextData[context];
+    data.m_Now = ezTime::Now();
+
+    // persistent info text
+    {
+      ezUInt32 uiNumItems = data.m_InfoText.GetCount();
+      for (ezUInt32 i = 0; i < uiNumItems;)
+      {
+        const auto& item = data.m_InfoText[i];
+
+        if (data.m_Now > item.m_Timeout)
+        {
+          data.m_InfoText.RemoveAtAndSwap(i);
+          --uiNumItems;
+        }
+        else
+        {
+          ezDebugRenderer::DrawInfoText(context, item.m_Placement, "__Persistent", item.m_sText.GetView(), item.m_Color);
+
+          ++i;
+        }
+      }
+    }
+  }
+
   DoubleBufferedPerContextData* pDoubleBufferedContextData = nullptr;
   if (!s_PerContextData.TryGetValue(context, pDoubleBufferedContextData))
   {
