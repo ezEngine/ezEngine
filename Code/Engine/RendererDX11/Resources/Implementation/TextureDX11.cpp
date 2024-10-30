@@ -12,7 +12,7 @@ ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Descri
 
 ezGALTextureDX11::~ezGALTextureDX11() = default;
 
-ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
@@ -32,9 +32,9 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-      ConvertInitialData(m_Description, pInitialData, InitialData);
+      ConvertInitialData(m_Description, initialData, InitialData);
 
-      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
+      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, initialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
       {
         return EZ_FAILURE;
       }
@@ -47,9 +47,9 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       EZ_SUCCEED_OR_RETURN(Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-      ConvertInitialData(m_Description, pInitialData, InitialData);
+      ConvertInitialData(m_Description, initialData, InitialData);
 
-      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(&Tex3DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))
+      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(&Tex3DDesc, initialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))
       {
         return EZ_FAILURE;
       }
@@ -184,9 +184,9 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
 }
 
 
-void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_initialData)
+void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_initialData)
 {
-  if (!pInitialData.IsEmpty())
+  if (!initialData.IsEmpty())
   {
     ezUInt32 uiArraySize = 1;
     switch (description.m_Type)
@@ -212,15 +212,15 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
 
     const ezUInt32 uiInitialDataCount = (description.m_uiMipLevelCount * uiArraySize);
 
-    EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+    EZ_ASSERT_DEV(initialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
     out_initialData.SetCountUninitialized(uiInitialDataCount);
 
     for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
     {
-      out_initialData[i].pSysMem = pInitialData[i].m_pData.GetPtr();
-      out_initialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
-      out_initialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
+      out_initialData[i].pSysMem = initialData[i].m_pData.GetPtr();
+      out_initialData[i].SysMemPitch = initialData[i].m_uiRowPitch;
+      out_initialData[i].SysMemSlicePitch = initialData[i].m_uiSlicePitch;
     }
   }
 }

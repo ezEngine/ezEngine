@@ -369,7 +369,7 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
   }
 }
 
-void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& memory, ezImage& out_image, bool bRemoveSRGB)
+void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& memory, ezImage& out_image, bool bRemoveSRGB)
 {
   ezImageHeader headerTemp;
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
@@ -404,7 +404,7 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
   }
 }
 
-ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, ezGALSystemMemoryDescription& ref_memory, ezImage& ref_Temp, bool bRemoveSRGB)
+ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreationDescription& desc, const ezGALTextureSubresource& subResource, const ezGALSystemMemoryDescription& memory, ezImage& ref_tempImage, bool bRemoveSRGB)
 {
   ezImageView view;
   ezImageHeader headerTemp;
@@ -417,14 +417,14 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
-  if (headerTemp.GetRowPitch() == ref_memory.m_uiRowPitch)
+  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
   {
-    view.ResetAndViewExternalStorage(header, ezConstByteBlobPtr(ref_memory.m_pData.GetPtr(), ref_memory.m_pData.GetCount()));
+    view.ResetAndViewExternalStorage(header, memory.m_pData);
   }
   else
   {
-    CopySubResourceToImage(desc, subResource, ref_memory, ref_Temp, bRemoveSRGB);
-    view = ref_Temp.GetSubImageView();
+    CopySubResourceToImage(desc, subResource, memory, ref_tempImage, bRemoveSRGB);
+    view = ref_tempImage.GetSubImageView();
   }
   return view;
 }
