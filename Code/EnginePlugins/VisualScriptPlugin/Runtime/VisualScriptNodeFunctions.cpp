@@ -167,11 +167,17 @@ namespace
       }
       else
       {
-        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
-
-        T value;
-        pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
-        inout_context.SetData(node.GetOutputDataOffset(0), value);
+        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        {
+          T value;
+          pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
+          inout_context.SetData(node.GetOutputDataOffset(0), value);
+        }
+        else
+        {
+          ezVariant value = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pInstance.m_pObject);
+          inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), value);
+        }
       }
     }
     else
@@ -217,10 +223,16 @@ namespace
       }
       else
       {
-        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
-
-        const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
-        pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
+        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        {
+          const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
+          pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
+        }
+        else
+        {
+          ezVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), pProperty->GetSpecificType());
+          ezReflectionUtils::SetMemberPropertyValue(pMemberProperty, pInstance.m_pObject, value);
+        }
       }
     }
     else
