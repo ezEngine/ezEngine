@@ -261,7 +261,7 @@ void ezWindowWin::DestroyWindow()
   // Set the window ptr to null before calling DestroyWindow as it might trigger callbacks and we are potentially already in the destructor, making any virtual function call unsafe.
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
-  if (!(hWindow))
+  if (!::DestroyWindow(hWindow))
   {
     ezLog::SeriousWarning("DestroyWindow failed.");
   }
