@@ -442,3 +442,7 @@ public:
 };
 
 ezProcVolumeBoxComponent_1_2 g_ezProcVolumeBoxComponent_1_2;
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeComponent);
+

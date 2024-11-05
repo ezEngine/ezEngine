@@ -225,7 +225,7 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
   TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
   TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
   TexDesc.m_bAllowShaderResourceView = false;
-  TexDesc.m_bCreateRenderTarget = true;
+  TexDesc.m_bAllowRenderTargetView = true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // See format handling in swap chain desc creation above.
   if (ezGALResourceFormat::IsSrgb(m_WindowDesc.m_BackBufferFormat))

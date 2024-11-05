@@ -391,13 +391,15 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
   if (pInterface == nullptr || pInterface->m_uiLoggedMsgsSinceFlush == 0) // if really nothing was logged, don't execute a flush
     return false;
 
-  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && ezTime::Now() - pInterface->m_LastFlushTime < timeIntervalThreshold)
+  const ezTime tNow = ezTime::Now();
+
+  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && tNow - pInterface->m_LastFlushTime < timeIntervalThreshold)
     return false;
 
   BroadcastLoggingEvent(pInterface, ezLogMsgType::Flush, nullptr);
 
   pInterface->m_uiLoggedMsgsSinceFlush = 0;
-  pInterface->m_LastFlushTime = ezTime::Now();
+  pInterface->m_LastFlushTime = tNow;
 
   return true;
 }

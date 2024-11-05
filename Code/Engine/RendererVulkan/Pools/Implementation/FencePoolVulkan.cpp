@@ -102,12 +102,12 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::GetFenceResult(ezGALFenceHandle hFe
 
   while (!m_PendingFences.IsEmpty() && m_PendingFences[0].m_hFence <= hFence)
   {
-    ezTimestamp start = ezTimestamp::CurrentTimestamp();
+    const ezTime start = ezTime::Now();
     ezEnum<ezGALAsyncResult> res = WaitForNextFence(timeout);
     if (res == ezGALAsyncResult::Pending)
       return res;
 
-    ezTimestamp end = ezTimestamp::CurrentTimestamp();
+    const ezTime end = ezTime::Now();
     timeout -= (end - start);
   }
 

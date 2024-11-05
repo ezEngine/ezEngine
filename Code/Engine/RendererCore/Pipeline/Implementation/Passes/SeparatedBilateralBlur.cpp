@@ -110,7 +110,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
     tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bCreateRenderTarget = true;
+    tempTextureDesc.m_bAllowRenderTargetView = true;
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
     rvcd.m_hTexture = tempTexture;
     ezGALTextureResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);

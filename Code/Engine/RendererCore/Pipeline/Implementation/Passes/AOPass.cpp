@@ -139,7 +139,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       desc.m_uiMipLevelCount = 3;
       desc.m_Type = ezGALTextureType::Texture2DArray;
       desc.m_Format = ezGALResourceFormat::RHalf;
-      desc.m_bCreateRenderTarget = true;
+      desc.m_bAllowRenderTargetView = true;
       desc.m_bAllowShaderResourceView = true;
       desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
 

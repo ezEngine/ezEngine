@@ -56,3 +56,15 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+
+EZ_STATICLINK_LIBRARY(KrautPlugin)
+{
+  if (bReturn)
+    return;
+
+  EZ_STATICLINK_REFERENCE(KrautPlugin_Components_KrautTreeComponent);
+  EZ_STATICLINK_REFERENCE(KrautPlugin_Renderer_KrautRenderer);
+  EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautGeneratorResource);
+  EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautTreeResource);
+}

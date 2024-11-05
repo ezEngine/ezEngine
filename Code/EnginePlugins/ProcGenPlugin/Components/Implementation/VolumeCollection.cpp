@@ -293,3 +293,7 @@ void ezVolumeCollection::AddImage(const ezSimdTransform& transform, const ezVec3
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractVolumes);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractVolumes, 1, ezRTTIDefaultAllocator<ezMsgExtractVolumes>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_VolumeCollection);
+

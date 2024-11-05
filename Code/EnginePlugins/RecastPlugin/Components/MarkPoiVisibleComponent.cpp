@@ -130,3 +130,7 @@ void ezRcMarkPoiVisibleComponent::OnSimulationStarted()
 {
   m_pWorldModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
 }
+
+
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_MarkPoiVisibleComponent);
+

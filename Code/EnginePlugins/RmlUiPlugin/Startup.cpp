@@ -55,3 +55,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Startup);
+

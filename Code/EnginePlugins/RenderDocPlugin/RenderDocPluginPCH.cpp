@@ -9,5 +9,4 @@ EZ_STATICLINK_LIBRARY(RenderDocPlugin)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(RenderDocPlugin_RenderDocSingleton);
 }

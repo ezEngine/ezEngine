@@ -102,4 +102,4 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Main);
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_InspectorPlugin);

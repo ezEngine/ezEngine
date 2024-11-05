@@ -887,6 +887,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(adapterDesc.SharedSystemMemory);
     m_Capabilities.m_bHardwareAccelerated = (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
     m_Capabilities.m_bSupportsTexelBuffer = true;
+    m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
 
   m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;

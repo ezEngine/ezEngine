@@ -148,7 +148,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
-  ezGALShaderHandle m_hShader;
+  ezGALShaderHandle m_hShader; // TODO WebGPU: try to get rid of this
   ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 };
 
@@ -184,7 +184,7 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
 
   bool m_bAllowShaderResourceView = true;
   bool m_bAllowUAV = false;
-  bool m_bCreateRenderTarget = false;
+  bool m_bAllowRenderTargetView = false;
   bool m_bAllowDynamicMipGeneration = false;
 
   ezGALResourceAccess m_ResourceAccess;
@@ -196,6 +196,7 @@ struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezG
 {
   ezGALTextureHandle m_hTexture;
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
   ezUInt32 m_uiMostDetailedMipLevel = 0;
   ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
   ezUInt32 m_uiFirstArraySlice = 0; // For cubemap array: index of first 2d slice to start with
@@ -216,6 +217,7 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   ezGALTextureHandle m_hTexture;
 
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 
   ezUInt32 m_uiMipLevel = 0;
 
@@ -232,6 +234,7 @@ struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStr
   ezUInt32 m_uiArraySize = 1;       ///< Number of depth slices for 3D textures.
   ezUInt16 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 };
 
 struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>

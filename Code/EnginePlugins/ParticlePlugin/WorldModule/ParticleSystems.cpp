@@ -35,4 +35,3 @@ void ezParticleWorldModule::DestroySystemInstance(ezParticleSystemInstance* pIns
 }
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleSystems);

@@ -108,3 +108,7 @@ ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Deserialize(ezStream
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadString(m_sComponentFilePath));
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Resources_ScriptCompendiumResource);
+

@@ -105,5 +105,3 @@ bool ezFmodSoundEventResourceLoader::IsResourceOutdated(const ezResource* pResou
 }
 
 
-
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundEventResourceLoader);

@@ -611,3 +611,7 @@ ezOpenXRInputDevice::Vec2Action::Vec2Action(ezXRDeviceFeatures::Enum feature, Xr
     m_sKey_posy[uiSide] = temp;
   }
 }
+
+
+EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRInputDevice);
+

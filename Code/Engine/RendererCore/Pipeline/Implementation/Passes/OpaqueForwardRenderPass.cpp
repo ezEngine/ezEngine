@@ -69,7 +69,18 @@ void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEnco
     }
     else
     {
-      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+      if (m_hWhiteTextureView.IsInvalidated())
+      {
+        ezResourceLock<ezTexture2DResource> pTex(m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+
+        ezGALTextureResourceViewCreationDescription desc;
+        desc.m_hTexture = pTex->GetGALTexture();
+        desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
+
+        m_hWhiteTextureView = pDevice->CreateResourceView(desc);
+      }
+
+      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTextureView);
     }
   }
 }

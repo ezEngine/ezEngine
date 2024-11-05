@@ -192,7 +192,7 @@ public:
       texDesc.m_uiWidth = g_uiWindowWidth;
       texDesc.m_uiHeight = g_uiWindowHeight;
       texDesc.m_Format = ezGALResourceFormat::D24S8;
-      texDesc.m_bCreateRenderTarget = true;
+      texDesc.m_bAllowRenderTargetView = true;
 
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
 

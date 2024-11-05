@@ -32,7 +32,7 @@ EZ_WARNING_POP()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 /// \brief Macro helper to check alignment
-#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment) - 1)) == 0, "Wrong alignment.")
+#  define EZ_CHECK_ALIGNMENT(ptr, alignment) EZ_ASSERT_DEV(((size_t)ptr & ((alignment)-1)) == 0, "Wrong alignment.")
 #else
 /// \brief Macro helper to check alignment
 #  define EZ_CHECK_ALIGNMENT(ptr, alignment)
@@ -67,6 +67,17 @@ EZ_WARNING_POP()
 
 /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
 #  define EZ_STATICLINK_LIBRARY(LibraryName) void ezReferenceFunction_##LibraryName(bool bReturn = true)
+
+/// \brief Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
+///
+/// Add a line like this to a CPP file of your application:
+/// EZ_STATICLINK_PLUGIN(ParticlePlugin);
+///
+/// When statically linking, this ensures that all relevant code of that plugin gets added to your app.
+/// Without it, the linker may optimize too much code away, such that, for example, component types are unknown at runtime.
+///
+/// When dynamic linking is used, this macro has no effect, at all.
+#  define EZ_STATICLINK_PLUGIN(PluginName)
 
 #else
 
@@ -110,6 +121,19 @@ struct EZ_FOUNDATION_DLL ezPluginRegister
 #  define EZ_STATICLINK_LIBRARY(LibraryName)                                                         \
     ezPluginRegister ezPluginRegister_##LibraryName(EZ_PP_STRINGIFY(EZ_PP_CONCAT(ez, LibraryName))); \
     extern "C" void ezReferenceFunction_##LibraryName(bool bReturn = true)
+
+/// \brief Adds a static link reference to a plugin into an application, to make sure all code gets pulled in by the linker.
+///
+/// Add a line like this to a CPP file of your application:
+/// EZ_STATICLINK_PLUGIN(ParticlePlugin);
+///
+/// When statically linking, this ensures that all relevant code of that plugin gets added to your app.
+/// Without it, the linker may optimize too much code away, such that, for example, component types are unknown at runtime.
+///
+/// When dynamic linking is used, this macro has no effect, at all.
+#  define EZ_STATICLINK_PLUGIN(PluginName)                                               \
+    extern "C" void EZ_PP_CONCAT(ezReferenceFunction_, PluginName)(bool bReturn = true); \
+    ezStaticLinkHelper EZ_PP_CONCAT(ezStaticLinkHelper_, PluginName)(EZ_PP_CONCAT(ezReferenceFunction_, PluginName));
 
 #endif
 

@@ -616,3 +616,7 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Platform_UWP_InputDevice_UWP);
+

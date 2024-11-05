@@ -66,7 +66,8 @@ void ezFencePoolDX11::InsertFence(ID3D11Query* pFence)
 
 ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ezTime timeout)
 {
-  ezTimestamp start = ezTimestamp::CurrentTimestamp();
+  const ezTime start = ezTime::Now();
+
   do
   {
     BOOL data = FALSE;
@@ -76,7 +77,7 @@ ezEnum<ezGALAsyncResult> ezFencePoolDX11::GetFenceResult(ID3D11Query* pFence, ez
       return ezGALAsyncResult::Ready;
     }
     ezThreadUtils::YieldTimeSlice();
-  } while ((ezTimestamp::CurrentTimestamp() - start) < timeout);
+  } while ((ezTime::Now() - start) < timeout);
 
   return ezGALAsyncResult::Pending;
 }
@@ -130,12 +131,12 @@ ezEnum<ezGALAsyncResult> ezFenceQueueDX11::GetFenceResult(ezGALFenceHandle hFenc
 
   while (!m_PendingFences.IsEmpty() && m_PendingFences[0].m_hFence <= hFence)
   {
-    ezTimestamp start = ezTimestamp::CurrentTimestamp();
+    const ezTime start = ezTime::Now();
     ezEnum<ezGALAsyncResult> res = WaitForNextFence(timeout);
     if (res == ezGALAsyncResult::Pending)
       return ezGALAsyncResult::Pending;
 
-    ezTimestamp end = ezTimestamp::CurrentTimestamp();
+    const ezTime end = ezTime::Now();
     timeout -= (end - start);
   }
 

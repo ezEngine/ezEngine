@@ -756,9 +756,7 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   BeginCommands("GenerateMipMaps");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
-    pCommandEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
-    EndRendering();
+    m_pEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
 
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);

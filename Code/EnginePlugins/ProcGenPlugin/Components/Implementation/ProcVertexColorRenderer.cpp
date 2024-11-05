@@ -49,3 +49,7 @@ void ezProcVertexColorRenderer::FillPerInstanceData(
 
   out_uiFilteredCount = uiCurrentIndex;
 }
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVertexColorRenderer);
+

@@ -27,7 +27,11 @@ CullMode = CullMode_None
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
-Texture2DMSArray<float> DepthTexture;
+#if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+  Texture2DMSArray<float> DepthTexture;
+#else
+  Texture2DMS<float> DepthTexture;
+#endif
 
 float main(PS_IN Input) : SV_Depth
 {

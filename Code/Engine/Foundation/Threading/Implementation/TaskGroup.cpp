@@ -38,6 +38,7 @@ void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
   EZ_LOCK(mutex);
 
   const ezTaskGroup* pGroup = groupID.m_pTaskGroup;
+  EZ_IGNORE_UNUSED(pGroup);
 
   EZ_ASSERT_DEV(pGroup != nullptr, "TaskGroupID is invalid.");
   EZ_ASSERT_DEV(pGroup->m_uiGroupCounter == groupID.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");

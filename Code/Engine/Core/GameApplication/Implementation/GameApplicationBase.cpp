@@ -549,8 +549,10 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezTaskSystem::FinishFrameTasks();
   ezFrameAllocator::Swap();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   // if many messages have been logged, make sure they get written to disk
   ezLog::Flush(100, ezTime::MakeFromSeconds(10));
+#endif
 
   // reset this state
   m_bTakeScreenshot = false;

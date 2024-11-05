@@ -204,5 +204,3 @@ void ezParticleWorldModule::ReconfigureEffects()
 }
 
 
-
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleEffects);

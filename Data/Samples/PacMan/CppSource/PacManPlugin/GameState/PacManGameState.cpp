@@ -169,3 +169,6 @@ void PacManGameState::ConfigureMainCamera()
   // but if we wanted, we could ignore the camera from the scene and create our own camera here
   // and then update it in ProcessInput()
 }
+
+
+EZ_STATICLINK_FILE(PacManPlugin, PacManPlugin_GameState_PacManGameState);

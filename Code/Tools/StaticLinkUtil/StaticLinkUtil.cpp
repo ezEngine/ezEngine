@@ -349,7 +349,7 @@ public:
 
         const char* szLineEnd = ezStringUtils::FindSubString(szI, "\n");
 
-        ezStringView si(szI, szLineEnd);
+        ezStringView si(szI, szLineEnd ? szLineEnd : szI + ezStringUtils::GetStringElementCount(szI));
 
         ezStringBuilder sInclude = si;
 

@@ -176,4 +176,4 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
   }
 }
 
-EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRHandTracking);
+

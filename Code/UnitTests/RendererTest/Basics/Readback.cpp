@@ -64,6 +64,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
   m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
 
   m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+  m_hTexture2DDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
   m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
   m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
 
@@ -99,6 +100,7 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hUVColorIntShader.Invalidate();
   m_hUVColorUIntShader.Invalidate();
   m_hTexture2DShader.Invalidate();
+  m_hTexture2DDepthShader.Invalidate();
   m_hTexture2DIntShader.Invalidate();
   m_hTexture2DUIntShader.Invalidate();
   m_hUVColorDepthShader.Invalidate();
@@ -315,7 +317,11 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
   BeginCommands("Readback");
   {
-    if (bIsIntTexture && !bIsDepthTexture)
+    if (bIsDepthTexture || ezGALResourceFormat::IsFloatFormat(m_Format))
+    {
+      m_hShader = m_hTexture2DDepthShader;
+    }
+    else if (bIsIntTexture)
     {
       m_hShader = ezGALResourceFormat::IsSignedFormat(m_Format) ? m_hTexture2DIntShader : m_hTexture2DUIntShader;
     }

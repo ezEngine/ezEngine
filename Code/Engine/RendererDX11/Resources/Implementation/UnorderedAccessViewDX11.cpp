@@ -59,8 +59,10 @@ ezResult ezGALTextureUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
   const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
+  EZ_IGNORE_UNUSED(texDesc);
 
-  switch (texDesc.m_Type)
+  const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : pTexture->GetDescription().m_Type;
+  switch (type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DShared:
@@ -78,16 +80,7 @@ ezResult ezGALTextureUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
       DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
       break;
 
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
-      DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
-      DXUAVDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevelToUse;
-      DXUAVDesc.Texture2DArray.ArraySize = m_Description.m_uiArraySize;
-      DXUAVDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstArraySlice;
-      break;
-
     case ezGALTextureType::Texture3D:
-
       DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
       DXUAVDesc.Texture3D.MipSlice = m_Description.m_uiMipLevelToUse;
       DXUAVDesc.Texture3D.FirstWSlice = m_Description.m_uiFirstArraySlice;

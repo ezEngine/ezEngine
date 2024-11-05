@@ -100,3 +100,7 @@ namespace ezProcGenInternal
   ezHashedString ExpressionOutputs::s_sOutColorB = ezMakeHashedString("outColor.z");
   ezHashedString ExpressionOutputs::s_sOutColorA = ezMakeHashedString("outColor.w");
 } // namespace ezProcGenInternal
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Declarations);
+

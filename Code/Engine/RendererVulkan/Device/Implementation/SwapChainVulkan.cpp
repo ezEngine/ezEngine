@@ -382,7 +382,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
     TexDesc.m_pExisitingNativeObject = m_swapChainImages[i];
     TexDesc.m_bAllowShaderResourceView = false;
-    TexDesc.m_bCreateRenderTarget = true;
+    TexDesc.m_bAllowRenderTargetView = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }

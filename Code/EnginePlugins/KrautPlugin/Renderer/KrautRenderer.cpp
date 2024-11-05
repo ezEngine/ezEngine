@@ -155,3 +155,7 @@ void ezKrautRenderer::TempTreeCB::SetTreeData(const ezVec3& vTreeCenter, float f
   cb.LeafCenter = vTreeCenter;
   cb.LeafShadowOffset = fLeafShadowOffset;
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Renderer_KrautRenderer);
+

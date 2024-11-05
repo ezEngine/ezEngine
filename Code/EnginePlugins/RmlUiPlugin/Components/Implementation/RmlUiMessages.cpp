@@ -7,3 +7,7 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRmlUiReload);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRmlUiReload, 1, ezRTTIDefaultAllocator<ezMsgRmlUiReload>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiMessages);
+

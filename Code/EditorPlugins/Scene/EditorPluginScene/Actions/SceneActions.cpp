@@ -8,6 +8,7 @@
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -527,6 +528,13 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine
 
   arguments << "-profile";
   arguments << ezString(ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName()).GetData();
+
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
+  {
+    ezStringBuilder sRenderer = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
+    arguments << "-renderer";
+    arguments << sRenderer.GetData();
+  }
 
   for (QString s : arguments)
   {

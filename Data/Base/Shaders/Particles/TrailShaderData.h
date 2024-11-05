@@ -6,7 +6,11 @@
 struct EZ_SHADER_STRUCT ezTrailParticleShaderData
 {
   INT1(NumPoints);
-  FLOAT3(dummy);
+
+  // some shader compilers can't combine INT1 with INT3
+  INT1(dummy1);
+  INT1(dummy2);
+  INT1(dummy3);
 };
 
 struct EZ_SHADER_STRUCT ezTrailParticlePointsData8

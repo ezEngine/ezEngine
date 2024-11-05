@@ -391,6 +391,7 @@ void ezTaskSystem::FinishFrameTasks()
 
   // Update the thread utilization
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     const ezTime tNow = ezTime::Now();
     static ezTime s_LastFrameUpdate = tNow;
     const ezTime tDiff = tNow - s_LastFrameUpdate;
@@ -410,5 +411,6 @@ void ezTaskSystem::FinishFrameTasks()
         }
       }
     }
+#endif
   }
 }

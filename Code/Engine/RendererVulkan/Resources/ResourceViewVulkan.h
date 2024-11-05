@@ -26,7 +26,6 @@ protected:
 
   vk::ImageSubresourceRange m_range;
   mutable vk::DescriptorImageInfo m_resourceImageInfo;
-  mutable vk::DescriptorImageInfo m_resourceImageInfoArray;
 };
 
 class ezGALBufferResourceViewVulkan : public ezGALBufferResourceView

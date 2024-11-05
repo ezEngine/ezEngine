@@ -1102,4 +1102,4 @@ ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
   }
 }
 
-EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRSingleton);
+

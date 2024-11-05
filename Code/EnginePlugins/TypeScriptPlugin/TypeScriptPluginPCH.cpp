@@ -25,3 +25,13 @@ ON_CORESYSTEMS_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+EZ_STATICLINK_LIBRARY(TypeScriptPlugin)
+{
+  if (bReturn)
+    return;
+
+  EZ_STATICLINK_REFERENCE(TypeScriptPlugin_Components_TypeScriptComponent);
+  EZ_STATICLINK_REFERENCE(TypeScriptPlugin_Resources_ScriptCompendiumResource);
+  EZ_STATICLINK_REFERENCE(TypeScriptPlugin_Resources_TypeScriptResource);
+}

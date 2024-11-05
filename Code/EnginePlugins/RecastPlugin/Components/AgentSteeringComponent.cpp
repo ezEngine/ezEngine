@@ -43,4 +43,4 @@ void ezAgentSteeringComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_AgentSteeringComponent);
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_AgentSteeringComponent);

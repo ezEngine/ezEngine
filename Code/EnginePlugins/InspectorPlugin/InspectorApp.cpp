@@ -101,5 +101,3 @@ void SetAppStats()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_App);

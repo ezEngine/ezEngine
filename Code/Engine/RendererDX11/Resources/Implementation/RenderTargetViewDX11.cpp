@@ -60,9 +60,10 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     D3D11_DEPTH_STENCIL_VIEW_DESC DSViewDesc;
     DSViewDesc.Format = DXViewFormat;
 
+    const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
     if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
     {
-      switch (texDesc.m_Type)
+      switch (type)
       {
         case ezGALTextureType::Texture2D:
         case ezGALTextureType::Texture2DShared:
@@ -72,8 +73,6 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
         case ezGALTextureType::Texture2DProxy:
         case ezGALTextureType::Texture2DArray:
-        case ezGALTextureType::TextureCube:
-        case ezGALTextureType::TextureCubeArray:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
           DSViewDesc.Texture2DArray.MipSlice = m_Description.m_uiMipLevel;
           DSViewDesc.Texture2DArray.FirstArraySlice = m_Description.m_uiFirstSlice;
@@ -85,7 +84,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
     }
     else
     {
-      switch (texDesc.m_Type)
+      switch (type)
       {
         case ezGALTextureType::Texture2D:
         case ezGALTextureType::Texture2DShared:
@@ -94,8 +93,6 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
         case ezGALTextureType::Texture2DProxy:
         case ezGALTextureType::Texture2DArray:
-        case ezGALTextureType::TextureCube:
-        case ezGALTextureType::TextureCubeArray:
           DSViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY;
           DSViewDesc.Texture2DMSArray.FirstArraySlice = m_Description.m_uiFirstSlice;
           DSViewDesc.Texture2DMSArray.ArraySize = m_Description.m_uiSliceCount;

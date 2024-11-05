@@ -125,5 +125,3 @@ void RemoveOSFileEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_OSFile);

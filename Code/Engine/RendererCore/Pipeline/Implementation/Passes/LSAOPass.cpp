@@ -150,7 +150,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   {
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinOutput.m_uiOutputIndex]->m_Desc;
     tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bCreateRenderTarget = true;
+    tempTextureDesc.m_bAllowRenderTargetView = true;
     tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
     renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
   }

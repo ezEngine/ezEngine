@@ -58,7 +58,9 @@ ezResult ezGALTextureResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
   const ezGALTextureCreationDescription& texDesc = pTexture->GetDescription();
 
-  switch (texDesc.m_Type)
+  // DX11 does not care about view types matching the shader. It does care though about view types matching the resource.
+  const ezEnum<ezGALTextureType> type = texDesc.m_Type;
+  switch (type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DShared:

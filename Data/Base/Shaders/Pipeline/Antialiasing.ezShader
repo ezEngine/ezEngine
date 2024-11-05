@@ -54,7 +54,11 @@ float Filter(in float x)
   return FilterBSpline(x);
 }
 
-Texture2DMSArray<float4> ColorTexture;
+#if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+  Texture2DMSArray<float4> ColorTexture;
+#else
+  Texture2DMS<float4> ColorTexture;
+#endif
 
 float4 main(PS_IN Input) : SV_Target
 {

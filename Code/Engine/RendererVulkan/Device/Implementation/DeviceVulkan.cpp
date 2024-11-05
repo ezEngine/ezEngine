@@ -1590,6 +1590,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
     m_Capabilities.m_bHardwareAccelerated = m_properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
     m_Capabilities.m_bSupportsTexelBuffer = true;
+    m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
 
   m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;

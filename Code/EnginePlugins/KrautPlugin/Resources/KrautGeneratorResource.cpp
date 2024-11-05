@@ -896,3 +896,7 @@ ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautGeneratorResource);
+

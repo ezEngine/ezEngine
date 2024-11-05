@@ -43,65 +43,40 @@ ezResult ezGALTextureResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
 
   m_resourceImageInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(pParentTexture->GetImageFormat());
-  m_resourceImageInfoArray.imageLayout = m_resourceImageInfo.imageLayout;
 
   m_range = viewCreateInfo.subresourceRange;
 
-  switch (texDesc.m_Type)
+const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
+  switch (type)
   {
-    case ezGALTextureType::Texture2D: // can be array or not
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2D);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
-
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2DArray);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
-      break;
-
-    case ezGALTextureType::Texture2DProxy: // Forced no array support
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DShared:
+    case ezGALTextureType::Texture2DProxy: 
       viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2D);
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
       break;
 
     case ezGALTextureType::Texture2DArray:
-      if (viewCreateInfo.subresourceRange.layerCount == 1)
-      {
-        viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2D);
-        VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
-      }
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(type);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
       break;
 
     case ezGALTextureType::TextureCubeArray:
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
-      break;
-
-    case ezGALTextureType::Texture3D: // no array support
-    case ezGALTextureType::Texture2DShared:
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(type);
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
       break;
 
-    case ezGALTextureType::TextureCube: // can be array or not
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::TextureCube);
+    case ezGALTextureType::Texture3D:
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(type);
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
+      break;
 
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::TextureCubeArray);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfoArray.imageView));
+    case ezGALTextureType::TextureCube:
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(type);
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
       break;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  if (texDesc.m_Type == ezGALTextureType::Texture3D)
-  {
-  }
-  else if (m_Description.m_uiArraySize == 1) // can be array or not
-  {
-  }
-  else
-  {
   }
 
   return EZ_SUCCESS;
@@ -111,9 +86,7 @@ ezResult ezGALTextureResourceViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_resourceImageInfo.imageView);
-  pVulkanDevice->DeleteLater(m_resourceImageInfoArray.imageView);
   m_resourceImageInfo = vk::DescriptorImageInfo();
-  m_resourceImageInfoArray = vk::DescriptorImageInfo();
   return EZ_SUCCESS;
 }
 

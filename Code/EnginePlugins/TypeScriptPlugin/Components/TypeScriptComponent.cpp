@@ -409,3 +409,7 @@ bool ezTypeScriptComponent::GetParameter(const char* szKey, ezVariant& out_value
   out_value = m_Parameters.GetValue(it);
   return true;
 }
+
+
+EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Components_TypeScriptComponent);
+

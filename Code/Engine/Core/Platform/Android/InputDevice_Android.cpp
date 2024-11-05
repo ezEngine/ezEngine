@@ -231,3 +231,7 @@ bool ezStandardInputDevice::AndroidHandleInput(AInputEvent* pEvent)
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Platform_Android_InputDevice_Android);
+

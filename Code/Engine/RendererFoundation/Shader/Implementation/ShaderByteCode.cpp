@@ -106,7 +106,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
 
   auto EqualBindings = [](const ezShaderResourceBinding& a, const ezShaderResourceBinding& b) -> bool
   {
-    return a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iSet == b.m_iSet && a.m_iSlot == b.m_iSlot;
+    return a.m_sName == b.m_sName && a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iSet == b.m_iSet && a.m_iSlot == b.m_iSlot;
   };
 
   auto AddOrExtendBinding = [&](ezGALShaderStage::Enum stage, ezUInt32 uiStartIndex, const ezShaderResourceBinding& add)

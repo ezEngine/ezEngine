@@ -102,7 +102,7 @@ ezGALFenceHandle ezGALReadbackTextureHelper::ReadbackTexture(ezGALCommandEncoder
   desc.m_ResourceAccess.m_bImmutable = false;
   desc.m_bAllowShaderResourceView = false;
   desc.m_bAllowUAV = false;
-  desc.m_bCreateRenderTarget = false;
+  desc.m_bAllowRenderTargetView = false;
   desc.m_bAllowDynamicMipGeneration = false;
 
 

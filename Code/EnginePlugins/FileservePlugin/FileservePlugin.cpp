@@ -53,4 +53,4 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Main);
+EZ_STATICLINK_FILE(FileServePlugin, FileServePlugin_FileservePlugin);

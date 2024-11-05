@@ -101,26 +101,32 @@ SamplerState PointClampSampler;
 
 
 // SRV
-Texture1D RES_Texture1D;
-Texture1DArray RES_Texture1DArray;
+//Texture1D RES_Texture1D;
+//Texture1DArray RES_Texture1DArray;
 Texture2D RES_Texture2D;
 Texture2DArray RES_Texture2DArray;
 Texture2DMS<float4> RES_Texture2DMS;
-Texture2DMSArray<float4> RES_Texture2DMSArray;
+#if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+  Texture2DMSArray<float4> RES_Texture2DMSArray;
+#endif
 Texture3D RES_Texture3D;
 TextureCube RES_TextureCube;
 TextureCubeArray RES_TextureCubeArray;
-Buffer<uint> RES_Buffer;
+#if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
+  Buffer<uint> RES_Buffer;
+#endif
 StructuredBuffer<ezPerInstanceData> RES_StructuredBuffer;
 ByteAddressBuffer RES_ByteAddressBuffer;
 
 // UAV
-RWTexture1D<float> RES_RWTexture1D;
-RWTexture1DArray<float2> RES_RWTexture1DArray;
+//RWTexture1D<float> RES_RWTexture1D;
+//RWTexture1DArray<float2> RES_RWTexture1DArray;
 RWTexture2D<float3> RES_RWTexture2D;
 RWTexture2DArray<float4> RES_RWTexture2DArray;
 RWTexture3D<uint> RES_RWTexture3D;
-RWBuffer<uint> RES_RWBuffer;
+#if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
+  RWBuffer<uint> RES_RWBuffer;
+#endif
 RWStructuredBuffer<ezPerInstanceData> RES_RWStructuredBuffer;
 RWByteAddressBuffer RES_RWByteAddressBuffer;
 
@@ -136,26 +142,32 @@ float4 main(PS_IN Input) : SV_Target
   temp += GET_PUSH_CONSTANT(SimpleColorPushConstants, Color.r);
 
   // SRV + Sampler
-  temp += RES_Texture1D.Sample(PointClampSampler, Input.texcoord0.x).r;
-  temp += RES_Texture1DArray.Sample(PointClampSampler, Input.texcoord0.xy).r;
+  //temp += RES_Texture1D.Sample(PointClampSampler, Input.texcoord0.x).r;
+  //temp += RES_Texture1DArray.Sample(PointClampSampler, Input.texcoord0.xy).r;
   temp += RES_Texture2D.Sample(PointClampSampler, Input.texcoord0).r;
   temp += RES_Texture2DArray.Sample(PointClampSampler, Input.texcoord0.xyy).r;
   temp += RES_Texture2DMS.Load(int2(Input.texcoord0.xy), 0).r;
-  temp += RES_Texture2DMSArray.Load(int3(Input.texcoord0.xyy), 0).r;
+  #if EZ_ENABLED(SUPPORTS_MSAA_ARRAYS)
+    temp += RES_Texture2DMSArray.Load(int3(Input.texcoord0.xyy), 0).r;
+  #endif
   temp += RES_Texture3D.Sample(PointClampSampler, Input.texcoord0.xyy).r;
   temp += RES_TextureCube.SampleLevel(PointClampSampler, Input.texcoord0.xyy, 0).r;
   temp += RES_TextureCubeArray.SampleLevel(PointClampSampler, Input.texcoord0.xxyy, 0).r;
-  temp += (float)RES_Buffer[0];
+  #if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
+    temp += (float)RES_Buffer[0];
+  #endif
   temp += RES_StructuredBuffer[0].BoundingSphereRadius;
   temp += (float)RES_ByteAddressBuffer.Load4(0).x;
 
   // UAV
-  temp += RES_RWTexture1D[0].x;
-  temp += RES_RWTexture1DArray[uint2(0, 0)].x;
+  //temp += RES_RWTexture1D[0].x;
+  //temp += RES_RWTexture1DArray[uint2(0, 0)].x;
   temp += RES_RWTexture2D[uint2(0, 0)].x;
   temp += RES_RWTexture2DArray[uint3(0, 0, 0)].x;
   temp += RES_RWTexture3D[uint3(0, 0, 0)].x;
-  temp += (float)RES_RWBuffer[0];
+  #if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
+    temp += (float)RES_RWBuffer[0];
+  #endif
   temp += RES_RWStructuredBuffer[0].BoundingSphereRadius;
   temp += (float)RES_RWByteAddressBuffer.Load4(0).x;
 

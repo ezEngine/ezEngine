@@ -143,5 +143,3 @@ void RemoveReflectionEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Reflection);

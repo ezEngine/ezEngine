@@ -409,3 +409,7 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautTreeResource);
+

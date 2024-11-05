@@ -180,7 +180,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
     texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
     texDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized; // ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-    texDesc.m_bCreateRenderTarget = true;
+    texDesc.m_bAllowRenderTargetView = true;
     texDesc.m_bAllowShaderResourceView = true;
 
     m_hScreenTexture = device->CreateTexture(texDesc);
@@ -195,7 +195,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
     texDesc.m_uiHeight = 3; // R, G, B
     texDesc.m_uiMipLevelCount = 1;
     texDesc.m_Format = ezGALResourceFormat::RUInt;
-    texDesc.m_bCreateRenderTarget = false;
+    texDesc.m_bAllowRenderTargetView = false;
     texDesc.m_bAllowShaderResourceView = true;
     texDesc.m_bAllowUAV = true;
     texDesc.m_ResourceAccess.m_bImmutable = false;

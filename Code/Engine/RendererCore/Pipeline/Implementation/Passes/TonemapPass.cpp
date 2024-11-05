@@ -84,6 +84,7 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
       //}
 
       outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
+      outputs[m_PinOutput.m_uiOutputIndex].m_Type = pColorInput->m_Type;
       outputs[m_PinOutput.m_uiOutputIndex].m_uiArraySize = pColorInput->m_uiArraySize;
     }
     else

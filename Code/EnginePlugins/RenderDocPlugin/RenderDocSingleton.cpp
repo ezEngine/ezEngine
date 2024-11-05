@@ -139,4 +139,4 @@ ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) 
   return EZ_FAILURE;
 }
 
-EZ_STATICLINK_FILE(RenderDocPlugin, RenderDocPlugin_RenderDocSingleton);
+

@@ -15,6 +15,7 @@
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
 #  define SUPPORTS_TEXEL_BUFFER EZ_OFF
+#  define SUPPORTS_MSAA_ARRAYS EZ_OFF
 
 // GetRenderTargetSamplePosition does not have an equivalent function in Vulkan so these values are hard-coded.
 // https://learn.microsoft.com/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels

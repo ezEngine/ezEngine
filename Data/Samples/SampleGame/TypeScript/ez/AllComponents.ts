@@ -389,6 +389,8 @@ export class LightComponent extends RenderComponent
   set SpecularMultiplier(value: number) { __CPP_ComponentProperty_set(this, 4242523270, value); }
   get CastShadows(): boolean { return __CPP_ComponentProperty_get(this, 250551917); }
   set CastShadows(value: boolean) { __CPP_ComponentProperty_set(this, 250551917, value); }
+  get TransparentShadows(): boolean { return __CPP_ComponentProperty_get(this, 667984368); }
+  set TransparentShadows(value: boolean) { __CPP_ComponentProperty_set(this, 667984368, value); }
   get PenumbraSize(): number { return __CPP_ComponentProperty_get(this, 3718860233); }
   set PenumbraSize(value: number) { __CPP_ComponentProperty_set(this, 3718860233, value); }
   get SlopeBias(): number { return __CPP_ComponentProperty_get(this, 3444063500); }

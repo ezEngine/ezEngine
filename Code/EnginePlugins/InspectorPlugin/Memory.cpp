@@ -92,5 +92,3 @@ void RemoveMemoryEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Memory);

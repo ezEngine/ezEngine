@@ -232,7 +232,7 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     texDesc.m_uiWidth = uiResolutionX;
     texDesc.m_uiHeight = uiResolutionY;
     texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_bCreateRenderTarget = true;
+    texDesc.m_bAllowRenderTargetView = true;
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     if (m_hDepthStencilTexture.IsInvalidated())

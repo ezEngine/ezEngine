@@ -80,3 +80,7 @@ void ezRecastWorldModule::ResourceEventHandler(const ezResourceEvent& e)
     m_pDetourNavMesh = nullptr;
   }
 }
+
+
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_WorldModule_RecastWorldModule);
+

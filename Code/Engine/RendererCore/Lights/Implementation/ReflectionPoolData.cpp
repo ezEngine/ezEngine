@@ -305,7 +305,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     desc.m_uiArraySize = 1;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCubeArray;
-    desc.m_bCreateRenderTarget = true;
+    desc.m_bAllowRenderTargetView = false;
     desc.m_bAllowUAV = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -406,7 +406,7 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
     desc.m_uiHeight = 64;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::Texture2D;
-    desc.m_bCreateRenderTarget = true;
+    desc.m_bAllowRenderTargetView = true;
     desc.m_bAllowUAV = true;
 
     m_hSkyIrradianceTexture = pDevice->CreateTexture(desc);

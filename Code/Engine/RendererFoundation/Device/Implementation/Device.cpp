@@ -647,7 +647,7 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_bCreateRenderTarget)
+      !desc.m_bAllowRenderTargetView)
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
@@ -657,6 +657,15 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   {
     ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
     return ezGALTextureHandle();
+  }
+
+  if (desc.m_Type != ezGALTextureType::Texture2DArray && desc.m_Type != ezGALTextureType::TextureCubeArray)
+  {
+    if (desc.m_uiArraySize != 1)
+    {
+      ezLog::Error("m_uiArraySize must be 1 for non array textures!");
+      return ezGALTextureHandle();
+    }
   }
 
   ezGALTexture* pTexture = CreateTexturePlatform(desc, initialData);
@@ -680,12 +689,16 @@ ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreati
     }
 
     // Create default render target view
-    if (desc.m_bCreateRenderTarget)
+    if (desc.m_bAllowRenderTargetView)
     {
       ezGALRenderTargetViewCreationDescription rtDesc;
       rtDesc.m_hTexture = hTexture;
       rtDesc.m_uiFirstSlice = 0;
       rtDesc.m_uiSliceCount = desc.m_uiArraySize;
+      if (desc.m_Type == ezGALTextureType::TextureCube || desc.m_Type == ezGALTextureType::TextureCubeArray)
+      {
+        rtDesc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
+      }
 
       pTexture->m_hDefaultRenderTargetView = CreateRenderTargetView(rtDesc);
     }
@@ -749,7 +762,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   }
 
   // Create default render target view
-  if (desc.m_bCreateRenderTarget)
+  //if (desc.m_bAllowRenderTargetView)
   {
     ezGALRenderTargetViewCreationDescription rtDesc;
     rtDesc.m_hTexture = hProxyTexture;
@@ -786,7 +799,7 @@ ezGALTextureHandle ezGALDevice::CreateSharedTexture(const ezGALTextureCreationDe
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_bCreateRenderTarget)
+      !desc.m_bAllowRenderTargetView)
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
@@ -959,6 +972,16 @@ ezGALTextureResourceViewHandle ezGALDevice::CreateResourceView(const ezGALTextur
     }
   }
 
+  const ezEnum<ezGALTextureType> type = desc.m_OverrideViewType != ezGALTextureType::Invalid ? desc.m_OverrideViewType : pResource->GetDescription().m_Type;
+  if (type != ezGALTextureType::Texture2DArray && type != ezGALTextureType::TextureCubeArray)
+  {
+    if (desc.m_uiArraySize != 1)
+    {
+      ezLog::Error("m_uiArraySize must be 1 for non array textures!");
+      return ezGALTextureResourceViewHandle();
+    }
+  }
+
   ezGALTextureResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
 
   if (pResourceView != nullptr)
@@ -1068,6 +1091,22 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
     return ezGALRenderTargetViewHandle();
   }
 
+  const ezEnum<ezGALTextureType> type = desc.m_OverrideViewType != ezGALTextureType::Invalid ? desc.m_OverrideViewType : pTexture->GetDescription().m_Type;
+  if (type != ezGALTextureType::Texture2DArray && type != ezGALTextureType::TextureCubeArray)
+  {
+    if (desc.m_uiSliceCount != 1)
+    {
+      EZ_REPORT_FAILURE("m_uiSliceCount must be 1 for non array textures!");
+      return ezGALRenderTargetViewHandle();
+    }
+  }
+  if (type == ezGALTextureType::TextureCube || type == ezGALTextureType::TextureCubeArray)
+  {
+    EZ_REPORT_FAILURE("Render targets cannot be created on cube maps, use 2DArrays instead.");
+    return ezGALRenderTargetViewHandle();
+  }
+
+  // Hash 
   /// \todo Platform independent validation
 
   // Hash desc and return potential existing one
@@ -1135,6 +1174,21 @@ ezGALTextureUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(con
       ezLog::Error("Can't create unordered access view on textures with multisampling.");
       return ezGALTextureUnorderedAccessViewHandle();
     }
+  }
+
+  const ezEnum<ezGALTextureType> type = desc.m_OverrideViewType != ezGALTextureType::Invalid ? desc.m_OverrideViewType : pTexture->GetDescription().m_Type;
+  if (type != ezGALTextureType::Texture2DArray && type != ezGALTextureType::TextureCubeArray)
+  {
+    if (desc.m_uiArraySize != 1)
+    {
+      EZ_REPORT_FAILURE("m_uiArraySize must be 1 for non array textures!");
+      return ezGALTextureUnorderedAccessViewHandle();
+    }
+  }
+  if (type == ezGALTextureType::TextureCube || type == ezGALTextureType::TextureCubeArray)
+  {
+    EZ_REPORT_FAILURE("UAVs cannot be created on cube maps, use 2DArrays instead.");
+    return ezGALTextureUnorderedAccessViewHandle();
   }
 
   // Hash desc and return potential existing one

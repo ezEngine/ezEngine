@@ -321,12 +321,24 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
     cfg.AddInputCharactersUTF8(szUtf8);
 
     float mousex, mousey;
-    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousex);
-    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousey);
-    cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
-    cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton0) >= ezKeyState::Pressed);
-    cfg.AddMouseButtonEvent(1, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) >= ezKeyState::Pressed);
-    cfg.AddMouseButtonEvent(2, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton2) >= ezKeyState::Pressed);
+    if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) != ezKeyState::Up)
+    {
+      ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionX, &mousex);
+      ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionY, &mousey);
+      cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
+      cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) >= ezKeyState::Pressed);
+      cfg.AddMouseButtonEvent(1, false);
+      cfg.AddMouseButtonEvent(2, false);
+    }
+    else
+    {
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousex);
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousey);
+      cfg.AddMousePosEvent(cfg.DisplaySize.x * mousex, cfg.DisplaySize.y * mousey);
+      cfg.AddMouseButtonEvent(0, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton0) >= ezKeyState::Pressed);
+      cfg.AddMouseButtonEvent(1, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) >= ezKeyState::Pressed);
+      cfg.AddMouseButtonEvent(2, ezInputManager::GetInputSlotState(ezInputSlot_MouseButton2) >= ezKeyState::Pressed);
+    }
 
     float fMouseWheel = 0;
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
@@ -334,6 +346,8 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
       fMouseWheel = +1;
     cfg.AddMouseWheelEvent(0, fMouseWheel);
+
+
 
     cfg.AddKeyEvent(ImGuiKey_LeftAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed);
     cfg.AddKeyEvent(ImGuiKey_RightAlt, ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed);

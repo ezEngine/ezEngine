@@ -12,11 +12,8 @@ EZ_STATICLINK_LIBRARY(FmodPlugin)
   EZ_STATICLINK_REFERENCE(FmodPlugin_Components_FmodComponent);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Components_FmodEventComponent);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Components_FmodListenerComponent);
-  EZ_STATICLINK_REFERENCE(FmodPlugin_Components_FmodReverbComponent);
   EZ_STATICLINK_REFERENCE(FmodPlugin_FmodSingleton);
   EZ_STATICLINK_REFERENCE(FmodPlugin_FmodStartup);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundBankResource);
-  EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundBankResourceLoader);
   EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResource);
-  EZ_STATICLINK_REFERENCE(FmodPlugin_Resources_FmodSoundEventResourceLoader);
 }

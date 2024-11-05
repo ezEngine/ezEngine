@@ -52,6 +52,39 @@ void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding
 
   const ezGALTextureResourceView* pResourceView = m_Device.GetResourceView(hResourceView);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (pResourceView != nullptr)
+  {
+    const ezGALTexture* pTexture = pResourceView->GetResource();
+    const ezGALTextureType::Enum type = (pResourceView->GetDescription().m_OverrideViewType != ezGALTextureType::Invalid) ? pResourceView->GetDescription().m_OverrideViewType : pTexture->GetDescription().m_Type;
+    const bool bMSAA = pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
+
+    switch (type)
+    {
+      case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DShared:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture2D && !bMSAA) || (binding.m_TextureType == ezGALShaderTextureType::Texture2DMS && bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::TextureCube:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::TextureCube && !bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::Texture3D:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture3D && !bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::Texture2DArray:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture2DArray && !bMSAA) || (binding.m_TextureType == ezGALShaderTextureType::Texture2DMSArray && bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::TextureCubeArray:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::TextureCubeArray && !bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+    }
+  }
+#endif
   m_CommonImpl.SetResourceViewPlatform(binding, pResourceView);
 }
 
@@ -69,6 +102,36 @@ void ezGALCommandEncoder::SetUnorderedAccessView(const ezShaderResourceBinding& 
   AssertRenderingThread();
 
   const ezGALTextureUnorderedAccessView* pUnorderedAccessView = m_Device.GetUnorderedAccessView(hUnorderedAccessView);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (pUnorderedAccessView != nullptr)
+  {
+    const ezGALTexture* pTexture = pUnorderedAccessView->GetResource();
+    const ezGALTextureType::Enum type = (pUnorderedAccessView->GetDescription().m_OverrideViewType != ezGALTextureType::Invalid) ? pUnorderedAccessView->GetDescription().m_OverrideViewType : pTexture->GetDescription().m_Type;
+    const bool bMSAA = pTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
+
+    switch (type)
+    {
+      case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DShared:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture2D && !bMSAA) || (binding.m_TextureType == ezGALShaderTextureType::Texture2DMS && bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::Texture3D:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture3D && !bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      case ezGALTextureType::Texture2DArray:
+        EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::Texture2DArray && !bMSAA) || (binding.m_TextureType == ezGALShaderTextureType::Texture2DMSArray && bMSAA), "Mismatch between shader resource and bound view.");
+        break;
+
+      default:
+        EZ_REPORT_FAILURE("Unsupported UAV type");
+    }
+  }
+#endif
+
   m_CommonImpl.SetUnorderedAccessViewPlatform(binding, pUnorderedAccessView);
 }
 

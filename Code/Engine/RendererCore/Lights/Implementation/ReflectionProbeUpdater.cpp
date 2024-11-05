@@ -31,9 +31,9 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
     desc.m_uiMipLevelCount = GetMipLevels();
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCube;
-    desc.m_bCreateRenderTarget = true;
     desc.m_bAllowDynamicMipGeneration = true;
     desc.m_ResourceAccess.m_bImmutable = false;
+    desc.m_bAllowRenderTargetView = true;
 
     m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
     pDevice->GetTexture(m_hCubemap)->SetDebugName("Reflection Cubemap");

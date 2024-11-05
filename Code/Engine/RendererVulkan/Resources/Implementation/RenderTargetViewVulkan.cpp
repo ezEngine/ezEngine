@@ -62,7 +62,8 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
   imageViewCreationInfo.image = vkImage;
   imageViewCreationInfo.format = vkViewFormat;
 
-  if (texDesc.m_Type == ezGALTextureType::Texture2DArray || texDesc.m_Type == ezGALTextureType::TextureCubeArray)
+  const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
+  if (type == ezGALTextureType::Texture2DArray || type == ezGALTextureType::TextureCubeArray)
   {
     imageViewCreationInfo.viewType = vk::ImageViewType::e2DArray;
     imageViewCreationInfo.subresourceRange.baseMipLevel = m_Description.m_uiMipLevel;

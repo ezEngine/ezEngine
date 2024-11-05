@@ -131,7 +131,7 @@ ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView&
   desc.m_uiWidth = uiWidth;
   desc.m_uiHeight = uiHeight;
   desc.m_SampleCount = msaaMode;
-  desc.m_bCreateRenderTarget = true;
+  desc.m_bAllowRenderTargetView = true;
   desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
   return desc;
 }

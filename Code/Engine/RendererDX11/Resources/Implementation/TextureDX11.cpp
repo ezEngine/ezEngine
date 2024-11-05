@@ -115,12 +115,12 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
   if (description.m_bAllowUAV)
     out_tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (description.m_bCreateRenderTarget || description.m_bAllowDynamicMipGeneration)
+  if (description.m_bAllowRenderTargetView || description.m_bAllowDynamicMipGeneration)
     out_tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
   out_tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
-  if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
+  if (description.m_bAllowRenderTargetView || description.m_bAllowUAV)
     out_tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
   out_tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
@@ -153,13 +153,13 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
   if (description.m_bAllowUAV)
     out_tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (description.m_bCreateRenderTarget)
+  if (description.m_bAllowRenderTargetView)
     out_tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
   out_tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
   out_tex3DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
-  if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
+  if (description.m_bAllowRenderTargetView || description.m_bAllowUAV)
     out_tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
 
   out_tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;

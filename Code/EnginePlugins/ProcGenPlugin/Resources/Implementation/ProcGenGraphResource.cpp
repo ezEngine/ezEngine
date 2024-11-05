@@ -274,3 +274,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezProcGenGraphResource, ezProcGenGraphResourceD
 
   return res;
 }
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);
+

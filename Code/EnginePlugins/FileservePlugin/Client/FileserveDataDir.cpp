@@ -188,5 +188,3 @@ void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
 }
 
 
-
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveDataDir);

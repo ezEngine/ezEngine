@@ -215,7 +215,7 @@ void ezPickingRenderPass::CreateTarget()
   tcd.m_bAllowDynamicMipGeneration = false;
   tcd.m_bAllowShaderResourceView = false;
   tcd.m_bAllowUAV = false;
-  tcd.m_bCreateRenderTarget = true;
+  tcd.m_bAllowRenderTargetView = true;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;

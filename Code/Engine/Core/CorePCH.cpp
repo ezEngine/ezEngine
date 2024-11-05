@@ -32,6 +32,12 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResource);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResourceDescriptor);
+  EZ_STATICLINK_REFERENCE(Core_Platform_Android_InputDevice_Android);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_ControllerInput_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_InputDevice_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_Window_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_UWP_InputDevice_UWP);
+  EZ_STATICLINK_REFERENCE(Core_Platform_Win_InputDevice_Win);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);

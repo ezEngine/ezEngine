@@ -262,3 +262,7 @@ void ezControllerInputGlfw::ApplyVibration(ezUInt8 uiPhysicalController, Motor::
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Platform_GLFW_ControllerInput_GLFW);
+

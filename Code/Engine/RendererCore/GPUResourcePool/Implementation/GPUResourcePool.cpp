@@ -36,9 +36,9 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 {
   EZ_LOCK(m_Lock);
 
-  if (!textureDesc.m_bCreateRenderTarget)
+  if (!textureDesc.m_bAllowRenderTargetView)
   {
-    ezLog::Error("Texture description for render target usage has not set bCreateRenderTarget!");
+    ezLog::Error("Texture description for render target usage has not set m_bAllowRenderTargetView!");
     return ezGALTextureHandle();
   }
 
@@ -89,7 +89,7 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceCount, ezGALTextureType::Enum textureType)
 {
   ezGALTextureCreationDescription TextureDesc;
-  TextureDesc.m_bCreateRenderTarget = true;
+  TextureDesc.m_bAllowRenderTargetView = true;
   TextureDesc.m_bAllowShaderResourceView = true;
   TextureDesc.m_Format = format;
   TextureDesc.m_Type = textureType;

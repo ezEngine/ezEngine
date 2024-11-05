@@ -445,6 +445,7 @@ void ezGALCommandEncoderImplDX11::ReadbackTexturePlatform(const ezGALReadbackTex
 
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
   const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
+  EZ_IGNORE_UNUSED(bMSAASourceTexture);
   EZ_ASSERT_DEV(!bMSAASourceTexture, "MSAA readback is now supported");
   m_pDXContext->CopyResource(pDXDestination->GetDXTexture(), pDXTexture->GetDXTexture());
 }

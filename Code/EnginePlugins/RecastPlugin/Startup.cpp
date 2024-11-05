@@ -30,3 +30,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Recast, RecastPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Startup);
+

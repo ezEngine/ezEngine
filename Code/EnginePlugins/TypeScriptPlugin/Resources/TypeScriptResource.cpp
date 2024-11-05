@@ -226,3 +226,7 @@ ezUniquePtr<ezScriptInstance> ezTypeScriptClassResource::Instantiate(ezReflected
 
   return EZ_DEFAULT_NEW(ezTypeScriptInstance, *pComponent, pWorld, binding);
 }
+
+
+EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Resources_TypeScriptResource);
+

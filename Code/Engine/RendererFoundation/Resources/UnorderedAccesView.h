@@ -10,7 +10,7 @@ class ezGALBuffer;
 class EZ_RENDERERFOUNDATION_DLL ezGALTextureUnorderedAccessView : public ezGALObject<ezGALTextureUnorderedAccessViewCreationDescription>
 {
 public:
-  EZ_ALWAYS_INLINE ezGALResourceBase* GetResource() const { return m_pResource; }
+  EZ_ALWAYS_INLINE ezGALTexture* GetResource() const { return m_pResource; }
 
 protected:
   friend class ezGALDevice;

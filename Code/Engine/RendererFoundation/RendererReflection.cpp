@@ -101,7 +101,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezR
     EZ_ENUM_MEMBER_PROPERTY("Type", ezGALTextureType, m_Type),
     EZ_MEMBER_PROPERTY("AllowShaderResourceView", m_bAllowShaderResourceView),
     EZ_MEMBER_PROPERTY("AllowUAV", m_bAllowUAV),
-    EZ_MEMBER_PROPERTY("CreateRenderTarget", m_bCreateRenderTarget),
+    EZ_MEMBER_PROPERTY("AllowRenderTarget", m_bAllowRenderTargetView),
     EZ_MEMBER_PROPERTY("AllowDynamicMipGeneration", m_bAllowDynamicMipGeneration),
     EZ_MEMBER_PROPERTY("ResourceAccess", m_ResourceAccess),
     // m_pExisitingNativeObject deliberately not reflected as it can't be serialized in any meaningful way.

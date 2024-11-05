@@ -80,7 +80,6 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Velocity);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleComponent);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleFinisherComponent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectController);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectDescriptor);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectInstance);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter);
@@ -111,7 +110,6 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_DefaultParticleStreams);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_ParticleStream);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemDescriptor);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemInstance);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Effect_ParticleTypeEffect);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Light_ParticleTypeLight);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Mesh_ParticleTypeMesh);
@@ -122,7 +120,5 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_QuadParticleRenderer);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_ParticleTypeTrail);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_TrailRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleEffects);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleSystems);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleWorldModule);
 }

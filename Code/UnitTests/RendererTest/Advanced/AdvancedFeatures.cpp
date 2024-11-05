@@ -87,6 +87,8 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     viewDesc.m_hTexture = m_hTexture2DArray;
     viewDesc.m_uiMipLevelsToUse = 1;
     viewDesc.m_uiMostDetailedMipLevel = 0;
+    viewDesc.m_OverrideViewType = ezGALTextureType::Texture2D;
+    viewDesc.m_uiArraySize = 1;
     m_hTexture2DArrayView[0] = m_pDevice->CreateResourceView(viewDesc);
     viewDesc.m_uiFirstArraySlice = 1;
     m_hTexture2DArrayView[1] = m_pDevice->CreateResourceView(viewDesc);
@@ -138,7 +140,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     ezGALTextureCreationDescription desc;
     desc.SetAsRenderTarget(8, 8, textureFormat, ezGALMSAASampleCount::None);
     desc.m_bAllowUAV = true;
-    desc.m_bCreateRenderTarget = false;
+    desc.m_bAllowRenderTargetView = false;
     desc.m_uiMipLevelCount = 1;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hTexture2D = m_pDevice->CreateTexture(desc);
@@ -150,7 +152,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
   }
 
   if (iIdentifier == ST_VertexShaderRenderTargetArrayIndex)

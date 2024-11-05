@@ -37,4 +37,4 @@ void ezNpcComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_NpcComponent);
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_NpcComponent);

@@ -16,6 +16,7 @@
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
 #  define SUPPORTS_TEXEL_BUFFER EZ_ON
+#  define SUPPORTS_MSAA_ARRAYS EZ_ON
 
 float ezEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
 {

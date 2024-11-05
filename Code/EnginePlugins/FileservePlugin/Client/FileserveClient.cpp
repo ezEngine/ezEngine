@@ -907,4 +907,4 @@ EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 
 
 
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Client_FileserveClient);
+EZ_STATICLINK_FILE(FileServePlugin, FileServePlugin_Client_FileserveClient);

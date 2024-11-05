@@ -29,5 +29,3 @@ void RemoveTimeEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Time);

@@ -5,6 +5,7 @@
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Shader/Types.h>
 
 // clang-format off
@@ -51,6 +52,8 @@ void ezSkinningState::TransformsChanged()
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hGpuBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_Transforms.GetArrayPtr().ToByteArray());
+
+    ezGALDevice::GetDefaultDevice()->GetBuffer(m_hGpuBuffer)->SetDebugName("ezSkinningState");
 
     m_bTransformsUpdated[0] = std::make_shared<bool>(true);
     m_bTransformsUpdated[1] = std::make_shared<bool>(true);

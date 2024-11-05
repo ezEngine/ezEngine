@@ -119,6 +119,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
           desc.m_uiMipLevelToUse = uiMipMapIndex;
           desc.m_uiFirstArraySlice = m_uiSpecularOutputIndex * 6;
           desc.m_uiArraySize = 6;
+          desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
           hFilterOutput = pDevice->CreateUnorderedAccessView(desc);
         }
         renderViewContext.m_pRenderContext->BindUAV("ReflectionOutput", hFilterOutput);

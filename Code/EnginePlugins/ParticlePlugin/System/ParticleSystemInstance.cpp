@@ -635,4 +635,4 @@ bool ezParticleSystemInstance::IsContinuous() const
   return false;
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);
+

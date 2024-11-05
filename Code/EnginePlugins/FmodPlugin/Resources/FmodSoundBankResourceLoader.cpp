@@ -140,5 +140,3 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResour
 }
 
 
-
-EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Resources_FmodSoundBankResourceLoader);

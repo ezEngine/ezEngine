@@ -188,4 +188,4 @@ void ezParticleEffectController::Invalidate()
   }
 }
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectController);
+

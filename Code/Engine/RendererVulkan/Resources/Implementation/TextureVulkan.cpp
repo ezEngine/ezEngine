@@ -143,7 +143,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
   }
 
-  if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
+  if (m_Description.m_bAllowRenderTargetView || m_Description.m_bAllowDynamicMipGeneration)
   {
     if (bIsDepth)
     {
@@ -190,7 +190,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     {
       createInfo.arrayLayers = 1;
       createInfo.imageType = vk::ImageType::e3D;
-      if (m_Description.m_bCreateRenderTarget)
+      if (m_Description.m_bAllowRenderTargetView)
       {
         createInfo.flags |= vk::ImageCreateFlagBits::e2DArrayCompatible;
       }

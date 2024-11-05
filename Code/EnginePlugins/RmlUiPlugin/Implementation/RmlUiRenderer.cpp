@@ -177,3 +177,7 @@ void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContex
   pRenderContext->BindMeshBuffer(ezGALBufferHandle(), m_hQuadIndexBuffer, nullptr, ezGALPrimitiveTopology::Triangles, 2);
   pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
+
+
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiRenderer);
+

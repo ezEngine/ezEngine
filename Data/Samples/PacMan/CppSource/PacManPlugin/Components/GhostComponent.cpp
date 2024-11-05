@@ -167,3 +167,7 @@ void GhostComponent::DeserializeComponent(ezWorldReader& stream)
     // do custom serialization
   }
 }
+
+
+EZ_STATICLINK_FILE(PacManPlugin, PacManPlugin_Components_GhostComponent);
+

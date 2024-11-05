@@ -563,3 +563,7 @@ void ezDetourCrowdAgentComponentManager::ErrorNoPathToTarget(ezDetourCrowdAgentC
   e.m_Type = ezAgentSteeringEvent::ErrorNoPathToTarget;
   pAgent->m_SteeringEvents.Broadcast(e);
 }
+
+
+EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_DetourCrowdAgentComponent);
+

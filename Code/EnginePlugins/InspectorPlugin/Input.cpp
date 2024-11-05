@@ -121,5 +121,3 @@ void RemoveInputEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Input);

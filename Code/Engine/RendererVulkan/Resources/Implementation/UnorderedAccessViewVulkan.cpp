@@ -37,9 +37,8 @@ ezResult ezGALTextureUnorderedAccessViewVulkan::InitPlatform(ezGALDevice* pDevic
   viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
   viewCreateInfo.image = image;
   viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(texDesc, m_Description);
-  viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(texDesc.m_Type);
-  if (texDesc.m_Type == ezGALTextureType::TextureCube || texDesc.m_Type == ezGALTextureType::TextureCubeArray)
-    viewCreateInfo.viewType = vk::ImageViewType::e2DArray; // There is no RWTextureCube / RWTextureCubeArray in HLSL
+  const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : pTexture->GetDescription().m_Type;
+  viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(type);
 
   m_resourceImageInfo.imageLayout = vk::ImageLayout::eGeneral;
 
