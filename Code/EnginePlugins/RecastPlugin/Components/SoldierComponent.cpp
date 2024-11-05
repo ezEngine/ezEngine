@@ -171,4 +171,3 @@ void ezSoldierComponent::SteeringEventHandler(const ezAgentSteeringEvent& e)
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_SoldierComponent);
-

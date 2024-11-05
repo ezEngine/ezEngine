@@ -762,7 +762,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   }
 
   // Create default render target view
-  //if (desc.m_bAllowRenderTargetView)
+  // if (desc.m_bAllowRenderTargetView)
   {
     ezGALRenderTargetViewCreationDescription rtDesc;
     rtDesc.m_hTexture = hProxyTexture;
@@ -1106,7 +1106,7 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
     return ezGALRenderTargetViewHandle();
   }
 
-  // Hash 
+  // Hash
   /// \todo Platform independent validation
 
   // Hash desc and return potential existing one

@@ -115,5 +115,3 @@ ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, e
   }
   return EZ_FAILURE;
 }
-
-

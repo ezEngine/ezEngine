@@ -46,12 +46,12 @@ ezResult ezGALTextureResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 
   m_range = viewCreateInfo.subresourceRange;
 
-const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
+  const ezEnum<ezGALTextureType> type = m_Description.m_OverrideViewType != ezGALTextureType::Invalid ? m_Description.m_OverrideViewType : texDesc.m_Type;
   switch (type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DShared:
-    case ezGALTextureType::Texture2DProxy: 
+    case ezGALTextureType::Texture2DProxy:
       viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(ezGALTextureType::Texture2D);
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &m_resourceImageInfo.imageView));
       break;

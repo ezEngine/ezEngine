@@ -934,4 +934,3 @@ void ezStandardInputDevice::OnFocusLost(ezMinWindows::HWND hWnd)
 
 
 EZ_STATICLINK_FILE(Core, Core_Platform_Win_InputDevice_Win);
-

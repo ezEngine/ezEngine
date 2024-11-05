@@ -542,4 +542,3 @@ bool ezProcVertexColorComponent::HasValidOutputs() const
 
 
 EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVertexColorComponent);
-

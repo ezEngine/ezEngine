@@ -397,4 +397,3 @@ void ezRmlUiCanvas2DComponent::UpdateAutobinding()
 
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas2DComponent);
-

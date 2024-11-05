@@ -152,4 +152,3 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Resources_RmlUiResource);
-

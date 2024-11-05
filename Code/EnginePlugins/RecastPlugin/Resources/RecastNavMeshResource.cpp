@@ -228,4 +228,3 @@ ezResourceLoadDesc ezRecastNavMeshResource::CreateResource(ezRecastNavMeshResour
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Resources_RecastNavMeshResource);
-
