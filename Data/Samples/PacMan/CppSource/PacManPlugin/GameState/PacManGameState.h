@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Input/Declarations.h>
+#include <Core/Input/VirtualThumbStick.h>
 #include <Core/World/Declarations.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameState.h>
@@ -38,4 +39,8 @@ private:
 
   // How many coins we have in the scene, in total.
   ezUInt32 m_uiNumCoinsTotal = 0;
+  bool m_bTouchInput = false;
+
+  ezUniquePtr<ezVirtualThumbStick> m_pLeftStick;
+  ezUniquePtr<ezVirtualThumbStick> m_pRightStick;
 };

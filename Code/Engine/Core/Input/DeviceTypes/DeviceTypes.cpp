@@ -2,6 +2,7 @@
 
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Foundation/Time/Clock.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator)
@@ -177,7 +178,7 @@ void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
   const char* slots[3] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
   const char* dlbSlots[3] = {ezInputSlot_MouseDblClick0, ezInputSlot_MouseDblClick1, ezInputSlot_MouseDblClick2};
 
-  const ezTime tNow = ezTime::Now();
+  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   for (int i = 0; i < 3; ++i)
   {

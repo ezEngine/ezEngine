@@ -10,3 +10,4 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiMessages);
+

@@ -133,3 +133,4 @@ void ezRcMarkPoiVisibleComponent::OnSimulationStarted()
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_MarkPoiVisibleComponent);
+

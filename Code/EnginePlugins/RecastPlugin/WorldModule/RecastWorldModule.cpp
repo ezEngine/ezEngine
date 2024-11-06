@@ -83,3 +83,4 @@ void ezRecastWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_WorldModule_RecastWorldModule);
+

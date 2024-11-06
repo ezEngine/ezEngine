@@ -187,3 +187,5 @@ void ezParticleEffectController::Invalidate()
     m_hEffect.Invalidate();
   }
 }
+
+

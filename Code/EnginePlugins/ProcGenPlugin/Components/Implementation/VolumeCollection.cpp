@@ -296,3 +296,4 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_VolumeCollection);
+

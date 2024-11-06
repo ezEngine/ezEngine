@@ -7,6 +7,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
+#  include <Foundation/Time/Clock.h>
 #  include <Xinput.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, 1, ezRTTINoAllocator)
@@ -126,7 +127,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   // even on not connected controllers
   static ezTime tLastControllerSearch;
   static ezInt32 iControllerSearch = 0;
-  const ezTime tNow = ezTime::Now();
+  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
   const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::MakeFromSeconds(0.5);
 
   if (bSearchControllers)

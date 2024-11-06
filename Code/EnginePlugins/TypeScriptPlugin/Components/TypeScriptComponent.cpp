@@ -412,3 +412,4 @@ bool ezTypeScriptComponent::GetParameter(const char* szKey, ezVariant& out_value
 
 
 EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Components_TypeScriptComponent);
+

@@ -1,6 +1,7 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Input/VirtualThumbStick.h>
+#include <Foundation/Time/Clock.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator)
@@ -22,10 +23,6 @@ ezVirtualThumbStick::ezVirtualThumbStick()
   m_sName = s;
 
   ++s_iThumbsticks;
-
-  m_bEnabled = false;
-  m_bConfigChanged = false;
-  m_bIsActive = false;
 }
 
 ezVirtualThumbStick::~ezVirtualThumbStick()
@@ -172,8 +169,7 @@ void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea onEn
   m_ActionConfig.m_OnLeaveArea = onLeave;
 }
 
-void ezVirtualThumbStick::SetInputArea(
-  const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
+void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
 {
   m_bConfigChanged = true;
 
@@ -184,7 +180,17 @@ void ezVirtualThumbStick::SetInputArea(
   m_CenterMode = center;
 }
 
-void ezVirtualThumbStick::GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight)
+void ezVirtualThumbStick::SetFlags(ezBitflags<Flags> flags)
+{
+  m_Flags = flags;
+}
+
+void ezVirtualThumbStick::SetInputCoordinateAspectRatio(float fWidthDivHeight)
+{
+  m_fAspectRatio = fWidthDivHeight;
+}
+
+void ezVirtualThumbStick::GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight) const
 {
   out_vLowerLeft = m_vLowerLeft;
   out_vUpperRight = m_vUpperRight;
@@ -231,10 +237,17 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   {
     m_bIsActive = true;
 
-    ezVec2 vTouchPos(0.0f);
+    if (m_CenterMode == CenterMode::Swipe)
+    {
+      const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
 
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[(ezUInt32)iTriggerAlt].GetData(), &vTouchPos.x);
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[(ezUInt32)iTriggerAlt].GetData(), &vTouchPos.y);
+      m_vCenter = ezMath::Lerp(m_vCenter, m_vTouchPos, ezMath::Min(1.0f, tDiff.AsFloatInSeconds() * 4.0f));
+    }
+
+    m_vTouchPos.Set(0.0f);
+
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[(ezUInt32)iTriggerAlt].GetData(), &m_vTouchPos.x);
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[(ezUInt32)iTriggerAlt].GetData(), &m_vTouchPos.y);
 
     if (ks == ezKeyState::Pressed)
     {
@@ -244,21 +257,64 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
           m_vCenter = m_vLowerLeft + (m_vUpperRight - m_vLowerLeft) * 0.5f;
           break;
         case CenterMode::ActivationPoint:
-          m_vCenter = vTouchPos;
+        case CenterMode::Swipe:
+          m_vCenter = m_vTouchPos;
           break;
       }
     }
 
-    ezVec2 vDir = vTouchPos - m_vCenter;
-    vDir.y *= -1;
+    m_vInputDirection = m_vTouchPos - m_vCenter;
 
-    const float fLength = ezMath::Min(vDir.GetLength(), m_fRadius) / m_fRadius;
-    vDir.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+    m_vInputDirection.y /= m_fAspectRatio;
 
-    m_InputSlotValues[m_sOutputLeft] = ezMath::Max(0.0f, -vDir.x) * fLength;
-    m_InputSlotValues[m_sOutputRight] = ezMath::Max(0.0f, vDir.x) * fLength;
-    m_InputSlotValues[m_sOutputUp] = ezMath::Max(0.0f, vDir.y) * fLength;
-    m_InputSlotValues[m_sOutputDown] = ezMath::Max(0.0f, -vDir.y) * fLength;
+    m_fInputStrength = ezMath::Min(m_vInputDirection.GetLength(), m_fRadius) / m_fRadius;
+    m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+
+    const float fThreshold = 0.1f;
+
+    float& l = m_InputSlotValues[m_sOutputLeft];
+    float& r = m_InputSlotValues[m_sOutputRight];
+    float& u = m_InputSlotValues[m_sOutputUp];
+    float& d = m_InputSlotValues[m_sOutputDown];
+
+    if (m_Flags.IsSet(Flags::OnlyMaxAxis))
+    {
+      const float maxVal = ezMath::Max(m_vInputDirection.x, -m_vInputDirection.x, m_vInputDirection.y, -m_vInputDirection.y);
+
+      // only activate the output axis that has the strongest (absolute) value
+      if (m_vInputDirection.x == maxVal)
+      {
+        r = maxVal * m_fInputStrength;
+      }
+      else if (-m_vInputDirection.x == maxVal)
+      {
+        l = maxVal * m_fInputStrength;
+      }
+      else if (m_vInputDirection.y == maxVal)
+      {
+        d = maxVal * m_fInputStrength;
+      }
+      else if (-m_vInputDirection.y == maxVal)
+      {
+        u = maxVal * m_fInputStrength;
+      }
+    }
+    else
+    {
+      l = ezMath::Max(0.0f, -m_vInputDirection.x) * m_fInputStrength;
+      r = ezMath::Max(0.0f, m_vInputDirection.x) * m_fInputStrength;
+      u = ezMath::Max(0.0f, -m_vInputDirection.y) * m_fInputStrength;
+      d = ezMath::Max(0.0f, m_vInputDirection.y) * m_fInputStrength;
+    }
+
+    if (l < fThreshold)
+      l = 0.0f;
+    if (r < fThreshold)
+      r = 0.0f;
+    if (u < fThreshold)
+      u = 0.0f;
+    if (d < fThreshold)
+      d = 0.0f;
   }
 }
 
@@ -274,6 +330,5 @@ void ezVirtualThumbStick::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegY, "Right Stick Down", ezInputSlotFlags::IsAnalogStick);
   RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosY, "Right Stick Up", ezInputSlotFlags::IsAnalogStick);
 }
-
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);

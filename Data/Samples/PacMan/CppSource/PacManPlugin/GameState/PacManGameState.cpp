@@ -6,6 +6,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Logging/Log.h>
+#include <GameEngine/Input/InputDebugVis.h>
 #include <PacManPlugin/GameState/PacManGameState.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -30,7 +31,26 @@ void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition,
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ResetState();
+
+  {
+    m_pLeftStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
+    m_pLeftStick->SetInputArea(ezVec2(0, 0), ezVec2(0.3f, 1), 0.07f, 1.0f, ezVirtualThumbStick::CenterMode::Swipe);
+    m_pLeftStick->SetFlags(ezVirtualThumbStick::Flags::OnlyMaxAxis);
+    m_pLeftStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
+    m_pLeftStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
+    m_pLeftStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::ActivateImmediately, ezInputActionConfig::OnLeaveArea::KeepFocus);
+    m_pLeftStick->SetEnabled(false);
+  }
+  {
+    m_pRightStick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
+    m_pRightStick->SetInputArea(ezVec2(0.8f, 0), ezVec2(1.0f, 0.2f), 0.05f, 0.0f, ezVirtualThumbStick::CenterMode::InputArea);
+    m_pRightStick->SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
+    m_pRightStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
+    m_pRightStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::RequireKeyUp, ezInputActionConfig::OnLeaveArea::LoseFocus);
+    m_pRightStick->SetEnabled(false);
+  }
 }
+
 
 void PacManGameState::OnDeactivation()
 {
@@ -88,12 +108,54 @@ void PacManGameState::AfterWorldUpdate()
 
   if (iPacManState == PacManState::EatenByGhost)
   {
-    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOSE!\n\nPress SPACE to play again.", ezColor::Red);
+    if (m_bTouchInput)
+    {
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+    }
+    else
+    {
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nPress SPACE to play again.", ezColor::Red);
+    }
   }
 
   if (iPacManState == PacManState::WonGame)
   {
-    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nPress SPACE to play again.", ezColor::LightPink);
+    if (m_bTouchInput)
+    {
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+    }
+    else
+    {
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+    }
+  }
+
+  {
+    if (ezInputManager::GetInputSlotState(ezInputManager::GetInputSlotTouchPoint(0)) == ezKeyState::Down)
+    {
+      m_bTouchInput = true;
+      m_pLeftStick->SetEnabled(true);
+      m_pRightStick->SetEnabled(true);
+    }
+
+    if (m_bTouchInput)
+    {
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopLeft, "Manual", "Swipe left screen area to steer.");
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopRight, "Manual", "Swipe top-right screen to reset.");
+    }
+
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hMainView, pView))
+    {
+      const ezRectFloat viewport = pView->GetViewport();
+      const ezVec2 resolution = viewport.GetExtents();
+
+      m_pLeftStick->SetInputCoordinateAspectRatio(resolution.x / resolution.y);
+      m_pRightStick->SetInputCoordinateAspectRatio(resolution.x / resolution.y);
+
+      ezInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pLeftStick);
+      ezInputDebugVis::DebugRender(m_pMainWorld, resolution, *m_pRightStick);
+    }
   }
 }
 
@@ -143,7 +205,7 @@ void PacManGameState::ConfigureInputActions()
   SUPER::ConfigureInputActions();
 
   // we want to be able to reset the game to the start state, using the spacebar
-  RegisterInputAction("Game", "Reset", ezInputSlot_KeySpace, ezInputSlot_Controller0_ButtonStart);
+  RegisterInputAction("Game", "Reset", ezInputSlot_KeySpace, ezInputSlot_Controller0_ButtonStart, ezInputSlot_Controller0_RightStick_PosX);
 }
 
 void PacManGameState::ProcessInput()

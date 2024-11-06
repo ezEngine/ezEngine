@@ -39,3 +39,4 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Startup);
+

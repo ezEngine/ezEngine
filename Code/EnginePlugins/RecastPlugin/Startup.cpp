@@ -33,3 +33,4 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Startup);
+

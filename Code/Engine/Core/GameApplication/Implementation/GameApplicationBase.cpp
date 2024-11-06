@@ -561,7 +561,7 @@ void ezGameApplicationBase::Run_FinishFrame()
 void ezGameApplicationBase::UpdateFrameTime()
 {
   // Do not use ezClock for this, it smooths and clamps the timestep
-  const ezTime tNow = ezTime::Now();
+  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   static ezTime tLast = tNow;
   m_FrameTime = tNow - tLast;

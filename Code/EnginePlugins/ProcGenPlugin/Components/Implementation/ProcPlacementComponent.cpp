@@ -812,3 +812,4 @@ ezResult ezProcGenBoxExtents::Deserialize(ezStreamReader& inout_stream)
 
 
 EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcPlacementComponent);
+

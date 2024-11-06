@@ -138,3 +138,5 @@ ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) 
 
   return EZ_FAILURE;
 }
+
+

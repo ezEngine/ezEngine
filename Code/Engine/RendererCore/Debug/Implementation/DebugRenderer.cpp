@@ -1006,6 +1006,25 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
+void ezDebugRenderer::Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
+{
+  Line lines[4];
+
+  lines[0].m_start = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+  lines[0].m_end = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
+
+  lines[1].m_start = lines[0].m_end;
+  lines[1].m_end = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
+
+  lines[2].m_start = lines[1].m_end;
+  lines[2].m_end = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
+
+  lines[3].m_start = lines[2].m_end;
+  lines[3].m_end = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+
+  Draw2DLines(context, lines, color);
+}
+
 ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Left*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Top*/)
 {
   return AddTextLines(context, text, vPositionInPixel, uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
@@ -1405,7 +1424,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
     EZ_LOCK(s_Mutex);
 
     auto& data = s_PersistentPerContextData[context];
-    data.m_Now = ezTime::Now();
+    data.m_Now = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
     // persistent crosses
     {
@@ -1712,7 +1731,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
     EZ_LOCK(s_Mutex);
 
     auto& data = s_PersistentPerContextData[context];
-    data.m_Now = ezTime::Now();
+    data.m_Now = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
     // persistent info text
     {

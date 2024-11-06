@@ -160,6 +160,9 @@ public:
   /// \brief Renders a textured 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureResourceViewHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
 
+  /// \brief Renders a wireframe 2D rectangle in screen-space for one frame.
+  static void Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
+
   /// \brief Displays a string in screen-space for one frame.
   ///
   /// The string may contain newlines (\n) for multi-line output.

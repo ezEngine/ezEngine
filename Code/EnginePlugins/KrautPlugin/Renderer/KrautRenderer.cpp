@@ -158,3 +158,4 @@ void ezKrautRenderer::TempTreeCB::SetTreeData(const ezVec3& vTreeCenter, float f
 
 
 EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Renderer_KrautRenderer);
+

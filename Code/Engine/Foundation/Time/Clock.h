@@ -74,6 +74,9 @@ public:
   /// it will most likely have no relation to the real time that has passed.
   ezTime GetAccumulatedTime() const; // [tested]
 
+  /// \brief Returns the time at which the clock was update.
+  ezTime GetLastUpdateTime() const { return m_LastTimeUpdate; }
+
   /// \brief Returns the time difference between the last two calls to Update().
   ///
   /// This is the main function to use to query how much to advance some simulation.

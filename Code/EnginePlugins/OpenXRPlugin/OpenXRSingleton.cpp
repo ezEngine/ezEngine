@@ -1101,3 +1101,5 @@ ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
       return galFormat;
   }
 }
+
+

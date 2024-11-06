@@ -55,29 +55,69 @@ public:
   {
     enum Enum
     {
-      InputArea,      ///< The center of the thumb-stick is always at the center of the input area.
-      ActivationPoint ///< The center of the thumb-stick is always where the user activates the thumb-stick (first touch-point)
+      InputArea,       ///< The center of the thumb-stick is always at the center of the input area.
+      ActivationPoint, ///< The center of the thumb-stick is always where the user activates the thumb-stick (first touch-point)
+      Swipe,           ///< The center follows the touch-point with a short time delay, thus a swipe at any position is a temporary direction input.
+    };
+  };
+
+  struct Flags
+  {
+    using StorageType = ezUInt16;
+
+    enum Enum
+    {
+      None = 0,
+      OnlyMaxAxis = EZ_BIT(0), ///< If set, only the output axis that has the strongest value will be set. Thus the stick acts more like a DPAD with 4 distinct directions where only one will be active at any one time.
+
+      Default = None,
+    };
+
+    struct Bits
+    {
+      StorageType OnlyMaxAxis : 1;
     };
   };
 
   /// \brief Defines the area on screen where the thumb-stick is located and accepts input.
   ///
   /// \param vLowerLeft
-  ///   The lower left corner of the input area. Coordinates are in [0; 1] range.
+  ///   The lower left corner of the input area. Coordinates are in [0; 1] range (normalized screen coordinates).
   ///
   /// \param vUpperRight
-  ///   The upper right corner of the input area. Coordinates are in [0; 1] range.
+  ///   The upper right corner of the input area. Coordinates are in [0; 1] range (normalized screen coordinates).
+  ///
+  /// \param fThumbstickRadius
+  ///   The distance to move the touch point to create a maximum input value (1.0).
+  ///   With a larger radius, users have to move the finger farther for full input strength.
+  ///   Note that the radius is also in [0; 1] range (normalized screen coordinates).
   ///
   /// \param fPriority
   ///   The priority of the input area. Defines which thumb-stick or other input action gets priority, if they overlap.
   ///
   /// \param center
   ///   \sa CenterMode.
-  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority,
-    CenterMode::Enum center = CenterMode::ActivationPoint);
+  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center = CenterMode::ActivationPoint);
+
+  /// \brief See the Flags struct for details.
+  void SetFlags(ezBitflags<Flags> flags);
+
+  /// \brief See the Flags struct for details.
+  ezBitflags<Flags> GetFlags() const { return m_Flags; }
+
+  /// \brief Sets the aspect ratio of the screen on which the input happens.
+  ///
+  /// Mouse and touch input coordinates are in normalized [0; 1] coordinate space.
+  /// To calculate correct input values, the aspect ratio of the screen is needed (width divided by height).
+  /// Call this when the screen resolution is known. Without the correct aspect ratio, moving the finger left/right a given distance
+  /// won't have the same influence as moving it up/down the same distance.
+  void SetInputCoordinateAspectRatio(float fWidthDivHeight);
+
+  /// \brief Returns the screen aspect ratio that was set. See SetInputCoordinateAspectRatio().
+  float GetInputCoordinateAspectRatio() const { return m_fAspectRatio; }
 
   /// \brief Returns the input area of the virtual thumb-stick.
-  void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight);
+  void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight) const;
 
   /// \brief Specifies from which input slots the thumb-stick is activated.
   ///
@@ -103,12 +143,27 @@ public:
   /// \brief Returns whether the thumb-stick is currently active (ie. triggered) and generates output.
   bool IsActive() const { return m_bIsActive; }
 
+  /// \brief Returns the (normalized screen) coordinate where the current input center is. Depends on CenterMode.
+  ezVec2 GetCurrentCenter() const { return m_vCenter; }
+
+  /// \brief See SetInputArea() for details.
+  float GetThumbstickRadius() const { return m_fRadius; }
+
+  /// \brief Returns the (normalized screen) coordinate where the current touch point is.
+  ezVec2 GetCurrentTouchPos() const { return m_vTouchPos; }
+
+  /// \brief Returns the total strength of input.
+  float GetInputStrength() const { return m_fInputStrength; }
+
+  /// \brief Returns the normalized direction of the input.
+  ezVec2 GetInputDirection() const { return m_vInputDirection; }
+
 protected:
   void UpdateActionMapping();
 
-  ezVec2 m_vLowerLeft;
-  ezVec2 m_vUpperRight;
-  float m_fRadius;
+  ezVec2 m_vLowerLeft = ezVec2::MakeZero();
+  ezVec2 m_vUpperRight = ezVec2::MakeZero();
+  float m_fRadius = 0.0f;
 
   ezInputActionConfig m_ActionConfig;
   ezStringView m_sOutputLeft;
@@ -116,11 +171,16 @@ protected:
   ezStringView m_sOutputUp;
   ezStringView m_sOutputDown;
 
-  bool m_bEnabled;
-  bool m_bConfigChanged;
-  bool m_bIsActive;
+  ezBitflags<Flags> m_Flags;
+  bool m_bEnabled = false;
+  bool m_bConfigChanged = false;
+  bool m_bIsActive = false;
   ezString m_sName;
-  ezVec2 m_vCenter;
+  ezVec2 m_vCenter = ezVec2::MakeZero();
+  ezVec2 m_vTouchPos = ezVec2::MakeZero();
+  ezVec2 m_vInputDirection = ezVec2::MakeZero();
+  float m_fInputStrength = 0.0f;
+  float m_fAspectRatio = 1.0f;
   CenterMode::Enum m_CenterMode;
 
   static ezInt32 s_iThumbsticks;

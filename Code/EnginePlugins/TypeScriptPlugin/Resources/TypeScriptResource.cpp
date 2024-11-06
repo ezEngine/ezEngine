@@ -229,3 +229,4 @@ ezUniquePtr<ezScriptInstance> ezTypeScriptClassResource::Instantiate(ezReflected
 
 
 EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Resources_TypeScriptResource);
+

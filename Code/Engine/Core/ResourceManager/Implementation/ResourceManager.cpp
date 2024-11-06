@@ -1,4 +1,5 @@
 #include <Core/CorePCH.h>
+#include <Foundation/Time/Clock.h>
 
 #include <Core/ResourceManager/Implementation/ResourceManagerState.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -443,7 +444,7 @@ void ezResourceManager::PerFrameUpdate()
 {
   EZ_PROFILE_SCOPE("ezResourceManagerUpdate");
 
-  s_pState->m_LastFrameUpdate = ezTime::Now();
+  s_pState->m_LastFrameUpdate = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   if (s_pState->m_bBroadcastExistsEvent)
   {

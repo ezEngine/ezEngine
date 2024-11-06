@@ -380,3 +380,4 @@ ezWindowHandle ezWindowGLFW::GetNativeWindowHandle() const
 
 
 EZ_STATICLINK_FILE(Core, Core_Platform_GLFW_Window_GLFW);
+
