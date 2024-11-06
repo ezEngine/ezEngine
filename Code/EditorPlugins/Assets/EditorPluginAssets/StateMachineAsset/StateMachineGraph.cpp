@@ -54,7 +54,13 @@ ezStateMachineNodeManager::~ezStateMachineNodeManager()
 
 bool ezStateMachineNodeManager::IsInitialState(const ezDocumentObject* pObject) const
 {
-  return pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == true;
+  ezVariant val = pObject->GetTypeAccessor().GetValue(s_szIsInitialState);
+  if (val.IsValid())
+  {
+    return val.Get<bool>() == true;
+  }
+
+  return false;
 }
 
 const ezDocumentObject* ezStateMachineNodeManager::GetInitialState() const

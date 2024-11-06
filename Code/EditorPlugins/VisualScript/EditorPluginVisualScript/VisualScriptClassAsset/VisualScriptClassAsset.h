@@ -16,7 +16,7 @@ public:
 
 class ezVisualScriptClassAssetDocument : public ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassAssetDocument, ezAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassAssetDocument, ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>);
 
 public:
   ezVisualScriptClassAssetDocument(ezStringView sDocumentPath);

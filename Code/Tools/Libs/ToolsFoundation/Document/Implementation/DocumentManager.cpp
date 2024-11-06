@@ -302,8 +302,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 #endif
 }
 
-ezStatus ezDocumentManager::CreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+ezStatus ezDocumentManager::CreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   return CreateOrOpenDocument(true, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }

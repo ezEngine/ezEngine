@@ -1239,7 +1239,7 @@ void ezQtAssetBrowserWidget::NewAsset()
   ezString sExtension = pSender->property("Extension").toString().toUtf8().data();
   bool useSelection = pSender->property("UseSelection").toBool();
 
-  QString sStartDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
+  QString sStartDir;
 
   // find path
   {
@@ -1264,7 +1264,12 @@ void ezQtAssetBrowserWidget::NewAsset()
     }
   }
 
-  //
+  if (sStartDir.isEmpty())
+  {
+    // this happens when the root node is selected
+    sStartDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
+  }
+
   ezStringBuilder sNewAsset = qtToEzString(sStartDir);
   ezStringBuilder sBaseFileName;
   ezPathUtils::MakeValidFilename(sTranslateAssetType, ' ', sBaseFileName);
