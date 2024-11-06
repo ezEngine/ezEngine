@@ -578,4 +578,3 @@ void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 
 
 EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Components_KrautTreeComponent);
-

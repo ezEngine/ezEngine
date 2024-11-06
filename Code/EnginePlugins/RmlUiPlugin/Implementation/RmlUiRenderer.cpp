@@ -180,4 +180,3 @@ void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContex
 
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiRenderer);
-

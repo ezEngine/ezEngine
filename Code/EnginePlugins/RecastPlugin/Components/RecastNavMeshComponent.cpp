@@ -299,4 +299,3 @@ void ezRcNavMeshComponentManager::Update(const ezWorldModule::UpdateContext& con
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_RecastNavMeshComponent);
-

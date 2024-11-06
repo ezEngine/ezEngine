@@ -175,5 +175,3 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
     }
   }
 }
-
-

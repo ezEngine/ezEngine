@@ -244,4 +244,3 @@ void ezDetourCrowdWorldModule::VisualizeCrowd(const UpdateContext& ctx)
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_WorldModule_DetourCrowdWorldModule);
-

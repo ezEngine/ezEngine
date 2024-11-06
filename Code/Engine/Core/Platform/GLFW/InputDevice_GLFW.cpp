@@ -523,4 +523,3 @@ void ezStandardInputDevice::OnScroll(double xoffset, double yoffset)
 
 
 EZ_STATICLINK_FILE(Core, Core_Platform_GLFW_InputDevice_GLFW);
-

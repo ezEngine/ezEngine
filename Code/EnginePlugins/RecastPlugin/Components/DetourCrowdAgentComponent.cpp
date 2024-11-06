@@ -566,4 +566,3 @@ void ezDetourCrowdAgentComponentManager::ErrorNoPathToTarget(ezDetourCrowdAgentC
 
 
 EZ_STATICLINK_FILE(RecastPlugin, RecastPlugin_Components_DetourCrowdAgentComponent);
-

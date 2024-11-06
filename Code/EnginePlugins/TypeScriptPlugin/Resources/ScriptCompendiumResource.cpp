@@ -111,4 +111,3 @@ ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Deserialize(ezStream
 
 
 EZ_STATICLINK_FILE(TypeScriptPlugin, TypeScriptPlugin_Resources_ScriptCompendiumResource);
-
