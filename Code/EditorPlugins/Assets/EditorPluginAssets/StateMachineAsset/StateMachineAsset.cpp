@@ -56,7 +56,19 @@ bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   out_MimeType = "application/ezEditor.StateMachineGraph";
 
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->CopySelectedObjects(out_objectGraph);
+  if (!pManager->CopySelectedObjects(out_objectGraph))
+    return false;
+
+  // prevent that we get a second node with "IsInitialState" set to true
+  for (auto itNode : out_objectGraph.GetAllNodes())
+  {
+    if (auto pInit = itNode.Value()->FindProperty("IsInitialState"))
+    {
+      pInit->m_Value = false;
+    }
+  }
+
+  return true;
 }
 
 bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
