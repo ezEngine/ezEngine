@@ -76,7 +76,7 @@ void ezInstanceData::CreateBuffer(ezUInt32 uiSize, bool bTransient)
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerInstanceData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource ;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
   if (bTransient)
     desc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;

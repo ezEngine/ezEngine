@@ -1,7 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
-#include <RendererFoundation/Resources/BufferPool.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 ezAtomicInteger32 ezGALBufferPool::s_Number = 0;
 

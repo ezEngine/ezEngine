@@ -146,7 +146,7 @@ void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEve
     if (pComp->m_pExplicitInstanceData)
     {
       ezUInt32 uiOffset = 0;
-      auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(pRenderContext,componentToUpdate.m_InstanceData.GetCount(), uiOffset);
+      auto instanceData = pComp->m_pExplicitInstanceData->GetInstanceData(pRenderContext, componentToUpdate.m_InstanceData.GetCount(), uiOffset);
       instanceData.CopyFrom(componentToUpdate.m_InstanceData);
 
       pComp->m_pExplicitInstanceData->UpdateInstanceData(pRenderContext, instanceData.GetCount());

@@ -21,7 +21,7 @@ public:
   void Deinitialize();
 
   /// \brief Returns whether the buffer pool is initialized.
-  bool IsInitialized() const { return m_EventSubscriptionID != 0;}
+  bool IsInitialized() const { return m_EventSubscriptionID != 0; }
 
   /// \brief Adds a new buffer to the pool and makes it the current buffer. For transient pools this needs to be called at the start of every frame before use.
   /// \return Handle to the new buffer.

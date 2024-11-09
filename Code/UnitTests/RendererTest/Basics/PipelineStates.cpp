@@ -662,7 +662,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
       m_pEncoder->UpdateBuffer(m_hInstancingData, sizeof(ezTestShaderData) * 8, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
     }
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
-   
+
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindShader(m_hInstancingShader);

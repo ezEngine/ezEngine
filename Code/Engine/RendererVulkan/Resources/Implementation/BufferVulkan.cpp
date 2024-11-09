@@ -2,9 +2,9 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
-#include <RendererVulkan/Device/InitContext.h>
 
 ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description)
