@@ -36,7 +36,7 @@ private:
   void GALStaticDeviceEventHandler(const ezGALDeviceEvent& e);
 
 private:
-  static ezAtomicInteger32 s_Number;
+  static ezAtomicInteger32 s_iNumber;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGALBufferPool);

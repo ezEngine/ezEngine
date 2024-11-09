@@ -4,7 +4,7 @@
 #include <RendererFoundation/Resources/BufferPool.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
-ezAtomicInteger32 ezGALBufferPool::s_Number = 0;
+ezAtomicInteger32 ezGALBufferPool::s_iNumber = 0;
 
 ezGALBufferPool::~ezGALBufferPool()
 {
@@ -13,7 +13,7 @@ ezGALBufferPool::~ezGALBufferPool()
 
 void ezGALBufferPool::Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName)
 {
-  m_iUniqueID = s_Number.Increment();
+  m_iUniqueID = s_iNumber.Increment();
   EZ_ASSERT_DEBUG(m_EventSubscriptionID == 0, "ezGALBufferPool already initialized");
   m_EventSubscriptionID = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALBufferPool::GALStaticDeviceEventHandler, this));
   m_Desc = desc;
