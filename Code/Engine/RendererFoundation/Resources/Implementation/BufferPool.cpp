@@ -2,6 +2,7 @@
 
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/BufferPool.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 ezAtomicInteger32 ezGALBufferPool::s_Number = 0;
 

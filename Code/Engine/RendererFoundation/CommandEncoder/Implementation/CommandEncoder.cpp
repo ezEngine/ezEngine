@@ -82,6 +82,8 @@ void ezGALCommandEncoder::SetResourceView(const ezShaderResourceBinding& binding
       case ezGALTextureType::TextureCubeArray:
         EZ_ASSERT_DEBUG((binding.m_TextureType == ezGALShaderTextureType::TextureCubeArray && !bMSAA), "Mismatch between shader resource and bound view.");
         break;
+      default:
+        break;
     }
   }
 #endif
@@ -284,6 +286,7 @@ void ezGALCommandEncoder::CopyBufferRegion(
 
 void ezGALCommandEncoder::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
 {
+  EZ_IGNORE_UNUSED(e);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (e.m_Type == ezGALDeviceEvent::BeforeBeginFrame)
     m_BufferUpdates.Clear();
