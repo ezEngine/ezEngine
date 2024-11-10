@@ -62,7 +62,7 @@ ezGALBufferHandle ezGALBufferPool::GetNewBuffer() const
     sTmp.SetFormat("{}-{}#{}", m_sDebugName, m_iUniqueID, m_UsedBuffers.GetCount() + m_FreeBuffers.GetCount());
     pDevice->GetBuffer(buffer)->SetDebugName(sTmp);
   }
-  EZ_ASSERT_DEV(!buffer.IsInvalidated(), "Failed to creat pool buffer");
+  EZ_ASSERT_DEV(!buffer.IsInvalidated(), "Failed to create pool buffer");
   m_UsedBuffers.PushBack(buffer);
   return buffer;
 }
