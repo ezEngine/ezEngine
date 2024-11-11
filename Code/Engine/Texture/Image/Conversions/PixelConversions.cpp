@@ -1585,7 +1585,7 @@ ADD_16BPP_CONVERSION(B5G5R5A1);
 ADD_16BPP_CONVERSION(X1B5G5R5);
 ADD_16BPP_CONVERSION(A1B5G5R5);
 
-// EZ_STATICLINK_FORCE
+EZ_STATICLINK_FORCE
 static ezImageSwizzleConversion32_2103 s_conversion_swizzle2103;
 static ezImageConversion_BGRX_BGRA s_conversion_BGRX_BGRA;
 static ezImageConversion_F32_U8 s_conversion_F32_U8;

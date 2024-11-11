@@ -76,8 +76,7 @@ public:
   }
 };
 
-// EZ_STATICLINK_FORCE
-static ezImageConversion_CompressBC7Enc s_conversion_compressBC7Enc;
+EZ_STATICLINK_FORCE static ezImageConversion_CompressBC7Enc s_conversion_compressBC7Enc;
 
 #endif
 

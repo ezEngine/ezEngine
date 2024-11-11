@@ -387,8 +387,7 @@ public:
   }
 };
 
-// EZ_STATICLINK_FORCE
-static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
+EZ_STATICLINK_FORCE static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
 
 #endif
 

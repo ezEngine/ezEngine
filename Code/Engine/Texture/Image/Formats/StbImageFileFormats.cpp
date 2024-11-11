@@ -10,8 +10,7 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-// EZ_STATICLINK_FORCE
-ezImageFileFormatRegistrator<ezStbImageFileFormats> g_StbImageFormats;
+EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezStbImageFileFormats> g_StbImageFormats;
 
 // stb_image callbacks would be better than loading the entire file into memory.
 // However, it turned out that it does not map well to ezStreamReader

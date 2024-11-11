@@ -6,8 +6,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/ImageConversion.h>
 
-// EZ_STATICLINK_FORCE
-ezImageFileFormatRegistrator<ezTgaFileFormat> g_TgaFormat;
+EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezTgaFileFormat> g_TgaFormat;
 
 struct TgaImageDescriptor
 {

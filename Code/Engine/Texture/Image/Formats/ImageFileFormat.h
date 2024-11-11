@@ -61,6 +61,13 @@ public:
 };
 
 /// \brief Template used to automatically register an ezImageFileFormat globally.
+///
+/// Place a global variable of the desired type in some CPP file to register the type:
+///
+///   ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
+///
+/// For the format to be available on platforms that use static linking, you may also need to add
+///   EZ_STATICLINK_FORCE
 template <class TYPE>
 class ezImageFileFormatRegistrator : public ezRegisteredImageFileFormat
 {

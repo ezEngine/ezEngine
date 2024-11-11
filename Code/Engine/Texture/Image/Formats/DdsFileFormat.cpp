@@ -6,8 +6,7 @@
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Image.h>
 
-// EZ_STATICLINK_FORCE
-ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
+EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
 
 struct ezDdsPixelFormat
 {

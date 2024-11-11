@@ -3061,7 +3061,7 @@ static ezImageConversion_CompressBC5 s_conversion_compressBC5;
 
 #endif
 
-// EZ_STATICLINK_FORCE
+EZ_STATICLINK_FORCE
 static ezImageConversion_BC1_RGBA s_conversion_BC1_RGBA;
 static ezImageConversion_BC2_RGBA s_conversion_BC2_RGBA;
 static ezImageConversion_BC3_RGBA s_conversion_BC3_RGBA;
