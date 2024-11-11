@@ -27,7 +27,7 @@ public:
 private:
   virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) override;
 
-  bool m_bControllerConnected[4];
+  bool m_bControllerConnected[MaxControllers];
 
   virtual void InitializeDevice() override {}
   virtual void UpdateInputSlotValues() override;

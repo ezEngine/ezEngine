@@ -110,6 +110,8 @@ void ezJoltQueryShapeActorComponent::OnSimulationStarted()
   bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
+
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
   pModule->QueueBodyToAdd(pBody, true);

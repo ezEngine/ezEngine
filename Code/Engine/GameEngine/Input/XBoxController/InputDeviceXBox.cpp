@@ -87,23 +87,23 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   ezLog::Success("Initialized XBox 360 Controller.");
 }
 
-const char* szControllerName[] = {
-  "controller0_",
-  "controller1_",
-  "controller2_",
-  "controller3_",
+const ezStringView sControllerName[] = {
+  "controller0_"_ezsv,
+  "controller1_"_ezsv,
+  "controller2_"_ezsv,
+  "controller3_"_ezsv,
 
-  "controller4_",
-  "controller5_",
-  "controller6_",
-  "controller7_",
+  "controller4_"_ezsv,
+  "controller5_"_ezsv,
+  "controller6_"_ezsv,
+  "controller7_"_ezsv,
 };
 
-static_assert(EZ_ARRAY_SIZE(szControllerName) >= ezInputDeviceXBox360::MaxControllers);
+static_assert(EZ_ARRAY_SIZE(sControllerName) >= ezInputDeviceController::MaxControllers);
 
 void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, float fValue)
 {
-  ezStringBuilder s = szControllerName[iController];
+  ezStringBuilder s = sControllerName[iController];
   s.Append(szButton);
   float& fVal = m_InputSlotValues[s];
   fVal = ezMath::Max(fVal, fValue);
@@ -160,7 +160,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   for (ezUInt8 uiVirtual = 0; uiVirtual < MaxControllers; ++uiVirtual)
   {
     // check from which physical device to take the input data
-    const ezInt8 iPhysical = GetControllerMapping(uiVirtual);
+    const ezInt8 iPhysical = GetPhysicalControllerMapping(uiVirtual);
 
     // if the mapping is negative (which means 'deactivated'), ignore this controller
     if ((iPhysical < 0) || (iPhysical >= MaxControllers))

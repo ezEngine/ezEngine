@@ -139,7 +139,7 @@ void ezActorManager::DestroyAllActors(const void* pCreatedBy, DestructionMode mo
   }
 }
 
-void ezActorManager::GetAllActors(ezHybridArray<ezActor*, 8>& out_allActors)
+void ezActorManager::GetAllActors(ezDynamicArray<ezActor*>& out_allActors)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 

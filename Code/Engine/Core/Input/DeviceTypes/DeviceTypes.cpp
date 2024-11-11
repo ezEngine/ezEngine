@@ -21,7 +21,8 @@ ezInputDeviceController::ezInputDeviceController()
   for (ezInt8 c = 0; c < MaxControllers; ++c)
   {
     m_bVibrationEnabled[c] = false;
-    m_iControllerMapping[c] = c;
+    m_iVirtualToPhysicalControllerMapping[c] = c;
+    m_iPhysicalToVirtualControllerMapping[c] = c;
 
     for (ezInt8 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
@@ -65,15 +66,13 @@ float ezInputDeviceController::GetVibrationStrength(ezUInt8 uiVirtual, Motor::En
 
 void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical)
 {
-  EZ_ASSERT_DEV(
-    uiVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtualController, MaxControllers);
-  EZ_ASSERT_DEV(
-    iTakeInputFromPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", iTakeInputFromPhysical, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtualController, MaxControllers);
+  EZ_ASSERT_DEV(iTakeInputFromPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", iTakeInputFromPhysical, MaxControllers);
 
   if (iTakeInputFromPhysical < 0)
   {
     // deactivates this virtual controller
-    m_iControllerMapping[uiVirtualController] = -1;
+    m_iVirtualToPhysicalControllerMapping[uiVirtualController] = -1;
   }
   else
   {
@@ -81,26 +80,49 @@ void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, 
     // uiVirtualController is currently mapped to
     for (ezInt32 c = 0; c < MaxControllers; ++c)
     {
-      if (m_iControllerMapping[c] == iTakeInputFromPhysical)
+      if (m_iVirtualToPhysicalControllerMapping[c] == iTakeInputFromPhysical)
       {
-        m_iControllerMapping[c] = m_iControllerMapping[uiVirtualController];
+        m_iVirtualToPhysicalControllerMapping[c] = m_iVirtualToPhysicalControllerMapping[uiVirtualController];
         break;
       }
     }
 
-    m_iControllerMapping[uiVirtualController] = iTakeInputFromPhysical;
+    m_iVirtualToPhysicalControllerMapping[uiVirtualController] = iTakeInputFromPhysical;
+  }
+
+  // rebuild all physical to virtual indices
+  {
+    for (ezUInt32 i = 0; i < MaxControllers; ++i)
+    {
+      m_iPhysicalToVirtualControllerMapping[i] = -1;
+    }
+
+    for (ezUInt8 i = 0; i < MaxControllers; ++i)
+    {
+      const ezInt32 iPhysical = m_iVirtualToPhysicalControllerMapping[i];
+      if (iPhysical >= 0 && iPhysical < MaxControllers)
+      {
+        m_iPhysicalToVirtualControllerMapping[iPhysical] = i;
+      }
+    }
   }
 }
 
-ezInt8 ezInputDeviceController::GetControllerMapping(ezUInt8 uiVirtual) const
+ezInt8 ezInputDeviceController::GetPhysicalControllerMapping(ezUInt8 uiVirtual) const
 {
   EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
 
-  return m_iControllerMapping[uiVirtual];
+  return m_iVirtualToPhysicalControllerMapping[uiVirtual];
 }
 
-void ezInputDeviceController::AddVibrationTrack(
-  ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
+ezInt8 ezInputDeviceController::GetVirtualControllerMapping(ezUInt8 uiPhysical) const
+{
+  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
+
+  return m_iPhysicalToVirtualControllerMapping[uiPhysical];
+}
+
+void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
 {
   uiSamples = ezMath::Min<ezUInt32>(uiSamples, MaxVibrationSamples);
 
@@ -152,7 +174,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
       continue;
 
     // check which physical controller this virtual controller is attached to
-    const ezInt8 iPhysical = GetControllerMapping(c);
+    const ezInt8 iPhysical = GetPhysicalControllerMapping(c);
 
     // if it is attached to any physical controller, store the vibration value
     if (iPhysical >= 0)

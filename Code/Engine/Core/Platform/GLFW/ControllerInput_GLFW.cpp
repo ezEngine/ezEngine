@@ -157,7 +157,7 @@ void ezControllerInputGlfw::UpdateInputSlotValues()
   for (ezUInt8 uiVirtual = 0; uiVirtual < MaxControllers; ++uiVirtual)
   {
     // check from which physical device to take the input data
-    const ezInt8 iPhysical = GetControllerMapping(uiVirtual);
+    const ezInt8 iPhysical = GetPhysicalControllerMapping(uiVirtual);
 
     // if the mapping is negative (which means 'deactivated'), ignore this controller
     if ((iPhysical < 0) || (iPhysical >= MaxControllers))
