@@ -62,7 +62,7 @@ ezResult ezImageView::SaveTo(ezStringView sFileName) const
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
   {
     if (pFormat->WriteImage(writer, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {
@@ -272,7 +272,7 @@ ezResult ezImage::LoadFrom(ezStringView sFileName)
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
     if (pFormat->ReadImage(reader, *this, it.GetStartPointer()) != EZ_SUCCESS)
     {

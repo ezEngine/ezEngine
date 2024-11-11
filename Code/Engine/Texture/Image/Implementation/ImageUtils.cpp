@@ -1862,7 +1862,7 @@ static ezDynamicArray<char> ArrayToBase64(ezArrayPtr<const ezUInt8> in, bool bIn
 
 void ezImageUtils::EmbedImageData(ezStringBuilder& out_sHtml, const ezImage& image)
 {
-  ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
+  const ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
   EZ_ASSERT_DEV(format != nullptr, "No PNG writer found");
 
   ezDynamicArray<ezUInt8> imgData;

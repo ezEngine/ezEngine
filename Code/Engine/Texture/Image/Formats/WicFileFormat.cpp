@@ -19,7 +19,7 @@ using namespace DirectX;
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
 // EZ_STATICLINK_FORCE
-ezWicFileFormat g_wicFormat;
+ezImageFileFormatRegistrator<ezWicFileFormat> g_wicFormat;
 
 namespace
 {

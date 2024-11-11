@@ -7,7 +7,7 @@
 #include <Texture/Image/ImageConversion.h>
 
 // EZ_STATICLINK_FORCE
-ezBmpFileFormat g_bmpFormat;
+ezImageFileFormatRegistrator<ezBmpFileFormat> g_bmpFormat;
 
 enum ezBmpCompression
 {

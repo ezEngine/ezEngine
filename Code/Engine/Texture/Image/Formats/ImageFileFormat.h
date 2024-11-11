@@ -13,7 +13,7 @@ class ezImageView;
 class ezStringBuilder;
 class ezImageHeader;
 
-class EZ_TEXTURE_DLL ezImageFileFormat : public ezEnumerable<ezImageFileFormat>
+class EZ_TEXTURE_DLL ezImageFileFormat
 {
 public:
   /// \brief Reads only the header information for an image and ignores the data. Much faster than reading the entire image, if the pixel data is not needed.
@@ -32,12 +32,44 @@ public:
   virtual bool CanWriteFileType(ezStringView sExtension) const = 0;
 
   /// \brief Returns an ezImageFileFormat that can read the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
-  static ezImageFileFormat* GetReaderFormat(ezStringView sExtension);
+  static const ezImageFileFormat* GetReaderFormat(ezStringView sExtension);
 
   /// \brief Returns an ezImageFileFormat that can write the given extension. Returns nullptr if there is no appropriate ezImageFileFormat.
-  static ezImageFileFormat* GetWriterFormat(ezStringView sExtension);
+  static const ezImageFileFormat* GetWriterFormat(ezStringView sExtension);
 
   static ezResult ReadImageHeader(ezStringView sFileName, ezImageHeader& ref_header);
+};
 
-  EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormat);
+/// \brief Base class for a registered (globally known) ezImageFileFormat.
+///
+/// This is an enumerable class, so all known formats can be retrieved through the ezEnumerable interface.
+/// For example:
+///
+///   for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
+///   {
+///     auto& type = format->GetFormatType();
+///   }
+class EZ_TEXTURE_DLL ezRegisteredImageFileFormat : public ezEnumerable<ezRegisteredImageFileFormat>
+{
+  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisteredImageFileFormat);
+
+public:
+  ezRegisteredImageFileFormat();
+  ~ezRegisteredImageFileFormat();
+
+  virtual const ezImageFileFormat& GetFormatType() const = 0;
+};
+
+/// \brief Template used to automatically register an ezImageFileFormat globally.
+template <class TYPE>
+class ezImageFileFormatRegistrator : public ezRegisteredImageFileFormat
+{
+public:
+  virtual const ezImageFileFormat& GetFormatType() const override
+  {
+    return m_Format;
+  }
+
+private:
+  TYPE m_Format;
 };

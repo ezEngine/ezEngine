@@ -7,7 +7,7 @@
 #include <Texture/Image/Image.h>
 
 // EZ_STATICLINK_FORCE
-ezDdsFileFormat g_ddsFormat;
+ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
 
 struct ezDdsPixelFormat
 {

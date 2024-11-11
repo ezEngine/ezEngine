@@ -4,28 +4,26 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageFileFormat);
-
-ezImageFileFormat* ezImageFileFormat::GetReaderFormat(ezStringView sExtension)
+const ezImageFileFormat* ezImageFileFormat::GetReaderFormat(ezStringView sExtension)
 {
-  for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
   {
-    if (pFormat->CanReadFileType(sExtension))
+    if (format->GetFormatType().CanReadFileType(sExtension))
     {
-      return pFormat;
+      return &format->GetFormatType();
     }
   }
 
   return nullptr;
 }
 
-ezImageFileFormat* ezImageFileFormat::GetWriterFormat(ezStringView sExtension)
+const ezImageFileFormat* ezImageFileFormat::GetWriterFormat(ezStringView sExtension)
 {
-  for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for (auto format = ezRegisteredImageFileFormat::GetFirstInstance(); format != nullptr; format = format->GetNextInstance())
   {
-    if (pFormat->CanWriteFileType(sExtension))
+    if (format->GetFormatType().CanWriteFileType(sExtension))
     {
-      return pFormat;
+      return &format->GetFormatType();
     }
   }
 
@@ -47,7 +45,7 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
     if (pFormat->ReadImageHeader(reader, ref_header, it.GetStartPointer()) != EZ_SUCCESS)
     {
@@ -61,3 +59,10 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
   ezLog::Warning("No known image file format for extension '{0}'", it);
   return EZ_FAILURE;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisteredImageFileFormat);
+
+ezRegisteredImageFileFormat::ezRegisteredImageFileFormat() = default;
+ezRegisteredImageFileFormat::~ezRegisteredImageFileFormat() = default;

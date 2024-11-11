@@ -12,7 +12,7 @@
 #  include <tinyexr/tinyexr.h>
 
 // EZ_STATICLINK_FORCE
-ezExrFileFormat g_ExrFileFormat;
+ezImageFileFormatRegistrator<ezExrFileFormat> g_ExrFileFormat;
 
 ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_fileBuffer, ezImageHeader& ref_header, EXRHeader& ref_exrHeader, EXRImage& ref_exrImage)
 {
