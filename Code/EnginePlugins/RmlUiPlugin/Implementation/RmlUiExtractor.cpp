@@ -4,7 +4,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RmlUiPlugin/Implementation/Extractor.h>
+#include <RmlUiPlugin/Implementation/RmlUiExtractor.h>
 
 namespace ezRmlUiInternal
 {
@@ -137,7 +137,7 @@ namespace ezRmlUiInternal
     if (!hTexture.IsValid())
     {
       ezGALSystemMemoryDescription memoryDesc;
-      memoryDesc.m_pData = ezMakeByteBlobPtr(pSource, uiSizeInBytes);
+      memoryDesc.m_pData = ezMakeByteBlobPtr(source.data(), uiSizeInBytes);
       memoryDesc.m_uiRowPitch = uiWidth * 4;
       memoryDesc.m_uiSlicePitch = uiSizeInBytes;
 

@@ -3,7 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RmlUiPlugin/Implementation/Extractor.h>
+#include <RmlUiPlugin/Implementation/RmlUiExtractor.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 
 namespace
