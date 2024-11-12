@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
     EZ_MEMBER_PROPERTY("Number", m_fNumber),
 
     EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
@@ -93,7 +93,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
 
     EZ_MEMBER_PROPERTY("OutNumber", m_OutNumber)->AddAttributes(new ezHiddenAttribute()),
   }
@@ -174,7 +174,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareBlackboardNumberAnimNode, 1, ezRTTIDefa
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
     EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue),
     EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
 
@@ -295,7 +295,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCheckBlackboardBoolAnimNode, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
 
     EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute()),
@@ -409,7 +409,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardBoolAnimNode, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
     EZ_MEMBER_PROPERTY("Bool", m_bBool),
 
     EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
@@ -488,7 +488,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardBoolAnimNode, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
 
     EZ_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new ezHiddenAttribute()),
   }
@@ -570,7 +570,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOnBlackboardValueChangedAnimNode, 1, ezRTTIDef
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
 
     EZ_MEMBER_PROPERTY("OutOnValueChanged", m_OutOnValueChanged)->AddAttributes(new ezHiddenAttribute()),
   }
