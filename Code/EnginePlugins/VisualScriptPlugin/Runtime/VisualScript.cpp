@@ -30,6 +30,7 @@ namespace
     "Builtin_SetVariable",
     "Builtin_IncVariable",
     "Builtin_DecVariable",
+    "Builtin_TempVariable",
 
     "Builtin_Branch",
     "Builtin_Switch",
@@ -155,7 +156,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 4;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 5;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
@@ -203,9 +204,9 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
 ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
-  if (uiVersion < 4)
+  if (uiVersion < s_uiVisualScriptGraphDescriptionVersion)
   {
-    ezLog::Error("Invalid visual script desc version. Expected >= 4 but got {}. Visual Script needs re-export", uiVersion);
+    ezLog::Error("Invalid visual script desc version. Expected >= {} but got {}. Visual Script needs re-export", s_uiVisualScriptGraphDescriptionVersion, uiVersion);
     return EZ_FAILURE;
   }
 

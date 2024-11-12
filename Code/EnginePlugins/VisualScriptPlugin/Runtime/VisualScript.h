@@ -35,6 +35,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_SetVariable,
       Builtin_IncVariable,
       Builtin_DecVariable,
+      Builtin_TempVariable,
 
       Builtin_Branch,
       Builtin_Switch,

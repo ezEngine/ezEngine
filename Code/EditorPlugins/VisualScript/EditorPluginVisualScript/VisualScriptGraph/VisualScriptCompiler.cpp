@@ -246,6 +246,7 @@ namespace
     &FillUserData_VariableName,                      // Builtin_SetVariable,
     &FillUserData_VariableName,                      // Builtin_IncVariable,
     &FillUserData_VariableName,                      // Builtin_DecVariable,
+    nullptr,                                         // Builtin_TempVariable,
 
     nullptr,                                         // Builtin_Branch,
     &FillUserData_Switch,                            // Builtin_Switch,

@@ -464,6 +464,7 @@ namespace
     {},                                           // Builtin_SetVariable,
     {},                                           // Builtin_IncVariable,
     {},                                           // Builtin_DecVariable,
+    {},                                           // Builtin_TempVariable,
 
     {},                                           // Builtin_Branch,
     {&NodeUserData_Switch::Serialize,

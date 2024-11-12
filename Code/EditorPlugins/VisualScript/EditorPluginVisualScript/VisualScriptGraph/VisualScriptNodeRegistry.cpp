@@ -633,6 +633,21 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     }
   }
 
+  // Builtin_TempVariable
+  {
+    FillDesc(typeDesc, "Builtin_TempVariable", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_TempVariable;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
+    nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
+  }
+
   // Builtin_Branch
   {
     FillDesc(typeDesc, "Builtin_Branch", logicColor);

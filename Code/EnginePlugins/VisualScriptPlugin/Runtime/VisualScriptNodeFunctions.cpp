@@ -1456,6 +1456,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_SetVariable,
     {nullptr, &NodeFunction_Builtin_IncVariable_Getter},       // Builtin_IncVariable,
     {nullptr, &NodeFunction_Builtin_DecVariable_Getter},       // Builtin_DecVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_TempVariable,
 
     {&NodeFunction_Builtin_Branch},                            // Builtin_Branch,
     {nullptr, &NodeFunction_Builtin_Switch_Getter},            // Builtin_Switch,
