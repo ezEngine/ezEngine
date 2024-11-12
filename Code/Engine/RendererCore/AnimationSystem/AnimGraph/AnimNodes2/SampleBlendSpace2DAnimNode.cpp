@@ -151,6 +151,12 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
+  if (!m_InStart.IsConnected() && pState->m_CenterPlaybackTime > ezTime::MakeFromHours(10))
+  {
+    pState->m_CenterPlaybackTime = ezTime::MakeZero();
+    pState->m_fOtherPlaybackPosNorm = 0.0f;
+  }
+
   if (m_InStart.IsTriggered(ref_graph))
   {
     pState->m_CenterPlaybackTime = ezTime::MakeZero();

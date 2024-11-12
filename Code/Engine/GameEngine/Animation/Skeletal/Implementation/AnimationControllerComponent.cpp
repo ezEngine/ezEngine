@@ -114,4 +114,78 @@ void ezAnimationControllerComponent::Update()
   ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), translation, rotationX, rotationY, rotationZ);
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+
+ezAnimationControllerComponentManager::ezAnimationControllerComponentManager(ezWorld* pWorld)
+  : ezComponentManager<class ezAnimationControllerComponent, ezBlockStorageType::FreeList>(pWorld)
+{
+}
+
+void ezAnimationControllerComponentManager::Initialize()
+{
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezAnimationControllerComponentManager::Update, this), "ezAnimationControllerComponentManager::Update");
+  desc.m_bOnlyUpdateWhenSimulating = true;
+  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync; // TODO: currently can't run in Async phase
+
+  this->RegisterUpdateFunction(desc);
+
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimationControllerComponentManager::ResourceEvent, this));
+}
+
+void ezAnimationControllerComponentManager::Deinitialize()
+{
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezAnimationControllerComponentManager::ResourceEvent, this));
+}
+
+void ezAnimationControllerComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  {
+    for (auto hComponent : m_ComponentsToReset)
+    {
+      ezAnimationControllerComponent* pComp;
+      if (GetWorld()->TryGetComponent(hComponent, pComp))
+      {
+        pComp->OnSimulationStarted(); // just run this again
+      }
+    }
+
+    m_ComponentsToReset.Clear();
+  }
+
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+void ezAnimationControllerComponentManager::ResourceEvent(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  {
+    if (e.m_pResource->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimGraphResource>())
+    {
+      ezAnimGraphResourceHandle hResource((ezAnimGraphResource*)(e.m_pResource));
+
+      for (auto it = GetComponents(); it.IsValid(); it.Next())
+      {
+        if (!it->IsActiveAndSimulating())
+          continue;
+
+        if (it->m_hAnimGraph == hResource)
+        {
+          if (!m_ComponentsToReset.Contains(it->GetHandle()))
+          {
+            m_ComponentsToReset.PushBack(it->GetHandle());
+          }
+        }
+      }
+    }
+  }
+}
+
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimationControllerComponent);

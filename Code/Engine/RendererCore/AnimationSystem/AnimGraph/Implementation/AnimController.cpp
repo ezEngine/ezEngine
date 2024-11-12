@@ -18,6 +18,22 @@ ezAnimController::~ezAnimController() = default;
 
 void ezAnimController::Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
+  m_Instances.Clear();
+  m_PinDataBoneWeights.Clear();
+  m_PinDataLocalTransforms.Clear();
+  m_PinDataModelTransforms.Clear();
+  m_AnimationClipMapping.Clear();
+  m_CurrentLocalTransformOutputs.Clear();
+  m_pBlackboard.Clear();
+  m_BlendMask.Clear();
+  m_pPoseGenerator = nullptr;
+  m_pCurrentModelTransforms = nullptr;
+  m_hSkeleton = {};
+  m_vRootMotion.SetZero();
+  m_RootRotationX = {};
+  m_RootRotationY = {};
+  m_RootRotationZ = {};
+
   m_hSkeleton = hSkeleton;
   m_pPoseGenerator = &ref_poseGenerator;
   m_pBlackboard = pBlackboard;

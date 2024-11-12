@@ -11,7 +11,20 @@
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResource>;
 
-using ezAnimationControllerComponentManager = ezComponentManagerSimple<class ezAnimationControllerComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
+class ezAnimationControllerComponentManager : public ezComponentManager<class ezAnimationControllerComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezAnimationControllerComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
+
+private:
+  void Update(const ezWorldModule::UpdateContext& context);
+  void ResourceEvent(const ezResourceEvent& e);
+
+  ezDeque<ezComponentHandle> m_ComponentsToReset;
+};
 
 /// \brief Evaluates an ezAnimGraphResource and provides the result through the ezMsgAnimationPoseUpdated.
 ///

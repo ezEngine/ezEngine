@@ -68,7 +68,7 @@ private:
 
   struct InstanceState
   {
-    ezTime m_PlaybackTime = ezTime::MakeZero();
+    ezTime m_PlaybackTime = ezTime::MakeFromHours(1000);
     State m_State = State::Start;
     ezUInt8 m_uiMiddleClipIdx = 0;
   };

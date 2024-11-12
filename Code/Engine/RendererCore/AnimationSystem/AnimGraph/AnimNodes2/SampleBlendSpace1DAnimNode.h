@@ -54,6 +54,6 @@ private:
 
   struct InstanceState
   {
-    ezTime m_PlaybackTime = ezTime::MakeZero();
+    ezTime m_PlaybackTime = ezTime::MakeFromHours(1000);
   };
 };

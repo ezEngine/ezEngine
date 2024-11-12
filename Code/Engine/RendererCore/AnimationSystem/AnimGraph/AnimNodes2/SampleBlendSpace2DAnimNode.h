@@ -68,7 +68,7 @@ private:
 
   struct InstanceState
   {
-    ezTime m_CenterPlaybackTime = ezTime::MakeZero();
+    ezTime m_CenterPlaybackTime = ezTime::MakeFromHours(1000);
     float m_fOtherPlaybackPosNorm = 0.0f;
     float m_fLastValueX = 0.0f;
     float m_fLastValueY = 0.0f;
