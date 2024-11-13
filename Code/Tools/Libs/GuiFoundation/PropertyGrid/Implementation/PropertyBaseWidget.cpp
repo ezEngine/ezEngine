@@ -544,10 +544,17 @@ void ezQtUnsupportedPropertyWidget::OnInit()
 {
   ezQtScopedBlockSignals bs(m_pWidget);
 
-  ezStringBuilder tmp;
-  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName().GetData(tmp));
+  QString sMessage;
   if (!m_sMessage.IsEmpty())
-    sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage, m_sMessage.GetElementCount()) % QStringLiteral(")");
+  {
+    sMessage = m_sMessage;
+  }
+  else
+  {
+    ezStringBuilder tmp;
+    sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName().GetData(tmp));
+  }
+
   m_pWidget->setText(sMessage);
   m_pWidget->setToolTip(sMessage);
 }
@@ -1798,8 +1805,11 @@ void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
     if (pNewtSubType)
     {
       m_pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pNewtSubType);
+
       if (!m_pWidget)
-        m_pWidget = new ezQtUnsupportedPropertyWidget("Unsupported type");
+      {
+        m_pWidget = new ezQtUnsupportedPropertyWidget("<Unsupported Type>");
+      }
     }
     else if (!sameType)
     {
@@ -1807,8 +1817,9 @@ void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
     }
     else
     {
-      m_pWidget = new ezQtUnsupportedPropertyWidget("<Invalid>");
+      m_pWidget = new ezQtUnsupportedPropertyWidget("<Invalid Type>");
     }
+
     m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     m_pWidget->setParent(this);
     m_pLayout->addWidget(m_pWidget);

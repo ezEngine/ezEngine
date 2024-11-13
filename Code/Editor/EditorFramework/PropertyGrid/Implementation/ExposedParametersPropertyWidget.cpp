@@ -245,7 +245,7 @@ void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value
           m_pCurrentSubType = pNewtSubType;
           m_pWidget = ezQtPropertyGridWidget::CreateMemberPropertyWidget(prop);
           if (!m_pWidget)
-            m_pWidget = new ezQtUnsupportedPropertyWidget("Unsupported type");
+            m_pWidget = new ezQtUnsupportedPropertyWidget("Unsupported Type");
 
           m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
           m_pWidget->setParent(this);
