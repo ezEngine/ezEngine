@@ -275,6 +275,10 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 {
   if (const auto* pMsg = ezDynamicCast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage))
   {
+    ezStringBuilder sRedrawScope;
+    sRedrawScope.SetFormat("Redraw {}", pMsg->m_uiRedrawCount);
+    EZ_PROFILE_SCOPE(sRedrawScope.GetData());
+
     ezSyncWithProcessMsgToEditor msg;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;

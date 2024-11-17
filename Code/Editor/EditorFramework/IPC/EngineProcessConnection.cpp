@@ -68,6 +68,9 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
 
       if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
       {
+        ezStringBuilder sRedrawScope;
+        sRedrawScope.SetFormat("Wait For Redraw {}", m_uiRedrawCountReceived + 1);
+        EZ_PROFILE_SCOPE(sRedrawScope.GetData());
         WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::MakeFromSeconds(2.0)).IgnoreResult();
       }
 

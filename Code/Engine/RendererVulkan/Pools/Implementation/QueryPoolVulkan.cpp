@@ -62,6 +62,7 @@ void ezQueryPoolVulkan::Pool::DeInitialize()
 
 void ezQueryPoolVulkan::Calibrate()
 {
+  EZ_PROFILE_SCOPE("Calibrate");
   // #TODO_VULKAN Replace with VK_KHR_calibrated_timestamps
   // To correlate CPU to GPU time, we create an event, wait a bit for the GPU to get stuck on it and then signal it.
   // We then observe the time right after on the CPU and on the GPU via a timestamp query.
@@ -93,9 +94,14 @@ void ezQueryPoolVulkan::BeginFrame(vk::CommandBuffer commandBuffer)
 {
   ezUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
   ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
-  m_TimestampPool.BeginFrame(commandBuffer, uiCurrentFrame, uiSafeFrame);
-  m_OcclusionPool.BeginFrame(commandBuffer, uiCurrentFrame, uiSafeFrame);
-
+  {
+    EZ_PROFILE_SCOPE("TimestampPool");
+    m_TimestampPool.BeginFrame(commandBuffer, uiCurrentFrame, uiSafeFrame);
+  }
+  {
+    EZ_PROFILE_SCOPE("OcclusionPool");
+    m_OcclusionPool.BeginFrame(commandBuffer, uiCurrentFrame, uiSafeFrame);
+  }
   if (m_gpuToCpuDelta.IsZero())
   {
     Calibrate();
@@ -135,6 +141,7 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
           uiQueryCount = framePool.m_uiNextIndex % m_uiPoolSize;
         if (uiQueryCount > 0)
         {
+          EZ_PROFILE_SCOPE("getQueryPoolResults");
           vk::Result res = m_device.getQueryPoolResults(pPool->m_pool, 0, uiQueryCount, m_uiPoolSize * sizeof(ezUInt64), pPool->m_queryResults.GetData(), sizeof(ezUInt64), vk::QueryResultFlagBits::e64);
           if (res == vk::Result::eSuccess)
           {

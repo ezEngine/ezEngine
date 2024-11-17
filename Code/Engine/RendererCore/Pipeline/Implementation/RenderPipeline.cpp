@@ -1215,7 +1215,6 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
     {
       auto& pPass = m_Passes[i];
-      EZ_PROFILE_SCOPE(pPass->GetName());
       ezLogBlock passBlock("Render Pass", pPass->GetName());
 
       // Create pool textures

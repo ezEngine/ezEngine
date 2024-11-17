@@ -32,6 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
 {
+  m_PendingReadback = EZ_DEFAULT_NEW(PickingReadback);
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
@@ -144,11 +145,50 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
   }
 
-  // download the picking information from the GPU
+  if (m_PendingReadback->m_bReadbackInProgress)
+  {
+    // Wait for results
+    {
+      ezEnum<ezGALAsyncResult> res = m_PendingReadback->m_PickingReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+      res = m_PendingReadback->m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+      m_PendingReadback->m_bReadbackInProgress = false;
+    }
+
+    ezGALTextureSubresource sourceSubResource;
+    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+    ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+
+    m_PickingResultsDepth.Clear();
+    m_PickingResultsID.Clear();
+    m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
+    // If the resolution has changed, discard the readback result.
+    if (m_uiWindowHeight == m_PendingReadback->m_uiWindowHeight && m_uiWindowWidth == m_PendingReadback->m_uiWindowWidth)
+    {
+      {
+        m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+        ezReadbackTextureLock lock = m_PendingReadback->m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
+        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
+      }
+      {
+        m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+        ezReadbackTextureLock lock = m_PendingReadback->m_PickingReadback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
+        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
+      }
+      m_mPickingInverseViewProjectionMatrix = m_PendingReadback->m_mPickingInverseViewProjectionMatrix;
+    }
+  }
+
+  // Start transferring the picking information from the GPU to the CPU
   if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
   {
-    m_PickingReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingIdRT());
-    m_PickingDepthReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingDepthRT());
+    m_PendingReadback->m_PickingReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingIdRT());
+    m_PendingReadback->m_PickingDepthReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingDepthRT());
     renderViewContext.m_pRenderContext->GetCommandEncoder()->Flush();
 
     ezMat4 mProj;
@@ -165,38 +205,10 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       return;
     }
 
-    m_mPickingInverseViewProjectionMatrix = inv;
-
-    // Wait for results
-    {
-      ezEnum<ezGALAsyncResult> res = m_PickingReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
-      res = m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
-    }
-
-    ezGALTextureSubresource sourceSubResource;
-    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-    ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
-
-    {
-      m_PickingResultsDepth.Clear();
-      m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-
-      ezReadbackTextureLock lock = m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
-      EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-      const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
-      ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
-    }
-    {
-      m_PickingResultsID.Clear();
-      m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-
-      ezReadbackTextureLock lock = m_PickingReadback.LockTexture(sourceSubResources, memory);
-      EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-      const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
-      ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
-    }
+    m_PendingReadback->m_mPickingInverseViewProjectionMatrix = inv;
+    m_PendingReadback->m_uiWindowWidth = m_uiWindowWidth;
+    m_PendingReadback->m_uiWindowHeight = m_uiWindowHeight;
+    m_PendingReadback->m_bReadbackInProgress = true;
   }
 }
 

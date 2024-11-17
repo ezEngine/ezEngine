@@ -1508,7 +1508,7 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezStringBuilder sb;
-  sb.SetFormat("Frame {}", uiAppFrame);
+  sb.SetFormat("RENDER FRAME {}", uiAppFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #endif
 
