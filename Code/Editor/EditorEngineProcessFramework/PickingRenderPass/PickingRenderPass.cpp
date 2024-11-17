@@ -32,6 +32,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
 {
+  m_pGridRenderDataType = ezRTTI::FindTypeByName("ezGridRenderData");
+  EZ_ASSERT_DEV(m_pGridRenderDataType != nullptr, "ezGridRenderData type not found. Type renamed?");
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
@@ -107,7 +109,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
     // filter out all selected objects
     ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
-      { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
+      { return m_SelectionSet.Contains(pRenderData->m_hOwner) || pRenderData->IsInstanceOf(m_pGridRenderDataType); });
 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);

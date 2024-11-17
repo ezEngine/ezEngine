@@ -46,6 +46,7 @@ private:
 
 private:
   ezRectFloat m_TargetRect;
+  const ezRTTI* m_pGridRenderDataType = nullptr;
 
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
