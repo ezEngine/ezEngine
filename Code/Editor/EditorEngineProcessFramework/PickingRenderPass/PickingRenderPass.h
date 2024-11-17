@@ -66,7 +66,7 @@ private:
     ezMat4 m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
   };
 
-  ezUniquePtr<PickingReadback> m_PendingReadback;
+  PickingReadback m_PendingReadback;
 
   // Picking Results
   ezMat4 m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
