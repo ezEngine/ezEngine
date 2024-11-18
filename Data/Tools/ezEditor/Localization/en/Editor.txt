@@ -212,18 +212,19 @@ Gizmo.Translate.Snap.Menu;Position Snap
 Gizmo.Translate.Snap.PivotToGrid;Snap Pivot To Grid
 Gizmo.Translate.Snap.ObjectsToGrid;Snap Each Object To Grid
 Gizmo.Translate.Snap.0;No Position Snap
-Gizmo.Translate.Snap.16;16
-Gizmo.Translate.Snap.10;10
-Gizmo.Translate.Snap.8;8
-Gizmo.Translate.Snap.5;5
-Gizmo.Translate.Snap.4;4
-Gizmo.Translate.Snap.2;2
-Gizmo.Translate.Snap.1;1
-Gizmo.Translate.Snap.0_5;0.5
-Gizmo.Translate.Snap.0_25;0.25
-Gizmo.Translate.Snap.0_2;0.2
-Gizmo.Translate.Snap.0_125;0.125
-Gizmo.Translate.Snap.0_1;0.1
+Gizmo.Translate.Snap.16;16m
+Gizmo.Translate.Snap.10;10m
+Gizmo.Translate.Snap.8;8 m
+Gizmo.Translate.Snap.5;5 m
+Gizmo.Translate.Snap.4;4 m
+Gizmo.Translate.Snap.2;2 m
+Gizmo.Translate.Snap.1;1 m
+Gizmo.Translate.Snap.0_5;50 cm
+Gizmo.Translate.Snap.0_25;25 cm
+Gizmo.Translate.Snap.0_2;20 cm
+Gizmo.Translate.Snap.0_125;12.5 cm
+Gizmo.Translate.Snap.0_1;10 cm
+Gizmo.Translate.Snap.0_05;5 cm
 Gizmo.SnapSettings;Snap Settings
 
 # GameObjectContext

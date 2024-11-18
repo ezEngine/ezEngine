@@ -65,8 +65,8 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
 		"--shell-file" "${CMAKE_SOURCE_DIR}/Code/BuildSystem/Web/em-default.html"
 
 		# Main memory and main thread stack size
-		"-sINITIAL_MEMORY=512MB"
-		"-sTOTAL_MEMORY=512MB"
+		"-sINITIAL_MEMORY=2000MB"
+		"-sTOTAL_MEMORY=2000MB"
 		"-sSTACK_SIZE=4MB"
 		
 		# Threads

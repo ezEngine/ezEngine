@@ -89,6 +89,8 @@ float4 ezSampleLevel_PointClampBorder(Texture2DArray DepthTexture, SamplerState 
   // Get the texture size at the specified mip level
   uint width, height, elements, levels;
   DepthTexture.GetDimensions(0, width, height, elements, levels);
+  MipLevel = clamp(MipLevel, 0, levels - 1);
+  DepthTexture.GetDimensions(MipLevel, width, height, elements, levels);
   // Convert normalized coordinates to texel space
   float2 texelCoords = SamplePos * int2(width, height);
   // Get the integer parts of the coordinates

@@ -128,6 +128,9 @@ void ezOSFile::Close()
 
 ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 {
+  if (uiBytes == 0)
+    return EZ_SUCCESS;
+
   EZ_ASSERT_DEV((m_FileMode == ezFileOpenMode::Write) || (m_FileMode == ezFileOpenMode::Append), "The file is not opened for writing.");
   EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 

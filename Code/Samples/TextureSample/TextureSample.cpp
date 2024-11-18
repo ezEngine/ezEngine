@@ -213,7 +213,7 @@ public:
     // Setup default resources
     {
       ezTexture2DResourceHandle hFallback = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Reference_D.dds");
-      ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
+      ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingResource_D.dds");
 
       ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallback);
       ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissing);

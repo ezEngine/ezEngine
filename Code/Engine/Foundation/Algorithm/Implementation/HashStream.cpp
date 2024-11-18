@@ -51,6 +51,9 @@ ezHashStreamWriter64::~ezHashStreamWriter64()
 
 ezResult ezHashStreamWriter64::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
+  if (uiBytesToWrite == 0)
+    return EZ_SUCCESS;
+
   if (uiBytesToWrite > std::numeric_limits<size_t>::max())
     return EZ_FAILURE;
 

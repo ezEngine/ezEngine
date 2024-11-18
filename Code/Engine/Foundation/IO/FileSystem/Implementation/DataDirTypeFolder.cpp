@@ -161,6 +161,7 @@ namespace ezDataDirectory
       if (file.Open(sRedirectionFile, ezFileOpenMode::Read).Succeeded())
       {
         ezHybridArray<char, 1024 * 10> content;
+        content.Reserve((ezUInt32)(file.GetFileSize() + 1));
         char uiTemp[4096];
 
         ezUInt64 uiRead = 0;

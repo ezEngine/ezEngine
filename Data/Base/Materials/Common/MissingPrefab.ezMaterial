@@ -9,5 +9,5 @@ Permutation
 Texture2D
 {
   string %Variable { "BaseTexture" }
-  string %Value { "Textures/MissingPrefab_D.dds" }
+  string %Value { "Textures/MissingResource_D.dds" }
 }

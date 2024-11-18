@@ -9,6 +9,7 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
   setupUi(this);
 
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0", 0.0f});
+  m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_05", 0.05f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_1", 0.1f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_125", 0.125f});
   m_Translation.PushBack(KeyValue{"Gizmo.Translate.Snap.0_2", 0.2f});
