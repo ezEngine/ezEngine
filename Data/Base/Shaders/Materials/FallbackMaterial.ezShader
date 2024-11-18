@@ -105,9 +105,9 @@ float3 GetNormal()
 float3 GetDiffuseColor()
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition, 1.0).rgb;
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition + 0.5, 1.0).rgb * BaseColor.rgb;
   #else
-    return float3(0.5, 0.5, 0.5);
+    return float3(0.5, 0.5, 0.5) * BaseColor.rgb;
   #endif
 }
 
