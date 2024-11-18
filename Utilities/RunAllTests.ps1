@@ -20,7 +20,8 @@ function RunTest($name) {
     & "$Path\$name.exe" -nosave -all -nogui
 
     if (!$?) {
-        throw "$name failed: '$LASTEXITCODE'."
+        Write-Host "`n$name failed`n" -ForegroundColor Yellow
+        throw
     }
 
     Write-Host "`n$name succeeded.`n" -ForegroundColor Green
