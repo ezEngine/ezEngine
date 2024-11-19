@@ -20,7 +20,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
   UINT1(colorAndType);
   FLOAT1(intensity);
   UINT1(direction); // 10 bits fixed point per axis
-  UINT1(shadowDataOffset);
+  UINT1(shadowDataOffsetAndFadeOut); // 20 bits offset, 12 bits fade out
 
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
@@ -39,13 +39,13 @@ struct EZ_SHADER_STRUCT ezPerLightData
 
 struct EZ_SHADER_STRUCT ezPointShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix)[6];
 };
 
 struct EZ_SHADER_STRUCT ezSpotShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix);
 };
 

@@ -7,10 +7,6 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool cvar_RenderingLightingVisScreenSpaceSize("Rendering.Lighting.VisScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
-#endif
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -159,7 +155,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
   // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
-  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize, msg.m_pView) : ezInvalidIndex;
+  pRenderData->m_uiShadowDataOffsetAndFadeOut = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize, msg.m_pView) : 0;
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 

@@ -179,7 +179,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
     pRenderData->m_fRange = pSize[i] * sizeFactor;
-    pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
+    pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
 
     float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);

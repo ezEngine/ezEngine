@@ -13,9 +13,9 @@ public:
   {
     const ezVec3 unsignedValue = value * 0.5f + ezVec3(0.5f);
 
-    const ezUInt32 r = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.x * 1023.0f + 0.5f), 0u, 1023u);
-    const ezUInt32 g = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.y * 1023.0f + 0.5f), 0u, 1023u);
-    const ezUInt32 b = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.z * 1023.0f + 0.5f), 0u, 1023u);
+    const ezUInt32 r = ezMath::ColorFloatToUnsignedInt<10>(unsignedValue.x);
+    const ezUInt32 g = ezMath::ColorFloatToUnsignedInt<10>(unsignedValue.y);
+    const ezUInt32 b = ezMath::ColorFloatToUnsignedInt<10>(unsignedValue.z);
 
     return r | (g << 10) | (b << 20);
   }

@@ -209,13 +209,13 @@ namespace ezMath
   }
 
   template <typename Type>
-  EZ_ALWAYS_INLINE Type Bitmask_LowN(ezUInt32 uiNumBitsToSet)
+  EZ_ALWAYS_INLINE constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet)
   {
     return (uiNumBitsToSet >= sizeof(Type) * 8) ? ~static_cast<Type>(0) : ((static_cast<Type>(1) << uiNumBitsToSet) - static_cast<Type>(1));
   }
 
   template <typename Type>
-  EZ_ALWAYS_INLINE Type Bitmask_HighN(ezUInt32 uiNumBitsToSet)
+  EZ_ALWAYS_INLINE constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet)
   {
     return (uiNumBitsToSet == 0) ? 0 : ~static_cast<Type>(0) << ((sizeof(Type) * 8) - ezMath::Min<ezUInt32>(uiNumBitsToSet, sizeof(Type) * 8));
   }
@@ -337,8 +337,11 @@ namespace ezMath
     return (x * x * x * (x * ((Type)6 * x - (Type)15) + (Type)10));
   }
 
-  inline ezUInt8 ColorFloatToByte(float value)
+  template <ezUInt32 NumBits>
+  inline ezUInt32 ColorFloatToUnsignedInt(float value)
   {
+    constexpr float fMaxValue = static_cast<float>(ezMath::Bitmask_LowN<ezUInt32>(NumBits));
+
     // Implemented according to
     // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
@@ -347,22 +350,18 @@ namespace ezMath
     }
     else
     {
-      return static_cast<ezUInt8>(Saturate(value) * 255.0f + 0.5f);
+      return static_cast<ezUInt32>(Saturate(value) * fMaxValue + 0.5f);
     }
+  }
+
+  EZ_ALWAYS_INLINE ezUInt8 ColorFloatToByte(float value)
+  {
+    return static_cast<ezUInt8>(ColorFloatToUnsignedInt<8>(value));
   }
 
   inline ezUInt16 ColorFloatToShort(float value)
   {
-    // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    if (IsNaN(value))
-    {
-      return 0;
-    }
-    else
-    {
-      return static_cast<ezUInt16>(Saturate(value) * 65535.0f + 0.5f);
-    }
+    return static_cast<ezUInt16>(ColorFloatToUnsignedInt<16>(value));
   }
 
   inline ezInt8 ColorFloatToSignedByte(float value)

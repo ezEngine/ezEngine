@@ -12,11 +12,12 @@ class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
 
 public:
   void FillBatchIdAndSortingKey(float fScreenSpaceSize);
+  void FillShadowDataOffsetAndFadeOut(ezUInt32 uiDataOffset, float fFadeOut);
 
   ezColorLinearUB m_LightColor;
   float m_fIntensity;
   float m_fSpecularMultiplier;
-  ezUInt32 m_uiShadowDataOffset;
+  ezUInt32 m_uiShadowDataOffsetAndFadeOut;
 };
 
 /// \brief Base class for dynamic light components.
@@ -86,10 +87,16 @@ public:
   /// Otherwise the smaller value of that and fRange is returned.
   static float CalculateEffectiveRange(float fRange, float fIntensity);
 
-  /// \brief Calculates how large on screen (in pixels) the light source would be.
+  /// \brief Calculates how large on screen (relative height) the light source would be.
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
+  float CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera) const;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  void VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSpaceSize, float fShadowFadeOut) const;
+#endif
+
   ezColorGammaUB m_LightColor = ezColor::White;
   ezUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;

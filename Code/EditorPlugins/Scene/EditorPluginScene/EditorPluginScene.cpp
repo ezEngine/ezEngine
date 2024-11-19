@@ -357,5 +357,15 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
     props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    // Point/Spot light
+    props["ShadowFadeOutRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    // Directional light
+    props["NumCascades"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MinShadowRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FadeOutStart"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SplitModeWeight"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["NearPlaneOffset"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }

@@ -313,13 +313,13 @@ namespace ezMath
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] Type Bitmask_LowN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet);
 
   /// \brief Creates a bitmask in which the high N bits are set. For example for N=5, this would be '1111 1000 ... 0000'
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] Type Bitmask_HighN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet);
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
@@ -387,6 +387,10 @@ namespace ezMath
   /// \brief Checks whether the given number is close to zero.
   template <typename Type>
   [[nodiscard]] bool IsZero(Type f, Type fEpsilon); // [tested]
+
+  template <ezUInt32 NumBits>
+  /// \brief Converts a color value from float [0;1] range to unsigned int with the given number of bits, with proper rounding
+  [[nodiscard]] ezUInt32 ColorFloatToUnsignedInt(float value);
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
   [[nodiscard]] ezUInt8 ColorFloatToByte(float value); // [tested]

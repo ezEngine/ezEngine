@@ -177,7 +177,7 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 // #define SHADOW_FORCE_LAST_CASCADE
 
 float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 lightVector, float distanceToLight, uint type,
-  uint shadowDataOffset, float noise, float2x2 randomRotation, float extraPenumbraScale, inout float subsurfaceShadow, out float3 debugColor)
+  uint shadowDataOffsetAndFadeOut, float noise, float2x2 randomRotation, float extraPenumbraScale, inout float subsurfaceShadow, out float3 debugColor)
 {
   float3 debugColors[] = {
     float3(1, 0, 0),
@@ -188,6 +188,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
     float3(1, 0, 1),
   };
 
+  uint shadowDataOffset = shadowDataOffsetAndFadeOut & 0xFFFFF;
   float4 shadowParams = shadowDataBuffer[GET_SHADOW_PARAMS_INDEX(shadowDataOffset)];
 
   float viewDistance = length(GetCameraPosition() - worldPosition);
@@ -199,7 +200,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
 
   float constantBias = shadowParams.y;
   float penumbraSize = shadowParams.z;
-  float fadeOut = shadowParams.w;
+  float fadeOut = 1.0;
 
   float4 shadowPosition;
 
@@ -285,6 +286,8 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
     shadowPosition += shadowDataBuffer[matrixIndex + 2] * worldPosition.z;
 
     debugColor = debugColors[matrixIndex];
+
+    fadeOut = ((shadowDataOffsetAndFadeOut >> 20) & 0xFFF) / 4095.0;
   }
 
   [branch] if (fadeOut > 0.0f)
@@ -562,13 +565,11 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         float shadowTerm = 1.0;
         float subsurfaceShadow = 1.0;
 
-        [branch] if (lightData.shadowDataOffset != 0xFFFFFFFF)
+        [branch] if (lightData.shadowDataOffsetAndFadeOut != 0)
         {
-          uint shadowDataOffset = lightData.shadowDataOffset;
           float extraPenumbraScale = 1.0;
 
-          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type,
-            shadowDataOffset, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
         }
 
         attenuation *= lightData.intensity;

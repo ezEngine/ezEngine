@@ -19,7 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
+    EZ_ACCESSOR_PROPERTY("ShadowFadeOutRange", GetShadowFadeOutRange, SetShadowFadeOutRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
     //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
   }
   EZ_END_PROPERTIES;
@@ -51,7 +52,7 @@ ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 
 void ezPointLightComponent::SetRange(float fRange)
 {
-  m_fRange = fRange;
+  m_fRange = ezMath::Max(fRange, 0.0f);
 
   TriggerLocalBoundsUpdate();
 }
@@ -64,6 +65,18 @@ float ezPointLightComponent::GetRange() const
 float ezPointLightComponent::GetEffectiveRange() const
 {
   return m_fEffectiveRange;
+}
+
+void ezPointLightComponent::SetShadowFadeOutRange(float fRange)
+{
+  m_fShadowFadeOutRange = ezMath::Max(fRange, 0.0f);
+
+  InvalidateCachedRenderData();
+}
+
+float ezPointLightComponent::GetShadowFadeOutRange() const
+{
+  return m_fShadowFadeOutRange;
 }
 
 // void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
@@ -108,17 +121,12 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     return;
 
   const ezTransform t = GetOwner()->GetGlobalTransform();
-  const ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f);
-
-  const float fScreenSpaceSize = CalculateScreenSpaceSize(bs, *msg.m_pView->GetCullingCamera());
-
+  const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f);
+  const float fScreenSpaceSize = CalculateScreenSpaceSize(bounds, *msg.m_pView->GetCullingCamera());
+  const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera());
+  
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (cvar_RenderingLightingVisScreenSpaceSize)
-  {
-    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), ezFmt("{0}", fScreenSpaceSize), t.m_vPosition, c);
-    ezDebugRenderer::DrawLineSphere(msg.m_pView->GetHandle(), bs, c);
-  }
+  VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowFadeOut);
 #endif
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
@@ -129,7 +137,15 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
   pRenderData->m_fRange = m_fEffectiveRange;
   // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
-  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView) : ezInvalidIndex;
+
+  if (m_bCastShadows && fShadowFadeOut > 0.0f)
+  {
+    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
+  }
+  else
+  {
+    pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+  }
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 

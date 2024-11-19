@@ -119,7 +119,15 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
-  pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this, msg.m_pView) : ezInvalidIndex;
+
+  if (m_bCastShadows)
+  {
+    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddDirectionalLight(this, msg.m_pView), 1.0f);
+  }
+  else
+  {
+    pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+  }
 
   pRenderData->FillBatchIdAndSortingKey(1.0f);
 
