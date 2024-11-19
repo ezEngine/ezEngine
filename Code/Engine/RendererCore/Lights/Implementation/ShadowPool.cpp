@@ -1005,13 +1005,14 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         }
       }
 
-      float screenHeight = ezMath::Tan(fov * 0.5f) * 20.0f; // screen height in worldspace at 10m distance
-      float texelSize = 1.0f / uiShadowMapSize;
-      float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / screenHeight, texelSize);
-      float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
+      const float screenHeight = ezMath::Tan(fov * 0.5f) * 20.0f; // screen height in worldspace at 10m distance
+      const float texelSize = 1.0f / uiShadowMapSize;
+      const float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / screenHeight, texelSize);
+      const float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
 
-      float slopeBias = shadowData.m_fSlopeBias * penumbraSize * ezMath::Tan(fov * 0.5f);
-      float constantBias = shadowData.m_fConstantBias * cvar_RenderingShadowsMaxShadowMapSize / uiShadowMapSize;
+      const float fovFactor = 0.8f * ezMath::Pow(1.04f, fov.GetDegree());
+      const float slopeBias = shadowData.m_fSlopeBias * penumbraSize * fovFactor;
+      const float constantBias = shadowData.m_fConstantBias * cvar_RenderingShadowsMaxShadowMapSize / uiShadowMapSize;
 
       ezUInt32 uiParamsIndex = GET_SHADOW_PARAMS_INDEX(shadowData.m_uiPackedDataOffset);
       ezVec4& shadowParams = packedShadowData[uiParamsIndex];

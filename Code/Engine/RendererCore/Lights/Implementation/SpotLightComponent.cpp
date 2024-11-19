@@ -7,6 +7,8 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 
+constexpr ezAngle c_MaxSpotAngle = ezAngle::MakeFromDegree(160.0f);
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -16,8 +18,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
-    EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(179.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(179.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), c_MaxSpotAngle), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), c_MaxSpotAngle), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f))),
     EZ_ACCESSOR_PROPERTY("ShadowFadeOutRange", GetShadowFadeOutRange, SetShadowFadeOutRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
     //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
   }
@@ -81,7 +83,7 @@ float ezSpotLightComponent::GetShadowFadeOutRange() const
 
 void ezSpotLightComponent::SetInnerSpotAngle(ezAngle spotAngle)
 {
-  m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::MakeFromDegree(0.0f), m_OuterSpotAngle);
+  m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::MakeZero(), m_OuterSpotAngle);
 
   InvalidateCachedRenderData();
 }
@@ -93,7 +95,7 @@ ezAngle ezSpotLightComponent::GetInnerSpotAngle() const
 
 void ezSpotLightComponent::SetOuterSpotAngle(ezAngle spotAngle)
 {
-  m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::MakeFromDegree(179.0f));
+  m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, c_MaxSpotAngle);
 
   TriggerLocalBoundsUpdate();
 }
