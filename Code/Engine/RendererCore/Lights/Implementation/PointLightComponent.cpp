@@ -121,12 +121,13 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     return;
 
   const ezTransform t = GetOwner()->GetGlobalTransform();
-  const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f);
+  const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange);
   const float fScreenSpaceSize = CalculateScreenSpaceSize(bounds, *msg.m_pView->GetCullingCamera());
-  const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera());
+  float fShadowScreenSize = 0.0f;
+  const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera(), fShadowScreenSize);
   
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowFadeOut);
+  VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowScreenSize, fShadowFadeOut);
 #endif
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());

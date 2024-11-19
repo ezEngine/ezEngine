@@ -314,7 +314,7 @@ struct ezShadowPool::Data
 
       m_hShadowAtlasTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
 
-      s_fMinRelativeShadowMapSize = (cvar_RenderingShadowsMinShadowMapSize + 1.0f) / cvar_RenderingShadowsMaxShadowMapSize;
+      s_fMinRelativeShadowMapSize = (cvar_RenderingShadowsMinShadowMapSize - 1.0f) / cvar_RenderingShadowsMaxShadowMapSize;
     }
   }
 
@@ -598,9 +598,10 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
-
+  
+  const float fShadowMapScale = fScreenSpaceSize * 0.5f;
   ShadowData* pData = nullptr;
-  if (s_pData->GetDataForExtraction(pPointLight, nullptr, fScreenSpaceSize, sizeof(ezPointShadowData), pData))
+  if (s_pData->GetDataForExtraction(pPointLight, nullptr, fShadowMapScale, sizeof(ezPointShadowData), pData))
   {
     return pData->m_uiPackedDataOffset;
   }
@@ -671,8 +672,9 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
+  const float fShadowMapScale = fScreenSpaceSize * 0.5f;
   ShadowData* pData = nullptr;
-  if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fScreenSpaceSize, sizeof(ezSpotShadowData), pData))
+  if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
   {
     return pData->m_uiPackedDataOffset;
   }

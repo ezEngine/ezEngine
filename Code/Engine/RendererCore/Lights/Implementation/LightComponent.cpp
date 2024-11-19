@@ -289,7 +289,7 @@ float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere,
   }
 }
 
-float ezLightComponent::CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera) const
+float ezLightComponent::CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera, float& out_fShadowScreenSize) const
 {
   if (!m_bCastShadows)
     return 0.0f;
@@ -297,25 +297,26 @@ float ezLightComponent::CalculateShadowFadeOut(const ezBoundingSphere& sphere, f
   ezBoundingSphere shadowBounds = sphere;
   if (fShadowFadeOutRange > 0.0f)
   {
-    shadowBounds.m_fRadius = fShadowFadeOutRange * 0.5f;
+    shadowBounds.m_fRadius = fShadowFadeOutRange;
   }
-  const float fShadowScreenSpaceSize = CalculateScreenSpaceSize(shadowBounds, camera);
-  return ezMath::Saturate(ezMath::Unlerp(0.4f, 0.5f, fShadowScreenSpaceSize));
+  out_fShadowScreenSize = CalculateScreenSpaceSize(shadowBounds, camera);
+  return ezMath::Saturate(ezMath::Unlerp(0.8f, 1.0f, out_fShadowScreenSize));
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-void ezLightComponent::VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSpaceSize, float fShadowFadeOut) const
+void ezLightComponent::VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSize, float fShadowScreenSize, float fShadowFadeOut) const
 {
   if (cvar_RenderingLightingVisScreenSpaceSize)
   {
     ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
     if (m_bCastShadows)
     {
-      ezDebugRenderer::Draw3DText(hView, ezFmt("Size: {}\nFadeOut: {}", ezArgF(fScreenSpaceSize, 3), ezArgF(fShadowFadeOut, 3)), sphere.m_vCenter, c);
+      ezDebugRenderer::Draw3DText(hView,
+        ezFmt("ScreenSize: {}\nShadowScreenSize: {}\n ShadowFadeOut: {}", ezArgF(fScreenSize, 3), ezArgF(fShadowScreenSize, 3), ezArgF(fShadowFadeOut, 3)), sphere.m_vCenter, c);
     }
     else
     {
-      ezDebugRenderer::Draw3DText(hView, ezFmt("Size: {}", ezArgF(fScreenSpaceSize, 3)), sphere.m_vCenter, c);
+      ezDebugRenderer::Draw3DText(hView, ezFmt("ScreenSize: {}", ezArgF(fScreenSize, 3)), sphere.m_vCenter, c);
     }
     ezDebugRenderer::DrawLineSphere(hView, sphere, c);
   }

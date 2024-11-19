@@ -91,10 +91,10 @@ public:
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
-  float CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera) const;
+  float CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera, float& out_fShadowScreenSize) const;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  void VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSpaceSize, float fShadowFadeOut) const;
+  void VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSize, float fShadowScreenSize, float fShadowFadeOut) const;
 #endif
 
   ezColorGammaUB m_LightColor = ezColor::White;
