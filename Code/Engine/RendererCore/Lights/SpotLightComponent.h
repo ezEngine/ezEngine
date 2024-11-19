@@ -52,6 +52,10 @@ public:
   /// \brief Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
+  /// \brief Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
+  void SetShadowFadeOutRange(float fRange); // [ property ]
+  float GetShadowFadeOutRange() const;      // [ property ]
+
   /// \brief Sets the inner angle where the spotlight has equal brightness.
   void SetInnerSpotAngle(ezAngle spotAngle); // [ property ]
   ezAngle GetInnerSpotAngle() const;         // [ property ]
@@ -72,6 +76,7 @@ protected:
 
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
+  float m_fShadowFadeOutRange = 0.0f;
 
   ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
   ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);

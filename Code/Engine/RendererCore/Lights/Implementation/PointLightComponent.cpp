@@ -7,15 +7,11 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
-#endif
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTIDefaultAllocator<ezPointLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -163,18 +159,23 @@ void ezPointLightComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   ezTextureCubeResourceHandle m_hProjectedTexture;
 
   s << m_fRange;
+  s << m_fShadowFadeOutRange;
   s << m_hProjectedTexture;
 }
 
 void ezPointLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   ezTextureCubeResourceHandle m_hProjectedTexture;
 
   s >> m_fRange;
+  if (uiVersion >= 3)
+  {
+    s >> m_fShadowFadeOutRange;
+  }
   s >> m_hProjectedTexture;
 }
 
