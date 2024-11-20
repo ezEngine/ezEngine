@@ -164,7 +164,7 @@ const ezJoltMaterial* ezJoltQueryShapeActorComponent::GetJoltMaterial() const
     }
   }
 
-  return nullptr;
+  return ezJoltCore::GetDefaultMaterial();
 }
 
 

@@ -7,6 +7,7 @@
 #include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeSphereComponent.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
+#include <Physics/Collision/Shape/EmptyShape.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeSphereComponent, 1, ezComponentMode::Static)
@@ -69,15 +70,24 @@ void ezJoltShapeSphereComponent::SetRadius(float f)
 
 void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
 {
-  auto pNewShape = new JPH::SphereShape(m_fRadius);
-  pNewShape->AddRef();
-  pNewShape->SetDensity(fDensity);
-  pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
-  pNewShape->SetMaterial(pMaterial);
-
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
-  sub.m_pShape = pNewShape;
   sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+
+  if (m_fRadius > 0.0f)
+  {
+    auto pNewShape = new JPH::SphereShape(m_fRadius);
+    pNewShape->SetDensity(fDensity);
+    pNewShape->SetMaterial(pMaterial);
+
+    sub.m_pShape = pNewShape;
+  }
+  else
+  {
+    sub.m_pShape = new JPH::EmptyShape();
+  }
+
+  sub.m_pShape->AddRef();
+  sub.m_pShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
 }
 
 

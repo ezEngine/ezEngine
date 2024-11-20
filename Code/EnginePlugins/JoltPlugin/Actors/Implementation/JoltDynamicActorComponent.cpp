@@ -278,9 +278,6 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
     return;
   }
 
-  if (pMaterial == nullptr)
-    pMaterial = ezJoltCore::GetDefaultMaterial();
-
   ezJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
@@ -444,7 +441,7 @@ const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
     }
   }
 
-  return nullptr;
+  return ezJoltCore::GetDefaultMaterial();
 }
 
 void ezJoltDynamicActorComponent::SetSurfaceFile(ezStringView sFile)
