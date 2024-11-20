@@ -118,7 +118,6 @@ void ezSceneDocument::GroupSelection()
   if (numSel <= 1)
     return;
 
-  ezVec3 vCenter(0.0f);
   const ezDocumentObject* pCommonParent = sel[0]->GetParent();
 
   // this happens for top-level objects, their parent object is an ezDocumentRootObject
@@ -127,17 +126,15 @@ void ezSceneDocument::GroupSelection()
     pCommonParent = nullptr;
   }
 
+  const ezTransform tGroup = GetGlobalTransform(GetSelectionManager()->GetCurrentObject());
+
   for (const auto& item : sel)
   {
-    vCenter += GetGlobalTransform(item).m_vPosition;
-
     if (pCommonParent != item->GetParent())
     {
       pCommonParent = nullptr;
     }
   }
-
-  vCenter /= numSel;
 
   auto pHistory = GetCommandHistory();
 
@@ -166,7 +163,7 @@ void ezSceneDocument::GroupSelection()
   }
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
-  SetGlobalTransform(pGroupObject, ezTransform(vCenter), TransformationChanges::Translation);
+  SetGlobalTransform(pGroupObject, tGroup, TransformationChanges::All);
 
   ezMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
