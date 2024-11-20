@@ -695,7 +695,7 @@ void ezQtAssetBrowserWidget::DeleteSelection()
     }
   }
 
-  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the selected items?"), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
+  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Delete the selected file?\n\nThis operation cannot be undone."), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
   if (choice == QMessageBox::StandardButton::Cancel)
     return;
 

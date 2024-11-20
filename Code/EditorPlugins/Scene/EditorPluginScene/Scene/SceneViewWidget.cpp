@@ -185,6 +185,8 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent* e)
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
     ezDragDropHandler::FinishDragDrop(&info);
+
+    setFocus();
   }
 
   ezQtEngineViewWidget::dropEvent(e);
