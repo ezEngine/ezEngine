@@ -479,7 +479,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
 
       case Qt::EditRole:
       {
-        ezStringView sFilename = entry.m_sAbsFilePath.GetAbsolutePath().GetFileNameAndExtension();
+        ezStringView sFilename = entry.m_sAbsFilePath.GetAbsolutePath().GetFileName(); // remove the file extension
         return ezMakeQString(sFilename);
       }
 

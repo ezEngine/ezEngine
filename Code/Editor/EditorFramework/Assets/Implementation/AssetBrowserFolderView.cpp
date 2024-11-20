@@ -28,9 +28,13 @@ QValidator::State ezFileNameValidator::validate(QString& ref_sInput, int& ref_iP
 
   if (!m_sCurrentName.IsEmpty() && sTemp == m_sCurrentName)
     return QValidator::State::Acceptable;
+  if (!m_sCurrentName.IsEmpty() && sTemp == m_sCurrentName.GetFileName())
+    return QValidator::State::Acceptable;
 
   ezStringBuilder sAbsPath = m_sParentFolder;
   sAbsPath.AppendPath(sTemp);
+  sAbsPath.Append(".", m_sCurrentName.GetFileExtension());
+
   if (ezOSFile::ExistsDirectory(sAbsPath) || ezOSFile::ExistsFile(sAbsPath))
     return QValidator::State::Intermediate;
 

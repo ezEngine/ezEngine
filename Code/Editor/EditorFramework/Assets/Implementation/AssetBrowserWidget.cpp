@@ -1317,10 +1317,7 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
 {
   ezStringBuilder sOldPath = qtToEzString(sAbsPath);
   ezStringBuilder sNewPath = sOldPath;
-  if (bIsAsset)
-    sNewPath.ChangeFileName(qtToEzString(sNewName));
-  else
-    sNewPath.ChangeFileNameAndExtension(qtToEzString(sNewName));
+  sNewPath.ChangeFileName(qtToEzString(sNewName));
 
   if (sOldPath != sNewPath)
   {
