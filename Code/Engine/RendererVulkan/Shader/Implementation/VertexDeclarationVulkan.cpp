@@ -48,7 +48,7 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     const ezUInt32 uiLocation = FindLocation(Current.m_eSemantic, Current.m_eFormat);
     if (uiLocation == ezMath::MaxValue<ezUInt32>())
     {
-      ezLog::Warning("Vertex buffer semantic {} not used by shader", Current.m_eSemantic);
+      // ezLog::Warning("Vertex buffer semantic {} not used by shader", Current.m_eSemantic);
       continue;
     }
     vk::VertexInputAttributeDescription& attrib = m_attributes.ExpandAndGetRef();
@@ -93,5 +93,3 @@ ezResult ezGALVertexDeclarationVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   return EZ_SUCCESS;
 }
-
-

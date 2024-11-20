@@ -430,7 +430,10 @@ ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID, ez
       return EZ_FAILURE;
     }
 
-    pObject->TryGetComponentOfBaseType(pRbComp);
+    if (!pObject->TryGetComponentOfBaseType(pRbComp))
+    {
+      EZ_REPORT_FAILURE("Component should exist.");
+    }
   }
 
   pRbComp->EnsureSimulationStarted();

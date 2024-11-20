@@ -118,7 +118,7 @@ public:
   ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
-  ezStreamReader& GetStream() const { return *m_pStream; }
+  ezStreamReader& GetStream() const;
 
   /// \brief Used during component deserialization to read a handle to a game object.
   ezGameObjectHandle ReadGameObjectHandle();
@@ -169,14 +169,11 @@ private:
   void ReadGameObjectDesc(GameObjectToCreate& godesc);
   void ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentDataToMemStream(bool warningOnUnknownSkip = true);
-  void ClearHandles();
+
   ezUniquePtr<InstantiationContextBase> Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
-  ezStreamReader* m_pStream = nullptr;
-  ezWorld* m_pWorld = nullptr;
-
+  ezStreamReader* m_pReadStream = nullptr;
   ezUInt8 m_uiVersion = 0;
-  ezDynamicArray<ezGameObjectHandle> m_IndexToGameObjectHandle;
 
   ezDynamicArray<GameObjectToCreate> m_RootObjectsToCreate;
   ezDynamicArray<GameObjectToCreate> m_ChildObjectsToCreate;
@@ -184,7 +181,6 @@ private:
   struct ComponentTypeInfo
   {
     const ezRTTI* m_pRtti = nullptr;
-    ezDynamicArray<ezComponentHandle> m_ComponentIndexToHandle;
     ezUInt32 m_uiNumComponents = 0;
   };
 
@@ -199,7 +195,7 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& ref_worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+    InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
     ~InstantiationContext();
 
     virtual StepResult Step() override;
@@ -222,10 +218,20 @@ private:
     friend class ezWorldReader;
     ezWorldReader& m_WorldReader;
 
+    ezWorld* m_pWorld = nullptr;
+
     bool m_bUseTransform = false;
     ezTransform m_RootTransform;
 
     ezPrefabInstantiationOptions m_Options;
+
+    struct ComponentTypeState
+    {
+      ezDynamicArray<ezComponentHandle> m_ComponentIndexToHandle;
+    };
+
+    ezDynamicArray<ezGameObjectHandle> m_IndexToGameObjectHandle;
+    ezDynamicArray<ComponentTypeState> m_ComponentTypeStates;
 
     ezComponentInitBatchHandle m_hComponentInitBatch;
 

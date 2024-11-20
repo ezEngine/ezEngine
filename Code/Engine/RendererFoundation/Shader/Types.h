@@ -2,6 +2,7 @@
 
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Transform.h>
 

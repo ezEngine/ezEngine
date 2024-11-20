@@ -58,7 +58,7 @@ namespace
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
-ezEvent<const ezGALDeviceEvent&> ezGALDevice::s_Events;
+ezEvent<const ezGALDeviceEvent&, ezMutex> ezGALDevice::s_Events;
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
