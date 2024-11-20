@@ -25,6 +25,7 @@ public:
   void dragMoveEvent(QDragMoveEvent* pEvent) override;
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
+  void startDrag(Qt::DropActions supportedActions) override;
 
 Q_SIGNALS:
   void ViewZoomed(ezInt32 iIconSizePercentage);

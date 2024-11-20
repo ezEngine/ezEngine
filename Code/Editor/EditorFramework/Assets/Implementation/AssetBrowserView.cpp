@@ -24,6 +24,26 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   SetIconScale(m_iIconSizePercentage);
 }
 
+void ezQtAssetBrowserView::startDrag(Qt::DropActions supportedActions)
+{
+  // overridden so that we can get rid of the preview image
+
+  QModelIndexList indexes = selectedIndexes();
+  if (indexes.count() > 0)
+  {
+    QMimeData* data = model()->mimeData(indexes);
+    if (!data)
+    {
+      return;
+    }
+
+    QDrag* drag = new QDrag(this);
+    drag->setMimeData(data);
+
+    drag->exec(supportedActions, Qt::MoveAction);
+  }
+}
+
 void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
 {
   m_bDialogMode = bDialogMode;
