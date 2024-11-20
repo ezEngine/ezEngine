@@ -24,21 +24,13 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORENGINEPROCESSFRAMEWORK_DLL, ezSceneViewPers
 
 struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
 {
-  ezEngineViewConfig()
-  {
-    m_RenderMode = ezViewRenderMode::Default;
-    m_Perspective = ezSceneViewPerspective::Default;
-    m_CameraUsageHint = ezCameraUsageHint::EditorView;
-    m_pLinkedViewConfig = nullptr;
-  }
-
-  ezViewRenderMode::Enum m_RenderMode;
-  ezSceneViewPerspective::Enum m_Perspective;
-  ezCameraUsageHint::Enum m_CameraUsageHint;
+  ezViewRenderMode::Enum m_RenderMode = ezViewRenderMode::Default;
+  ezSceneViewPerspective::Enum m_Perspective = ezSceneViewPerspective::Default;
+  ezCameraUsageHint::Enum m_CameraUsageHint = ezCameraUsageHint::EditorView;
   bool m_bUseCameraTransformOnDevice = true;
 
   ezCamera m_Camera;
-  ezEngineViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
+  ezEngineViewConfig* m_pLinkedViewConfig = nullptr; // used to store which other view config this is linked to, for resetting values when switching views
 
   void ApplyPerspectiveSetting(float fFov = 0.0f, float fNearPlane = 0.1f, float fFarPlane = 1000.0f);
 };

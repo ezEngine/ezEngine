@@ -326,7 +326,7 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuff
 
   ezStringBuilder newName;
 
-  for (ezUInt32 i = 1; i < 100000; ++i)
+  for (ezUInt32 i = 2; i < 100000; ++i)
   {
     newName.SetFormat("{}{}{}", orgName, sSuffix, i);
 

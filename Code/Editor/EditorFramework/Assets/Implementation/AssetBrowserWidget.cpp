@@ -1275,7 +1275,7 @@ void ezQtAssetBrowserWidget::NewAsset()
   ezPathUtils::MakeValidFilename(sTranslateAssetType, ' ', sBaseFileName);
   sNewAsset.AppendFormat("/{}.{}", sBaseFileName, sExtension);
 
-  for (ezUInt32 i = 0; ezOSFile::ExistsFile(sNewAsset); i++)
+  for (ezUInt32 i = 2; ezOSFile::ExistsFile(sNewAsset); i++)
   {
     sNewAsset = qtToEzString(sStartDir);
     sNewAsset.AppendFormat("/{}{}.{}", sBaseFileName, i, sExtension);
