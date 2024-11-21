@@ -41,7 +41,7 @@ ezResourceLoadDesc ezBlackboardTemplateResource::UpdateContent(ezStreamReader* S
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
+  // the standard file reader writes the absolute file path into the stream
   ezStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 

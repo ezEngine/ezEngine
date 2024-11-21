@@ -604,15 +604,13 @@ ezResourceLoadDesc ezKrautGeneratorResource::UpdateContent(ezStreamReader* Strea
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
-    if (ezPathUtils::HasExtension(sAbsFilePath, ".tree"))
-    {
-      return res;
-    }
+  if (ezPathUtils::HasExtension(sAbsFilePath, ".tree"))
+  {
+    return res;
   }
 
   ezAssetFileHeader AssetHash;

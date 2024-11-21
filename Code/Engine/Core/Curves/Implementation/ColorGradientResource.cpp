@@ -53,11 +53,9 @@ ezResourceLoadDesc ezColorGradientResource::UpdateContent(ezStreamReader* Stream
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;

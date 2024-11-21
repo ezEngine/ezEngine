@@ -114,6 +114,7 @@
     <file>ezTriggerDelayModifierComponent.svg</file>
     <file>ezSkeletonPoseComponent.svg</file>
     <file>ezResetTransformComponent.svg</file>
+    <file>ezRandomPrefabComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>

@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-enum PrefabComponentFlags
+enum class PrefabComponentFlags : ezUInt8
 {
   SelfDeletion = 1, ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
 };
@@ -327,7 +327,7 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
 
 void ezPrefabReferenceComponent::Deinitialize()
 {
-  if (GetUserFlag(PrefabComponentFlags::SelfDeletion))
+  if (GetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion))
   {
     // do nothing, ie do not call OnDeactivated()
     // we do want to keep the created child objects around when this component gets destroyed during simulation
@@ -345,7 +345,7 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 
   if (GetUniqueID() == ezInvalidIndex)
   {
-    SetUserFlag(PrefabComponentFlags::SelfDeletion, true);
+    SetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion, true);
 
     // remove the prefab reference component, to prevent issues after another serialization/deserialization
     // and also to save some memory

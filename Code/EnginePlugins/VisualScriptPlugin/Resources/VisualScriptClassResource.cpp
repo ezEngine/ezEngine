@@ -64,11 +64,9 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
     return ld;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezString sAbsFilePath;
-    (*pStream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezString sAbsFilePath;
+  (*pStream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;

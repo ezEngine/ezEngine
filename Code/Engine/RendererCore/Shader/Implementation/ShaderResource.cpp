@@ -43,11 +43,9 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*stream) >> sAbsFilePath;
 
   ezHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
   ezShaderParser::ParsePermutationSection(*stream, m_PermutationVarsUsed, fixedPermVars);

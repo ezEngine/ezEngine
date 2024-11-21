@@ -461,7 +461,7 @@ ezVisualScriptDataType::Enum ezVisualScriptNodeRegistry::GetScriptDataType(const
   if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
     ezVisualScriptDataType::Enum result = ezVisualScriptDataType::Invalid;
-    GetScriptDataType(pProp->GetSpecificType(), result).IgnoreResult();
+    GetScriptDataType(pProp->GetSpecificType(), result, "Member", pProp->GetPropertyName()).IgnoreResult();
     return result;
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Array)
