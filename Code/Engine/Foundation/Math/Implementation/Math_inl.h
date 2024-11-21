@@ -359,7 +359,7 @@ namespace ezMath
     return static_cast<ezUInt8>(ColorFloatToUnsignedInt<8>(value));
   }
 
-  inline ezUInt16 ColorFloatToShort(float value)
+  EZ_ALWAYS_INLINE ezUInt16 ColorFloatToShort(float value)
   {
     return static_cast<ezUInt16>(ColorFloatToUnsignedInt<16>(value));
   }
