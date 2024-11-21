@@ -4,6 +4,8 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/LightComponent.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
