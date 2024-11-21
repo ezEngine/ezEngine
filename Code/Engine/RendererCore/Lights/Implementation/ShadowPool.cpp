@@ -598,7 +598,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
-  
+
   const float fShadowMapScale = fScreenSpaceSize * 0.5f;
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pPointLight, nullptr, fShadowMapScale, sizeof(ezPointShadowData), pData))
