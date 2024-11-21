@@ -973,7 +973,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       texMatrix.SetDiagonal(ezVec4(0.5f, -0.5f, 1.0f, 1.0f));
       texMatrix.SetTranslationVector(ezVec3(0.5f, 0.5f, 0.0f));
 
-      ezAngle fov;
+      ezAngle fov = ezAngle::MakeZero();
+      float fRange = 0.0f;
 
       for (ezUInt32 uiViewIndex = 0; uiViewIndex < shadowData.m_Views.GetCount(); ++uiViewIndex)
       {
@@ -995,6 +996,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
           atlasMatrix.SetTranslationVector(offset.GetAsVec3(0.0f));
 
           fov = pShadowView->GetCamera()->GetFovY(1.0f);
+          fRange = pShadowView->GetCamera()->GetFarPlane();
           const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix(ezCameraEye::Left);
 
           worldToLightMatrix = atlasMatrix * texMatrix * viewProjection;
@@ -1010,8 +1012,10 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       const float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / screenHeight, texelSize);
       const float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
 
-      const float fovFactor = 0.8f * ezMath::Pow(1.04f, fov.GetDegree());
-      const float slopeBias = shadowData.m_fSlopeBias * penumbraSize * fovFactor;
+      // empirical tweak factors
+      const float fovFactor = 0.15f * ezMath::Pow(5.5f, fov.GetRadian());
+      const float rangeFactor = ezMath::Max(0.018f * fRange + 0.0098f * fRange * fRange, 0.1f);
+      const float slopeBias = shadowData.m_fSlopeBias * penumbraSize * fovFactor * rangeFactor;
       const float constantBias = shadowData.m_fConstantBias * cvar_RenderingShadowsMaxShadowMapSize / uiShadowMapSize;
 
       ezUInt32 uiParamsIndex = GET_SHADOW_PARAMS_INDEX(shadowData.m_uiPackedDataOffset);
