@@ -7,6 +7,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
+#include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
