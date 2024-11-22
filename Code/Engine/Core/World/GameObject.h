@@ -516,6 +516,9 @@ private:
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
 
+  void Reflection_SetTag(const char* szTagName);
+  void Reflection_RemoveTag(const char* szTagName);
+
   // Add / Detach child used by the reflected property keep their local transform as
   // updating that is handled by the editor.
   void Reflection_AddChild(ezGameObject* pChild);

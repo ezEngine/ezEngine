@@ -30,7 +30,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
     EZ_ACCESSOR_PROPERTY("LocalUniformScaling", GetLocalUniformScaling, SetLocalUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultTags())),
+    EZ_SET_ACCESSOR_PROPERTY("Tags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultTags())),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
@@ -77,6 +77,26 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
+
+void ezGameObject::Reflection_SetTag(const char* szTagName)
+{
+  if (ezStringUtils::IsNullOrEmpty(szTagName))
+    return;
+
+  const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagName);
+  SetTag(tag);
+}
+
+void ezGameObject::Reflection_RemoveTag(const char* szTagName)
+{
+  if (ezStringUtils::IsNullOrEmpty(szTagName))
+    return;
+
+  if (const ezTag* pTag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTagName)))
+  {
+    RemoveTag(*pTag);
+  }
+}
 
 void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 {
