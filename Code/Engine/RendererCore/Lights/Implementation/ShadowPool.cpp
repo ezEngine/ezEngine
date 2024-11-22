@@ -44,10 +44,9 @@ EZ_END_SUBSYSTEM_DECLARATION;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 ezCVarBool cvar_RenderingShadowsVisCascadeBounds("Rendering.Shadows.VisCascadeBounds", false, ezCVarFlags::Default, "Visualizes the bounding volumes of shadow cascades");
-ezCVarFloat cvar_RenderingShadowsScaleMappingExponent("Rendering.Shadows.ScaleMappingExponent", 1.5f, ezCVarFlags::Default, "Determines how fast the shadow map size is reduced with screen space size");
-#else
-float cvar_RenderingShadowsScaleMappingExponent = 1.5f;
 #endif
+
+ezCVarFloat cvar_RenderingShadowsScaleMappingExponent("Rendering.Shadows.ScaleMappingExponent", 1.5f, ezCVarFlags::Default, "Determines how fast the shadow map size is reduced with screen space size");
 
 /// NOTE: The default values for these are defined in ezCoreRenderProfileConfig
 ///       but they can also be overwritten in custom game states at startup.

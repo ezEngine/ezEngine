@@ -287,7 +287,7 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
 
     debugColor = debugColors[matrixIndex];
 
-    fadeOut = ((shadowDataOffsetAndFadeOut >> 20) & 0xFFF) / 4095.0;
+    fadeOut = (shadowDataOffsetAndFadeOut >> 20) / 4095.0;
   }
 
   [branch] if (fadeOut > 0.0f)

@@ -705,6 +705,8 @@ ezGALResourceFormat::Enum ezShaderCompilerHLSL::GetEZFormat(const _D3D11_SIGNATU
           break;
       }
       break;
+    default:
+      return ezGALResourceFormat::Invalid;
   }
   return ezGALResourceFormat::Invalid;
 }
