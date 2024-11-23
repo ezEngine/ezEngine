@@ -10,7 +10,6 @@
 class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
 {
 public:
-  void DiscardBuffer() const;
   EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
 
@@ -22,13 +21,6 @@ public:
   static vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
 
 protected:
-  struct BufferVulkan
-  {
-    vk::Buffer m_buffer;
-    ezVulkanAllocation m_alloc;
-    mutable ezUInt64 m_currentFrame = 0;
-  };
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
@@ -39,12 +31,13 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
-  void CreateBuffer() const;
+  void CreateBuffer();
 
-  mutable BufferVulkan m_currentBuffer;
-  mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
-  mutable ezDeque<BufferVulkan> m_usedBuffers;
-  mutable ezVulkanAllocationInfo m_allocInfo;
+protected:
+  vk::Buffer m_buffer = {};
+  ezVulkanAllocation m_alloc = {};
+  ezVulkanAllocationInfo m_allocInfo = {};
+  vk::DescriptorBufferInfo m_resourceBufferInfo = {};
 
   // Data for memory barriers and access
   vk::PipelineStageFlags m_stages = {};
@@ -54,7 +47,7 @@ protected:
   vk::DeviceSize m_size = 0;
 
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
-  vk::Device m_device;
+  vk::Device m_device = {};
 
   mutable ezString m_sDebugName;
 };

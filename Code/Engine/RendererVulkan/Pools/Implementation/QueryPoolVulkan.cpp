@@ -90,7 +90,7 @@ void ezQueryPoolVulkan::Calibrate()
   m_TimestampPool.m_device.destroyEvent(event);
 }
 
-void ezQueryPoolVulkan::BeginFrame(vk::CommandBuffer commandBuffer)
+void ezQueryPoolVulkan::AfterBeginFrame(vk::CommandBuffer commandBuffer)
 {
   ezUInt64 uiCurrentFrame = m_pDevice->GetCurrentFrame();
   ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();

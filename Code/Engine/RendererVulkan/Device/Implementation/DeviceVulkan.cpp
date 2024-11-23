@@ -603,7 +603,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan, &m_Allocator);
   m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
   m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
-  m_pStagingBufferPool->Initialize(this);
+  // This instance is only utilized when using ezGALUpdateMode::CopyToTempStorage. All other updates run in the instance of the ezInitContextVulkan so we don't expect a lot of memory to be used here.
+  m_pStagingBufferPool->Initialize(this, 1 * 1024 * 1024);
   m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan, this);
   m_pQueryPool->Initialize(queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
   m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, this);
@@ -644,22 +645,16 @@ void ezGALDeviceVulkan::ReportLiveGpuObjects()
 
 void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset)
 {
-  void* pData = nullptr;
-
   // #TODO_VULKAN Use transfer queue
-  ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, pInitialData.GetCount());
-  // ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(stagingBuffer.m_allocInfo.m_pMappedData), pInitialData.GetPtr(), pInitialData.GetCount());
-  ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
-  ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pInitialData.GetPtr(), pInitialData.GetCount());
-  ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
-  VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, pInitialData.GetCount()));
+  ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(pInitialData.GetCount());
+  ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pInitialData.GetPtr(), pInitialData.GetCount());
 
   vk::BufferCopy region;
-  region.srcOffset = 0;
+  region.srcOffset = stagingBuffer.m_uiOffset;
   region.dstOffset = dstOffset;
   region.size = pInitialData.GetCount();
 
-  pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, pInitialData.GetCount(), vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+  pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, stagingBuffer.m_uiOffset, pInitialData.GetCount(), vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
 
   pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
 
@@ -669,9 +664,6 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
 
   pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
-
-  // #TODO_VULKAN Custom delete later / return to ezStagingBufferPoolVulkan once this is on the transfer queue and runs async to graphics queue.
-  pStagingBufferPool->ReclaimBuffer(stagingBuffer);
 }
 
 void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data)
@@ -704,30 +696,25 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
       (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
     const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-    ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, uiTotalSize);
-    EZ_SCOPE_EXIT(pStagingBufferPool->ReclaimBuffer(stagingBuffer));
+    ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(uiTotalSize);
 
     const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
     const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
     EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
     EZ_ASSERT_DEV(uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
 
-    void* pData = nullptr;
-    ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
-    ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(pData), pLayerData, uiTotalSize);
-    ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
-    VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(stagingBuffer.m_alloc, 0, uiTotalSize));
+    ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pLayerData, uiTotalSize);
 
     vk::BufferImageCopy region = {};
     region.imageSubresource = subResource;
     region.imageOffset = imageOffset;
     region.imageExtent = imageExtent;
 
-    region.bufferOffset = 0;
+    region.bufferOffset = stagingBuffer.m_uiOffset;
     region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
     region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
 
-    pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, 0, uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+    pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, stagingBuffer.m_uiOffset, uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
 
     pPipelineBarrier->Flush();
 
@@ -866,6 +853,8 @@ ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreat
 
 vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
 {
+  m_pCommandEncoderImpl->BeforeCommandBufferSubmit();
+  m_pStagingBufferPool->BeforeCommandBufferSubmit();
   vk::CommandBuffer initCommandBuffer = m_pInitContext->GetFinishedCommandBuffer();
   bool bHasCmdBuffer = initCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
 
@@ -969,7 +958,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
     m_graphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
   }
 
-  m_pCommandEncoderImpl->CommandBufferSubmitted(renderFence);
+  m_pCommandEncoderImpl->AfterCommandBufferSubmit(renderFence);
 
   auto res = renderFence;
   ReclaimLater(renderFence);
@@ -1382,7 +1371,7 @@ ezResult ezGALDeviceVulkan::LockBufferPlatform(const ezGALReadbackBuffer* pBuffe
 
   void* pData = nullptr;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::MapMemory(pBufferVulkan->GetAllocation(), &pData));
-
+  ezMemoryAllocatorVulkan::InvalidateAllocation(pBufferVulkan->GetAllocation());
   out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(pData), pBuffer->GetDescription().m_uiTotalSize);
   return EZ_SUCCESS;
 }
@@ -1409,7 +1398,7 @@ ezResult ezGALDeviceVulkan::LockTexturePlatform(const ezGALReadbackTexture* pTex
 
   void* pData = nullptr;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::MapMemory(pVulkanTexture->GetBufferAllocation(), &pData));
-
+  ezMemoryAllocatorVulkan::InvalidateAllocation(pVulkanTexture->GetBufferAllocation());
   const ezUInt32 uiMipLevels = textureDesc.m_uiMipLevelCount;
   for (ezUInt32 i = 0; i < uiSubResources; i++)
   {
@@ -1460,13 +1449,14 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
       {
         EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
         bool bFencesReached = true;
+        EZ_ASSERT_DEV(perFrameData.m_CommandBufferFences.GetCount() > 0, "");
         for (vk::Fence fence : perFrameData.m_CommandBufferFences)
         {
           vk::Result fenceStatus = m_device.getFenceStatus(fence);
           if (fenceStatus == vk::Result::eNotReady)
           {
             if (bForce)
-              m_device.waitForFences(1, &fence, true, 10000000000ull);
+              VK_ASSERT_DEV(m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
             else
             {
               bFencesReached = false;
@@ -1500,9 +1490,11 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
 
   m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
+  m_pStagingBufferPool->AfterBeginFrame();
+  m_pInitContext->AfterBeginFrame();
   {
     EZ_PROFILE_SCOPE("QueryPool");
-    m_pQueryPool->BeginFrame(GetCurrentCommandBuffer());
+    m_pQueryPool->AfterBeginFrame(GetCurrentCommandBuffer());
   }
   GetCurrentCommandBuffer();
 
@@ -1534,10 +1526,14 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   }
 #endif
 
+  // We need to prevent the init context from starting any uploads between submit and the update of the current frame counter. Otherwise we can't use the device's safe frame counter as uploads could slip in for frame N which has already been submitted.
+  EZ_LOCK(m_pInitContext->AccessLock());
+
   if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
   {
     Submit();
   }
+  m_pCommandEncoderImpl->EndFrame();
 
   {
     // Resources can be added to deletion / reclaim outside of the render frame. These will not be covered by the fences. To handle this, we swap the resources arrays so for any newly added resources we know they are not part of the batch that is deleted / reclaimed with the frame.
@@ -1551,7 +1547,7 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
       currentFrameData.m_reclaimResourcesPrevious.Swap(currentFrameData.m_reclaimResources);
     }
   }
-  ++m_uiFrameCounter;
+  m_uiFrameCounter.Increment();
   m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
 }
 

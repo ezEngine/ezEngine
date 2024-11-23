@@ -29,10 +29,14 @@ ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& 
   : m_GALDeviceVulkan(device)
 {
   m_vkDevice = device.GetVulkanDevice();
+  m_pUniformBufferPool = EZ_NEW(device.GetAllocator(), ezUniformBufferPoolVulkan, &device);
+  m_pUniformBufferPool->Initialize();
 }
 
 ezGALCommandEncoderImplVulkan::~ezGALCommandEncoderImplVulkan()
 {
+  m_pUniformBufferPool->DeInitialize();
+  m_pUniformBufferPool = nullptr;
 }
 
 void ezGALCommandEncoderImplVulkan::Reset()
@@ -81,7 +85,17 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_clearValues.Clear();
 }
 
-void ezGALCommandEncoderImplVulkan::CommandBufferSubmitted(vk::Fence submitFence)
+void ezGALCommandEncoderImplVulkan::EndFrame()
+{
+  m_pUniformBufferPool->EndFrame();
+}
+
+void ezGALCommandEncoderImplVulkan::BeforeCommandBufferSubmit()
+{
+  m_pUniformBufferPool->BeforeCommandBufferSubmit();
+}
+
+void ezGALCommandEncoderImplVulkan::AfterCommandBufferSubmit(vk::Fence submitFence)
 {
   m_pCommandBuffer = nullptr;
   m_pPipelineBarrier = nullptr;
@@ -284,9 +298,11 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
   switch (updateMode)
   {
     case ezGALUpdateMode::TransientConstantBuffer:
-      pVulkanDestination->DiscardBuffer();
-      [[fallthrough]];
-
+      EZ_ASSERT_DEBUG(pDestination->GetDescription().m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::Transient | ezGALBufferUsageFlags::ConstantBuffer), "Only transient constant buffer can make use of TransientConstantBuffer update mode");
+      EZ_ASSERT_DEBUG(uiDestOffset == 0, "Offset not supported");
+      EZ_ASSERT_DEBUG(pVulkanDestination->GetDescription().m_uiTotalSize == pSourceData.GetCount(), "Transient buffers must be updated in their entirety");
+      m_pUniformBufferPool->UpdateBuffer(pVulkanDestination, pSourceData);
+      break;
     case ezGALUpdateMode::AheadOfTime:
       m_GALDeviceVulkan.GetInitContext().UpdateBuffer(pVulkanDestination, uiDestOffset, pSourceData);
       break;
@@ -407,17 +423,14 @@ void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pD
     (uiDepth + blockExtent[2] - 1) / blockExtent[2]};
 
   const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-  ezStagingBufferVulkan stagingBuffer = m_GALDeviceVulkan.GetStagingBufferPool().AllocateBuffer(0, uiTotalSize);
+  ezStagingBufferVulkan stagingBuffer = m_GALDeviceVulkan.GetStagingBufferPool().AllocateBuffer(uiTotalSize);
 
   const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
   const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
   EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
 
-  void* pData = nullptr;
-  ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
   EZ_ASSERT_DEBUG(data.m_pData.GetCount() >= uiTotalSize, "Not enough data provided to update texture");
-  ezMemoryUtils::RawByteCopy(pData, data.m_pData.GetPtr(), uiTotalSize);
-  ezMemoryAllocatorVulkan::UnmapMemory(stagingBuffer.m_alloc);
+  ezMemoryUtils::RawByteCopy(stagingBuffer.m_Data.GetPtr(), data.m_pData.GetPtr(), uiTotalSize);
 
   vk::BufferImageCopy region = {};
   region.imageSubresource.aspectMask = range.aspectMask;
@@ -428,12 +441,11 @@ void ezGALCommandEncoderImplVulkan::UpdateTexturePlatform(const ezGALTexture* pD
   region.imageOffset = vk::Offset3D(DestinationBox.m_vMin.x, DestinationBox.m_vMin.y, DestinationBox.m_vMin.z);
   region.imageExtent = vk::Extent3D(uiWidth, uiHeight, uiDepth);
 
-  region.bufferOffset = 0;
+  region.bufferOffset = stagingBuffer.m_uiOffset;
   region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
   region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
 
   m_pCommandBuffer->copyBufferToImage(stagingBuffer.m_buffer, pDestVulkan->GetImage(), pDestVulkan->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
-  m_GALDeviceVulkan.GetStagingBufferPool().ReclaimBuffer(stagingBuffer);
 }
 
 void ezGALCommandEncoderImplVulkan::ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource,
@@ -1220,7 +1232,16 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           {
             const ezGALBufferVulkan* pBuffer = ezUInt32(mapping.m_iSlot) < resources.m_pBoundConstantBuffers.GetCount() ? resources.m_pBoundConstantBuffers[mapping.m_iSlot] : nullptr;
             EZ_VULKAN_CHECK_STATE(pBuffer != nullptr, "No CB bound at '{}'", mapping.m_sName.GetView());
-            write.pBufferInfo = &pBuffer->GetBufferInfo();
+            if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
+            {
+              write.pBufferInfo = m_pUniformBufferPool->GetBuffer(pBuffer);
+              EZ_ASSERT_DEBUG(write.pBufferInfo != nullptr, "Implementation error");
+            }
+            else
+            {
+              write.pBufferInfo = &pBuffer->GetBufferInfo();
+              EZ_ASSERT_DEBUG(write.pBufferInfo != nullptr, "Implementation error");
+            }
           }
           break;
           case ezGALShaderResourceType::Texture:

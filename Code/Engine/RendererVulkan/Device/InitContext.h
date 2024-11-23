@@ -15,6 +15,10 @@ public:
   ezInitContextVulkan(ezGALDeviceVulkan* pDevice);
   ~ezInitContextVulkan();
 
+  void AfterBeginFrame();
+
+  ezMutex& AccessLock() { return m_Lock; }
+  
   /// \brief Returns a finished command buffer of all background loading up to this point.
   ///    The command buffer is already ended and marked to be reclaimed so the only thing done on it should be to submit it.
   vk::CommandBuffer GetFinishedCommandBuffer();
@@ -38,6 +42,13 @@ public:
   /// \param uiOffset The offset inside the buffer where the new data should be placed.
   /// \param pSourceData The new data to update the buffer with.
   void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezArrayPtr<const ezUInt8> pSourceData);
+
+  /// \brief Used by ezUniformBufferPoolVulkan to write the entire uniform scratch pool to the GPU
+  /// \param gpuBuffer The device local buffer to update.
+  /// \param stagingBuffer The staging buffer that contains the data to be copied to gpuBuffer. If null, buffer is CPU writable and already contains the data.
+  /// \param uiOffset Offset in the buffer.
+  /// \param uiSize The size of the data to be copied from stagingBuffer to gpuBuffer.
+  void UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiOffset, ezUInt32 uiSize);
 
 private:
   void EnsureCommandBufferExists();

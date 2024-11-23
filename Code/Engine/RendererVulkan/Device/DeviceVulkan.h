@@ -410,8 +410,9 @@ private:
 
   static constexpr ezUInt32 FRAMES = 4;
 
-  ezUInt64 m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
-  ezUInt64 m_uiSafeFrame = 0;
+  // These are atomic as the ezInitContextVulkan is accessing these on worker threads when uploading resources in the background.
+  ezAtomicInteger<ezUInt64> m_uiFrameCounter = 1; ///< We start at 1 so m_uiFrameCounter and m_uiSafeFrame are not equal at the start.
+  ezAtomicInteger<ezUInt64> m_uiSafeFrame = 0;
   ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
   vk::Instance m_instance;

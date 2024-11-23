@@ -364,3 +364,4 @@ Code/Engine/ezBuildInfo.h
 
 # NOTE: Allows Live++ API to be used in the project without being ignored by git.
 !Code/ThirdParty/LivePP/**
+cmake-build-debug-visual-studio

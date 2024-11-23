@@ -19,7 +19,7 @@ public:
   void DeInitialize();
 
   /// \brief Needs to be called every frame so the pool can figure out which queries have finished and reuse old data.
-  void BeginFrame(vk::CommandBuffer commandBuffer);
+  void AfterBeginFrame(vk::CommandBuffer commandBuffer);
 
   /// \brief We have to call this before each begin rendering call as if we run out of queries inside a render pass, we can't recover given that resetQueryPool can only be called outside a render pass which is necessary to be called on every new pool.
   void EnsureFreeQueryPoolSize(vk::CommandBuffer commandBuffer);
