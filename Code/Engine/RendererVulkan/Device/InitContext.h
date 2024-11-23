@@ -18,7 +18,7 @@ public:
   void AfterBeginFrame();
 
   ezMutex& AccessLock() { return m_Lock; }
-  
+
   /// \brief Returns a finished command buffer of all background loading up to this point.
   ///    The command buffer is already ended and marked to be reclaimed so the only thing done on it should be to submit it.
   vk::CommandBuffer GetFinishedCommandBuffer();

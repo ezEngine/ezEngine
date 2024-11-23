@@ -106,6 +106,5 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, RingBufferTracker)
     EZ_TEST_INT(frames[1].m_uiFrame, 2);
     EZ_TEST_INT(frames[1].m_uiStartOffset, 0);
     EZ_TEST_INT(frames[1].m_uiSize, 200);
-
   }
 }

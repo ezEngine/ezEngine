@@ -16,7 +16,7 @@ class EZ_RENDERERVULKAN_DLL ezUniformBufferPoolVulkan
 public:
   enum class BufferUpdateResult
   {
-    OffsetChanged, ///< The offset of the current buffer was moved forward.
+    OffsetChanged,        ///< The offset of the current buffer was moved forward.
     DynamicBufferChanged, ///< The current buffer was depleted and a new buffer was started.
   };
 

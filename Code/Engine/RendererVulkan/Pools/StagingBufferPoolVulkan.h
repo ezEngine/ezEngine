@@ -1,8 +1,8 @@
 #pragma once
 
+#include <RendererFoundation/Utils/RingBufferTracker.h>
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-#include <RendererFoundation/Utils/RingBufferTracker.h>
 
 #include <vulkan/vulkan.hpp>
 

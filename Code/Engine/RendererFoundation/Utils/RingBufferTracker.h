@@ -14,9 +14,9 @@ public:
   // \brief A memory range starting at m_uiStartOffset of size m_uiSize that was modified in a frame.
   struct FrameData
   {
-    ezUInt64 m_uiFrame = 0; ///< The frame in which the memory was allocated.
+    ezUInt64 m_uiFrame = 0;       ///< The frame in which the memory was allocated.
     ezUInt32 m_uiStartOffset = 0; ///< The start offset of the memory that was modified in this frame.
-    ezUInt32 m_uiSize = 0; ///< The size of the memory modification.
+    ezUInt32 m_uiSize = 0;        ///< The size of the memory modification.
   };
 
 public:
@@ -41,11 +41,11 @@ public:
   /// \param uiFrame Frame index to submit dirty ranges.
   /// \param out_FrameData Will receive the FrameData objects containing the dirty ranges of the memory.
   /// \return Returns EZ_FAILURE if no allocations were made in uiFrame.
-  ezResult SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_FrameData); // [tested]
+  ezResult SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_FrameData);    // [tested]
 
-  EZ_ALWAYS_INLINE ezUInt32 GetTotalMemory() const { return m_uiTotalSize; } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetTotalMemory() const { return m_uiTotalSize; }           // [tested]
   EZ_ALWAYS_INLINE ezUInt32 GetUsedMemory() const { return m_uiTotalSize - m_uiFree; } // [tested]
-  EZ_ALWAYS_INLINE ezUInt32 GetFreeMemory() const { return m_uiFree; } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetFreeMemory() const { return m_uiFree; }                 // [tested]
 
 private:
   ezUInt32 m_uiAlignment = 0;
