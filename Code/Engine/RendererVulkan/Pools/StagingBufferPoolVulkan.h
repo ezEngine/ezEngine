@@ -36,7 +36,7 @@ public:
   /// \brief Allocates a temp buffer of the given size.
   /// \param size The size of the temp buffer.
   /// \return Allocated temp buffer.
-  ezStagingBufferVulkan AllocateBuffer(vk::DeviceSize size);
+  ezStagingBufferVulkan AllocateBuffer(ezUInt64 size);
 
 private:
   static constexpr ezUInt32 s_uiNumberOfFramesToKeepUnusedPoolsAlive = 600;
@@ -58,14 +58,14 @@ private:
   };
 
 private:
-  StagingBufferPool* GetFreePool(vk::DeviceSize uiSize);
+  StagingBufferPool* GetFreePool(ezUInt64 uiSize);
 
 private:
-  vk::DeviceSize m_uiAlignment = 0;
-  vk::DeviceSize m_uiStartingPoolSize = 10 * 1024u * 1024u;
+  ezUInt64 m_uiAlignment = 0;
+  ezUInt64 m_uiStartingPoolSize = 10 * 1024u * 1024u;
   ezGALDeviceVulkan* m_pDevice = nullptr;
   vk::Device m_device;
 
   ezHybridArray<StagingBufferPool*, 8> m_Pools;
-  vk::DeviceSize m_uiHighWatermark = 0;
+  ezUInt64 m_uiHighWatermark = 0;
 };

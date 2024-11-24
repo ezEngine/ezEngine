@@ -10,8 +10,8 @@ void ezStagingBufferPoolVulkan::Initialize(ezGALDeviceVulkan* pDevice, ezUInt64 
   m_device = pDevice->GetVulkanDevice();
 
   const vk::PhysicalDeviceProperties& properties = m_pDevice->GetPhysicalDeviceProperties();
-  m_uiAlignment = ezMath::Max<vk::DeviceSize>(16, m_uiAlignment, properties.limits.nonCoherentAtomSize);
-  m_uiAlignment = ezMath::Max(m_uiAlignment, properties.limits.optimalBufferCopyOffsetAlignment);
+  m_uiAlignment = ezMath::Max<ezUInt64>(16ull, m_uiAlignment, (ezUInt64)properties.limits.nonCoherentAtomSize);
+  m_uiAlignment = ezMath::Max(m_uiAlignment, (ezUInt64)properties.limits.optimalBufferCopyOffsetAlignment);
   EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(m_uiAlignment), "Non-power of two alignment not supported");
   m_uiStartingPoolSize = ezMemoryUtils::AlignSize(uiStartingPoolSize, m_uiAlignment);
 }
@@ -38,7 +38,7 @@ void ezStagingBufferPoolVulkan::AfterBeginFrame()
     m_uiTotalAllocatedSize += pPool->m_Tracker.GetUsedMemory();
     pPool->Free(uiSafeFrame);
   }
-  m_uiHighWatermark = ezMath::Max(m_uiTotalAllocatedSize, m_uiHighWatermark);
+  m_uiHighWatermark = ezMath::Max<ezUInt64>(m_uiTotalAllocatedSize, m_uiHighWatermark);
 
   // Keep one pool around at all times.
   while (m_Pools.GetCount() > 1 && m_Pools.PeekBack()->m_uiFramesWithoutAllocations > s_uiNumberOfFramesToKeepUnusedPoolsAlive)
@@ -58,7 +58,7 @@ void ezStagingBufferPoolVulkan::BeforeCommandBufferSubmit()
   }
 }
 
-ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize size)
+ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 size)
 {
   EZ_ASSERT_DEBUG(m_device, "ezStagingBufferPoolVulkan::Initialize not called");
   ezStagingBufferVulkan buffer;
@@ -88,9 +88,9 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(vk::DeviceSize s
   return buffer;
 }
 
-ezStagingBufferPoolVulkan::StagingBufferPool* ezStagingBufferPoolVulkan::GetFreePool(vk::DeviceSize uiSize)
+ezStagingBufferPoolVulkan::StagingBufferPool* ezStagingBufferPoolVulkan::GetFreePool(ezUInt64 uiSize)
 {
-  vk::DeviceSize uiNewPoolSize = m_Pools.IsEmpty() ? m_uiStartingPoolSize : m_Pools.PeekBack()->m_Tracker.GetTotalMemory() * 2;
+  ezUInt64 uiNewPoolSize = m_Pools.IsEmpty() ? m_uiStartingPoolSize : m_Pools.PeekBack()->m_Tracker.GetTotalMemory() * 2;
 
   m_uiStartingPoolSize = ezMemoryUtils::AlignSize(ezMath::Max(uiNewPoolSize, uiSize), m_uiAlignment);
 
