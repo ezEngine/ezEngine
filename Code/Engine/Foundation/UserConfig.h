@@ -40,7 +40,12 @@
 
 // Tracking of memory allocations.
 #  undef EZ_ALLOC_TRACKING_DEFAULT
-#  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
+
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks
+#  else
+#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
+#  endif
 
 #endif
 

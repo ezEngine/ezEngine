@@ -22,7 +22,7 @@ void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
 
   // Not used by EZ so far.
   s_descriptorWeights[vk::DescriptorType::eStorageTexelBuffer] = 0.5f;   // Read / write linear texel buffer with view.
-  s_descriptorWeights[vk::DescriptorType::eUniformBufferDynamic] = 0.0f; // Same as eUniformBuffer but allows updating the memory offset into the buffer dynamically.
+  s_descriptorWeights[vk::DescriptorType::eUniformBufferDynamic] = 1.0f; // Same as eUniformBuffer but allows updating the memory offset into the buffer dynamically.
   s_descriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.
 
   // Not supported by EZ so far.

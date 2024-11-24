@@ -1207,6 +1207,10 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     m_TextureAndSampler.Clear();
     const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
     m_DescriptorSets.SetCount(uiSets);
+
+    ezDeque<vk::DescriptorBufferInfo> dynamicUniformBuffers;
+    ezHybridArray<ezUInt32, 6> dynamicUniformBufferOffsets;
+
     for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
     {
       m_DescriptorSets[uiSet] = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout[uiSet]);
@@ -1242,6 +1246,12 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
               write.pBufferInfo = &pBuffer->GetBufferInfo();
               EZ_ASSERT_DEBUG(write.pBufferInfo != nullptr, "Implementation error");
             }
+
+            auto& bufferInfo = dynamicUniformBuffers.ExpandAndGetRef();
+            bufferInfo = *m_pUniformBufferPool->GetBuffer(pBuffer);
+            dynamicUniformBufferOffsets.PushBack((ezUInt32)bufferInfo.offset);
+            bufferInfo.offset = 0;
+            write.pBufferInfo = &bufferInfo;
           }
           break;
           case ezGALShaderResourceType::Texture:
@@ -1317,7 +1327,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
       ezDescriptorSetPoolVulkan::UpdateDescriptorSet(m_DescriptorSets[uiSet], m_DescriptorWrites);
     }
-    m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, m_DescriptorSets.GetCount(), m_DescriptorSets.GetData(), 0, nullptr);
+    m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, m_DescriptorSets.GetCount(), m_DescriptorSets.GetData(), dynamicUniformBufferOffsets.GetCount(), dynamicUniformBufferOffsets.GetData());
   }
 
   if (m_bPushConstantsDirty && m_LayoutDesc.m_pushConstants.size > 0)

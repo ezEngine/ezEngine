@@ -15,8 +15,12 @@ ezResult ezRingBufferTracker::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame,
   uiSize = ezMemoryUtils::AlignSize(uiSize, m_uiAlignment);
 
   FrameData* pData = nullptr;
-  // We don't want to append data to an already submitted FrameData, so we explicitly don't remove the s_FrameDataSubmitted flag before comparing frames.
-  if (m_FrameData.IsEmpty() || m_FrameData.PeekBack().m_uiFrame != uiCurrentFrame)
+  // New frame data blocks need to be created in these cases:
+  // 1: There is no block yet.
+  // 2: The last block is from a previous frame.
+  // 3: The block was already submitted. For this, we explicitly don't remove the s_FrameDataSubmitted flag before comparing frames.
+  // 4: We wrapped around in the last allocation, i.e. m_uiCurrentOffset is before the last blocks starting point.
+  if (m_FrameData.IsEmpty() || m_FrameData.PeekBack().m_uiFrame != uiCurrentFrame || m_uiCurrentOffset < m_FrameData.PeekBack().m_uiStartOffset)
   {
     pData = &m_FrameData.ExpandAndGetRef();
     pData->m_uiFrame = uiCurrentFrame;

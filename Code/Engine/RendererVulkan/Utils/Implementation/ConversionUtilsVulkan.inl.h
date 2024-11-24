@@ -310,7 +310,7 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
     case ezGALShaderResourceType::Sampler:
       return vk::DescriptorType::eSampler;
     case ezGALShaderResourceType::ConstantBuffer:
-      return vk::DescriptorType::eUniformBuffer;
+      return vk::DescriptorType::eUniformBufferDynamic;
     case ezGALShaderResourceType::Texture:
       return vk::DescriptorType::eSampledImage;
     case ezGALShaderResourceType::TextureAndSampler:

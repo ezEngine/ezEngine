@@ -220,11 +220,13 @@ void ezUniformBufferPoolVulkan::UniformBufferPool::Submit(ezGALDeviceVulkan* pDe
     if (m_StagingBuffer)
     {
       VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(m_StagingAlloc, frame.m_uiStartOffset, frame.m_uiSize));
+      EZ_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
       pDevice->GetInitContext().UpdateDynamicUniformBuffer(m_Buffer, m_StagingBuffer, frame.m_uiStartOffset, frame.m_uiSize);
     }
     else
     {
       VK_ASSERT_DEBUG(ezMemoryAllocatorVulkan::FlushAllocation(m_Alloc, frame.m_uiStartOffset, frame.m_uiSize));
+      EZ_ASSERT_DEBUG(frame.m_uiStartOffset + frame.m_uiSize <= m_Tracker.GetTotalMemory(), "Buffer overrun");
       pDevice->GetInitContext().UpdateDynamicUniformBuffer(m_Buffer, m_StagingBuffer, frame.m_uiStartOffset, frame.m_uiSize);
     }
   }
