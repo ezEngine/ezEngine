@@ -39,9 +39,9 @@ public:
   /// \brief Retrieves the dirty memory ranges of this frame.
   /// Note that this can be anything between zero and two. In case that the end of the buffer is reached and wraps around within a frame, the end part and the part at the start are split into two FrameData objects. Can be called multiple times per frame. Each dirty range will only be given out once.
   /// \param uiFrame Frame index to submit dirty ranges.
-  /// \param out_FrameData Will receive the FrameData objects containing the dirty ranges of the memory.
+  /// \param out_frameData Will receive the FrameData objects containing the dirty ranges of the memory.
   /// \return Returns EZ_FAILURE if no allocations were made in uiFrame.
-  ezResult SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_FrameData);    // [tested]
+  ezResult SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_frameData);    // [tested]
 
   EZ_ALWAYS_INLINE ezUInt32 GetTotalMemory() const { return m_uiTotalSize; }           // [tested]
   EZ_ALWAYS_INLINE ezUInt32 GetUsedMemory() const { return m_uiTotalSize - m_uiFree; } // [tested]

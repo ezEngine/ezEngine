@@ -65,17 +65,17 @@ void ezRingBufferTracker::Free(ezUInt64 uiUpToFrame)
   }
 }
 
-ezResult ezRingBufferTracker::SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_FrameData)
+ezResult ezRingBufferTracker::SubmitFrame(ezUInt64 uiFrame, ezDynamicArray<FrameData>& out_frameData)
 {
-  out_FrameData.Clear();
+  out_frameData.Clear();
   for (ezUInt32 i = 0; i < m_FrameData.GetCount(); i++)
   {
     if (m_FrameData[i].m_uiFrame == uiFrame)
     {
-      FrameData& data = out_FrameData.ExpandAndGetRef();
+      FrameData& data = out_frameData.ExpandAndGetRef();
       data = m_FrameData[i];
       m_FrameData[i].m_uiFrame |= s_FrameDataSubmitted;
     }
   }
-  return out_FrameData.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
+  return out_frameData.IsEmpty() ? EZ_FAILURE : EZ_SUCCESS;
 }
