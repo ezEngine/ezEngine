@@ -1489,10 +1489,9 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
     d.m_InitialContent = content;
 
     static ezAtomicInteger32 name = 0;
-    name.Increment();
 
     ezStringBuilder sName;
-    sName.SetFormat("RasterizerPreview-{}", name);
+    sName.SetFormat("RasterizerPreview-{}", name.Increment());
 
     ezTexture2DResourceHandle hDebug = ezResourceManager::CreateResource<ezTexture2DResource>(sName, std::move(d));
 
