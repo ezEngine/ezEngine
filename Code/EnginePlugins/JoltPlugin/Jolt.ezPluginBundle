@@ -8,7 +8,7 @@ PluginInfo
 	string %EditorPlugins{"ezEditorPluginJolt"}
 	string %EditorEnginePlugins{"ezEnginePluginJolt"}
 	string %RuntimePlugins{"ezJoltPlugin"}
-	string %PackageDependencies{}
+	string %PackageDependencies{"Jolt.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{"physics"}
 	string %EnabledInTemplates{"General3D"}
