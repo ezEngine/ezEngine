@@ -1247,8 +1247,9 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
               EZ_ASSERT_DEBUG(write.pBufferInfo != nullptr, "Implementation error");
             }
 
+            // Move offset out and into the separate offset array.
             auto& bufferInfo = dynamicUniformBuffers.ExpandAndGetRef();
-            bufferInfo = *m_pUniformBufferPool->GetBuffer(pBuffer);
+            bufferInfo = *write.pBufferInfo;
             dynamicUniformBufferOffsets.PushBack((ezUInt32)bufferInfo.offset);
             bufferInfo.offset = 0;
             write.pBufferInfo = &bufferInfo;
