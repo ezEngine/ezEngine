@@ -54,5 +54,5 @@ struct EZ_TOOLSFOUNDATION_DLL ezPathPatternFilter
   /// If the text matches any include pattern, it passes the filter.
   /// Otherwise, if it matches any exclude pattern, it does not pass the filter.
   /// Otherwise, if it doesn't match any include or exclude pattern, it passes the filter, since it isn't explicitely ruled out.
-  bool PassesFilters(ezStringView sText) const;
+  bool PassesFilters(ezStringView sText, ezStringBuilder* pMatchingFilter = nullptr) const;
 };

@@ -50,12 +50,20 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     sRelFilePath = sAbsFilePath;
     sRelFilePath.Shrink(uiRootFolderLength, 0); // keep the slash at the front -> useful for the pattern filter
 
-    if (!filter.PassesFilters(sRelFilePath))
+    ezStringBuilder filterRule;
+
+    if (!filter.PassesFilters(sRelFilePath, &filterRule))
     {
       if (it.GetStats().m_bIsDirectory)
+      {
+        ezLog::Info(" Skipping folder '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.SkipFolder();
+      }
       else
+      {
+        ezLog::Info(" Skipping file '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.Next();
+      }
 
       continue;
     }
