@@ -518,6 +518,10 @@ void ezQtPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent
       SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
     }
     break;
+
+    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+      // ignore
+      break;
   }
 }
 
