@@ -70,7 +70,7 @@ ezEditorInput ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInput::MayBeHandledByOthers;
-  if (e->modifiers() != 0)
+  if (e->modifiers() != 0 && e->modifiers() != Qt::KeyboardModifier::ShiftModifier) // allow shift for toggling snapping
     return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_hInnerSphere)

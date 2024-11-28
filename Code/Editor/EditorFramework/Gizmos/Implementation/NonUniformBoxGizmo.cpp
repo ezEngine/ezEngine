@@ -134,7 +134,7 @@ ezEditorInput ezNonUniformBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInput::MayBeHandledByOthers;
-  if (e->modifiers() != 0)
+  if (e->modifiers() != 0 && e->modifiers() != Qt::KeyboardModifier::ShiftModifier) // allow shift for toggling snapping
     return ezEditorInput::MayBeHandledByOthers;
 
   for (ezUInt32 i = 0; i < 6; ++i)
