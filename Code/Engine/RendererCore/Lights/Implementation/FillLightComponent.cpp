@@ -14,7 +14,7 @@ extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFillLightMode, 1)
-  EZ_ENUM_CONSTANTS(ezFillLightMode::Additive, ezFillLightMode::ModulateIndirect)
+  EZ_ENUM_CONSTANTS(ezFillLightMode::Additive, ezFillLightMode::Subtractive, ezFillLightMode::ModulateIndirect)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFillLightRenderData, 1, ezRTTIDefaultAllocator<ezFillLightRenderData>)
@@ -36,7 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFillLightComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezImageSliderUiAttribute("LightTemperature"), new ezDefaultValueAttribute(6550), new ezClampValueAttribute(1000, 15000)),
-    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
+    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(5.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("FalloffExponent", GetFalloffExponent, SetFalloffExponent)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("Directionality", GetDirectionality, SetDirectionality)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(1.0f)),

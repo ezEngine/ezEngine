@@ -210,10 +210,23 @@ namespace
     ezMemoryUtils::ZeroFill(&out_perLightData, 1);
 
     ezColorLinearUB lightColor = pFillLightRenderData->m_LightColor;
-    lightColor.a = pFillLightRenderData->m_LightMode == ezFillLightMode::Additive ? LIGHT_TYPE_FILL_ADDITIVE : LIGHT_TYPE_FILL_MODULATE_INDIRECT;
+    out_perLightData.intensity = pFillLightRenderData->m_fIntensity;
+
+    switch (pFillLightRenderData->m_LightMode)
+    {
+      case ezFillLightMode::Additive:
+        lightColor.a = LIGHT_TYPE_FILL_ADDITIVE;
+        break;
+      case ezFillLightMode::Subtractive:
+        lightColor.a = LIGHT_TYPE_FILL_ADDITIVE;
+        out_perLightData.intensity = -out_perLightData.intensity;
+        break;
+      case ezFillLightMode::ModulateIndirect:
+        lightColor.a = LIGHT_TYPE_FILL_MODULATE_INDIRECT;
+        break;
+    }
 
     out_perLightData.colorAndType = *reinterpret_cast<ezUInt32*>(&lightColor.r);
-    out_perLightData.intensity = pFillLightRenderData->m_fIntensity;
     out_perLightData.specularMultiplier = 0.0f; // no specular for fill lights
 
     out_perLightData.position = pFillLightRenderData->m_GlobalTransform.m_vPosition;

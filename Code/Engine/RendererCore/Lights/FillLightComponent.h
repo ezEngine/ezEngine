@@ -12,6 +12,7 @@ struct ezFillLightMode
   enum Enum
   {
     Additive,
+    Subtractive,
     ModulateIndirect,
 
     Default = Additive
