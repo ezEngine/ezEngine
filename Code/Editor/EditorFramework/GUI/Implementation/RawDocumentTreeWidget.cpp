@@ -93,6 +93,7 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
       m_bBlockSelectionSignal = false;
     }
     break;
+
     case ezSelectionManagerEvent::Type::SelectionSet:
     case ezSelectionManagerEvent::Type::ObjectAdded:
     case ezSelectionManagerEvent::Type::ObjectRemoved:
@@ -118,6 +119,10 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
       m_bBlockSelectionSignal = false;
     }
     break;
+
+    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+      // ignore
+      break;
   }
 }
 

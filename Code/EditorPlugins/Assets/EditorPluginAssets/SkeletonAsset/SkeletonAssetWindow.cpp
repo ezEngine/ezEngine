@@ -202,6 +202,10 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
       GetDocument()->SendMessageToEngine(&msg);
     }
     break;
+
+    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+      // ignore
+      break;
   }
 }
 
