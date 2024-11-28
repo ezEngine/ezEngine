@@ -1015,7 +1015,7 @@ void ezGameObjectDocument::SendObjectSelection()
 
   --m_iResendSelection;
 
-  const auto& sel = GetSelectionManager()->GetSelection();
+  const auto& sel = GetSelectionManager()->GetRuntimeOverrideSelection().IsEmpty() ? GetSelectionManager()->GetSelection() : GetSelectionManager()->GetRuntimeOverrideSelection();
 
   ezObjectSelectionMsgToEngine msg;
   ezStringBuilder sTemp;

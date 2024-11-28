@@ -14,6 +14,7 @@ struct ezSelectionManagerEvent
     SelectionSet,
     ObjectAdded,
     ObjectRemoved,
+    ChangedRuntimeOverrideSelection, ///< Broadcast by SetRuntimeOverrideSelection().
   };
 
   Type m_Type;
@@ -54,6 +55,21 @@ public:
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   void ToggleObject(const ezDocumentObject* pObject);
 
+  /// \brief Sets a separate selection (temporarily), which is sent to the engine but not propagated to the editor.
+  ///
+  /// This is used for cases where temporarily the engine should use a different selection than the editor.
+  /// Currently this is used during drag-and-drop, to already show the dragged object as selected and especially to exclude it from picking,
+  /// but not yet show the new object as selected in the property grids, such that users can interact with the previously selected object.
+  ///
+  /// To clear a runtime override selection, simply set an empty selection.
+  void SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection);
+
+  /// \brief Returns the current runtime override selection.
+  ///
+  /// Valid, if the selection is non-empty.
+  /// See SetRuntimeOverrideSelection() for details.
+  const ezDeque<const ezDocumentObject*>& GetRuntimeOverrideSelection() const { return m_RuntimeOverrideSelection; }
+
   /// \brief Returns the last selected object in the selection or null if empty.
   const ezDocumentObject* GetCurrentObject() const;
 
@@ -89,6 +105,7 @@ private:
   friend class ezDocument;
 
   ezSharedPtr<ezSelectionManager::Storage> m_pSelectionStorage;
+  ezDeque<const ezDocumentObject*> m_RuntimeOverrideSelection;
 
   ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_ObjectStructureUnsubscriber;
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_EventsUnsubscriber;

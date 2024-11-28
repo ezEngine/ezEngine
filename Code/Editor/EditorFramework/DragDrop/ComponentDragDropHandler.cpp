@@ -151,7 +151,15 @@ void ezComponentDragDropHandler::SelectCreatedObjects()
     NewSel.PushBack(m_pDocument->GetObjectManager()->GetObject(id));
   }
 
-  m_pDocument->GetSelectionManager()->SetSelection(NewSel);
+  if (m_bSelectionAsRuntimeOverride)
+  {
+    m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection(NewSel);
+  }
+  else
+  {
+    m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection({});
+    m_pDocument->GetSelectionManager()->SetSelection(NewSel);
+  }
 }
 
 void ezComponentDragDropHandler::BeginTemporaryCommands()
@@ -168,8 +176,6 @@ void ezComponentDragDropHandler::CancelTemporaryCommands()
 {
   if (m_DraggedObjects.IsEmpty())
     return;
-
-  m_pDocument->GetSelectionManager()->Clear();
 
   m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
 }
@@ -203,6 +209,8 @@ void ezComponentDragDropHandler::OnDragCancel()
   m_pDocument->GetCommandHistory()->CancelTransaction();
 
   m_DraggedObjects.Clear();
+
+  m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection({});
 }
 
 void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
@@ -210,6 +218,7 @@ void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
   EndTemporaryCommands();
   m_pDocument->GetCommandHistory()->FinishTransaction();
 
+  m_bSelectionAsRuntimeOverride = false;
   SelectCreatedObjects();
 
   m_DraggedObjects.Clear();

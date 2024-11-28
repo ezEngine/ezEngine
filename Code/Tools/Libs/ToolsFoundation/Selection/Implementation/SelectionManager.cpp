@@ -186,6 +186,35 @@ void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
     AddObject(pObject);
 }
 
+void ezSelectionManager::SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection)
+{
+  if (m_RuntimeOverrideSelection == selection)
+    return;
+
+  m_RuntimeOverrideSelection.Clear();
+  m_RuntimeOverrideSelection.Reserve(selection.GetCount());
+
+  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+  {
+    // actually == nullptr should never happen, unless we have an error somewhere else
+    if (selection[i] != nullptr)
+    {
+      if (!m_RuntimeOverrideSelection.Contains(selection[i]))
+      {
+        m_RuntimeOverrideSelection.PushBack(selection[i]);
+      }
+    }
+  }
+
+  {
+    ezSelectionManagerEvent e;
+    e.m_pDocument = GetDocument();
+    e.m_pObject = nullptr;
+    e.m_Type = ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection;
+    m_pSelectionStorage->m_Events.Broadcast(e);
+  }
+}
+
 const ezDocumentObject* ezSelectionManager::GetCurrentObject() const
 {
   return m_pSelectionStorage->m_SelectionList.IsEmpty() ? nullptr : m_pSelectionStorage->m_SelectionList.PeekBack();
