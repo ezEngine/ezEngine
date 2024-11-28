@@ -356,6 +356,7 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   {
     iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
     pDockArea->setCurrentIndex(iCurIdx);
+    pDockArea->currentDockWidget()->update();
   }
 
   if (pDockArea && pDockArea->openDockWidgetsCount() == 1)
