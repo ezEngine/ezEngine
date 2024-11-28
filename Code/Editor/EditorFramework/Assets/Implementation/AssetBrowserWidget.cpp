@@ -222,7 +222,12 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
     ezFileSystemModel::GetSingleton()->NotifyOfChange(file);
   }
 
-  ezAssetDocumentGenerator::ImportAssets(assetsToImport);
+  QTimer::singleShot(1, this, [=]()
+    {
+      // return to the OS and import with a slight delay, otherwise the drop operation blocks the OS
+      ezAssetDocumentGenerator::ImportAssets(assetsToImport);
+      //
+    });
 
   // now that we've successfully imported the assets, clear this list so that the files don't get deleted
   assetsToImport.Clear();
