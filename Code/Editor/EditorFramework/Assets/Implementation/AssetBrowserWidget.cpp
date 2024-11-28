@@ -1235,7 +1235,7 @@ void ezQtAssetBrowserWidget::NewAsset()
 
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)pSender->property("AssetManager").value<void*>();
   ezString sAssetType = pSender->property("AssetType").toString().toUtf8().data();
-  ezString sTranslateAssetType = ezTranslate(sAssetType);
+  ezString sStartFileName = ezTranslate(sAssetType);
   ezString sExtension = pSender->property("Extension").toString().toUtf8().data();
   bool useSelection = pSender->property("UseSelection").toBool();
 
@@ -1260,6 +1260,8 @@ void ezQtAssetBrowserWidget::NewAsset()
         sPath = temp.GetFileDirectory();
 
         sStartDir = sPath.GetData();
+
+        sStartFileName = temp.GetFileName();
       }
     }
   }
@@ -1272,7 +1274,7 @@ void ezQtAssetBrowserWidget::NewAsset()
 
   ezStringBuilder sNewAsset = qtToEzString(sStartDir);
   ezStringBuilder sBaseFileName;
-  ezPathUtils::MakeValidFilename(sTranslateAssetType, ' ', sBaseFileName);
+  ezPathUtils::MakeValidFilename(sStartFileName, ' ', sBaseFileName);
   sNewAsset.AppendFormat("/{}.{}", sBaseFileName, sExtension);
 
   for (ezUInt32 i = 2; ezOSFile::ExistsFile(sNewAsset); i++)
