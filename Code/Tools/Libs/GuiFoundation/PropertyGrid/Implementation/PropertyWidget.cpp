@@ -609,8 +609,10 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
           m_pSlider->setMaximum(iMaxValue);
 
           m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
+
+          connect(m_pSlider, SIGNAL(sliderPressed()), this, SLOT(onBeginTemporary()));
+          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(onEndTemporary()));
           connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
-          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
         }
 
         break;
@@ -825,13 +827,24 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
   BroadcastValueChanged(newValue.ConvertTo(m_OriginalType));
 }
 
-void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+void ezQtPropertyEditorIntSpinboxWidget::onBeginTemporary()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
+}
 
+void ezQtPropertyEditorIntSpinboxWidget::onEndTemporary()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+{
   {
     ezQtScopedBlockSignals b0(m_pWidget[0]);
     m_pWidget[0]->setValue(value);
@@ -842,10 +855,7 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
 
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
-  if (m_bUseTemporaryTransaction && m_bTemporaryCommand)
-    Broadcast(ezPropertyEvent::Type::EndTemporary);
-
-  m_bTemporaryCommand = false;
+  onEndTemporary();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -999,8 +1009,9 @@ void ezQtPropertyEditorSliderWidget::OnInit()
   m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], m_fMinValue, m_fMaxValue, this);
 
   m_pLayout->insertWidget(0, m_pSlider);
+  connect(m_pSlider, SIGNAL(sliderPressed()), this, SLOT(onBeginTemporary()));
+  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(onEndTemporary()));
   connect(m_pSlider, SIGNAL(valueChanged(double)), this, SLOT(SlotSliderValueChanged(double)));
-  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
 
   if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
   {
@@ -1036,12 +1047,24 @@ void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
 
 void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()
 {
+  onEndTemporary();
+}
+
+void ezQtPropertyEditorSliderWidget::onBeginTemporary()
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+}
+
+void ezQtPropertyEditorSliderWidget::onEndTemporary()
+{
   if (m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
-
 
 /// *** QUATERNION ***
 

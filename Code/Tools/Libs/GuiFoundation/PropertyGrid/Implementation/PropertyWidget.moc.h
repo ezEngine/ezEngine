@@ -135,6 +135,8 @@ private Q_SLOTS:
   void SlotValueChanged();
   void SlotSliderValueChanged(int value);
   void on_EditingFinished_triggered();
+  void onBeginTemporary();
+  void onEndTemporary();
 
 protected:
   virtual void OnInit() override;
@@ -194,6 +196,8 @@ public:
 private Q_SLOTS:
   void SlotSliderValueChanged(double fValue);
   void on_EditingFinished_triggered();
+  void onBeginTemporary();
+  void onEndTemporary();
 
 protected:
   virtual void OnInit() override;
