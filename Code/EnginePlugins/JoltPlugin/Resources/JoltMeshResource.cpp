@@ -495,10 +495,17 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
       if (!m_Surfaces[i].IsValid())
         continue;
 
-      ezResourceLock pSurf(m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded);
-      const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+      ezResourceLock pSurf(m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-      materials[i] = pMat;
+      if (pSurf.GetAcquireResult() == ezResourceAcquireResult::Final)
+      {
+        const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+        materials[i] = pMat;
+      }
+      else
+      {
+        ezLog::Warning("Surface for collision mesh was not available: '{}'", m_Surfaces[i].GetResourceID());
+      }
     }
 
 
