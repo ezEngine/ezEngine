@@ -1,0 +1,7 @@
+RemoteProject
+{
+	string %Name{"Store"}
+	string %Type{"git"}
+	string %Url{"https://github.com/ezEngine/store-sample.git"}
+	string %ProjectFile{"ezProject"}
+}
