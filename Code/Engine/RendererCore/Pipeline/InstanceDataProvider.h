@@ -18,7 +18,7 @@ public:
   /// Constructor.
   /// \param uiMaxInstanceCount How many instances this object can represent.
   /// \param bTransient If true, data will not be preserved across frames, requiring re-upload every frame.
-  ezInstanceData(ezUInt32 uiMaxInstanceCount = 1024, bool bTransient = false);
+  ezInstanceData(ezUInt32 uiMaxInstanceCount = 1024, bool bTransient = true);
   ~ezInstanceData();
 
   ezGALBufferPool m_InstanceDataBuffer;

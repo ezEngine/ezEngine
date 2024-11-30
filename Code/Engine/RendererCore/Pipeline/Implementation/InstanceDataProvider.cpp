@@ -8,7 +8,6 @@
 #include <Shaders/Common/ObjectConstants.h>
 
 ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount, bool bTransient)
-
 {
   CreateBuffer(uiMaxInstanceCount, bTransient);
 
@@ -96,7 +95,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocato
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInstanceDataProvider::ezInstanceDataProvider() = default;
+ezInstanceDataProvider::ezInstanceDataProvider()
+{
+}
 
 ezInstanceDataProvider::~ezInstanceDataProvider() = default;
 

@@ -206,4 +206,7 @@ private:
   ezHybridArray<vk::DescriptorSet, 4> m_DescriptorSets;
 
   ezDynamicArray<ezUInt8> m_PushConstants;
+
+  ezDeque<vk::DescriptorBufferInfo> m_DynamicUniformBuffers;
+  ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
 };
