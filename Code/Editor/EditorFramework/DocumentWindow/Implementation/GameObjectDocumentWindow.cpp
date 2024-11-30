@@ -238,7 +238,7 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
     }
   }
 
-  pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+  pSceneView->m_pCameraMoveContext->SetOrbitDistance(vPivotPoint.GetDistanceTo(vNewCameraPosition));
   pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
 }
 

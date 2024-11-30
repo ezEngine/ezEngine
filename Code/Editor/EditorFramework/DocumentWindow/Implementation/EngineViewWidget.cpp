@@ -151,7 +151,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   const ezTime tDiff = tNow - m_LastCameraUpdate;
   m_LastCameraUpdate = tNow;
 
-  m_fCameraLerp += tDiff.GetSeconds() * 2.0f;
+  m_fCameraLerp += tDiff.GetSeconds() * 3.0f;
 
   if (m_fCameraLerp >= 1.0f)
     m_fCameraLerp = 1.0f;

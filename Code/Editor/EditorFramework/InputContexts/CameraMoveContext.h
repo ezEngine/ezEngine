@@ -15,8 +15,8 @@ public:
 
   void SetCamera(ezCamera* pCamera);
 
-  const ezVec3& GetOrbitPoint() const;
-  void SetOrbitPoint(const ezVec3& vPos);
+  ezVec3 GetOrbitPoint() const;
+  void SetOrbitDistance(float fDistance);
 
   static float ConvertCameraSpeed(ezUInt32 uiSpeedIdx);
 
@@ -43,20 +43,21 @@ private:
   void SetCurrentMouseMode();
   void DeactivateIfLast();
 
-  ezVec3 m_vOrbitPoint;
+  float m_fOrbitPointDistance = 1.0f;
 
-  ezVec2I32 m_vLastMousePos;
+  ezVec2I32 m_vLastMousePos = ezVec2I32::MakeZero();
+  ezVec2I32 m_vMouseClickPos = ezVec2I32::MakeZero();
 
-  bool m_bRotateCamera;
-  bool m_bMoveCamera;
-  bool m_bMoveCameraInPlane;
-  bool m_bOrbitCamera;
-  bool m_bSlideForwards;
-  bool m_bPanOrbitPoint;
-  float m_fSlideForwardsDistance;
-  bool m_bOpenMenuOnMouseUp;
+  bool m_bRotateCamera = false;
+  bool m_bMoveCamera = false;
+  bool m_bMoveCameraInPlane = false;
+  bool m_bOrbitCamera = false;
+  bool m_bSlideForwards = false;
+  bool m_bPanOrbitPoint = false;
+  bool m_bPanCamera = false;
+  bool m_bOpenMenuOnMouseUp = false;
 
-  ezCamera* m_pCamera;
+  ezCamera* m_pCamera = nullptr;
 
   bool m_bRun = false;
   bool m_bSlowDown = false;
@@ -68,7 +69,7 @@ private:
   bool m_bMoveDown = false;
   bool m_bMoveForwardsInPlane = false;
   bool m_bMoveBackwardsInPlane = false;
-  bool m_bDidMoveMouse[3] = {false, false, false}; // Left Click, Right Click, Middle Click
+  ezInt32 m_iDidMoveMouse[3] = {0, 0, 0}; // Left Click, Right Click, Middle Click
 
   bool m_bRotateLeft = false;
   bool m_bRotateRight = false;
