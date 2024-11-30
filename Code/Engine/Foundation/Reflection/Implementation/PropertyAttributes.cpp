@@ -473,10 +473,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, bool, float, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, bool, const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -590,7 +589,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformManipulatorAttribute, 1, ezRTTIDefaul
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }

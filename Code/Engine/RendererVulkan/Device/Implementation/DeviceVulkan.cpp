@@ -1449,7 +1449,6 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
       {
         EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
         bool bFencesReached = true;
-        EZ_ASSERT_DEV(perFrameData.m_CommandBufferFences.GetCount() > 0, "");
         for (vk::Fence fence : perFrameData.m_CommandBufferFences)
         {
           vk::Result fenceStatus = m_device.getFenceStatus(fence);
@@ -1546,6 +1545,8 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
       EZ_LOCK(currentFrameData.m_reclaimResourcesMutex);
       currentFrameData.m_reclaimResourcesPrevious.Swap(currentFrameData.m_reclaimResources);
     }
+
+    EZ_ASSERT_DEBUG(currentFrameData.m_CommandBufferFences.GetCount() > 0, "Each frame must have at least one fence to guard pending resource deletions");
   }
   m_uiFrameCounter.Increment();
   m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
