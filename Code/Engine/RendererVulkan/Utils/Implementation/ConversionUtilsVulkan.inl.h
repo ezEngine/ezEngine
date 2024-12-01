@@ -40,7 +40,7 @@ EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEn
   }
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
+EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
   ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
@@ -49,7 +49,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
+EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
 
@@ -62,7 +62,9 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
   range.levelCount = ezMath::Min(viewDesc.m_uiMipLevelsToUse, texDesc.m_uiMipLevelCount - range.baseMipLevel);
 
-  switch (texDesc.m_Type)
+  const ezEnum<ezGALTextureType> type = viewDesc.m_OverrideViewType != ezGALTextureType::Invalid ? viewDesc.m_OverrideViewType : texDesc.m_Type;
+
+  switch (type)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DArray:
@@ -89,7 +91,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
 }
 
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
+EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
 
@@ -104,9 +106,12 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   range.levelCount = 1;
   range.layerCount = viewDesc.m_uiArraySize;
 
-  switch (texDesc.m_Type)
+  const ezEnum<ezGALTextureType> type = viewDesc.m_OverrideViewType != ezGALTextureType::Invalid ? viewDesc.m_OverrideViewType : texDesc.m_Type;
+
+  switch (type)
   {
     case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DArray:
     case ezGALTextureType::Texture2DProxy:
     case ezGALTextureType::Texture2DShared:
       range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;

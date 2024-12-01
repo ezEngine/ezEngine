@@ -123,7 +123,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
           hFilterOutput = pDevice->CreateUnorderedAccessView(desc);
         }
         renderViewContext.m_pRenderContext->BindUAV("ReflectionOutput", hFilterOutput);
-        UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps);
+        UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps, uiWidth, uiHeight);
 
         constexpr ezUInt32 uiThreadsX = 8;
         constexpr ezUInt32 uiThreadsY = 8;
@@ -196,10 +196,12 @@ void ezReflectionFilterPass::SetInputCubemap(ezUInt32 uiCubemapHandle)
   m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
 }
 
-void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps)
+void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 uiWidth, ezUInt32 uiHeight)
 {
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionFilteredSpecularConstants>(m_hFilteredSpecularConstantBuffer);
   constants->MipLevel = uiMipMapIndex;
+  constants->OutputWidth = uiWidth;
+  constants->OutputHeight = uiHeight;
   constants->Intensity = m_fIntensity;
   constants->Saturation = m_fSaturation;
 }

@@ -137,18 +137,25 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     if (!EZ_TEST_BOOL(textureFormat != ezGALResourceFormat::Invalid))
       return EZ_FAILURE;
 
+    // We are only rendering to mip map level 4 (8x8).
+    // The array and levels and mip size is only here to test sub-resource views and Nvidia bugs (image will be too dark): https://forums.developer.nvidia.com/t/vulkan-driver-bug-regression-in-hlsl-getdimensions-on-rwtexture2darray/315282
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, textureFormat, ezGALMSAASampleCount::None);
+    desc.SetAsRenderTarget(128, 128, textureFormat, ezGALMSAASampleCount::None);
+    desc.m_Type = ezGALTextureType::Texture2DArray;
     desc.m_bAllowUAV = true;
+    desc.m_uiArraySize = 2;
     desc.m_bAllowRenderTargetView = false;
-    desc.m_uiMipLevelCount = 1;
+    desc.m_uiMipLevelCount = 6;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
     ezGALTextureResourceViewCreationDescription viewDesc;
     viewDesc.m_hTexture = m_hTexture2D;
     viewDesc.m_uiMipLevelsToUse = 1;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
+    viewDesc.m_uiMostDetailedMipLevel = 4;
+    viewDesc.m_uiFirstArraySlice = 0;
+    viewDesc.m_uiArraySize = 1;
+    viewDesc.m_OverrideViewType = ezGALTextureType::Texture2D;
     m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
@@ -655,9 +662,10 @@ void ezRendererTestAdvancedFeatures::Compute()
       {
         ezGALTextureUnorderedAccessViewCreationDescription desc;
         desc.m_hTexture = m_hTexture2D;
-        desc.m_uiMipLevelToUse = 0;
+        desc.m_uiMipLevelToUse = 4;
+        desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
         desc.m_uiFirstArraySlice = 0;
-        desc.m_uiArraySize = 1;
+        desc.m_uiArraySize = 2;
         hFilterOutput = m_pDevice->CreateUnorderedAccessView(desc);
       }
       ezRenderContext::GetDefaultInstance()->BindUAV("OutputTexture", hFilterOutput);
@@ -670,7 +678,7 @@ void ezRendererTestAdvancedFeatures::Compute()
       // As the image is exactly as big as one of our groups, we need to dispatch exactly one group:
       EZ_TEST_INT(uiDispatchX, 1);
       EZ_TEST_INT(uiDispatchY, 1);
-      ezRenderContext::GetDefaultInstance()->Dispatch(uiDispatchX, uiDispatchY, 1).AssertSuccess();
+      ezRenderContext::GetDefaultInstance()->Dispatch(uiDispatchX, uiDispatchY, 2).AssertSuccess();
     }
     ezRenderContext::GetDefaultInstance()->EndCompute();
   }

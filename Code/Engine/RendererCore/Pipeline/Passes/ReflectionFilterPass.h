@@ -23,7 +23,7 @@ public:
   void SetInputCubemap(ezUInt32 uiCubemapHandle);
 
 protected:
-  void UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps);
+  void UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 uiWidth, ezUInt32 uiHeight);
   void UpdateIrradianceConstantBuffer();
 
   ezRenderPipelineNodeOutputPin m_PinFilteredSpecular;

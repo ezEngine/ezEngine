@@ -178,7 +178,11 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
   const uint2 pixelIndex = uint2(groupID.x * 8 + groupThreadID.x, groupID.y * 8 + groupThreadID.y);
 
   uint width, height, mipCount;
-  ReflectionOutput.GetDimensions(width, height, mipCount);
+  // Broken in Nvidia driver 566.14.0. Output width and height is now passed in as constant buffer parameter.
+  //ReflectionOutput.GetDimensions(width, height, mipCount);
+  width = OutputWidth;
+  height = OutputHeight;
+
   // Check for out of bounds threads (happens on last 4x4 mip level)
   if (pixelIndex.x >= width || pixelIndex.y >= height)
     return;
