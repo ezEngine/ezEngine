@@ -168,6 +168,7 @@ public:
 
 Q_SIGNALS:
   void valueChanged(double x);
+  void sliderPressed();
   void sliderReleased();
 
 protected:

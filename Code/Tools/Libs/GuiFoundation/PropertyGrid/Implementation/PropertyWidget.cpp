@@ -971,7 +971,13 @@ void ezQtImageSliderWidget::mouseMoveEvent(QMouseEvent* event)
 
 void ezQtImageSliderWidget::mousePressEvent(QMouseEvent* event)
 {
+  if (event->button() == Qt::LeftButton)
+  {
+    Q_EMIT sliderPressed();
+  }
+
   mouseMoveEvent(event);
+
   event->accept();
 }
 
