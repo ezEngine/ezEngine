@@ -100,6 +100,9 @@ void ezJoltStaticActorComponent::OnSimulationStarted()
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
 
+  if (pMaterial == nullptr)
+    pMaterial = ezJoltCore::GetDefaultMaterial();
+
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Static;
@@ -248,7 +251,7 @@ const ezJoltMaterial* ezJoltStaticActorComponent::GetJoltMaterial() const
     }
   }
 
-  return ezJoltCore::GetDefaultMaterial();
+  return nullptr;
 }
 
 void ezJoltStaticActorComponent::SetSurfaceFile(ezStringView sFile)
