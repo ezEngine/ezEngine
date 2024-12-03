@@ -310,9 +310,12 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
-  // Always show folders
+  // Always show folders on the right
   if (bIsFolder)
-    return false;
+  {
+    // unless we have a type filter active
+    return !m_sTypeFilter.IsEmpty();
+  }
 
   if (!m_FileExtensions.IsEmpty())
   {
