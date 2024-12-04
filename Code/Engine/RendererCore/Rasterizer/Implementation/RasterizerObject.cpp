@@ -174,6 +174,11 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3
   return nullptr;
 }
 
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
+{
+  return nullptr;
+}
+
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
 {
   return nullptr;
