@@ -63,6 +63,11 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
 {
   int row = 0;
 
+  if (CVarsView->isPersistentEditorOpen(CVarsView->currentIndex()))
+  {
+    CVarsView->closePersistentEditor(CVarsView->currentIndex());
+  }
+
   m_pItemModel->BeginResetModel();
 
   for (auto it = cvars.GetIterator(); it.IsValid(); ++it, ++row)
