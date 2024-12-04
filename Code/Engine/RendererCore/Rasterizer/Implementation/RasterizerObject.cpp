@@ -117,6 +117,31 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3
   return pObj;
 }
 
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
+{
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder sName;
+  sName.SetFormat("Quad-{}-{}", vYZExtents.x, vYZExtents.y);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+
+    ezGeometry::GeoOptions opt;
+    opt.m_MainAxis = ezBasisAxis::PositiveX;
+
+    ezGeometry geometry;
+    geometry.AddRect(vYZExtents, 1, 1, opt);
+
+    pObj->CreateMesh(geometry);
+  }
+
+  return pObj;
+}
+
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
 {
   EZ_LOCK(s_Mutex);

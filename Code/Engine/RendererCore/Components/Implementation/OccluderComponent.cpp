@@ -8,10 +8,15 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOccluderType, 1)
+  EZ_ENUM_CONSTANTS(ezOccluderType::Box, ezOccluderType::QuadPosX)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_ACCESSOR_PROPERTY("Type", ezOccluderType, GetType, SetType),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezClampValueAttribute(ezVec3(0.0f), {}), new ezDefaultValueAttribute(ezVec3(1.0f))),
   }
   EZ_END_PROPERTIES;
@@ -44,7 +49,24 @@ ezOccluderComponent::~ezOccluderComponent() = default;
 
 void ezOccluderComponent::SetExtents(const ezVec3& vExtents)
 {
+  if (m_vExtents == vExtents)
+    return;
+
   m_vExtents = vExtents;
+  m_pOccluderObject.Clear();
+
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+}
+
+void ezOccluderComponent::SetType(ezEnum<ezOccluderType> type)
+{
+  if (m_Type == type)
+    return;
+
+  m_Type = type;
   m_pOccluderObject.Clear();
 
   if (IsActiveAndInitialized())
@@ -65,12 +87,24 @@ void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg
 {
   if (IsActiveAndInitialized())
   {
-    if (m_pOccluderObject == nullptr)
+    if (m_Type == ezOccluderType::Box)
     {
-      m_pOccluderObject = ezRasterizerObject::CreateBox(m_vExtents);
-    }
+      if (m_pOccluderObject == nullptr)
+      {
+        m_pOccluderObject = ezRasterizerObject::CreateBox(m_vExtents);
+      }
 
-    msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
+      msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform());
+    }
+    else if (m_Type == ezOccluderType::QuadPosX)
+    {
+      if (m_pOccluderObject == nullptr)
+      {
+        m_pOccluderObject = ezRasterizerObject::CreateQuadX(ezVec2(m_vExtents.y, m_vExtents.z));
+      }
+
+      msg.AddOccluder(m_pOccluderObject.Borrow(), GetOwner()->GetGlobalTransform() + GetOwner()->GetGlobalRotation() * ezVec3(m_vExtents.x * 0.5f, 0, 0));
+    }
   }
 }
 
@@ -81,15 +115,21 @@ void ezOccluderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
+  s << m_Type;
 }
 
 void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Type;
+  }
 }
 
 void ezOccluderComponent::OnActivated()
