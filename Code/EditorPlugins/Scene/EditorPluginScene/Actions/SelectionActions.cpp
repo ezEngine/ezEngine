@@ -174,15 +174,17 @@ void ezSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
+  pMap->MapAction(s_hCreateEmptyObjectAtPosition, "G.Selection", 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
-  pMap->MapAction(s_hSelectParent, "G.Selection", 2.5f);
-  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
-  pMap->MapAction(s_hAttachToObject, "G.Selection", 3.1f);
-  pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
-  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 5.0f);
-  pMap->MapAction(s_hCopyReference, "G.Selection", 6.0f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 3.0f);
+  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 4.0f);
+  pMap->MapAction(s_hAttachToObject, "G.Selection", 5.0f);
+  pMap->MapAction(s_hDetachFromParent, "G.Selection", 6.0f);
+  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 7.0f);
+  pMap->MapAction(s_hCopyReference, "G.Selection", 10.0f);
 
-  MapPrefabActions(sMapping, 7.0f);
+
+  MapPrefabActions(sMapping, 12.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type)

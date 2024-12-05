@@ -441,10 +441,12 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
     if (!bAttachToParent)
     {
+      const ezUuid activeParent = GetRedirectedGameObjectDoc()->GetActiveParent();
+
       // the object may not exist anymore
-      if (auto pParentObj = GetObjectManager()->GetObject(GetActiveParent()))
+      if (auto pParentObj = GetObjectManager()->GetObject(activeParent))
       {
-        cmdAdd.m_Parent = GetActiveParent();
+        cmdAdd.m_Parent = activeParent;
       }
     }
 

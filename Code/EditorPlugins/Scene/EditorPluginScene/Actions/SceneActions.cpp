@@ -184,7 +184,7 @@ void ezSceneActions::MapViewContextMenuActions(ezStringView sMapping)
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hGameModePlayFromHere, "", 1.0f);
+  pMap->MapAction(s_hGameModePlayFromHere, "", 0.0f);
 }
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type)

@@ -102,8 +102,9 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
-    if (ezSceneDocument* pSceneDoc = ezDynamicCast<ezSceneDocument*>(m_pDocumentWindow->GetDocument()))
+    if (ezGameObjectDocument* pSceneDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocumentWindow->GetDocument()))
     {
+      pSceneDoc = pSceneDoc->GetRedirectedGameObjectDoc();
       const ezUuid guid = pSceneDoc->GetActiveParent();
 
       // the object may not exist anymore

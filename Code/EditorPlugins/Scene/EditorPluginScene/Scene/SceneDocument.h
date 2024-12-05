@@ -94,8 +94,7 @@ public:
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
-  virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPos);
@@ -129,8 +128,7 @@ public:
   bool StopGameMode();
 
   ezTransformStatus ExportScene(bool bCreateThumbnail);
-  void ExportSceneGeometry(
-    const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
+  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
@@ -150,8 +148,7 @@ public:
     return ezDynamicCast<const T*>(GetSettingsBase());
   }
 
-  ezStatus CreateExposedProperty(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
+  ezStatus CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
   ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
   ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
   ezStatus RemoveExposedParameter(ezInt32 iIndex);

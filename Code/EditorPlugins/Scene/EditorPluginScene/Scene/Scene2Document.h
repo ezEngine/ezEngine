@@ -106,6 +106,8 @@ public:
   const ezDocumentObject* GetLayerObject(const ezUuid& layerGuid) const;
   ezSceneDocument* GetLayerDocument(const ezUuid& layerGuid) const;
 
+  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() override;
+
   bool IsAnyLayerModified() const;
 
   ///@}
@@ -163,4 +165,8 @@ private:
   mutable ezUniquePtr<ezSelectionManager> m_pLayerSelection;
   ezUuid m_ActiveLayerGuid;
   ezHashTable<ezUuid, LayerInfo> m_Layers;
+
+  void ActiveLayerGameObjectEventHandler(const ezGameObjectEvent& e);
+
+  ezEvent<const ezGameObjectEvent&>::Unsubscriber m_ActiveLayerGoEvUnsubscriber;
 };

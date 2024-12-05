@@ -32,8 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
-ezGameObjectDocument::ezGameObjectDocument(
-  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+ezGameObjectDocument::ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
   : ezAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
   using Meta = ezObjectMetaData<ezUuid, ezGameObjectMetaData>;
@@ -740,88 +739,6 @@ void ezGameObjectDocument::MoveCameraHere()
   }
 
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vCamDir, pCamera->GetFovOrDim(), &vCamUp);
-}
-
-ezStatus ezGameObjectDocument::CreateGameObjectHere()
-{
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  const bool bCanCreate =
-    ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
-
-  if (!bCanCreate)
-    return ezStatus(EZ_FAILURE);
-
-  auto history = GetCommandHistory();
-
-  history->StartTransaction("Create Node");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
-  cmdAdd.m_sParentProperty = "Children";
-  cmdAdd.m_Index = -1;
-
-  // the object may not exist anymore
-  if (GetObjectManager()->GetObject(m_ActiveParent) != nullptr)
-  {
-    cmdAdd.m_Parent = m_ActiveParent;
-  }
-
-  ezUuid NewNode;
-
-  const auto& Sel = GetSelectionManager()->GetSelection();
-
-  if (true)
-  {
-    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
-    NewNode = cmdAdd.m_NewObjectGuid;
-
-    auto res = history->AddCommand(cmdAdd);
-    if (res.Failed())
-    {
-      history->CancelTransaction();
-      return res;
-    }
-  }
-
-  ezVec3 vCreatePos = ctxt.m_pLastPickingResult->m_vPickedPosition;
-  ezSnapProvider::SnapTranslation(vCreatePos);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_NewValue = vCreatePos;
-  cmdSet.m_Object = NewNode;
-  cmdSet.m_sProperty = "LocalPosition";
-
-  if (auto pParentObj = GetObjectManager()->GetObject(cmdAdd.m_Parent))
-  {
-    const ezTransform tParent = GetGlobalTransform(pParentObj);
-    const ezTransform tRel = ezTransform::MakeLocalTransform(tParent, ezTransform(vCreatePos, ezQuat::MakeIdentity()));
-
-    cmdSet.m_NewValue = tRel.m_vPosition;
-  }
-
-  auto res = history->AddCommand(cmdSet);
-  if (res.Failed())
-  {
-    history->CancelTransaction();
-    return res;
-  }
-
-  // Add a dummy shape icon component, which enables picking
-  {
-    ezAddObjectCommand cmdAdd2;
-    cmdAdd2.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
-    cmdAdd2.m_sParentProperty = "Components";
-    cmdAdd2.m_Index = -1;
-    cmdAdd2.m_Parent = NewNode;
-
-    auto result = history->AddCommand(cmdAdd2);
-  }
-
-  history->FinishTransaction();
-
-  GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezGameObjectDocument::ScheduleSendObjectSelection()

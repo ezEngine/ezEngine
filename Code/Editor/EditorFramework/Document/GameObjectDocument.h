@@ -96,10 +96,10 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
 
 public:
-  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager,
-    ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
+  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
+  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
 
@@ -160,9 +160,6 @@ public:
   void SnapCameraToObject();
   /// \brief Moves the camera to the current picking position
   void MoveCameraHere();
-
-  /// \brief Creates an empty game object at the current picking position
-  ezStatus CreateGameObjectHere();
 
   void ScheduleSendObjectSelection();
 

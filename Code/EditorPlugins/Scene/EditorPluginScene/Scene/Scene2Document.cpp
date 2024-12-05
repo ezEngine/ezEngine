@@ -492,6 +492,12 @@ void ezScene2Document::LayerRemoved(const ezUuid& layerGuid)
   m_Layers.Remove(layerGuid);
 }
 
+void ezScene2Document::ActiveLayerGameObjectEventHandler(const ezGameObjectEvent& e)
+{
+  // forward all game object events from the active layer
+  m_GameObjectEvents.Broadcast(e);
+}
+
 ezStatus ezScene2Document::CreateLayer(const char* szName, ezUuid& out_layerGuid)
 {
   // We need to be the active layer in order to make changes to the layers.
@@ -618,7 +624,9 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
   if (layerGuid == m_ActiveLayerGuid)
     return ezStatus(EZ_SUCCESS);
 
-  if (layerGuid == GetGuid())
+  m_ActiveLayerGoEvUnsubscriber.Unsubscribe();
+
+  if (layerGuid == GetGuid()) // "Main" layer (this document)
   {
     ezDocumentObjectStructureEvent e;
     e.m_pDocument = this;
@@ -654,6 +662,10 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
 
     e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterReset;
     m_pObjectManager->m_StructureEvents.Broadcast(e);
+
+    ezGameObjectDocument* pGoDoc = ezDynamicCast<ezGameObjectDocument*>(pDoc);
+    EZ_ASSERT_DEBUG(pGoDoc, "");
+    pGoDoc->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezScene2Document::ActiveLayerGameObjectEventHandler, this), m_ActiveLayerGoEvUnsubscriber);
   }
 
   const bool bVisualizers = ezVisualizerManager::GetSingleton()->GetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid));
@@ -878,6 +890,14 @@ ezSceneDocument* ezScene2Document::GetLayerDocument(const ezUuid& layerGuid) con
     return pInfo->m_pLayer;
   }
   return nullptr;
+}
+
+ezGameObjectDocument* ezScene2Document::GetRedirectedGameObjectDoc()
+{
+  if (m_ActiveLayerGuid == GetGuid())
+    return this;
+
+  return GetLayerDocument(m_ActiveLayerGuid);
 }
 
 bool ezScene2Document::IsAnyLayerModified() const

@@ -14,7 +14,6 @@ ezActionDescriptorHandle ezGameObjectSelectionActions::s_hFocusOnSelection;
 ezActionDescriptorHandle ezGameObjectSelectionActions::s_hFocusOnSelectionAllViews;
 ezActionDescriptorHandle ezGameObjectSelectionActions::s_hSnapCameraToObject;
 ezActionDescriptorHandle ezGameObjectSelectionActions::s_hMoveCameraHere;
-ezActionDescriptorHandle ezGameObjectSelectionActions::s_hCreateEmptyGameObjectHere;
 
 void ezGameObjectSelectionActions::RegisterActions()
 {
@@ -29,9 +28,6 @@ void ezGameObjectSelectionActions::RegisterActions()
     ezGameObjectSelectionAction::ActionType::SnapCameraToObject);
   s_hMoveCameraHere = EZ_REGISTER_ACTION_1("Scene.Camera.MoveCameraHere", ezActionScope::Document, "Camera", "C", ezGameObjectSelectionAction,
     ezGameObjectSelectionAction::ActionType::MoveCameraHere);
-
-  s_hCreateEmptyGameObjectHere = EZ_REGISTER_ACTION_1("Scene.GameObject.CreateEmptyHere", ezActionScope::Document, "Scene", "",
-    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::CreateGameObjectHere);
 }
 
 void ezGameObjectSelectionActions::UnregisterActions()
@@ -42,7 +38,6 @@ void ezGameObjectSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
   ezActionManager::UnregisterAction(s_hSnapCameraToObject);
   ezActionManager::UnregisterAction(s_hMoveCameraHere);
-  ezActionManager::UnregisterAction(s_hCreateEmptyGameObjectHere);
 }
 
 void ezGameObjectSelectionActions::MapActions(ezStringView sMapping)
@@ -66,7 +61,7 @@ void ezGameObjectSelectionActions::MapContextMenuActions(ezStringView sMapping)
 
   pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
-  pMap->MapAction(s_hFocusOnSelectionAllViews, "G.Selection", 1.0f);
+  pMap->MapAction(s_hFocusOnSelection, "G.Selection", 1.0f);
 }
 
 
@@ -77,10 +72,8 @@ void ezGameObjectSelectionActions::MapViewContextMenuActions(ezStringView sMappi
 
   pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
-  pMap->MapAction(s_hFocusOnSelectionAllViews, "G.Selection", 1.0f);
-  pMap->MapAction(s_hSnapCameraToObject, "G.Selection", 4.0f);
-  pMap->MapAction(s_hMoveCameraHere, "G.Selection", 6.0f);
-  pMap->MapAction(s_hCreateEmptyGameObjectHere, "G.Selection", 1.0f);
+  pMap->MapAction(s_hMoveCameraHere, "G.Selection", 1.5f);
+  pMap->MapAction(s_hSnapCameraToObject, "G.Selection", 8.0f);
 }
 
 ezGameObjectSelectionAction::ezGameObjectSelectionAction(
@@ -106,9 +99,6 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(
       break;
     case ActionType::MoveCameraHere:
       SetIconPath(":/EditorFramework/Icons/MoveCameraHere.svg");
-      break;
-    case ActionType::CreateGameObjectHere:
-      SetIconPath(":/EditorFramework/Icons/CreateEmpty.svg");
       break;
   }
 
@@ -143,12 +133,6 @@ void ezGameObjectSelectionAction::Execute(const ezVariant& value)
     case ActionType::MoveCameraHere:
       m_pSceneDocument->MoveCameraHere();
       break;
-    case ActionType::CreateGameObjectHere:
-    {
-      auto res = m_pSceneDocument->CreateGameObjectHere();
-      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Create empty object at picked position failed.");
-    }
-    break;
   }
 }
 
