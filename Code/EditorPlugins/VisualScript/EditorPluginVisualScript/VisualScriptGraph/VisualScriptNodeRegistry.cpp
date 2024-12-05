@@ -307,7 +307,6 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
     m_bBuiltinTypesCreated = true;
   }
 
-  auto& componentTypesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
   auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ScriptBaseClasses");
 
   ezRTTI::ForEachType([this](const ezRTTI* pRtti)
@@ -322,12 +321,6 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
   if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
     return;
-
-  if (pRtti->IsDerivedFrom<ezComponent>())
-  {
-    auto& componentTypesDynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");
-    componentTypesDynEnum.AddValidValue(pRtti->GetTypeName(), true);
-  }
 
   if (pRtti->IsDerivedFrom<ezScriptCoroutine>())
   {
@@ -1302,11 +1295,11 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
       propDesc.m_Flags = ezPropertyFlags::StandardType;
 
-      auto pAttr = EZ_DEFAULT_NEW(ezDynamicStringEnumAttribute, "ComponentTypes");
+      auto pAttr = EZ_DEFAULT_NEW(ezRttiTypeStringAttribute, "ezComponent");
       propDesc.m_Attributes.PushBack(pAttr);
     }
 
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "GameObject::TryGetComponentOfBaseType {TypeName}");
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Get {TypeName}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;

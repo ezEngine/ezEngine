@@ -5,6 +5,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +85,7 @@ void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
 {
   m_bShowInDevelopmentFeatures = b;
 
-  ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
+  ezQtTypeMenu::s_bShowInDevelopmentFeatures = b;
 }
 
 void ezEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)

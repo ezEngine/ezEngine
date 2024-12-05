@@ -160,9 +160,9 @@ void ezQtVisualScriptNode::UpdateState()
         sVal.ReplaceAll("\n", " ");
         sVal.ReplaceAll("\t", " ");
 
-        if (sVal.GetCharacterCount() > 16)
+        if (sVal.GetCharacterCount() > 23)
         {
-          sVal.Shrink(0, sVal.GetCharacterCount() - 13);
+          sVal.Shrink(0, sVal.GetCharacterCount() - 21);
           sVal.Append("...");
         }
         sVal.Prepend("\"");

@@ -1098,3 +1098,26 @@ public:
 
   ezUntrackedString m_sImageGenerator;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Attribute that turns a string property into a selector for an RTTI type.
+///
+/// The base type defines what types to display.
+/// For example if "ezComponent" is passed in, only types derived from ezComponent are listed.
+class EZ_FOUNDATION_DLL ezRttiTypeStringAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRttiTypeStringAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezRttiTypeStringAttribute() = default;
+  ezRttiTypeStringAttribute(const char* szBaseType)
+    : m_sBaseType(szBaseType)
+  {
+  }
+
+  const char* GetBaseType() const { return m_sBaseType; }
+
+private:
+  ezUntrackedString m_sBaseType;
+};
