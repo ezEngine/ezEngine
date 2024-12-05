@@ -17,6 +17,8 @@ public:
   ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection = nullptr);
   ~ezQtGameObjectWidget();
 
+  ezQtSearchWidget& GetFilterWidget() { return *m_pFilterWidget; }
+
 private Q_SLOTS:
   void OnItemDoubleClicked(const QModelIndex&);
   void OnRequestContextMenu(QPoint pos);

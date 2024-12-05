@@ -3,7 +3,7 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
-
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QLayout>
 #include <QStackedWidget>
 
@@ -120,5 +120,12 @@ void ezQtScenegraphPanel::LayerUnloaded(const ezUuid& layerGuid)
 
 void ezQtScenegraphPanel::ActiveLayerChanged(const ezUuid& layerGuid)
 {
+  // migrate the search filter text to the other layer
+  if (ezQtGameObjectWidget* pPrev = qobject_cast<ezQtGameObjectWidget*>(m_pStack->currentWidget()))
+  {
+    QString sText = pPrev->GetFilterWidget().text();
+    m_LayerWidgets[layerGuid]->GetFilterWidget().setText(sText);
+  }
+
   m_pStack->setCurrentWidget(m_LayerWidgets[layerGuid]);
 }
