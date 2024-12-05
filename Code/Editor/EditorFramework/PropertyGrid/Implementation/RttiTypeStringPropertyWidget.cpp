@@ -2,6 +2,7 @@
 
 #include <EditorFramework/PropertyGrid/RttiTypeStringPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 
 ezQtRttiTypeStringPropertyWidget::ezQtRttiTypeStringPropertyWidget()
