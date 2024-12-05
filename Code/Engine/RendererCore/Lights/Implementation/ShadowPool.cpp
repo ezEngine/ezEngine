@@ -177,6 +177,8 @@ static AtlasCell* Insert(AtlasCell* pCell, ezUInt32 uiShadowMapSize, ezUInt32 ui
   }
 }
 
+static ezUInt8 s_uiWarnCounter = 0;
+
 static ezRectU32 FindAtlasRect(ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
 {
   EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiShadowMapSize), "Size must be power of 2");
@@ -188,7 +190,15 @@ static ezRectU32 FindAtlasRect(ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
     return pCell->m_Rect;
   }
 
-  ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (s_uiWarnCounter == 0)
+  {
+    ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
+  }
+
+  ++s_uiWarnCounter; // rely on integer overflow to reach 0 again
+#endif
+
   return ezRectU32(0, 0, 0, 0);
 }
 
@@ -491,7 +501,8 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     fCascadeRanges[i] = ezMath::Lerp(linearDistance, logDistance, fSplitModeWeight);
   }
 
-  const char* viewNames[4] = {"DirLightViewC0", "DirLightViewC1", "DirLightViewC2", "DirLightViewC3"};
+  const ezStringView viewNames[4] = {"-C0"_ezsv, "-C1"_ezsv, "-C2"_ezsv, "-C3"_ezsv};
+  ezStringBuilder tmp;
 
   const ezGameObject* pOwner = pDirLight->GetOwner();
   const ezVec3 vLightDirForwards = pOwner->GetGlobalDirForwards();
@@ -515,7 +526,17 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
     // Setup view
     {
-      pView->SetName(viewNames[i]);
+      if (pOwner->GetName().IsEmpty())
+      {
+        tmp.Set("DirLight", viewNames[i]);
+      }
+      else
+      {
+        tmp.Set(pOwner->GetName(), viewNames[i]);
+      }
+
+      pView->SetName(tmp);
+
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetLodCamera(pReferenceCamera);
       pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pDirLight->GetTransparentShadows());
@@ -617,13 +638,13 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     ezVec3(0.0f, 0.0f, -1.0f),
   };
 
-  const char* viewNames[6] = {
-    "PointLightView+X",
-    "PointLightView-X",
-    "PointLightView+Y",
-    "PointLightView-Y",
-    "PointLightView+Z",
-    "PointLightView-Z",
+  const ezStringView viewNames[6] = {
+    "+X"_ezsv,
+    "-X"_ezsv,
+    "+Y"_ezsv,
+    "-Y"_ezsv,
+    "+Z"_ezsv,
+    "-Z"_ezsv,
   };
 
   const ezGameObject* pOwner = pPointLight->GetOwner();
@@ -637,15 +658,28 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   float fNearPlane = 0.1f;
   float fFarPlane = pPointLight->GetEffectiveRange();
 
+  ezStringBuilder tmp;
+
   for (ezUInt32 i = 0; i < 6; ++i)
   {
     ezView* pView = nullptr;
     ShadowView& shadowView = s_pData->GetShadowView(pView);
     pData->m_Views[i] = shadowView.m_hView;
 
+
     // Setup view
     {
-      pView->SetName(viewNames[i]);
+      if (pOwner->GetName().IsEmpty())
+      {
+        tmp.Set("PointLight", viewNames[i]);
+      }
+      else
+      {
+        tmp.Set(pOwner->GetName(), viewNames[i]);
+      }
+
+      pView->SetName(tmp);
+
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
       pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pPointLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
@@ -685,9 +719,19 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   ShadowView& shadowView = s_pData->GetShadowView(pView);
   pData->m_Views[0] = shadowView.m_hView;
 
+  const ezGameObject* pOwner = pSpotLight->GetOwner();
+
   // Setup view
   {
-    pView->SetName("SpotLightView");
+    if (pOwner->GetName().IsEmpty())
+    {
+      pView->SetName("SpotLight"_ezsv);
+    }
+    else
+    {
+      pView->SetName(pOwner->GetName());
+    }
+
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
     pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pSpotLight->GetTransparentShadows());
     CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
@@ -798,8 +842,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "0ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "1ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
   }
 
 #endif
@@ -842,7 +886,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (cvar_RenderingShadowsShowPoolStats)
       {
-        ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
+        ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "1ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
 
         uiUsedAtlasSize += atlasRect.width * atlasRect.height;
       }
@@ -1006,7 +1050,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         }
       }
 
-      const float screenHeight = ezMath::Tan(fov * 0.5f) * 20.0f; // screen height in worldspace at 10m distance
+      const float screenHeight = ezMath::Tan(fov * 0.5f) * 20.0f; // screen height in world-space at 10m distance
       const float texelSize = 1.0f / uiShadowMapSize;
       const float penumbraSize = ezMath::Max(shadowData.m_fPenumbraSize / screenHeight, texelSize);
       const float relativeShadowSize = uiShadowMapSize * fAtlasInvHeight;
@@ -1029,7 +1073,9 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
+    const float fUtil = (float)uiUsedAtlasSize / uiTotalAtlasSize;
+
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "0ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0f * fUtil, 2)), ezMath::Lerp(ezColor::LimeGreen, ezColor::Red, fUtil));
   }
 #endif
 
