@@ -1,6 +1,9 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 bool ezQtTypeMenu::s_bShowInDevelopmentFeatures = false;
