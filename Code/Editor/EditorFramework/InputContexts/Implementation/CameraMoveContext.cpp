@@ -431,7 +431,7 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       ResetCursor();
 
-      if (m_iDidMoveMouse[1] < 5 && m_bOpenMenuOnMouseUp)
+      if (m_iDidMoveMouse[1] < 3 && m_bOpenMenuOnMouseUp)
       {
         GetOwnerView()->OpenContextMenu(e->globalPosition().toPoint());
       }
@@ -458,7 +458,7 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       ResetCursor();
 
-      if (m_iDidMoveMouse[1] < 5 && m_bOpenMenuOnMouseUp)
+      if (m_iDidMoveMouse[1] < 3 && m_bOpenMenuOnMouseUp)
       {
         GetOwnerView()->OpenContextMenu(e->globalPosition().toPoint());
       }

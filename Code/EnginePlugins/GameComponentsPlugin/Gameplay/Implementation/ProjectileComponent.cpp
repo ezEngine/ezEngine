@@ -75,6 +75,9 @@ ezProjectileComponent::~ezProjectileComponent() = default;
 
 void ezProjectileComponent::Update()
 {
+  if (m_fGravityMultiplier == 0.0f && m_fMetersPerSecond == 0.0f)
+    return;
+
   ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface)
@@ -221,6 +224,7 @@ void ezProjectileComponent::Update()
         else if (interaction.m_Reaction == ezProjectileReaction::Attach)
         {
           m_fMetersPerSecond = 0.0f;
+          m_fGravityMultiplier = 0.0f;
           vNewPosition = castResult.m_vPosition;
 
           ezGameObject* pObject;
