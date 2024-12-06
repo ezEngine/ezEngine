@@ -27,8 +27,9 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   setFocusProxy(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(OpenAsset()), this, SLOT(OnOpenAssetDocument())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(SelectAsset()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("... "));
@@ -214,9 +215,9 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       m_pWidget->setPalette(m_Pal);
 
       if (m_AssetGuid.IsValid())
-        m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
+        m_pWidget->setToolTip(QStringLiteral("Valid asset selected.\n\nCTRL+LMB or MMB to open the asset document.\nSHIFT+LMB to select a different asset."));
       else
-        m_pWidget->setToolTip(QStringLiteral("The selected file is not a valid asset"));
+        m_pWidget->setToolTip(QStringLiteral("The selected file is not a valid asset."));
     }
 
     m_pWidget->setPlaceholderText(QString());

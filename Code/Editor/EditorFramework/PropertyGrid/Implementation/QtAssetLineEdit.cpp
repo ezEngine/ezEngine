@@ -126,3 +126,21 @@ void ezQtAssetLineEdit::paintEvent(QPaintEvent* e)
     p.drawText(r, ezMakeQString(sFinalText), opt);
   }
 }
+
+void ezQtAssetLineEdit::mousePressEvent(QMouseEvent* e)
+{
+  QLineEdit::mousePressEvent(e);
+
+  if ((e->button() == Qt::MouseButton::LeftButton && e->modifiers().testFlag(Qt::ControlModifier)) ||
+      (e->button() == Qt::MouseButton::MiddleButton))
+  {
+    Q_EMIT OpenAsset();
+    return;
+  }
+
+  if ((e->button() == Qt::MouseButton::LeftButton && e->modifiers().testFlag(Qt::ShiftModifier)))
+  {
+    Q_EMIT SelectAsset();
+    return;
+  }
+}
