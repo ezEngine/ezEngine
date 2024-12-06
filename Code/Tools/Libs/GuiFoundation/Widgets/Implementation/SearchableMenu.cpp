@@ -235,6 +235,19 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
 
 void ezQtSearchableMenu::OnShow()
 {
+  if (m_pFilterModel->rowCount() > 0)
+  {
+    QModelIndex idx = m_pFilterModel->index(0, 0);
+
+    // hacky convention, if the first item name starts with a whitespace,
+    // that is to move it to the top of the list, which is currently used for the 'RECENT' section
+    // and we want that to always be expanded
+    if (m_pFilterModel->data(idx, Qt::DisplayRole).toString().startsWith(' '))
+    {
+      m_pTreeView->expandRecursively(idx);
+    }
+  }
+
   m_pSearch->setFocus();
   m_pSearch->selectAll();
 }

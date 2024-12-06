@@ -15,6 +15,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 #include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -419,8 +420,27 @@ void ezSceneDocument::CopyReference()
   ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::MakeFromSeconds(5));
 }
 
-ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
+ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu)
 {
+  const ezRTTI* pComponentType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+
+  if (bComponentSelectionMenu)
+  {
+    // show the context menu to select a component type
+
+    QMenu m;
+    ezQtTypeMenu tm;
+    tm.FillMenu(&m, ezGetStaticRTTI<ezComponent>(), true, false);
+
+    m.exec(QCursor::pos());
+
+    if (tm.m_pLastSelectedType)
+    {
+      pComponentType = tm.m_pLastSelectedType;
+      tm.m_pLastSelectedType = nullptr;
+    }
+  }
+
   auto history = GetCommandHistory();
 
   history->StartTransaction("Create Node");
@@ -503,7 +523,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   // Add a dummy shape icon component, which enables picking
   {
     ezAddObjectCommand cmdAdd;
-    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+    cmdAdd.m_pType = pComponentType;
     cmdAdd.m_sParentProperty = "Components";
     cmdAdd.m_Index = -1;
     cmdAdd.m_Parent = NewNode;

@@ -77,6 +77,8 @@ void ezQtTypeMenu::OnMenuAction()
 
 void ezQtTypeMenu::OnMenuAction(const ezRTTI* pRtti)
 {
+  m_pLastSelectedType = pRtti;
+
   if (s_pRecentList && !s_pRecentList->Contains(pRtti->GetTypeName()))
   {
     if (s_pRecentList->GetCount() > 8)

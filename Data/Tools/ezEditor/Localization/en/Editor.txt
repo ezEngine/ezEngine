@@ -160,7 +160,7 @@ Selection.HideItems;Hide Selected
 Selection.HideUnselectedItems;Hide Unselected
 Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyChildObject;Create Empty Child Object
-Selection.CreateEmptyObjectAtPosition;Create Empty Object Here
+Selection.CreateEmptyObjectAtPosition;Create Object Here
 Selection.DuplicateSpecial;Duplicate...
 Selection.DeltaTransform;Delta Transform...
 Selection.Attach;Attach to This

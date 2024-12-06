@@ -18,6 +18,8 @@ public:
   static ezDynamicArray<ezString>* s_pRecentList;
   static bool s_bShowInDevelopmentFeatures;
 
+  const ezRTTI* m_pLastSelectedType = nullptr;
+
 Q_SIGNALS:
   void TypeSelected(QString sTypeName);
 

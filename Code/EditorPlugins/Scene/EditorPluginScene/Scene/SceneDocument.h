@@ -72,7 +72,7 @@ public:
   void CopyReference();
 
   /// \brief Creates a new empty object, either top-level (selection empty) or as a child of the selected item
-  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition);
+  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);

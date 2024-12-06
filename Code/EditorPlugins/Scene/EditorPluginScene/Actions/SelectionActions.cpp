@@ -281,13 +281,13 @@ void ezSelectionAction::Execute(const ezVariant& value)
       return;
     case ActionType::CreateEmptyChildObject:
     {
-      auto res = m_pSceneDocument->CreateEmptyObject(true, false);
+      auto res = m_pSceneDocument->CreateEmptyObject(true, false, false);
       ezQtUiServices::MessageBoxStatus(res, "Object creation failed.");
       return;
     }
     case ActionType::CreateEmptyObjectAtPosition:
     {
-      auto res = m_pSceneDocument->CreateEmptyObject(false, true);
+      auto res = m_pSceneDocument->CreateEmptyObject(false, true, true);
       ezQtUiServices::MessageBoxStatus(res, "Object creation failed.");
       return;
     }
