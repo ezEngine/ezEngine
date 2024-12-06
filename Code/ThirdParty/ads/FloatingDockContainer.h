@@ -33,7 +33,7 @@
 
 #include <QRubberBand>
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <QDockWidget>
 #define tFloatingWidgetBase QDockWidget
 #else
@@ -147,6 +147,13 @@ protected:
 	virtual void finishDragging() override;
 
 	/**
+	 * This function deletes all dock widgets in it.
+	 * This functions should be called only from dock manager in its
+	 * destructor before deleting the floating widget
+     */
+	void deleteContent();
+
+	/**
 	 * Call this function if you just want to initialize the position
 	 * and size of the floating widget
 	 */
@@ -182,10 +189,8 @@ protected: // reimplements QWidget
 
 #ifdef Q_OS_MACOS
 	virtual bool event(QEvent *e) override;
-	virtual void moveEvent(QMoveEvent *event) override;
-#endif
-
-#ifdef Q_OS_LINUX
+    virtual void moveEvent(QMoveEvent *event) override;
+#elif defined(Q_OS_UNIX)
 	virtual void moveEvent(QMoveEvent *event) override;
 	virtual void resizeEvent(QResizeEvent *event) override;
 	virtual bool event(QEvent *e) override;
@@ -260,11 +265,11 @@ public:
     QList<CDockWidget*> dockWidgets() const;
 
 	/**
-	 * This function hides the floating bar instantely and delete it later.
+	 * This function hides the floating widget instantly and delete it later.
 	 */
-	void hideAndDeleteLater();
+	void finishDropOperation();
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     /**
 	 * This is a function that responds to FloatingWidgetTitleBar::maximizeRequest()
 	 * Maximize or normalize the container size.
@@ -300,7 +305,6 @@ public:
 	 */
 	bool hasNativeTitleBar();
 #endif
-
 }; // class FloatingDockContainer
 }
  // namespace ads

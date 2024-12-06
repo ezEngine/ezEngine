@@ -36,6 +36,7 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QtGlobal>
+#include <QTimer>
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -107,7 +108,13 @@ void DockAreaTabBarPrivate::updateTabs()
 		{
 			TabWidget->show();
 			TabWidget->setActiveTab(true);
-			_this->ensureWidgetVisible(TabWidget);
+			// Sometimes the synchronous calculation of the rectangular area fails
+			// Therefore we use QTimer::singleShot here to execute the call
+			// within the event loop - see #520
+			QTimer::singleShot(0, _this, [&, TabWidget]
+			{
+				_this->ensureWidgetVisible(TabWidget);
+			});
 		}
 		else
 		{
@@ -203,7 +210,7 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	connect(Tab, SIGNAL(clicked()), this, SLOT(onTabClicked()));
 	connect(Tab, SIGNAL(closeRequested()), this, SLOT(onTabCloseRequested()));
 	connect(Tab, SIGNAL(closeOtherTabsRequested()), this, SLOT(onCloseOtherTabsRequested()));
-	connect(Tab, SIGNAL(moved(const QPoint&)), this, SLOT(onTabWidgetMoved(const QPoint&)));
+	connect(Tab, SIGNAL(moved(QPoint)), this, SLOT(onTabWidgetMoved(QPoint)));
 	connect(Tab, SIGNAL(elidedChanged(bool)), this, SIGNAL(elidedChanged(bool)));
 	Tab->installEventFilter(this);
 	Q_EMIT tabInserted(Index);
@@ -294,7 +301,7 @@ int CDockAreaTabBar::currentIndex() const
 //===========================================================================
 CDockWidgetTab* CDockAreaTabBar::currentTab() const
 {
-	if (d->CurrentIndex < 0)
+	if (d->CurrentIndex < 0 || d->CurrentIndex >= d->TabsLayout->count())
 	{
 		return nullptr;
 	}
@@ -383,15 +390,18 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 
 	int fromIndex = d->TabsLayout->indexOf(MovingTab);
 	auto MousePos = mapFromGlobal(GlobalPos);
-	MousePos.rx() = qMax(d->firstTab()->geometry().left(), MousePos.x());
-	MousePos.rx() = qMin(d->lastTab()->geometry().right(), MousePos.x());
+	MousePos.rx() = qMax(0, MousePos.x());
+	MousePos.rx() = qMin(width(), MousePos.x());
 	int toIndex = -1;
 	// Find tab under mouse
 	for (int i = 0; i < count(); ++i)
 	{
 		CDockWidgetTab* DropTab = tab(i);
+		auto TabGeometry = DropTab->geometry();
+		TabGeometry.setTopLeft(d->TabsContainerWidget->mapToParent(TabGeometry.topLeft()));
+		TabGeometry.setBottomRight(d->TabsContainerWidget->mapToParent(TabGeometry.bottomRight()));
 		if (DropTab == MovingTab || !DropTab->isVisibleTo(this)
-		    || !DropTab->geometry().contains(MousePos))
+		    || !TabGeometry.contains(MousePos))
 		{
 			continue;
 		}
@@ -496,6 +506,53 @@ QSize CDockAreaTabBar::minimumSizeHint() const
 QSize CDockAreaTabBar::sizeHint() const
 {
 	return d->TabsContainerWidget->sizeHint();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return TabInvalidIndex;
+	}
+
+	if (Pos.x() < tab(0)->geometry().x())
+	{
+		return -1;
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	if (Index == TabInvalidIndex)
+	{
+		return TabDefaultInsertIndex;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
+}
+
+
+//===========================================================================
+bool CDockAreaTabBar::areTabsOverflowing() const
+{
+	return d->TabsContainerWidget->width() > width();
 }
 
 } // namespace ads

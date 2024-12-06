@@ -4,27 +4,108 @@
 
 ------------------
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System?color=%23ff9833)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
-
-[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
-[Documentation](doc/user-guide.md)
+[![GitHub contributors](https://img.shields.io/github/contributors/githubuser0xFFFF/Qt-Advanced-Docking-System?color=ffdf00)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/graphs/contributors)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
 featured window docking system similar to what is found in many popular
 integrated development environments (IDEs) such as Visual Studio.
 
+- [What's new...](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+- [Documentation](doc/user-guide.md)
+- Original Repository: https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System
+
 [![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
 ## New and Noteworthy
 
-The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+Release [4.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) significantly improves the Auto-Hide functionality and also brings improvements 
+for Drag and Drop of dock widgets into dock area tabs. These are the highlights of the new version:
+
+#### Drag & Drop to Auto-Hide
+
+Now you can easily drag any dock widget or any floating widget to the
+borders of a window to pin it as a auto-hide tab in one of the 4 sidebars.
+If you drag a dock widget close the one of the four window borders, special
+drop overlays will be shown to indicate the drop area for auto-hide widgets:
+
+![Auo-Hide drag to Sidebar](doc/AutoHide_Drag_to_Sidebar.gif)
+
+Of course, this also works with dock areas:
+
+![Auo-Hide drag Dock Area](doc/AutoHide_Drag_DockArea.gif)
+
+If you drag a dock widget or dock area into a sidebar, then you even have
+control over where tabs are inserted. Simply drag your mouse over a specific
+auto-hide tab, and your dragged dock widget will be inserted before this tab.
+Drag to the sidebar area behind the last tab, and the dragged widget will be
+appended as last tab. In the following screen capture, the **Image Viewer 1** will
+be inserted before the **Table 0** Auto-Hide tab and the **Image Viewer 2**
+is appende behind the last tab:
+
+![Auo-Hide tab insert order](doc/AutoHide_Tab_Insert_Order.gif)
+
+#### Auto-Hide Tab Insertion Order
+
+It is also possible to drag Auto-Hide tabs to a new auto-hide position.
+That means, you can drag them to a different border or sidebar:
+
+![Auto-Hide change sidebar](doc/AutoHide_Change_Sidebar.gif)
+
+#### Auto-Hide Tab Sorting
+
+You can drag Auto-Hide tabs to a new position in the current sidebar 
+to sort them:
+
+![Auo-Hide sort tabs](doc/AutoHide_Sort_Tabs.gif)
+
+#### Auto-Hide Drag to Float / Dock
+
+But that is not all. You can also simply move Auto-Hide tabs to another
+floating widget or dock them via drag and drop:
+
+![Auo-Hide drag to float or dock](doc/AutoHide_Drag_to_Float_or_Dock.gif)
+
+#### Auto-Hide Context Menu
+
+All Auto-Hide tabs now have a context menu, that provides all the functionality
+that you know from Dock widget tabs. With the **Pin To...** item from the
+context menu it is very easy to move an Auto-Hide tab to a different Auto-Hide
+sidebar:
+
+![Auo-Hide context menu](doc/AutoHide_Context_Menu.png)
+
+#### Dock Area Tab Insert Order
+
+And last but not least the new version also improves the docking of widgets
+into the tabs of a Dock area. Just as with Auto-Hide tabs, you can now determine the position at which a tab is inserted by moving the mouse over an already existing tab (insertion before the tab) or behind the last tab 
+(appending):
+
+![Dock area tab insert order](doc/DockArea_Tab_Insertion_Order.gif)
+
+The [release 4.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+adds the following features:
+
+- Auto-Hide functionality ([read more...](#auto-hide-functionality))
+
+![Auto Hide Functionality](doc/AutoHide_Animation.gif)
+
+- improved demo application with new image viewer dock widgets
+  
+![Auto Hide Functionality](doc/Feature_ImageViewer.png)
+
+- Visual Studio like CSS theme in demo application
+
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/3.8.3)
 adds the following features:
 
 - option to close tabs with the middle mouse button
 - `DeleteContentOnClose` flag for dynamic deletion and creation of dock widget
   content
+- improved focus highlighting functionality
 
 The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.2)
 adds the following features:
@@ -60,6 +141,12 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+    - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
+    - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
+    - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
+    - [Auto-Hide Drag to Float / Dock](#auto-hide-drag-to-float--dock)
+    - [Auto-Hide Context Menu](#auto-hide-context-menu)
+    - [Dock Area Tab Insert Order](#dock-area-tab-insert-order)
 - [Features](#features)
   - [Overview](#overview)
   - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
@@ -67,23 +154,25 @@ know it from Visual Studio.
   - [Grouped dragging](#grouped-dragging)
   - [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
   - [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
-  - [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
+  - [Cancelable docking process](#cancelable-docking-process)
   - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
   - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
   - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
-  - [Python PyQt5 Bindings](#python-pyqt5-bindings)
+  - [Auto-Hide Functionality](#auto-hide-functionality)
+- [Python Bindings](#python-bindings)
+  - [PySide6](#pyside6)
+  - [PyQt5](#pyqt5)
 - [Tested Compatible Environments](#tested-compatible-environments)
   - [Supported Qt Versions](#supported-qt-versions)
   - [Windows](#windows)
   - [macOS](#macos)
   - [Linux](#linux)
 - [Build](#build)
+  - [Qt5 on Ubuntu 18.04 or 20.04](#qt5-on-ubuntu-1804-or-2004)
+  - [Qt5 on Ubuntu 22.04](#qt5-on-ubuntu-2204)
+  - [Qt6 on Ubuntu 22.04](#qt6-on-ubuntu-2204)
 - [Getting started / Example](#getting-started--example)
-- [Developers](#developers)
 - [License information](#license-information)
-- [Alternative Docking System Implementations](#alternative-docking-system-implementations)
-  - [KDDockWidgets](#kddockwidgets)
-  - [QtitanDocking](#qtitandocking)
 - [Donation](#donation)
 - [Showcase](#showcase)
   - [Qt Creator IDE](#qt-creator-ide)
@@ -97,6 +186,15 @@ know it from Visual Studio.
   - [Notepad Next](#notepad-next)
   - [MetGem](#metgem)
   - [PRE Workbench](#pre-workbench)
+  - [RDE – Robox Development Environment](#rde--robox-development-environment)
+  - [ResInsight](#resinsight)
+  - [ADTF 3](#adtf-3)
+  - [DREAM.3D NX](#dream3d-nx)
+  - [LabPlot](#labplot)
+- [Alternative Docking System Implementations](#alternative-docking-system-implementations)
+  - [KDDockWidgets](#kddockwidgets)
+  - [QtitanDocking](#qtitandocking)
+  - [DockingPanes](#dockingpanes)
 
 ### Docking everywhere - no central widget
 
@@ -149,16 +247,14 @@ If this flag is cleared, the widget resizing is deferred until the mouse button 
 
 ![Non-opaque resizing](doc/non_opaque_resizing.gif)
 
-### Opaque and non-opaque undocking
+### Cancelable docking process
 
-By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
+In contrast to the standard Qt docking system, docking with the ADS works more like a drag & drop operation. That means, the dragged dock widget or dock area is not undocked immediately. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
 
 The drag preview widget can be configured by a number of global dock manager flags:
 - `DragPreviewIsDynamic`: if this flag is enabled, the preview will be adjusted dynamically to the drop area
 - `DragPreviewShowsContentPixmap`: the created drag preview window shows a static copy of the content of the dock widget / dock are that is dragged
 - `DragPreviewHasWindowFrame`: this flag configures if the drag preview is frameless like a QRubberBand or looks like a real window
-
-The best way to test non-opaque undocking is to set the standard flags: `CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig)`.
 
 ### Tab-menu for easy handling of many tabbed dock widgets
 
@@ -178,19 +274,74 @@ You can detach dock widgets and also dock areas in the following ways:
 
 Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the toggleView() action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
 
-### Python PyQt5 Bindings
+### Auto-Hide Functionality
+
+The 4.0 release of ADS added the new **Auto-Hide** feature. Thanks to the
+[initial contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/452) by [Ahmad Syarifuddin](https://github.com/SyarifFakhri) it was
+possible to close this long standing [feature request](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/147). The "Auto Hide" feature
+allows to display more information using less screen space by hiding or showing
+windows pinned to one of the four dock container borders.
+
+![Auto-Hide Movie](doc/AutoHide_Movie.gif)
+
+The Advanced Docking
+System supports "Auto-Hide" functionality for **all** dock containers - that means,
+for the main window and for each floating widget. Here is short list of all
+auto hide features:
+
+- supported for the main window and all floating dock containers
+- supports showing and hiding via mouse click or mouse hover
+- respects opaque / non opaque splitter resizing flag
+- context menu for pinning a dock widget or a complete dock area to a certain border
+- configuration option to configure if the pin button should pin the current
+  dock widget tab or a complete dock area
+- click the pin button holding the Ctrl key to pin a complete dock area
+- fully CSS styleable
+- backward compatible state file format - is is possible to load older dock manager
+  state files without auto hide support and older versions can load the new state
+  files with Auto-Hide state information
+
+More about the auto hide configuration options in the [online documentation...](doc/user-guide.md#auto-hide-configuration-flags)
+
+## Python Bindings
 
 ![Python Logo](doc/python_logo.png)
 
-The Advanced Docking System comes with a complete Python integration based on
-PyQt5 bindings. The package is available via [conda-forge](https://github.com/conda-forge/pyqtads-feedstock). The python integration has been contributed to this project
-by the following people:
+Thanks to the contribution of several users, the Advanced Docking System comes
+with a complete Python integration. Python bindings are available for **PyQt5** and
+**PySide6**.
+
+### PySide6
+
+A PySide6 ADS package is available via PyPi and can be installed on Windows,
+macOS, and Linux with:
+
+```bash
+pip install PySide6-QtAds
+```
+
+Sample code is available [here](https://github.com/mborgerson/Qt-Advanced-Docking-System/tree/pyside6/examples). To run the samples, you'll also need to install latest qtpy
+from source (pip install https://github.com/spyder-ide/qtpy/archive/refs/heads/master.zip).
+The PySide6 bindings were contributed by:
+
+- [mborgerson](https://github.com/mborgerson)
+
+Please file PySide6-QtAds-specific issues on its [pyside6_qtads](https://github.com/mborgerson/pyside6_qtads) fork for tracking. For more information about the PySide6 bindings read [this](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/298) issue.
+
+### PyQt5
+
+A package is available via [conda-forge](https://github.com/conda-forge/pyqtads-feedstock).
+The python integration has been contributed to this project by the following people:
 
 - [n-elie](https://github.com/n-elie)
 - [Hugo Slepicka](https://github.com/hhslepicka)
 - [K Lauer](https://github.com/klauer)
 
-Latest working version: [3.5.2](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.2)
+A Python integration is also available via PyPi. You can install the
+[PyQtAds](https://pypi.org/project/PyQtAds/) package via pip. This feature has been
+contributed to this project by:
+
+- [Mira Weller](https://github.com/luelista)
 
 ## Tested Compatible Environments
 
@@ -217,10 +368,13 @@ The application can be compiled for macOS. A user reported, that the library wor
 [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the following Linux distributions:
+Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like it is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with some Linux distributions. Depending on the used window manager or compositor, dock widgets
+with native title bars are supported or not. If native title bars are not supported,
+the library switches to `QWidget` based title bars.
 
-- **Kubuntu 18.04 and 19.10**
-- **Ubuntu 18.04, 19.10 and 20.04**
+- **Kubuntu 18.04 and 19.10** - uses KWin - no native title bars
+- **Ubuntu 18.04, 19.10 and 20.04** - native title bars are supported
+- **Ubuntu 22.04** - uses Wayland -> no native title bars
 
 There are some requirements for the Linux distribution that have to be met:
 
@@ -235,10 +389,27 @@ Screenshot Ubuntu:
 
 ## Build
 
-The Linux build requires private header files. Make sure that they are installed:
+The Linux build requires private header files. Make sure that they are installed.
+The library uses SVG icons, so ensure that Qt SVG support is installed. The demo
+application creates a `QQuickWidget` for testing, so ensure that the required
+libraries are installed.
+
+### Qt5 on Ubuntu 18.04 or 20.04
 
 ```bash
-sudo apt install qtbase5-private-dev
+sudo apt install qt5-default qtbase5-private-dev
+```
+
+### Qt5 on Ubuntu 22.04
+
+```bash
+sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5 libqt5qml5 qtdeclarative5-dev
+```
+
+### Qt6 on Ubuntu 22.04
+
+```bash
+sudo apt install qt6-default qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6 qt6-qtdeclarative
 ```
 
 Open the `ads.pro` file with QtCreator and start the build, that's it.
@@ -319,40 +490,10 @@ MainWindow::~MainWindow()
 }
 ```
 
-## Developers
-
-- Uwe Kindler, Project Maintainer
-- Manuel Freiholz
-
-This work is based on and inspired by the 
-[Advanced Docking System for Qt](https://github.com/mfreiholz/Qt-Advanced-Docking-System)
-from Manuel Freiholz. I did an almost complete rewrite of his code to improve
-code quality, readibility and to fix all issues from the issue tracker
-of his docking system project.
-
 ## License information
 
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 This project uses the [LGPLv2.1 license](gnu-lgpl-v2.1.md)
-
-
-## Alternative Docking System Implementations
-
-If this Qt Advanced Docking System does not fit to your needs you may consider some of the alternative docking system solutions for Qt.
-
-### KDDockWidgets
-
-This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
-
-- [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
-- [GitHub project](https://github.com/KDAB/KDDockWidgets)
-
-
-### QtitanDocking
-
-This is a commercial component from [Developer Machines](https://www.devmachines.com/) for Qt Framework that allows to create a Microsoft like dockable user interface. They also offer a lot of other interesting and useful components for Qt.
-
-- [Product page](https://www.devmachines.com/qtitandocking-overview.html)
 
 ## Donation
 
@@ -379,12 +520,14 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 [![Qt Design Studio](doc/showcase_qt_design_studio_video.png)](https://youtu.be/za9KBWcFXEw?t=84)
 
-### [CETONI Elements](https://www.cetoni.com/products/qmixelements/)
+### [CETONI Elements](https://cetoni.com/cetoni-elements/)
 
 The CETONI Elements software from [CETONI](https://www.cetoni.com) is a comprehensive,
 plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. The software uses the advanced docking system to give the user the freedom to arrange all the views and windows that are provided by the various plugins.
 
-![CETONI_Elements](doc/showcase_qmix_elements.png)
+[learn more...](https://cetoni.com/cetoni-elements/)
+
+[![CETONI_Elements](doc/showcase_qmix_elements.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
 ### [ezEditor](https://github.com/ezEngine/ezEngine)
 
@@ -400,13 +543,13 @@ D-Tect X is a X-ray inspection software for industrial radiography. It is a stat
 
 [learn more...](https://www.duerr-ndt.com/products/ndt-software/d-tect-xray-inspection-software.html)
 
-![D-TectX](doc/showcase_d-tect-x.jpg)
+[![D-TectX](doc/showcase_d-tect-x.png)](https://youtu.be/mOor7GmmIJo?t=13)
 
 ### [HiveWE](https://github.com/stijnherfst/HiveWE)
 
 HiveWE is a Warcraft III world editor. It focusses on speed and ease of use,
 especially for large maps where the regular World Editor is often too slow and clunky.
-It has a JASS editor with syntax hightlighting, tabs, code completion and more.
+It has a JASS editor with syntax highlighting, tabs, code completion and more.
 The JASS editor uses the Qt Advanced Docking System for the management and layout
 of the open editor windows.
 
@@ -478,3 +621,97 @@ PRE Workbench is a Python software and uses the ADS PyQt integration.
 [read more...](https://luelista.github.io/pre_workbench/)
 
 [![PRE Workbench](doc/showcase_pre_workbench.png)](https://youtu.be/U3op5UreV1Q)
+
+### [RDE – Robox Development Environment](https://www.robox.it/en/product/rde-robox-development-environment/)
+
+This software is a development environment for PAC (Programmable Automation Controllers)
+from ROBOX. It offers a lot of tools to write, compile and debug machine control
+and application software. The Advanced Docking System helps to organize all the tools and
+windows (Project window, Shell window, Monitor windows, Oscilloscope window...)
+on the screen to provide a easy to use, highly configurable and visual pleasing
+development experience.
+
+[read more...](https://www.robox.it/en/product/rde-robox-development-environment/)
+
+![RDE](doc/showcase_robox_ide.png)
+
+### [ResInsight](https://www.ceetronsolutions.com/projects/resinsight)
+
+ResInsight as a software from Ceetron Solutions for visualization of oil and
+gas reservoir simulation data. It allows reservoir models, simulation results,
+and measurements to be visualized with very high performance. Optimized use of
+graphics technology and simultaneous processing on multiple CPU cores have been
+vital to enhance the performance and capacity of ResInsight for large data sets.
+The Advanced Docking System has empowered Ceetron to build a much more intuitive
+user interface for its ResInsight users.
+
+[read more...](https://resinsight.org/)
+
+[![ResInsight](doc/showcase_resinsight.png)](https://www.youtube.com/watch?v=HzLaQ1p6AUc)
+
+### [ADTF 3](https://www.digitalwerk.net/adtf/)
+
+The Automotive Data and Time-Triggered Framework was designed as a Rapid Prototyping Toolset, Simulation Framework and Test- and Measurement Tool. It is meant for:
+
+- Developing and testing ADAS and HAD components
+- Recording of vehicle data for visualisation
+- Simulation of complex scenarios in SIL/HIL test environments
+
+The software features time-based processing of multiple data streams and graphical editing of dynamic filter graphs. It also includes an SDK for custom plug-ins and reusable components, as well as components for data visualization in both 2D and 3D. This is was the 
+[manual](https://support.digitalwerk.net/adtf/v3/adtf_html/page_adtf_xsystem_plugin.html)
+says about the switch to Qt Advanced Docking:
+
+> After several minor improvements the Qt5 ADTF XSystem uses the Advanced Docking System for Qt since ADTF 3.10.0 for more convenience and usability regarding layouting, docking and embedding several widgets.
+
+[read more...](https://support.digitalwerk.net/adtf/v3/adtf_html/index.html)
+
+![ADTF](doc/showcase_adtf.png)
+
+### [DREAM.3D NX](https://github.com/BlueQuartzSoftware/DREAM3D)
+
+DREAM.3D *(Digital Representation Environment for Analysis of Materials in 3D)* is an open source, cross-platform and modular, software suite that allows users to prepare, reconstruct, quantify, instantiate, and mesh, multidimensional, multimodal microstructural data, as well as many other applications.
+
+[BlueQuartz Software](http://www.bluequartz.net/) is currently completely rewriting the DREAM.3D application. For the upcoming version **[DREAM3D NX](http://www.dream3d.io/)** they improved the UI by using the Advanced Docking System. An [early version](http://www.dream3d.io/) of **DREAM3D NX** with ADS is already available to any user who would like to take the brand new version out for a spin.
+
+![DREAM.3D NX](doc/showcase_dream3d_nx.png)
+
+[read more...](http://dream3d.bluequartz.net/)
+
+### [LabPlot](https://labplot.kde.org/)
+
+KDE LabPlot is the ultimate free, open source and cross-platform tool for scientists, engineers, and students who need to analyze and visualize data. With its intuitive interface and powerful features, you can create stunning plots and diagrams with ease. Whether you're working with CSV, FITS, or HDF5 data, KDE LabPlot makes it simple to import and analyze your data.
+
+The LabPlot project recently switched to the Qt Advanced Docking System for their user interface. This switch represents a significant improvement to the LabPlot software, allowing users to create and manage complex data visualization layouts with ease.
+
+![LabPlot](doc/showcase_labplot.png)
+
+[read more...](https://labplot.kde.org/)
+
+## Alternative Docking System Implementations
+
+If this Qt Advanced Docking System does not fit to your needs you may consider some of the alternative docking system solutions for Qt.
+
+### KDDockWidgets
+
+This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
+
+- [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
+- [GitHub project](https://github.com/KDAB/KDDockWidgets)
+
+**License:** dual-licensed, available under both commercial and GPL license.
+
+### QtitanDocking
+
+This is a commercial component from [Developer Machines](https://www.devmachines.com/) for Qt Framework that allows to create a Microsoft like dockable user interface. They also offer a lot of other interesting and useful components for Qt. The library is available
+
+- [Product page](https://www.devmachines.com/qtitandocking-overview.html)
+
+**License:** Commercial license
+
+### DockingPanes
+
+DockingPanes is a library for Qt Widgets that implements docking windows that have the look and feel of Visual Studio. It provides a simple API which allows an application to make use of docking windows with a few calls.
+
+- [GitHub project](https://github.com/KestrelRadarSensors/dockingpanes)
+
+**License:** GPL

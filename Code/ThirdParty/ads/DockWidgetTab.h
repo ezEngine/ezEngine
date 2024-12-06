@@ -58,10 +58,13 @@ private:
 	friend struct DockWidgetTabPrivate;
 	friend class CDockWidget;
 	friend class CDockManager;
+	friend class CAutoHideDockContainer;
 	void onDockWidgetFeaturesChanged();
 
 private Q_SLOTS:
 	void detachDockWidget();
+	void autoHideDockWidget();
+	void onAutoHideToActionClicked();
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* ev) override;
@@ -81,7 +84,7 @@ public:
 	 * param[in] DockWidget The dock widget this title bar belongs to
 	 * param[in] parent The parent widget of this title bar
 	 */
-	CDockWidgetTab(CDockWidget* DockWidget, QWidget* parent = 0);
+	CDockWidgetTab(CDockWidget* DockWidget, QWidget* parent = nullptr);
 
 	/**
 	 * Virtual Destructor
@@ -170,7 +173,7 @@ public:
 
 	/**
 	 * Set an explicit icon size.
-	 * If no icon size has been set explicitely, than the tab sets the icon size
+	 * If no icon size has been set explicitly, than the tab sets the icon size
 	 * depending on the style
 	 */
 	void setIconSize(const QSize& Size);

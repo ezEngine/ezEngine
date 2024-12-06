@@ -35,6 +35,11 @@ set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/ElidingLabel.h
   ${CMAKE_CURRENT_SOURCE_DIR}/FloatingDockContainer.h
   ${CMAKE_CURRENT_SOURCE_DIR}/FloatingDragPreview.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/ResizeHandle.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/PushButton.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/AutoHideTab.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/AutoHideSideBar.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/AutoHideDockContainer.h
   )
 ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")
 

@@ -75,6 +75,17 @@ public:
 	 */
 	void setDockWidgetTabFocused(CDockWidgetTab* Tab);
 
+	/*
+	 * Request clear focus for a dock widget
+	 */
+	void clearDockWidgetFocus(CDockWidget* dockWidget);
+
+	/**
+	 * Notifies the dock focus controller, that a the mouse is pressed or
+	 * released
+	 */
+	void setDockWidgetTabPressed(bool Value);
+
 public Q_SLOTS:
 	/**
 	 * Request a focus change to the given dock widget
