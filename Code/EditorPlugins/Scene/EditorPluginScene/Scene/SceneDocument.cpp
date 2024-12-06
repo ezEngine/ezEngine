@@ -17,6 +17,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 #include <QClipboard>
+#include <QMenu>
 #include <RendererCore/Components/CameraComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
