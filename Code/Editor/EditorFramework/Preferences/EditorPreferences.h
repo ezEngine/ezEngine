@@ -59,6 +59,8 @@ public:
   void SetMaxFramerate(ezUInt16 uiFPS);
   ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
 
+  ezHybridArray<ezString, 8> m_RecentlyCreatedTypes;
+
 private:
   void SyncGlobalSettings();
 

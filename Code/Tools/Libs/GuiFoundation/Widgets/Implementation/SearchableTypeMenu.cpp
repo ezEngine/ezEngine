@@ -7,6 +7,7 @@
 #include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 bool ezQtTypeMenu::s_bShowInDevelopmentFeatures = false;
+ezDynamicArray<ezString>* ezQtTypeMenu::s_pRecentList = nullptr;
 
 struct TypeComparer
 {
@@ -71,6 +72,21 @@ void ezQtTypeMenu::OnMenuAction()
 {
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
 
+  OnMenuAction(pRtti);
+}
+
+void ezQtTypeMenu::OnMenuAction(const ezRTTI* pRtti)
+{
+  if (s_pRecentList && !s_pRecentList->Contains(pRtti->GetTypeName()))
+  {
+    if (s_pRecentList->GetCount() > 8)
+    {
+      s_pRecentList->RemoveAtAndCopy(0);
+    }
+
+    s_pRecentList->PushBack(pRtti->GetTypeName());
+  }
+
   Q_EMIT TypeSelected(ezMakeQString(pRtti->GetTypeName()));
 }
 
@@ -130,6 +146,47 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
     }
   }
 
+  if (m_pSearchableMenu != nullptr)
+  {
+    // add recently used sub-menu
+    if (s_pRecentList)
+    {
+      ezStringBuilder sInternalPath, sDisplayName;
+
+      for (auto& sTypeName : *s_pRecentList)
+      {
+        const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName);
+
+        if (pRtti == nullptr)
+          continue;
+
+        sIconName.Set(":/TypeIcons/", pRtti->GetTypeName(), ".svg");
+
+        sInternalPath.Set(" *** RECENT ***/", pRtti->GetTypeName());
+
+        sDisplayName = ezTranslate(pRtti->GetTypeName());
+
+        const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+        const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
+
+        ezColor iconColor = ezColor::MakeZero();
+
+        if (pColA)
+        {
+          iconColor = pColA->GetColor();
+        }
+        else if (pCatA && iconColor == ezColor::MakeZero())
+        {
+          iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
+        }
+
+        const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
+
+        m_pSearchableMenu->AddItem(sDisplayName, sInternalPath, QVariant::fromValue((void*)pRtti), actionIcon);
+      }
+    }
+  }
+
   ezStringBuilder tmp;
 
   // second round: create the actions
@@ -162,7 +219,7 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
       sFullPath = pCatA ? pCatA->GetCategory() : "";
       sFullPath.AppendPath(pRtti->GetTypeName());
 
-      ezStringBuilder sDisplayName = ezTranslate(pRtti->GetTypeName().GetData(tmp));
+      ezStringBuilder sDisplayName = ezTranslate(pRtti->GetTypeName());
       if (pInDev)
       {
         sDisplayName.AppendFormat(" [ {} ]", pInDev->GetString());
@@ -174,7 +231,7 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
     {
       QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
-      ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName().GetData(tmp));
+      ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName());
 
       if (pInDev)
       {
@@ -198,7 +255,7 @@ void ezQtTypeMenu::FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerived
       {
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
-        Q_EMIT TypeSelected(ezMakeQString(pRtti->GetTypeName()));
+        OnMenuAction(pRtti);
 
         m_pMenu->close();
         //

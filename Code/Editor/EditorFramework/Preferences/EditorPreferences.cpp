@@ -41,6 +41,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
     EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Fog", m_bFog),
+    EZ_ARRAY_MEMBER_PROPERTY("RecentTypes", m_RecentlyCreatedTypes)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -50,9 +51,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEditorPreferencesUser::ezEditorPreferencesUser()
   : ezPreferences(Domain::Application, "General")
 {
+  ezQtTypeMenu::s_pRecentList = &m_RecentlyCreatedTypes;
 }
 
-ezEditorPreferencesUser::~ezEditorPreferencesUser() = default;
+ezEditorPreferencesUser::~ezEditorPreferencesUser()
+{
+  ezQtTypeMenu::s_pRecentList = nullptr;
+}
 
 void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)
 {

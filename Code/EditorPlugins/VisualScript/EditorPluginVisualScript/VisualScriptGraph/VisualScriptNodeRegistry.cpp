@@ -1299,7 +1299,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       propDesc.m_Attributes.PushBack(pAttr);
     }
 
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Get {TypeName}");
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "GameObject::TryGet {TypeName}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;

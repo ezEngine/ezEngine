@@ -15,6 +15,7 @@ class EZ_GUIFOUNDATION_DLL ezQtTypeMenu : public QObject
 public:
   void FillMenu(QMenu* pMenu, const ezRTTI* pBaseType, bool bDerivedTypes, bool bSimpleMenu);
 
+  static ezDynamicArray<ezString>* s_pRecentList;
   static bool s_bShowInDevelopmentFeatures;
 
 Q_SIGNALS:
@@ -25,6 +26,7 @@ protected Q_SLOTS:
 
 private:
   QMenu* CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus);
+  void OnMenuAction(const ezRTTI* pRtti);
 
   QMenu* m_pMenu = nullptr;
   ezSet<const ezRTTI*> m_SupportedTypes;
