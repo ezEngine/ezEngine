@@ -400,6 +400,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   ezString displayName = pDocWindow->GetDisplayNameShort();
   ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
   dock->installEventFilter(pDocWindow);
+  dock->setFeature(ads::CDockWidget::CustomCloseHandling, true);
 
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
@@ -417,7 +418,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);
-  connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
+  connect(dock, &ads::CDockWidget::closeRequested, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
   connect(dock, &ads::CDockWidget::topLevelChanged, this, &ezQtContainerWindow::SlotDockWidgetFloatingChanged);
 
@@ -564,11 +565,9 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
 
   if (!pDocWindow->CanCloseWindow())
   {
-    // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]()
-      { dock->toggleView(); });
     return;
   }
+
   pDocWindow->CloseDocumentWindow();
 }
 
