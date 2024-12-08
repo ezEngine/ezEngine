@@ -74,15 +74,18 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::ActiveTabHasCloseButton |
     ads::CDockManager::XmlCompressionEnabled |
     ads::CDockManager::FloatingContainerHasWidgetTitle |
+    ads::CDockManager::HideSingleCentralWidgetTitleBar |
     ads::CDockManager::DragPreviewShowsContentPixmap |
     ads::CDockManager::FocusHighlighting |
     ads::CDockManager::AlwaysShowTabs |
-    ads::CDockManager::DockAreaHasCloseButton |
+    // ads::CDockManager::DockAreaHasCloseButton |
     ads::CDockManager::DockAreaCloseButtonClosesTab |
     ads::CDockManager::MiddleMouseButtonClosesTab |
     ads::CDockManager::DockAreaHasTabsMenuButton |
     ads::CDockManager::FloatingContainerHasWidgetIcon |
-    ads::CDockManager::AllTabsHaveCloseButton |
+    // ads::CDockManager::AllTabsHaveCloseButton |
+    ads::CDockManager::RetainTabSizeWhenCloseButtonHidden |
+    ads::CDockManager::DockAreaHideDisabledButtons |
     ads::CDockManager::OpaqueSplitterResize;
   ads::CDockManager::setConfigFlags(flags);
 

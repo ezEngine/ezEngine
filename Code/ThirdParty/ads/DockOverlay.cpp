@@ -128,8 +128,9 @@ struct DockOverlayCrossPrivate
 			 }
 			 break;
 
-		case CDockOverlayCross::ArrowColor: return pal.color(QPalette::Active, QPalette::Base);
-		case CDockOverlayCross::ShadowColor: return QColor(0, 0, 0, 64);
+    // EZ-SPECIFIC colors
+		case CDockOverlayCross::ArrowColor: return QColor(255, 255, 255, 200);
+		case CDockOverlayCross::ShadowColor: return QColor(255, 255, 255, 255);
 		default:
 			return QColor();
 		}

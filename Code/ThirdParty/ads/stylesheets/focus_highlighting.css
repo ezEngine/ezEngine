@@ -51,7 +51,7 @@ ads--CTitleBarButton {
 
 
 #tabsMenuButton::menu-indicator {
-	image: none;
+	image: url(:/ads/images/tabs-menu-button.svg);
 }
 
 
