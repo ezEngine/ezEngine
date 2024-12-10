@@ -50,6 +50,9 @@ protected:
 public:
   virtual ~ezGameState();
 
+  /// \brief Returns the active ezGameState. Only one ezGameState is allowed to exist.
+  static ezGameState* GetActiveGameState();
+
   /// \brief Returns the ezWorld that is currently the active one.
   ezWorld* GetMainWorld() { return m_pMainWorld; }
 
@@ -209,6 +212,8 @@ protected:
 
   /// \brief Called by `CancelBackgroundSceneLoading()` when scene loading gets canceled.
   virtual void OnBackgroundSceneLoadingCanceled();
+
+  static ezGameState* s_pActiveGameState;
 
   ezViewHandle m_hMainView;
 

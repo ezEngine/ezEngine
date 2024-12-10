@@ -37,6 +37,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
+ezGameState* ezGameState::s_pActiveGameState = nullptr;
+
 ezGameState::ezGameState()
 {
   // initialize camera to default values
@@ -46,8 +48,15 @@ ezGameState::ezGameState()
 
 ezGameState::~ezGameState() = default;
 
+ezGameState* ezGameState::GetActiveGameState()
+{
+  return s_pActiveGameState;
+}
+
 void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
+  s_pActiveGameState = this;
+
   CreateActors();
   ConfigureInputActions();
 
@@ -90,6 +99,8 @@ void ezGameState::OnDeactivation()
   }
 
   ezRenderWorld::DeleteView(m_hMainView);
+
+  s_pActiveGameState = nullptr;
 }
 
 void ezGameState::AddMainViewsToRender()
