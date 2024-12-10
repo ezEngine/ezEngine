@@ -68,7 +68,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   }
 
   /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
-  EZ_ALWAYS_INLINE void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos)
+  EZ_ALWAYS_INLINE void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos) const
   {
     ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
     ezUInt32 y = (ezUInt32)m_ViewPortRect.y;
@@ -78,7 +78,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   }
 
   /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
-  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos)
+  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const
   {
     {
       ezUInt32 x = (ezUInt32)m_ViewPortRect.x;

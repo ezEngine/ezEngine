@@ -1678,6 +1678,8 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
       ezVec3 screenPos;
       if (renderViewContext.m_pViewData->ComputeScreenSpacePos(textLine.m_position, screenPos).Succeeded() && screenPos.z > 0.0f)
       {
+        renderViewContext.m_pViewData->ConvertScreenNormalizedPosToPixelPos(screenPos);
+
         textLine.m_topLeftCorner.x += ezMath::Round(screenPos.x);
         textLine.m_topLeftCorner.y += ezMath::Round(screenPos.y);
 
