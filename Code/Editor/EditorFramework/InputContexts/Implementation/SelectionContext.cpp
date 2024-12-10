@@ -202,8 +202,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
 
-  const ezVec3 vScreenSpacePos0(vMousePos.x, m_vViewport.y - vMousePos.y, vMousePos.z);
-  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vViewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
+  const ezVec3 vScreenSpacePos0(vMousePos.x, vMousePos.y, vMousePos.z);
+  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;

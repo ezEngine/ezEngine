@@ -27,7 +27,7 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewPro
 
   // move into [0; 1] range
   out_vScreenPosNormalized.x = (vProjected.x * 0.5f) + 0.5f;
-  out_vScreenPosNormalized.y = (vProjected.y * 0.5f) + 0.5f;
+  out_vScreenPosNormalized.y = (1.0f - ((vProjected.y * 0.5f) + 0.5f));
 
   // normalize the output z value to always be in [0; 1] range
   // That means when the projection matrix spits out values between -1 and +1, rescale those values
@@ -56,7 +56,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& mInverseModel
 
   // Map to range [-1; 1]
   vClipSpace.x = vClipSpace.x * 2.0f - 1.0f;
-  vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
+  vClipSpace.y = -(vClipSpace.y * 2.0f - 1.0f);
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
   if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
@@ -106,7 +106,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseMode
 
   // Map to range [-1; 1]
   vClipSpace.x = vClipSpace.x * 2.0f - 1.0f;
-  vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
+  vClipSpace.y = -(vClipSpace.y * 2.0f - 1.0f);
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
   if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)

@@ -163,7 +163,7 @@ modify:
   m_vStartNegSize = m_vNegSize;
   m_vStartPosSize = m_vPosSize;
 
-  GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), m_vInteractionPivot).IgnoreResult();
+  GetPointOnAxis(e->pos().x(), e->pos().y(), m_vInteractionPivot).IgnoreResult();
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -217,7 +217,7 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   {
     ezVec3 vCurrentInteractionPoint;
 
-    if (GetPointOnAxis(e->pos().x(), m_vViewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+    if (GetPointOnAxis(e->pos().x(), e->pos().y(), vCurrentInteractionPoint).Failed())
     {
       m_vLastMousePos = UpdateMouseMode(e);
       return ezEditorInput::WasExclusivelyHandled;

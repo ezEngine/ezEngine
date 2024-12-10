@@ -110,7 +110,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
   // compute screen space tangent for rotation
   {
     const ezVec3 vAxisWS = m_vRotationAxis.GetNormalized();
-    const ezVec3 vMousePos(e->pos().x(), m_vViewport.y - e->pos().y(), 0);
+    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0);
     const ezVec3 vGizmoPosWS = GetTransformation().m_vPosition;
 
     ezVec3 vPosOnNearPlane, vRayDir;

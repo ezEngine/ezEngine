@@ -696,7 +696,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
         ezMat4 invMvp = mvp.GetInverse();
 
         vScreenPos.x -= diff.x;
-        vScreenPos.y += diff.y;
+        vScreenPos.y -= diff.y;
 
         ezVec3 vNewPoint(0);
         if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint).Succeeded())

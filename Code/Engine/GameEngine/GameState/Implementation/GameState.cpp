@@ -116,6 +116,17 @@ void ezGameState::ProcessInput()
   UpdateBackgroundSceneLoading();
 }
 
+ezView* ezGameState::GetMainView()
+{
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hMainView, pView))
+  {
+    return pView;
+  }
+
+  return nullptr;
+}
+
 bool ezGameState::IsLoadingSceneInBackground(float* out_pProgress) const
 {
   if (out_pProgress)

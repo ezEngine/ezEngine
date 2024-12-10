@@ -71,7 +71,7 @@ void RtsGameState::UpdateMousePosition()
   m_MouseInputState.m_RightClickState = ezInputManager::GetInputActionState("Game", "MouseRightClick");
 
   m_MouseInputState.m_MousePos.x = (ezUInt32)(valueX * vp.width);
-  m_MouseInputState.m_MousePos.y = (ezUInt32)((1.0f - valueY) * vp.height);
+  m_MouseInputState.m_MousePos.y = (ezUInt32)(valueY * vp.height);
 
   if (m_MouseInputState.m_LeftClickState == ezKeyState::Pressed)
   {

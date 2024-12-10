@@ -266,7 +266,7 @@ ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScree
   ezMat4 mViewProj = mProj * mView;
   ezMat4 mInvViewProj = mViewProj.GetInverse();
 
-  ezVec3 vScreenPos(uiScreenPosX, height() - uiScreenPosY, 0);
+  ezVec3 vScreenPos(uiScreenPosX, uiScreenPosY, 0);
   ezVec3 vResPos, vResRay;
 
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, width(), height(), vScreenPos, vResPos, &vResRay).Failed())
