@@ -91,14 +91,9 @@ void ezInstanceData::Reset()
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocator<ezInstanceDataProvider>)
-  {
-  }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInstanceDataProvider::ezInstanceDataProvider()
-{
-}
-
+ezInstanceDataProvider::ezInstanceDataProvider() = default;
 ezInstanceDataProvider::~ezInstanceDataProvider() = default;
 
 void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
@@ -107,7 +102,6 @@ void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewCo
 
   return &m_Data;
 }
-
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_InstanceDataProvider);
