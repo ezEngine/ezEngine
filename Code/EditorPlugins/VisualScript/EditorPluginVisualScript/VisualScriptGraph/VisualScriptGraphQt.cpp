@@ -1,9 +1,9 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraphQt.moc.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, Factories)
@@ -172,7 +172,6 @@ void ezQtVisualScriptNode::UpdateState()
             else
               sVal = "<unknown>";
           }
-
         }
 
         sVal.ReplaceAll("\n", " ");
