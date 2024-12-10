@@ -305,13 +305,11 @@ ezResult RtsGameState::ComputePickingRay()
   if (!ezRenderWorld::TryGetView(m_hMainView, pView))
     return EZ_FAILURE;
 
-  const auto& vp = pView->GetViewport();
+  ezVec3 vMousePos((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0);
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y, (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0), m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir)
-        .Failed())
-    return EZ_FAILURE;
+  pView->ConvertScreenPixelPosToNormalizedPos(vMousePos);
 
-  return EZ_SUCCESS;
+  return pView->ComputePickingRay(vMousePos.x, vMousePos.y, m_vCurrentPickingRayStart, m_vCurrentPickingRayDir);
 }
 
 ezResult RtsGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const

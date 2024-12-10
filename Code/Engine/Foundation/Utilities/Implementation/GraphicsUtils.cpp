@@ -2,6 +2,18 @@
 
 #include <Foundation/Utilities/GraphicsUtils.h>
 
+void ezGraphicsUtils::ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos)
+{
+  inout_vPixelPos.x = (inout_vPixelPos.x - uiViewportX) / uiViewportWidth;
+  inout_vPixelPos.y = (inout_vPixelPos.y - uiViewportY) / uiViewportHeight;
+}
+
+void ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vNormalizedPos)
+{
+  inout_vNormalizedPos.x = uiViewportX + uiViewportWidth * inout_vNormalizedPos.x;
+  inout_vNormalizedPos.y = uiViewportY + uiViewportHeight * inout_vNormalizedPos.y;
+}
+
 ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezClipSpaceDepthRange::Enum depthRange)
 {
   EZ_SUCCEED_OR_RETURN(ConvertWorldPosToScreenPos(mModelViewProjection, vPoint, out_vScreenPos, depthRange));

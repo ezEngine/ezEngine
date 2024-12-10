@@ -4,6 +4,12 @@
 
 namespace ezGraphicsUtils
 {
+  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  EZ_FOUNDATION_DLL void ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos);
+
+  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  EZ_FOUNDATION_DLL void ConvertScreenNormalizedPosToPixelPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vNormalizedPos);
+
   /// \brief Projects the given point from 3D world space into screen space, if possible.
   ///
   /// \param ModelViewProjection

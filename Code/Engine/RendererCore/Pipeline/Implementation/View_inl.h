@@ -107,6 +107,22 @@ EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezV
   return m_Data.ComputeScreenSpacePos(vPoint, out_vScreenPos);
 }
 
+EZ_FORCE_INLINE ezResult ezView::ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const
+{
+  UpdateCachedMatrices();
+  return m_Data.ComputeWorldSpacePos(fNormalizedScreenPosX, fNormalizedScreenPosY, out_vWorldPos);
+}
+
+EZ_FORCE_INLINE void ezView::ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos)
+{
+  m_Data.ConvertScreenPixelPosToNormalizedPos(inout_vPixelPos);
+}
+
+EZ_FORCE_INLINE void ezView::ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos)
+{
+  m_Data.ConvertScreenNormalizedPosToPixelPos(inout_vNormalizedPos);
+}
+
 EZ_ALWAYS_INLINE const ezMat4& ezView::GetProjectionMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();

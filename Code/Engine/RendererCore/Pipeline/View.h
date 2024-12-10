@@ -89,13 +89,26 @@ public:
   const ezSharedPtr<ezTask>& GetExtractTask();
 
 
-  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
+  /// \brief Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
-  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
+  /// fNormalizedScreenPosX and fNormalizedScreenPosY are expected to be in [0; 1] range (normalized screen coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
-  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
+  ezResult ComputePickingRay(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
 
-  ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const;
+  /// \brief Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
+  ///
+  /// Returns EZ_FAILURE, if the point could not be projected into screen-space.
+  ezResult ComputeScreenSpacePos(const ezVec3& vWorldPos, ezVec3& out_vScreenPosNormalized) const;
+
+  /// \brief Calculates the world-space position that the given normalized screen-space coordinate maps to
+  ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const;
+
+  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos);
+
+  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos);
+
 
   /// \brief Returns the current projection matrix.
   const ezMat4& GetProjectionMatrix(ezCameraEye eye) const;
