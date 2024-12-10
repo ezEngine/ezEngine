@@ -40,6 +40,13 @@ void ezQtRttiTypeStringPropertyWidget::InternalSetValue(const ezVariant& value)
 
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName);
 
+  if (pRtti == nullptr)
+  {
+    m_pButton->setText("Select Type");
+    m_pButton->setIcon(QIcon());
+    return;
+  }
+
   const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
   const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
 
