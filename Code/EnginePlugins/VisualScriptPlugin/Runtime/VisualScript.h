@@ -240,10 +240,10 @@ private:
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
 {
 public:
-  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
+  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc, ezAllocator* pAllocator);
   ~ezVisualScriptExecutionContext();
 
-  void Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments);
+  void Initialize(ezVisualScriptInstance& inout_instance, ezArrayPtr<ezVariant> arguments);
   void Deinitialize();
 
   using ExecResult = ezVisualScriptGraphDescription::ExecResult;
@@ -282,6 +282,7 @@ private:
   ezUInt32 m_uiExecutionCounter = 0;
   ezTime m_DeltaTimeSinceLastExecution;
 
+  ezVisualScriptDataStorage m_LocalDataStorage;
   ezVisualScriptDataStorage* m_DataStorage[DataOffset::Source::Count] = {};
 
   ezScriptCoroutine* m_pCurrentCoroutine = nullptr;

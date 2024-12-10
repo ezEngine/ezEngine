@@ -1772,7 +1772,7 @@ ezResult ezVisualScriptCompiler::TraverseAllConnections(AstNode* pEntryAstNode, 
 ezResult ezVisualScriptCompiler::FinalizeConstantData()
 {
   m_Module.m_ConstantDataDesc.CalculatePerTypeStartOffsets();
-  m_Module.m_ConstantDataStorage.AllocateStorage();
+  m_Module.m_ConstantDataStorage.AllocateStorage(ezFoundation::GetDefaultAllocator());
 
   for (auto& it : m_ConstantDataToIndex)
   {

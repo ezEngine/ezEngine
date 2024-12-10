@@ -14,7 +14,6 @@ public:
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
 
 private:
-  ezVisualScriptDataStorage m_LocalDataStorage;
   ezVisualScriptExecutionContext m_Context;
 };
 

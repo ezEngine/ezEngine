@@ -8,11 +8,8 @@
 ezVisualScriptFunctionProperty::ezVisualScriptFunctionProperty(ezStringView sName, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : ezScriptFunctionProperty(sName)
   , m_pDesc(pDesc)
-  , m_LocalDataStorage(pDesc->GetLocalDataDesc())
 {
   EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
-
-  m_LocalDataStorage.AllocateStorage();
 }
 
 ezVisualScriptFunctionProperty::~ezVisualScriptFunctionProperty() = default;
@@ -22,8 +19,8 @@ void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVaria
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pInstance);
 
-  ezVisualScriptExecutionContext context(m_pDesc);
-  context.Initialize(*pVisualScriptInstance, m_LocalDataStorage, arguments);
+  ezVisualScriptExecutionContext context(m_pDesc, ezFrameAllocator::GetCurrentAllocator());
+  context.Initialize(*pVisualScriptInstance, arguments);
 
   auto result = context.Execute(ezTime::MakeZero());
   EZ_ASSERT_DEBUG(result.m_NextExecAndState != ezVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
@@ -36,12 +33,10 @@ void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVaria
 ezVisualScriptMessageHandler::ezVisualScriptMessageHandler(const ezScriptMessageDesc& desc, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : ezScriptMessageHandler(desc)
   , m_pDesc(pDesc)
-  , m_LocalDataStorage(pDesc->GetLocalDataDesc())
 {
   EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine() == false, "Must not be a coroutine");
 
   m_DispatchFunc = &Dispatch;
-  m_LocalDataStorage.AllocateStorage();
 }
 
 ezVisualScriptMessageHandler::~ezVisualScriptMessageHandler() = default;
@@ -56,8 +51,8 @@ void ezVisualScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, voi
   ezHybridArray<ezVariant, 8> arguments;
   pHandler->FillMessagePropertyValues(ref_msg, arguments);
 
-  ezVisualScriptExecutionContext context(pHandler->m_pDesc);
-  context.Initialize(*pVisualScriptInstance, pHandler->m_LocalDataStorage, arguments);
+  ezVisualScriptExecutionContext context(pHandler->m_pDesc, ezFrameAllocator::GetCurrentAllocator());
+  context.Initialize(*pVisualScriptInstance, arguments);
 
   auto result = context.Execute(ezTime::MakeZero());
   EZ_ASSERT_DEBUG(result.m_NextExecAndState != ezVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");

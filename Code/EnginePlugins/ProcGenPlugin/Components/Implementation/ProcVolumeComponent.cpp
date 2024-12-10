@@ -42,7 +42,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezEvent<const ezProcGenInternal::InvalidatedArea&> ezProcVolumeComponent::s_AreaInvalidatedEvent;
+ezProcVolumeComponent::AreaInvalidatedEvent ezProcVolumeComponent::s_AreaInvalidatedEvent;
 
 ezProcVolumeComponent::ezProcVolumeComponent() = default;
 ezProcVolumeComponent::~ezProcVolumeComponent() = default;

@@ -305,9 +305,12 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 
 ezCVarInt cvar_MaxNodeExecutions("VisualScript.MaxNodeExecutions", 100000, ezCVarFlags::Default, "The maximum number of nodes executed within a script invocation");
 
-ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
+ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc, ezAllocator* pAllocator)
   : m_pDesc(pDesc)
+  , m_LocalDataStorage(pDesc->GetLocalDataDesc())
 {
+  m_LocalDataStorage.AllocateStorage(pAllocator);
+  m_DataStorage[DataOffset::Source::Local] = &m_LocalDataStorage;
 }
 
 ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
@@ -315,11 +318,10 @@ ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
   Deinitialize();
 }
 
-void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments)
+void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezArrayPtr<ezVariant> arguments)
 {
   m_pInstance = &inout_instance;
 
-  m_DataStorage[DataOffset::Source::Local] = &inout_localDataStorage;
   m_DataStorage[DataOffset::Source::Instance] = inout_instance.GetInstanceDataStorage();
   m_DataStorage[DataOffset::Source::Constant] = inout_instance.GetConstantDataStorage();
 

@@ -13,10 +13,11 @@ public:
   virtual ezVariant GetInstanceVariable(const ezHashedString& sName) override;
 
   ezVisualScriptDataStorage* GetConstantDataStorage() { return m_pConstantDataStorage.Borrow(); }
-  ezVisualScriptDataStorage* GetInstanceDataStorage() { return m_pInstanceDataStorage.Borrow(); }
+  ezVisualScriptDataStorage* GetInstanceDataStorage() { return &m_InstanceDataStorage; }
 
 private:
   ezSharedPtr<ezVisualScriptDataStorage> m_pConstantDataStorage;
-  ezUniquePtr<ezVisualScriptDataStorage> m_pInstanceDataStorage;
   ezSharedPtr<ezVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
+
+  ezVisualScriptDataStorage m_InstanceDataStorage;
 };

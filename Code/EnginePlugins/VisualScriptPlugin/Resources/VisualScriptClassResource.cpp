@@ -108,7 +108,7 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
         }
 
         ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
-        if (pConstantDataStorage->Deserialize(chunk).Succeeded())
+        if (pConstantDataStorage->Deserialize(chunk, ezScriptAllocator::GetAllocator()).Succeeded())
         {
           m_pConstantDataStorage = pConstantDataStorage;
         }

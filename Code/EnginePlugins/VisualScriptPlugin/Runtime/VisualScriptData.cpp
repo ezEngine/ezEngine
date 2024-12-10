@@ -98,12 +98,15 @@ ezVisualScriptDataStorage::~ezVisualScriptDataStorage()
   DeallocateStorage();
 }
 
-void ezVisualScriptDataStorage::AllocateStorage()
+void ezVisualScriptDataStorage::AllocateStorage(ezAllocator* pAllocator)
 {
-  m_Storage.SetCountUninitialized(m_pDesc->m_uiStorageSizeNeeded);
-  m_Storage.ZeroFill();
+  EZ_ASSERT_DEV(IsAllocated() == false, "Storage already allocated");
 
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
+  m_Storage = EZ_NEW_ARRAY(pAllocator, ezUInt8, m_pDesc->m_uiStorageSizeNeeded);
+  ezMemoryUtils::ZeroFill(m_Storage.GetPtr(), m_Storage.GetCount());
+  m_pAllocator = pAllocator;
+
+  auto pData = m_Storage.GetPtr();
 
   for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
   {
@@ -144,7 +147,7 @@ void ezVisualScriptDataStorage::DeallocateStorage()
   if (IsAllocated() == false)
     return;
 
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
+  auto pData = m_Storage.GetPtr();
 
   for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
   {
@@ -179,12 +182,13 @@ void ezVisualScriptDataStorage::DeallocateStorage()
     }
   }
 
-  m_Storage.Clear();
+  EZ_DELETE_ARRAY(m_pAllocator, m_Storage);
+  m_pAllocator = nullptr;
 }
 
 ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) const
 {
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
+  auto pData = m_Storage.GetPtr();
 
   for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
   {
@@ -260,14 +264,14 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
   return EZ_SUCCESS;
 }
 
-ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream)
+ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream, ezAllocator* pAllocator)
 {
   if (IsAllocated() == false)
   {
-    AllocateStorage();
+    AllocateStorage(pAllocator);
   }
 
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
+  auto pData = m_Storage.GetPtr();
 
   for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
   {
@@ -338,7 +342,7 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream)
 ezTypedPointer ezVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, ezUInt32 uiExecutionCounter) const
 {
   m_pDesc->CheckOffset(dataOffset, nullptr);
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+  auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
   if (dataOffset.m_uiType == ezVisualScriptDataType::GameObject)
   {

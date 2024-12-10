@@ -35,7 +35,8 @@ public:
 
   void OnTransformChanged(ezMsgTransformChanged& ref_msg);
 
-  static const ezEvent<const ezProcGenInternal::InvalidatedArea&>& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
+  using AreaInvalidatedEvent = ezEvent<const ezProcGenInternal::InvalidatedArea&, ezMutex>;
+  static const AreaInvalidatedEvent& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
 
 protected:
   float m_fValue = 1.0f;
@@ -45,7 +46,7 @@ protected:
   void InvalidateArea();
   void InvalidateArea(const ezBoundingBox& area);
 
-  static ezEvent<const ezProcGenInternal::InvalidatedArea&> s_AreaInvalidatedEvent;
+  static AreaInvalidatedEvent s_AreaInvalidatedEvent;
 };
 
 //////////////////////////////////////////////////////////////////////////

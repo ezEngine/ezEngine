@@ -37,7 +37,7 @@ EZ_ALWAYS_INLINE const ezVisualScriptDataDescription& ezVisualScriptDataStorage:
 
 EZ_ALWAYS_INLINE bool ezVisualScriptDataStorage::IsAllocated() const
 {
-  return m_Storage.GetByteBlobPtr().IsEmpty() == false;
+  return m_Storage.IsEmpty() == false;
 }
 
 template <typename T>
@@ -47,7 +47,7 @@ const T& ezVisualScriptDataStorage::GetData(DataOffset dataOffset) const
 
   m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-  return *reinterpret_cast<const T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  return *reinterpret_cast<const T*>(m_Storage.GetPtr() + dataOffset.m_uiByteOffset);
 }
 
 template <typename T>
@@ -57,7 +57,7 @@ T& ezVisualScriptDataStorage::GetWritableData(DataOffset dataOffset)
 
   m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-  return *reinterpret_cast<T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  return *reinterpret_cast<T*>(m_Storage.GetPtr() + dataOffset.m_uiByteOffset);
 }
 
 template <typename T>
@@ -65,11 +65,11 @@ void ezVisualScriptDataStorage::SetData(DataOffset dataOffset, const T& value)
 {
   static_assert(!std::is_pointer<T>::value, "Use SetPointerData instead");
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
+  if (dataOffset.m_uiByteOffset < m_Storage.GetCount())
   {
     m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+    auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
     if constexpr (std::is_same<T, ezGameObjectHandle>::value)
     {
@@ -97,9 +97,9 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
 {
   static_assert(std::is_pointer<T>::value);
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
+  if (dataOffset.m_uiByteOffset < m_Storage.GetCount())
   {
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+    auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
     if constexpr (std::is_same<T, ezGameObject*>::value)
     {
