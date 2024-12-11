@@ -180,6 +180,9 @@ public:
 
   ///@}
 
+  bool CanUndoSelection() const;
+  virtual void UndoSelection();
+
 protected:
   void SetGameMode(GameMode::Enum mode);
 
@@ -228,6 +231,21 @@ protected:
   // Local mirror for settings
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
+
+  //////////////////////////////////////////////////////////////////////////
+protected:
+  bool m_bStoreSelectionChange = true;
+  ezInt8 m_iAllowSelectionChanges = -1;
+  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_SelectionHandlerUnsubscriber;
+  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+
+  struct SelectionHistory
+  {
+    ezDynamicArray<ezUuid> m_Objects;
+    ezUuid m_documentGuid;
+  };
+
+  ezDeque<SelectionHistory> m_SelectionStack;
 
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types

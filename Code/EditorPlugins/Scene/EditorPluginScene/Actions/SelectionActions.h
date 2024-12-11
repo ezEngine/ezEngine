@@ -39,6 +39,7 @@ public:
   static ezActionDescriptorHandle s_hSelectParent;
   static ezActionDescriptorHandle s_hSetActiveParent;
   static ezActionDescriptorHandle s_hClearActiveParent;
+  static ezActionDescriptorHandle s_hUndoSelection;
 };
 
 ///
@@ -73,6 +74,8 @@ public:
 
     SetActiveParent,
     ClearActiveParent,
+
+    UndoSelection,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

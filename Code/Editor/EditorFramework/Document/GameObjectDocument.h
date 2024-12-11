@@ -99,6 +99,7 @@ public:
   ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
+  /// \brief In case a document consists of multiple layers, this redirection is necessary to execute actions on the active layer.
   virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;

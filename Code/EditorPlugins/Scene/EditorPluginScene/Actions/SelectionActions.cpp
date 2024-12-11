@@ -36,7 +36,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hCopyReference;
 ezActionDescriptorHandle ezSelectionActions::s_hSelectParent;
 ezActionDescriptorHandle ezSelectionActions::s_hSetActiveParent;
 ezActionDescriptorHandle ezSelectionActions::s_hClearActiveParent;
-
+ezActionDescriptorHandle ezSelectionActions::s_hUndoSelection;
 
 
 void ezSelectionActions::RegisterActions()
@@ -85,6 +85,8 @@ void ezSelectionActions::RegisterActions()
 
   s_hSetActiveParent = EZ_REGISTER_ACTION_1("Selection.SetActiveParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+A", ezSelectionAction, ezSelectionAction::ActionType::SetActiveParent);
   s_hClearActiveParent = EZ_REGISTER_ACTION_1("Selection.ClearActiveParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+C", ezSelectionAction, ezSelectionAction::ActionType::ClearActiveParent);
+
+  s_hUndoSelection = EZ_REGISTER_ACTION_1("Selection.UndoSelection", ezActionScope::Document, "Scene - Selection", "Ctrl+B", ezSelectionAction, ezSelectionAction::ActionType::UndoSelection);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -111,6 +113,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSelectParent);
   ezActionManager::UnregisterAction(s_hSetActiveParent);
   ezActionManager::UnregisterAction(s_hClearActiveParent);
+  ezActionManager::UnregisterAction(s_hUndoSelection);
 }
 
 void ezSelectionActions::MapActions(ezStringView sMapping)
@@ -133,6 +136,7 @@ void ezSelectionActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hCopyReference, "G.Selection", 10.0f);
   pMap->MapAction(s_hSetActiveParent, "G.Selection", 11.0f);
   pMap->MapAction(s_hClearActiveParent, "G.Selection", 12.0f);
+  pMap->MapAction(s_hUndoSelection, "CmdHistoryCategory", 13.0f);
 
   MapPrefabActions(sMapping, 0.0f);
 }
@@ -257,6 +261,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
       break;
     case ActionType::ClearActiveParent:
+      // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
+      break;
+    case ActionType::UndoSelection:
       // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
       break;
   }
@@ -427,6 +434,12 @@ void ezSelectionAction::Execute(const ezVariant& value)
       m_pSceneDocument->ClearActiveParent();
       return;
     }
+
+    case ActionType::UndoSelection:
+    {
+      m_pSceneDocument->UndoSelection();
+      return;
+    }
   }
 }
 
@@ -529,6 +542,11 @@ void ezSelectionAction::UpdateEnableState()
   {
     const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
     SetEnabled(pScene->GetActiveParent().IsValid());
+  }
+  else if (m_Type == ActionType::UndoSelection)
+  {
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    SetEnabled(pScene->CanUndoSelection());
   }
   else if (m_Type == ActionType::OpenPrefabDocument)
   {

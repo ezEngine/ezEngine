@@ -122,6 +122,14 @@ public:
   virtual void SendGameWorldToEngine() override;
 
   ///@}
+  /// \name Selection Specific Functions
+  ///@{
+
+  void PreventDoubleSelectionChange(bool b);
+  virtual void UndoSelection() override;
+
+  ///@}
+
 
 public:
   mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;

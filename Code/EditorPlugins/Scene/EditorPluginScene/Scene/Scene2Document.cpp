@@ -79,6 +79,8 @@ ezScene2Document::ezScene2Document(ezStringView sDocumentPath)
 
 ezScene2Document::~ezScene2Document()
 {
+  m_SelectionHandlerUnsubscriber.Unsubscribe();
+
   SetActiveLayer(GetGuid()).LogFailure();
 
   // We need to clear all things that are dependent in the current object manager, selection etc setup before we swap the managers as otherwise those will fail to de-register.
@@ -179,10 +181,15 @@ void ezScene2Document::InitializeAfterLoadingAndSaving()
   SubscribeGameObjectEventHandlers();
 
   UpdateLayers();
+
   if (const ezDocumentObject* pLayerObject = GetLayerObject(GetActiveLayer()))
   {
     m_pLayerSelection->SetSelection(pLayerObject);
   }
+
+  // change the selection handler to our custom selection manager
+  m_SelectionHandlerUnsubscriber.Unsubscribe();
+  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
 }
 
 const ezDocumentObject* ezScene2Document::GetSettingsObject() const
@@ -227,6 +234,45 @@ void ezScene2Document::SendGameWorldToEngine()
       pLayer->SendDocumentOpenMessage(true);
     }
   }
+}
+
+void ezScene2Document::PreventDoubleSelectionChange(bool b)
+{
+  m_iAllowSelectionChanges = b ? 1 : -1;
+}
+
+void ezScene2Document::UndoSelection()
+{
+  if (m_SelectionStack.IsEmpty())
+    return;
+
+  if (m_SelectionStack.GetCount() > 1)
+    m_SelectionStack.PopBack();
+
+  auto& back = m_SelectionStack.PeekBack();
+
+  m_bStoreSelectionChange = false;
+  EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
+
+  if (SetActiveLayer(back.m_documentGuid).Failed())
+    return;
+
+  auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
+  if (pDoc == nullptr)
+    return;
+
+  auto pObjMan = pDoc->GetObjectManager();
+
+  ezDeque<const ezDocumentObject*> newSel;
+  for (const ezUuid& guid : back.m_Objects)
+  {
+    if (auto pDoc = pObjMan->GetObject(guid))
+    {
+      newSel.PushBack(pDoc);
+    }
+  }
+
+  GetSelectionManager()->SetSelection(newSel);
 }
 
 void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent& e)
@@ -672,6 +718,15 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
 
   ezVisualizerManager::GetSingleton()->SetVisualizersActive(GetLayerDocument(m_ActiveLayerGuid), false);
 
+  m_ActiveLayerGuid = layerGuid;
+  m_pActiveSubDocument = GetLayerDocument(layerGuid);
+
+  {
+    ezScene2LayerEvent e;
+    e.m_Type = ezScene2LayerEvent::Type::ActiveLayerChanged;
+    e.m_layerGuid = layerGuid;
+    m_LayerEvents.Broadcast(e);
+  }
   {
     ezSelectionManagerEvent se;
     se.m_pDocument = this;
@@ -684,15 +739,6 @@ ezStatus ezScene2Document::SetActiveLayer(const ezUuid& layerGuid)
     ce.m_pDocument = this;
     ce.m_Type = ezCommandHistoryEvent::Type::HistoryChanged;
     m_pCommandHistory->GetStorage()->m_Events.Broadcast(ce);
-  }
-
-  m_ActiveLayerGuid = layerGuid;
-  m_pActiveSubDocument = GetLayerDocument(layerGuid);
-  {
-    ezScene2LayerEvent e;
-    e.m_Type = ezScene2LayerEvent::Type::ActiveLayerChanged;
-    e.m_layerGuid = layerGuid;
-    m_LayerEvents.Broadcast(e);
   }
   {
     ezDocumentEvent e;

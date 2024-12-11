@@ -10,9 +10,7 @@ class ezDocumentObjectManager;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 {
 public:
-  ezDocumentObject()
-
-    = default;
+  ezDocumentObject() = default;
   virtual ~ezDocumentObject() = default;
 
   // Accessors

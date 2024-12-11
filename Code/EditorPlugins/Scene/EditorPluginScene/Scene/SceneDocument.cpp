@@ -76,8 +76,9 @@ ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType docume
   m_GameModeData[GameMode::Play].m_bRenderSelectionOverlay = false;
   m_GameModeData[GameMode::Play].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
-}
 
+  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
+}
 
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
@@ -103,6 +104,8 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezSceneDocument::~ezSceneDocument()
 {
+  m_SelectionHandlerUnsubscriber.Unsubscribe();
+
   m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
@@ -1513,6 +1516,99 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
   {
     GatherObjectsOfType(pChild, pMsg);
   }
+}
+
+void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (!m_bStoreSelectionChange)
+    return;
+
+  if (m_iAllowSelectionChanges != -1)
+  {
+    if (m_iAllowSelectionChanges == 0)
+      m_SelectionStack.PopBack();
+
+    --m_iAllowSelectionChanges;
+  }
+
+  switch (e.m_Type)
+  {
+    case ezSelectionManagerEvent::Type::ObjectAdded:
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case ezSelectionManagerEvent::Type::SelectionSet:
+    case ezSelectionManagerEvent::Type::SelectionCleared: // empty selections are important to keep, for layer changes to be undoable
+    {
+      const auto& curSel = GetSelectionManager()->GetSelection();
+
+      auto& sel = m_SelectionStack.ExpandAndGetRef();
+
+      sel.m_documentGuid = GetRedirectedGameObjectDoc()->GetGuid();
+
+      sel.m_Objects.SetCountUninitialized(curSel.GetCount());
+
+      for (ezUInt32 i = 0; i < curSel.GetCount(); ++i)
+      {
+        sel.m_Objects[i] = curSel[i]->GetGuid();
+      }
+
+      // discard duplicate selection changes (but keep empty selections)
+      if (m_SelectionStack.GetCount() > 1)
+      {
+        const auto& prev = m_SelectionStack[m_SelectionStack.GetCount() - 2];
+
+        if (prev.m_Objects == sel.m_Objects && prev.m_documentGuid == sel.m_documentGuid)
+        {
+          m_SelectionStack.PopBack();
+        }
+      }
+
+      if (m_SelectionStack.GetCount() > 16)
+      {
+        m_SelectionStack.PopFront();
+      }
+
+      break;
+    }
+
+    default:
+      break;
+  }
+}
+
+bool ezSceneDocument::CanUndoSelection() const
+{
+  return m_SelectionStack.GetCount() > 1;
+}
+
+void ezSceneDocument::UndoSelection()
+{
+  if (m_SelectionStack.IsEmpty())
+    return;
+
+  if (m_SelectionStack.GetCount() > 1)
+    m_SelectionStack.PopBack();
+
+  auto& back = m_SelectionStack.PeekBack();
+
+  m_bStoreSelectionChange = false;
+  EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
+
+  auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
+  if (pDoc == nullptr)
+    return;
+
+  auto pObjMan = pDoc->GetObjectManager();
+
+  ezDeque<const ezDocumentObject*> newSel;
+  for (const ezUuid& guid : back.m_Objects)
+  {
+    if (auto pDoc = pObjMan->GetObject(guid))
+    {
+      newSel.PushBack(pDoc);
+    }
+  }
+
+  GetSelectionManager()->SetSelection(newSel);
 }
 
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
