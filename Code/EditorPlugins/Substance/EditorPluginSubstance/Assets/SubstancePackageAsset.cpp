@@ -422,6 +422,56 @@ namespace
 
     return ezStatus(EZ_SUCCESS);
   }
+
+  ezStatus WriteOutputSize(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  {
+    ezFileWriter writer;
+    EZ_SUCCEED_OR_RETURN(writer.Open(sFilePath));
+
+    ezStringBuilder tmp;
+    tmp.SetFormat("{}x{}", uiOutputWidth, uiOutputHeight);
+
+    EZ_SUCCEED_OR_RETURN(writer.WriteBytes(tmp.GetData(), tmp.GetElementCount()));
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  bool HasOutputSizeChanged(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  {
+    ezFileReader reader;
+    if (reader.Open(sFilePath).Failed())
+      return true;
+
+    ezStringBuilder tmp;
+    tmp.ReadAll(reader);
+
+    ezHybridArray<ezStringView, 2> sizes;
+    tmp.Split(false, sizes, "x");
+
+    if (sizes.GetCount() != 2)
+      return true;
+
+    ezUInt32 uiSize = 0;
+    if (ezConversionUtils::StringToUInt(sizes[0], uiSize).Failed() || uiSize != uiOutputWidth)
+      return true;
+
+    if (ezConversionUtils::StringToUInt(sizes[1], uiSize).Failed() || uiSize != uiOutputHeight)
+      return true;
+
+    return false;
+  }
+
+  ezTimestamp GetModifiedTimestamp(ezStringView sFilePath)
+  {
+    ezFileStats stats;
+    if (ezOSFile::GetFileStats(sFilePath, stats).Succeeded())
+    {
+      return stats.m_LastModificationTime;
+    }
+
+    return ezTimestamp();
+  }
+
 } // namespace
 
 // clang-format off
@@ -567,7 +617,18 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   EZ_SUCCEED_OR_RETURN(GetTempDir(sTempDir));
   EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sTempDir));
 
-  EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
+  ezTimestamp latestDependencyTimestamp;
+  for (auto& sDependency : GetAssetDocumentInfo()->m_TransformDependencies)
+  {
+    ezFileStats stats;
+    if (ezFileSystem::GetFileStats(sDependency, stats).Succeeded())
+    {
+      if (stats.m_LastModificationTime.Compare(latestDependencyTimestamp, ezTimestamp::CompareMode::Newer))
+      {
+        latestDependencyTimestamp = stats.m_LastModificationTime;
+      }
+    }
+  }
 
   ezStringView sPackageName = sAbsolutePackagePath.GetFileName();
 
@@ -575,18 +636,29 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   sSbsarPath.AppendPath(sPackageName);
   sSbsarPath.Append(".sbsar");
 
-  ezStringBuilder sOutputName, sPngPath, sTargetFile;
+  ezTimestamp sbsarTimestamp = GetModifiedTimestamp(sSbsarPath);
+
+  if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
+      latestDependencyTimestamp.Compare(sbsarTimestamp, ezTimestamp::CompareMode::Newer))
+  {
+    EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
+
+    sbsarTimestamp = GetModifiedTimestamp(sSbsarPath);
+  }
+
+  ezStringBuilder sOutputName, sPngPath, sTargetFile, sOutputSizeFilePath;
   auto& textureTypeDesc = static_cast<const ezSubstancePackageAssetDocumentManager*>(GetDocumentManager())->GetTextureTypeDesc();
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
   auto pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
+
+  ezHybridArray<ezString, 8> pngPaths;
 
   for (auto& graph : pProp->m_Graphs)
   {
     if (graph.m_bEnabled == false)
       continue;
 
-    EZ_SUCCEED_OR_RETURN(RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
-
+    pngPaths.Clear();
     for (auto& output : graph.m_Outputs)
     {
       if (output.m_bEnabled == false)
@@ -596,13 +668,49 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
       sPngPath.AppendPath(sPackageName);
       sPngPath.Append("_", graph.m_sName, "_", output.m_sName, ".png");
 
+      pngPaths.PushBack(sPngPath);
+    }
+
+    sOutputSizeFilePath = sSbsarPath.GetFileDirectory();
+    sOutputSizeFilePath.AppendPath(sPackageName);
+    sOutputSizeFilePath.Append("_", graph.m_sName, "_OutputSize.txt");
+
+    ezTimestamp outputSizeTimestamp = GetModifiedTimestamp(sOutputSizeFilePath);
+
+    if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
+        sbsarTimestamp.Compare(outputSizeTimestamp, ezTimestamp::CompareMode::Newer) ||
+        HasOutputSizeChanged(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight))
+    {
+      ezStatus sbsRenderStatus = RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight);
+      if (sbsRenderStatus.Failed())
+      {
+        // sbsrender.exe sometimes crashes on exit but has written all the outputs anyways so check here whether this was the case
+        for (auto& png : pngPaths)
+        {
+          ezTimestamp pngTimestamp = GetModifiedTimestamp(png);
+          if (sbsarTimestamp.Compare(pngTimestamp, ezTimestamp::CompareMode::Newer))
+            return sbsRenderStatus;
+        }
+      }
+
+      EZ_SUCCEED_OR_RETURN(WriteOutputSize(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
+    }
+
+    ezUInt32 uiOutputIndex = 0;
+    for (auto& output : graph.m_Outputs)
+    {
+      if (output.m_bEnabled == false)
+        continue;
+
       GenerateOutputName(graph, output, sOutputName);
       sTargetFile = ezStringView(GetDocumentPath()).GetFileDirectory();
       sTargetFile.AppendPath(sOutputName);
       ezString sAbsTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(&textureTypeDesc, sTargetFile, "", pAssetProfile);
 
       ezString sThumbnailFile = GetAssetDocumentManager()->GenerateResourceThumbnailPath(sTargetFile);
-      EZ_SUCCEED_OR_RETURN(RunTexConv(sPngPath, sAbsTargetFile, assetHeader, output, sThumbnailFile, pAssetConfig));
+      EZ_SUCCEED_OR_RETURN(RunTexConv(pngPaths[uiOutputIndex], sAbsTargetFile, assetHeader, output, sThumbnailFile, pAssetConfig));
+
+      ++uiOutputIndex;
     }
   }
 
@@ -688,6 +796,8 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
       if (newGraph.m_sName == existingGraph.m_sName)
       {
         newGraph.m_bEnabled = existingGraph.m_bEnabled;
+        newGraph.m_uiOutputWidth = existingGraph.m_uiOutputWidth;
+        newGraph.m_uiOutputHeight = existingGraph.m_uiOutputHeight;
         pExistingGraph = &existingGraph;
         break;
       }
