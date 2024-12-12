@@ -52,7 +52,10 @@ struct EZ_CORE_DLL ezMsgSetCustomData : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetCustomData, ezMessage);
 
-  ezVec4 m_vData;
+  float m_fData0;
+  float m_fData1;
+  float m_fData2;
+  float m_fData3;
 
   virtual void Serialize(ezStreamWriter& inout_stream) const override;
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;

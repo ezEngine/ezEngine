@@ -24,7 +24,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetCustomData, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Data", m_vData),
+    EZ_MEMBER_PROPERTY("Data0", m_fData0),
+    EZ_MEMBER_PROPERTY("Data1", m_fData1),
+    EZ_MEMBER_PROPERTY("Data2", m_fData2),
+    EZ_MEMBER_PROPERTY("Data3", m_fData3),
   }
   EZ_END_PROPERTIES;
 }
@@ -87,14 +90,20 @@ void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVers
 
 void ezMsgSetCustomData::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream << m_vData;
+  inout_stream << m_fData0;
+  inout_stream << m_fData1;
+  inout_stream << m_fData2;
+  inout_stream << m_fData3;
 }
 
 void ezMsgSetCustomData::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
   EZ_IGNORE_UNUSED(uiTypeVersion);
 
-  inout_stream >> m_vData;
+  inout_stream >> m_fData0;
+  inout_stream >> m_fData1;
+  inout_stream >> m_fData2;
+  inout_stream >> m_fData3;
 }
 
 
