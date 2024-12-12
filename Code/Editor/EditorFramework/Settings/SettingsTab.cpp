@@ -27,8 +27,6 @@ void ezQtEditorApp::ShowSettingsDocument()
   {
     pSettingsTab = new ezQtSettingsTab();
   }
-
-  pSettingsTab->EnsureVisible();
 }
 
 void ezQtEditorApp::CloseSettingsDocument()

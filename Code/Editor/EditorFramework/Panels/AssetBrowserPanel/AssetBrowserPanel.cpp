@@ -10,6 +10,8 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   : ezQtApplicationPanel("Panel.AssetBrowser")
   , m_SingletonRegistrar(this)
 {
+  setFeature(ads::CDockWidget::DockWidgetClosable, false);
+
   QWidget* pDummy = new QWidget();
   setupUi(pDummy);
   pDummy->setContentsMargins(0, 0, 0, 0);

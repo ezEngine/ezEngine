@@ -263,7 +263,7 @@ void ezQtContainerWindow::RestoreWindowLayout()
                 }
                 else
                 {
-                  m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+                  m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
                 }
               }
               dock->toggleView();
@@ -418,7 +418,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   }
   else
   {
-    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+    m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);
   connect(dock, &ads::CDockWidget::closeRequested, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);

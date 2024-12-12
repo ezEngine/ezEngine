@@ -98,23 +98,3 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
 
   return sAllFilters;
 }
-
-
-void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
-{
-  switch (e.m_Type)
-  {
-    case ezQtDocumentWindowEvent::WindowClosed:
-    {
-      // if all windows are closed, show at least the settings window
-      if (ezQtDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
-      {
-        ShowSettingsDocument();
-      }
-    }
-    break;
-
-    default:
-      break;
-  }
-}
