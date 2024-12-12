@@ -40,6 +40,7 @@ public:
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;
   bool m_bClearEditorLogsOnPlay = true;
+  bool m_bCombinedEditorAndEngineLogs = true;
 
   void SetShowInDevelopmentFeatures(bool b);
   bool GetShowInDevelopmentFeatures() const

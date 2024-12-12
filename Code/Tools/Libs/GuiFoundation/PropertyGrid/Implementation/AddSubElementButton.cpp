@@ -25,6 +25,7 @@ ezQtAddSubElementButton::ezQtAddSubElementButton()
 
   m_pButton = new QPushButton(this);
   m_pButton->setText("Add Item");
+  m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Add.svg"));
   m_pButton->setObjectName("Button");
 
   QSizePolicy policy = m_pButton->sizePolicy();

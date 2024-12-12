@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 
 
@@ -21,6 +22,7 @@ ezQtLogPanel::ezQtLogPanel()
 
   EditorLog->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Editor Log"));
   EngineLog->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Engine Log"));
+  CombinedLog->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Log"));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));
@@ -34,12 +36,23 @@ ezQtLogPanel::ezQtLogPanel()
 
   connect(EditorLog->GetLog(), &ezQtLogModel::NewErrorsOrWarnings, this, &ezQtLogPanel::OnNewWarningsOrErrors);
   connect(EngineLog->GetLog(), &ezQtLogModel::NewErrorsOrWarnings, this, &ezQtLogPanel::OnNewWarningsOrErrors);
+  connect(CombinedLog->GetLog(), &ezQtLogModel::NewErrorsOrWarnings, this, &ezQtLogPanel::OnNewWarningsOrErrors);
 
   ezQtUiServices::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::UiServiceEventHandler, this));
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::OnPreferenceChange, this));
+
+  m_bCombineLogs = pPreferences->m_bCombinedEditorAndEngineLogs;
+
+  LogWidgets->setCurrentIndex(m_bCombineLogs ? 0 : 1);
 }
 
 ezQtLogPanel::~ezQtLogPanel()
 {
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtLogPanel::OnPreferenceChange, this));
+
   QSettings Settings;
   Settings.beginGroup(QLatin1String("LogPanel"));
   {
@@ -55,8 +68,9 @@ ezQtLogPanel::~ezQtLogPanel()
 void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
 {
   m_uiKnownNumWarnings = EditorLog->GetLog()->GetNumSeriousWarnings() + EditorLog->GetLog()->GetNumWarnings() +
-                         EngineLog->GetLog()->GetNumSeriousWarnings() + EngineLog->GetLog()->GetNumWarnings();
-  m_uiKnownNumErrors = EditorLog->GetLog()->GetNumErrors() + EngineLog->GetLog()->GetNumErrors();
+                         EngineLog->GetLog()->GetNumSeriousWarnings() + EngineLog->GetLog()->GetNumWarnings() +
+                         CombinedLog->GetLog()->GetNumSeriousWarnings() + CombinedLog->GetLog()->GetNumWarnings();
+  m_uiKnownNumErrors = EditorLog->GetLog()->GetNumErrors() + EngineLog->GetLog()->GetNumErrors() + CombinedLog->GetLog()->GetNumErrors();
 
   ezQtUiServices::Event::TextType type = ezQtUiServices::Event::Info;
 
@@ -108,6 +122,7 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
   switch (e.m_Type)
   {
     case ezToolsProjectEvent::Type::ProjectClosing:
+      CombinedLog->GetLog()->Clear();
       EditorLog->GetLog()->Clear();
       EngineLog->GetLog()->Clear();
       [[fallthrough]];
@@ -127,7 +142,11 @@ void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 {
   // Can be called from a different thread, but AddLogMsg is thread safe.
   ezLogEntry msg(e);
-  EditorLog->GetLog()->AddLogMsg(msg);
+
+  if (m_bCombineLogs)
+    CombinedLog->GetLog()->AddLogMsg(msg);
+  else
+    EditorLog->GetLog()->AddLogMsg(msg);
 
   if (msg.m_sTag == "EditorStatus")
   {
@@ -143,7 +162,10 @@ void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection
     {
       if (const ezLogMsgToEditor* pMsg = ezDynamicCast<const ezLogMsgToEditor*>(e.m_pMsg))
       {
-        EngineLog->GetLog()->AddLogMsg(pMsg->m_Entry);
+        if (m_bCombineLogs)
+          CombinedLog->GetLog()->AddLogMsg(pMsg->m_Entry);
+        else
+          EngineLog->GetLog()->AddLogMsg(pMsg->m_Entry);
       }
     }
     break;
@@ -163,5 +185,18 @@ void ezQtLogPanel::UiServiceEventHandler(const ezQtUiServices::Event& e)
     m_uiIgnoreNumWarnings = m_uiKnownNumWarnings;
 
     ezQtUiServices::GetSingleton()->ShowAllDocumentsPermanentStatusBarMessage(nullptr, ezQtUiServices::Event::Info);
+  }
+}
+
+void ezQtLogPanel::OnPreferenceChange(ezPreferences* pref)
+{
+  if (ezEditorPreferencesUser* pPref = ezDynamicCast<ezEditorPreferencesUser*>(pref))
+  {
+    if (m_bCombineLogs != pPref->m_bCombinedEditorAndEngineLogs)
+    {
+      m_bCombineLogs = pPref->m_bCombinedEditorAndEngineLogs;
+
+      LogWidgets->setCurrentIndex(m_bCombineLogs ? 0 : 1);
+    }
   }
 }

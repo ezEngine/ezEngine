@@ -83,8 +83,11 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
       auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
       if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
       {
+        ezQtLogPanel::GetSingleton()->CombinedLog->GetLog()->Clear();
+
         // on play, the engine log has a lot of activity, so makes sense to clear that first
         ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
+
         // but I think we usually want to keep the editor log around
         // ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }

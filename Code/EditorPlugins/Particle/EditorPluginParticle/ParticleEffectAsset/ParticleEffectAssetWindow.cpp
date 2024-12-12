@@ -104,6 +104,10 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
       m_pRenameSystem = new QToolButton(pSystemsPanel);
       connect(m_pRenameSystem, &QAbstractButton::clicked, this, &ezQtParticleEffectAssetDocumentWindow::onRenameSystem);
 
+      m_pAddSystem->setToolTip("Add another particle system to the effect.");
+      m_pRemoveSystem->setToolTip("Remove this particle system from the effect.");
+      m_pRenameSystem->setToolTip("Rename this particle system.");
+
       m_pAddSystem->setIcon(QIcon(":/GuiFoundation/Icons/Add.svg"));
       m_pRemoveSystem->setIcon(QIcon(":/GuiFoundation/Icons/Delete.svg"));
       m_pRenameSystem->setIcon(QIcon(":/GuiFoundation/Icons/Rename.svg"));
