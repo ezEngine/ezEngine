@@ -46,8 +46,8 @@ ezQtSettingsTab::ezQtSettingsTab()
   setCentralWidget(new QWidget());
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
 
-  setupUi(centralWidget());
-  QMetaObject::connectSlotsByName(this);
+  // setupUi(centralWidget());
+  // QMetaObject::connectSlotsByName(this);
 
   ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
   ezActionContext context;
@@ -57,12 +57,12 @@ ezQtSettingsTab::ezQtSettingsTab()
 
   FinishWindowCreation();
 
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
+  // ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
 }
 
 ezQtSettingsTab::~ezQtSettingsTab()
 {
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
+  // ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
 }
 
 void ezQtSettingsTab::on_OpenScene_clicked()
