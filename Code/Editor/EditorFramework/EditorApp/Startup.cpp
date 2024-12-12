@@ -384,9 +384,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     LoadRecentFiles();
 
-    CreatePanels();
-
     ShowSettingsDocument();
+
+    CreatePanels();
 
     if (!IsInUnitTestMode())
     {
@@ -541,24 +541,26 @@ void ezQtEditorApp::ShutdownEditor()
   EZ_DEFAULT_DELETE(m_pProgressbar);
 }
 
-
-
 void ezQtEditorApp::CreatePanels()
 {
   EZ_PROFILE_SCOPE("CreatePanels");
   ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
-  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
-  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
-  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
   ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
+  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
+  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
+  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
 
   ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
   ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
-  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pCVarPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
+
+  // by default these panels can be hidden
+  pCVarPanel->toggleView(false);
+  pLongOpsPanel->toggleView(false);
 
   pAssetBrowserPanel->raise();
 }

@@ -87,11 +87,11 @@ void ezProjectActions::RegisterActions()
   s_hCatAssetDoc = EZ_REGISTER_CATEGORY("G.AssetDoc");
 
 
-  s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "Ctrl+Shift+D", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
+  s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
 
   s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
 
-  s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
+  s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "Ctrl+Shift+D", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
 
   s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
   s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
@@ -226,9 +226,9 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
   }
 
   // Add actions
-  pMap->MapAction(s_hOpenDashboard, "G.Project.General", 1.0f);
-  // pMap->MapAction(s_hCreateProject, "G.Project.General", 2.0f); // use dashboard
-  // pMap->MapAction(s_hOpenProject, "G.Project.General", 3.0f);   // use dashboard
+  // pMap->MapAction(s_hOpenDashboard, "G.Project.General", 1.0f);
+  pMap->MapAction(s_hOpenProject, "G.Project.General", 2.0f);   // use dashboard
+  pMap->MapAction(s_hCreateProject, "G.Project.General", 3.0f); // use dashboard
   // pMap->MapAction(s_hRecentProjects, "G.Project.General", 4.0f);// use dashboard
   pMap->MapAction(s_hCloseProject, "G.Project.General", 5.0f);
 
@@ -584,7 +584,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       break;
 
     case ezProjectAction::ButtonType::OpenProject:
-      ezQtEditorApp::GetSingleton()->GuiOpenProject();
+      ezQtEditorApp::GetSingleton()->GuiOpenDashboard();
+      // ezQtEditorApp::GetSingleton()->GuiOpenProject();
       break;
 
     case ezProjectAction::ButtonType::CloseProject:

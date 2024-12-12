@@ -78,7 +78,18 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
     return false;
 
   if (bCreate)
+  {
+    ezFileSystemIterator it;
+    it.StartSearch(sFile, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
+
+    if (it.IsValid())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation("Please choose an empty folder to create your project in.\n\nUse the 'New folder' button in the dialog to add a folder. The folder name will also be your project name.");
+      return false;
+    }
+
     sFile.AppendPath("ezProject");
+  }
 
   m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 
