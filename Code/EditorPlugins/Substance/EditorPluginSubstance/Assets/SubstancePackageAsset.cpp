@@ -374,7 +374,7 @@ namespace
 
     arguments << "--no-optimization";
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
 
     return ezStatus(EZ_SUCCESS);
   }
@@ -418,7 +418,7 @@ namespace
     arguments << "--set-value";
     arguments << sTmp.GetData();
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem()));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem()));
 
     return ezStatus(EZ_SUCCESS);
   }
