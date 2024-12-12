@@ -237,6 +237,11 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
         // range.BeginNextStep(doc.m_File);
         SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
       }
+
+      if (allDocs.GetFileList().IsEmpty())
+      {
+        OpenDemoDocument();
+      }
     }
 
     if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
@@ -482,8 +487,6 @@ void ezQtEditorApp::SetupNewProject()
 {
   ezToolsProject::GetSingleton()->CreateSubFolder("Editor");
   ezToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
-  ezToolsProject::GetSingleton()->CreateSubFolder("Scenes");
-  ezToolsProject::GetSingleton()->CreateSubFolder("Prefabs");
 
   // write the default window config
   {

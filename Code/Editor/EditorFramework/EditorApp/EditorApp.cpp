@@ -613,3 +613,25 @@ void ezQtEditorApp::ReloadEngineResources()
   msg.m_sPayload = "ReloadAllResources";
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
+
+void ezQtEditorApp::OpenDemoDocument()
+{
+  auto* pCurator = ezAssetCurator::GetSingleton();
+  auto assets = pCurator->GetKnownAssets();
+
+  ezStringBuilder sBestDoc;
+
+  for (auto it = assets->GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->m_Path.GetDataDirRelativePath().GetFileName().IsEqual_NoCase("Main"))
+    {
+      sBestDoc = it.Value()->m_Path.GetAbsolutePath();
+      break;
+    }
+  }
+
+  if (!sBestDoc.IsEmpty())
+  {
+    SlotQueuedOpenDocument(sBestDoc.GetData(), nullptr);
+  }
+}

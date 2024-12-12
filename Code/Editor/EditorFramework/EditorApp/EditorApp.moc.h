@@ -268,6 +268,8 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
+  void OpenDemoDocument();
+
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
 
   bool m_bSavePreferencesAfterOpenProject;

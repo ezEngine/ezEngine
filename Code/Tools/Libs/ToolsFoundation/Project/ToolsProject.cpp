@@ -6,7 +6,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 
-ezEvent<const ezToolsProjectEvent&> ezToolsProject::s_Events;
+ezEvent<const ezToolsProjectEvent&, ezMutex> ezToolsProject::s_Events;
 ezEvent<ezToolsProjectRequest&> ezToolsProject::s_Requests;
 
 
@@ -45,12 +45,23 @@ ezStatus ezToolsProject::Create()
     }
   }
 
-  ezToolsProjectEvent e;
-  e.m_pProject = this;
-  e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
-  s_Events.Broadcast(e);
+  {
+    ezToolsProjectEvent e;
+    e.m_pProject = this;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
+    s_Events.Broadcast(e);
+  }
 
-  return Open();
+  EZ_SUCCEED_OR_RETURN(Open());
+
+  {
+    ezToolsProjectEvent e;
+    e.m_pProject = this;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectFirstSetup;
+    s_Events.Broadcast(e);
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezToolsProject::Open()

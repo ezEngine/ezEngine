@@ -15,6 +15,7 @@
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/BoxReflectionProbeVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
@@ -33,7 +34,10 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
+
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -57,11 +61,25 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
   }
 }
 
-void ToolsProjectEventHandler(const ezEditorAppEvent& e)
+void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
-  if (e.m_Type == ezEditorAppEvent::Type::BeforeApplyDataDirectories)
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectFirstSetup)
   {
-    // ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base");
+    auto project = ezToolsProject::GetSingleton();
+
+    project->CreateSubFolder("Scenes");
+    project->CreateSubFolder("Prefabs");
+
+    for (auto& dm : ezAssetDocumentManager::GetAllDocumentManagers())
+    {
+      if (dm->IsInstanceOf<ezSceneDocumentManager>())
+      {
+        ezDocument* doc;
+
+        ezStringBuilder path(project->GetProjectDirectory(), "/Scenes/Main.ezScene");
+        dm->CreateDocument("Scene", path, doc).IgnoreResult();
+      }
+    }
   }
 }
 
@@ -112,11 +130,11 @@ QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight
 
 void OnLoadPlugin()
 {
+  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
 
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
-
-  ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);
 
@@ -213,8 +231,8 @@ void OnUnloadPlugin()
 {
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
 
+  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
-  ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);

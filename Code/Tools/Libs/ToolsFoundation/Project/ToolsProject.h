@@ -15,6 +15,7 @@ struct ezToolsProjectEvent
   {
     ProjectCreated,
     ProjectOpened,
+    ProjectFirstSetup,
     ProjectSaveState,
     ProjectClosing,
     ProjectClosed,
@@ -55,7 +56,7 @@ class EZ_TOOLSFOUNDATION_DLL ezToolsProject
   EZ_DECLARE_SINGLETON(ezToolsProject);
 
 public:
-  static ezEvent<const ezToolsProjectEvent&> s_Events;
+  static ezEvent<const ezToolsProjectEvent&, ezMutex> s_Events;
   static ezEvent<ezToolsProjectRequest&> s_Requests;
 
 public:
