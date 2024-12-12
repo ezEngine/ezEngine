@@ -737,6 +737,8 @@ export class MarkerComponent extends Component
 export class OccluderComponent extends Component
 {
   public static GetTypeNameHash(): number { return 88153051; }
+  get Type(): Enum.OccluderType { return __CPP_ComponentProperty_get(this, 2414574304); }
+  set Type(value: Enum.OccluderType) { __CPP_ComponentProperty_set(this, 2414574304, value); }
   get Extents(): Vec3 { return __CPP_ComponentProperty_get(this, 1943536156); }
   set Extents(value: Vec3) { __CPP_ComponentProperty_set(this, 1943536156, value); }
 }
@@ -807,6 +809,8 @@ export class PointLightComponent extends LightComponent
   public static GetTypeNameHash(): number { return 2694457879; }
   get Range(): number { return __CPP_ComponentProperty_get(this, 2070313016); }
   set Range(value: number) { __CPP_ComponentProperty_set(this, 2070313016, value); }
+  get ShadowFadeOutRange(): number { return __CPP_ComponentProperty_get(this, 929605317); }
+  set ShadowFadeOutRange(value: number) { __CPP_ComponentProperty_set(this, 929605317, value); }
 }
 
 export class PostProcessingComponent extends Component
@@ -1180,6 +1184,8 @@ export class SpotLightComponent extends LightComponent
   set InnerSpotAngle(value: number) { __CPP_ComponentProperty_set(this, 2388270276, value); }
   get OuterSpotAngle(): number { return __CPP_ComponentProperty_get(this, 1291241033); }
   set OuterSpotAngle(value: number) { __CPP_ComponentProperty_set(this, 1291241033, value); }
+  get ShadowFadeOutRange(): number { return __CPP_ComponentProperty_get(this, 701712349); }
+  set ShadowFadeOutRange(value: number) { __CPP_ComponentProperty_set(this, 701712349, value); }
 }
 
 export class SpriteComponent extends RenderComponent

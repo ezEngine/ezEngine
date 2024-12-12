@@ -226,6 +226,7 @@ export import FollowPathMode = __AllEnums.FollowPathMode;
 export import GlobalBlackboardInitMode = __AllEnums.GlobalBlackboardInitMode;
 export import GreyBoxShape = __AllEnums.GreyBoxShape;
 export import InputMessageGranularity = __AllEnums.InputMessageGranularity;
+export import OccluderType = __AllEnums.OccluderType;
 export import OnComponentFinishedAction = __AllEnums.OnComponentFinishedAction;
 export import OnComponentFinishedAction2 = __AllEnums.OnComponentFinishedAction2;
 export import PathNodeTangentMode = __AllEnums.PathNodeTangentMode;
