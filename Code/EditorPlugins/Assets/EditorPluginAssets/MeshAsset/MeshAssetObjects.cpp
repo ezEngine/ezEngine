@@ -5,7 +5,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 4, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -251,3 +251,21 @@ public:
 };
 
 ezMeshAssetPropertiesPatch_2_3 g_ezMeshAssetPropertiesPatch_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezMeshAssetPropertiesPatch_3_4 : public ezGraphPatch
+{
+public:
+  ezMeshAssetPropertiesPatch_3_4()
+    : ezGraphPatch("ezMeshAssetProperties", 4)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("ImportTransform", 127);
+  }
+};
+
+ezMeshAssetPropertiesPatch_3_4 g_ezMeshAssetPropertiesPatch_3_4;

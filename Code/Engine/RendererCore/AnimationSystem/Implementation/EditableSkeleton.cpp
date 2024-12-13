@@ -79,7 +79,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ezEditableSkeleton>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 2, ezRTTIDefaultAllocator<ezEditableSkeleton>)
 {
   EZ_BEGIN_PROPERTIES
   {

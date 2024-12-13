@@ -28,7 +28,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltConvexCollisionMeshType, 1)
   EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexDecomposition),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -119,3 +119,23 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
     }
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezJoltCollisionMeshAssetProperties_1_2 : public ezGraphPatch
+{
+public:
+  ezJoltCollisionMeshAssetProperties_1_2()
+    : ezGraphPatch("ezJoltCollisionMeshAssetProperties", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("ImportTransform", 127);
+  }
+};
+
+ezJoltCollisionMeshAssetProperties_1_2 g_ezJoltCollisionMeshAssetProperties_1_2;

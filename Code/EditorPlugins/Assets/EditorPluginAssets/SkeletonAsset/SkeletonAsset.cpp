@@ -485,3 +485,24 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
 
   return ezStatus(EZ_SUCCESS);
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezEditableSkeleton_1_2 : public ezGraphPatch
+{
+public:
+  ezEditableSkeleton_1_2()
+    : ezGraphPatch("ezEditableSkeleton", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("ImportTransform", 127);
+  }
+};
+
+ezEditableSkeleton_1_2 g_ezEditableSkeleton_1_2;
