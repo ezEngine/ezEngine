@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
@@ -53,9 +54,10 @@ public:
   bool m_bCap = true;
   bool m_bCap2 = true;
 
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveY;
-  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveZ;
-  bool m_bFlipForwardDir = false;
+  ezEnum<ezMeshImportTransform> m_ImportTransform;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  bool m_bFlipForwardDir = true;
 
   ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 

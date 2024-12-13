@@ -11,9 +11,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
   {
     EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
+    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
+    EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
     EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -66,9 +67,21 @@ public:
 
 ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::File), EZ_ENUM_CONSTANT(ezMeshPrimitive::Box), EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone), EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid), EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule), EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::File),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Box),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezMeshAssetProperties::ezMeshAssetProperties() = default;
 ezMeshAssetProperties::~ezMeshAssetProperties() = default;
@@ -102,6 +115,12 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const bool bCustomTransform = importTransform == 127;
+    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     switch (primType)
     {

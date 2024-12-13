@@ -48,4 +48,65 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
   ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMesh().GetResourceID()));
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshImportTransform, 1)
+  EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_YUp),
+    EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_ZUp),
+    EZ_ENUM_CONSTANT(ezMeshImportTransform::Custom),
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+ezBasisAxis::Enum ezMeshImportTransform::GetRightDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir)
+{
+  switch (transform)
+  {
+    case ezMeshImportTransform::Blender_YUp:
+      return ezBasisAxis::PositiveX;
+    case ezMeshImportTransform::Blender_ZUp:
+      return ezBasisAxis::PositiveX;
+    case ezMeshImportTransform::Custom:
+      return dir;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return dir;
+}
+
+ezBasisAxis::Enum ezMeshImportTransform::GetUpDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir)
+{
+  switch (transform)
+  {
+    case ezMeshImportTransform::Blender_YUp:
+      return ezBasisAxis::PositiveY;
+    case ezMeshImportTransform::Blender_ZUp:
+      return ezBasisAxis::PositiveZ;
+    case ezMeshImportTransform::Custom:
+      return dir;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return dir;
+}
+
+bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform, bool flip)
+{
+  switch (transform)
+  {
+    case ezMeshImportTransform::Blender_YUp:
+      return true;
+    case ezMeshImportTransform::Blender_ZUp:
+      return true;
+    case ezMeshImportTransform::Custom:
+      return flip;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return flip;
+}
+
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);

@@ -18,16 +18,18 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  const ezBasisAxis::Enum rightDir = pProp->m_RightDir;
-  const ezBasisAxis::Enum upDir = pProp->m_UpDir;
-  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !pProp->m_bFlipForwardDir);
+  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
+
+  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
 
   ezTransform t;
   t.SetIdentity();
   t.m_vScale.Set(us);
 
   // prevent mirroring in the rotation matrix, because we can't generate a quaternion from that
-  if (!pProp->m_bFlipForwardDir)
+  if (!flipFwd)
   {
     switch (forwardDir)
     {
@@ -73,6 +75,17 @@ ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeleton>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const bool bCustomTransform = importTransform == 127;
+    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
   {
     auto& props = *e.m_pPropertyStates;

@@ -29,3 +29,24 @@ struct EZ_RENDERERCORE_DLL ezPermutationVar
 
   EZ_ALWAYS_INLINE bool operator==(const ezPermutationVar& other) const { return m_sName == other.m_sName && m_sValue == other.m_sValue; }
 };
+
+struct EZ_RENDERERCORE_DLL ezMeshImportTransform
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    Blender_YUp,
+    Blender_ZUp,
+
+    Custom = 127,
+
+    Default = Blender_YUp
+  };
+
+  static ezBasisAxis::Enum GetRightDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
+  static ezBasisAxis::Enum GetUpDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
+  static bool GetFlipForward(ezMeshImportTransform::Enum transform, bool flip);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshImportTransform);

@@ -16,9 +16,13 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, !pProp->m_bFlipForwardDir);
+  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
 
-  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
+
+  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, us);
 }
 
 ezMeshAssetDocument::ezMeshAssetDocument(ezStringView sDocumentPath)

@@ -6,6 +6,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/Declarations.h>
 
 class ezSkeletonBuilder;
 class ezSkeleton;
@@ -112,9 +113,10 @@ public:
   float m_fUniformScaling = 1.0f;
   float m_fMaxImpulse = 100.0f;
 
-  ezEnum<ezBasisAxis> m_RightDir;
-  ezEnum<ezBasisAxis> m_UpDir;
-  bool m_bFlipForwardDir = false;
+  ezEnum<ezMeshImportTransform> m_ImportTransform;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
+  bool m_bFlipForwardDir = true;
   ezEnum<ezBasisAxis> m_BoneDirection;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;

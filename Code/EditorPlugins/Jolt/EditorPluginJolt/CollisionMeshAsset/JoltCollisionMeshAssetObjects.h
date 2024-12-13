@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <RendererCore/Declarations.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
@@ -60,9 +61,10 @@ public:
   float m_fUniformScaling = 1.0f;
   ezString m_sConvexMeshSurface;
 
+  ezEnum<ezMeshImportTransform> m_ImportTransform;
   ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
-  bool m_bFlipForwardDir = false;
+  bool m_bFlipForwardDir = true;
   bool m_bIsConvexMesh = false;
   ezEnum<ezJoltConvexCollisionMeshType> m_ConvexMeshType;
   ezUInt16 m_uiMaxConvexPieces = 2;
