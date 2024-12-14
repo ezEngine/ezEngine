@@ -46,7 +46,7 @@ struct EZ_RENDERERCORE_DLL ezMeshImportTransform
 
   static ezBasisAxis::Enum GetRightDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
   static ezBasisAxis::Enum GetUpDir(ezMeshImportTransform::Enum transform, ezBasisAxis::Enum dir);
-  static bool GetFlipForward(ezMeshImportTransform::Enum transform, bool flip);
+  static bool GetFlipForward(ezMeshImportTransform::Enum transform, bool bFlip);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshImportTransform);

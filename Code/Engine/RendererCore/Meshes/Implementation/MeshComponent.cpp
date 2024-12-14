@@ -92,7 +92,7 @@ ezBasisAxis::Enum ezMeshImportTransform::GetUpDir(ezMeshImportTransform::Enum tr
   return dir;
 }
 
-bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform, bool flip)
+bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform, bool bFlip)
 {
   switch (transform)
   {
@@ -101,12 +101,12 @@ bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform
     case ezMeshImportTransform::Blender_ZUp:
       return true;
     case ezMeshImportTransform::Custom:
-      return flip;
+      return bFlip;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  return flip;
+  return bFlip;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
