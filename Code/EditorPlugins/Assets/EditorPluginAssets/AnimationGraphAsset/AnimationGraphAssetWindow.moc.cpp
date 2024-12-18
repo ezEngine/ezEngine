@@ -37,12 +37,21 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
     addToolBar(pToolBar);
   }
 
-  m_pScene = new ezQtAnimationGraphAssetScene(this);
-  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+  // Central Widget
+  {
+    m_pScene = new ezQtAnimationGraphAssetScene(this);
+    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
 
-  m_pView = new ezQtNodeView(this);
-  m_pView->SetScene(m_pScene);
-  setCentralWidget(m_pView);
+    m_pView = new ezQtNodeView(this);
+    m_pView->SetScene(m_pScene);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("ezQtDocumentPanel");
+    pCentral->setWindowTitle("Anim Graph");
+    pCentral->setWidget(m_pView);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
@@ -53,7 +62,7 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
 
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationGraphAssetDocumentWindow::SelectionEventHandler, this));

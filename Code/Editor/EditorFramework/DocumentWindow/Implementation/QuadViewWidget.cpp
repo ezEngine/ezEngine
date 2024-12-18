@@ -9,14 +9,18 @@
 
 ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
 {
+  setObjectName("ezQtQuadViewWidget");
+
   m_pDocument = pDocument;
   m_pWindow = pWindow;
   m_ViewFactory = viewFactory;
   m_sViewToolBarMapping = szViewToolBarMapping;
 
   m_pViewLayout = new QGridLayout(this);
+  m_pViewLayout->setObjectName("QGridLayout1");
   m_pViewLayout->setContentsMargins(0, 0, 0, 0);
   m_pViewLayout->setSpacing(4);
+
   setLayout(m_pViewLayout);
 
   LoadViewConfigs();

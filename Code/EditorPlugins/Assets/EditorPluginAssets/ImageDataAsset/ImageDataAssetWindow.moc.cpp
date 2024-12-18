@@ -36,23 +36,30 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
     addToolBar(pToolBar);
   }
 
+  // Central Widget
+  {
+    m_pImageWidget = new ezQtImageWidget(this);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("ImageDataView");
+    pCentral->setWindowTitle("Image");
+    pCentral->setWidget(m_pImageWidget);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
+
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("ImageDataAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Properties");
-    pPropertyPanel->show();
+    pPropertyPanel->setObjectName("ImageDataProperties");
+    pPropertyPanel->setWindowTitle("Image Properties");
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
-
-  m_pImageWidget = new ezQtImageWidget(this);
-
-  setCentralWidget(m_pImageWidget);
 
   FinishWindowCreation();
 

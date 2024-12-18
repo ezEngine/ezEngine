@@ -12,6 +12,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QInputDialog>
+#include <QLayout>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
@@ -28,7 +29,14 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
   pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
     { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
-  setCentralWidget(m_pQuadViewWidget);
+  {
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(this, pDocument);
+    pViewPanel->setObjectName("ezQtDocumentPanel");
+    pViewPanel->setWindowTitle("3D View");
+    pViewPanel->setWidget(m_pQuadViewWidget);
+
+    m_pDockManager->setCentralWidget(pViewPanel);
+  }
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
   SetTargetFramerate(pPreferences->GetMaxFramerate());
@@ -61,6 +69,7 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
+    pPropertyPanel->layout()->setObjectName("PropertyPanelLayout");
 
     ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(this, pDocument);
     pPanelTree->show();
@@ -72,9 +81,9 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
     pPropertyPanel->setWidget(pPropertyGrid);
     EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtScene2DocumentWindow::ExtendPropertyGridContextMenu), "");
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pLayers);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pLayers);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
   }
   FinishWindowCreation();
 }

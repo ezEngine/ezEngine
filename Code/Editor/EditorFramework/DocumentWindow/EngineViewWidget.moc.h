@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Size.h>
 #include <QWidget>
+#include <ads/DockWidget.h>
 
 class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
@@ -163,7 +164,7 @@ protected:
 };
 
 /// \brief Wraps and decorates a view widget with a toolbar and layout.
-class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public ads::CDockWidget
 {
   Q_OBJECT
 

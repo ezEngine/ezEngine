@@ -2,30 +2,22 @@
 
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <QCloseEvent>
-
-ezDynamicArray<ezQtDocumentPanel*> ezQtDocumentPanel::s_AllDocumentPanels;
 
 ezQtDocumentPanel::ezQtDocumentPanel(QWidget* pParent, ezDocument* pDocument)
-  : QDockWidget(pParent)
+  : ads::CDockWidget("ezQtDocumentPanel", pParent)
 {
   m_pDocument = pDocument;
-  s_AllDocumentPanels.PushBack(this);
 
-  setBackgroundRole(QPalette::ColorRole::Highlight);
+  setMinimumWidth(300);
+  setMinimumHeight(200);
 
-  setFeatures(DockWidgetFeature::DockWidgetFloatable | DockWidgetFeature::DockWidgetMovable);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetClosable, false);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFloatable, true);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetMovable, true);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFocusable, true);
 }
 
-ezQtDocumentPanel::~ezQtDocumentPanel()
-{
-  s_AllDocumentPanels.RemoveAndSwap(this);
-}
-
-void ezQtDocumentPanel::closeEvent(QCloseEvent* e)
-{
-  e->ignore();
-}
+ezQtDocumentPanel::~ezQtDocumentPanel() = default;
 
 bool ezQtDocumentPanel::event(QEvent* pEvent)
 {
@@ -35,5 +27,6 @@ bool ezQtDocumentPanel::event(QEvent* pEvent)
     if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
   }
-  return QDockWidget::event(pEvent);
+
+  return CDockWidget::event(pEvent);
 }

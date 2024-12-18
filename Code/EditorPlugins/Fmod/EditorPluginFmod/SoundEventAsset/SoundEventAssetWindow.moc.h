@@ -27,5 +27,4 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   ezSoundEventAssetDocument* m_pAssetDoc = nullptr;
-  QLabel* m_pLabelInfo = nullptr;
 };

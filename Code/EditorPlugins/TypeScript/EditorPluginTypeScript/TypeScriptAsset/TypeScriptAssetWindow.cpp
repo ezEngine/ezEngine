@@ -36,24 +36,9 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
     addToolBar(pToolBar);
   }
 
-  // Property Grid
-  {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("TypeScriptAssetDockWidget");
-    pPropertyPanel->setWindowTitle("TypeScript Properties");
-    pPropertyPanel->show();
-
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
-
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-
-    pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-  }
-
   m_pAssetDoc = static_cast<ezTypeScriptAssetDocument*>(pDocument);
 
-  // central widget
+  // Central Widget
   {
     QFont font;
     font.setFamily("Courier");
@@ -66,9 +51,29 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
 
     m_pHighlighter = new JSHighlighter(m_pSourceLabel->document());
 
-    setCentralWidget(m_pSourceLabel);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("TypeScriptView");
+    pCentral->setWindowTitle("Script");
+    pCentral->setWidget(m_pSourceLabel);
+
+    m_pDockManager->setCentralWidget(pCentral);
 
     UpdateFileContentDisplay();
+  }
+
+  // Property Grid
+  {
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    pPropertyPanel->setObjectName("TypeScriptAssetDockWidget");
+    pPropertyPanel->setWindowTitle("TypeScript Properties");
+    pPropertyPanel->show();
+
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    pPropertyPanel->setWidget(pPropertyGrid);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
+
+    pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
   FinishWindowCreation();

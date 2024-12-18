@@ -51,7 +51,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
 
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");
 
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
@@ -64,7 +64,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidget(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

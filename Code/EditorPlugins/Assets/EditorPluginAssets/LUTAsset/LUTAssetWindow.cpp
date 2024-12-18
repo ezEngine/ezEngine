@@ -65,7 +65,7 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
         AddViewWidget(m_pViewWidget);
         ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
 
-        setCentralWidget(pContainer);*/
+        m_pDockManager->setCentralWidget(pContainer);*/
   }
 
   {
@@ -77,7 +77,7 @@ ezQtLUTAssetDocumentWindow::ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocu
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

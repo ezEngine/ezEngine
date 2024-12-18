@@ -44,7 +44,7 @@ ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDoc
     m_pViewWidget = new ezQtEngineViewWidget(nullptr, this, &m_ViewConfig);
     AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
@@ -57,7 +57,7 @@ ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDoc
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

@@ -692,18 +692,30 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
-  : QWidget(pParent)
+  : ads::CDockWidget("3D View", pParent)
 {
+  setObjectName("ezQtViewWidgetContainer");
+
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetClosable, false);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFloatable, false);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetMovable, false);
+  setFeature(ads::CDockWidget::DockWidgetFeature::DockWidgetFocusable, true);
+
+  // need contrast with the rest of the widgets around it
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
 
-  m_pLayout = new QVBoxLayout(this);
+  QWidget* pDummy = new QWidget();
+  pDummy->setObjectName("Dummy");
+
+  m_pLayout = new QVBoxLayout(pDummy);
+  m_pLayout->setObjectName("QVBoxLayout1");
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   m_pLayout->setSpacing(0);
-  setLayout(m_pLayout);
+  pDummy->setLayout(m_pLayout);
 
   m_pViewWidget = pViewWidget;
-  m_pViewWidget->setParent(this);
+  m_pViewWidget->setParent(pDummy);
 
   if (!ezStringUtils::IsNullOrEmpty(szToolBarMapping))
   {
@@ -718,6 +730,8 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   }
 
   m_pLayout->addWidget(m_pViewWidget, 1);
+
+  setWidget(pDummy);
 }
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer() = default;

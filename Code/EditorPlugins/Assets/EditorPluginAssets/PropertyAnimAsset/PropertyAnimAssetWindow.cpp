@@ -35,7 +35,15 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
-  setCentralWidget(m_pQuadViewWidget);
+  {
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(this, pDocument);
+    pViewPanel->setObjectName("ezQtDocumentPanel");
+    pViewPanel->setWindowTitle("3D View");
+    pViewPanel->setWidget(m_pQuadViewWidget);
+
+    m_pDockManager->setCentralWidget(pViewPanel);
+  }
+
   SetTargetFramerate(25);
 
   // Menu Bar
@@ -67,7 +75,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
 
     ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pGameObjectPanel);
   }
 
   // Property Grid
@@ -80,7 +88,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument);
     pPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
   }
 
   // Property Tree View
@@ -106,7 +114,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this,
       &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
 
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanel);
   }
 
   // Property Model
@@ -138,7 +146,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pCurveEditor = new ezQtCurve1DEditorWidget(m_pCurvePanel);
     m_pCurvePanel->setWidget(m_pCurveEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pCurvePanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurvePanel);
   }
 
   // Color Gradient Panel
@@ -151,7 +159,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pGradientEditor = new ezQtColorGradientEditorWidget(m_pColorGradientPanel);
     m_pColorGradientPanel->setWidget(m_pGradientEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pColorGradientPanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pColorGradientPanel);
   }
 
   // Event Track Panel
@@ -164,7 +172,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
     m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pEventTrackPanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pEventTrackPanel);
   }
 
   // Time Scrubber

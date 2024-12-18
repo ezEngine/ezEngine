@@ -38,13 +38,17 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     addToolBar(pToolBar);
   }
 
-  m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
+  // Central Widget
+  {
+    m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
 
-  QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout());
-  pContainer->layout()->addWidget(m_pCurveEditor);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("ezQtDocumentPanel");
+    pCentral->setWindowTitle("Curve");
+    pCentral->setWidget(m_pCurveEditor);
 
-  setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtCurve1DAssetDocumentWindow::onInsertCpAt);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
@@ -68,7 +72,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

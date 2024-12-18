@@ -41,17 +41,9 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-  }
-
-  // central widget
-  {
-    m_pLabelInfo = new QLabel(this);
-    setCentralWidget(m_pLabelInfo);
-
-    m_pLabelInfo->setText("<Information>");
   }
 
   m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);

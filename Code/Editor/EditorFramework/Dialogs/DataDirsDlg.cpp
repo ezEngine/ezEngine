@@ -37,8 +37,7 @@ void ezQtDataDirsDlg::FillList()
 
     if (dd.m_bHardCodedDependency)
     {
-      QColor col;
-      col.setNamedColor("Orange");
+      QColor col = QColor::fromString("Orange");
       pItem->setForeground(col);
       pItem->setToolTip("This data directory is a hard dependency and cannot be removed.");
       pItem->setData(Qt::UserRole + 1, false); // can remove ?

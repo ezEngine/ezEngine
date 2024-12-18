@@ -40,13 +40,22 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   m_bShowFirstTime = true;
   m_pGradientEditor = new ezQtColorGradientEditorWidget(this);
 
-  QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout());
-  pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-  pContainer->layout()->addWidget(m_pGradientEditor);
-  pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-  setCentralWidget(pContainer);
+  // Central Widget
+  {
+    QWidget* pContainer = new QWidget(this);
+    pContainer->setLayout(new QVBoxLayout());
+    pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+    pContainer->layout()->addWidget(m_pGradientEditor);
+    pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("ezQtDocumentPanel");
+    pCentral->setWindowTitle("Gradient");
+    pCentral->setWidget(pContainer);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
   connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
@@ -79,7 +88,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

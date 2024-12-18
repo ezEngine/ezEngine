@@ -7,11 +7,14 @@
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent)
   : ezQtItemView<QTreeView>(pParent)
 {
+  setObjectName("ezQtDocumentTreeView");
 }
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
   : ezQtItemView<QTreeView>(pParent)
 {
+  setObjectName("ezQtDocumentTreeView");
+
   Initialize(pDocument, std::move(pModel), pSelection);
 }
 

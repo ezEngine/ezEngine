@@ -8,6 +8,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 #include <QMainWindow>
+#include <ads/DockManager.h>
 
 class ezQtContainerWindow;
 class ezDocument;
@@ -41,6 +42,8 @@ public:
   ezQtDocumentWindow(ezDocument* pDocument);
   ezQtDocumentWindow(const char* szUniqueName);
   virtual ~ezQtDocumentWindow();
+
+  ads::CDockManager* m_pDockManager = nullptr;
 
   void EnsureVisible();
 
@@ -113,6 +116,7 @@ private:
 
   void SetVisibleInContainer(bool bVisible);
 
+  bool m_bWindowRestored = false;
   bool m_bIsVisibleInContainer = false;
   bool m_bRedrawIsTriggered = false;
   bool m_bIsDrawingATM = false;

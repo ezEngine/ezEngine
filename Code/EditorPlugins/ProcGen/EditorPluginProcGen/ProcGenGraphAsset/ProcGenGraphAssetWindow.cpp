@@ -40,6 +40,22 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
     addToolBar(pToolBar);
   }
 
+  // Central Widget
+  {
+    m_pScene = new ezQtProcGenScene(this);
+    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+
+    m_pView = new ezQtNodeView(this);
+    m_pView->SetScene(m_pScene);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("ProcGenGraphView");
+    pCentral->setWindowTitle("Graph");
+    pCentral->setWidget(m_pView);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
+
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
@@ -49,15 +65,8 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
-
-  m_pScene = new ezQtProcGenScene(this);
-  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
-
-  m_pView = new ezQtNodeView(this);
-  m_pView->SetScene(m_pScene);
-  setCentralWidget(m_pView);
 
   UpdatePreview();
 

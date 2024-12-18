@@ -35,12 +35,20 @@ ezQtVisualScriptWindow::ezQtVisualScriptWindow(ezDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  m_pScene = new ezQtVisualScriptNodeScene(this);
-  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+  {
+    m_pScene = new ezQtVisualScriptNodeScene(this);
+    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
 
-  m_pView = new ezQtNodeView(this);
-  m_pView->SetScene(m_pScene);
-  setCentralWidget(m_pView);
+    m_pView = new ezQtNodeView(this);
+    m_pView->SetScene(m_pScene);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    pCentral->setObjectName("VisualScriptView");
+    pCentral->setWindowTitle("Script");
+    pCentral->setWidget(m_pView);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
@@ -51,7 +59,7 @@ ezQtVisualScriptWindow::ezQtVisualScriptWindow(ezDocument* pDocument)
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
 
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptWindow::SelectionEventHandler, this));

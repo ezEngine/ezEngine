@@ -183,7 +183,7 @@ public:
 		auto LayoutItem = m_ParentLayout->takeAt(1);
 		if (LayoutItem)
 		{
-			LayoutItem->widget()->setParent(nullptr);
+      m_ParentLayout->removeWidget(LayoutItem->widget());
 		}
 		delete LayoutItem;
 

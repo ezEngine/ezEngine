@@ -61,6 +61,21 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this, pDocument);
   ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this, pDocument);
 
+
+  // 3D View
+  {
+    SetTargetFramerate(25);
+
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.ApplyPerspectiveSetting(90);
+
+    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
+    m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f), 1.0f);
+    AddViewWidget(m_pViewWidget);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "ParticleEffectAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
+  }
+
   // Property Grid
   //{
   //  pMainPropertyPanel->setObjectName("ParticleEffectAssetDockWidget");
@@ -75,13 +90,30 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   //  pDocument->GetSelectionManager()->SetSelection(pRootObject);
   //}
 
+  // Effect Properties
+  {
+    pEffectPanel->setObjectName("ParticleEffectAssetDockWidget_Effect");
+    pEffectPanel->setWindowTitle("Effect");
+    pEffectPanel->show();
+
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pEffectPanel, pDocument, false);
+    pEffectPanel->setWidget(pPropertyGrid);
+
+    ezDeque<const ezDocumentObject*> sel;
+    sel.PushBack(pRootObject);
+    pPropertyGrid->SetSelectionIncludeExcludeProperties(nullptr, "EventReactions;ParticleSystems");
+    pPropertyGrid->SetSelection(sel);
+
+    m_pDockManager->addDockWidget(ads::RightDockWidgetArea, pEffectPanel);
+  }
+
   // Particle Systems Panel
   {
     pSystemsPanel->setObjectName("ParticleEffectAssetDockWidget_Systems");
     pSystemsPanel->setWindowTitle("Systems");
     pSystemsPanel->show();
 
-    QWidget* pMainWidget = new QWidget(pSystemsPanel);
+    QWidget* pMainWidget = new QFrame(pSystemsPanel);
     pMainWidget->setContentsMargins(0, 0, 0, 0);
     pMainWidget->setLayout(new QVBoxLayout(pMainWidget));
     pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
@@ -131,27 +163,9 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
       m_pPropertyGridSystems->SetSelection(sel);
     }
 
-    pMainWidget->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
     pSystemsPanel->setWidget(pMainWidget);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pSystemsPanel);
-  }
-
-  // Effect Properties
-  {
-    pEffectPanel->setObjectName("ParticleEffectAssetDockWidget_Effect");
-    pEffectPanel->setWindowTitle("Effect");
-    pEffectPanel->show();
-
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pEffectPanel, pDocument, false);
-    pEffectPanel->setWidget(pPropertyGrid);
-
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pEffectPanel);
-
-    ezDeque<const ezDocumentObject*> sel;
-    sel.PushBack(pRootObject);
-    pPropertyGrid->SetSelectionIncludeExcludeProperties(nullptr, "EventReactions;ParticleSystems");
-    pPropertyGrid->SetSelection(sel);
+    m_pDockManager->addDockWidget(ads::CenterDockWidgetArea, pSystemsPanel, pEffectPanel->dockAreaWidget());
   }
 
   // Event Reactions
@@ -163,12 +177,12 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pReactionsPanel, pDocument, false);
     pReactionsPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pReactionsPanel);
-
     ezDeque<const ezDocumentObject*> sel;
     sel.PushBack(pRootObject);
     pPropertyGrid->SetSelectionIncludeExcludeProperties("EventReactions");
     pPropertyGrid->SetSelection(sel);
+
+    m_pDockManager->addDockWidget(ads::CenterDockWidgetArea, pReactionsPanel, pEffectPanel->dockAreaWidget());
   }
 
   // System Emitters
@@ -181,7 +195,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_pPropertyGridEmitter->SetSelectionIncludeExcludeProperties("Emitters");
     pEmitterPanel->setWidget(m_pPropertyGridEmitter);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pEmitterPanel);
+    m_pDockManager->addDockWidget(ads::BottomDockWidgetArea, pEmitterPanel, pEffectPanel->dockAreaWidget());
   }
 
   // System Initializers
@@ -194,7 +208,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_pPropertyGridInitializer->SetSelectionIncludeExcludeProperties("Initializers");
     pInitializerPanel->setWidget(m_pPropertyGridInitializer);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pInitializerPanel);
+    m_pDockManager->addDockWidget(ads::CenterDockWidgetArea, pInitializerPanel, pEmitterPanel->dockAreaWidget());
   }
 
   // System Behaviors
@@ -207,7 +221,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_pPropertyGridBehavior->SetSelectionIncludeExcludeProperties("Behaviors");
     pBehaviorPanel->setWidget(m_pPropertyGridBehavior);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pBehaviorPanel);
+    m_pDockManager->addDockWidget(ads::CenterDockWidgetArea, pBehaviorPanel, pEmitterPanel->dockAreaWidget());
   }
 
   // System Types
@@ -220,31 +234,10 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     m_pPropertyGridType->SetSelectionIncludeExcludeProperties("Types");
     pTypePanel->setWidget(m_pPropertyGridType);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pTypePanel);
-  }
-
-  // 3D View
-  {
-    SetTargetFramerate(25);
-
-    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6f, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-    m_ViewConfig.ApplyPerspectiveSetting(90);
-
-    m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f), 1.0f);
-    AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "ParticleEffectAssetViewToolBar");
-    setCentralWidget(pContainer);
+    m_pDockManager->addDockWidget(ads::CenterDockWidgetArea, pTypePanel, pEmitterPanel->dockAreaWidget());
   }
 
   m_pAssetDoc = static_cast<ezParticleEffectAssetDocument*>(pDocument);
-
-  tabifyDockWidget(pEffectPanel, pSystemsPanel);
-  tabifyDockWidget(pEffectPanel, pReactionsPanel);
-
-  tabifyDockWidget(pEmitterPanel, pInitializerPanel);
-  tabifyDockWidget(pEmitterPanel, pBehaviorPanel);
-  tabifyDockWidget(pEmitterPanel, pTypePanel);
 
   pSystemsPanel->raise();
   pEmitterPanel->raise();

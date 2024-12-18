@@ -243,24 +243,28 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezQtPropertyGridWidget::GetFactor
 ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument, bool bBindToSelectionManager)
   : QWidget(pParent)
 {
+  setObjectName("ezQtPropertyGridWidget");
+
   m_pDocument = nullptr;
 
   m_pScroll = new QScrollArea(this);
+  m_pScroll->setObjectName("QScrollArea1");
   m_pScroll->setContentsMargins(0, 0, 0, 0);
 
   m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setObjectName("QVBoxLayout1");
   m_pLayout->setSpacing(0);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
   m_pLayout->addWidget(m_pScroll);
 
   m_pContent = new QWidget(this);
+  m_pContent->setObjectName("MainQWidget");
   m_pScroll->setWidget(m_pContent);
   m_pScroll->setWidgetResizable(true);
-  m_pContent->setBackgroundRole(QPalette::ColorRole::Window);
-  m_pContent->setAutoFillBackground(true);
 
   m_pContentLayout = new QVBoxLayout(m_pContent);
+  m_pContentLayout->setObjectName("QVBoxLayout2");
   m_pContentLayout->setSpacing(1);
   m_pContentLayout->setContentsMargins(0, 0, 0, 0);
   m_pContent->setLayout(m_pContentLayout);

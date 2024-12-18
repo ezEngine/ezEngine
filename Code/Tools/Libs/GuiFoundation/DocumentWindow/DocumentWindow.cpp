@@ -17,6 +17,7 @@
 #include <QStatusBar>
 #include <QTimer>
 #include <ToolsFoundation/Document/Document.h>
+#include <ads/DockManager.h>
 #include <ads/DockWidget.h>
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
@@ -25,6 +26,8 @@ bool ezQtDocumentWindow::s_bAllowRestoreWindowLayout = true;
 
 void ezQtDocumentWindow::Constructor()
 {
+  m_pDockManager = new ads::CDockManager(this);
+
   s_AllDocumentWindows.PushBack(this);
 
   // status bar
@@ -41,8 +44,6 @@ void ezQtDocumentWindow::Constructor()
 
     EZ_VERIFY(connect(m_pPermanentGlobalStatusButton, &QToolButton::clicked, this, &ezQtDocumentWindow::OnPermanentGlobalStatusClicked), "");
   }
-
-  setDockNestingEnabled(true);
 
   ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
@@ -364,13 +365,13 @@ void ezQtDocumentWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.SetFormat("DocumentWnd_{0}", GetWindowLayoutGroupName());
+  sGroup.SetFormat("DocWndLayout_{0}", GetWindowLayoutGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
   {
     // All other properties are defined by the outer container window.
-    Settings.setValue("WindowState", saveState());
+    Settings.setValue("DocWndState", m_pDockManager->saveState());
   }
   Settings.endGroup();
 }
@@ -380,32 +381,32 @@ void ezQtDocumentWindow::RestoreWindowLayout()
   if (!s_bAllowRestoreWindowLayout)
     return;
 
+  if (m_bWindowRestored)
+    return;
+
+  m_bWindowRestored = true;
+
   ezQtScopedUpdatesDisabled _(this);
 
   ezStringBuilder sGroup;
-  sGroup.SetFormat("DocumentWnd_{0}", GetWindowLayoutGroupName());
+  sGroup.SetFormat("DocWndLayout_{0}", GetWindowLayoutGroupName());
 
   {
+    ezHybridArray<QWidget*, 8> docks;
+
+    for (QDockWidget* dockWidget : findChildren<QDockWidget*>())
+    {
+      dockWidget->show();
+      QWidget* ptr = dockWidget->widget();
+      docks.PushBack(ptr);
+    }
+
     QSettings Settings;
     Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
     {
-      restoreState(Settings.value("WindowState", saveState()).toByteArray());
+      m_pDockManager->restoreState(Settings.value("DocWndState", m_pDockManager->saveState()).toByteArray());
     }
     Settings.endGroup();
-
-    // with certain Qt versions the window state could be saved corrupted
-    // if that is the case, make sure that non-closable widgets get restored to be visible
-    // otherwise the user would need to delete the serialized state from the registry
-    {
-      for (QDockWidget* dockWidget : findChildren<QDockWidget*>())
-      {
-        // not closable means the user can generally not change the visible state -> make sure it is visible
-        if (!dockWidget->features().testFlag(QDockWidget::DockWidgetClosable) && dockWidget->isHidden())
-        {
-          dockWidget->show();
-        }
-      }
-    }
   }
 
   statusBar()->clearMessage();

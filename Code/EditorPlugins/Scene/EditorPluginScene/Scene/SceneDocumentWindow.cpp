@@ -28,7 +28,14 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     [this](ezGameObjectEditTool* pTool)
     { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
-  setCentralWidget(m_pQuadViewWidget);
+  {
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(this, pDocument);
+    pViewPanel->setObjectName("ezQtDocumentPanel");
+    pViewPanel->setWindowTitle("3D View");
+    pViewPanel->setWidget(m_pQuadViewWidget);
+
+    m_pDockManager->setCentralWidget(pViewPanel);
+  }
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
   SetTargetFramerate(pPreferences->GetMaxFramerate());
@@ -55,23 +62,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("PropertyPanel");
-    pPropertyPanel->setWindowTitle("Properties");
-    pPropertyPanel->show();
-
-    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(this, static_cast<ezSceneDocument*>(pDocument));
-    pPanelTree->show();
-
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
-    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
-
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-  }
-
   // Exposed Parameters
   if (GetSceneDocument()->IsPrefab())
   {
@@ -86,7 +76,24 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     pPropertyGrid->SetSelection(selection);
     pPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
+  }
+
+  {
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    pPropertyPanel->setObjectName("PropertyPanel");
+    pPropertyPanel->setWindowTitle("Properties");
+    pPropertyPanel->show();
+
+    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(this, static_cast<ezSceneDocument*>(pDocument));
+    pPanelTree->show();
+
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    pPropertyPanel->setWidget(pPropertyGrid);
+    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
   }
 
   FinishWindowCreation();

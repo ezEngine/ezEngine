@@ -29,11 +29,12 @@ namespace
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezQtDocumentPanel(pParent, pDocument)
 {
-  setObjectName("ScenegraphPanel");
+  setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
   m_pStack = new QStackedWidget(this);
+  m_pStack->setObjectName("QStackedWidget");
   m_pStack->setContentsMargins(0, 0, 0, 0);
   m_pStack->layout()->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pStack);
@@ -46,11 +47,12 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDocument)
   : ezQtDocumentPanel(pParent, pDocument)
 {
-  setObjectName("ScenegraphPanel");
+  setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
   m_pStack = new QStackedWidget(this);
+  m_pStack->setObjectName("QStackedWidget");
   m_pStack->setContentsMargins(0, 0, 0, 0);
   m_pStack->layout()->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pStack);

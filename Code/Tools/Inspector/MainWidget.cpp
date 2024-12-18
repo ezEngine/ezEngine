@@ -19,7 +19,7 @@ ezQtMainWidget::ezQtMainWidget(QWidget* pParent)
   setupUi(this);
   setWidget(MainWidgetFrame);
 
-  this->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+  setFeature(ads::CDockWidget::DockWidgetClosable, false);
 
   m_uiMaxStatSamples = 20000; // should be enough for 5 minutes of history at 60 Hz
 
