@@ -258,6 +258,99 @@ namespace
     return EZ_SUCCESS;
   }
 
+  ezStringView AddDependency(ezStringView sDependency, ezStringView sSbsDir, ezSet<ezString>& out_dependencies)
+  {
+    ezStringBuilder sFullPath;
+    if (sDependency.IsAbsolutePath())
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    else
+    {
+      sFullPath = sSbsDir;
+      sFullPath.AppendPath(sDependency);
+      sFullPath.MakeCleanPath();
+    }
+
+    if (out_dependencies.Contains(sFullPath) == false)
+    {
+      auto it = out_dependencies.Insert(sFullPath);
+      return it.Key();
+    }
+
+    return "";
+  };
+
+  ezResult ReadExternalCopy(QXmlStreamReader& inout_reader, ezString& out_sExternalCopy)
+  {
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "externalcopy"));
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "filename"));
+
+    out_sExternalCopy = GetValueAttribute<ezString>(inout_reader);
+
+    EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "externalcopy"));
+    return EZ_SUCCESS;
+  }
+
+  ezResult ReadResources(QXmlStreamReader& inout_reader, ezStringView sSbsDir, ezSet<ezString>& out_dependencies)
+  {
+    EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("content"), "");
+
+    while (inout_reader.readNextStartElement())
+    {
+      if (inout_reader.name() == QLatin1StringView("resource"))
+      {
+        ezString sFilePath;
+        ezString sExternalCopy;
+
+        while (inout_reader.readNextStartElement())
+        {
+          if (inout_reader.name() == QLatin1StringView("filepath"))
+          {
+            sFilePath = GetValueAttribute<ezString>(inout_reader);
+            inout_reader.skipCurrentElement();
+          }
+          else if (inout_reader.name() == QLatin1StringView("source"))
+          {
+            EZ_SUCCEED_OR_RETURN(ReadExternalCopy(inout_reader, sExternalCopy));
+          }
+          else
+          {
+            inout_reader.skipCurrentElement();
+          }
+        }
+
+        if (sExternalCopy.IsEmpty() == false)
+        {
+          sFilePath = sExternalCopy;
+        }
+
+        AddDependency(sFilePath, sSbsDir, out_dependencies);
+      }
+      else if (inout_reader.name() == QLatin1StringView("resourceScene"))
+      {
+        if (ReadUntilStartElement(inout_reader, "filepath").Failed())
+          continue;
+
+        ezString sFilePath = GetValueAttribute<ezString>(inout_reader);
+        AddDependency(sFilePath, sSbsDir, out_dependencies);
+
+        EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "resourceScene"));
+      }
+      else if (inout_reader.name() == QLatin1StringView("group"))
+      {
+        EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "content"));
+        EZ_SUCCEED_OR_RETURN(ReadResources(inout_reader, sSbsDir, out_dependencies));
+      }
+      else
+      {
+        inout_reader.skipCurrentElement();
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+
   ezResult ReadDependencies(ezStringView sSbsFile, ezSet<ezString>& out_dependencies)
   {
     ezStringBuilder sAbsolutePath = sSbsFile;
@@ -265,6 +358,8 @@ namespace
     {
       return EZ_FAILURE;
     }
+
+    ezStringView sSbsDir = sSbsFile.GetFileDirectory();
 
     ezStringBuilder sFileContent;
     EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
@@ -286,28 +381,18 @@ namespace
       ezString sDependency = GetValueAttribute<ezString>(reader);
       if (sDependency.EndsWith(".sbs") && sDependency.StartsWith("sbs://") == false)
       {
-        ezStringBuilder sFullPath;
-        if (sDependency.IsAbsolutePath())
+        ezStringView sAddedPath = AddDependency(sDependency, sSbsDir, out_dependencies);
+        if (sAddedPath.IsEmpty() == false)
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-        else
-        {
-          sFullPath = sSbsFile.GetFileDirectory();
-          sFullPath.AppendPath(sDependency);
-          sFullPath.MakeCleanPath();
-        }
-
-        if (out_dependencies.Contains(sFullPath) == false)
-        {
-          out_dependencies.Insert(sFullPath);
-
-          EZ_SUCCEED_OR_RETURN(ReadDependencies(sFullPath, out_dependencies));
+          EZ_SUCCEED_OR_RETURN(ReadDependencies(sAddedPath, out_dependencies));
         }
       }
 
       EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(reader, "dependency"));
     }
+
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));
+    EZ_SUCCEED_OR_RETURN(ReadResources(reader, sSbsDir, out_dependencies));
 
     return EZ_SUCCESS;
   }
