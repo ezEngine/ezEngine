@@ -643,11 +643,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetMetaData, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetDocument, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSubstancePackageAssetDocument::ezSubstancePackageAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument(sDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSubstancePackageAssetDocument::OnPropertyChanged, this));
 }

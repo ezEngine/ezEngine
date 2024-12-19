@@ -35,7 +35,7 @@ public:
   ~ezCommandHistoryAction();
 
   virtual void Execute(const ezVariant& value) override;
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
+  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
 
 private:
   void UpdateState();

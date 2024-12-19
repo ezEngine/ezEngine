@@ -88,7 +88,7 @@ void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
     const ezTextureCubeAssetDocument* pDoc = static_cast<const ezTextureCubeAssetDocument*>(GetDocument());
 
     ezDocumentConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "ChannelMode";
+    msg.m_sWhatToDo = "PreviewSettings";
     msg.m_iValue = pDoc->m_ChannelMode.GetValue();
     msg.m_fValue = pDoc->m_iTextureLod;
 

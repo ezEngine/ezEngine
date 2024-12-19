@@ -282,7 +282,7 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezRecentDocumentsMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
@@ -343,7 +343,7 @@ void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezRecentProjectsMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 

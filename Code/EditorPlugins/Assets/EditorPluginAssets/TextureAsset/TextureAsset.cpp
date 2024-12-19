@@ -7,6 +7,14 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
@@ -22,7 +30,6 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezTextureAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
-  m_iTextureLod = -1;
 }
 
 static const char* ToWrapMode(ezImageAddressMode::Enum mode)

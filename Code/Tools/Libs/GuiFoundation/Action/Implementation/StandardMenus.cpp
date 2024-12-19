@@ -103,7 +103,7 @@ struct ezComparePanels
 };
 
 
-void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezApplicationPanelsMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 

@@ -61,7 +61,7 @@ ezCommandHistoryAction::~ezCommandHistoryAction()
   m_Context.m_pDocument->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
 }
 
-void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezCommandHistoryAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 

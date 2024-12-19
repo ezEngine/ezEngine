@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture 2D;Render Target"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture 2D;Render Target;Substance Package"),
   }
   EZ_END_PROPERTIES;
 }
@@ -46,11 +46,16 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   {
     const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
 
-    if (pMsg2->m_sWhatToDo == "ChannelMode" && m_hMaterial.IsValid())
+    if (pMsg2->m_sWhatToDo == "PreviewSettings" && m_hMaterial.IsValid())
     {
       ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
       pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
+
+      if (pMsg2->m_sValue.IsEmpty() == false)
+      {
+        SetTexture(pMsg2->m_sValue);
+      }
     }
   }
 
@@ -64,15 +69,6 @@ void ezTextureContext::OnInitialize()
   const ezStringBuilder sMaterialResource(sTextureGuid.GetData(), " - Texture Preview");
 
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
-
-  m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureGuid);
-  ezGALResourceFormat::Enum textureFormat = ezGALResourceFormat::Invalid;
-  {
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
-
-    textureFormat = pTexture->GetFormat();
-    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
-  }
 
   // Preview Mesh
   const char* szMeshName = "DefaultTexturePreviewMesh";
@@ -116,14 +112,6 @@ void ezTextureContext::OnInitialize()
     ezMaterialResourceDescriptor md;
     md.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Editor/Materials/TexturePreview.ezMaterial");
 
-    auto& tb = md.m_Texture2DBindings.ExpandAndGetRef();
-    tb.m_Name.Assign("BaseTexture");
-    tb.m_Value = m_hTexture;
-
-    auto& param = md.m_Parameters.ExpandAndGetRef();
-    param.m_Name.Assign("IsLinear");
-    param.m_Value = textureFormat != ezGALResourceFormat::Invalid ? !ezGALResourceFormat::IsSrgb(textureFormat) : false;
-
     m_hMaterial = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
 
@@ -143,6 +131,8 @@ void ezTextureContext::OnInitialize()
     pMesh->SetMesh(m_hPreviewMeshResource);
     pMesh->SetMaterial(0, m_hMaterial);
   }
+
+  SetTexture(sTextureGuid);
 }
 
 ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
@@ -153,6 +143,20 @@ ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
 void ezTextureContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
+}
+
+void ezTextureContext::SetTexture(ezStringView sTextureFile)
+{
+  if (m_hTexture.IsValid() && m_hTexture.GetResourceID() == sTextureFile)
+    return;
+
+  m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureFile);
+  ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
+  pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
+  
+  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+  pMaterial->SetTexture2DBinding("BaseTexture", m_hTexture);
+  pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
 }
 
 void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)

@@ -1,0 +1,12 @@
+# Asset Types
+
+Substance Package;Substance Package
+Substance Texture;Substance Texture
+
+# UI
+
+SubstancePackageAsset.SelectedOutput;Selected Output
+SubstancePackageAsset.LodSlider;Mipmap
+SubstancePackageAsset.ChannelMode;Channel to Display
+
+# Enums

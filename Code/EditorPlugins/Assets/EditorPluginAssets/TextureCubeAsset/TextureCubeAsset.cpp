@@ -5,11 +5,15 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMode, 1)
-  EZ_ENUM_CONSTANTS(ezTextureCubeChannelMode::RGB, ezTextureCubeChannelMode::Red, ezTextureCubeChannelMode::Green, ezTextureCubeChannelMode::Blue, ezTextureCubeChannelMode::Alpha)
-EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 const char* ToFilterMode(ezTextureFilterSetting::Enum mode);
@@ -20,7 +24,6 @@ const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
-  m_iTextureLod = -1;
 }
 
 ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)

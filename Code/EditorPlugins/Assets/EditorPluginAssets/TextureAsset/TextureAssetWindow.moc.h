@@ -2,7 +2,7 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <Foundation/Basics.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/BaseActions.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
@@ -28,7 +28,7 @@ private:
   ezQtOrbitCamViewWidget* m_pViewWidget;
 };
 
-class ezTextureChannelModeAction : public ezEnumerationMenuAction
+class EZ_EDITORPLUGINASSETS_DLL ezTextureChannelModeAction : public ezEnumerationMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureChannelModeAction, ezEnumerationMenuAction);
 
@@ -36,9 +36,12 @@ public:
   ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
+
+private:
+  const ezAbstractMemberProperty* m_pValueProperty = nullptr;
 };
 
-class ezTextureLodSliderAction : public ezSliderAction
+class EZ_EDITORPLUGINASSETS_DLL ezTextureLodSliderAction : public ezSliderAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureLodSliderAction, ezSliderAction);
 
@@ -48,7 +51,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  ezTextureAssetDocument* m_pDocument;
+  const ezAbstractMemberProperty* m_pValueProperty = nullptr;
 };
 
 class ezTextureAssetActions

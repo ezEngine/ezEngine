@@ -29,6 +29,7 @@ protected:
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
 
 private:
+  void SetTexture(ezStringView sTextureFile);
   void OnResourceEvent(const ezResourceEvent& e);
 
   ezGameObjectHandle m_hPreviewObject;

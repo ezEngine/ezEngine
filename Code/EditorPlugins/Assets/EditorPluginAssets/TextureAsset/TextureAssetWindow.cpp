@@ -20,17 +20,29 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezTextureChannelModeAction::ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezEnumerationMenuAction(context, szName, szIconPath)
 {
-  InitEnumerationType(ezGetStaticRTTI<ezTextureChannelMode>());
+  auto pDocument = context.m_pDocument;
+  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "ChannelMode");
+
+  const ezRTTI* pEnumRTTI = m_pValueProperty != nullptr ? m_pValueProperty->GetSpecificType() : ezGetStaticRTTI<ezTextureChannelMode>();
+  InitEnumerationType(pEnumRTTI);
 }
 
 ezInt64 ezTextureChannelModeAction::GetValue() const
 {
-  return static_cast<const ezTextureAssetDocument*>(m_Context.m_pDocument)->m_ChannelMode.GetValue();
+  ezVariant value = 0;
+  if (m_pValueProperty)
+  {
+    value = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument);
+  }
+  return value.ConvertTo<ezInt64>();
 }
 
 void ezTextureChannelModeAction::Execute(const ezVariant& value)
 {
-  ((ezTextureAssetDocument*)m_Context.m_pDocument)->m_ChannelMode.SetValue(value.ConvertTo<ezInt32>());
+  if (m_pValueProperty)
+  {
+    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,22 +50,31 @@ void ezTextureChannelModeAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
   : ezSliderAction(context, szName)
 {
-  m_pDocument = const_cast<ezTextureAssetDocument*>(static_cast<const ezTextureAssetDocument*>(context.m_pDocument));
+  auto pDocument = context.m_pDocument;
+  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "TextureLod");
+
+  ezVariant currentValue = -1;
+  if (m_pValueProperty)
+  {
+    currentValue = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, pDocument);
+  }
 
   SetRange(-1, 13);
-  SetValue(m_pDocument->m_iTextureLod);
+  SetValue(currentValue.ConvertTo<int>());
 }
 
 void ezTextureLodSliderAction::Execute(const ezVariant& value)
 {
-  m_pDocument->m_iTextureLod = value.Get<ezInt32>();
+  if (m_pValueProperty)
+  {
+    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+  }
 }
 
 
@@ -164,7 +185,7 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
     const ezTextureAssetDocument* pDoc = static_cast<const ezTextureAssetDocument*>(GetDocument());
 
     ezDocumentConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "ChannelMode";
+    msg.m_sWhatToDo = "PreviewSettings";
     msg.m_iValue = pDoc->m_ChannelMode.GetValue();
     msg.m_fValue = pDoc->m_iTextureLod;
 

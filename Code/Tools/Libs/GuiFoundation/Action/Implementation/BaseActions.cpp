@@ -47,7 +47,7 @@ void ezEnumerationMenuAction::InitEnumerationType(const ezRTTI* pEnumerationType
   m_pEnumerationType = pEnumerationType;
 }
 
-void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
   out_entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);

@@ -83,7 +83,7 @@ void ezSubstancePackageAssetDocumentManager::OnDocumentManagerEvent(const ezDocu
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSubstancePackageAssetDocument>())
       {
-        new ezQtSubstancePackageAssetWindow(e.m_pDocument); // NOLINT: Not a memory leak
+        new ezQtSubstancePackageAssetWindow(static_cast<ezSubstancePackageAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;
