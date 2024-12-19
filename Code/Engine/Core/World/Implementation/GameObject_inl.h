@@ -564,6 +564,11 @@ EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
   return m_Tags;
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::HasTag(const ezTempHashedString& sTagName) const
+{
+  return m_Tags.IsSetByName(sTagName);
+}
+
 EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetStableRandomSeed() const
 {
   return m_pTransformationData->m_uiStableRandomSeed;

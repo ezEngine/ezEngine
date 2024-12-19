@@ -42,6 +42,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(WasCreatedByPrefab),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(HasName, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(HasTag, In, "TagName"),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
     EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),

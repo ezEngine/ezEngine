@@ -372,6 +372,17 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(ezStringView sTag) con
   return false;
 }
 
+template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const ezTempHashedString& sTag) const
+{
+  if (const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(sTag))
+  {
+    return IsSet(*tag);
+  }
+
+  return false;
+}
+
 template <typename BlockStorageAllocator>
 EZ_ALWAYS_INLINE bool ezTagSetTemplate<BlockStorageAllocator>::IsTagInAllocatedRange(const ezTag& Tag) const
 {

@@ -461,6 +461,9 @@ public:
   /// \brief Removes the given tag from the object's tags.
   void RemoveTag(const ezTag& tag);
 
+  /// \brief Checks whether this object has the given tag.
+  bool HasTag(const ezTempHashedString& sTagName) const;
+
   /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
   ///
   /// It is automatically passed on to objects created by this object.
