@@ -153,7 +153,7 @@ void ezTextureContext::SetTexture(ezStringView sTextureFile)
   m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureFile);
   ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
   pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_TextureResourceEventSubscriber);
-  
+
   ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
   pMaterial->SetTexture2DBinding("BaseTexture", m_hTexture);
   pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
