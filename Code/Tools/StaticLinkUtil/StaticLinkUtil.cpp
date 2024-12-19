@@ -648,14 +648,14 @@ public:
     {
       if (sFile.HasExtension("h") || sFile.HasExtension("inl"))
       {
-        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension().GetStartPointer());
+        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension());
         FixFileContents(sFile);
         continue;
       }
 
       if (sFile.HasExtension("cpp"))
       {
-        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension().GetStartPointer());
+        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension());
         FixFileContents(sFile);
 
         InsertRefPoint(sFile);

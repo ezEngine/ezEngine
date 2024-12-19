@@ -95,7 +95,7 @@ void ezCollectionUtils::AddResourceHandle(ezCollectionResourceDescriptor& ref_co
     ezStringView root, relFile;
     ezPathUtils::GetRootedPathParts(resID, root, relFile);
     absFilename = sAbsFolderpath;
-    absFilename.AppendPath(relFile.GetStartPointer());
+    absFilename.AppendPath(relFile);
     absFilename.MakeCleanPath();
 
     ezFileStats stats;

@@ -34,7 +34,7 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
 {
   EZ_LOG_BLOCK("Read Image Header", sFileName);
 
-  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName).GetStartPointer());
+  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName));
 
   ezFileReader reader;
   if (reader.Open(sFileName) == EZ_FAILURE)
@@ -45,9 +45,9 @@ ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeade
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it))
   {
-    if (pFormat->ReadImageHeader(reader, ref_header, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->ReadImageHeader(reader, ref_header, it) != EZ_SUCCESS)
     {
       ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(sFileName, "File"));
       return EZ_FAILURE;

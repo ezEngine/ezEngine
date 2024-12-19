@@ -486,18 +486,19 @@ void ezLodAnimatedMeshComponent::InitializeAnimationPose()
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
 
-    ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
+    ezArrayPtr<ozz::math::Float4x4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ozz::math::Float4x4, uiNumSkeletonJoints);
 
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(pPoseMatrices.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     {
       ozz::animation::LocalToModelJob job;
       job.input = pOzzSkeleton->joint_rest_poses();
-      job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
+      job.output = ozz::span<ozz::math::Float4x4>(pPoseMatrices.GetPtr(), pPoseMatrices.GetEndPtr());
       job.skeleton = pOzzSkeleton;
       job.Run();
     }
 
     ezMsgAnimationPoseUpdated msg;
-    msg.m_ModelTransforms = pPoseMatrices;
+    msg.m_ModelTransforms = ezMakeArrayPtr(reinterpret_cast<const ezMat4*>(pPoseMatrices.GetPtr()), pPoseMatrices.GetCount());
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
 

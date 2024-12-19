@@ -323,7 +323,7 @@ namespace
         Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken);
 
         ezInt32 iValue = 0;
-        if (ezConversionUtils::StringToInt(tokens[uiValueToken]->m_DataView.GetStartPointer(), iValue).Succeeded() && iValue >= 0)
+        if (ezConversionUtils::StringToInt(tokens[uiValueToken]->m_DataView, iValue).Succeeded() && iValue >= 0)
         {
           uiCurrentValue = iValue;
         }

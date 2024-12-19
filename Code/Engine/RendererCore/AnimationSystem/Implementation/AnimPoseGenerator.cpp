@@ -472,7 +472,8 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose&
   }
 
   m_OutputPose = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);
-
+  // This cast is safe because m_OutputPose points to m_UsedModelTransforms which is 16 byte aligned.
+  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(m_OutputPose.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
   job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(m_OutputPose.GetPtr()), m_OutputPose.GetCount());
   job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
   EZ_ASSERT_DEBUG(job.Validate(), "");
@@ -569,6 +570,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
     job.from = (int)cmd.m_uiJointIdx;
     job.to = (int)cmd.m_uiRecalcModelPoseToJointIdx;
     job.input = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(m_OutputPose.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(m_OutputPose.GetPtr()), m_OutputPose.GetCount());
     job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     EZ_ASSERT_DEBUG(job.Validate(), "");
@@ -653,6 +655,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
     job.from = (int)cmd.m_uiJointIdxStart;
     job.to = (int)cmd.m_uiRecalcModelPoseToJointIdx;
     job.input = ozz::span<const ozz::math::SoaTransform>(transform.GetPtr(), transform.GetCount());
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(m_OutputPose.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(m_OutputPose.GetPtr()), m_OutputPose.GetCount());
     job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     EZ_ASSERT_DEBUG(job.Validate(), "");
