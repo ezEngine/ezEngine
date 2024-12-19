@@ -6,6 +6,7 @@
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 #include <qsettings.h>
 #include <qxmlstream.h>
@@ -548,8 +549,18 @@ namespace
 
   ezTimestamp GetModifiedTimestamp(ezStringView sFilePath)
   {
+    ezFileStatus status;
+    if (ezFileSystemModel::GetSingleton()->FindFile(sFilePath, status).Succeeded())
+    {
+      return status.m_LastModified;
+    }
+
     ezFileStats stats;
-    if (ezOSFile::GetFileStats(sFilePath, stats).Succeeded())
+    if (sFilePath.IsAbsolutePath() && ezOSFile::GetFileStats(sFilePath, stats).Succeeded())
+    {
+      return stats.m_LastModificationTime;
+    }
+    else if (ezFileSystem::GetFileStats(sFilePath, stats).Succeeded())
     {
       return stats.m_LastModificationTime;
     }
@@ -705,13 +716,10 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   ezTimestamp latestDependencyTimestamp;
   for (auto& sDependency : GetAssetDocumentInfo()->m_TransformDependencies)
   {
-    ezFileStats stats;
-    if (ezFileSystem::GetFileStats(sDependency, stats).Succeeded())
+    ezTimestamp dependencyTimestamp = GetModifiedTimestamp(sDependency);
+    if (dependencyTimestamp.Compare(latestDependencyTimestamp, ezTimestamp::CompareMode::Newer))
     {
-      if (stats.m_LastModificationTime.Compare(latestDependencyTimestamp, ezTimestamp::CompareMode::Newer))
-      {
-        latestDependencyTimestamp = stats.m_LastModificationTime;
-      }
+      latestDependencyTimestamp = dependencyTimestamp;
     }
   }
 
