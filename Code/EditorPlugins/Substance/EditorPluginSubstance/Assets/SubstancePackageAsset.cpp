@@ -341,7 +341,10 @@ namespace
       else if (inout_reader.name() == QLatin1StringView("group"))
       {
         EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "content"));
+
         EZ_SUCCEED_OR_RETURN(ReadResources(inout_reader, sSbsDir, out_dependencies));
+
+        EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "group"));
       }
       else
       {
