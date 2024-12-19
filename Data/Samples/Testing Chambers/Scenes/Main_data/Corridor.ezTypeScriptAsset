@@ -21,10 +21,10 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Scenes/Corridor_data/Corridor.ts"}
+			s{"Scenes/Main_data/Corridor.ts"}
 		}
 		Uuid %DocumentID{u4{10704327468068905896,5280056722113657732}}
-		u4 %Hash{15961413987223120780}
+		u4 %Hash{16241725351445451133}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6310228099224176475,4922193385981354705}}
@@ -33,7 +33,7 @@ o
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"Scenes/Corridor_data/Corridor.ts"}
+			s{"Scenes/Main_data/Corridor.ts"}
 		}
 		s %Tags{""}
 	}
@@ -51,7 +51,7 @@ o
 		VarArray %BoolParameters{}
 		VarArray %ColorParameters{}
 		VarArray %NumberParameters{}
-		s %ScriptFile{"Scenes/Corridor_data/Corridor.ts"}
+		s %ScriptFile{"Scenes/Main_data/Corridor.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
 	}

@@ -11,11 +11,17 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{13816272085590592866}
+		u4 %Hash{10182853041871438110}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %PackageDeps{}
-		VarArray %References{}
+		VarArray %PackageDeps
+		{
+			s{"White.color"}
+		}
+		VarArray %References
+		{
+			s{"White.color"}
+		}
 		s %Tags{""}
 	}
 }
@@ -117,13 +123,14 @@ o
 {
 	Uuid %id{u4{14015861933268748453,4832101727536707722}}
 	s %t{"ezDepthOnlyPass"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		Uuid %DepthStencil{u4{14034198369995003864,10700101904229972968}}
 		s %Name{"DepthPrePass"}
 		Vec2 %Node::Pos{f{0xE5700B44,0xE7B1ED43}}
+		b %RenderTransparentObjects{0}
 	}
 }
 o
@@ -241,7 +248,7 @@ o
 		Vec2 %Node::Pos{f{0x1636A444,0xE638E343}}
 		Uuid %Output{u4{7642371703623570691,6852461079880770907}}
 		f %Saturation{0x0000803F}
-		s %VignettingTexture{""}
+		s %VignettingTexture{"White.color"}
 	}
 }
 o
@@ -634,7 +641,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
