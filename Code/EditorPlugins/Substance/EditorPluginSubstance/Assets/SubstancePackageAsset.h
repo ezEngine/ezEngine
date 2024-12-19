@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <EditorPluginSubstance/EditorPluginSubstanceDLL.h>
 
 struct ezSubstanceUsage
 {

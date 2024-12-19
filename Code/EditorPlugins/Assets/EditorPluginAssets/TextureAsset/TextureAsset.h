@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 
 class ezTextureAssetProfileConfig;
