@@ -284,12 +284,14 @@ namespace
 
   ezResult ReadExternalCopy(QXmlStreamReader& inout_reader, ezString& out_sExternalCopy)
   {
+    EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("source"), "");
+
     EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "externalcopy"));
     EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "filename"));
 
     out_sExternalCopy = GetValueAttribute<ezString>(inout_reader);
 
-    EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "externalcopy"));
+    EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "source"));
     return EZ_SUCCESS;
   }
 
@@ -357,11 +359,13 @@ namespace
 
   ezResult ReadDependencies(ezStringView sSbsFile, ezSet<ezString>& out_dependencies)
   {
+    ezLogBlock logBlock("ReadDependencies", sSbsFile);
+
     ezStringBuilder sAbsolutePath = sSbsFile;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePath))
     {
       return EZ_FAILURE;
-    }
+    }    
 
     ezStringView sSbsDir = sSbsFile.GetFileDirectory();
 
