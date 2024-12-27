@@ -28,7 +28,7 @@ namespace
       desc.m_DependsOn.PushBack(ezMakeHashedString("TestComponentManager::Update3")); // update3 will be called before update
 
       auto descAsync = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
-      descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::Async;
+      descAsync.m_Phase = ezWorldUpdatePhase::Async;
       descAsync.m_uiGranularity = 20;
 
       // Update functions are now registered in reverse order, so we can test whether dependencies work.

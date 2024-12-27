@@ -38,7 +38,7 @@ void ezDetourCrowdWorldModule::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdWorldModule::UpdateNavMesh, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_fPriority = 0.0f;
 
@@ -47,7 +47,7 @@ void ezDetourCrowdWorldModule::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdWorldModule::UpdateCrowd, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_fPriority = 0.0f;
 
@@ -56,7 +56,7 @@ void ezDetourCrowdWorldModule::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdWorldModule::VisualizeCrowd, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
     desc.m_fPriority = 0.0f;
 

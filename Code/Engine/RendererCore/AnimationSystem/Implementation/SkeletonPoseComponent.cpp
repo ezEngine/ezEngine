@@ -357,7 +357,7 @@ void ezSkeletonPoseComponentManager::Initialize()
   SUPER::Initialize();
 
   ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSkeletonPoseComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 }

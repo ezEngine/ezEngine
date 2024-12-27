@@ -844,9 +844,9 @@ void ezPathComponentManager::SetEnableUpdate(ezPathComponent* pThis, bool bEnabl
 
 void ezPathComponentManager::Initialize()
 {
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezPathComponentManager::Update, this), "ezPathComponentManager::Update");
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPathComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = false;
-  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+  desc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
 }

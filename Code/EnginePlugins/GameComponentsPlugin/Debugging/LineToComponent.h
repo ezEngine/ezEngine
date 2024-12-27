@@ -5,17 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 
-class ezLineToComponentManager : public ezComponentManager<class ezLineToComponent, ezBlockStorageType::FreeList>
-{
-  using SUPER = ezComponentManager<class ezLineToComponent, ezBlockStorageType::FreeList>;
-
-public:
-  ezLineToComponentManager(ezWorld* pWorld);
-
-protected:
-  void Initialize() override;
-  void Update(const ezWorldModule::UpdateContext& context);
-};
+using ezLineToComponentManager = ezComponentManagerSimple<class ezLineToComponent, ezComponentUpdateType::Always, ezBlockStorageType::FreeList, ezWorldUpdatePhase::PostTransform>;
 
 /// \brief Draws a line from its own position to the target object position
 class EZ_GAMECOMPONENTS_DLL ezLineToComponent : public ezComponent
@@ -44,8 +34,8 @@ public:
 
   ezColor m_LineColor;                                                          // [ property ]
 
-protected:
   void Update();
 
+protected:
   ezGameObjectHandle m_hTargetObject;
 };

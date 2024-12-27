@@ -622,7 +622,7 @@ void ezSensorWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    updateDesc.m_Phase = ezWorldUpdatePhase::Async;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(updateDesc);
@@ -630,7 +630,7 @@ void ezSensorWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    updateDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
     RegisterUpdateFunction(updateDesc);
   }

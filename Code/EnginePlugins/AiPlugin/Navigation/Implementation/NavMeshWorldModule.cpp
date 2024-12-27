@@ -60,7 +60,7 @@ void ezAiNavMeshWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAiNavMeshWorldModule::Update, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    updateDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
 
     RegisterUpdateFunction(updateDesc);

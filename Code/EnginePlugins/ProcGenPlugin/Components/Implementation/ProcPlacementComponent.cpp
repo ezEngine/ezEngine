@@ -36,7 +36,7 @@ void ezProcPlacementComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::FindTiles, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
     desc.m_fPriority = 10000.0f;
 
     this->RegisterUpdateFunction(desc);
@@ -44,7 +44,7 @@ void ezProcPlacementComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PreparePlace, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
@@ -52,7 +52,7 @@ void ezProcPlacementComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcPlacementComponentManager::PlaceObjects, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);

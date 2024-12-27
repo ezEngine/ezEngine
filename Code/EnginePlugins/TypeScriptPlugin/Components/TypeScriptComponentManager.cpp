@@ -17,7 +17,7 @@ void ezTypeScriptComponentManager::Initialize()
 
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezTypeScriptComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 }

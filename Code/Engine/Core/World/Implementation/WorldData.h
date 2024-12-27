@@ -195,7 +195,7 @@ namespace ezInternal
       ezUInt32 m_uiCount;
     };
 
-    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldModule::UpdateFunctionDesc::Phase::COUNT];
+    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldUpdatePhase::COUNT];
     ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
 
     ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;

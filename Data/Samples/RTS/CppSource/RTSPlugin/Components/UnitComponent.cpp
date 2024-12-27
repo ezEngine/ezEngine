@@ -222,7 +222,7 @@ void RtsUnitComponentManager::Initialize()
 
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(RtsUnitComponentManager::UnitUpdate, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PostAsync;
   // desc.m_uiGranularity = 8;
 
   RegisterUpdateFunction(desc);

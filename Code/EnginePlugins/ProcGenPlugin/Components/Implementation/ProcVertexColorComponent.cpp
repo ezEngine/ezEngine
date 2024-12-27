@@ -67,7 +67,7 @@ void ezProcVertexColorComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::UpdateVertexColors, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
     desc.m_fPriority = 10000.0f;
 
     this->RegisterUpdateFunction(desc);

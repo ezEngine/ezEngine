@@ -170,7 +170,7 @@ void RtsShipSteeringComponentManager::Initialize()
 
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(RtsShipSteeringComponentManager::SteeringUpdate, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+  desc.m_Phase = ezWorldUpdatePhase::Async;
   desc.m_uiGranularity = 8;
 
   RegisterUpdateFunction(desc);

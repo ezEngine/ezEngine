@@ -295,7 +295,7 @@ void ezJoltWorldModule::OnSimulationStarted()
 {
   {
     auto startSimDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltWorldModule::StartSimulation, this);
-    startSimDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    startSimDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
     startSimDesc.m_bOnlyUpdateWhenSimulating = true;
     // Start physics simulation as late as possible in the first synchronous phase
     // so all kinematic objects have a chance to update their transform before.
@@ -306,7 +306,7 @@ void ezJoltWorldModule::OnSimulationStarted()
 
   {
     auto fetchResultsDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltWorldModule::FetchResults, this);
-    fetchResultsDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    fetchResultsDesc.m_Phase = ezWorldUpdatePhase::PostAsync;
     fetchResultsDesc.m_bOnlyUpdateWhenSimulating = true;
     // Fetch results as early as possible after async phase.
     fetchResultsDesc.m_fPriority = 100000.0f;

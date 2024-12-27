@@ -6,6 +6,22 @@
 
 class ezWorld;
 
+struct ezWorldUpdatePhase
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    PreAsync,
+    Async,
+    PostAsync,
+    PostTransform,
+    COUNT,
+
+    Default = PreAsync
+  };
+};
+
 class EZ_CORE_DLL ezWorldModule : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezWorldModule, ezReflectedClass);
@@ -41,22 +57,6 @@ protected:
   /// \brief Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
   {
-    struct Phase
-    {
-      using StorageType = ezUInt8;
-
-      enum Enum
-      {
-        PreAsync,
-        Async,
-        PostAsync,
-        PostTransform,
-        COUNT,
-
-        Default = PreAsync
-      };
-    };
-
     UpdateFunctionDesc(const UpdateFunction& function, ezStringView sFunctionName)
       : m_Function(function)
     {
@@ -68,8 +68,7 @@ protected:
                                                   ///< with the correct name.
     ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
                                                   ///< called after all its dependencies have been called.
-    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the
-                                                  ///< different phases.
+    ezEnum<ezWorldUpdatePhase> m_Phase;           ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
     bool m_bOnlyUpdateWhenSimulating = false;     ///< The update function is only called when the world simulation is enabled.
     ezUInt16 m_uiGranularity = 0;                 ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
                                                   ///< synchronous functions.

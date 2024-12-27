@@ -24,7 +24,7 @@ void ezRecastWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRecastWorldModule::UpdateNavMesh, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    updateDesc.m_Phase = ezWorldUpdatePhase::PostAsync;
     updateDesc.m_bOnlyUpdateWhenSimulating = false;
     updateDesc.m_fPriority = 0.0f;
 

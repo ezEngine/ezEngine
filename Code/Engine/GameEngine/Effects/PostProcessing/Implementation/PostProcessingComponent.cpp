@@ -15,7 +15,7 @@ ezPostProcessingComponentManager::ezPostProcessingComponentManager(ezWorld* pWor
 void ezPostProcessingComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPostProcessingComponentManager::UpdateComponents, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
+  desc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
   RegisterUpdateFunction(desc);
 }

@@ -22,7 +22,7 @@ void ezScriptWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezScriptWorldModule::CallUpdateFunctions, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    updateDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
     RegisterUpdateFunction(updateDesc);
   }

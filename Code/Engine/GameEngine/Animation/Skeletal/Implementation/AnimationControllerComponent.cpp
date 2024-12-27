@@ -124,9 +124,9 @@ ezAnimationControllerComponentManager::ezAnimationControllerComponentManager(ezW
 
 void ezAnimationControllerComponentManager::Initialize()
 {
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezAnimationControllerComponentManager::Update, this), "ezAnimationControllerComponentManager::Update");
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync; // TODO: currently can't run in Async phase
+  desc.m_Phase = ezWorldUpdatePhase::PreAsync; // TODO: currently can't run in Async phase
 
   this->RegisterUpdateFunction(desc);
 

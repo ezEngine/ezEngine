@@ -21,9 +21,9 @@ void ezRaycastComponentManager::Initialize()
   // we DO NOT want to use post transform update, because when we move the target object
   // child objects of the target node should still get the full global transform update within this frame
 
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRaycastComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = UpdateFunctionDesc::Phase::PostAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PostAsync;
   desc.m_fPriority = -1000;
 
   this->RegisterUpdateFunction(desc);
@@ -40,6 +40,8 @@ void ezRaycastComponentManager::Update(const ezWorldModule::UpdateContext& conte
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 3, ezComponentMode::Static)

@@ -520,7 +520,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Pre-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PreAsync]);
   }
 
   // async phase
@@ -539,7 +539,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Post-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PostAsync]);
   }
 
   // delete dead objects and update the object hierarchy
@@ -559,7 +559,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Post-Transform Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostTransform]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PostTransform]);
   }
 
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
@@ -1039,8 +1039,8 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
-  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(desc.m_Phase == ezWorldUpdatePhase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase != ezWorldUpdatePhase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
@@ -1065,7 +1065,7 @@ void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
 {
   CheckForWriteAccess();
 
-  for (ezUInt32 phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync; phase < ezWorldModule::UpdateFunctionDesc::Phase::COUNT; ++phase)
+  for (ezUInt32 phase = ezWorldUpdatePhase::PreAsync; phase < ezWorldUpdatePhase::COUNT; ++phase)
   {
     ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
 
@@ -1113,7 +1113,7 @@ void ezWorld::UpdateAsynchronous()
 {
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[ezWorldUpdatePhase::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
 
