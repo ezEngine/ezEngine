@@ -70,17 +70,11 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
     if (dlg.exec() == QDialog::Rejected)
       return false;
 
-    sFile = QFileDialog::getExistingDirectory(
-      QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir, QFileDialog::Option::DontResolveSymlinks)
-              .toUtf8()
-              .data();
+    sFile = dlg.GetFullTargetPath();
   }
   else
   {
-    sFile = QFileDialog::getOpenFileName(
-      QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks)
-              .toUtf8()
-              .data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
   }
 
   if (sFile.IsEmpty())
@@ -88,15 +82,6 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 
   if (bCreate)
   {
-    ezFileSystemIterator it;
-    it.StartSearch(sFile, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive);
-
-    if (it.IsValid())
-    {
-      ezQtUiServices::GetSingleton()->MessageBoxInformation("Please choose an empty folder to create your project in.\n\nUse the 'New folder' button in the dialog to add a folder. The folder name will also be your project name.");
-      return false;
-    }
-
     sFile.AppendPath("ezProject");
   }
 

@@ -33,6 +33,6 @@ public:
   /// \brief The read-only folder where pre-compiled binaries for external tools can be found
   ezString GetPrecompiledToolsFolder(bool bUsePrecompiledTools) const;
 
-  /// \brief The folder where under which the sample projects are stored
+  /// \brief The folder under which the sample projects are stored
   ezString GetSampleProjectsFolder() const;
 };

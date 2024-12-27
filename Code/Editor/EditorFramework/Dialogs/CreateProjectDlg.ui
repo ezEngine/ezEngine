@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Create Project</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/ProjectAdd.svg</normaloff>:/GuiFoundation/Icons/ProjectAdd.svg</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label_4">
@@ -25,6 +29,13 @@
     <widget class="QLineEdit" name="ProjectName">
      <property name="readOnly">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Parent Folder::</string>
      </property>
     </widget>
    </item>
@@ -54,6 +65,20 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Project Folder:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="ResultPath">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -67,7 +92,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="CreateProject">
      <property name="text">
       <string>Create</string>
      </property>

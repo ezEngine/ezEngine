@@ -14,7 +14,16 @@ public:
 public:
   ezQtCreateProjectDlg(QWidget* pParent);
 
+  ezString GetFullTargetPath() const;
+
+  ezString m_sTargetFolder;
+  ezString m_sTargetName;
+
 private Q_SLOTS:
+  void on_BrowseFolder_clicked();
+  void on_ProjectName_textChanged(QString text);
+  void on_CreateProject_clicked();
 
 private:
+  void UpdateeUI();
 };
