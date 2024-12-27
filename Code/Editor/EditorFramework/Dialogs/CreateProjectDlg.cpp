@@ -2,8 +2,8 @@
 
 #include <EditorFramework/Dialogs/CreateProjectDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/IO/OpenDdlWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-
 
 ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
   : QDialog(pParent)
@@ -11,6 +11,13 @@ ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
   setupUi(this);
 
   m_sTargetFolder = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder().GetData();
+
+  ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+  m_LocalPluginSet = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+  m_LocalPluginSet.SetFromTemplate("General3D");
+
+  Plugins->SetPluginSet(&m_LocalPluginSet);
+  Plugins->SelectTemplate("General3D");
 
   UpdateeUI();
 }
@@ -83,6 +90,21 @@ void ezQtCreateProjectDlg::on_CreateProject_clicked()
 
   if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
   {
+  }
+
+  Plugins->SyncStateToSet();
+
+  {
+    ezStringBuilder path = sFullPath;
+    path.AppendPath("Editor/PluginSelection.ddl");
+
+    ezFileWriter file;
+    file.Open(path).AssertSuccess();
+
+    ezOpenDdlWriter ddl;
+    ddl.SetOutputStream(&file);
+
+    m_LocalPluginSet.WriteStateToDDL(ddl);
   }
 
   QDialog::accept();

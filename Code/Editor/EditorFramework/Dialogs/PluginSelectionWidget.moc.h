@@ -20,6 +20,7 @@ public:
 
   void SetPluginSet(ezPluginBundleSet* pPluginSet);
   void SyncStateToSet();
+  void SelectTemplate(const char* szTemplate);
 
 private Q_SLOTS:
   void on_PluginsList_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous);

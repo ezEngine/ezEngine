@@ -8,6 +8,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include "Plugins.h"
 
 void ezPluginBundle::WriteStateToDDL(ezOpenDdlWriter& ref_ddl, const char* szOwnName) const
 {
@@ -38,6 +39,16 @@ void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOw
       m_bLoadCopy = pVal->GetPrimitivesBool()[0];
 
     break;
+  }
+}
+
+void ezPluginBundleSet::SetFromTemplate(const char* szTemplateName)
+{
+  for (auto it : m_Plugins)
+  {
+    ezPluginBundle& bundle = it.Value();
+
+    bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplateName);
   }
 }
 

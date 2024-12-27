@@ -56,6 +56,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundleSet
 {
   ezMap<ezString, ezPluginBundle, ezCompareString_NoCase> m_Plugins;
 
+  void SetFromTemplate(const char* szTemplateName);
+
   /// \brief Writes the state of all bundles to a DDL file.
   void WriteStateToDDL(ezOpenDdlWriter& ref_ddl) const;
 

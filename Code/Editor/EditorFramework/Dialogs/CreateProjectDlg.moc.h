@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
+#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/ui_CreateProjectDlg.h>
 #include <Foundation/Strings/String.h>
 #include <QDialog>
@@ -26,4 +27,6 @@ private Q_SLOTS:
 
 private:
   void UpdateeUI();
+
+  ezPluginBundleSet m_LocalPluginSet;
 };
