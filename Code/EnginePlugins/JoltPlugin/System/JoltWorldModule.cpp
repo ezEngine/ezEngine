@@ -661,6 +661,8 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   if (m_UpdateSteps.IsEmpty())
     return;
 
+  ++m_uiJoltUpdateCounter;
+
   if (ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>())
   {
     pDynamicActorManager->UpdateDynamicActors();

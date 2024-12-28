@@ -116,6 +116,10 @@ public:
 
   void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
 
+  /// \brief Returns the counter of the last Jolt update.
+  /// Can be used to detect when no physics update was done (at high frame rates) to skip duplicate physics modifications.
+  ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
+
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
@@ -169,6 +173,8 @@ private:
       return (m_uiBodyID == rhs.m_uiBodyID) && (m_pShapePtr == rhs.m_pShapePtr);
     }
   };
+
+  ezUInt64 m_uiJoltUpdateCounter = 0;
 
   ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
   ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;

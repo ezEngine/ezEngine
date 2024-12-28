@@ -22,6 +22,7 @@ public:
   virtual void Initialize() override;
 
 private:
+  ezUInt64 m_uiLastJoltUpdateCounter = 0;
   void Update(const ezWorldModule::UpdateContext& context);
   void UpdateBounds(const ezWorldModule::UpdateContext& context);
 };

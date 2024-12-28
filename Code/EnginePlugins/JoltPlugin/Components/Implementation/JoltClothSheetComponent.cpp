@@ -805,6 +805,17 @@ void ezJoltClothSheetComponentManager::Initialize()
 
 void ezJoltClothSheetComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
+  {
+    if (pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
+    {
+      // skip cloth updates, when there was no Jolt update yet
+      return;
+    }
+
+    m_uiLastJoltUpdateCounter = pModule->GetJoltUpdateCounter();
+  }
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActiveAndInitialized())
