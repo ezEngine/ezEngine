@@ -28,14 +28,20 @@ private Q_SLOTS:
 
 private:
   void UpdateUI();
+  void FindProjectTemplates(ezDynamicArray<ezString>& out_Projects);
+  void FillProjectTemplatesList();
+  void CreateProject();
 
   enum class State
   {
     Basics,
+    Templates,
     Plugins,
+    Summary,
     Create,
   };
 
   State m_state = State::Basics;
+  ezString m_sProjectTemplate;
   ezPluginBundleSet m_LocalPluginSet;
 };

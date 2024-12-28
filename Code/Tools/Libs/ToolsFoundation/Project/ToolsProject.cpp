@@ -54,6 +54,9 @@ ezStatus ezToolsProject::Create()
 
   EZ_SUCCEED_OR_RETURN(Open());
 
+  // if this file already exists, the project was created from a template and should not get additional setup
+  ezStringBuilder path(GetProjectDirectory(), "/Scenes/Main.ezScene");
+  if (!ezOSFile::ExistsDirectory(path))
   {
     ezToolsProjectEvent e;
     e.m_pProject = this;

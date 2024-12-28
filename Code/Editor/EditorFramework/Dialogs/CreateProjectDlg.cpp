@@ -21,7 +21,13 @@ ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
   Plugins->SetPluginSet(&m_LocalPluginSet);
   Plugins->SelectTemplate("General3D");
 
+  ProjectTemplates->setResizeMode(QListView::ResizeMode::Adjust);
+  ProjectTemplates->setIconSize(QSize(220, 220));
+  ProjectTemplates->setItemAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+
   UpdateUI();
+
+  FillProjectTemplatesList();
 }
 
 ezString ezQtCreateProjectDlg::GetFullTargetPath() const
@@ -46,6 +52,17 @@ void ezQtCreateProjectDlg::UpdateUI()
 
   ProjectFolder->setText(m_sTargetFolder.GetData());
 
+  if (m_sProjectTemplate.IsEmpty())
+    ChosenTemplate->setText("<none>");
+  else
+  {
+    ezStringBuilder tmp = m_sProjectTemplate;
+    tmp.PathParentDirectory();
+    tmp.TrimRight("/\\");
+
+    ChosenTemplate->setText(ezMakeQString(tmp.GetFileName()));
+  }
+
   ezString sFullPath = GetFullTargetPath();
 
   if (sFullPath.IsEmpty() || !sFullPath.IsAbsolutePath())
@@ -63,6 +80,7 @@ void ezQtCreateProjectDlg::UpdateUI()
   {
     // ResultPath->setColor(qRgb(0, 255, 0));
     ResultPath->setText(sFullPath.GetData());
+    ResultPath2->setText(sFullPath.GetData());
     Next->setEnabled(!sFullPath.IsEmpty());
   }
 
@@ -74,11 +92,109 @@ void ezQtCreateProjectDlg::UpdateUI()
       Next->setText("Next >");
       break;
 
+    case State::Templates:
+      StackedPages->setCurrentIndex(2);
+      Prev->setVisible(true);
+      Next->setText("Next >");
+      break;
+
     case State::Plugins:
       StackedPages->setCurrentIndex(1);
       Prev->setVisible(true);
+      Next->setText("Next >");
+      break;
+
+    case State::Summary:
+      StackedPages->setCurrentIndex(3);
+      Prev->setVisible(true);
       Next->setText("Create");
       break;
+  }
+}
+
+void ezQtCreateProjectDlg::FindProjectTemplates(ezDynamicArray<ezString>& out_Projects)
+{
+  out_Projects.Clear();
+
+  ezStringBuilder sTemplatesFolder = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  sTemplatesFolder.AppendPath("ProjectTemplates");
+
+  ezFileSystemIterator fsIt;
+  fsIt.StartSearch(sTemplatesFolder, ezFileSystemIteratorFlags::ReportFolders);
+
+  ezStringBuilder path;
+
+  while (fsIt.IsValid())
+  {
+    fsIt.GetStats().GetFullPath(path);
+    path.AppendPath("ezProject");
+
+    if (ezOSFile::ExistsFile(path))
+    {
+      out_Projects.PushBack(path);
+    }
+
+    fsIt.Next();
+  }
+}
+
+void ezQtCreateProjectDlg::FillProjectTemplatesList()
+{
+  ezHybridArray<ezString, 32> templates;
+  FindProjectTemplates(templates);
+
+  ProjectTemplates->clear();
+
+  ezStringBuilder tmp, iconPath;
+
+  ezStringBuilder samplesIcon = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  samplesIcon.AppendPath("ProjectTemplates/Thumbnail.jpg");
+
+  QIcon fallbackIcon;
+
+  if (ezOSFile::ExistsFile(samplesIcon))
+  {
+    fallbackIcon.addFile(samplesIcon.GetData());
+  }
+
+  {
+    QListWidgetItem* pItem = new QListWidgetItem();
+    pItem->setText("Blank Project");
+    pItem->setData(Qt::UserRole, QString());
+
+    pItem->setIcon(fallbackIcon);
+
+    ProjectTemplates->addItem(pItem);
+
+    pItem->setSelected(true);
+  }
+
+  for (const ezString& path : templates)
+  {
+    tmp = path;
+    const bool bIsLocal = tmp.TrimWordEnd("/ezProject");
+    // const bool bIsRemote = tmp.TrimWordEnd("/ezRemoteProject");
+
+    QIcon projectIcon;
+
+    iconPath = tmp;
+    iconPath.AppendPath("Thumbnail.jpg");
+
+    if (ezOSFile::ExistsFile(iconPath))
+    {
+      projectIcon.addFile(iconPath.GetData());
+    }
+    else
+    {
+      projectIcon = fallbackIcon;
+    }
+
+    QListWidgetItem* pItem = new QListWidgetItem();
+    pItem->setText(tmp.GetFileName().GetStartPointer());
+    pItem->setData(Qt::UserRole, path.GetData());
+    pItem->setIcon(projectIcon);
+
+    ProjectTemplates->addItem(pItem);
   }
 }
 
@@ -105,8 +221,21 @@ void ezQtCreateProjectDlg::on_Prev_clicked()
 {
   switch (m_state)
   {
-    case State::Plugins:
+    case State::Templates:
       m_state = State::Basics;
+      break;
+
+    case State::Plugins:
+      m_state = State::Templates;
+      break;
+
+    case State::Summary:
+
+      if (m_sProjectTemplate.IsEmpty())
+        m_state = State::Plugins;
+      else
+        m_state = State::Templates;
+
       break;
   }
 
@@ -118,10 +247,27 @@ void ezQtCreateProjectDlg::on_Next_clicked()
   switch (m_state)
   {
     case State::Basics:
-      m_state = State::Plugins;
+      m_state = State::Templates;
       break;
 
+    case State::Templates:
+    {
+      m_sProjectTemplate = ProjectTemplates->currentItem()->data(Qt::UserRole).toString().toUtf8().data();
+
+      if (m_sProjectTemplate.IsEmpty())
+        m_state = State::Plugins;
+      else
+        m_state = State::Summary;
+
+      break;
+    }
+
     case State::Plugins:
+      Plugins->SyncStateToSet();
+      m_state = State::Summary;
+      break;
+
+    case State::Summary:
       m_state = State::Create;
       break;
   }
@@ -130,27 +276,44 @@ void ezQtCreateProjectDlg::on_Next_clicked()
 
   if (m_state == State::Create)
   {
-    const ezString sFullPath = GetFullTargetPath();
-
-    if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
-    {
-    }
-
-    Plugins->SyncStateToSet();
-
-    {
-      ezStringBuilder path = sFullPath;
-      path.AppendPath("Editor/PluginSelection.ddl");
-
-      ezFileWriter file;
-      file.Open(path).AssertSuccess();
-
-      ezOpenDdlWriter ddl;
-      ddl.SetOutputStream(&file);
-
-      m_LocalPluginSet.WriteStateToDDL(ddl);
-    }
+    CreateProject();
 
     QDialog::accept();
+  }
+}
+
+void ezQtCreateProjectDlg::CreateProject()
+{
+  const ezString sFullPath = GetFullTargetPath();
+
+  if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
+  {
+    // TODO
+  }
+
+  if (m_sProjectTemplate.IsEmpty())
+  {
+    // set up plugin selection
+    ezStringBuilder path = sFullPath;
+    path.AppendPath("Editor/PluginSelection.ddl");
+
+    ezFileWriter file;
+    file.Open(path).AssertSuccess();
+
+    ezOpenDdlWriter ddl;
+    ddl.SetOutputStream(&file);
+
+    m_LocalPluginSet.WriteStateToDDL(ddl);
+  }
+  else
+  {
+    // copy over project template
+
+    ezStringBuilder srcFolder = m_sProjectTemplate;
+    srcFolder.PathParentDirectory();
+    if (ezOSFile::CopyFolder(srcFolder, sFullPath).Failed())
+    {
+      // TODO
+    }
   }
 }
