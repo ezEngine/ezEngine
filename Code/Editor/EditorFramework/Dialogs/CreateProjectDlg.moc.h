@@ -23,10 +23,19 @@ public:
 private Q_SLOTS:
   void on_BrowseFolder_clicked();
   void on_ProjectName_textChanged(QString text);
-  void on_CreateProject_clicked();
+  void on_Prev_clicked();
+  void on_Next_clicked();
 
 private:
-  void UpdateeUI();
+  void UpdateUI();
 
+  enum class State
+  {
+    Basics,
+    Plugins,
+    Create,
+  };
+
+  State m_state = State::Basics;
   ezPluginBundleSet m_LocalPluginSet;
 };

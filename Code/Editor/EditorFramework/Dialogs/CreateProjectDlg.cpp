@@ -10,6 +10,8 @@ ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
 {
   setupUi(this);
 
+  Prev->setVisible(false);
+
   m_sTargetFolder = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder().GetData();
 
   ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
@@ -19,7 +21,7 @@ ezQtCreateProjectDlg::ezQtCreateProjectDlg(QWidget* pParent)
   Plugins->SetPluginSet(&m_LocalPluginSet);
   Plugins->SelectTemplate("General3D");
 
-  UpdateeUI();
+  UpdateUI();
 }
 
 ezString ezQtCreateProjectDlg::GetFullTargetPath() const
@@ -37,7 +39,7 @@ ezString ezQtCreateProjectDlg::GetFullTargetPath() const
   return path;
 }
 
-void ezQtCreateProjectDlg::UpdateeUI()
+void ezQtCreateProjectDlg::UpdateUI()
 {
   ezQtScopedBlockSignals _1(ProjectFolder);
   ezQtScopedBlockSignals _2(ProjectName);
@@ -49,19 +51,34 @@ void ezQtCreateProjectDlg::UpdateeUI()
   if (sFullPath.IsEmpty() || !sFullPath.IsAbsolutePath())
   {
     ResultPath->setText("<Choose a name and parent folder>");
-    CreateProject->setEnabled(false);
+    Next->setEnabled(false);
   }
   else if (ezOSFile::ExistsDirectory(sFullPath))
   {
     // ResultPath->setColor(qRgb(255, 0, 0));
     ResultPath->setText("Directory already exists");
-    CreateProject->setEnabled(false);
+    Next->setEnabled(false);
   }
   else
   {
     // ResultPath->setColor(qRgb(0, 255, 0));
     ResultPath->setText(sFullPath.GetData());
-    CreateProject->setEnabled(!sFullPath.IsEmpty());
+    Next->setEnabled(!sFullPath.IsEmpty());
+  }
+
+  switch (m_state)
+  {
+    case State::Basics:
+      StackedPages->setCurrentIndex(0);
+      Prev->setVisible(false);
+      Next->setText("Next >");
+      break;
+
+    case State::Plugins:
+      StackedPages->setCurrentIndex(1);
+      Prev->setVisible(true);
+      Next->setText("Create");
+      break;
   }
 }
 
@@ -74,38 +91,66 @@ void ezQtCreateProjectDlg::on_BrowseFolder_clicked()
 
   m_sTargetFolder = sFile.toUtf8().data();
 
-  UpdateeUI();
+  UpdateUI();
 }
 
 void ezQtCreateProjectDlg::on_ProjectName_textChanged(QString text)
 {
   m_sTargetName = ProjectName->text().toUtf8().data();
 
-  UpdateeUI();
+  UpdateUI();
 }
 
-void ezQtCreateProjectDlg::on_CreateProject_clicked()
+void ezQtCreateProjectDlg::on_Prev_clicked()
 {
-  const ezString sFullPath = GetFullTargetPath();
-
-  if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
+  switch (m_state)
   {
+    case State::Plugins:
+      m_state = State::Basics;
+      break;
   }
 
-  Plugins->SyncStateToSet();
+  UpdateUI();
+}
 
+void ezQtCreateProjectDlg::on_Next_clicked()
+{
+  switch (m_state)
   {
-    ezStringBuilder path = sFullPath;
-    path.AppendPath("Editor/PluginSelection.ddl");
+    case State::Basics:
+      m_state = State::Plugins;
+      break;
 
-    ezFileWriter file;
-    file.Open(path).AssertSuccess();
-
-    ezOpenDdlWriter ddl;
-    ddl.SetOutputStream(&file);
-
-    m_LocalPluginSet.WriteStateToDDL(ddl);
+    case State::Plugins:
+      m_state = State::Create;
+      break;
   }
 
-  QDialog::accept();
+  UpdateUI();
+
+  if (m_state == State::Create)
+  {
+    const ezString sFullPath = GetFullTargetPath();
+
+    if (ezOSFile::CreateDirectoryStructure(sFullPath).Failed())
+    {
+    }
+
+    Plugins->SyncStateToSet();
+
+    {
+      ezStringBuilder path = sFullPath;
+      path.AppendPath("Editor/PluginSelection.ddl");
+
+      ezFileWriter file;
+      file.Open(path).AssertSuccess();
+
+      ezOpenDdlWriter ddl;
+      ddl.SetOutputStream(&file);
+
+      m_LocalPluginSet.WriteStateToDDL(ddl);
+    }
+
+    QDialog::accept();
+  }
 }

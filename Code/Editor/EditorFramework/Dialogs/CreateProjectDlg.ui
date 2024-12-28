@@ -19,14 +19,8 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="ProjectTab">
-      <attribute name="title">
-       <string>Project</string>
-      </attribute>
+    <widget class="QStackedWidget" name="StackedPages">
+     <widget class="QWidget" name="Page1" native="true">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label_4">
@@ -75,20 +69,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Project Folder:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="ResultPath">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -103,10 +83,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="PluginsTab">
-      <attribute name="title">
-       <string>Plugins</string>
-      </attribute>
+     <widget class="QWidget" name="Page2" native="true">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="ezQtPluginSelectionWidget" name="Plugins" native="true">
@@ -120,6 +97,20 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Project to Create::</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="ResultPath">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -138,9 +129,16 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="CreateProject">
+      <widget class="QPushButton" name="Prev">
        <property name="text">
-        <string>Create</string>
+        <string>&lt; Back</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Next">
+       <property name="text">
+        <string>Next &gt;</string>
        </property>
       </widget>
      </item>
