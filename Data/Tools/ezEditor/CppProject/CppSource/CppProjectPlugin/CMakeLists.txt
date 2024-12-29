@@ -10,3 +10,7 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   Utilities
 )
+
+# include the EZ natvis file for a better debugging experience
+get_property(EZ_ROOT_DIR GLOBAL PROPERTY EZ_ROOT)
+target_sources(${PROJECT_NAME} PUBLIC "${EZ_ROOT_DIR}/Code/Engine/Foundation/ezEngine.natvis")
