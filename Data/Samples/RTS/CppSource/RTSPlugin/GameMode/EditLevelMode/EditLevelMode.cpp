@@ -2,10 +2,10 @@
 
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/Utils/Blackboard.h>
-#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
-#include <RmlUiPlugin/RmlUiContext.h>
 #include <RTSPlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/RmlUiContext.h>
 
 const char* g_BuildItemTypes[] = {
   "FederationShip1",

@@ -3,7 +3,6 @@
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
 #include <Core/World/World.h>
-#include <RTSPlugin/GameState/RTSGameState.h>
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <RTSPlugin/Components/ComponentMessages.h>
 #include <RTSPlugin/Components/SelectableComponent.h>

@@ -1,11 +1,11 @@
 #include <RTSPlugin/RTSPluginPCH.h>
 
 #include <GameEngine/DearImgui/DearImgui.h>
+#include <RTSPlugin/GameMode/GameMode.h>
+#include <RTSPlugin/GameState/RTSGameState.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
-#include <RTSPlugin/GameMode/GameMode.h>
-#include <RTSPlugin/GameState/RTSGameState.h>
 
 bool RtsGameMode::s_bUseRmlUi = true;
 
