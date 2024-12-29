@@ -73,7 +73,13 @@ ezString ezGameApplication::FindProjectDirectory() const
 
   // first check if the path is relative to the SDK special directory
   {
-    ezStringBuilder relToSdk(">sdk/", m_sAppProjectPath);
+    ezStringBuilder relToSdk(m_sAppProjectPath);
+
+    if (!relToSdk.StartsWith_NoCase(">sdk/"))
+    {
+      relToSdk.Prepend(">sdk/");
+    }
+
     ezStringBuilder absToSdk;
     if (ezFileSystem::ResolveSpecialDirectory(relToSdk, absToSdk).Succeeded())
     {

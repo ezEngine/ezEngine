@@ -21,6 +21,18 @@ ezHashedString PacManGameState::s_sStats = ezMakeHashedString("Stat");
 ezHashedString PacManGameState::s_sCoinsEaten = ezMakeHashedString("CoinsEaten");
 ezHashedString PacManGameState::s_sPacManState = ezMakeHashedString("PacManState");
 
+ezString PacManGameState::GetStartupSceneFile()
+{
+  // if we have a "-scene" command line argument, it was launched from the editor and we should load that
+  // otherwise, we use the hardcoded 'Main.ezScene' of the PacMan project
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  {
+    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  }
+
+  return "{ 92c25a40-7218-9708-2da5-4b75040dc3bd }";
+}
+
 void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   // this is called shortly after the game state was created, and before the game starts to properly run
@@ -217,7 +229,7 @@ void PacManGameState::ProcessInput()
     ResetState();
 
     // We just kick off a scene load. The 'scene file' is the asset GUID of the 'Level1.ezScene' document.
-    LoadScene("{ 92c25a40-7218-9708-2da5-4b75040dc3bd }", {}, {}, ezTransform::MakeIdentity());
+    LoadScene(GetStartupSceneFile(), {}, {}, ezTransform::MakeIdentity());
 
     // scene loading happens in the background, and once it is ready, will switch automatically to the new scene
   }
