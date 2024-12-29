@@ -1,23 +1,8 @@
 #include <Player/Player.h>
 
-#include <Core/Input/InputManager.h>
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/SpawnComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 
 // this injects the main function
 EZ_APPLICATION_ENTRY_POINT(ezPlayerApplication);
