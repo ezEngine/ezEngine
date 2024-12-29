@@ -45,13 +45,6 @@ void RTSGame::DetermineProjectPath()
   //
   // Note that in a final exported build the project folder is always merged with the EZ data folders into one package.
 
-#ifdef GAME_PROJECT_FOLDER
-  // this absolute path will only work on the machine where the game is compiled,
-  // but it works for projects that are located outside the ezEngine folder
-  if (TryProjectFolder(EZ_PP_STRINGIFY(GAME_PROJECT_FOLDER)).Succeeded())
-    return;
-#endif
-
   // this path works for exported projects, because during export the project folder is always copied there
   ezStringBuilder sProjDir;
   if (ezFileSystem::ResolveSpecialDirectory(">sdk/Data/project", sProjDir).Succeeded())
@@ -59,6 +52,13 @@ void RTSGame::DetermineProjectPath()
     if (TryProjectFolder(sProjDir).Succeeded())
       return;
   }
+
+#ifdef GAME_PROJECT_FOLDER
+  // this absolute path will only work on the machine where the game is compiled,
+  // but it works for projects that are located outside the ezEngine folder
+  if (TryProjectFolder(EZ_PP_STRINGIFY(GAME_PROJECT_FOLDER)).Succeeded())
+    return;
+#endif
 
   // in other cases, try this relative path
   m_sAppProjectPath = "Data/Samples/RTS";
