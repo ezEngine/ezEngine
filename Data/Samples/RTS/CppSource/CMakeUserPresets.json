@@ -1,0 +1,24 @@
+{
+  "configurePresets" : [ {
+      "name" : "ezEngine",
+      "displayName" : "Build the ezEngine Plugin",
+      "architecture" : "x64",
+      "cacheVariables" : {
+        "EZ_BUILDTYPE_ONLY" : "Debug",
+        "EZ_SDK_DIR" : "C:/GitHub/ezEngine/",
+        "CMAKE_BUILD_TYPE" : "Debug"
+      },
+      "binaryDir" : "C:/GitHub/ezEngine/Data/Samples/RTS/CppSource/Build/Vs2022x64",
+      "generator" : "Visual Studio 17 2022"
+    } ],
+  "version" : 3,
+  "buildPresets" : [ {
+      "configurePreset" : "ezEngine",
+      "name" : "ezEngine"
+    } ],
+  "cmakeMinimumRequired" : {
+    "major" : 3,
+    "minor" : 21,
+    "patch" : 0
+  }
+}
