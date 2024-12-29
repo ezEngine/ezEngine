@@ -30,5 +30,5 @@ if(PROJECT_IS_TOP_LEVEL)
 
 endif()
 
-# include all projects in the sub-folders
-ez_add_all_subdirs()
+add_subdirectory("PacManPlugin")
+add_subdirectory("PacManGame")

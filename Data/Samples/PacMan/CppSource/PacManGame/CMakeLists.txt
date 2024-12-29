@@ -16,3 +16,5 @@ get_property(EZ_ROOT_DIR GLOBAL PROPERTY EZ_ROOT)
 target_sources(${PROJECT_NAME} PUBLIC "${EZ_ROOT_DIR}/Code/Engine/Foundation/ezEngine.natvis")
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE "GAME_PROJECT_FOLDER=${CMAKE_CURRENT_LIST_DIR}/../../")
+
+add_dependencies(${PROJECT_NAME} PacManPlugin)
