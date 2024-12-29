@@ -30,7 +30,7 @@ ezString PacManGameState::GetStartupSceneFile()
     return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
 
-  return "{ 92c25a40-7218-9708-2da5-4b75040dc3bd }";
+  return "AssetCache/Common/Scenes/Main.ezBinScene";
 }
 
 void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)

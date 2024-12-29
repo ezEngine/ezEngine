@@ -17,6 +17,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 CppProjectGameState::CppProjectGameState() = default;
 CppProjectGameState::~CppProjectGameState() = default;
 
+ezString CppProjectGameState::GetStartupSceneFile()
+{
+  // replace this to load a certain scene at startup
+  // the default implementation looks at the command line "-scene" argument
+
+  // if we have a "-scene" command line argument, it was launched from the editor and we should load that
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  {
+    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  }
+
+  // otherwise, we use the hardcoded 'Main.ezScene'
+  // if that doesn't exist, this function has to be adjusted
+  // note that you can return an asset GUID here, instead of a path
+  return "AssetCache/Common/Scenes/Main.ezBinScene";
+}
+
 void CppProjectGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
@@ -63,13 +80,6 @@ void CppProjectGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewW
 
   // called whenever the main world is changed, ie when transitioning between levels
   // may need to update references to the world here or reset some state
-}
-
-ezString CppProjectGameState::GetStartupSceneFile()
-{
-  // replace this to load a certain scene at startup
-  // the default implementation looks at the command line "-scene" argument
-  return SUPER::GetStartupSceneFile();
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
