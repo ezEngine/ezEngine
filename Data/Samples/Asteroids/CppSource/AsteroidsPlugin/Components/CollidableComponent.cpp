@@ -1,5 +1,5 @@
-#include "CollidableComponent.h"
-#include "Level.h"
+#include <AsteroidsPlugin/Components/CollidableComponent.h>
+#include <AsteroidsPlugin/GameState/Level.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(CollidableComponent, 1, ezComponentMode::Static)

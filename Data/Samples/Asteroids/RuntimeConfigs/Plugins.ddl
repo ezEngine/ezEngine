@@ -1,7 +1,7 @@
 Plugin
 {
-	string %Path{"ezFmodPlugin"}
-	bool %LoadCopy{false}
+	string %Path{"AsteroidsPlugin"}
+	bool %LoadCopy{true}
 }
 Plugin
 {

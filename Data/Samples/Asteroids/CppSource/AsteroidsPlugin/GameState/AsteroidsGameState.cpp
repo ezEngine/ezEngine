@@ -1,16 +1,16 @@
-#include "GameState.h"
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Time/Clock.h>
+#include <AsteroidsPlugin/AsteroidsPluginPCH.h>
 
+#include <AsteroidsPlugin/GameState/AsteroidsGameState.h>
 #include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/Input/InputManager.h>
 #include <Core/System/ControllerInput.h>
 #include <Core/System/Window.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+#include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Logging/Log.h>
 
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AsteroidsGameState, 1, ezRTTIDefaultAllocator<AsteroidsGameState>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const char* szPlayerActions[MaxPlayerActions] = {"Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot"};
 const char* szControlerKeys[MaxPlayerActions] = {"leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger"};
@@ -35,15 +35,27 @@ namespace
   }
 } // namespace
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AsteroidGameState, 1, ezRTTIDefaultAllocator<AsteroidGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
+AsteroidsGameState::AsteroidsGameState() = default;
+AsteroidsGameState::~AsteroidsGameState() = default;
 
-AsteroidGameState::AsteroidGameState()
+ezString AsteroidsGameState::GetStartupSceneFile()
 {
-  m_pLevel = nullptr;
+  // replace this to load a certain scene at startup
+  // the default implementation looks at the command line "-scene" argument
+
+  // if we have a "-scene" command line argument, it was launched from the editor and we should load that
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  {
+    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  }
+
+  // otherwise, we use the hardcoded 'Main.ezScene'
+  // if that doesn't exist, this function has to be adjusted
+  // note that you can return an asset GUID here, instead of a path
+  return "AssetCache/Common/Scenes/Main.ezBinScene";
 }
 
-void AsteroidGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+void AsteroidsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
@@ -52,7 +64,7 @@ void AsteroidGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPositio
   CreateGameLevel();
 }
 
-void AsteroidGameState::OnDeactivation()
+void AsteroidsGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("AsteroidGameState::Deactivate");
 
@@ -61,13 +73,21 @@ void AsteroidGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
-void AsteroidGameState::BeforeWorldUpdate()
+void AsteroidsGameState::BeforeWorldUpdate()
 {
   m_MainCamera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 40, -10, 10);
   m_MainCamera.LookAt(ezVec3::MakeZero(), ezVec3(0, 0, 1), ezVec3(0, 1, 0));
 }
 
-void AsteroidGameState::ConfigureInputActions()
+void AsteroidsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
+{
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
+
+  // called whenever the main world is changed, ie when transitioning between levels
+  // may need to update references to the world here or reset some state
+}
+
+void AsteroidsGameState::ConfigureInputActions()
 {
   if (ezControllerInput::HasDevice())
   {
@@ -105,7 +125,15 @@ void AsteroidGameState::ConfigureInputActions()
   RegisterInputAction("Game", "Player1_RotRight", nullptr, ezInputSlot_KeyRight);
 }
 
-void AsteroidGameState::CreateGameLevel()
+void AsteroidsGameState::ProcessInput()
+{
+  EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
+    m_pLevel->UpdatePlayerInput(iPlayer);
+}
+
+void AsteroidsGameState::CreateGameLevel()
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
 
@@ -115,15 +143,7 @@ void AsteroidGameState::CreateGameLevel()
   ChangeMainWorld(m_pLevel->GetWorld(), {}, ezTransform::MakeIdentity());
 }
 
-void AsteroidGameState::DestroyLevel()
+void AsteroidsGameState::DestroyLevel()
 {
   m_pLevel = nullptr;
-}
-
-void AsteroidGameState::ProcessInput()
-{
-  EZ_LOCK(m_pMainWorld->GetWriteMarker());
-
-  for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
-    m_pLevel->UpdatePlayerInput(iPlayer);
 }

@@ -1,8 +1,8 @@
-#include "Level.h"
-#include "AsteroidComponent.h"
-#include "CollidableComponent.h"
-#include "ProjectileComponent.h"
-#include "ShipComponent.h"
+#include <AsteroidsPlugin/Components/AsteroidComponent.h>
+#include <AsteroidsPlugin/Components/CollidableComponent.h>
+#include <AsteroidsPlugin/Components/ProjectileComponent.h>
+#include <AsteroidsPlugin/Components/ShipComponent.h>
+#include <AsteroidsPlugin/GameState/Level.h>
 #include <Core/Collection/CollectionResource.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/Graphics/Geometry.h>

@@ -1,9 +1,7 @@
-#include "ShipComponent.h"
-
-#include "CollidableComponent.h"
-#include "Level.h"
-#include "ProjectileComponent.h"
-
+#include <AsteroidsPlugin/Components/CollidableComponent.h>
+#include <AsteroidsPlugin/Components/ProjectileComponent.h>
+#include <AsteroidsPlugin/Components/ShipComponent.h>
+#include <AsteroidsPlugin/GameState/Level.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/CVar.h>

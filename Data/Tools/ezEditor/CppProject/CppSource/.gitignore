@@ -4,3 +4,6 @@ AssetCache/
 # FMOD specific
 .cache/
 .user/
+
+# VSCode specific
+CMakeUserPresets.json

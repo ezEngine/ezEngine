@@ -1,6 +1,6 @@
-#include "AsteroidComponent.h"
-#include "Level.h"
-#include "ShipComponent.h"
+#include <AsteroidsPlugin/Components/AsteroidComponent.h>
+#include <AsteroidsPlugin/Components/ShipComponent.h>
+#include <AsteroidsPlugin/GameState/Level.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Clock.h>
 

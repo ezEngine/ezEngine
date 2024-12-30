@@ -1,0 +1,28 @@
+# EditorConfig is awesome: http://EditorConfig.org
+# To make use of this, simply install a plugin for Visual Studio 20XX, Visual Studio Code, Notepad++ or XCode
+# Will work out of the box with Visual Studio 15
+
+# top-most EditorConfig file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+indent_style = space
+trim_trailing_whitespace = true
+
+# additional settings for code files
+[*.{cpp,h,inl,c,d,qrc,lua,cs}]
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+
+# and cmake files
+[CMakeLists.txt]
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+
+# .ui files use a different indentation
+[*.{ui}]
+indent_size = 1
