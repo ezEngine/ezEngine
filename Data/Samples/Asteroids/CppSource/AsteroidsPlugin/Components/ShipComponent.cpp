@@ -3,6 +3,7 @@
 #include <AsteroidsPlugin/Components/ShipComponent.h>
 #include <AsteroidsPlugin/GameState/Level.h>
 #include <Core/Input/DeviceTypes/Controller.h>
+#include <Core/Messages/SetColorMessage.h>
 #include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
@@ -21,61 +22,104 @@ ezCVarFloat CVar_ShotDelay("g_ShotDelay", 1.0f / 20.0f, ezCVarFlags::Default, "D
 
 ShipComponent::ShipComponent()
 {
-  m_vVelocity.SetZero();
-  m_bIsShooting = false;
   m_fAmmunition = CVar_MaxAmmo / 2.0f;
   m_fHealth = CVar_MaxHealth;
-  m_iPlayerIndex = -1;
 }
 
-void ShipComponent::SetVelocity(const ezVec3& vVel)
+void ShipComponent::AddExternalForce(const ezVec3& vForce)
 {
-  m_vVelocity += vVel * 0.1f;
-
-  ezStringBuilder s, v;
-  s.SetFormat("Game/Player{0}/Velocity", m_iPlayerIndex);
-  v.SetFormat("{0} | {1} | {2}", ezArgF(m_vVelocity.x, 3), ezArgF(m_vVelocity.y, 3), ezArgF(m_vVelocity.z, 3));
-
-  ezStats::SetStat(s.GetData(), v.GetData());
+  m_vExternalForce += vForce;
 }
 
 void ShipComponent::SetIsShooting(bool b)
 {
-  // ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 0, b ? 1.0f : 0.0f);
-  // ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 1, b ? 1.0f : 0.0f);
-
   m_bIsShooting = b;
+}
 
-  ezStringBuilder s, v;
-  s.SetFormat("Game/Player{0}/Shooting", m_iPlayerIndex);
-  v = b ? "Yes" : "No";
+void ShipComponent::Explode()
+{
+  const ezUInt32 uiNumSparks = 100;
+  const float fSparksSpeed = 25.0f;
 
-  ezStats::SetStat(s.GetData(), v.GetData());
+  const float fSteps = 360.0f / uiNumSparks;
+
+  for (ezInt32 i = 0; i < uiNumSparks; ++i)
+  {
+    ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(i * fSteps));
+
+    {
+      ezGameObjectDesc desc;
+      desc.m_bDynamic = true;
+      desc.m_LocalPosition = GetOwner()->GetLocalPosition();
+      desc.m_LocalRotation = qRot * GetOwner()->GetLocalRotation();
+
+      ezGameObject* pProjectile = nullptr;
+      GetWorld()->CreateObject(desc, pProjectile);
+
+      ProjectileComponent* pProjectileComponent = nullptr;
+      ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(pProjectile, pProjectileComponent);
+
+      pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
+      pProjectileComponent->m_fSpeed = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(1.0, 2.0) * fSparksSpeed;
+      pProjectileComponent->m_fDoesDamage = 0.75f;
+
+      // ProjectileMesh
+      {
+        ezMeshComponent* pMeshComponent = nullptr;
+        ezMeshComponent::CreateComponent(pProjectile, pMeshComponent);
+
+        pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ProjectileMesh"));
+
+        // this only works because the materials are part of the Asset Collection and get a name like this from there
+        // otherwise we would need to have the GUIDs of the 4 different material assets available
+        ezStringBuilder sMaterialName;
+        sMaterialName.SetFormat("MaterialPlayer{0}", m_iPlayerIndex + 1);
+        pMeshComponent->SetMaterial(0, ezResourceManager::LoadResource<ezMaterialResource>(sMaterialName));
+      }
+    }
+  }
 }
 
 void ShipComponent::Update()
 {
   if (!IsAlive())
+  {
+    Explode();
+
+    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
     return;
+  }
+
 
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
+  // slow down the ship over time
+  m_vVelocity *= ezMath::Pow(0.5f, tDiff.AsFloatInSeconds());
+  // apply the external force to the ship's velocity
+  m_vVelocity += tDiff.AsFloatInSeconds() * m_vExternalForce;
+  // reset the forces, they will be re-added during the next update
+  m_vExternalForce.SetZero();
+
+  ezVec3 vTravelDist = m_vVelocity * tDiff.AsFloatInSeconds();
+
+  // if the ship is at least slightly moving, do collision checks
   if (!m_vVelocity.IsZero(0.001f))
   {
     CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
 
     for (auto it = pCollidableManager->GetComponents(); it.IsValid(); ++it)
     {
+      if (!it->IsActiveAndSimulating())
+        continue;
+
       CollidableComponent& Collider = *it;
       ezGameObject* pColliderObject = Collider.GetOwner();
       ShipComponent* pShipComponent = nullptr;
 
       if (pColliderObject->TryGetComponentOfBaseType(pShipComponent))
       {
+        // don't collide with yourself
         if (pShipComponent->m_iPlayerIndex == m_iPlayerIndex)
-          continue;
-
-        if (!pShipComponent->IsAlive())
           continue;
       }
 
@@ -83,15 +127,17 @@ void ShipComponent::Update()
 
       const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
-      if (!bs.Contains(vPos) && bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
+      if (!bs.Contains(vPos) && bs.GetLineSegmentIntersection(vPos, vPos + vTravelDist))
       {
+        // bounce the ship into the opposite direction and lose a lot of velocity, when there is a collision
         m_vVelocity *= -0.5f;
+        vTravelDist.SetZero();
+        break;
       }
     }
   }
 
-  GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
-  m_vVelocity *= 0.97f;
+  GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vTravelDist);
 
   if (m_CurShootCooldown > ezTime::MakeFromSeconds(0))
   {
@@ -115,7 +161,7 @@ void ShipComponent::Update()
 
       pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
       pProjectileComponent->m_fSpeed = CVar_ProjectileSpeed;
-      pProjectileComponent->m_bDoesDamage = true;
+      pProjectileComponent->m_fDoesDamage = 1.0f;
     }
 
     // ProjectileMesh
@@ -145,27 +191,10 @@ void ShipComponent::Update()
   m_fAmmunition = ezMath::Clamp<float>(m_fAmmunition + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxAmmo);
   m_fHealth = ezMath::Clamp<float>(m_fHealth + (float)tDiff.GetSeconds(), 0.0f, CVar_MaxHealth);
 
-
+  // clamp the player position to the playing field
   ezVec3 vCurPos = GetOwner()->GetLocalPosition();
   vCurPos = vCurPos.CompMax(ezVec3(-20.0f));
   vCurPos = vCurPos.CompMin(ezVec3(20.0f));
 
   GetOwner()->SetLocalPosition(vCurPos);
-
-
-  ezStringBuilder s, v;
-
-  {
-    s.SetFormat("Game/Player{0}/Health", m_iPlayerIndex);
-    v.SetFormat("{0}", m_fHealth);
-
-    ezStats::SetStat(s.GetData(), v.GetData());
-  }
-
-  {
-    s.SetFormat("Game/Player{0}/Ammo", m_iPlayerIndex);
-    v.SetFormat("{0}", m_fAmmunition);
-
-    ezStats::SetStat(s.GetData(), v.GetData());
-  }
 }

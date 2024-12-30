@@ -1,7 +1,7 @@
-#include <AsteroidsPlugin/Components/ProjectileComponent.h>
 #include <AsteroidsPlugin/Components/CollidableComponent.h>
-#include <AsteroidsPlugin/GameState/Level.h>
+#include <AsteroidsPlugin/Components/ProjectileComponent.h>
 #include <AsteroidsPlugin/Components/ShipComponent.h>
+#include <AsteroidsPlugin/GameState/Level.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -17,30 +17,23 @@ EZ_END_COMPONENT_TYPE
 ezCVarFloat CVar_ProjectileTimeToLive("g_ProjectileTimeToLive", 0.5f, ezCVarFlags::Default, "Projectile time to Live");
 ezCVarFloat CVar_SparksTimeToLive("g_SparksTimeToLive", 3.0f, ezCVarFlags::Default, "Projectile time to fade out");
 ezCVarInt CVar_SparksPerHit("g_SparksPerHit", 50, ezCVarFlags::Default, "Number of particles spawned when projectile hits a ship");
-ezCVarFloat CVar_ProjectileDamage("g_ProjectileDamage", 0.0f, ezCVarFlags::Default, "How much damage a projectile makes");
 ezCVarFloat CVar_SparksSpeed("g_SparksSpeed", 50.0f, ezCVarFlags::Default, "Projectile fly speed");
 
 ProjectileComponent::ProjectileComponent()
 {
-  m_fSpeed = 0.0f;
   m_TimeToLive = ezTime::MakeFromSeconds(CVar_ProjectileTimeToLive);
-  m_iBelongsToPlayer = -1;
-  m_bDoesDamage = false;
 }
 
 void ProjectileComponent::Update()
 {
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  m_TimeToLive -= tDiff;
+
   if (m_TimeToLive.IsZeroOrNegative())
   {
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
     return;
   }
-
-  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
-  m_TimeToLive -= tDiff;
-
-  if (m_TimeToLive.IsZeroOrNegative())
-    return;
 
   if (m_fSpeed <= 0.0f)
     return;
@@ -49,16 +42,16 @@ void ProjectileComponent::Update()
   const ezVec3 vDistance = (float)tDiff.GetSeconds() * vVelocity;
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vDistance);
 
-  // Deactivate the rest of the function, if you want to profile overall engine performance
-  // if (!m_bDoesDamage)
-  //  return;
-
   CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
 
   for (auto it = pCollidableManager->GetComponents(); it.IsValid(); ++it)
   {
-    CollidableComponent& Collider = *it;
-    ezGameObject* pColliderObject = Collider.GetOwner();
+    CollidableComponent& collider = *it;
+
+    if (!collider.IsActiveAndSimulating())
+      continue;
+
+    ezGameObject* pColliderObject = collider.GetOwner();
     ShipComponent* pShipComponent = nullptr;
 
     if (pColliderObject->TryGetComponentOfBaseType(pShipComponent))
@@ -70,15 +63,15 @@ void ProjectileComponent::Update()
         continue;
     }
 
-    ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
+    ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(pColliderObject->GetLocalPosition(), collider.m_fCollisionRadius);
 
     const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
     if (!vVelocity.IsZero(0.001f) && bs.GetLineSegmentIntersection(vPos, vPos + vDistance))
     {
-      if (pShipComponent && m_bDoesDamage)
+      if (pShipComponent && m_fDoesDamage > 0.0f)
       {
-        pShipComponent->m_fHealth = ezMath::Max(pShipComponent->m_fHealth - CVar_ProjectileDamage, 0.0f);
+        pShipComponent->m_fHealth = ezMath::Max(pShipComponent->m_fHealth - m_fDoesDamage, 0.0f);
 
         {
           float HitTrack[20] = {
@@ -111,7 +104,7 @@ void ProjectileComponent::Update()
 
             pProjectileComponent->m_iBelongsToPlayer = pShipComponent->m_iPlayerIndex;
             pProjectileComponent->m_fSpeed = (float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(1.0, 2.0) * CVar_SparksSpeed;
-            pProjectileComponent->m_bDoesDamage = false;
+            pProjectileComponent->m_fDoesDamage = 0.0f;
 
             // ProjectileMesh
             {

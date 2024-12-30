@@ -33,8 +33,12 @@ void AsteroidComponent::Update()
 
   for (auto it = pShipManager->GetComponents(); it.IsValid(); ++it)
   {
-    ShipComponent& Ship = *it;
-    ezGameObject* pObject = Ship.GetOwner();
+    ShipComponent& ship = *it;
+
+    if (!ship.IsActiveAndSimulating())
+      continue;
+
+    ezGameObject* pObject = ship.GetOwner();
 
     const ezVec3 vDir = pObject->GetLocalPosition() - vOwnPos;
     const float fDist = vDir.GetLength();
@@ -47,6 +51,6 @@ void AsteroidComponent::Update()
     const float fScaledFactor = ezMath::Pow(fFactor, 2.0f);
     const ezVec3 vPull = vDir * fScaledFactor;
 
-    Ship.SetVelocity(vPull * (float)CVar_AsteroidPush);
+    ship.AddExternalForce(vPull * (float)CVar_AsteroidPush);
   }
 }

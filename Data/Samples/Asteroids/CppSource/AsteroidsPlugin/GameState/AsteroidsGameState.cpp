@@ -97,8 +97,6 @@ void AsteroidsGameState::ConfigureInputActions()
     ezControllerInput::GetDevice()->EnableVibration(3, true);
   }
 
-  RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
-
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
   {

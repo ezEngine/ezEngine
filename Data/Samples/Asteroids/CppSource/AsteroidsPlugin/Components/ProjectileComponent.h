@@ -17,7 +17,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
 
   ezTime m_TimeToLive;
-  float m_fSpeed;
-  ezInt32 m_iBelongsToPlayer;
-  bool m_bDoesDamage;
+  float m_fSpeed = 0.0f;
+  ezInt32 m_iBelongsToPlayer = -1;
+  float m_fDoesDamage = 0.0f;
 };

@@ -44,6 +44,7 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
     ezGameObject* pObj;
     m_pWorld->CreateObject(obj, pObj);
 
+    // point and spot lights won't work with the orthographic camera
     ezDirectionalLightComponent* pDirLight;
     ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
@@ -72,9 +73,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   ezVec3 vVelocity(0.0f);
 
-  // const ezQuat qRot = pShip->GetLocalRotation();
-  // const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
-
   ezStringBuilder sControls[MaxPlayerActions];
 
   for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
@@ -83,30 +81,22 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
   {
-    // ezVec3 vPos = pShip->GetLocalPosition();
-    // vVelocity += 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal * 60.0f;
+    vVelocity += ezVec3(0, 1, 0) * fVal;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
-    // ezVec3 vPos = pShip->GetLocalPosition();
-    // vVelocity -= 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal * 60.0f;
+    vVelocity += ezVec3(0, -1, 0) * fVal;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
   {
-    // ezVec3 vPos = pShip->GetLocalPosition();
-    // vVelocity += 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
+    vVelocity += ezVec3(-1, 0, 0) * fVal;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
-    // ezVec3 vPos = pShip->GetLocalPosition();
-    // vVelocity -= 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
+    vVelocity += ezVec3(1, 0, 0) * fVal;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
@@ -126,7 +116,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   }
 
   if (!vVelocity.IsZero())
-    pShipComponent->SetVelocity(vVelocity);
+    pShipComponent->AddExternalForce(vVelocity * 15000.0f);
 
   if (ezInputManager::GetInputActionState("Game", sControls[6].GetData(), &fVal) != ezKeyState::Up)
     pShipComponent->SetIsShooting(true);
@@ -139,16 +129,28 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
   // create one game object for the ship
   // then attach a ship component to that object
 
-  ezGameObjectDesc desc;
-  desc.m_bDynamic = true;
-  desc.m_LocalPosition.x = -15 + iPlayer * 5.0f;
-
-  ezGameObject* pGameObject = nullptr;
-  m_hPlayerShips[iPlayer] = m_pWorld->CreateObject(desc, pGameObject);
+  ezGameObject* pShipObject = nullptr;
 
   {
+    ezGameObjectDesc desc;
+    desc.m_bDynamic = true;
+    desc.m_LocalPosition.x = -15 + iPlayer * 5.0f;
+    m_hPlayerShips[iPlayer] = m_pWorld->CreateObject(desc, pShipObject);
+  }
+
+  {
+    // add a sub-object to place the ship mesh at the proper position
+    ezGameObject* pShipMeshObj = nullptr;
+
+    {
+      ezGameObjectDesc desc;
+      desc.m_hParent = pShipObject->GetHandle();
+      desc.m_LocalPosition.x = -0.5f;
+      m_pWorld->CreateObject(desc, pShipMeshObj);
+    }
+
     ezMeshComponent* pMeshComponent = nullptr;
-    ezMeshComponent::CreateComponent(pGameObject, pMeshComponent);
+    ezMeshComponent::CreateComponent(pShipMeshObj, pMeshComponent);
 
     pMeshComponent->SetMesh(ezResourceManager::LoadResource<ezMeshResource>("ShipMesh"));
 
@@ -160,13 +162,13 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
   }
   {
     ShipComponent* pShipComponent = nullptr;
-    ezComponentHandle hShipComponent = ShipComponent::CreateComponent(pGameObject, pShipComponent);
+    ezComponentHandle hShipComponent = ShipComponent::CreateComponent(pShipObject, pShipComponent);
 
     pShipComponent->m_iPlayerIndex = iPlayer;
   }
   {
     CollidableComponent* pCollidableComponent = nullptr;
-    ezComponentHandle hCollidableomponent = CollidableComponent::CreateComponent(pGameObject, pCollidableComponent);
+    CollidableComponent::CreateComponent(pShipObject, pCollidableComponent);
 
     pCollidableComponent->m_fCollisionRadius = 1.0f;
   }
