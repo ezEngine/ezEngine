@@ -493,9 +493,12 @@ void ezQtEditorApp::SetupNewProject()
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    ezWindowCreationDesc desc;
-    desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
-    desc.SaveToDDL(sPath).IgnoreResult();
+    if (!ezFileSystem::ExistsFile(sPath))
+    {
+      ezWindowCreationDesc desc;
+      desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
+      desc.SaveToDDL(sPath).IgnoreResult();
+    }
   }
 
   // write a stub input mapping
@@ -503,20 +506,23 @@ void ezQtEditorApp::SetupNewProject()
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-    ezDeferredFileWriter file;
-    file.SetOutput(sPath);
+    if (!ezFileSystem::ExistsFile(sPath))
+    {
+      ezDeferredFileWriter file;
+      file.SetOutput(sPath);
 
-    ezHybridArray<ezGameAppInputConfig, 4> actions;
-    ezGameAppInputConfig& a = actions.ExpandAndGetRef();
-    a.m_sInputSet = "Default";
-    a.m_sInputAction = "Interact";
-    a.m_bApplyTimeScaling = false;
-    a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
-    a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
-    a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
+      ezHybridArray<ezGameAppInputConfig, 4> actions;
+      ezGameAppInputConfig& a = actions.ExpandAndGetRef();
+      a.m_sInputSet = "Default";
+      a.m_sInputAction = "Interact";
+      a.m_bApplyTimeScaling = false;
+      a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
+      a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
+      a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
 
-    ezGameAppInputConfig::WriteToDDL(file, actions);
+      ezGameAppInputConfig::WriteToDDL(file, actions);
 
-    file.Close().IgnoreResult();
+      file.Close().IgnoreResult();
+    }
   }
 }
