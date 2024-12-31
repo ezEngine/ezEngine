@@ -109,6 +109,9 @@ void ezQtCreateProjectDlg::UpdateUI()
       Prev->setVisible(true);
       Next->setText("Create");
       break;
+
+    case State::Create:
+      break;
   }
 }
 
@@ -230,12 +233,13 @@ void ezQtCreateProjectDlg::on_Prev_clicked()
       break;
 
     case State::Summary:
-
       if (m_sProjectTemplate.IsEmpty())
         m_state = State::Plugins;
       else
         m_state = State::Templates;
+      break;
 
+    default:
       break;
   }
 
@@ -269,6 +273,8 @@ void ezQtCreateProjectDlg::on_Next_clicked()
 
     case State::Summary:
       m_state = State::Create;
+      break;
+    case State::Create:
       break;
   }
 

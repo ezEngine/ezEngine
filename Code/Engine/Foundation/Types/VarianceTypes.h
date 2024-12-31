@@ -30,6 +30,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeBase);
 struct EZ_FOUNDATION_DLL ezVarianceTypeFloat : public ezVarianceTypeBase
 {
   EZ_DECLARE_POD_TYPE();
+  ezVarianceTypeFloat() = default;
+  ezVarianceTypeFloat(float value, float variance = 0.0f) : m_Value(value) {m_fVariance = variance; }
+
   bool operator==(const ezVarianceTypeFloat& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;
@@ -48,6 +51,9 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVarianceTypeFloat);
 struct EZ_FOUNDATION_DLL ezVarianceTypeTime : public ezVarianceTypeBase
 {
   EZ_DECLARE_POD_TYPE();
+  ezVarianceTypeTime() = default;
+  ezVarianceTypeTime(ezTime value, float variance = 0.0f) : m_Value(value) {m_fVariance = variance; }
+
   bool operator==(const ezVarianceTypeTime& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;
@@ -66,6 +72,9 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezVarianceTypeTime);
 struct EZ_FOUNDATION_DLL ezVarianceTypeAngle : public ezVarianceTypeBase
 {
   EZ_DECLARE_POD_TYPE();
+  ezVarianceTypeAngle() = default;
+  ezVarianceTypeAngle(ezAngle value, float variance = 0.0f) : m_Value(value) {m_fVariance = variance; }
+
   bool operator==(const ezVarianceTypeAngle& rhs) const
   {
     return m_fVariance == rhs.m_fVariance && m_Value == rhs.m_Value;

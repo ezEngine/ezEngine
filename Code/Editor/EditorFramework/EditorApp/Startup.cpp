@@ -203,6 +203,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCompilerPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezRttiTypeStringAttribute>());
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>());
