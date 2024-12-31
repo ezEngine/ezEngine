@@ -182,6 +182,7 @@ private:
   {
     const ezRTTI* m_pRtti = nullptr;
     ezUInt32 m_uiNumComponents = 0;
+    ezUInt32 m_uiComponentDataSize = 0;
   };
 
   ezDynamicArray<ComponentTypeInfo> m_ComponentTypes;
@@ -227,6 +228,7 @@ private:
 
     struct ComponentTypeState
     {
+      ezUInt64 m_uiDataReadOffset = 0;
       ezDynamicArray<ezComponentHandle> m_ComponentIndexToHandle;
     };
 

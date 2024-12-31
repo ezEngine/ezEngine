@@ -286,6 +286,8 @@ void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
           m_uiTotalNumComponents += compTypeInfo.m_uiNumComponents;
         }
 
+        compTypeInfo.m_uiComponentDataSize = uiAllComponentsSize;
+
         while (uiAllComponentsSize > 0)
         {
           const ezUInt64 uiRead = m_pReadStream->ReadBytes(Temp, ezMath::Min<ezUInt32>(uiAllComponentsSize, EZ_ARRAY_SIZE(Temp)));
@@ -685,7 +687,12 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
     if (compTypeInfo.m_pRtti == nullptr)
       continue;
 
-    const auto& compTypeState = m_ComponentTypeStates[m_uiCurrentComponentTypeIndex];
+    auto& compTypeState = m_ComponentTypeStates[m_uiCurrentComponentTypeIndex];
+
+    if (m_uiCurrentIndex == 0)
+    {
+      compTypeState.m_uiDataReadOffset = m_CurrentReader.GetReadPosition();
+    }
 
     while (m_uiCurrentIndex < compTypeState.m_ComponentIndexToHandle.GetCount())
     {
@@ -703,6 +710,13 @@ bool ezWorldReader::InstantiationContext::DeserializeComponents(ezTime endTime)
           return false;
         }
       }
+    }
+
+    const ezUInt64 uiBytesRead = m_CurrentReader.GetReadPosition() - compTypeState.m_uiDataReadOffset;
+
+    if (uiBytesRead != compTypeInfo.m_uiComponentDataSize)
+    {
+      EZ_REPORT_FAILURE("Component type '{}' (version {}) deserialized {} of the stored {} bytes.\nCheck that the serialization and deserialization functions assume the same data layout.", compTypeInfo.m_pRtti->GetTypeName(), compTypeInfo.m_pRtti->GetTypeVersion(), uiBytesRead, compTypeInfo.m_uiComponentDataSize);
     }
 
     m_uiCurrentIndex = 0;
