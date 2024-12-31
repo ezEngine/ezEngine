@@ -45,12 +45,12 @@ struct FunctionTest
       EZ_TEST_BOOL(m_values[4] == *pPv);
       EZ_TEST_BOOL(m_values[5] == *pCpv);
     }
-    ref_rv = {2.0f, ezAngle::MakeFromDegree(200.0f)};
+    ref_rv = ezVarianceTypeAngle(ezAngle::MakeFromDegree(200.0f), 2.0f);
     if (pPv)
     {
-      *pPv = {4.0f, ezAngle::MakeFromDegree(400.0f)};
+      *pPv = ezVarianceTypeAngle(ezAngle::MakeFromDegree(400.0f), 4.0f);
     }
-    return {0.6f, ezAngle::MakeFromDegree(60.0f)};
+    return ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f);
   }
 
   ezVarianceTypeAngle CustomTypeFunction2(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& ref_rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pPv, const ezVarianceTypeAngle* pCpv)
@@ -69,12 +69,12 @@ struct FunctionTest
       EZ_TEST_BOOL(*m_values[4].Get<ezVarianceTypeAngle*>() == *pPv);
       EZ_TEST_BOOL(*m_values[5].Get<ezVarianceTypeAngle*>() == *pCpv);
     }
-    ref_rv = {2.0f, ezAngle::MakeFromDegree(200.0f)};
+    ref_rv = ezVarianceTypeAngle(ezAngle::MakeFromDegree(200.0f), 2.0f);
     if (pPv)
     {
-      *pPv = {4.0f, ezAngle::MakeFromDegree(400.0f)};
+      *pPv = ezVarianceTypeAngle(ezAngle::MakeFromDegree(400.0f), 4.0f);
     }
-    return {0.6f, ezAngle::MakeFromDegree(60.0f)};
+    return ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f);
   }
 
   const char* StringTypeFunction(const char* szString, ezString& ref_sString, ezStringView sView)
@@ -362,19 +362,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
 
     {
       FunctionTest test;
-      test.m_values.PushBack(ezVarianceTypeAngle{0.0f, ezAngle::MakeFromDegree(0.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.1f, ezAngle::MakeFromDegree(10.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.2f, ezAngle::MakeFromDegree(20.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.3f, ezAngle::MakeFromDegree(30.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.4f, ezAngle::MakeFromDegree(40.0f)});
-      test.m_values.PushBack(ezVarianceTypeAngle{0.5f, ezAngle::MakeFromDegree(50.0f)});
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(0.0f), 0.0f));
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(10.0f), 0.1f));
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(20.0f), 0.2f));
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(30.0f), 0.3f));
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(40.0f), 0.4f));
+      test.m_values.PushBack(ezVarianceTypeAngle(ezAngle::MakeFromDegree(50.0f), 0.5f));
 
       ezVariant ret;
       funccall.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
-      EZ_TEST_BOOL(test.m_values[2] == ezVariant(ezVarianceTypeAngle{2.0f, ezAngle::MakeFromDegree(200.0f)}));
-      EZ_TEST_BOOL(test.m_values[4] == ezVariant(ezVarianceTypeAngle{4.0f, ezAngle::MakeFromDegree(400.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f)));
+      EZ_TEST_BOOL(test.m_values[2] == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(200.0f), 2.0f)));
+      EZ_TEST_BOOL(test.m_values[4] == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(400.0f), 4.0f)));
 
       test.m_bPtrAreNull = true;
       test.m_values[4] = ezVariant();
@@ -382,19 +382,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ret = ezVariant();
       funccall.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f)));
     }
 
     {
       ezFunctionProperty<decltype(&FunctionTest::CustomTypeFunction2)> funccall2("", &FunctionTest::CustomTypeFunction2);
 
       FunctionTest test;
-      ezVarianceTypeAngle v0{0.0f, ezAngle::MakeFromDegree(0.0f)};
-      ezVarianceTypeAngle v1{0.1f, ezAngle::MakeFromDegree(10.0f)};
-      ezVarianceTypeAngle v2{0.2f, ezAngle::MakeFromDegree(20.0f)};
-      ezVarianceTypeAngle v3{0.3f, ezAngle::MakeFromDegree(30.0f)};
-      ezVarianceTypeAngle v4{0.4f, ezAngle::MakeFromDegree(40.0f)};
-      ezVarianceTypeAngle v5{0.5f, ezAngle::MakeFromDegree(50.0f)};
+      ezVarianceTypeAngle v0(ezAngle::MakeFromDegree(0.0f), 0.0f);
+      ezVarianceTypeAngle v1(ezAngle::MakeFromDegree(10.0f), 0.1f);
+      ezVarianceTypeAngle v2(ezAngle::MakeFromDegree(20.0f), 0.2f);
+      ezVarianceTypeAngle v3(ezAngle::MakeFromDegree(30.0f), 0.3f);
+      ezVarianceTypeAngle v4(ezAngle::MakeFromDegree(40.0f), 0.4f);
+      ezVarianceTypeAngle v5(ezAngle::MakeFromDegree(50.0f), 0.5f);
       test.m_values.PushBack(&v0);
       test.m_values.PushBack(&v1);
       test.m_values.PushBack(&v2);
@@ -405,9 +405,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ezVariant ret;
       funccall2.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
-      EZ_TEST_BOOL((*test.m_values[2].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{2.0f, ezAngle::MakeFromDegree(200.0f)}));
-      EZ_TEST_BOOL((*test.m_values[4].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle{4.0f, ezAngle::MakeFromDegree(400.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f)));
+      EZ_TEST_BOOL((*test.m_values[2].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle(ezAngle::MakeFromDegree(200.0f), 2.0f)));
+      EZ_TEST_BOOL((*test.m_values[4].Get<ezVarianceTypeAngle*>() == ezVarianceTypeAngle(ezAngle::MakeFromDegree(400.0f), 4.0f)));
 
       test.m_bPtrAreNull = true;
       test.m_values[4] = ezVariant();
@@ -415,7 +415,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
       ret = ezVariant();
       funccall2.Execute(&test, test.m_values, ret);
       EZ_TEST_BOOL(ret.GetType() == ezVariantType::TypedObject);
-      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle{0.6f, ezAngle::MakeFromDegree(60.0f)}));
+      EZ_TEST_BOOL(ret == ezVariant(ezVarianceTypeAngle(ezAngle::MakeFromDegree(60.0f), 0.6f)));
     }
   }
 

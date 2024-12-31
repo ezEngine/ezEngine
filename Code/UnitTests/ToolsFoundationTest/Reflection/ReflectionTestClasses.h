@@ -87,7 +87,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
-    m_VarianceAngle = {0.1f, ezAngle::MakeFromDegree(90.0f)};
+    m_VarianceAngle = ezVarianceTypeAngle(ezAngle::MakeFromDegree(90.0f), 0.1f);
   }
 
   ezIntegerStruct m_IntegerStruct;

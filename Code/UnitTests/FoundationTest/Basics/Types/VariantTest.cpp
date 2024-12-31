@@ -1116,8 +1116,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
     // ezAngle::MakeFromDegree(90.0f) was replaced with radian as release builds generate a different float then debug.
-    ezVarianceTypeAngle value = {0.1f, ezAngle::MakeFromRadian(1.57079637f)};
-    ezVarianceTypeAngle value2 = {0.2f, ezAngle::MakeFromRadian(1.57079637f)};
+    ezVarianceTypeAngle value(ezAngle::MakeFromRadian(1.57079637f), 0.1f);
+    ezVarianceTypeAngle value2(ezAngle::MakeFromRadian(1.57079637f), 0.2f);
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
@@ -1140,7 +1140,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUInt64 uiHash = v.ComputeHash(0);
     EZ_TEST_INT(uiHash, 8527525522777555267ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::MakeFromRadian(1.57079637f)});
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, ezAngle::MakeFromRadian(1.57079637f), 0.1);
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;

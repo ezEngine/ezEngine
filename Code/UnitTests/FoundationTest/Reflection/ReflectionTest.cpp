@@ -529,8 +529,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"),
       ezVariant(ezVec3(0, -1.0f, 3.14f)));
     TestMemberProperty<ezAngle>("Angle", &data, pRtti, ezPropertyFlags::StandardType, ezAngle::MakeFromDegree(0.5f), ezAngle::MakeFromDegree(1.0f));
-    ezVarianceTypeAngle expectedVA = {0.5f, ezAngle::MakeFromDegree(90.0f)};
-    ezVarianceTypeAngle testVA = {0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle expectedVA(ezAngle::MakeFromDegree(90.0f), 0.5f);
+    ezVarianceTypeAngle testVA(ezAngle::MakeFromDegree(45.0f), 0.1f);
     TestMemberProperty<ezVarianceTypeAngle>("VarianceAngle", &data, pRtti, ezPropertyFlags::Class, expectedVA, testVA);
 
     ezDataBuffer expected;
@@ -1002,7 +1002,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant Array")
   {
-    ezVarianceTypeAngle data{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle data(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestArrayProperty<ezVarianceTypeAngle>("Custom", &containers, pRtti, data);
     TestArrayProperty<ezVarianceTypeAngle>("CustomRO", &containers, pRtti, data);
@@ -1140,14 +1140,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant HashSet")
   {
-    ezVarianceTypeAngle value1{-0.1f, ezAngle::MakeFromDegree(-45.0f)};
-    ezVarianceTypeAngle value2{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle value1(ezAngle::MakeFromDegree(-45.0f), -0.1f);
+    ezVarianceTypeAngle value2(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestSetProperty<ezVarianceTypeAngle>("CustomHashSet", &containers, pRtti, value1, value2);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashSetRO", &containers, pRtti, value1, value2);
 
-    ezVarianceTypeAngle value3{-0.2f, ezAngle::MakeFromDegree(-90.0f)};
-    ezVarianceTypeAngle value4{0.2f, ezAngle::MakeFromDegree(90.0f)};
+    ezVarianceTypeAngle value3(ezAngle::MakeFromDegree(-90.0f), -0.2f);
+    ezVarianceTypeAngle value4(ezAngle::MakeFromDegree(90.0f), 0.2f);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSet", &containers, pRtti, value3, value4);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSetRO", &containers, pRtti, value3, value4);
   }
@@ -1249,8 +1249,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CustomVariant")
   {
-    ezVarianceTypeAngle value1{-0.1f, ezAngle::MakeFromDegree(-45.0f)};
-    ezVarianceTypeAngle value2{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle value1(ezAngle::MakeFromDegree(-45.0f), -0.1f);
+    ezVarianceTypeAngle value2(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestMapProperty<ezVarianceTypeAngle>("CustomVariant", &containers, pRtti, value1, value2);
     TestMapProperty<ezVarianceTypeAngle>("CustomVariantRO", &containers, pRtti, value1, value2);
