@@ -8,7 +8,6 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 #include <QPointer>
-#include <QTimer>
 
 class ezQtOrbitCamViewWidget;
 

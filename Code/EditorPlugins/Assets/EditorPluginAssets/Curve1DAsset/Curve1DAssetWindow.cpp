@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -42,10 +43,19 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   {
     m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
 
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(m_pCurveEditor);
+
     ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
     pCentral->setObjectName("ezQtDocumentPanel");
     pCentral->setWindowTitle("Curve");
-    pCentral->setWidget(m_pCurveEditor);
+    pCentral->setWidget(pWidget);
 
     m_pDockManager->setCentralWidget(pCentral);
   }
