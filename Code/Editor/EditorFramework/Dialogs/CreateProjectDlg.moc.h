@@ -41,7 +41,7 @@ private:
     Create,
   };
 
-  State m_state = State::Basics;
+  State m_State = State::Basics;
   ezString m_sProjectTemplate;
   ezPluginBundleSet m_LocalPluginSet;
 };
