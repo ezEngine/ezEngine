@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
@@ -10,7 +11,6 @@
 #include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
-#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 
 ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
