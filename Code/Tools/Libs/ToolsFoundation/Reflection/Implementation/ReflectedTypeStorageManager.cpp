@@ -360,7 +360,7 @@ void ezReflectedTypeStorageManager::PluginEventHandler(const ezPluginEvent& Even
   {
     case ezPluginEvent::BeforeUnloading:
     {
-      for (auto it = s_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); )
+      for (auto it = s_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid();)
       {
         if (it.Key()->GetPluginName() == EventData.m_sPluginBinary)
         {

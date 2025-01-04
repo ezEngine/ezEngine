@@ -11,4 +11,3 @@ ezAbstractProperty ::~ezAbstractProperty()
     delete pAttrib;
   }
 }
-
