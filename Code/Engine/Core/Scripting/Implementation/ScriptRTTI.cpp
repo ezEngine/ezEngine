@@ -42,6 +42,11 @@ ezScriptRTTI::~ezScriptRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
+
+  // RTTI base class will try to delete the contents of these arrays under the assumption that they were created during static init. Dynamically created types must ensure that these arrays are cleared out before the base class is executed.
+  m_Properties.Clear();
+  m_Functions.Clear();
+  m_Attributes.Clear();
 }
 
 const ezAbstractFunctionProperty* ezScriptRTTI::GetFunctionByIndex(ezUInt32 uiIndex) const

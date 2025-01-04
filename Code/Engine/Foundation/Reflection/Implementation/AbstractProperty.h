@@ -152,7 +152,7 @@ public:
   /// \brief The constructor must get the name of the property. The string must be a compile-time constant.
   ezAbstractProperty(const char* szPropertyName) { m_szPropertyName = szPropertyName; }
 
-  virtual ~ezAbstractProperty() = default;
+  virtual ~ezAbstractProperty();
 
   /// \brief Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }

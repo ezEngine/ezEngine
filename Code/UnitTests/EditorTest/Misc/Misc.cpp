@@ -46,6 +46,8 @@ ezResult ezEditorTestMisc::DeInitializeTest()
   if (SUPER::DeInitializeTest().Failed())
     return EZ_FAILURE;
 
+  ezMemoryTracker::DumpMemoryLeaks();
+
   return EZ_SUCCESS;
 }
 
@@ -142,7 +144,7 @@ ezTestAppRun ezEditorTestMisc::GameObjectReferencesTest()
 
   EZ_TEST_BOOL(CaptureImage(pWindow, "GoRef").Succeeded());
 
-  EZ_TEST_IMAGE(1, 100);
+  EZ_TEST_LINE_IMAGE(1, 100);
 
   // Move everything to the layer and repeat the test.
   ezScene2Document* pScene = ezDynamicCast<ezScene2Document*>(m_pDocument);
@@ -166,7 +168,7 @@ ezTestAppRun ezEditorTestMisc::GameObjectReferencesTest()
 
   EZ_TEST_BOOL(CaptureImage(pWindow, "GoRef").Succeeded());
 
-  EZ_TEST_IMAGE(1, 100);
+  EZ_TEST_LINE_IMAGE(1, 100);
 
   return ezTestAppRun::Quit;
 }

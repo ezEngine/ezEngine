@@ -1024,6 +1024,8 @@ class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribut
 
 private:
   ezUInt32 m_uiArgIndex = 0;
+  // Not pretty, but the values in the array are either created using 'new' when using this class as a reflection decoration, or created using 'EZ_DEFAULT_NEW' when serialized and sent to the editor so in the dtor we need to know where these came from.
+  bool m_bUsesGlobalNew = false;
   ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
 };
 

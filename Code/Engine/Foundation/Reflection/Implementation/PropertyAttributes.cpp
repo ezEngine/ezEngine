@@ -1072,6 +1072,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 /*= nullptr*/, const ezPropertyAttribute* pAttribute3 /*= nullptr*/, const ezPropertyAttribute* pAttribute4 /*= nullptr*/)
   : m_uiArgIndex(uiArgIndex)
 {
+  m_bUsesGlobalNew = true;
   {
     if (pAttribute1 == nullptr)
       return;
@@ -1103,7 +1104,14 @@ ezFunctionArgumentAttributes::~ezFunctionArgumentAttributes()
   for (auto pAttribute : m_ArgAttributes)
   {
     auto pAttributeNonConst = const_cast<ezPropertyAttribute*>(pAttribute);
-    EZ_DEFAULT_DELETE(pAttributeNonConst);
+    if (m_bUsesGlobalNew)
+    {
+      delete pAttributeNonConst;
+    }
+    else
+    {
+      EZ_DEFAULT_DELETE(pAttributeNonConst);
+    }
   }
 }
 
