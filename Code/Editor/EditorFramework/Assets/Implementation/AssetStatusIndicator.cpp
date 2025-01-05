@@ -1,5 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 
 ezQtAssetStatusIndicator::ezQtAssetStatusIndicator(ezAssetDocument* pDoc, QWidget* pParent)
