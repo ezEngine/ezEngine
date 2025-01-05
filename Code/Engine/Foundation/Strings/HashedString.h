@@ -98,7 +98,7 @@ public:
   /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
+  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator<(const ezHashedString& rhs) const; // [tested]

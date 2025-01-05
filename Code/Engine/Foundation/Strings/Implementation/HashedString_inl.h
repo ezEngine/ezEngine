@@ -92,6 +92,11 @@ inline bool ezHashedString::operator==(const ezTempHashedString& rhs) const
   return m_Data.Key() == rhs.m_uiHash;
 }
 
+inline bool ezHashedString::operator!=(const ezTempHashedString& rhs) const
+{
+  return m_Data.Key() != rhs.m_uiHash;
+}
+
 inline bool ezHashedString::operator<(const ezHashedString& rhs) const
 {
   return m_Data.Key() < rhs.m_Data.Key();

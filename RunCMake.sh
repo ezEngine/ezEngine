@@ -92,8 +92,14 @@ verlt() {
 }
 
 if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Ubuntu" -a "$Version" = "24" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
-  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libomp-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5 libomp-dev)
+  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev)
 
+  if [ "$Distribution" = "Ubuntu" -a "$Version" = "24" ]; then
+    packages+=(libtinfo6)
+  else  
+    packages+=(libtinfo5)
+  fi
+  
   if [ "$UseClang" = true ]; then
     packages+=(clang-14 libomp-14-dev libstdc++-12-dev)
   else
