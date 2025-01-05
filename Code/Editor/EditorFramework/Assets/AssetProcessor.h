@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/Configuration/Singleton.h>
