@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 
 ezQtAssetStatusIndicator::ezQtAssetStatusIndicator(ezAssetDocument* pDoc, QWidget* pParent)
@@ -124,6 +125,9 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
         m_pLabel->setText("Asset Error: Click for Details");
         m_pLabel->setIcon(QIcon(":/EditorFramework/Icons/AssetFailedTransform.svg"));
         m_Action = Action::ShowErrors;
+        break;
+
+      default:
         break;
     }
   }
