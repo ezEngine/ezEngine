@@ -144,26 +144,25 @@ ezMaterialData FillMaterialData()
   matData.worldPosition = float3(0.0, 0.0, 0.0);
 #endif
 
-#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
-  matData.worldNormal = float3(0, 0, 1);
-#else
-  float3 worldNormal = normalize(GetNormal());
+#if defined(USE_NORMAL)
 #  if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
 #    if FLIP_WINDING == TRUE
-  matData.worldNormal = G.Input.FrontFace ? -worldNormal : worldNormal;
+  G.Input.Normal = G.Input.FrontFace ? -G.Input.Normal : G.Input.Normal;
 #    else
-  matData.worldNormal = G.Input.FrontFace ? worldNormal : -worldNormal;
+  G.Input.Normal = G.Input.FrontFace ? G.Input.Normal : -G.Input.Normal;
 #    endif
-#  else
-  matData.worldNormal = worldNormal;
 #  endif
-#endif
 
-#if defined(USE_NORMAL)
   matData.vertexNormal = normalize(G.Input.Normal);
 #else
   matData.vertexNormal = float3(0, 0, 1);
 #endif
+
+#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+  matData.worldNormal = float3(0, 0, 1);
+#else
+  matData.worldNormal = normalize(GetNormal());
+#  endif
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
   float3 baseColor = GetBaseColor();
