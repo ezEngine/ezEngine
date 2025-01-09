@@ -751,7 +751,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   {
     EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
 
-    sbsarTimestamp = GetModifiedTimestamp(sSbsarPath);
+    sbsarTimestamp = ezTimestamp::CurrentTimestamp();
   }
 
   ezStringBuilder sOutputName, sPngPath, sTargetFile, sOutputSizeFilePath;
