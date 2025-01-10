@@ -24,15 +24,19 @@ ezTextureCubeContext::ezTextureCubeContext()
 
 void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>() && m_hMaterial.IsValid())
   {
     const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
 
-    if (pMsg2->m_sWhatToDo == "ChannelMode" && m_hMaterial.IsValid())
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    if (pMsg2->m_sWhatToDo == "SetChannelMode")
     {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
-      pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
+      pMaterial->SetParameter("AlphaThreshold", pMsg2->m_fValue);
+    }
+    else if (pMsg2->m_sWhatToDo == "SetLodLevel")
+    {
+      pMaterial->SetParameter("LodLevel", pMsg2->m_iValue);
     }
   }
 

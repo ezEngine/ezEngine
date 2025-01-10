@@ -8,6 +8,9 @@ CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 [MATERIALPARAMETER]
 
 int ShowChannelMode;
+float AlphaThreshold;
+float LodLevel;
+bool IsLinear;
 
 [RENDERSTATE]
 
@@ -31,7 +34,8 @@ VS_OUT main(VS_IN Input)
 
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
-	INT1(ShowChannelMode);
+  INT1(ShowChannelMode);
+  FLOAT1(AlphaThreshold);
   FLOAT1(LodLevel);
   BOOL1(IsLinear);
 };
@@ -87,6 +91,10 @@ float4 main(PS_IN Input) : SV_Target
   else if (ShowChannelMode == 5)
   {
     color = SrgbToLinear(texel.a); // alpha is always linear
+  }
+  else if (ShowChannelMode == 6)
+  {
+    color = texel.a >= AlphaThreshold;
   }
 
   if (IsLinear && ShowChannelMode < 5)

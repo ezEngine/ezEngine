@@ -103,15 +103,29 @@ void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
   {
     const ezSubstancePackageAssetDocument* pDoc = static_cast<const ezSubstancePackageAssetDocument*>(GetDocument());
 
-    ezDocumentConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "PreviewSettings";
-    msg.m_iValue = pDoc->m_ChannelMode.GetValue();
-    msg.m_fValue = pDoc->m_iTextureLod;
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetChannelMode";
+      msg.m_iValue = pDoc->m_ChannelMode.GetValue();
+      msg.m_fValue = 0.5f;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
 
-    ezStringBuilder tmp;
-    msg.m_sValue = ezConversionUtils::ToString(pDoc->m_SelectedOutput, tmp);
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetLodLevel";
+      msg.m_iValue = pDoc->m_iTextureLod;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
 
-    GetEditorEngineConnection()->SendMessage(&msg);
+    {
+      ezStringBuilder tmp;
+
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetTexture";      
+      msg.m_sValue = ezConversionUtils::ToString(pDoc->m_SelectedOutput, tmp);
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
   }
 
   for (auto pView : m_ViewWidgets)

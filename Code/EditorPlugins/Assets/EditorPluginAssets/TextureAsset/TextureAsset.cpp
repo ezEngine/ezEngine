@@ -23,7 +23,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Red)->AddAttributes(new ezGroupAttribute("Single", 0.0f)),
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Green)->AddAttributes(new ezGroupAttribute("Single", 1.0f)),
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Blue)->AddAttributes(new ezGroupAttribute("Single", 2.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f))
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::AlphaTest)->AddAttributes(new ezGroupAttribute("Single", 4.0f)),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

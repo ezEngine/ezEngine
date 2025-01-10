@@ -42,20 +42,27 @@ ezTextureContext::ezTextureContext()
 
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentConfigMsgToEngine>() && m_hMaterial.IsValid())
   {
     const ezDocumentConfigMsgToEngine* pMsg2 = static_cast<const ezDocumentConfigMsgToEngine*>(pMsg);
 
-    if (pMsg2->m_sWhatToDo == "PreviewSettings" && m_hMaterial.IsValid())
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    if (pMsg2->m_sWhatToDo == "SetChannelMode")
     {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
       pMaterial->SetParameter("ShowChannelMode", pMsg2->m_iValue);
-      pMaterial->SetParameter("LodLevel", pMsg2->m_fValue);
-
-      if (pMsg2->m_sValue.IsEmpty() == false)
+      pMaterial->SetParameter("AlphaThreshold", pMsg2->m_fValue);
+    }
+    else if (pMsg2->m_sWhatToDo == "SetLodLevel")
+    {
+      if (pMsg2->m_iValue != m_iLodLevel)
       {
-        SetTexture(pMsg2->m_sValue);
+        pMaterial->SetParameter("LodLevel", pMsg2->m_iValue);
+        m_iLodLevel = pMsg2->m_iValue;
       }
+    }
+    else if (pMsg2->m_sWhatToDo == "SetTexture" && pMsg2->m_sValue.IsEmpty() == false)
+    {
+      SetTexture(pMsg2->m_sValue);
     }
   }
 

@@ -21,6 +21,7 @@ public:
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   const ezTexture2DResourceHandle& GetTexture() const { return m_hTexture; }
+  int GetLodLevel() const { return m_iLodLevel; }
 
 protected:
   virtual void OnInitialize() override;
@@ -39,4 +40,6 @@ private:
   ezTexture2DResourceHandle m_hTexture;
 
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
+
+  int m_iLodLevel = -1;
 };
