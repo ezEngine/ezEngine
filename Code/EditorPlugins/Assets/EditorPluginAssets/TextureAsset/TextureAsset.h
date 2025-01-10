@@ -19,7 +19,8 @@ struct ezTextureChannelMode
     Green,
     Blue,
     Alpha,
-    AlphaTest,
+    CoverageRed,
+    CoverageAlpha,
 
     Default = RGBA
   };

@@ -84,7 +84,8 @@ ezTextureChannelMode::Red;Display Channel: Red
 ezTextureChannelMode::Green;Display Channel: Green
 ezTextureChannelMode::Blue;Display Channel: Blue
 ezTextureChannelMode::Alpha;Display Channel: Alpha
-ezTextureChannelMode::AlphaTest;Alpha Test Preview
+ezTextureChannelMode::CoverageRed;Coverage Preview: Red
+ezTextureChannelMode::CoverageAlpha;Coverage Preview: Alpha
 
 ezTextureCubeUsageEnum::Unknown;Unknown
 ezTextureCubeUsageEnum::Skybox;Skybox

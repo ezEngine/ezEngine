@@ -94,6 +94,10 @@ float4 main(PS_IN Input) : SV_Target
   }
   else if (ShowChannelMode == 6)
   {
+    color = texel.r >= AlphaThreshold;
+  }
+  else if (ShowChannelMode == 7)
+  {
     color = texel.a >= AlphaThreshold;
   }
 
