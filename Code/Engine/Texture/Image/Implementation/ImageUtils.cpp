@@ -847,6 +847,12 @@ static void NormalizeCoverage(ezImage& inout_currentMip, const ezImageHeader& fu
   // Based on the idea in http://the-witness.net/news/2010/09/computing-alpha-mipmaps/. Note we're using a histogram
   // to find the new alpha threshold here rather than bisecting.
 
+  // Early out for very small mips since the algorithm produces unpredictable results for them
+  if (inout_currentMip.GetWidth() <= 2 || inout_currentMip.GetHeight() <= 2)
+  {
+    return;
+  }
+
   // First bilinear upscale to original resolution
   ezImage upscaled;
   ezImageUtils::Scale(inout_currentMip, upscaled, fullImageHeader.GetWidth(), fullImageHeader.GetHeight(), nullptr, mipOptions.m_addressModeU, mipOptions.m_addressModeV).IgnoreResult();
@@ -855,16 +861,19 @@ static void NormalizeCoverage(ezImage& inout_currentMip, const ezImageHeader& fu
 
   // Generate histogram of alpha values
   ezUInt64 totalPixels = upscaledColors.GetCount();
-  ezUInt32 alphaHistogram[256] = {};
+
+  constexpr ezUInt32 histogramBits = 8;
+  constexpr ezUInt32 histogramSize = 1 << histogramBits;
+  ezUInt32 alphaHistogram[histogramSize] = {};
   for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
-    alphaHistogram[ezMath::ColorFloatToByte(upscaledColors[idx].a)]++;
+    alphaHistogram[ezMath::ColorFloatToUnsignedInt<histogramBits>(upscaledColors[idx].a)]++;
   }
 
   // Find a new alpha threshold so the number of covered pixels matches by summing up the histogram
   ezInt32 targetCount = ezInt32(fTargetCoverage * totalPixels);
   ezInt32 coverageCount = 0;
-  ezInt32 newThreshold = 255;
+  ezInt32 newThreshold = histogramSize - 1;
   for (; newThreshold >= 0; newThreshold--)
   {
     coverageCount += alphaHistogram[newThreshold];
@@ -878,7 +887,8 @@ static void NormalizeCoverage(ezImage& inout_currentMip, const ezImageHeader& fu
   // Rescale alpha values
   auto colors = inout_currentMip.GetBlobPtr<ezColor>();
 
-  float alphaScale = mipOptions.m_alphaThreshold / (newThreshold / 255.0f);
+  const float fNewThreshold = float(newThreshold) / float(histogramSize - 1);
+  const float alphaScale = mipOptions.m_alphaThreshold / fNewThreshold;
   for (ezUInt64 idx = 0; idx < colors.GetCount(); ++idx)
   {
     colors[idx].a *= alphaScale;
