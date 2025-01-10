@@ -73,6 +73,18 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     EZ_TEST_FILES("ImageUtils/ExpectedScaledHalf_RGBA.tga", "ImageUtils/ScaledHalf_RGBA.tga", "");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scaleup 16x RGBA")
+  {
+    ezImage ImageA, ImageUpscaled;
+    ImageA.LoadFrom("ImageUtils/ColoredChecker.tga").IgnoreResult();
+
+    ezImageUtils::Scale(ImageA, ImageUpscaled, ImageA.GetWidth() * 16, ImageA.GetHeight() * 16, nullptr, ezImageAddressMode::Repeat, ezImageAddressMode::Repeat).IgnoreResult();
+
+    ImageUpscaled.SaveTo(":output/ImageUtils/ColoredChecker16x.tga").IgnoreResult();
+
+    EZ_TEST_FILES("ImageUtils/ExpectedColoredChecker16x.tga", "ImageUtils/ColoredChecker16x.tga", "");
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CropImage RGB")
   {
     ezImage ImageA, ImageAc;

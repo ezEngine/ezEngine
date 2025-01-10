@@ -840,28 +840,34 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float fAlp
   return float(count) / float(totalPixels);
 }
 
-static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float fAlphaThreshold, float fTargetCoverage)
+static void NormalizeCoverage(ezImage& inout_currentMip, const ezImageHeader& fullImageHeader, const ezImageUtils::MipMapOptions& mipOptions, float fTargetCoverage)
 {
   EZ_PROFILE_SCOPE("NormalizeCoverage");
 
   // Based on the idea in http://the-witness.net/news/2010/09/computing-alpha-mipmaps/. Note we're using a histogram
   // to find the new alpha threshold here rather than bisecting.
 
+  // First bilinear upscale to original resolution
+  ezImage upscaled;
+  ezImageUtils::Scale(inout_currentMip, upscaled, fullImageHeader.GetWidth(), fullImageHeader.GetHeight(), nullptr, mipOptions.m_addressModeU, mipOptions.m_addressModeV).IgnoreResult();
+
+  auto upscaledColors = upscaled.GetBlobPtr<ezColor>();
+
   // Generate histogram of alpha values
-  ezUInt64 totalPixels = colors.GetCount();
+  ezUInt64 totalPixels = upscaledColors.GetCount();
   ezUInt32 alphaHistogram[256] = {};
   for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
-    alphaHistogram[ezMath::ColorFloatToByte(colors[idx].a)]++;
+    alphaHistogram[ezMath::ColorFloatToByte(upscaledColors[idx].a)]++;
   }
 
-  // Find range of alpha thresholds so the number of covered pixels matches by summing up the histogram
+  // Find a new alpha threshold so the number of covered pixels matches by summing up the histogram
   ezInt32 targetCount = ezInt32(fTargetCoverage * totalPixels);
   ezInt32 coverageCount = 0;
-  ezInt32 maxThreshold = 255;
-  for (; maxThreshold >= 0; maxThreshold--)
+  ezInt32 newThreshold = 255;
+  for (; newThreshold >= 0; newThreshold--)
   {
-    coverageCount += alphaHistogram[maxThreshold];
+    coverageCount += alphaHistogram[newThreshold];
 
     if (coverageCount >= targetCount)
     {
@@ -869,40 +875,11 @@ static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float fAlphaThreshold, 
     }
   }
 
-  coverageCount = targetCount;
-  ezInt32 minThreshold = 0;
-  for (; minThreshold < 256; minThreshold++)
-  {
-    coverageCount -= alphaHistogram[maxThreshold];
-
-    if (coverageCount <= targetCount)
-    {
-      break;
-    }
-  }
-
-  ezInt32 currentThreshold = ezMath::ColorFloatToByte(fAlphaThreshold);
-
-  // Each of the alpha test thresholds in the range [minThreshold; maxThreshold] will result in the same coverage. Pick a new threshold
-  // close to the old one so we scale by the smallest necessary amount.
-  ezInt32 newThreshold;
-  if (currentThreshold < minThreshold)
-  {
-    newThreshold = minThreshold;
-  }
-  else if (currentThreshold > maxThreshold)
-  {
-    newThreshold = maxThreshold;
-  }
-  else
-  {
-    // Avoid rescaling altogether if the current threshold already preserves coverage
-    return;
-  }
-
   // Rescale alpha values
-  float alphaScale = fAlphaThreshold / (newThreshold / 255.0f);
-  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
+  auto colors = inout_currentMip.GetBlobPtr<ezColor>();
+
+  float alphaScale = mipOptions.m_alphaThreshold / (newThreshold / 255.0f);
+  for (ezUInt64 idx = 0; idx < colors.GetCount(); ++idx)
   {
     colors[idx].a *= alphaScale;
   }
@@ -1210,7 +1187,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& ref_targe
 
         if (mipMapOptions.m_preserveCoverage)
         {
-          NormalizeCoverage(nextMipMap.GetBlobPtr<ezColor>(), mipMapOptions.m_alphaThreshold, targetCoverage);
+          NormalizeCoverage(nextMipMap, header, mipMapOptions, targetCoverage);
         }
 
         if (mipMapOptions.m_renormalizeNormals)
