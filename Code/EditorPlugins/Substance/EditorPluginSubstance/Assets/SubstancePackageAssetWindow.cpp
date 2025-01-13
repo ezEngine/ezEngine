@@ -122,7 +122,7 @@ void ezQtSubstancePackageAssetWindow::SendRedrawMsg()
       ezStringBuilder tmp;
 
       ezDocumentConfigMsgToEngine msg;
-      msg.m_sWhatToDo = "SetTexture";      
+      msg.m_sWhatToDo = "SetTexture";
       msg.m_sValue = ezConversionUtils::ToString(pDoc->m_SelectedOutput, tmp);
       GetEditorEngineConnection()->SendMessage(&msg);
     }

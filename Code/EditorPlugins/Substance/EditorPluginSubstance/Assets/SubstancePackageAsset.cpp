@@ -365,7 +365,7 @@ namespace
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePath))
     {
       return EZ_FAILURE;
-    }    
+    }
 
     ezStringView sSbsDir = sSbsFile.GetFileDirectory();
 

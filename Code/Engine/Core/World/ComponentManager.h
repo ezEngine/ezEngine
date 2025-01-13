@@ -138,7 +138,7 @@ struct ezComponentUpdateType
 
 /// \brief Simple component manager implementation that calls an update method on all components every frame.
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType = ezBlockStorageType::FreeList, ezWorldUpdatePhase::Enum UpdatePhase = ezWorldUpdatePhase::PreAsync>
-  class ezComponentManagerSimple final : public ezComponentManager<ComponentType, StorageType>
+class ezComponentManagerSimple final : public ezComponentManager<ComponentType, StorageType>
 {
 public:
   ezComponentManagerSimple(ezWorld* pWorld);

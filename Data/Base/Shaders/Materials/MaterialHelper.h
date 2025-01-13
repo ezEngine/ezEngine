@@ -162,7 +162,7 @@ ezMaterialData FillMaterialData()
   matData.worldNormal = float3(0, 0, 1);
 #else
   matData.worldNormal = normalize(GetNormal());
-#  endif
+#endif
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
   float3 baseColor = GetBaseColor();

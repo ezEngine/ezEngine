@@ -49,7 +49,7 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     const int iMipLevel = m_pTextureContext->GetLodLevel();
     const ezUInt32 uiWidth = pResource->GetWidth();
     const ezUInt32 uiHeight = pResource->GetHeight();
-    
+
     ezStringBuilder sText;
     if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
     {
