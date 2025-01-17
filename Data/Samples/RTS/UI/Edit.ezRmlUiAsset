@@ -14,7 +14,7 @@ o
 			s{"UI/Edit.rml"}
 		}
 		Uuid %DocumentID{u4{10922229380658380468,5439759434091703483}}
-		u4 %Hash{2556700606829105822}
+		u4 %Hash{4733857253323256867}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -35,9 +35,9 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2u %ReferenceResolution{u3{1920,1080}}
+		Vec2u %ReferenceResolution{u3{1280,720}}
 		s %RmlFile{"UI/Edit.rml"}
-		s %ScaleMode{"ezRmlUiScaleMode::Fixed"}
+		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
 o
