@@ -325,6 +325,7 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.ico"
 		"${ROOT_DIR}/*.rc"
 		"${ROOT_DIR}/*.s"
+		"${ROOT_DIR}/*.asm"
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
 		"${ROOT_DIR}/*.txt"
