@@ -132,9 +132,9 @@ void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
   if (pRoot->GetChildren().IsEmpty())
   {
     ezUuid objectGuid;
-    pAccessor->AddObject(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid).AssertSuccess();
+    pAccessor->AddObjectByName(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid).AssertSuccess();
     const ezDocumentObject* pObject = pAccessor->GetObject(objectGuid);
-    pAccessor->SetValue(pObject, "Layer", GetGuid()).AssertSuccess();
+    pAccessor->SetValueByName(pObject, "Layer", GetGuid()).AssertSuccess();
   }
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
@@ -200,7 +200,7 @@ const ezDocumentObject* ezScene2Document::GetSettingsObject() const
 
   auto pRoot = GetSceneObjectManager()->GetRootObject();
   ezVariant value;
-  EZ_VERIFY(GetSceneObjectAccessor()->GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(GetSceneObjectAccessor()->GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   return GetSceneObjectManager()->GetObject(id);
 }
@@ -283,7 +283,7 @@ void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent&
   {
     if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayer>()))
     {
-      ezUuid layerGuid = GetSceneObjectAccessor()->Get<ezUuid>(pObject, "Layer");
+      ezUuid layerGuid = GetSceneObjectAccessor()->GetByName<ezUuid>(pObject, "Layer");
       if (IsLayerLoaded(layerGuid))
       {
         SetActiveLayer(layerGuid).LogFailure();
@@ -586,11 +586,11 @@ ezStatus ezScene2Document::CreateLayer(const char* szName, ezUuid& out_layerGuid
   {
     auto pRoot = m_pSceneObjectManager->GetObject(GetSettingsObject()->GetGuid());
     ezInt32 uiCount = 0;
-    EZ_VERIFY(pAccessor->GetCount(pRoot, "Layers", uiCount).Succeeded(), "Failed to get layer count.");
+    EZ_VERIFY(pAccessor->GetCountByName(pRoot, "Layers", uiCount).Succeeded(), "Failed to get layer count.");
     ezUuid sceneLayerGuid;
-    EZ_VERIFY(pAccessor->AddObject(pRoot, "Layers", uiCount, ezGetStaticRTTI<ezSceneLayer>(), sceneLayerGuid).Succeeded(), "Failed to add layer to scene.");
+    EZ_VERIFY(pAccessor->AddObjectByName(pRoot, "Layers", uiCount, ezGetStaticRTTI<ezSceneLayer>(), sceneLayerGuid).Succeeded(), "Failed to add layer to scene.");
     auto pLayer = pAccessor->GetObject(sceneLayerGuid);
-    EZ_VERIFY(pAccessor->SetValue(pLayer, "Layer", pLayerDoc->GetGuid()).Succeeded(), "Failed to set layer GUID.");
+    EZ_VERIFY(pAccessor->SetValueByName(pLayer, "Layer", pLayerDoc->GetGuid()).Succeeded(), "Failed to set layer GUID.");
   }
   pAccessor->FinishTransaction();
 

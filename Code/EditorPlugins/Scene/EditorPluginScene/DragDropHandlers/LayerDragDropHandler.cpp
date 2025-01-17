@@ -86,7 +86,7 @@ float ezGameObjectOnLayerDragDropHandler::CanHandle(const ezDragDropInfo* pInfo)
       if (pTarget && pTarget->GetType() == ezGetStaticRTTI<ezSceneLayer>() && pInfo->m_iTargetObjectInsertChildIndex == -1 && GetCommonBaseType(pInfo) == ezGetStaticRTTI<ezGameObject>())
       {
         ezObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
-        ezUuid layerGuid = pAccessor->Get<ezUuid>(pTarget, "Layer");
+        ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pTarget, "Layer");
         if (pDoc->IsLayerLoaded(layerGuid))
           return 1.0f;
       }
@@ -109,7 +109,7 @@ void ezGameObjectOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
     // We are dragging game objects on another layer => delete objects and recreate in target layer.
     ezSceneDocument* pSourceDoc = ezDynamicCast<ezSceneDocument*>(Dragged[0]->GetDocumentObjectManager()->GetDocument());
     ezObjectAccessorBase* pAccessor = pDoc->GetSceneObjectAccessor();
-    ezUuid layerGuid = pAccessor->Get<ezUuid>(pTarget, "Layer");
+    ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pTarget, "Layer");
     ezSceneDocument* pTargetDoc = pDoc->GetLayerDocument(layerGuid);
 
     if (pSourceDoc != pTargetDoc && pTargetDoc)

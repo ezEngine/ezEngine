@@ -83,8 +83,7 @@ ezStatus ezObjectCommandAccessor::MoveValue(
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::AddObject(
-  const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezObjectCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   ezAddObjectCommand cmd;
   cmd.m_Parent = pParent ? pParent->GetGuid() : ezUuid();

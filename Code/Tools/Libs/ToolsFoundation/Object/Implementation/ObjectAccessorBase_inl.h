@@ -11,10 +11,10 @@ T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const ezAbstractPro
 }
 
 template <typename T>
-T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
+T ezObjectAccessorBase::GetByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
 {
   ezVariant value;
-  ezStatus res = GetValue(pObject, sProp, value, index);
+  ezStatus res = GetValueByName(pObject, sProp, value, index);
   if (res.m_Result.Failed())
     ezLog::Error("GetValue failed: {0}", res.m_sMessage);
   return value.ConvertTo<T>();
@@ -29,10 +29,10 @@ inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, c
   return iCount;
 }
 
-inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, ezStringView sProp)
+inline ezInt32 ezObjectAccessorBase::GetCountByName(const ezDocumentObject* pObject, ezStringView sProp)
 {
   ezInt32 iCount = 0;
-  ezStatus res = GetCount(pObject, sProp, iCount);
+  ezStatus res = GetCountByName(pObject, sProp, iCount);
   if (res.m_Result.Failed())
     ezLog::Error("GetCount failed: {0}", res.m_sMessage);
   return iCount;

@@ -211,20 +211,20 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
   {
     case ezMaterialShaderMode::BaseMaterial:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::File:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::Custom:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData()).AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValueByName(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData()).AssertSuccess();
     }
     break;
   }

@@ -156,7 +156,7 @@ ezTestAppRun ezEditorTestMisc::GameObjectReferencesTest()
   auto pAccessor = pScene->GetObjectAccessor();
   auto pRoot = pScene->GetObjectManager()->GetRootObject();
   ezHybridArray<ezVariant, 16> values;
-  pAccessor->GetValues(pRoot, "Children", values).AssertSuccess();
+  pAccessor->GetValuesByName(pRoot, "Children", values).AssertSuccess();
 
   ezDeque<const ezDocumentObject*> assets;
   for (auto& value : values)

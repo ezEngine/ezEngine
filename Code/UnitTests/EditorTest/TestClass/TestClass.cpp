@@ -427,9 +427,9 @@ const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc, c
   pAccessor->StartTransaction("Add Game Object");
 
   ezUuid guid;
-  EZ_TEST_STATUS(pAccessor->AddObject(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  EZ_TEST_STATUS(pAccessor->AddObjectByName(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
   const ezDocumentObject* pObject = pAccessor->GetObject(guid);
-  EZ_TEST_STATUS(pAccessor->SetValue(pObject, "Name", sName));
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pObject, "Name", sName));
 
   pAccessor->FinishTransaction();
 

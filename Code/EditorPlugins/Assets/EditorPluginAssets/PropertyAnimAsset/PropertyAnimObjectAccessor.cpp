@@ -278,7 +278,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Value", fValue).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Value", fValue).Succeeded(), "");
   }
   else
   {
@@ -319,9 +319,9 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& tra
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Red", value.r).Succeeded(), "");
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Green", value.g).Succeeded(), "");
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Blue", value.b).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Red", value.r).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Green", value.g).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Blue", value.b).Succeeded(), "");
   }
   else
   {
@@ -361,7 +361,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& tra
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Alpha", value).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Alpha", value).Succeeded(), "");
   }
   else
   {
@@ -400,7 +400,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const ezUuid&
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    EZ_VERIFY(m_pObjAccessor->SetValue(pCP, "Intensity", value).Succeeded(), "");
+    EZ_VERIFY(m_pObjAccessor->SetValueByName(pCP, "Intensity", value).Succeeded(), "");
   }
   else
   {

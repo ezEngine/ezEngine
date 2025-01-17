@@ -1650,7 +1650,7 @@ ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* pParent)
 void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange)
 {
   ezInt32 iNumPoints = 0;
-  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
+  pObjectAccessor->GetCountByName(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
 
   ezVariant v;
   ezHybridArray<ezVec2d, 32> points;
@@ -1664,14 +1664,14 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
   for (ezInt32 i = 0; i < iNumPoints; ++i)
   {
-    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObject(pCurveObject, "ControlPoints", i);
+    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObjectByName(pCurveObject, "ControlPoints", i);
 
     ezVec2d p;
 
-    pObjectAccessor->GetValue(pPoint, "Tick", v).AssertSuccess();
+    pObjectAccessor->GetValueByName(pPoint, "Tick", v).AssertSuccess();
     p.x = v.ConvertTo<double>();
 
-    pObjectAccessor->GetValue(pPoint, "Value", v).AssertSuccess();
+    pObjectAccessor->GetValueByName(pPoint, "Value", v).AssertSuccess();
     p.y = v.ConvertTo<double>();
 
     points.PushBack(p);
@@ -1784,7 +1784,7 @@ void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
     return;
 
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
-  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
   const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
   const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
   const ezDefaultValueAttribute* pDefAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
@@ -1805,7 +1805,7 @@ void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
 void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
 {
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
-  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
   const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
   const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
   const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();

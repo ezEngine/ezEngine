@@ -350,16 +350,16 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     const ezDocumentObject* pSphere2 = DropAsset(m_pDoc, szSphereMesh);
 
     pAccessor->StartTransaction("Modify objects");
-    EZ_TEST_STATUS(pAccessor->SetValue(pSphere1, "Name", "Sphere1"));
-    EZ_TEST_STATUS(pAccessor->SetValue(pSphere1, "LocalPosition", ezVec3(1.0f, 0.0f, 0.0f)));
-    EZ_TEST_STATUS(pAccessor->SetValue(pSphere1, "LocalRotation", ezQuat(1.0f, 0.0f, 0.0f, 0.0f)));
-    EZ_TEST_STATUS(pAccessor->SetValue(pSphere1, "LocalScaling", ezVec3(1.0f, 2.0f, 3.0f)));
-    EZ_TEST_STATUS(pAccessor->InsertValue(pSphere1, "Tags", "SkyLight", -1));
-    const ezDocumentObject* pMeshComponent = pAccessor->GetObject(pAccessor->Get<ezVariantArray>(pSphere1, "Components")[0].Get<ezUuid>());
-    EZ_TEST_STATUS(pAccessor->InsertValue(pMeshComponent, "Materials", "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }", 0));
+    EZ_TEST_STATUS(pAccessor->SetValueByName(pSphere1, "Name", "Sphere1"));
+    EZ_TEST_STATUS(pAccessor->SetValueByName(pSphere1, "LocalPosition", ezVec3(1.0f, 0.0f, 0.0f)));
+    EZ_TEST_STATUS(pAccessor->SetValueByName(pSphere1, "LocalRotation", ezQuat(1.0f, 0.0f, 0.0f, 0.0f)));
+    EZ_TEST_STATUS(pAccessor->SetValueByName(pSphere1, "LocalScaling", ezVec3(1.0f, 2.0f, 3.0f)));
+    EZ_TEST_STATUS(pAccessor->InsertValueByName(pSphere1, "Tags", "SkyLight", -1));
+    const ezDocumentObject* pMeshComponent = pAccessor->GetObject(pAccessor->GetByName<ezVariantArray>(pSphere1, "Components")[0].Get<ezUuid>());
+    EZ_TEST_STATUS(pAccessor->InsertValueByName(pMeshComponent, "Materials", "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }", 0));
 
     ezUuid pSphereRef;
-    EZ_TEST_STATUS(pAccessor->AddObject(pSphere1, "Components", -1, ezGetStaticRTTI<ezSphereReflectionProbeComponent>(), pSphereRef));
+    EZ_TEST_STATUS(pAccessor->AddObjectByName(pSphere1, "Components", -1, ezGetStaticRTTI<ezSphereReflectionProbeComponent>(), pSphereRef));
 
     pAccessor->FinishTransaction();
 
@@ -382,7 +382,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       {
         ezVariant defaultValue = ref_defaultState.GetDefaultValue(szProperty);
         ezVariant sphere2value;
-        EZ_TEST_STATUS(pAccessor->GetValue(pSphere2, szProperty, sphere2value));
+        EZ_TEST_STATUS(pAccessor->GetValueByName(pSphere2, szProperty, sphere2value));
         EZ_TEST_BOOL(defaultValue == sphere2value);
       };
 
@@ -631,10 +631,10 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
       pAccessor->StartTransaction("Modify Prefab");
       ezUuid compGuid;
-      EZ_TEST_STATUS(pAccessor->AddObject(pChild0, "Components", -1, ezRTTI::FindTypeByName("ezBeamComponent"), compGuid));
+      EZ_TEST_STATUS(pAccessor->AddObjectByName(pChild0, "Components", -1, ezRTTI::FindTypeByName("ezBeamComponent"), compGuid));
       const ezDocumentObject* pComp = pAccessor->GetObject(compGuid);
 
-      const ezDocumentObject* pChild1Comp = pAccessor->GetChildObject(pChild1, "Components", 0);
+      const ezDocumentObject* pChild1Comp = pAccessor->GetChildObjectByName(pChild1, "Components", 0);
       EZ_TEST_STATUS(pAccessor->RemoveObject(pChild1Comp));
       pAccessor->FinishTransaction();
 
@@ -674,8 +674,8 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Revert via default state
-      const ezDocumentObject* pChild1 = pAccessor->GetChildObject(pPrefab3, "Children", 0);
-      const ezDocumentObject* pChild2 = pAccessor->GetChildObject(pPrefab3, "Children", 1);
+      const ezDocumentObject* pChild1 = pAccessor->GetChildObjectByName(pPrefab3, "Children", 0);
+      const ezDocumentObject* pChild2 = pAccessor->GetChildObjectByName(pPrefab3, "Children", 1);
       {
         ezHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild1, ezVariant()});
@@ -697,10 +697,10 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       const ezDocumentObject* pChild1 = pAccessor->GetObject(values[1].Get<ezUuid>());
 
       values.Clear();
-      EZ_TEST_STATUS(pAccessor->GetValues(pChild0, "Components", values));
+      EZ_TEST_STATUS(pAccessor->GetValuesByName(pChild0, "Components", values));
       EZ_TEST_INT(values.GetCount(), 2);
 
-      EZ_TEST_STATUS(pAccessor->GetValues(pChild1, "Components", values));
+      EZ_TEST_STATUS(pAccessor->GetValuesByName(pChild1, "Components", values));
       EZ_TEST_INT(values.GetCount(), 1);
 
       CheckHierarchy(pAccessor, pPrefab3, IsObjectDefault);
@@ -727,7 +727,7 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   auto CreateComponent = [&](const ezRTTI* pType, const ezDocumentObject* pParent) -> const ezDocumentObject*
   {
     ezUuid compGuid;
-    EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, pType, compGuid));
+    EZ_TEST_STATUS(pAccessor->AddObjectByName(pParent, "Components", -1, pType, compGuid));
     return pAccessor->GetObject(compGuid);
   };
 
@@ -813,9 +813,9 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
   {
     pAccessor->StartTransaction("AddComponent"_ezsv);
     ezUuid compGuid;
-    EZ_TEST_STATUS(pAccessor->AddObject(pParent, "Components", -1, ezRTTI::FindTypeByName("ezDecalComponent"), compGuid));
+    EZ_TEST_STATUS(pAccessor->AddObjectByName(pParent, "Components", -1, ezRTTI::FindTypeByName("ezDecalComponent"), compGuid));
     const ezDocumentObject* pComp = pAccessor->GetObject(compGuid);
-    EZ_TEST_STATUS(pAccessor->InsertValue(pComp, "Decals", "", 0));
+    EZ_TEST_STATUS(pAccessor->InsertValueByName(pComp, "Decals", "", 0));
     pAccessor->FinishTransaction();
     return pComp;
   };

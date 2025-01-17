@@ -274,7 +274,7 @@ ezUuid ezLayerAction::GetCurrentSelectedLayer() const
     ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
     if (pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezSceneLayer>()))
     {
-      layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
+      layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
     }
   }
   return layerGuid;

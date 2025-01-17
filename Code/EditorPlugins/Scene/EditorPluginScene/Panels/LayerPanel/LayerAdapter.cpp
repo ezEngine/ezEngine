@@ -30,7 +30,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
     case UserRoles::LayerGuid:
     {
       ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
-      ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
+      ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
       return QVariant::fromValue(layerGuid);
     }
     break;
@@ -38,7 +38,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
     case Qt::ToolTipRole:
     {
       ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
-      ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
+      ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
       // Use curator to get name in case the layer is unloaded and there is no document to query.
       const ezAssetCurator::ezLockedSubAsset subAsset = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
       if (subAsset.isValid())
@@ -73,7 +73,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
     case Qt::ForegroundRole:
     {
       ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
-      ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
+      ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
       if (!m_pSceneDocument->IsLayerLoaded(layerGuid))
       {
         return QVariant();
@@ -84,7 +84,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
     {
       QFont font;
       ezObjectAccessorBase* pAccessor = m_pSceneDocument->GetSceneObjectAccessor();
-      ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
+      ezUuid layerGuid = pAccessor->GetByName<ezUuid>(pObject, "Layer");
       if (m_pSceneDocument->GetActiveLayer() == layerGuid)
         font.setBold(true);
       return font;

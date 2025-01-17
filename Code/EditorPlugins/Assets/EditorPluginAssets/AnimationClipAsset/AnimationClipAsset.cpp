@@ -189,12 +189,10 @@ ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const 
   ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
 
   ezUuid newObjectGuid;
-  EZ_VERIFY(
-    acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
-    "");
+  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
 

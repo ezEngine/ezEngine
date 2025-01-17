@@ -382,7 +382,7 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
     if (GetProperties()->m_bIsRenderTarget == false)
     {
       GetCommandHistory()->StartTransaction("MakeRenderTarget");
-      GetObjectAccessor()->SetValue(GetPropertyObject(), "IsRenderTarget", true).AssertSuccess();
+      GetObjectAccessor()->SetValueByName(GetPropertyObject(), "IsRenderTarget", true).AssertSuccess();
       GetCommandHistory()->FinishTransaction();
       GetCommandHistory()->ClearUndoHistory();
     }

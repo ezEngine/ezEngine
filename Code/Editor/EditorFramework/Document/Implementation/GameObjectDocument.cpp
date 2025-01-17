@@ -498,25 +498,25 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
   if ((uiTransformationChanges & TransformationChanges::Translation) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalPosition", vLocalPos).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
   if ((uiTransformationChanges & TransformationChanges::Rotation) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalRotation", qLocalRot).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
   if ((uiTransformationChanges & TransformationChanges::Scale) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalScaling", vLocalScale).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalScaling", vLocalScale).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
   if ((uiTransformationChanges & TransformationChanges::UniformScale) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
   }
 
   // will be recomputed the next time it is queried

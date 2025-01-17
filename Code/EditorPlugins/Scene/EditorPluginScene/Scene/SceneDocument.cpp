@@ -1079,11 +1079,11 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   // undo ops for this operation.
   ezObjectDirectAccessor accessor(GetObjectManager());
   ezVariant value;
-  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
   }
   else
   {
@@ -1093,7 +1093,7 @@ void ezSceneDocument::EnsureSettingsObjectExist()
     {
       accessor.RemoveObject(pSettings).AssertSuccess();
       GetObjectManager()->DestroyObject(pSettings);
-      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
     }
   }
 }
@@ -1102,7 +1102,7 @@ const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
 {
   auto pRoot = GetObjectManager()->GetRootObject();
   ezVariant value;
-  EZ_VERIFY(GetObjectAccessor()->GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(GetObjectAccessor()->GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   return GetObjectManager()->GetObject(id);
 }
@@ -1144,13 +1144,13 @@ ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocume
     return res;
 
   ezUuid id;
-  res = GetObjectAccessor()->AddObject(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
+  res = GetObjectAccessor()->AddObjectByName(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
   if (res.Failed())
     return res;
   const ezDocumentObject* pParam = GetObjectManager()->GetObject(id);
-  GetObjectAccessor()->SetValue(pParam, "Name", szName).LogFailure();
-  GetObjectAccessor()->SetValue(pParam, "Object", key.m_Object).LogFailure();
-  GetObjectAccessor()->SetValue(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "Name", szName).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "Object", key.m_Object).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -1176,7 +1176,7 @@ ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, c
 ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 iIndex)
 {
   ezVariant value;
-  auto res = GetObjectAccessor()->GetValue(GetSettingsObject(), "ExposedProperties", value, iIndex);
+  auto res = GetObjectAccessor()->GetValueByName(GetSettingsObject(), "ExposedProperties", value, iIndex);
   if (res.Failed())
     return res;
 
@@ -1347,7 +1347,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   pAccessor->StartTransaction("Create Level Camera");
 
   ezUuid camObjGuid;
-  if (pAccessor->AddObject(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
+  if (pAccessor->AddObjectByName(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;
@@ -1364,13 +1364,13 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
 
   ezUuid camCompGuid;
-  if (pAccessor->AddObject(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
+  if (pAccessor->AddObjectByName(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;
   }
 
-  if (pAccessor->SetValue(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
+  if (pAccessor->SetValueByName(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;

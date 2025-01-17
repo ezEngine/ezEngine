@@ -87,11 +87,11 @@ void ezEditorAssetDocumentTest::AsyncSave()
       true);
 
     pAcc->StartTransaction("Edit Mesh");
-    EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
     // Saving while another save is in progress should block. This ensures the correct state on disk.
-    ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
+    ezString sFile = pAcc->GetByName<ezString>(pMeshAsset, "MeshFile");
     ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* pDoc, ezStatus res)
       {
       EZ_TEST_INT(iOrder, 1);
@@ -109,7 +109,7 @@ void ezEditorAssetDocumentTest::AsyncSave()
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->OpenDocument(sName, ezDocumentFlags::None));
     ezDocumentObject* pMeshAsset = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
     ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
-    ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
+    ezString sFile = pAcc->GetByName<ezString>(pMeshAsset, "MeshFile");
     EZ_TEST_STRING(sFile, "Meshes/Cube.obj");
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
@@ -133,7 +133,7 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")
   {
     pAcc->StartTransaction("Edit Mesh");
-    EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
     ezTransformStatus res = pDoc->SaveDocument();
@@ -154,14 +154,14 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
   {
     // Transforming should have update the mesh asset with new material slots.
     ezInt32 iCount = 0;
-    EZ_TEST_BOOL(pAcc->GetCount(pMeshAsset, "Materials", iCount).Succeeded());
+    EZ_TEST_BOOL(pAcc->GetCountByName(pMeshAsset, "Materials", iCount).Succeeded());
     EZ_TEST_INT(iCount, 1);
 
-    ezUuid subObject = pAcc->Get<ezUuid>(pMeshAsset, "Materials", (ezInt64)0);
+    ezUuid subObject = pAcc->GetByName<ezUuid>(pMeshAsset, "Materials", (ezInt64)0);
     EZ_TEST_BOOL(subObject.IsValid());
     const ezDocumentObject* pSubObject = pAcc->GetObject(subObject);
 
-    ezString sLabel = pAcc->Get<ezString>(pSubObject, "Label");
+    ezString sLabel = pAcc->GetByName<ezString>(pSubObject, "Label");
     EZ_TEST_STRING(sLabel, "initialShadingGroup");
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);

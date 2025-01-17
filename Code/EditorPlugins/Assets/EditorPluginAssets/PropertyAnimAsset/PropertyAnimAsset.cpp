@@ -754,14 +754,13 @@ ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
 
   ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObject(accessor.GetObject(curveGuid.Get<ezUuid>()), "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(), newObjectGuid)
-              .Succeeded(),
+  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(curveGuid.Get<ezUuid>()), "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(), newObjectGuid).Succeeded(),
     "");
   auto curveCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(curveCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(curveCPObj, "Value", fNewPosY).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(curveCPObj, "LeftTangent", ezVec2(-0.1f, 0.0f)).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(curveCPObj, "RightTangent", ezVec2(+0.1f, 0.0f)).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(curveCPObj, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(curveCPObj, "Value", fNewPosY).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(curveCPObj, "LeftTangent", ezVec2(-0.1f, 0.0f)).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(curveCPObj, "RightTangent", ezVec2(+0.1f, 0.0f)).Succeeded(), "");
 
   acc.FinishTransaction();
 
@@ -803,12 +802,12 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientColorCpAt(const ezUuid& trackG
 
   acc.StartTransaction("Add Color Control Point");
   ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObject(gradientObject, "ColorCPs", -1, ezGetStaticRTTI<ezColorControlPoint>(), newObjectGuid).Succeeded(), "");
+  EZ_VERIFY(acc.AddObjectByName(gradientObject, "ColorCPs", -1, ezGetStaticRTTI<ezColorControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Red", color.r).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Green", color.g).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Blue", color.b).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Red", color.r).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Green", color.g).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Blue", color.b).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
@@ -848,10 +847,10 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientAlphaCpAt(const ezUuid& trackG
 
   acc.StartTransaction("Add Alpha Control Point");
   ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObject(gradientObject, "AlphaCPs", -1, ezGetStaticRTTI<ezAlphaControlPoint>(), newObjectGuid).Succeeded(), "");
+  EZ_VERIFY(acc.AddObjectByName(gradientObject, "AlphaCPs", -1, ezGetStaticRTTI<ezAlphaControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Alpha", uiAlpha).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Alpha", uiAlpha).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
@@ -891,10 +890,10 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& tr
 
   acc.StartTransaction("Add Intensity Control Point");
   ezUuid newObjectGuid;
-  EZ_VERIFY(acc.AddObject(gradientObject, "IntensityCPs", -1, ezGetStaticRTTI<ezIntensityControlPoint>(), newObjectGuid).Succeeded(), "");
+  EZ_VERIFY(acc.AddObjectByName(gradientObject, "IntensityCPs", -1, ezGetStaticRTTI<ezIntensityControlPoint>(), newObjectGuid).Succeeded(), "");
   const ezDocumentObject* cpObject = GetObjectManager()->GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(cpObject, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(cpObject, "Intensity", fIntensity).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(cpObject, "Intensity", fIntensity).Succeeded(), "");
   acc.FinishTransaction();
   return newObjectGuid;
 }
@@ -909,12 +908,11 @@ ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const c
   ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
 
   ezUuid newObjectGuid;
-  EZ_VERIFY(
-    acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
+  EZ_VERIFY(acc.AddObjectByName(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
     "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", iTickX).Succeeded(), "");
-  EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(pCPObj, "Tick", iTickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValueByName(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
 

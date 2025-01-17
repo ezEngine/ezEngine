@@ -64,10 +64,10 @@ void ezQtCompilerPreferencesWidget::SetSelection(const ezHybridArray<ezPropertyS
     {
       ezVariant varCompiler, varIsCustomCompiler, varCCompiler, varCppCompiler;
 
-      m_pObjectAccessor->GetValue(pObj, "Compiler", varCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CustomCompiler", varIsCustomCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CCompiler", varCCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CppCompiler", varCppCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "Compiler", varCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CustomCompiler", varIsCustomCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CCompiler", varCCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CppCompiler", varCppCompiler).AssertSuccess();
 
       m_Compiler.SetValue(static_cast<ezCompiler::StorageType>(varCompiler.Get<ezInt64>()));
       bIsCustomCompiler = varIsCustomCompiler.Get<decltype(bIsCustomCompiler)>();
@@ -127,10 +127,10 @@ void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
 
     auto obj = selection[0].m_pObject;
     m_pObjectAccessor->StartTransaction("Change Compiler Preset");
-    m_pObjectAccessor->SetValue(obj, "Compiler", preset.m_Compiler.GetValue()).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CustomCompiler", preset.m_bIsCustom).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CCompiler", preset.m_sCCompiler).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CppCompiler", preset.m_sCppCompiler).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "Compiler", preset.m_Compiler.GetValue()).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CustomCompiler", preset.m_bIsCustom).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CCompiler", preset.m_sCCompiler).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CppCompiler", preset.m_sCppCompiler).AssertSuccess();
     m_pObjectAccessor->FinishTransaction();
   }
 }

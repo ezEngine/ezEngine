@@ -258,7 +258,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
           const ezVariantArray& values = content.m_Value.Get<ezVariantArray>();
           for (const ezPropertySelection& sel : m_Items)
           {
-            if (m_pObjectAccessor->Clear(sel.m_pObject, m_pProp->GetPropertyName()).Failed())
+            if (m_pObjectAccessor->ClearByName(sel.m_pObject, m_pProp->GetPropertyName()).Failed())
             {
               m_pObjectAccessor->CancelTransaction();
               return;
