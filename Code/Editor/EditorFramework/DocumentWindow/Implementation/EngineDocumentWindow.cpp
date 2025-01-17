@@ -135,7 +135,7 @@ void ezQtEngineDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiSt
 {
   ezSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "CommonAssetUiState";
-  msg.m_fPayload = e.m_fValue;
+  msg.m_PayloadValue = e.m_fValue;
 
   switch (e.m_State)
   {

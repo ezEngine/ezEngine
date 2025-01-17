@@ -148,7 +148,7 @@ void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObje
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "UpdateTree";
     msg.m_sPayload = "DisplayRandomSeed";
-    msg.m_fPayload = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
+    msg.m_PayloadValue = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
 
     GetDocument()->SendMessageToEngine(&msg);
   }

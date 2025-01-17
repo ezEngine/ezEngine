@@ -162,7 +162,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEngine : pu
 public:
   ezString m_sWhatToDo;
   ezString m_sPayload;
-  double m_fPayload;
+  ezVariant m_PayloadValue;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEditor : public ezEditorEngineDocumentMsg
@@ -170,9 +170,9 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimpleDocumentConfigMsgToEditor : pu
   EZ_ADD_DYNAMIC_REFLECTION(ezSimpleDocumentConfigMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezString m_sName;
+  ezString m_sWhatToDo;
   ezString m_sPayload;
-  double m_fPayload;
+  ezVariant m_PayloadValue;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
@@ -308,9 +308,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public e
   EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  ezExportDocumentMsgToEngine()
-
-    = default;
+  ezExportDocumentMsgToEngine() = default;
 
   ezString m_sOutputFile;
   ezUInt64 m_uiAssetHash = 0;

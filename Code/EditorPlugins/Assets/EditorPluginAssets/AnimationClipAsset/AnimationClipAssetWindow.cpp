@@ -141,7 +141,7 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PlaybackPos";
-    msg.m_fPayload = m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds();
+    msg.m_PayloadValue = (double)(m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds());
     GetDocument()->SendMessageToEngine(&msg);
   }
 
@@ -157,9 +157,9 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     msg.m_sWhatToDo = "SimulationSpeed";
 
     if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f)
-      msg.m_fPayload = 0.0;
+      msg.m_PayloadValue = 0.0;
     else
-      msg.m_fPayload = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+      msg.m_PayloadValue = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -248,9 +248,9 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
 
   if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg0))
   {
-    if (pMsg->m_sName == "ClipDuration")
+    if (pMsg->m_sWhatToDo == "ClipDuration")
     {
-      const ezTime newDuration = ezTime::MakeFromSeconds(pMsg->m_fPayload);
+      const ezTime newDuration = pMsg->m_PayloadValue.Get<ezTime>();
 
       if (m_ClipDuration != newDuration)
       {

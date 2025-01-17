@@ -37,7 +37,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     {
       if (pMsg->m_sPayload == "Grid")
       {
-        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        m_bDisplayGrid = pMsg->m_PayloadValue.ConvertTo<float>() > 0;
       }
     }
     else if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
@@ -75,7 +75,7 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
     }
     else if (pMsg->m_sWhatToDo == "PlaybackPos")
     {
-      SetPlaybackPosition(pMsg->m_fPayload);
+      SetPlaybackPosition(pMsg->m_PayloadValue.Get<double>());
     }
 
     return;
@@ -97,8 +97,8 @@ void ezAnimationClipContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg
         {
           ezSimpleDocumentConfigMsgToEditor msg;
           msg.m_DocumentGuid = pMsg->m_DocumentGuid;
-          msg.m_sName = "ClipDuration";
-          msg.m_fPayload = pResource->GetDescriptor().GetDuration().GetSeconds();
+          msg.m_sWhatToDo = "ClipDuration";
+          msg.m_PayloadValue = pResource->GetDescriptor().GetDuration();
 
           SendProcessMessage(&msg);
         }

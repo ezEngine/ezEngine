@@ -45,7 +45,7 @@ void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 
       if (pMsg->m_sPayload == "DisplayRandomSeed")
       {
-        m_uiDisplayRandomSeed = static_cast<ezUInt32>(pMsg->m_fPayload);
+        m_uiDisplayRandomSeed = pMsg->m_PayloadValue.ConvertTo<ezUInt32>();
 
         pTree->SetCustomRandomSeed(m_uiDisplayRandomSeed);
       }

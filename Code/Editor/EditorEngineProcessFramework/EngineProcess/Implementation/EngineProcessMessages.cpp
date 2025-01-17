@@ -309,8 +309,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEngine, 1, ezRTTIDefa
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
-    EZ_MEMBER_PROPERTY("Payload", m_sPayload),
-    EZ_MEMBER_PROPERTY("PayloadValue", m_fPayload),
+    EZ_MEMBER_PROPERTY("Payload1", m_sPayload),
+    EZ_MEMBER_PROPERTY("Payload2", m_PayloadValue),
   }
   EZ_END_PROPERTIES;
 }
@@ -320,9 +320,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleDocumentConfigMsgToEditor, 1, ezRTTIDefa
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("PayloadString", m_sPayload),
-    EZ_MEMBER_PROPERTY("PayloadFloat", m_fPayload),
+    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+    EZ_MEMBER_PROPERTY("Payload1", m_sPayload),
+    EZ_MEMBER_PROPERTY("Payload2", m_PayloadValue),
   }
   EZ_END_PROPERTIES;
 }
