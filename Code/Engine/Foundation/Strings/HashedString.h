@@ -130,6 +130,10 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
+  // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
+  EZ_ALWAYS_INLINE bool operator==(const char* sz) const { return GetString().GetView() == ezStringView(sz); }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
+
   /// \brief Attempts to find a known string for the given hash value.
   ///
   /// Careful, this is a slow operation (involving a mutex). It is only meant for debug output purposes.
@@ -142,6 +146,20 @@ private:
 
   HashedType m_Data;
 };
+
+// since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
+EZ_ALWAYS_INLINE bool operator==(const char* sz, const ezHashedString& rhs)
+{
+  return rhs.GetView() == ezStringView(sz);
+}
+
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+EZ_ALWAYS_INLINE bool operator!=(const char* sz, const ezHashedString& rhs)
+{
+  return rhs.GetView() != ezStringView(sz);
+}
+
+#endif
 
 /// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>

@@ -286,8 +286,7 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_
 
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT_DEV(pInterface != nullptr,
-    "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }

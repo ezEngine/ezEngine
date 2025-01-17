@@ -223,7 +223,7 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceID());
+    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceIdOrDescription());
     return;
   }
 

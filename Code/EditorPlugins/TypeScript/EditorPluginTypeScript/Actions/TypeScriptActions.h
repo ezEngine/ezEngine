@@ -30,7 +30,7 @@ public:
     EditScript,
   };
 
-  ezTypeScriptAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
+  ezTypeScriptAction(const ezActionContext& context, const char* szName, ActionType type);
 
   virtual void Execute(const ezVariant& value) override;
 

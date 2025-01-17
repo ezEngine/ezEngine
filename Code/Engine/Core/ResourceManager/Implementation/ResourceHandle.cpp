@@ -37,6 +37,16 @@ ezStringView ezTypelessResourceHandle::GetResourceID() const
   return {};
 }
 
+ezStringView ezTypelessResourceHandle::GetResourceIdOrDescription() const
+{
+  if (IsValid())
+  {
+    return m_pResource->GetResourceIdOrDescription();
+  }
+
+  return {};
+}
+
 const ezRTTI* ezTypelessResourceHandle::GetResourceType() const
 {
   return IsValid() ? m_pResource->GetDynamicRTTI() : nullptr;

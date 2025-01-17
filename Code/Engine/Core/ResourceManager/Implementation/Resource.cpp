@@ -166,7 +166,7 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_PROFILE_SCOPE("CallUpdateContent");
 
-  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID());
+  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceDescription());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;
