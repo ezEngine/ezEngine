@@ -236,9 +236,12 @@ ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) cons
 
 void ezMeshComponentBase::SetColor(const ezColor& color)
 {
-  m_Color = color;
+  if (m_Color != color)
+  {
+    m_Color = color;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 const ezColor& ezMeshComponentBase::GetColor() const
@@ -277,9 +280,15 @@ void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 
 void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  ref_msg.ModifyColor(m_Color);
+  ezColor newColor = m_Color;
+  ref_msg.ModifyColor(newColor);
 
-  InvalidateCachedRenderData();
+  if (m_Color != newColor)
+  {
+    m_Color = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)

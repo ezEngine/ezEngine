@@ -95,6 +95,9 @@ namespace ezRmlUiConversionUtils
       case ezVariant::Type::String:
         return Rml::Variant(value.Get<ezString>());
 
+      case ezVariant::Type::HashedString:
+        return Rml::Variant(value.Get<ezHashedString>().GetString());
+
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
         return Rml::Variant();
