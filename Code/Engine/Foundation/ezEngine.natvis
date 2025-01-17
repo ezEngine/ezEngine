@@ -11,7 +11,7 @@
 		<StringView>m_Data.m_pElements,s8</StringView>
 		<Expand>
 			<Item Name="String">m_Data.m_pElements,s8</Item>
-			<Item Name="ElementCount">m_Data.m_uiCount</Item>
+			<Item Name="ElementCount">m_Data.m_uiCount-1</Item>
 		</Expand>
 	</Type>
 
