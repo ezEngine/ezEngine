@@ -8,7 +8,7 @@
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Value2", m_fValue2),
     EZ_MEMBER_PROPERTY("Value3", m_fValue3),
     EZ_MEMBER_PROPERTY("Color", m_Color),
+    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -53,12 +54,13 @@ void ezDebugTextComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fValue2;
   s << m_fValue3;
   s << m_Color;
+  s << m_fMaxDistance;
 }
 
 void ezDebugTextComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 
@@ -68,6 +70,11 @@ void ezDebugTextComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fValue2;
   s >> m_fValue3;
   s >> m_Color;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fMaxDistance;
+  }
 }
 
 void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
@@ -75,13 +82,17 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
-  if (!m_sText.IsEmpty())
-  {
-    ezStringBuilder sb;
-    sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
+  if (m_sText.IsEmpty())
+    return;
 
-    ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color);
-  }
+  const float fDistance = msg.m_pView->GetCullingCamera()->GetCenterPosition().GetDistanceTo(GetOwner()->GetGlobalPosition());
+  if (fDistance > m_fMaxDistance)
+    return;
+
+  ezStringBuilder sb;
+  sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
+
+  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color);
 }
 
 
