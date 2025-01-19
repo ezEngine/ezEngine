@@ -471,15 +471,16 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
       sTemp.SetFormat("Change Property '{0}'", ezTranslate(ed.m_pProperty->GetPropertyName()));
       m_pObjectAccessor->StartTransaction(sTemp);
 
-      ezStatus res;
+      ezStatus res(EZ_SUCCESS);
+
       for (const auto& sel : *ed.m_pItems)
       {
         res = m_pObjectAccessor->SetValue(sel.m_pObject, ed.m_pProperty, ed.m_Value, sel.m_Index);
-        if (res.m_Result.Failed())
+        if (res.Failed())
           break;
       }
 
-      if (res.m_Result.Failed())
+      if (res.Failed())
         m_pObjectAccessor->CancelTransaction();
       else
         m_pObjectAccessor->FinishTransaction();
@@ -721,16 +722,16 @@ void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
 {
   m_pObjectAccessor->StartTransaction("Delete Object");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   const ezHybridArray<ezPropertySelection, 8> selection = m_pTypeWidget->GetSelection();
   for (auto& item : selection)
   {
     res = m_pObjectAccessor->RemoveObject(item.m_pObject);
-    if (res.m_Result.Failed())
+    if (res.Failed())
       break;
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     m_pObjectAccessor->CancelTransaction();
   else
     m_pObjectAccessor->FinishTransaction();
@@ -808,11 +809,11 @@ void ezQtEmbeddedClassPropertyWidget::SetSelection(const ezHybridArray<ezPropert
 
 void ezQtEmbeddedClassPropertyWidget::SetPropertyValue(const ezAbstractProperty* pProperty, const ezVariant& NewValue)
 {
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   for (const auto& sel : m_ResolvedObjects)
   {
     res = m_pObjectAccessor->SetValue(sel.m_pObject, pProperty, NewValue, sel.m_Index);
-    if (res.m_Result.Failed())
+    if (res.Failed())
       break;
   }
   // ezPropertyEvent ed;
@@ -1327,12 +1328,12 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
   if (m_pProp->GetCategory() == ezPropertyCategory::Map)
   {
     m_Keys.Clear();
-    EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, m_Keys).m_Result.Succeeded(), "GetKeys should always succeed.");
+    EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, m_Keys).Succeeded(), "GetKeys should always succeed.");
     ezHybridArray<ezVariant, 16> keys;
     for (ezUInt32 i = 1; i < m_Items.GetCount(); i++)
     {
       keys.Clear();
-      EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[i].m_pObject, m_pProp, keys).m_Result.Succeeded(), "GetKeys should always succeed.");
+      EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[i].m_pObject, m_pProp, keys).Succeeded(), "GetKeys should always succeed.");
       for (ezInt32 k = (ezInt32)m_Keys.GetCount() - 1; k >= 0; --k)
       {
         if (!keys.Contains(m_Keys[k]))
@@ -1351,7 +1352,7 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
     for (const auto& item : m_Items)
     {
       ezInt32 iCount = 0;
-      EZ_VERIFY(m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).m_Result.Succeeded(), "GetCount should always succeed.");
+      EZ_VERIFY(m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).Succeeded(), "GetCount should always succeed.");
       iElements = ezMath::Min(iElements, iCount);
     }
     EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI ({0})", iElements);
@@ -1453,7 +1454,7 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<ezPropertySelection,
     for (auto& item : items)
     {
       res = m_pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, item.m_Index);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
   }
@@ -1466,12 +1467,12 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<ezPropertySelection,
       ezUuid value = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);
       const ezDocumentObject* pObject = m_pObjectAccessor->GetObject(value);
       res = m_pObjectAccessor->RemoveObject(pObject);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     m_pObjectAccessor->CancelTransaction();
   else
     m_pObjectAccessor->FinishTransaction();
@@ -1496,7 +1497,7 @@ void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<ezPropertySelection, 8
         continue;
 
       res = m_pObjectAccessor->MoveValue(item.m_pObject, m_pProp, item.m_Index, iCurIndex);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
   }
@@ -1514,12 +1515,12 @@ void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<ezPropertySelection, 8
       const ezDocumentObject* pObject = m_pObjectAccessor->GetObject(value);
 
       res = m_pObjectAccessor->MoveObject(pObject, item.m_pObject, m_pProp, iCurIndex);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     m_pObjectAccessor->CancelTransaction();
   else
     m_pObjectAccessor->FinishTransaction();

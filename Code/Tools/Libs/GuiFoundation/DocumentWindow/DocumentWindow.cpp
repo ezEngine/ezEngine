@@ -455,7 +455,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     ezQtUiServices::MessageBoxStatus(res, s, s2);
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
     {
       ShowTemporaryStatusBarMsg("Failed to save document");
       return res;

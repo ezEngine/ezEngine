@@ -99,7 +99,7 @@ void ezCodeEditorPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 
   ezPropertyUiState::Visibility codeEditorFieldsVisibility = ezPropertyUiState::Default;
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   if (typeAccessor.GetValue("IsVisualStudio", ezVariant(), &res).Get<bool>() && res.Succeeded())
   {
     codeEditorFieldsVisibility = ezPropertyUiState::Invisible;

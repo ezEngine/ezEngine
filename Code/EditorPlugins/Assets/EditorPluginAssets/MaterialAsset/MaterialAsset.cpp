@@ -306,7 +306,7 @@ void ezMaterialAssetProperties::DeleteProperties()
   ezRemoveObjectCommand cmd;
   cmd.m_Object = pPropObject->GetGuid();
   auto res = pHistory->AddCommand(cmd);
-  EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Removal of old properties should never fail.");
+  EZ_ASSERT_DEV(res.Succeeded(), "Removal of old properties should never fail.");
 }
 
 void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
@@ -333,7 +333,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::MakeStableUuidFromString("ShaderProperties"));
 
     auto res = pHistory->AddCommand(cmd);
-    EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Addition of new properties should never fail.");
+    EZ_ASSERT_DEV(res.Succeeded(), "Addition of new properties should never fail.");
     LoadOldValues();
   }
 }
@@ -742,7 +742,7 @@ ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* sz
       if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
       {
         e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;
-        e.m_sTransformError = ret.m_sMessage;
+        e.m_sTransformError = ret.GetMessageString();
 
         if (ret.Succeeded())
         {
@@ -789,7 +789,7 @@ ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* sz
           if (ret.Failed())
           {
             e.m_Type = ezMaterialVisualShaderEvent::TransformFailed;
-            e.m_sTransformError = ret.m_sMessage;
+            e.m_sTransformError = ret.GetMessageString();
           }
           else
           {

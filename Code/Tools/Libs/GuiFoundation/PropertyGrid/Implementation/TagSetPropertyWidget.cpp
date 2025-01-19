@@ -117,7 +117,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   {
     ezHybridArray<ezVariant, 16> currentSetValues;
     ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
-    EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
+    EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
     for (const ezVariant& key : currentSetValues)
     {
       EZ_ASSERT_DEV(key.GetType() == ezVariantType::String, "Tags are supposed to be of type string!");
@@ -181,11 +181,11 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
       ezHybridArray<ezVariant, 16> currentSetValues;
 
       ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
-      EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
+      EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
       if (!currentSetValues.Contains(value))
       {
         auto res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, value, -1);
-        if (res.m_Result.Failed())
+        if (res.Failed())
         {
           EZ_REPORT_FAILURE("Failed to add '{0}' tag to tag set", value.Get<ezString>());
         }
@@ -204,12 +204,12 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
     {
       ezHybridArray<ezVariant, 16> currentSetValues;
       ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
-      EZ_ASSERT_DEV(status.m_Result.Succeeded(), "Failed to get tag keys!");
+      EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
       ezUInt32 uiIndex = currentSetValues.IndexOf(value);
       if (uiIndex != -1)
       {
         auto res = m_pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, uiIndex);
-        if (res.m_Result.Failed())
+        if (res.Failed())
         {
           EZ_REPORT_FAILURE("Failed to remove '{0}' tag from tag set", value.Get<ezString>());
         }

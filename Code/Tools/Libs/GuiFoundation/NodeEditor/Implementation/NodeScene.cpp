@@ -272,7 +272,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
     history->StartTransaction("Move Node");
 
-    ezStatus res;
+    ezStatus res(EZ_SUCCESS);
     for (auto pObject : moved)
     {
       ezMoveNodeCommand move;
@@ -280,11 +280,11 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
       auto pos = m_Nodes[pObject]->pos();
       move.m_NewPos = ezVec2(pos.x(), pos.y());
       res = history->AddCommand(move);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
       history->CancelTransaction();
     else
       history->FinishTransaction();
@@ -502,7 +502,7 @@ void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Node");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   {
     ezAddObjectCommand cmd;
     cmd.m_pType = nodeTemplate.m_pType;
@@ -510,7 +510,7 @@ void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
     cmd.m_Index = -1;
 
     res = history->AddCommand(cmd);
-    if (res.m_Result.Succeeded())
+    if (res.Succeeded())
     {
       ezMoveNodeCommand move;
       move.m_Object = cmd.m_NewObjectGuid;
@@ -520,7 +520,7 @@ void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
 
     for (auto& propValue : nodeTemplate.m_PropertyValues)
     {
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
 
       ezSetObjectPropertyCommand setCmd;
@@ -531,7 +531,7 @@ void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -818,7 +818,7 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
   {
     ezStatus res = RemoveNode(pNode);
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
     {
       history->CancelTransaction();
 
@@ -890,13 +890,13 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
 void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
 {
   ezStatus res = m_pManager->CanDisconnect(pConnection->GetConnection());
-  if (res.m_Result.Succeeded())
+  if (res.Succeeded())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
     history->StartTransaction("Disconnect Pins");
 
     res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetConnection()->GetParent()->GetGuid());
-    if (res.m_Result.Failed())
+    if (res.Failed())
       history->CancelTransaction();
     else
       history->FinishTransaction();
@@ -916,7 +916,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
     DisconnectPinsAction(pConnection);
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();

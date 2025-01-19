@@ -222,7 +222,8 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
     }
 
     ezVariant value;
-    ezStatus res;
+    ezStatus res(EZ_SUCCESS);
+
     if (const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>())
     {
       const ezAbstractProperty* pParameterSourceProp = pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());

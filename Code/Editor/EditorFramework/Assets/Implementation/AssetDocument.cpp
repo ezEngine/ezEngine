@@ -457,7 +457,7 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
   ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
 
   if (state == ezAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(ezTransformFlags::ForceTransform))
-    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
+    return ezStatus(EZ_SUCCESS);
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");
@@ -505,13 +505,13 @@ ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> t
 
   if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
-    EZ_SUCCEED_OR_RETURN(SaveDocument().m_Result);
+    EZ_SUCCEED_OR_RETURN(SaveDocument());
 
     const auto assetFlags = GetAssetFlags();
 
     if (assetFlags.IsSet(ezAssetDocumentFlags::DisableTransform) || (assetFlags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
     {
-      return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
+      return ezStatus(EZ_SUCCESS);
     }
   }
 
@@ -535,7 +535,7 @@ ezTransformStatus ezAssetDocument::CreateThumbnail()
   ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), GetAssetDocumentTypeDescriptor(), uiHash, uiThumbHash, uiPackageHash);
 
   if (state == ezAssetInfo::TransformState::UpToDate)
-    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
+    return ezStatus(EZ_SUCCESS);
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");
@@ -710,11 +710,14 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  ezStatus status(EZ_FAILURE);
+  ezStatus status(EZ_SUCCESS);
   ezProcessCommunicationChannel::WaitForMessageCallback callback = [&status](ezProcessMessage* pMsg) -> bool
   {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
-    status = ezStatus(pMsg2->m_bOutputSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg2->m_sFailureMsg);
+
+    if (!pMsg2->m_bOutputSuccess)
+      status = ezStatus(pMsg2->m_sFailureMsg.GetView());
+
     return true;
   };
 

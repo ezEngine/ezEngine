@@ -448,7 +448,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const ezDataDirPath& absFilePath,
   }
 
   // try to read the asset file
-  ezStatus infoStatus;
+  ezStatus infoStatus(EZ_SUCCESS);
   ezResult res = pFiles->ReadDocument(absFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader)
     { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
 

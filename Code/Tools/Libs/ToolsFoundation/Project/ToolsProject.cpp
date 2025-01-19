@@ -185,7 +185,7 @@ ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCr
 
   new ezToolsProject(sProjectPath);
 
-  ezStatus ret;
+  ezStatus ret(EZ_SUCCESS);
 
   if (bCreate)
   {
@@ -193,15 +193,16 @@ ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCr
     ezToolsProject::SaveProjectState();
   }
   else
-    ret = GetSingleton()->Open();
-
-  if (ret.m_Result.Failed())
   {
-    delete GetSingleton();
-    return ret;
+    ret = GetSingleton()->Open();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  if (ret.Failed())
+  {
+    delete GetSingleton();
+  }
+
+  return ret;
 }
 
 ezStatus ezToolsProject::OpenProject(ezStringView sProjectPath)

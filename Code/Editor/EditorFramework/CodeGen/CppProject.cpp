@@ -320,7 +320,7 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
       args.push_back(QString::fromUtf8(solutionPath.GetData(), solutionPath.GetElementCount()));
       if (ezStatus status = ezQtUiServices::OpenInVsCode(args); status.Failed())
       {
-        return ezStatus(ezFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.m_sMessage));
+        return ezStatus(ezFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.GetMessageString()));
       }
 
       return ezStatus(EZ_SUCCESS);
@@ -778,7 +778,7 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
 
   if (res.Failed())
   {
-    ezLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.m_sMessage);
+    ezLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.GetMessageString());
     return EZ_FAILURE;
   }
 

@@ -226,7 +226,7 @@ void eqQtAssetBrowserFolderView::dragMoveEvent(QDragMoveEvent* e)
   ezStatus res = canDrop(e, files, sTarget);
   if (res.Failed())
   {
-    ezQtUiServices::ShowGlobalStatusBarMessage(res.m_sMessage.GetView());
+    ezQtUiServices::ShowGlobalStatusBarMessage(res.GetMessageString().GetView());
     e->ignore();
   }
   else

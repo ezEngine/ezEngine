@@ -306,7 +306,7 @@ void ezDocumentNodeManager::Connect(const ezDocumentObject* pObject, const ezPin
 {
   ezDocumentNodeManager::CanConnectResult res = CanConnectResult::ConnectNever;
   EZ_IGNORE_UNUSED(res);
-  EZ_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).m_Result.Succeeded(), "Connect: Sanity check failed!");
+  EZ_ASSERT_DEBUG(CanConnect(pObject->GetType(), source, target, res).Succeeded(), "Connect: Sanity check failed!");
 
   EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Source") == source.GetParent()->GetGuid(), "Property should have been set at this point already");
   EZ_ASSERT_DEBUG(pObject->GetTypeAccessor().GetValue("Target") == target.GetParent()->GetGuid(), "Property should have been set at this point already");
@@ -329,7 +329,7 @@ void ezDocumentNodeManager::Disconnect(const ezDocumentObject* pObject)
 {
   auto it = m_ObjectToConnection.Find(pObject->GetGuid());
   EZ_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
-  EZ_ASSERT_DEBUG(CanDisconnect(pObject).m_Result.Succeeded(), "Disconnect: Sanity check failed!");
+  EZ_ASSERT_DEBUG(CanDisconnect(pObject).Succeeded(), "Disconnect: Sanity check failed!");
 
   {
     ezDocumentNodeManagerEvent e(ezDocumentNodeManagerEvent::Type::BeforePinsDisonnected, pObject);
@@ -347,7 +347,7 @@ void ezDocumentNodeManager::Disconnect(const ezDocumentObject* pObject)
 
 void ezDocumentNodeManager::MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos)
 {
-  EZ_ASSERT_DEBUG(CanMoveNode(pObject, vPos).m_Result.Succeeded(), "MoveNode: Sanity check failed!");
+  EZ_ASSERT_DEBUG(CanMoveNode(pObject, vPos).Succeeded(), "MoveNode: Sanity check failed!");
 
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
   EZ_ASSERT_DEBUG(it.IsValid(), "Moveable node does not exist, CanMoveNode impl invalid!");
@@ -421,7 +421,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
       DocumentNodeManager_NodeMetaData nodeMetaData;
       rttiConverter.ApplyPropertiesToObject(pAbstractObject, pNodeMetaDataType, &nodeMetaData);
 
-      if (CanMoveNode(pObject, nodeMetaData.m_Pos).m_Result.Succeeded())
+      if (CanMoveNode(pObject, nodeMetaData.m_Pos).Succeeded())
       {
         if (bUndoable)
         {
@@ -603,7 +603,7 @@ bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>
   for (const auto& pi : info)
   {
     // only add nodes that are allowed to be added
-    if (CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", pi.m_Index).m_Result.Succeeded())
+    if (CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", pi.m_Index).Succeeded())
     {
       AddedObjects.PushBack(pi.m_pObject);
       AddObject(pi.m_pObject, nullptr, "Children", pi.m_Index);

@@ -92,7 +92,7 @@ ezStatus ezObjectCommandAccessor::AddObject(const ezDocumentObject* pParent, con
   cmd.m_NewObjectGuid = inout_objectGuid;
   cmd.m_sParentProperty = pParentProp ? pParentProp->GetPropertyName() : "Children";
   ezStatus res = m_pHistory->AddCommand(cmd);
-  if (res.m_Result.Succeeded())
+  if (res.Succeeded())
     inout_objectGuid = cmd.m_NewObjectGuid;
   return res;
 }

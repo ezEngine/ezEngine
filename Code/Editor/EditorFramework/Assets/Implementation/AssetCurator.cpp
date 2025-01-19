@@ -512,9 +512,9 @@ void ezAssetCurator::ResaveAllAssets(ezStringView sPrefixPath)
     range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_Path.GetDataDirParentRelativePath()));
 
     auto res = ResaveAsset(pAssetInfo);
-    if (res.m_Result.Failed())
+    if (res.Failed())
     {
-      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_Path.GetDataDirParentRelativePath());
+      ezLog::Error("{0} ({1})", res.GetMessageString(), pAssetInfo->m_Path.GetDataDirParentRelativePath());
     }
   }
 }

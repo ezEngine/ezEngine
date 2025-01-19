@@ -25,7 +25,7 @@ ezTransformStatus ezImageDataAssetDocument::InternalTransformAsset(const char* s
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
     ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
-    result.m_Result = EZ_FAILURE;
+    result = ezStatus(ezFmt("File does not exist: {}", szTargetFile));
   }
 
   if (result.Succeeded())

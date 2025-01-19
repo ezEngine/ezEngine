@@ -312,7 +312,7 @@ EZ_TEST_DLL bool ezTestResult(
 /// \brief Tests for a ezStatus condition, outputs ezStatus message on failure
 #define EZ_TEST_STATUS(condition)                    \
   auto EZ_PP_CONCAT(l_, EZ_SOURCE_LINE) = condition; \
-  ezTestResult(EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_Result, "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).m_sMessage)
+  ezTestResult(EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).GetResult(), "Test failed: " EZ_PP_STRINGIFY(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, EZ_PP_CONCAT(l_, EZ_SOURCE_LINE).GetMessageString())
 
 inline double ToFloat(int f)
 {

@@ -854,7 +854,7 @@ void ezProjectAction::Execute(const ezVariant& value)
         {
           if (auto status = ezCppProject::OpenSolution(cpp); status.Failed())
           {
-            ezQtUiServices::GetSingleton()->MessageBoxWarning(status.m_sMessage.GetView());
+            ezQtUiServices::GetSingleton()->MessageBoxWarning(status.GetMessageString().GetView());
           }
         }
       }

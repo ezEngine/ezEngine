@@ -354,7 +354,7 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& inout_stream,
     return ezStatus("Cooking the collision mesh failed.");
 
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, ezStreamWriter& ref_outputStream, ezUInt32 uiMaxConvexPieces)

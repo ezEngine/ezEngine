@@ -218,7 +218,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     ezStatus res = ExportDocument(pMsg2);
     ret.m_bOutputSuccess = res.Succeeded();
-    ret.m_sFailureMsg = res.m_sMessage;
+    ret.m_sFailureMsg = res.GetMessageString();
 
     if (!ret.m_bOutputSuccess)
     {

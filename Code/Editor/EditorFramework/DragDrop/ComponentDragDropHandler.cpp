@@ -28,14 +28,14 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
 
   auto history = m_pDocument->GetCommandHistory();
 
-  EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
   ezSetObjectPropertyCommand cmd2;
   cmd2.m_Object = ObjectGuid;
 
   cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPos;
-  EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
 
   AttachComponentToObject(szType, szProperty, value, ObjectGuid);
 
@@ -55,7 +55,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
   cmd.m_Index = -1;
   cmd.m_NewObjectGuid = CmpGuid;
   cmd.m_Parent = ObjectGuid;
-  EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
   if (value.IsA<ezVariantArray>())
   {
@@ -64,7 +64,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
     cmd2.m_sProperty = szProperty;
     cmd2.m_NewValue = value.Get<ezVariantArray>()[0];
     cmd2.m_Index = 0;
-    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
   else
   {
@@ -72,7 +72,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
     cmd2.m_Object = CmpGuid;
     cmd2.m_sProperty = szProperty;
     cmd2.m_NewValue = value;
-    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
 }
 

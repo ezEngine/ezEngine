@@ -145,10 +145,10 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         ezUuid newGuid = ezUuid::MakeUuid();
         if (oldGuid.IsValid())
         {
-          EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).m_Result.Succeeded());
+          EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).Succeeded());
         }
 
-        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, ezVariant(), pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, ezVariant(), pProp->GetSpecificType(), newGuid).Succeeded());
 
         const ezDocumentObject* pChild = pObject->GetChild(newGuid);
         EZ_ASSERT_DEV(pChild != nullptr, "References child object does not exist!");
@@ -156,7 +156,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       else
       {
         ezVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
       }
     }
     else
@@ -164,7 +164,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType))
       {
         ezVariant value = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->SetValue(pObject, pProp, value).Succeeded());
       }
       else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
       {
@@ -185,8 +185,8 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
       ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, 0);
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).m_Result.Succeeded());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).m_Result.Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, 0).Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, 1).Succeeded());
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
     {
@@ -195,13 +195,13 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
-        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).Succeeded());
       }
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         ezUuid newGuid = ezUuid::MakeUuid();
-        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).Succeeded());
       }
     }
   }
@@ -220,8 +220,8 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
       ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, "Dummy");
       ezVariant value2 = GetVariantFromType(pProp->GetSpecificType()->GetVariantType());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").m_Result.Succeeded());
-      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").m_Result.Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value1, "value1").Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->InsertValue(pObject, pProp, value2, "value2").Succeeded());
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
     {
@@ -230,11 +230,11 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
-        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).m_Result.Succeeded());
+        EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).Succeeded());
       }
 
       ezUuid newGuid = ezUuid::MakeUuid();
-      EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
+      EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).Succeeded());
     }
   }
 }
@@ -264,7 +264,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
   pAccessor->StartTransaction("Init");
   ezStatus status = pAccessor->AddObject(nullptr, (const ezAbstractProperty*)nullptr, -1, ezGetStaticRTTI<ezMirrorTest>(), mirrorGuid);
   const ezDocumentObject* pObject = pAccessor->GetObject(mirrorGuid);
-  EZ_TEST_BOOL(status.m_Result.Succeeded());
+  EZ_TEST_BOOL(status.Succeeded());
   pAccessor->FinishTransaction();
 
   MirrorCheck(&doc, pObject);

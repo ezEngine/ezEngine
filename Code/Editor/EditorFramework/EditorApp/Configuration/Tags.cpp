@@ -41,19 +41,11 @@ void ezQtEditorApp::ReadTagRegistry()
   {
     ezLog::Warning("Could not open tags config file '{0}'", sPath);
 
-    ezStatus res = SaveTagRegistry();
-    if (res.m_Result.Failed())
-    {
-      ezLog::Error("{0}", res.m_sMessage);
-    }
+    SaveTagRegistry().LogFailure();
   }
   else
   {
-    ezStatus res = ezToolsTagRegistry::ReadFromDDL(file);
-    if (res.m_Result.Failed())
-    {
-      ezLog::Error("{0}", res.m_sMessage);
-    }
+    ezToolsTagRegistry::ReadFromDDL(file).LogFailure();
   }
 
 

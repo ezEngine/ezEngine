@@ -146,11 +146,14 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
     m_ActiveSaveTask.Invalidate();
   }
-  ezStatus result;
+  ezStatus result(EZ_SUCCESS);
+
   m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res)
     { result = res; });
+
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
+
   return result;
 }
 
@@ -417,7 +420,7 @@ void ezDocument::DeleteSelectedObjects() const
   {
     cmd.m_Object = entry.m_pObject->GetGuid();
 
-    if (history->AddCommand(cmd).m_Result.Failed())
+    if (history->AddCommand(cmd).Failed())
     {
       history->CancelTransaction();
       return;

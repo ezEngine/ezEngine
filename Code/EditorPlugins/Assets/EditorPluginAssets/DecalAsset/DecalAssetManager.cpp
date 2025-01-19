@@ -238,7 +238,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     header.SetFileHashAndVersion(uiAssetHash, uiVersion);
   }
 
-  ezStatus result;
+  ezStatus result(EZ_SUCCESS);
 
   // Send information to TexConv to do all the work
   {
@@ -258,7 +258,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
     ezOSFile::DeleteFile(decalFile).IgnoreResult();
-    result.m_Result = EZ_FAILURE;
+    result = ezStatus(ezFmt("File does not exist: '{}'", decalFile));
   }
 
   return result;

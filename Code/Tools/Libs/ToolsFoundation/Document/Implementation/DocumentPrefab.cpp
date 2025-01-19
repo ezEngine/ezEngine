@@ -74,7 +74,7 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const
   SeedGuid = ezUuid::MakeUuid();
   ezStatus res = CreatePrefabDocument(sFile, nodes, SeedGuid, PrefabGuid, adjustGraphNodeCB, true, finalizeGraphCB);
 
-  if (res.m_Result.Succeeded())
+  if (res.Succeeded())
   {
     GetCommandHistory()->StartTransaction("Replace all by Prefab");
 
@@ -218,20 +218,20 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, ezString
     cmd.m_NewObjectGuid = instantiatedRoot;
     cmd.m_sParentProperty = "Children";
 
-    EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     cmd.SetType("ezPrefabReferenceComponent");
     cmd.m_sParentProperty = "Components";
     cmd.m_Index = -1;
     cmd.m_NewObjectGuid = CmpGuid;
     cmd.m_Parent = instantiatedRoot;
-    EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     ezSetObjectPropertyCommand cmd2;
     cmd2.m_Object = CmpGuid;
     cmd2.m_sProperty = "Prefab";
     cmd2.m_NewValue = ezConversionUtils::ToString(prefabAsset, tmp).GetData();
-    EZ_VERIFY(pHistory->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(pHistory->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
 
   {

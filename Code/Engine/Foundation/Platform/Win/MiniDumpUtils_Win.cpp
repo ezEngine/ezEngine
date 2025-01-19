@@ -93,7 +93,7 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 
     return ezStatus(ezFmt("Writing dump file failed: '{}'.", ezArgErrorCode(GetLastError())));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverride)
@@ -147,7 +147,7 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
   if (proc.WaitToFinish().Failed())
     return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 #endif

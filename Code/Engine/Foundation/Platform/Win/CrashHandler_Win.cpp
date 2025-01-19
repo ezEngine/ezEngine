@@ -50,7 +50,7 @@ bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, (_EXCEPTION_POINTERS*)pOsSpecificData);
   if (res.Failed())
-    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.m_sMessage.GetData());
+    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
   return res.Succeeded();
 #  else
   EZ_IGNORE_UNUSED(pOsSpecificData);

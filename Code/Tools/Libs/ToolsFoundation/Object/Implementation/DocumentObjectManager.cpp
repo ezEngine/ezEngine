@@ -272,21 +272,20 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
     sParentProperty = "Children";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT_DEV(
-    CanAdd(pObject->GetTypeAccessor().GetType(), pParent, sParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, sParentProperty, index).Succeeded(), "Trying to execute invalid add!");
 
   InternalAddObject(pObject, pParent, sParentProperty, index);
 }
 
 void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
 {
-  EZ_ASSERT_DEV(CanRemove(pObject).m_Result.Succeeded(), "Trying to execute invalid remove!");
+  EZ_ASSERT_DEV(CanRemove(pObject).Succeeded(), "Trying to execute invalid remove!");
   InternalRemoveObject(pObject);
 }
 
 void ezDocumentObjectManager::MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, ezStringView sParentProperty, ezVariant index)
 {
-  EZ_ASSERT_DEV(CanMove(pObject, pNewParent, sParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid move!");
+  EZ_ASSERT_DEV(CanMove(pObject, pNewParent, sParentProperty, index).Succeeded(), "Trying to execute invalid move!");
 
   InternalMoveObject(pNewParent, pObject, sParentProperty, index);
 }

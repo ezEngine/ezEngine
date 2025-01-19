@@ -1314,7 +1314,7 @@ void ezQtAssetBrowserWidget::NewAsset()
   sNewAsset.MakeCleanPath();
 
   ezDocument* pDoc;
-  if (pManager->CreateDocument(sAssetType, sNewAsset, pDoc, ezDocumentFlags::Default).m_Result.Failed())
+  if (pManager->CreateDocument(sAssetType, sNewAsset, pDoc, ezDocumentFlags::Default).Failed())
   {
     ezLog::Error("Failed to create document: {}", sNewAsset);
     return;

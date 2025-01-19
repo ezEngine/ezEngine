@@ -271,7 +271,7 @@ void ezSceneDocument::DuplicateSpecial()
 
   history->StartTransaction("Duplicate Special");
 
-  if (history->AddCommand(cmd).m_Result.Failed())
+  if (history->AddCommand(cmd).Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -569,7 +569,7 @@ void ezSceneDocument::DuplicateSelection()
 
   history->StartTransaction("Duplicate Selection");
 
-  if (history->AddCommand(cmd).m_Result.Failed())
+  if (history->AddCommand(cmd).Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -1739,7 +1739,7 @@ ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   // #TODO export layers
   auto saveres = SaveDocument();
 
-  if (saveres.m_Result.Failed())
+  if (saveres.Failed())
     return saveres;
 
   ezTransformStatus res;

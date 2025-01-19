@@ -286,7 +286,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUn
     const ezDocumentObject* pOwnerNode = pinSource.GetParent();
     const ezStatus resNode = GenerateOutputPinCode(pOwnerNode, pinSource);
 
-    if (resNode.m_Result.Failed())
+    if (resNode.Failed())
       return resNode;
   }
 

@@ -186,7 +186,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       {
         ezVariant value;
         ezStatus res = m_pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
-        if (res.m_Result.Succeeded())
+        if (res.Succeeded())
         {
           bOk = false;
           break;
@@ -201,7 +201,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 
   m_pObjectAccessor->StartTransaction("Add Element");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   const bool bIsValueType = ezReflectionUtils::IsValueType(m_pProp);
   if (bIsValueType)
   {
@@ -215,7 +215,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       else
       {
         res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultValue(GetProperty(), index), index);
-        if (res.m_Result.Failed())
+        if (res.Failed())
           break;
       }
     }
@@ -233,7 +233,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       {
         ezUuid guid;
         res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
-        if (res.m_Result.Failed())
+        if (res.Failed())
           break;
 
         ezHybridArray<ezPropertySelection, 1> selection;
@@ -244,7 +244,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
     m_pObjectAccessor->CancelTransaction();
   else
     m_pObjectAccessor->FinishTransaction();

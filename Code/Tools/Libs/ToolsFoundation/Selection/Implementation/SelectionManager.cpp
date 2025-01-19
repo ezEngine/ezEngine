@@ -73,9 +73,8 @@ void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
 
   EZ_ASSERT_DEV(pObject->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
   ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(pObject);
-  if (res.m_Result.Failed())
+  if (res.LogFailure())
   {
-    ezLog::Error("{0}", res.m_sMessage);
     return;
   }
 
@@ -154,9 +153,8 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
     {
       EZ_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
       ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(selection[i]);
-      if (res.m_Result.Failed())
+      if (res.LogFailure())
       {
-        ezLog::Error("{0}", res.m_sMessage);
         continue;
       }
 

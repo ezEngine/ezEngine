@@ -10,36 +10,36 @@ class ezLogInterface;
 /// \brief An ezResult with an additional message for the reason of failure
 struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
 {
-  EZ_ALWAYS_INLINE explicit ezStatus()
-    : m_Result(EZ_FAILURE)
-  {
-  }
-
-  // const char* version is needed for disambiguation
+  /// \brief Sets the status to EZ_FAILURE and stores the error message.
   explicit ezStatus(const char* szError)
     : m_Result(EZ_FAILURE)
     , m_sMessage(szError)
   {
   }
 
-  explicit ezStatus(ezResult r, ezStringView sError)
-    : m_Result(r)
-    , m_sMessage(sError)
-  {
-  }
-
+  /// \brief Sets the status to EZ_FAILURE and stores the error message.
   explicit ezStatus(ezStringView sError)
     : m_Result(EZ_FAILURE)
     , m_sMessage(sError)
   {
   }
 
+  /// \brief Sets the status, but doesn't store a message string.
   EZ_ALWAYS_INLINE ezStatus(ezResult r)
     : m_Result(r)
   {
   }
 
+  /// \brief Sets the status, but doesn't store a message string.
+  EZ_ALWAYS_INLINE ezStatus(ezResultEnum r)
+    : m_Result(r)
+  {
+  }
+
+  /// \brief Sets the status to EZ_FAILURE and stores the error message. Can be used with ezFmt().
   explicit ezStatus(const ezFormatString& fmt);
+
+  [[nodiscard]] ezResult GetResult() const { return m_Result; }
 
   [[nodiscard]] EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
   [[nodiscard]] EZ_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
@@ -52,20 +52,24 @@ struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
 
   /// \brief If the state is EZ_FAILURE, the message is written to the given log (or the currently active thread-local log).
   ///
-  /// The return value is the same as 'Failed()' but isn't marked as [[nodiscard]], ie returns true, if a failure happened.
+  /// The return value is the same as 'Failed()' but isn't marked as [[nodiscard]], ie returns true, if a failure happened,
+  /// so can be used in a conditional.
   bool LogFailure(ezLogInterface* pLog = nullptr) const;
 
   /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
   ///
-  /// If \a msg is given, this will be the assert message.
+  /// If \a szMsg is given, this will be the assert message.
   /// Additionally m_sMessage will be included as a detailed message.
   void AssertSuccess(const char* szMsg = nullptr) const;
 
-  ezResult m_Result;
+  [[nodiscard]] const ezString& GetMessageString() const { return m_sMessage; }
+
+private:
   ezString m_sMessage;
+  ezResult m_Result;
 };
 
 EZ_ALWAYS_INLINE ezResult ezToResult(const ezStatus& result)
 {
-  return result.m_Result;
+  return result.GetResult();
 }

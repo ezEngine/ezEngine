@@ -193,18 +193,17 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   Request r;
   r.m_Type = Request::Type::DocumentAllowedToOpen;
-  r.m_RequestStatus.m_Result = EZ_SUCCESS;
   r.m_sDocumentType = sDocumentTypeName;
   r.m_sDocumentPath = sPath;
   s_Requests.Broadcast(r);
 
   // if for example no project is open, or not the correct one, then a document cannot be opened
-  if (r.m_RequestStatus.m_Result.Failed())
+  if (r.m_RequestStatus.Failed())
     return r.m_RequestStatus;
 
   out_pDocument = nullptr;
 
-  ezStatus status;
+  ezStatus status(EZ_SUCCESS);
 
   ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
@@ -227,7 +226,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
           {
             if (OpenDocument(sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
             {
-              return ezStatus(EZ_SUCCESS);
+              return EZ_SUCCESS;
             }
           }
 
@@ -239,12 +238,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
       {
         EZ_PROFILE_SCOPE(sDocumentTypeName);
-        status = ezStatus(EZ_SUCCESS);
+        status = EZ_SUCCESS;
         InternalCreateDocument(sDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
-      if (status.m_Result.Succeeded())
+      if (status.Succeeded())
       {
         out_pDocument->SetupDocumentInfo(DocumentTypes[i]);
 

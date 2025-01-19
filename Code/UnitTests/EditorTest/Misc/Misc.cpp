@@ -37,7 +37,7 @@ ezResult ezEditorTestMisc::InitializeTest()
 
   if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(); res.Failed())
   {
-    ezLog::Error("Asset transform failed: {}", res.m_sMessage);
+    ezLog::Error("Asset transform failed: {}", res.GetMessageString());
     return EZ_FAILURE;
   }
 

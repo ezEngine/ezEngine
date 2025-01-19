@@ -144,12 +144,17 @@ struct EZ_EDITORFRAMEWORK_DLL ezTransformStatus
 
   EZ_ALWAYS_INLINE ezTransformStatus(ezStatus r)
     : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
-    , m_sMessage(r.m_sMessage)
+    , m_sMessage(r.GetMessageString())
   {
   }
 
   EZ_ALWAYS_INLINE ezTransformStatus(ezResult r)
     : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTransformStatus(ezResultEnum r)
+    : m_Result(r == EZ_SUCCESS ? ezTransformResult::Success : ezTransformResult::Failure)
   {
   }
 

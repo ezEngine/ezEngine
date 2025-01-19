@@ -93,7 +93,7 @@ public:
     Type m_Type;
     ezString m_sDocumentType;
     ezString m_sDocumentPath;
-    ezStatus m_RequestStatus;
+    ezStatus m_RequestStatus = EZ_SUCCESS;
   };
 
   static ezCopyOnBroadcastEvent<const Event&> s_Events;

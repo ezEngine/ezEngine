@@ -235,20 +235,20 @@ void ezSceneDocument::ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> 
       cmd.m_NewObjectGuid = ObjectGuid;
       cmd.m_sParentProperty = "Children";
 
-      EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
       cmd.SetType("ezPrefabReferenceComponent");
       cmd.m_sParentProperty = "Components";
       cmd.m_Index = -1;
       cmd.m_NewObjectGuid = CmpGuid;
       cmd.m_Parent = ObjectGuid;
-      EZ_VERIFY(pHistory->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(pHistory->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
       ezSetObjectPropertyCommand cmd2;
       cmd2.m_Object = CmpGuid;
       cmd2.m_sProperty = "Prefab";
       cmd2.m_NewValue = ezConversionUtils::ToString(assetGuid, tmp).GetData();
-      EZ_VERIFY(pHistory->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(pHistory->AddCommand(cmd2).Succeeded(), "AddCommand failed");
 
 
       pNewObject = GetObjectManager()->GetObject(ObjectGuid);
@@ -264,7 +264,7 @@ void ezSceneDocument::ConvertToEnginePrefab(ezArrayPtr<const ezDocumentObject*> 
       ezRemoveObjectCommand rem;
       rem.m_Object = pObject->GetGuid();
 
-      EZ_VERIFY(pHistory->AddCommand(rem).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(pHistory->AddCommand(rem).Succeeded(), "AddCommand failed");
     }
   }
 

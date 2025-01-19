@@ -303,5 +303,5 @@ private:
   ezUInt32 m_uiUnknownObjectTypeInstances;
 
   ezTaskGroupID m_ActiveSaveTask;
-  ezStatus m_LastSaveResult;
+  ezStatus m_LastSaveResult = EZ_SUCCESS;
 };

@@ -481,7 +481,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     sTempTarget.AppendPath(ezPathUtils::GetFileNameAndExtension(sAbsAssetRenamedPath2));
     sTempTarget.ChangeFileName(ezConversionUtils::ToString(overwriteGuid, sTemp));
 
-    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath2, sTempTarget, overwriteGuid).m_Result);
+    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath2, sTempTarget, overwriteGuid).GetResult());
     EZ_TEST_RESULT(ezOSFile::CopyFile(sTempTarget, sAbsAssetRenamedPath2));
     ezOSFile::DeleteFile(sTempTarget).IgnoreResult();
 

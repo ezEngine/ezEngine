@@ -572,11 +572,11 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
       cmd.m_NewParent = pTarget->GetGuid();
 
       res = pHistory->AddCommand(cmd);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
       pHistory->CancelTransaction();
     else
       pHistory->FinishTransaction();

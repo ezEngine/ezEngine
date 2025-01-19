@@ -61,7 +61,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     if (status.Failed())
     {
       // if the message is empty, the user decided not to continue, so don't show an error message in this case
-      if (!status.m_sMessage.IsEmpty())
+      if (!status.GetMessageString().IsEmpty())
       {
         ezQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
       }
@@ -121,7 +121,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   if (!ExistsPluginSelectionStateDDL(sProjectFile))
     CreatePluginSelectionDDL(sProjectFile, "General3D");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
+
   if (bCreate)
   {
     if (m_bAnyProjectOpened)
@@ -191,7 +192,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
   {
     ezStringBuilder s;
     s.SetFormat("Failed to open project:\n'{0}'", sProjectFile);
@@ -319,7 +320,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
             ezQtUiServices::MessageBoxWarning(ezFmt("<html>The compiler preferences are invalid.<br><br>\
               This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code.<br><br>\
               The compiler set in the preferences does not appear to work, as a result the plugin cannot be compiled <br><br><b>Error:</b> {}</html>",
-              compilerStatus.m_sMessage.GetView()));
+              compilerStatus.GetMessageString()));
             break;
           }
           else if (ezCppProject::IsBuildRequired())

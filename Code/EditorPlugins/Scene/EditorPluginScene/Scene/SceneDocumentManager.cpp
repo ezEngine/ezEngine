@@ -181,7 +181,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezGameObject");
     cmd.m_NewObjectGuid = objectGuid;
     cmd.m_sParentProperty = "Children";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     // object name
     {
@@ -189,7 +189,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "Name";
       propCmd.m_NewValue = "Scene Thumbnail Camera";
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     // camera position
@@ -198,7 +198,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
       propCmd.m_NewValue = ezVec3(0, 0, 0);
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     // camera component
@@ -208,7 +208,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       cmd.SetType("ezCameraComponent");
       cmd.m_Parent = objectGuid;
       cmd.m_sParentProperty = "Components";
-      EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
       // camera shortcut
       {
@@ -216,7 +216,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
         propCmd.m_Object = cmd.m_NewObjectGuid;
         propCmd.m_sProperty = "EditorShortcut";
         propCmd.m_NewValue = 1;
-        EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+        EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
       }
 
       // camera usage hint
@@ -225,7 +225,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
         propCmd.m_Object = cmd.m_NewObjectGuid;
         propCmd.m_sProperty = "UsageHint";
         propCmd.m_NewValue = (int)ezCameraUsageHint::Thumbnail;
-        EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+        EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
       }
     }
   }
@@ -236,14 +236,14 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezGameObject");
     cmd.m_NewObjectGuid = meshObjectGuid;
     cmd.m_sParentProperty = "Children";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     {
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
       propCmd.m_NewValue = ezVec3(3, 0, 0);
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
   }
 
@@ -253,14 +253,14 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezGameObject");
     cmd.m_NewObjectGuid = skyObjectGuid;
     cmd.m_sParentProperty = "Children";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     {
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
       propCmd.m_NewValue = ezVec3(0, 0, 1);
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     {
@@ -268,7 +268,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "Tags";
       propCmd.m_Index = 0; // There is only one value in the set, CastShadow.
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     {
@@ -277,7 +277,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_sProperty = "Tags";
       propCmd.m_Index = 0;
       propCmd.m_NewValue = "SkyLight";
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
   }
 
@@ -287,14 +287,14 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezGameObject");
     cmd.m_NewObjectGuid = lightObjectGuid;
     cmd.m_sParentProperty = "Children";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     {
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalPosition";
       propCmd.m_NewValue = ezVec3(0, 0, 2);
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     {
@@ -304,7 +304,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "LocalRotation";
       propCmd.m_NewValue = qRot;
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
   }
 
@@ -314,14 +314,14 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezSkyBoxComponent");
     cmd.m_Parent = skyObjectGuid;
     cmd.m_sParentProperty = "Components";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     {
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "CubeMap";
       propCmd.m_NewValue = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
 
     {
@@ -329,7 +329,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "ExposureBias";
       propCmd.m_NewValue = 1.0f;
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
   }
 
@@ -339,7 +339,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezSkyLightComponent");
     cmd.m_Parent = lightObjectGuid;
     cmd.m_sParentProperty = "Components";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
   }
 
   {
@@ -348,7 +348,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezDirectionalLightComponent");
     cmd.m_Parent = lightObjectGuid;
     cmd.m_sParentProperty = "Components";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
   }
 
   {
@@ -357,14 +357,14 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     cmd.SetType("ezMeshComponent");
     cmd.m_Parent = meshObjectGuid;
     cmd.m_sParentProperty = "Components";
-    EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
     {
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;
       propCmd.m_sProperty = "Mesh";
       propCmd.m_NewValue = "{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"; // Base/Meshes/Sphere.ezMeshAsset
-      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+      EZ_VERIFY(history->AddCommand(propCmd).Succeeded(), "AddCommand failed");
     }
   }
 

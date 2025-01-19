@@ -88,7 +88,7 @@ ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
 
   auto res = pDoc->SaveDocument();
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
   {
     ezStringBuilder s, s2;
     s.SetFormat("Failed to save document:\n'{0}'", pDoc->GetDocumentPath());

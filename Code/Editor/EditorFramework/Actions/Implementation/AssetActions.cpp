@@ -117,9 +117,9 @@ void ezAssetAction::Execute(const ezVariant& value)
       if (m_Context.m_pDocument->IsModified())
       {
         ezStatus res = const_cast<ezDocument*>(m_Context.m_pDocument)->SaveDocument();
-        if (res.m_Result.Failed())
+        if (res.Failed())
         {
-          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage);
+          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.GetMessageString());
           break;
         }
       }
