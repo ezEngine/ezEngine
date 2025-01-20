@@ -2,7 +2,13 @@
 
 #include <RmlUi/Core/RenderInterface.h>
 
-#include <RmlUiPlugin/Implementation/RmlUiRenderData.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Containers/IdTable.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
+
+using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 namespace ezRmlUiInternal
 {
@@ -26,11 +32,14 @@ namespace ezRmlUiInternal
 
   //////////////////////////////////////////////////////////////////////////
 
-  class Extractor final : public Rml::RenderInterface
+  struct CompiledGeometry;
+  struct CommandBuffer;
+
+  class RenderInterface final : public Rml::RenderInterface
   {
   public:
-    Extractor();
-    virtual ~Extractor();
+    RenderInterface();
+    virtual ~RenderInterface();
 
     virtual Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) override;
     virtual void RenderGeometry(Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation, Rml::TextureHandle hTexture) override;
@@ -41,18 +50,25 @@ namespace ezRmlUiInternal
     virtual void ReleaseTexture(Rml::TextureHandle hTexture) override;
 
     virtual void EnableScissorRegion(bool bEnable) override;
-    virtual void SetScissorRegion(Rml::Rectanglei region) override;    
+    virtual void SetScissorRegion(Rml::Rectanglei region) override;
+
+    virtual void EnableClipMask(bool bEnable) override;
+    virtual void RenderToClipMask(Rml::ClipMaskOperation operation, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation) override;
 
     virtual void SetTransform(const Rml::Matrix4f* pTransform) override;
 
-    void BeginExtraction(const ezVec2I32& vOffset);
+    void BeginExtraction(ezGALTextureHandle hTargetTexture);
     void EndExtraction();
 
-    ezRenderData* GetRenderData();
-
   private:
-    void EndFrame(const ezGALDeviceEvent& e);
+    void GALEventHandler(const ezGALDeviceEvent& e);
+    void BeginFrame();
+    void EndFrame();
     void FreeReleasedGeometry(GeometryId id);
+
+    ezUniquePtr<CommandBuffer> AllocateCommandBuffer();
+    void FreeCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
+    void SubmitCommandBuffer(ezUniquePtr<CommandBuffer>&& pBuffer);
 
     ezIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
 
@@ -62,17 +78,21 @@ namespace ezRmlUiInternal
       GeometryId m_Id;
     };
 
+    ezMutex m_ReleasedCompiledGeometryMutex;
     ezDeque<ReleasedGeometry> m_ReleasedCompiledGeometry;
 
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
-    ezVec2 m_vOffset = ezVec2::MakeZero();
-
     ezMat4 m_mTransform = ezMat4::MakeIdentity();
-    ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
-    bool m_bEnableScissorRect = false;
 
-    ezDynamicArray<Batch> m_Batches;
+    ezDynamicArray<ezUniquePtr<CommandBuffer>> m_FreeCommandBuffers;
+    ezDynamicArray<ezUniquePtr<CommandBuffer>> m_SubmittedCommandBuffers[2];
+
+    ezUniquePtr<CommandBuffer> m_pCurrentCommandBuffer;
+
+    ezShaderResourceHandle m_hShader;
+    ezConstantBufferStorageHandle m_hConstantBuffer;
+    ezVertexDeclarationInfo m_VertexDeclarationInfo;
   };
 } // namespace ezRmlUiInternal

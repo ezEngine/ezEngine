@@ -12,7 +12,9 @@
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
+#if 0
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderer, 1, ezRTTIDefaultAllocator<ezRmlUiRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -177,6 +179,6 @@ void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContex
   pRenderContext->BindMeshBuffer(ezGALBufferHandle(), m_hQuadIndexBuffer, nullptr, ezGALPrimitiveTopology::Triangles, 2);
   pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
-
+#endif
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Implementation_RmlUiRenderer);

@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Components/RenderComponent.h>
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
+
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <RendererCore/Components/RenderComponent.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
@@ -69,6 +71,7 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgReload(ezMsgRmlUiReload& msg);
+  void EnsureTextureCreated(const ezVec2U32& size);
   void UpdateCachedValues();
   void UpdateAutobinding();
 
@@ -81,6 +84,9 @@ protected:
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bPassInput = true;
   bool m_bAutobindBlackboards = true;
+
+  ezGALTextureHandle m_hTexture;
+  ezVec2 m_vFinalOffset = ezVec2::MakeZero();
 
   ezRmlUiContext* m_pContext = nullptr;
 

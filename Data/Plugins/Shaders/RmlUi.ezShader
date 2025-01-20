@@ -33,15 +33,28 @@ WriteMask0 = 0
 
 #endif
 
+[SHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+};
+
 [VERTEXSHADER]
 
 #include "RmlUiConstants.h"
 
 #if RMLUI_MODE != RMLUI_MODE_STENCIL_SET
-  #define USE_COLOR0
-  #define USE_TEXCOORD0
+  struct VS_IN
+  {
+    float2 Position : POSITION;
+    float2 TexCoord0 : TEXCOORD0;
+    float4 Color0 : COLOR0;
+  };
 
-  #include <Shaders/Materials/MaterialInterpolator.h>
+  typedef PS_IN VS_OUT;
 #endif
 
 float4 GetScreenPosition(float4 inputPos)
@@ -62,7 +75,7 @@ float4 GetScreenPosition(float4 inputPos)
   {
     VS_OUT RetVal;
     
-    float4 inputPos = float4(Input.Position, 1);
+    float4 inputPos = float4(Input.Position, 0, 1);
     inputPos.xy += UiTranslation.xy;
     RetVal.Position = GetScreenPosition(inputPos);
 
@@ -80,11 +93,6 @@ float4 GetScreenPosition(float4 inputPos)
   {
   }
 #else
-  #define USE_COLOR0
-  #define USE_TEXCOORD0
-
-  #include <Shaders/Materials/MaterialInterpolator.h>
-
   Texture2D BaseTexture;
   SamplerState BaseTexture_AutoSampler;
 

@@ -7,6 +7,7 @@
 
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
+#if 0
 class EZ_RMLUIPLUGIN_DLL ezRmlUiRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiRenderer, ezRenderer);
@@ -36,3 +37,4 @@ private:
   mutable ezMat4 m_mLastTransform = ezMat4::MakeIdentity();
   mutable ezRectFloat m_LastRect = ezRectFloat(0, 0);
 };
+#endif

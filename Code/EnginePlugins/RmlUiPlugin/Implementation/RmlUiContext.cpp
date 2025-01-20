@@ -3,7 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RmlUiPlugin/Implementation/RmlUiExtractor.h>
+#include <RmlUiPlugin/Implementation/RenderInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 
 namespace
@@ -165,11 +165,6 @@ void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
   }
 }
 
-void ezRmlUiContext::SetOffset(const ezVec2I32& vOffset)
-{
-  m_vOffset = vOffset;
-}
-
 void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
 {
   SetDimensions(Rml::Vector2i(vSize.x, vSize.y));
@@ -193,18 +188,17 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
   m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
-void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
+void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture)
 {
   if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
   {
-    extractor.BeginExtraction(m_vOffset);
+    renderInterface.BeginExtraction(hTexture);
 
     Render();
 
-    extractor.EndExtraction();
+    renderInterface.EndExtraction();
 
     m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
-    m_pRenderData = extractor.GetRenderData();
   }
 }
 
