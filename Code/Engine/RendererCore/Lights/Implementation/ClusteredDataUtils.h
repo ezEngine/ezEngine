@@ -223,6 +223,7 @@ namespace
         break;
       case ezFillLightMode::ModulateIndirect:
         lightColor.a = LIGHT_TYPE_FILL_MODULATE_INDIRECT;
+        out_perLightData.intensity = ezMath::Saturate(out_perLightData.intensity);
         break;
     }
 

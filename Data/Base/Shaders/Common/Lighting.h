@@ -513,15 +513,16 @@ void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseC
   directionality = min(directionality, fillParams.y);
   float NdotL = dot(worldNormal, lightVector);
   attenuation *= saturate(lerp(1.0, NdotL, directionality));
+  attenuation *= lightData.intensity;
 
   float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
   if (type == LIGHT_TYPE_FILL_ADDITIVE)
   {
-    diffuseLight += diffuseColor * lightColor * (lightData.intensity * attenuation);
+    diffuseLight += diffuseColor * lightColor * attenuation;
   }
   else if (type == LIGHT_TYPE_FILL_MODULATE_INDIRECT)
   {
-    indirectLightModulation *= max(lerp(1.0, lightColor * lightData.intensity, attenuation), 0.0);
+    indirectLightModulation *= max(lerp(1.0, lightColor, attenuation), 0.0);
   }
 }
 
