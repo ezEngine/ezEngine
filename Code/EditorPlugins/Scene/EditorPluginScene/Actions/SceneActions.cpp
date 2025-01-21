@@ -44,7 +44,7 @@ void ezSceneActions::RegisterActions()
   s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
 
-  s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "F12", ezSceneAction,
+  s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "F6", ezSceneAction,
     ezSceneAction::ActionType::StartGameModePlayFromHere);
 
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
