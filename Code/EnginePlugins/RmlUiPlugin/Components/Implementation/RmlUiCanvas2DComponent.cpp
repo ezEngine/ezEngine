@@ -59,6 +59,12 @@ void ezRmlUiCanvas2DComponent::Deinitialize()
 {
   SUPER::Deinitialize();
 
+  if (m_hTexture.IsInvalidated() == false)
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hTexture);
+    m_hTexture.Invalidate();
+  }
+
   if (m_pContext != nullptr)
   {
     ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
@@ -113,8 +119,10 @@ void ezRmlUiCanvas2DComponent::Update()
   m_pContext->SetSize(sizeU32);
   m_pContext->SetDpiScale(fScale);
 
-  const ezVec2 offset = ezVec2(static_cast<float>(m_vOffset.x), static_cast<float>(m_vOffset.y)) * fScale;
-  m_vFinalOffset = (viewSize - size).CompMul(m_vAnchorPoint) - offset.CompMul(m_vAnchorPoint * 2.0f - ezVec2(1.0f));  
+  ezVec2 offset = ezVec2(static_cast<float>(m_vOffset.x), static_cast<float>(m_vOffset.y)) * fScale;
+  offset = (viewSize - size).CompMul(m_vAnchorPoint) - offset.CompMul(m_vAnchorPoint * 2.0f - ezVec2(1.0f));
+  m_vFinalOffset.x = ezMath::Round(offset.x);
+  m_vFinalOffset.y = ezMath::Round(offset.y);
 
   EnsureTextureCreated(sizeU32);
 
@@ -328,6 +336,8 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
     auto pRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(GetOwner());
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_vOffset = m_vFinalOffset;
+
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
   }
 }
 

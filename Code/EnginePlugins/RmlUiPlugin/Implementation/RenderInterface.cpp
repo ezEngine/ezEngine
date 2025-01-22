@@ -57,9 +57,10 @@ namespace ezRmlUiInternal
     static constexpr CommandType::Enum Type = CommandType::RenderGeometry;
 
     CompiledGeometry m_CompiledGeometry;
-    ezTexture2DResourceHandle m_hTexture;
+    ezGALTextureHandle m_hTexture;
     ezMat4 m_Transform = ezMat4::MakeIdentity();
     ezVec2 m_Translation = ezVec2::MakeZero();
+    bool m_bTextureNeedsAlphaMultiplication = false;
   };
 
   struct CommandEnableScissorRegion : CommandHeader
@@ -169,6 +170,9 @@ namespace ezRmlUiInternal
     {
       FreeReleasedGeometry(it.Id());
     }
+
+    m_Textures.Clear();
+    m_hFallbackTexture.Invalidate();
   }
 
   Rml::CompiledGeometryHandle RenderInterface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices)
@@ -219,18 +223,18 @@ namespace ezRmlUiInternal
     auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandRenderGeometry>();
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(hGeometry), cmd.m_CompiledGeometry), "Invalid compiled geometry");
 
-    ezTexture2DResourceHandle* phTexture = nullptr;
-    if (m_Textures.TryGetValue(TextureId::FromRml(hTexture), phTexture))
+    TextureInfo textureInfo;
+    if (m_Textures.TryGetValue(TextureId::FromRml(hTexture), textureInfo) == false)
     {
-      cmd.m_hTexture = *phTexture;
+      textureInfo.m_hTexture = m_hFallbackTexture;
     }
-    else
-    {
-      cmd.m_hTexture = m_hFallbackTexture;
-    }
+
+    ezResourceLock<ezTexture2DResource> pTexture(textureInfo.m_hTexture, ezResourceAcquireMode::AllowLoadingFallback);
+    cmd.m_hTexture = pTexture->GetGALTexture();
 
     cmd.m_Transform = m_mTransform;
     cmd.m_Translation = ezVec2(translation.x, translation.y);
+    cmd.m_bTextureNeedsAlphaMultiplication = textureInfo.m_bHasPremultipliedAlpha == false;
   }
 
   void RenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry)
@@ -249,7 +253,11 @@ namespace ezRmlUiInternal
     {
       out_textureSize = Rml::Vector2i(pTexture->GetWidth(), pTexture->GetHeight());
 
-      return m_Textures.Insert(hTexture).ToRml();
+      TextureInfo textureInfo;
+      textureInfo.m_hTexture = hTexture;
+      textureInfo.m_bHasPremultipliedAlpha = false;
+
+      return m_Textures.Insert(textureInfo).ToRml();
     }
 
     return ezRmlUiInternal::TextureId().ToRml();
@@ -279,13 +287,17 @@ namespace ezRmlUiInternal
       ezTexture2DResourceDescriptor desc;
       desc.m_DescGAL.m_uiWidth = uiWidth;
       desc.m_DescGAL.m_uiHeight = uiHeight;
-      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
       hTexture = ezResourceManager::GetOrCreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
     }
 
-    return m_Textures.Insert(hTexture).ToRml();
+    TextureInfo textureInfo;
+    textureInfo.m_hTexture = hTexture;
+    textureInfo.m_bHasPremultipliedAlpha = true;
+
+    return m_Textures.Insert(textureInfo).ToRml();
   }
 
   void RenderInterface::ReleaseTexture(Rml::TextureHandle hTexture)
@@ -424,10 +436,11 @@ namespace ezRmlUiInternal
             ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
             pConstants->UiTransform = cmd.m_Transform;
             pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
+            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bTextureNeedsAlphaMultiplication;
 
             pRenderContext->BindMeshBuffer(cmd.m_CompiledGeometry.m_hVertexBuffer, cmd.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
-            pRenderContext->BindTexture2D("BaseTexture", cmd.m_hTexture);
+            pRenderContext->BindTexture2D("BaseTexture", pDevice->GetDefaultResourceView(cmd.m_hTexture));
 
             pRenderContext->DrawMeshBuffer().IgnoreResult();
           }

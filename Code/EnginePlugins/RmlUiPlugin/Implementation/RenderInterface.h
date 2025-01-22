@@ -81,7 +81,13 @@ namespace ezRmlUiInternal
     ezMutex m_ReleasedCompiledGeometryMutex;
     ezDeque<ReleasedGeometry> m_ReleasedCompiledGeometry;
 
-    ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
+    struct TextureInfo
+    {
+      ezTexture2DResourceHandle m_hTexture;
+      bool m_bHasPremultipliedAlpha = false;
+    };
+
+    ezIdTable<TextureId, TextureInfo> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
     ezMat4 m_mTransform = ezMat4::MakeIdentity();

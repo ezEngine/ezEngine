@@ -73,14 +73,24 @@ struct ezGALPrimitiveTopology
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
-    Points,    // 1 index per primitive
-    Lines,     // 2 indices per primitive
-    Triangles, // 3 indices per primitive
+    Points,        // 1 index per primitive
+    Lines,         // 2 indices per primitive
+    Triangles,     // 3 indices per primitive
+    TriangleStrip, // 3 indices per primitive, but the first two indices are shared with the previous primitive
+
     ENUM_COUNT,
+
     Default = Triangles
   };
 
-  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e) { return (ezUInt32)e + 1; }
+  static ezUInt32 GetIndexCount(Enum e, ezUInt32 uiPrimitiveCount)
+  {
+    if (e <= Triangles)
+      return uiPrimitiveCount * ((ezUInt32)e + 1);
+
+    // TriangleStrip
+    return uiPrimitiveCount > 0 ? uiPrimitiveCount + 2 : 0;
+  }
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType

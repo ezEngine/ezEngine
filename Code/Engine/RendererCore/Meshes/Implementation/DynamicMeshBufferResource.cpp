@@ -131,7 +131,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
     m_VertexBuffer.GetNewBuffer();
   }
 
-  const ezUInt32 uiMaxIndices = ezGALPrimitiveTopology::VerticesPerPrimitive(m_Descriptor.m_Topology) * m_Descriptor.m_uiMaxPrimitives;
+  const ezUInt32 uiMaxIndices = ezGALPrimitiveTopology::GetIndexCount(m_Descriptor.m_Topology, m_Descriptor.m_uiMaxPrimitives);
 
   if (m_Descriptor.m_bColorStream)
   {

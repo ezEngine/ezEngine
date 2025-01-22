@@ -108,7 +108,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   if (uiNumPrimitives > 0)
   {
     // use an index buffer at all
-    ezUInt32 uiIndexBufferSize = uiNumPrimitives * ezGALPrimitiveTopology::VerticesPerPrimitive(topology);
+    ezUInt32 uiIndexBufferSize = ezGALPrimitiveTopology::GetIndexCount(topology, uiNumPrimitives);
 
     if (Uses32BitIndices())
     {
@@ -580,7 +580,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
 
   if (descriptor.HasIndexBuffer())
   {
-    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+    const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(m_Topology, m_uiPrimitiveCount);
+    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, uiIndexCount, descriptor.GetIndexBufferData());
 
     sName.SetFormat("{0} Index Buffer", GetResourceDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);

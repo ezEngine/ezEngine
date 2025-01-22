@@ -744,11 +744,14 @@ void ezGALCommandEncoderImplDX11::SetVertexDeclarationPlatform(const ezGALVertex
     pVertexDeclaration != nullptr ? static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
 }
 
-static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[ezGALPrimitiveTopology::ENUM_COUNT] = {
+static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[] = {
   D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
   D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
   D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+  D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
 };
+
+static_assert(EZ_ARRAY_SIZE(GALTopologyToDX11) == ezGALPrimitiveTopology::ENUM_COUNT);
 
 void ezGALCommandEncoderImplDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology)
 {

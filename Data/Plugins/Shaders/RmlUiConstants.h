@@ -4,6 +4,5 @@ CONSTANT_BUFFER(ezRmlUiConstants, 4)
 {
   MAT4(UiTransform);
   FLOAT4(UiTranslation);
-  FLOAT4(QuadVertexPos)
-  [4];
+  BOOL1(TextureNeedsAlphaMultiplication);
 };

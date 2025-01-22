@@ -514,8 +514,14 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
   {
     m_Topology = topology;
 
-    ezTempHashedString sTopologies[ezGALPrimitiveTopology::ENUM_COUNT] = {
-      ezTempHashedString("TOPOLOGY_POINTS"), ezTempHashedString("TOPOLOGY_LINES"), ezTempHashedString("TOPOLOGY_TRIANGLES")};
+    ezTempHashedString sTopologies[] = {
+      ezTempHashedString("TOPOLOGY_POINTS"),
+      ezTempHashedString("TOPOLOGY_LINES"),
+      ezTempHashedString("TOPOLOGY_TRIANGLES"),
+      ezTempHashedString("TOPOLOGY_TRIANGLESTRIP"),
+    };
+
+    static_assert(EZ_ARRAY_SIZE(sTopologies) == ezGALPrimitiveTopology::ENUM_COUNT);
 
     SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
   }
@@ -552,10 +558,9 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
 
   auto pCommandEncoder = GetCommandEncoder();
 
-  const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(pCommandEncoder->GetPrimitiveTopology());
+  const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(pCommandEncoder->GetPrimitiveTopology(), uiPrimitiveCount);
+  const ezUInt32 uiFirstIndex = ezGALPrimitiveTopology::GetIndexCount(pCommandEncoder->GetPrimitiveTopology(), uiFirstPrimitive);
 
-  uiPrimitiveCount *= uiVertsPerPrimitive;
-  uiFirstPrimitive *= uiVertsPerPrimitive;
   if (m_bStereoRendering)
   {
     uiInstanceCount *= 2;
@@ -565,22 +570,22 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
   {
     if (!m_hIndexBuffer.IsInvalidated())
     {
-      return pCommandEncoder->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawIndexedInstanced(uiIndexCount, uiInstanceCount, uiFirstIndex);
     }
     else
     {
-      return pCommandEncoder->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawInstanced(uiIndexCount, uiInstanceCount, uiFirstIndex);
     }
   }
   else
   {
     if (!m_hIndexBuffer.IsInvalidated())
     {
-      return pCommandEncoder->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
+      return pCommandEncoder->DrawIndexed(uiIndexCount, uiFirstIndex);
     }
     else
     {
-      return pCommandEncoder->Draw(uiPrimitiveCount, uiFirstPrimitive);
+      return pCommandEncoder->Draw(uiIndexCount, uiFirstIndex);
     }
   }
 
