@@ -87,6 +87,7 @@ namespace ezRmlUiInternal
 
   struct CommandBuffer
   {
+    ezHashedString m_sName;
     ezDynamicArray<ezUInt8> m_Buffer;
     ezGALTextureHandle m_hTargetTexture;
     ezUInt32 m_uiTargetWidth = 0;
@@ -222,7 +223,7 @@ namespace ezRmlUiInternal
       textureInfo.m_hTexture = m_hFallbackTexture;
     }
 
-    ezResourceLock<ezTexture2DResource> pTexture(textureInfo.m_hTexture, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezTexture2DResource> pTexture(textureInfo.m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
     cmd.m_hTexture = pTexture->GetGALTexture();
 
     cmd.m_Transform = m_mTransform;
@@ -349,11 +350,12 @@ namespace ezRmlUiInternal
     }
   }
 
-  void RenderInterface::BeginExtraction(ezGALTextureHandle hTargetTexture)
+  void RenderInterface::BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture)
   {
     m_mTransform = ezMat4::MakeIdentity();
 
     m_pCurrentCommandBuffer = AllocateCommandBuffer();
+    m_pCurrentCommandBuffer->m_sName = sName;
     m_pCurrentCommandBuffer->m_hTargetTexture = hTargetTexture;
 
     const ezGALTexture* pTargetTexture = ezGALDevice::GetDefaultDevice()->GetTexture(hTargetTexture);
@@ -390,6 +392,12 @@ namespace ezRmlUiInternal
     ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
     ezGPUResourcePool* pGpuResourcePool = ezGPUResourcePool::GetDefaultInstance();
 
+    if (pRenderContext->GetAllowAsyncShaderLoading())
+    {
+      // Force load the shader, otherwise we could end up rendering nothing when lazy update is enabled on the context
+      ezResourceLock<ezShaderResource> pShader(m_hShader, ezResourceAcquireMode::BlockTillLoaded);
+    }
+
     const ezGALResourceFormat::Enum tempTargetFormat = ezGALResourceFormat::RGBAUByteNormalized;
     const ezGALResourceFormat::Enum tempStencilFormat = ezGALResourceFormat::D24S8;
     const ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::FourSamples;
@@ -417,8 +425,7 @@ namespace ezRmlUiInternal
       renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hTempTarget));
       renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hTempStencil));
 
-      // TODO: better name
-      pRenderContext->BeginRendering(renderingSetup, viewport, "RmlUi", false);
+      pRenderContext->BeginRendering(renderingSetup, viewport, pCommandBuffer->m_sName, false);
       pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_NORMAL");
 
       pCommandEncoder->SetScissorRect(scissorRect);

@@ -89,12 +89,14 @@ void ezRmlUiContext::HideDocument()
   }
 }
 
-void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
+bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
 {
-  float width = static_cast<float>(GetDimensions().x);
-  float height = static_cast<float>(GetDimensions().y);
+  const float width = static_cast<float>(GetDimensions().x);
+  const float height = static_cast<float>(GetDimensions().y);
 
-  m_bWantsInput = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
+  const bool bMouseOverContext = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
+  bool bMouseInputConsumed = false;
+  bool bKeyboardInputConsumed = false;
 
   const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
@@ -110,7 +112,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
 
   // Mouse
   {
-    ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
+    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
     static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
@@ -118,21 +120,21 @@ void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
       ezKeyState::Enum state = ezInputManager::GetInputSlotState(szMouseButtons[i]);
       if (state == ezKeyState::Pressed)
       {
-        ProcessMouseButtonDown(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonDown(i, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        ProcessMouseButtonUp(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonUp(i, modifierState);
       }
     }
 
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
     {
-      m_bWantsInput |= !ProcessMouseWheel(1.0f, modifierState);
+      bKeyboardInputConsumed |= !ProcessMouseWheel(1.0f, modifierState);
     }
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
     {
-      m_bWantsInput |= !ProcessMouseWheel(-1.0f, modifierState);
+      bKeyboardInputConsumed |= !ProcessMouseWheel(-1.0f, modifierState);
     }
   }
 
@@ -146,7 +148,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
       if (!ezStringUtils::IsNullOrEmpty(szUtf8))
       {
-        m_bWantsInput |= !ProcessTextInput(szUtf8);
+        bKeyboardInputConsumed |= !ProcessTextInput(szUtf8);
       }
     }
 
@@ -155,14 +157,18 @@ void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
       ezKeyState::Enum state = ezInputManager::GetInputSlotState(s_szEzKeys[i]);
       if (state == ezKeyState::Pressed)
       {
-        m_bWantsInput |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        m_bWantsInput |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
       }
     }
   }
+
+  m_bWantsInput = bMouseOverContext || bKeyboardInputConsumed;
+
+  return bMouseInputConsumed || bKeyboardInputConsumed;
 }
 
 void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
@@ -188,17 +194,27 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
   m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
+void ezRmlUiContext::Update()
+{
+  Rml::Context::Update();
+
+  m_uiUpdatedFrame = ezRenderWorld::GetFrameCounter();
+}
+
 void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture)
 {
-  if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
+  if (m_uiExtractedFrame != m_uiUpdatedFrame)
   {
-    renderInterface.BeginExtraction(hTexture);
+    ezHashedString sName;
+    sName.Assign(GetName().c_str());
+
+    renderInterface.BeginExtraction(sName, hTexture);
 
     Render();
 
     renderInterface.EndExtraction();
 
-    m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
+    m_uiExtractedFrame = m_uiUpdatedFrame;
   }
 }
 

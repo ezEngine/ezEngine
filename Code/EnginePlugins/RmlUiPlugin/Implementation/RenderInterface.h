@@ -57,7 +57,7 @@ namespace ezRmlUiInternal
 
     virtual void SetTransform(const Rml::Matrix4f* pTransform) override;
 
-    void BeginExtraction(ezGALTextureHandle hTargetTexture);
+    void BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture);
     void EndExtraction();
 
   private:

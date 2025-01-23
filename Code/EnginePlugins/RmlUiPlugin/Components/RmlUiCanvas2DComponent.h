@@ -53,6 +53,9 @@ public:
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                                  // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }                   // [ property ]
+
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
@@ -71,7 +74,7 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgReload(ezMsgRmlUiReload& msg);
-  void EnsureTextureCreated(const ezVec2U32& size);
+  bool UpdateSizeOffsetAndTexture(ezVec2& out_viewSize);
   void UpdateCachedValues();
   void UpdateAutobinding();
 
@@ -84,6 +87,7 @@ protected:
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bPassInput = true;
   bool m_bAutobindBlackboards = true;
+  bool m_bOnDemandUpdate = true;
 
   ezGALTextureHandle m_hTexture;
   ezVec2 m_vFinalOffset = ezVec2::MakeZero();

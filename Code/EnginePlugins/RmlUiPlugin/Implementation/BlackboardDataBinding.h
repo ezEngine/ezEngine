@@ -16,7 +16,7 @@ namespace ezRmlUiInternal
 
     virtual ezResult Initialize(Rml::Context& ref_context) override;
     virtual void Deinitialize(Rml::Context& ref_context) override;
-    virtual void Update() override;
+    virtual bool Update() override;
 
   private:
     ezSharedPtr<ezBlackboard> m_pBlackboard;

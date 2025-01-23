@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3667610956660949061,10076447021010321389}}
-		u4 %Hash{9101823030034418861}
+		u4 %Hash{8613721746226226624}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -107,13 +107,14 @@ o
 {
 	Uuid %id{u4{169547522771274649,5585675751400906068}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
 		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
 		Vec2u %Size{u3{0,0}}
@@ -187,13 +188,14 @@ o
 {
 	Uuid %id{u4{15127423257017247030,10678203779478713803}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
 		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
 		Vec2u %Size{u3{0,0}}
@@ -229,13 +231,14 @@ o
 {
 	Uuid %id{u4{8415537488950399964,15896713094477747025}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
 		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
 		b %PassInput{1}
 		s %RmlFile{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
 		Vec2u %Size{u3{0,0}}
@@ -275,7 +278,7 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvas2DComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

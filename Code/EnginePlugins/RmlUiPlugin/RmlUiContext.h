@@ -32,7 +32,8 @@ public:
   void ShowDocument();
   void HideDocument();
 
-  void UpdateInput(const ezVec2& vMousePos);
+  /// \brief Returns true if the input was consumed
+  bool UpdateInput(const ezVec2& vMousePos);
   bool WantsInput() const { return m_bWantsInput; }
 
   void SetSize(const ezVec2U32& vSize);
@@ -42,6 +43,8 @@ public:
 
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
   void DeregisterEventHandler(const char* szIdentifier);
+
+  void Update();
 
 private:
   bool HasDocument() { return GetNumDocuments() > 0; }
@@ -54,7 +57,8 @@ private:
 
   ezHashTable<ezHashedString, EventHandler> m_EventHandler;
 
-  ezUInt64 m_uiExtractedFrame = 0;
+  ezUInt64 m_uiUpdatedFrame = ezUInt64(-1);
+  ezUInt64 m_uiExtractedFrame = ezUInt64(-1);
 
   bool m_bWantsInput = false;
 };
