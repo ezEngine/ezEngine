@@ -38,7 +38,6 @@ namespace ezRmlUiInternal
     {
       Invalid,
       RenderGeometry,
-      EnableScissorRegion,
       SetScissorRegion,
       EnableClipMask,
       RenderToClipMask,
@@ -47,9 +46,11 @@ namespace ezRmlUiInternal
     };
   };
 
-  struct CommandHeader
+  struct alignas(4) CommandHeader
   {
     ezEnum<CommandType> m_Type;
+    bool m_bValue = false;
+    ezUInt8 m_uiPadding[2] = {};
   };
 
   struct CommandRenderGeometry : CommandHeader
@@ -60,28 +61,18 @@ namespace ezRmlUiInternal
     ezGALTextureHandle m_hTexture;
     ezMat4 m_Transform = ezMat4::MakeIdentity();
     ezVec2 m_Translation = ezVec2::MakeZero();
-    bool m_bTextureNeedsAlphaMultiplication = false;
-  };
-
-  struct CommandEnableScissorRegion : CommandHeader
-  {
-    static constexpr CommandType::Enum Type = CommandType::EnableScissorRegion;
-
-    bool m_bEnable = false;
   };
 
   struct CommandSetScissorRegion : CommandHeader
   {
     static constexpr CommandType::Enum Type = CommandType::SetScissorRegion;
 
-    ezRectFloat m_ScissorRect = {};
+    ezRectU32 m_ScissorRect = {};
   };
 
   struct CommandEnableClipMask : CommandHeader
   {
     static constexpr CommandType::Enum Type = CommandType::EnableClipMask;
-
-    bool m_bEnable = false;
   };
 
   struct CommandRenderToClipMask : CommandHeader
@@ -98,6 +89,8 @@ namespace ezRmlUiInternal
   {
     ezDynamicArray<ezUInt8> m_Buffer;
     ezGALTextureHandle m_hTargetTexture;
+    ezUInt32 m_uiTargetWidth = 0;
+    ezUInt32 m_uiTargetHeight = 0;
 
     template <typename T>
     T& AddCommand()
@@ -117,7 +110,7 @@ namespace ezRmlUiInternal
 
     CommandType::Enum PeekCommandType(ezUInt32 uiOffset) const
     {
-      return *reinterpret_cast<const CommandType::Enum*>(m_Buffer.GetData() + uiOffset);
+      return static_cast<CommandType::Enum>(*(m_Buffer.GetData() + uiOffset));
     }
 
     void Clear()
@@ -234,7 +227,7 @@ namespace ezRmlUiInternal
 
     cmd.m_Transform = m_mTransform;
     cmd.m_Translation = ezVec2(translation.x, translation.y);
-    cmd.m_bTextureNeedsAlphaMultiplication = textureInfo.m_bHasPremultipliedAlpha == false;
+    cmd.m_bValue = textureInfo.m_bHasPremultipliedAlpha == false;
   }
 
   void RenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry)
@@ -302,29 +295,32 @@ namespace ezRmlUiInternal
 
   void RenderInterface::ReleaseTexture(Rml::TextureHandle hTexture)
   {
-    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(hTexture)), "Invalid texture handle");
+    TextureId textureId = TextureId::FromRml(hTexture);
+    if (textureId.IsInvalidated() == false)
+    {
+      EZ_VERIFY(m_Textures.Remove(textureId), "Invalid texture handle");
+    }
   }
 
   void RenderInterface::EnableScissorRegion(bool bEnable)
   {
-    auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandEnableScissorRegion>();
-    cmd.m_bEnable = bEnable;
+    // Scissor is always enabled in our shaders, set the full viewport if disabled
+    if (bEnable == false)
+    {
+      SetScissorRegion(Rml::Rectanglei::FromSize({(int)m_pCurrentCommandBuffer->m_uiTargetWidth, (int)m_pCurrentCommandBuffer->m_uiTargetHeight}));
+    }
   }
 
   void RenderInterface::SetScissorRegion(Rml::Rectanglei region)
   {
     auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandSetScissorRegion>();
-    cmd.m_ScissorRect = ezRectFloat(
-      static_cast<float>(region.Left()),
-      static_cast<float>(region.Top()),
-      static_cast<float>(region.Width()),
-      static_cast<float>(region.Height()));
+    cmd.m_ScissorRect = ezRectU32(region.Left(), region.Top(), region.Width(), region.Height());
   }
 
   void RenderInterface::EnableClipMask(bool bEnable)
   {
     auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandEnableClipMask>();
-    cmd.m_bEnable = bEnable;
+    cmd.m_bValue = bEnable;
   }
 
   void RenderInterface::RenderToClipMask(Rml::ClipMaskOperation operation, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation)
@@ -359,6 +355,10 @@ namespace ezRmlUiInternal
 
     m_pCurrentCommandBuffer = AllocateCommandBuffer();
     m_pCurrentCommandBuffer->m_hTargetTexture = hTargetTexture;
+
+    const ezGALTexture* pTargetTexture = ezGALDevice::GetDefaultDevice()->GetTexture(hTargetTexture);
+    m_pCurrentCommandBuffer->m_uiTargetWidth = pTargetTexture->GetDescription().m_uiWidth;
+    m_pCurrentCommandBuffer->m_uiTargetHeight = pTargetTexture->GetDescription().m_uiHeight;
   }
 
   void RenderInterface::EndExtraction()
@@ -436,13 +436,21 @@ namespace ezRmlUiInternal
             ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
             pConstants->UiTransform = cmd.m_Transform;
             pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
-            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bTextureNeedsAlphaMultiplication;
+            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bValue;
 
             pRenderContext->BindMeshBuffer(cmd.m_CompiledGeometry.m_hVertexBuffer, cmd.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
             pRenderContext->BindTexture2D("BaseTexture", pDevice->GetDefaultResourceView(cmd.m_hTexture));
 
             pRenderContext->DrawMeshBuffer().IgnoreResult();
+          }
+          break;
+
+          case CommandType::SetScissorRegion:
+          {
+            auto& cmd = pCommandBuffer->ConsumeCommand<CommandSetScissorRegion>(uiCommandOffset);
+
+            pCommandEncoder->SetScissorRect(cmd.m_ScissorRect);
           }
           break;
 

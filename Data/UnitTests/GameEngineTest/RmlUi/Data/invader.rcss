@@ -1,6 +1,6 @@
 @spritesheet theme
 {
-	src: invader_d.png;
+	src: invader.png;
 
 	/* For high dpi screens, designates the scaling it is intended to be shown at. */
 	resolution: 1x;

@@ -79,6 +79,9 @@ void ezRmlUiCanvas2DComponent::OnActivated()
   SUPER::OnActivated();
 
   GetOrCreateRmlContext()->ShowDocument();
+
+  // Update once to ensure correct initial state
+  Update();
 }
 
 void ezRmlUiCanvas2DComponent::OnDeactivated()
@@ -329,7 +332,7 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (m_pContext != nullptr)
+  if (m_pContext != nullptr && m_hTexture.IsInvalidated() == false)
   {
     ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, m_hTexture);
 

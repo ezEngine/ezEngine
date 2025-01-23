@@ -11,16 +11,16 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
-			s{"Data/demo.rml"}
+			s{"Data/demo1.rml"}
 		}
 		Uuid %DocumentID{u4{4966024377835371173,5281369724061878791}}
-		u4 %Hash{17769493059638183686}
+		u4 %Hash{17861603501328327308}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"Data/demo.rml"}
+			s{"Data/demo1.rml"}
 		}
 		s %Tags{""}
 	}
@@ -35,9 +35,9 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2u %ReferenceResolution{u3{1920,1080}}
-		s %RmlFile{"Data/demo.rml"}
-		s %ScaleMode{"ezRmlUiScaleMode::Fixed"}
+		Vec2u %ReferenceResolution{u3{1280,720}}
+		s %RmlFile{"Data/demo1.rml"}
+		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
 o

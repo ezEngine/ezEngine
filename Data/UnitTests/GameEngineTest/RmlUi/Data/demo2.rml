@@ -1,0 +1,32 @@
+<rml>
+<head>
+	<link type="text/template" href="window.rml"/>
+	<link type="text/rcss" href="demo.rcss"/>
+	<title>Demo Sample</title>
+</head>
+
+<body template="window">
+
+<tabset id="menu">
+<tab>Font effects</tab>
+<panel id="font_effects">
+	<h1>None</h1>
+	<div class="original">RmlUi 😍</div>
+	<h1>Glow</h1>
+	<div class="glow">RmlUi 😍</div>
+	<div class="glow_sharper">RmlUi 😍</div>
+	<div class="glow_blurry">RmlUi 😍</div>
+	<div class="glow_shadow">RmlUi 😍</div>
+	<h1>Outline</h1>
+	<div class="outline_small">RmlUi 😍</div>
+	<div class="outline_big">RmlUi 😍</div>
+	<h1>Shadow</h1>
+	<div class="shadow_up">RmlUi 😍</div>
+	<div class="shadow_down">RmlUi 😍</div>
+	<h1>Blur</h1>
+	<div class="blur_small">RmlUi 😍</div>
+	<div class="blur_big">RmlUi 😍</div>
+</panel>
+</tabset>
+</body>
+</rml>

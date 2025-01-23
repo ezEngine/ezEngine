@@ -1,9 +1,9 @@
 WindowDesc
 {
-	string %Title{"Procedural Generation"}
+	string %Title{"RmlUi"}
 	string %Mode{"Window"}
-	Vec2u %Resolution{uint32{320,240}}
-	bool %ClipMouseCursor{true}
-	bool %ShowMouseCursor{false}
+	Vec2u %Resolution{uint32{640,360}}
+	bool %ClipMouseCursor{false}
+	bool %ShowMouseCursor{true}
 	bool %SetForegroundOnInit{true}
 }

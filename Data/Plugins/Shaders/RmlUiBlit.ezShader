@@ -9,7 +9,7 @@ RMLUI_MODE
 
 BlendingEnabled0 = true
 DestBlend0 = Blend_InvSrcAlpha
-SourceBlend0 = Blend_SrcAlpha
+SourceBlend0 = Blend_One
 DestBlendAlpha0 = Blend_InvSrcAlpha
 SourceBlendAlpha0 = Blend_One
 DepthTest = false
@@ -52,9 +52,7 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  // un-multiply alpha and gamma correct
   float4 color = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
-  color.rgb /= color.a;
   color.rgb = SrgbToLinear(color.rgb);
   return color;
 }

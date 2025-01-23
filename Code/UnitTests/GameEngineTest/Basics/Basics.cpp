@@ -235,6 +235,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/ProcGen/ezProject", 6).Succeeded());
 }
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 1).Succeeded());
+}
+
 #endif
 
 

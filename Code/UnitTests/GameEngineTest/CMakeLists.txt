@@ -14,7 +14,8 @@ target_link_libraries(${PROJECT_NAME}
   RendererCore
   Utilities
   ParticlePlugin
-  VisualScriptPlugin
+  RmlUiPlugin
+  VisualScriptPlugin  
 )
 
 if (EZ_3RDPARTY_DUKTAPE_SUPPORT)
