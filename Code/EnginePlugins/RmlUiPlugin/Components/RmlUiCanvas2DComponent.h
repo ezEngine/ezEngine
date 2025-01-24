@@ -53,8 +53,8 @@ public:
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  void SetOnDemandUpdate(bool bOnDemandUpdate);                                  // [ property ]
-  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }                   // [ property ]
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                          // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }           // [ property ]
 
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);

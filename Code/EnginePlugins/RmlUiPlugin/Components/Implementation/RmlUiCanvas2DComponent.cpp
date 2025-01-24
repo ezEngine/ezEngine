@@ -101,7 +101,7 @@ void ezRmlUiCanvas2DComponent::Update()
   bool bNeedsUpdate = m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
 
   ezVec2 viewSize = ezVec2::MakeZero();
-  bNeedsUpdate |= UpdateSizeOffsetAndTexture(viewSize);  
+  bNeedsUpdate |= UpdateSizeOffsetAndTexture(viewSize);
 
   if (m_bPassInput && GetWorld()->GetWorldSimulationEnabled())
   {
@@ -324,7 +324,7 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   if (m_pContext != nullptr && m_hTexture.IsInvalidated() == false)
   {
     ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, m_hTexture);
-    
+
     auto pRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(GetOwner());
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_vOffset = m_vFinalOffset;
