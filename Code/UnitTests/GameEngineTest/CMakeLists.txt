@@ -14,17 +14,21 @@ target_link_libraries(${PROJECT_NAME}
   RendererCore
   Utilities
   ParticlePlugin
-  RmlUiPlugin
   VisualScriptPlugin  
 )
 
 if (EZ_3RDPARTY_DUKTAPE_SUPPORT)
-
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
     TypeScriptPlugin
   )
+endif()
 
+if (EZ_BUILD_RMLUI AND (EZ_CMAKE_PLATFORM_WINDOWS OR EZ_CMAKE_PLATFORM_LINUX))
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    RmlUiPlugin
+  )
 endif()
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

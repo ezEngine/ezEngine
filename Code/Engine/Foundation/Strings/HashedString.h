@@ -131,7 +131,7 @@ public:
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
   // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
-  EZ_ALWAYS_INLINE bool operator==(const char* sz) const { return GetString().GetView() == ezStringView(sz); }
+  EZ_ALWAYS_INLINE bool operator==(const char* szString) const { return GetString().GetView() == ezStringView(szString); }
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
 
   /// \brief Attempts to find a known string for the given hash value.
@@ -148,15 +148,15 @@ private:
 };
 
 // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
-EZ_ALWAYS_INLINE bool operator==(const char* sz, const ezHashedString& rhs)
+EZ_ALWAYS_INLINE bool operator==(const char* szString, const ezHashedString& rhs)
 {
-  return rhs.GetView() == ezStringView(sz);
+  return rhs.GetView() == ezStringView(szString);
 }
 
 #if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
-EZ_ALWAYS_INLINE bool operator!=(const char* sz, const ezHashedString& rhs)
+EZ_ALWAYS_INLINE bool operator!=(const char* szString, const ezHashedString& rhs)
 {
-  return rhs.GetView() != ezStringView(sz);
+  return rhs.GetView() != ezStringView(szString);
 }
 
 #endif

@@ -233,6 +233,8 @@ EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopo
       return vk::PrimitiveTopology::eLineList;
     case ezGALPrimitiveTopology::Triangles:
       return vk::PrimitiveTopology::eTriangleList;
+    case ezGALPrimitiveTopology::TriangleStrip:
+      return vk::PrimitiveTopology::eTriangleStrip;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return vk::PrimitiveTopology::ePointList;
