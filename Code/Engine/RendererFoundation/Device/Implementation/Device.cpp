@@ -570,6 +570,8 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
 ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer)
 {
+  EZ_ASSERT_DEBUG(m_Mutex.IsLocked(), "");
+
   if (pBuffer != nullptr)
   {
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
@@ -928,6 +930,70 @@ void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer)
   else
   {
     ezLog::Warning("DestroyReadbackBuffer called on invalid handle (double free?)");
+  }
+}
+
+void ezGALDevice::UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset /*= 0*/)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (const ezGALBuffer* pBuffer = GetBuffer(hBuffer))
+  {
+    if (uiDestOffset + sourceData.GetCount() > pBuffer->GetDescription().m_uiTotalSize)
+    {
+      ezLog::Error("Trying to update buffer outside of its bounds!");
+      return;
+    }
+
+    UpdateBufferForNextFramePlatform(pBuffer, sourceData, uiDestOffset);
+  }
+  else
+  {
+    ezLog::Error("No valid buffer handle given to update!");
+  }
+}
+
+void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource /*= {}*/, const ezBoundingBoxu32& destinationBox /*= ezBoundingBoxu32::MakeInvalid()*/)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (const ezGALTexture* pTexture = GetTexture(hTexture))
+  {
+    auto& desc = pTexture->GetDescription();
+
+    const bool bDestBoxIsValid = destinationBox.IsValid() && destinationBox.GetExtents().IsZero() == false;
+    if (bDestBoxIsValid && (destinationBox.m_vMax.x > desc.m_uiWidth || destinationBox.m_vMax.y > desc.m_uiHeight || destinationBox.m_vMax.z > desc.m_uiDepth))
+    {
+      ezLog::Error("Trying to update texture outside of its bounds!");
+      return;
+    }
+
+    const ezUInt32 uiWidth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u) : desc.m_uiWidth;
+    const ezUInt32 uiHeight = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u) : desc.m_uiHeight;
+    const ezUInt32 uiDepth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u) : desc.m_uiDepth;
+
+    const ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
+    const ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
+    EZ_ASSERT_DEV(sourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
+    EZ_ASSERT_DEV(sourceData.m_uiSlicePitch == 0 || sourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
+    EZ_ASSERT_DEBUG(sourceData.m_pData.GetCount() >= uiSlicePitch * uiDepth, "Not enough data provided to update texture");
+
+    ezBoundingBoxu32 finalDestBox = destinationBox;
+    if (bDestBoxIsValid)
+    {
+      finalDestBox.m_vMax = finalDestBox.m_vMin + ezVec3U32(uiWidth, uiHeight, uiDepth);
+    }
+    else
+    {
+      finalDestBox.m_vMin = ezVec3U32(0, 0, 0);
+      finalDestBox.m_vMax = ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+    }
+
+    UpdateTextureForNextFramePlatform(pTexture, sourceData, destinationSubResource, finalDestBox);
+  }
+  else
+  {
+    ezLog::Error("No valid texture handle given to update!");
   }
 }
 

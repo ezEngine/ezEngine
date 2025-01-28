@@ -309,21 +309,14 @@ void ezGALCommandEncoderImplDX11::UpdateBufferPlatform(const ezGALBuffer* pDesti
   else
   {
     const bool bTransient = pDestination->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient);
-    if (updateMode == ezGALUpdateMode::CopyToTempStorage || !bTransient)
+    if (!bTransient)
     {
-      if (ID3D11Resource* pDXTempBuffer = m_GALDeviceDX11.FindTempBuffer(sourceData.GetCount()))
+      if (ezGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempBuffer(sourceData))
       {
-        D3D11_MAPPED_SUBRESOURCE MapResult;
-        HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, 0, &MapResult);
-        EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
-        EZ_IGNORE_UNUSED(hRes);
-
-        memcpy(MapResult.pData, sourceData.GetPtr(), sourceData.GetCount());
-
-        m_pDXContext->Unmap(pDXTempBuffer, 0);
+        m_GALDeviceDX11.UnmapTempResource(tempResource);
 
         D3D11_BOX srcBox = {0, 0, 0, sourceData.GetCount(), 1, 1};
-        m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+        m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, tempResource.m_pResource, 0, &srcBox);
       }
       else
       {
@@ -390,48 +383,14 @@ void ezGALCommandEncoderImplDX11::UpdateTexturePlatform(const ezGALTexture* pDes
   ezUInt32 uiDepth = ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u);
   ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
 
-  if (ID3D11Resource* pDXTempTexture = m_GALDeviceDX11.FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+  if (ezGALDeviceDX11::TempResource tempResource = m_GALDeviceDX11.CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, format))
   {
-    D3D11_MAPPED_SUBRESOURCE MapResult;
-    HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, 0, &MapResult);
-    EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
-    EZ_IGNORE_UNUSED(hRes);
-
-    ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
-    ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
-    EZ_ASSERT_DEV(sourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
-    EZ_ASSERT_DEV(sourceData.m_uiSlicePitch == 0 || sourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}",
-      uiSlicePitch, sourceData.m_uiSlicePitch);
-
-    if (MapResult.RowPitch == uiRowPitch && MapResult.DepthPitch == uiSlicePitch)
-    {
-      EZ_ASSERT_DEBUG(sourceData.m_pData.GetCount() >= uiSlicePitch * uiDepth, "Not enough data provided to update texture");
-      memcpy(MapResult.pData, sourceData.m_pData.GetPtr(), uiSlicePitch * uiDepth);
-    }
-    else
-    {
-      // Copy row by row
-      for (ezUInt32 z = 0; z < uiDepth; ++z)
-      {
-        const void* pSource = ezMemoryUtils::AddByteOffset(sourceData.m_pData.GetPtr(), z * uiSlicePitch);
-        void* pDest = ezMemoryUtils::AddByteOffset(MapResult.pData, z * MapResult.DepthPitch);
-
-        for (ezUInt32 y = 0; y < uiHeight; ++y)
-        {
-          memcpy(pDest, pSource, uiRowPitch);
-
-          pSource = ezMemoryUtils::AddByteOffset(pSource, uiRowPitch);
-          pDest = ezMemoryUtils::AddByteOffset(pDest, MapResult.RowPitch);
-        }
-      }
-    }
-
-    m_pDXContext->Unmap(pDXTempTexture, 0);
+    m_GALDeviceDX11.UnmapTempResource(tempResource);
 
     ezUInt32 dstSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
 
     D3D11_BOX srcBox = {0, 0, 0, uiWidth, uiHeight, uiDepth};
-    m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, destinationBox.m_vMin.x, destinationBox.m_vMin.y, destinationBox.m_vMin.z, pDXTempTexture, 0, &srcBox);
+    m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, destinationBox.m_vMin.x, destinationBox.m_vMin.y, destinationBox.m_vMin.z, tempResource.m_pResource, 0, &srcBox);
   }
   else
   {

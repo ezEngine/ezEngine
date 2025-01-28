@@ -131,6 +131,11 @@ protected:
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
+  // Resource update functions
+
+  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) override;
+  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) override;
+
   // GPU -> CPU query functions
 
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
@@ -173,9 +178,25 @@ private:
     };
   };
 
-  ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
-  ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
+  struct TempResource
+  {
+    ID3D11Resource* m_pResource = nullptr;
+    void* m_pData = nullptr;
+    ezUInt32 m_uiRowPitch = 0;
+    ezUInt32 m_uiDepthPitch = 0;
+
+    operator bool() const
+    {
+      return m_pResource != nullptr;
+    }
+  };
+
+  TempResource CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  TempResource CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  void UnmapTempResource(TempResource& tempResource);
   void FreeTempResources(ezUInt64 uiFrame);
+
+  void ProcessPendingCopies();
 
   void FillFormatLookupTable();
 
@@ -220,8 +241,19 @@ private:
     ezUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  ezMap<ezUInt32, ezDynamicArray<TempResource>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
   ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
+
+  struct PendingCopy
+  {
+    TempResource m_SourceResource = {};
+    ID3D11Resource* m_pDestResource = nullptr;
+    ezUInt32 m_uiDestSubResource = 0;
+    ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();
+    ezVec3U32 m_vSourceSize = ezVec3U32::MakeZero();
+  };
+
+  ezDynamicArray<PendingCopy, ezLocalAllocatorWrapper> m_PendingCopies;
 
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;

@@ -17,6 +17,4 @@ public:
 
 protected:
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const override;
-
-  static ezUInt32 s_uiSkinningBufferUpdates;
 };

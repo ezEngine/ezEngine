@@ -19,14 +19,12 @@ public:
   ~ezBakedProbesComponentManager();
 
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
   ezMeshResourceHandle m_hDebugSphere;
   ezMaterialResourceHandle m_hDebugMaterial;
 
 private:
   void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
-  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
   void CreateDebugResources();
 };
 

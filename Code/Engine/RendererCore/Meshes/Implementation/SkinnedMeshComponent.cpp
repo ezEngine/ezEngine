@@ -33,8 +33,6 @@ void ezSkinningState::Clear()
     m_hGpuBuffer.Invalidate();
   }
 
-  m_bTransformsUpdated[0] = nullptr;
-  m_bTransformsUpdated[1] = nullptr;
   m_Transforms.Clear();
 }
 
@@ -54,30 +52,10 @@ void ezSkinningState::TransformsChanged()
     m_hGpuBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, m_Transforms.GetArrayPtr().ToByteArray());
 
     ezGALDevice::GetDefaultDevice()->GetBuffer(m_hGpuBuffer)->SetDebugName("ezSkinningState");
-
-    m_bTransformsUpdated[0] = std::make_shared<bool>(true);
-    m_bTransformsUpdated[1] = std::make_shared<bool>(true);
   }
   else
   {
-    const ezUInt32 uiRenIdx = ezRenderWorld::GetDataIndexForExtraction();
-    *m_bTransformsUpdated[uiRenIdx] = false;
-  }
-}
-
-void ezSkinningState::FillSkinnedMeshRenderData(ezSkinnedMeshRenderData& ref_renderData) const
-{
-  ref_renderData.m_hSkinningTransforms = m_hGpuBuffer;
-
-  const ezUInt32 uiExIdx = ezRenderWorld::GetDataIndexForExtraction();
-
-  if (m_bTransformsUpdated[uiExIdx] && *m_bTransformsUpdated[uiExIdx] == false)
-  {
-    auto pSkinningMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezShaderTransform, m_Transforms.GetCount());
-    pSkinningMatrices.CopyFrom(m_Transforms);
-
-    ref_renderData.m_pNewSkinningTransformData = pSkinningMatrices.ToByteArray();
-    ref_renderData.m_bTransformsUpdated = m_bTransformsUpdated[uiExIdx];
+    ezGALDevice::GetDefaultDevice()->UpdateBufferForNextFrame(m_hGpuBuffer, m_Transforms.GetByteArrayPtr());
   }
 }
 

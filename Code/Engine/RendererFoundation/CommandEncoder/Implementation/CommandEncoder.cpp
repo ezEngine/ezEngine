@@ -317,7 +317,7 @@ void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestO
       ezHybridArray<BufferRange, 1>& ranges = it.Value();
       for (const BufferRange& range : ranges)
       {
-        EZ_ASSERT_DEBUG(!range.overlapRange(uiDestOffset, sourceData.GetCount()), "A buffer was updated twice in one frame on the same memory range. If this is needed, use CopyToTempStorage mode instead.");
+        EZ_ASSERT_DEBUG(!range.overlapRange(uiDestOffset, sourceData.GetCount()), "A buffer was updated twice in one frame on the same memory range.");
       }
       BufferRange* pLastElement = ranges.IsEmpty() ? nullptr : &ranges.PeekBack();
       if (pLastElement && pLastElement->m_uiOffset + pLastElement->m_uiLength == uiDestOffset)

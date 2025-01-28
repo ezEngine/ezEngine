@@ -2,6 +2,7 @@
 
 #include <Core/System/Window.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/System/SystemInformation.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
@@ -274,10 +275,10 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   {
     for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
     {
-      ezDynamicArray<ID3D11Resource*>& resources = it.Value();
-      for (auto pResource : resources)
+      ezDynamicArray<TempResource>& tempResources = it.Value();
+      for (auto tempResource : tempResources)
       {
-        EZ_GAL_DX11_RELEASE(pResource);
+        EZ_GAL_DX11_RELEASE(tempResource.m_pResource);
       }
     }
     m_FreeTempResources[type].Clear();
@@ -691,6 +692,62 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
+void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset)
+{
+  const ezGALBufferDX11* pBufferDX11 = static_cast<const ezGALBufferDX11*>(pBuffer);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  for (auto& copy : m_PendingCopies)
+  {
+    if (copy.m_pDestResource == pBufferDX11->GetDXBuffer())
+    {
+      ezLog::Error("Buffer is already updated for next frame.");
+      return;
+    }
+  }
+#endif
+
+  const ezUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
+  
+  auto& copy = m_PendingCopies.ExpandAndGetRef();
+  copy.m_SourceResource = CopyToTempBuffer(sourceData, m_uiFrameCounter + 1);
+  copy.m_pDestResource = pBufferDX11->GetDXBuffer();
+  copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
+
+  bool bWholeBuffer = uiDestOffset == 0 && copy.m_SourceResource.m_uiRowPitch == uiDestBufferSize;
+  copy.m_vSourceSize = bWholeBuffer ? ezVec3U32(ezInvalidIndex) : ezVec3U32(sourceData.GetCount(), 1, 1);
+}
+
+void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
+{
+  const ezGALTextureDX11* pTextureDX11 = static_cast<const ezGALTextureDX11*>(pTexture);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  for (auto& copy : m_PendingCopies)
+  {
+    if (copy.m_pDestResource == pTextureDX11->GetDXTexture())
+    {
+      ezLog::Error("Texture is already updated for next frame.");
+      return;
+    }
+  }
+#endif
+
+  auto& desc = pTexture->GetDescription();
+
+  const ezUInt32 uiWidth = destinationBox.m_vMax.x - destinationBox.m_vMin.x;
+  const ezUInt32 uiHeight = destinationBox.m_vMax.y - destinationBox.m_vMin.y;
+  const ezUInt32 uiDepth = destinationBox.m_vMax.z - destinationBox.m_vMin.z;
+  bool bWholeTexture = destinationBox.m_vMin.IsZero() && destinationBox.m_vMax == ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+
+  auto& copy = m_PendingCopies.ExpandAndGetRef();
+  copy.m_SourceResource = CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, desc.m_Format, m_uiFrameCounter + 1);
+  copy.m_pDestResource = pTextureDX11->GetDXTexture();
+  copy.m_uiDestSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, desc.m_uiMipLevelCount);
+  copy.m_vDestPoint = destinationBox.m_vMin;
+  copy.m_vSourceSize = bWholeTexture ? ezVec3U32(ezInvalidIndex) : ezVec3U32(uiWidth, uiHeight, uiDepth);
+}
+
 ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result)
 {
   return m_pQueryPool->GetTimestampResult(hTimestamp, out_result);
@@ -838,6 +895,8 @@ void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains,
 #else
   EZ_IGNORE_UNUSED(uiAppFrame);
 #endif
+
+  ProcessPendingCopies();
 
   for (ezGALSwapChain* pSwapChain : swapchains)
   {
@@ -1044,11 +1103,11 @@ const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle h
   return static_cast<const ezGALSharedTextureDX11*>(pTexture->GetParentResource());
 }
 
-ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
+ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
 {
-  const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
 
-  uiSize = ezMath::Max(uiSize, 256U);
+  ezUInt32 uiSize = ezMath::Max(sourceData.GetCount(), 256U);
   if (uiSize < uiExpGrowthLimit)
   {
     uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
@@ -1058,19 +1117,19 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
   }
 
-  ID3D11Resource* pResource = nullptr;
+  TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Buffer].Find(uiSize);
   if (it.IsValid())
   {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    ezDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
-      pResource = resources[0];
+      tempResource = resources[0];
       resources.RemoveAtAndSwap(0);
     }
   }
 
-  if (pResource == nullptr)
+  if (tempResource.m_pResource == nullptr)
   {
     D3D11_BUFFER_DESC desc;
     desc.ByteWidth = uiSize;
@@ -1080,42 +1139,59 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     desc.MiscFlags = 0;
     desc.StructureByteStride = 0;
 
-    ID3D11Buffer* pBuffer = nullptr;
-    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, nullptr, &pBuffer)))
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.pSysMem = sourceData.GetPtr();
+    initData.SysMemPitch = initData.SysMemSlicePitch = 0;
+
+    if (uiSize > sourceData.GetCount())
     {
-      return nullptr;
+      ezUInt8* dataCopy = EZ_NEW_RAW_BUFFER(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSize);
+      memcpy(dataCopy, sourceData.GetPtr(), sourceData.GetCount());
+      initData.pSysMem = dataCopy;
     }
 
-    pResource = pBuffer;
+    ID3D11Buffer* pBuffer = nullptr;
+    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, &initData, &pBuffer)))
+    {
+      return {};
+    }
+
+    tempResource.m_pResource = pBuffer;
+    tempResource.m_uiRowPitch = uiSize;
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    memcpy(tempResource.m_pData, sourceData.GetPtr(), sourceData.GetCount());
   }
 
-  auto& tempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiSize;
+  auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
+  usedTempResource.m_pResource = tempResource.m_pResource;
+  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiHash = uiSize;
 
-  return pResource;
+  return tempResource;
 }
 
 
-ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format)
+ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
 {
-  ezUInt32 data[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
-  ezUInt32 uiHash = ezHashingUtils::xxHash32(data, sizeof(data));
+  ezUInt32 hashData[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
+  ezUInt32 uiHash = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
 
-  ID3D11Resource* pResource = nullptr;
+  TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);
   if (it.IsValid())
   {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    ezDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
-      pResource = resources[0];
+      tempResource = resources[0];
       resources.RemoveAtAndSwap(0);
     }
   }
 
-  if (pResource == nullptr)
+  if (tempResource.m_pResource == nullptr)
   {
     if (uiDepth == 1)
     {
@@ -1132,27 +1208,68 @@ ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHe
       desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
       desc.MiscFlags = 0;
 
+      D3D11_SUBRESOURCE_DATA initData;
+      initData.pSysMem = sourceData.m_pData.GetPtr();
+      initData.SysMemPitch = sourceData.m_uiRowPitch;
+      initData.SysMemSlicePitch = sourceData.m_uiSlicePitch;
+
       ID3D11Texture2D* pTexture = nullptr;
-      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, nullptr, &pTexture)))
+      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, &initData, &pTexture)))
       {
-        return nullptr;
+        return {};
       }
 
-      pResource = pTexture;
+      tempResource.m_pResource = pTexture;
     }
     else
     {
       EZ_ASSERT_NOT_IMPLEMENTED;
-      return nullptr;
+      return {};
+    }
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    if (tempResource.m_uiRowPitch == sourceData.m_uiRowPitch && tempResource.m_uiDepthPitch == sourceData.m_uiSlicePitch)
+    {
+      memcpy(tempResource.m_pData, sourceData.m_pData.GetPtr(), sourceData.m_uiSlicePitch * uiDepth);
+    }
+    else
+    {
+      // Copy row by row
+      for (ezUInt32 z = 0; z < uiDepth; ++z)
+      {
+        const void* pSource = ezMemoryUtils::AddByteOffset(sourceData.m_pData.GetPtr(), z * sourceData.m_uiSlicePitch);
+        void* pDest = ezMemoryUtils::AddByteOffset(tempResource.m_pData, z * tempResource.m_uiDepthPitch);
+
+        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        {
+          memcpy(pDest, pSource, sourceData.m_uiRowPitch);
+
+          pSource = ezMemoryUtils::AddByteOffset(pSource, sourceData.m_uiRowPitch);
+          pDest = ezMemoryUtils::AddByteOffset(pDest, tempResource.m_uiRowPitch);
+        }
+      }
     }
   }
 
-  auto& tempResource = m_UsedTempResources[TempResourceType::Texture].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiHash;
+  auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
+  usedTempResource.m_pResource = tempResource.m_pResource;
+  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiHash = uiHash;
 
-  return pResource;
+  return tempResource;
+}
+
+void ezGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
+{
+  if (tempResource.m_pData != nullptr)
+  {
+    m_pImmediateContext->Unmap(tempResource.m_pResource, 0);
+    tempResource.m_pData = nullptr;
+    tempResource.m_uiRowPitch = 0;
+    tempResource.m_uiDepthPitch = 0;
+  }
 }
 
 void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
@@ -1167,10 +1284,20 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
         auto it = m_FreeTempResources[type].Find(usedTempResource.m_uiHash);
         if (!it.IsValid())
         {
-          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<ID3D11Resource*>(&m_Allocator));
+          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<TempResource>(&m_Allocator));
         }
 
-        it.Value().PushBack(usedTempResource.m_pResource);
+        D3D11_MAPPED_SUBRESOURCE mapped;
+        HRESULT hRes = m_pImmediateContext->Map(usedTempResource.m_pResource, 0, D3D11_MAP_WRITE, 0, &mapped);
+        EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+        EZ_IGNORE_UNUSED(hRes);
+
+        auto& tempResources = it.Value().ExpandAndGetRef();
+        tempResources.m_pResource = usedTempResource.m_pResource;
+        tempResources.m_pData = mapped.pData;
+        tempResources.m_uiRowPitch = mapped.RowPitch;
+        tempResources.m_uiDepthPitch = mapped.DepthPitch;
+
         m_UsedTempResources[type].PopFront();
       }
       else
@@ -1179,6 +1306,27 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
       }
     }
   }
+}
+
+void ezGALDeviceDX11::ProcessPendingCopies()
+{
+  EZ_PROFILE_AND_MARKER(GetCommandEncoder(), "PendingCopies");
+
+  for (auto& copy : m_PendingCopies)
+  {
+    UnmapTempResource(copy.m_SourceResource);
+
+    if (copy.m_vSourceSize == ezVec3U32(ezInvalidIndex))
+    {
+      m_pImmediateContext->CopyResource(copy.m_pDestResource, copy.m_SourceResource.m_pResource);
+    }
+    else
+    {
+      D3D11_BOX srcBox = {0, 0, 0, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z};
+      m_pImmediateContext->CopySubresourceRegion(copy.m_pDestResource, copy.m_uiDestSubResource, copy.m_vDestPoint.x, copy.m_vDestPoint.y, copy.m_vDestPoint.z, copy.m_SourceResource.m_pResource, 0, &srcBox);
+    }
+  }
+  m_PendingCopies.Clear();
 }
 
 void ezGALDeviceDX11::FillFormatLookupTable()

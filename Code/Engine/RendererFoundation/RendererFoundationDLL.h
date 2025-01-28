@@ -351,7 +351,6 @@ struct ezGALUpdateMode
   {
     TransientConstantBuffer, ///< Can be executed at any time in a command encoder. Buffer must be completely overwritten. Data will not persist across frames. Only allowed on transient constant buffers.
     AheadOfTime,             ///< Can be executed at any time in a command encoder. Copy is ensured to happen before the next command in the command encoder. The same memory location can't be updated twice in one frame. Note that no GPU access must have happened to the modified memory range in the current command encoder before this call or undefined behavior will occur.
-    CopyToTempStorage        ///< Only allowed outside a render pass. Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
   };
 };
 

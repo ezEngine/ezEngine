@@ -79,6 +79,14 @@ public:
   ezGALReadbackTextureHandle CreateReadbackTexture(const ezGALTextureCreationDescription& description);
   void DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture);
 
+  // Resource update functions
+
+  /// \brief Ensures that the given buffer is updated at the beginning of the next frame.
+  void UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset = 0);
+
+  /// \brief Ensures that the given texture is updated at the beginning of the next frame.
+  void UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource = {}, const ezBoundingBoxu32& destinationBox = ezBoundingBoxu32::MakeZero());
+
   // Resource views
   ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
@@ -395,6 +403,11 @@ protected:
 
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
+
+  // Resource update functions
+
+  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) = 0;
+  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) = 0;
 
   // GPU -> CPU query functions
 

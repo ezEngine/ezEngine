@@ -1422,81 +1422,43 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
 
   ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel1, 0.0f, ezColor::MediumPurple);
 
-  // TODO: it would be better to update a single texture every frame, however since this is a render pass,
-  // we currently can't create nested passes
-  // so either this has to be done elsewhere, or nested passes have to be allowed
-  if (false)
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  // check whether we need to re-create the texture
+  if (!m_hOcclusionDebugViewTexture.IsInvalidated())
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
 
-    // check whether we need to re-create the texture
-    if (!m_hOcclusionDebugViewTexture.IsInvalidated())
+    if (pTexture->GetDescription().m_uiWidth != uiImgWidth ||
+        pTexture->GetDescription().m_uiHeight != uiImgHeight)
     {
-      const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
-
-      if (pTexture->GetDescription().m_uiWidth != uiImgWidth ||
-          pTexture->GetDescription().m_uiHeight != uiImgHeight)
-      {
-        pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
-        m_hOcclusionDebugViewTexture.Invalidate();
-      }
+      pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
+      m_hOcclusionDebugViewTexture.Invalidate();
     }
-
-    // create the texture
-    if (m_hOcclusionDebugViewTexture.IsInvalidated())
-    {
-      ezGALTextureCreationDescription desc;
-      desc.m_uiWidth = uiImgWidth;
-      desc.m_uiHeight = uiImgHeight;
-      desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      desc.m_ResourceAccess.m_bImmutable = false;
-
-      m_hOcclusionDebugViewTexture = pDevice->CreateTexture(desc);
-    }
-
-    // upload the image to the texture
-    {
-      ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("RasterizerDebugViewUpdate");
-      pCommandEncoder->BeginCompute();
-
-      ezBoundingBoxu32 destBox;
-      destBox.m_vMin.SetZero();
-      destBox.m_vMax = ezVec3U32(uiImgWidth, uiImgHeight, 1);
-
-      ezGALSystemMemoryDescription sourceData;
-      sourceData.m_pData = fb.GetByteArrayPtr();
-      sourceData.m_uiRowPitch = uiImgWidth * sizeof(ezColorLinearUB);
-
-      pCommandEncoder->UpdateTexture(m_hOcclusionDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
-
-      pCommandEncoder->EndCompute();
-      pDevice->EndCommands(pCommandEncoder);
-    }
-
-    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));
   }
-  else
+
+  // create the texture
+  if (m_hOcclusionDebugViewTexture.IsInvalidated())
   {
-    ezTexture2DResourceDescriptor d;
-    d.m_DescGAL.m_uiWidth = rasterizer.GetResolutionX();
-    d.m_DescGAL.m_uiHeight = rasterizer.GetResolutionY();
-    d.m_DescGAL.m_Format = ezGALResourceFormat::RGBAByteNormalized;
+    ezGALTextureCreationDescription desc;
+    desc.m_uiWidth = uiImgWidth;
+    desc.m_uiHeight = uiImgHeight;
+    desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_ResourceAccess.m_bImmutable = false;
 
-    ezGALSystemMemoryDescription content[1];
-    content[0].m_pData = fb.GetByteArrayPtr();
-    content[0].m_uiRowPitch = sizeof(ezColorLinearUB) * d.m_DescGAL.m_uiWidth;
-    content[0].m_uiSlicePitch = content[0].m_uiRowPitch * d.m_DescGAL.m_uiHeight;
-    d.m_InitialContent = content;
-
-    static ezAtomicInteger32 name = 0;
-
-    ezStringBuilder sName;
-    sName.SetFormat("RasterizerPreview-{}", name.Increment());
-
-    ezTexture2DResourceHandle hDebug = ezResourceManager::CreateResource<ezTexture2DResource>(sName, std::move(d));
-
-    ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, hDebug, ezVec2(1, -1));
+    m_hOcclusionDebugViewTexture = pDevice->CreateTexture(desc);
   }
+
+  // upload the image to the texture
+  {
+    ezGALSystemMemoryDescription sourceData;
+    sourceData.m_pData = fb.GetByteArrayPtr();
+    sourceData.m_uiRowPitch = uiImgWidth * sizeof(ezColorLinearUB);
+
+    pDevice->UpdateTextureForNextFrame(m_hOcclusionDebugViewTexture, sourceData);
+  }
+
+  ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

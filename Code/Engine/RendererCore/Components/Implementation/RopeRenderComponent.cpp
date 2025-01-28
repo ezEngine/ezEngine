@@ -121,7 +121,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    m_SkinningState.FillSkinnedMeshRenderData(*pRenderData);
+    pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
 
     pRenderData->FillBatchIdAndSortingKey();
   }
