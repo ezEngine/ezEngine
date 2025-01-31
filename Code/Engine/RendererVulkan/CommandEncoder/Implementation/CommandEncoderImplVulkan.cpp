@@ -306,9 +306,6 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
     case ezGALUpdateMode::AheadOfTime:
       m_GALDeviceVulkan.GetInitContext().UpdateBuffer(pVulkanDestination, uiDestOffset, pSourceData);
       break;
-    case ezGALUpdateMode::CopyToTempStorage:
-      m_GALDeviceVulkan.UploadBufferStaging(&m_GALDeviceVulkan.GetStagingBufferPool(), m_pPipelineBarrier, *m_pCommandBuffer, pVulkanDestination, pSourceData, uiDestOffset);
-      break;
   }
 }
 

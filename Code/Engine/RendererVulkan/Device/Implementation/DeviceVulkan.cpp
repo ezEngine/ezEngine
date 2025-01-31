@@ -666,11 +666,8 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
 }
 
-void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data)
+void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
 {
-  const vk::Offset3D imageOffset = {0, 0, 0};
-  const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
-
   auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
   {
     vk::ImageSubresourceRange range;
@@ -1342,6 +1339,20 @@ void ezGALDeviceVulkan::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration*
   ezResourceCacheVulkan::ResourceDeleted(pVertexDeclarationVulkan);
   pVertexDeclarationVulkan->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVertexDeclarationVulkan);
+}
+
+void ezGALDeviceVulkan::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset)
+{
+  const ezGALBufferVulkan* pBufferVulkan = static_cast<const ezGALBufferVulkan*>(pBuffer);
+
+  m_pInitContext->UpdateBuffer(pBufferVulkan, uiDestOffset, sourceData);
+}
+
+void ezGALDeviceVulkan::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
+{
+  const ezGALTextureVulkan* pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture);
+
+  //m_pInitContext->UpdateTexture(pTextureVulkan, sourceData, destinationSubResource, destinationBox);
 }
 
 ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
