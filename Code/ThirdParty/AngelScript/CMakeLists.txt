@@ -85,17 +85,19 @@ set(ANGELSCRIPT_SOURCE
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 if(MSVC AND CMAKE_CL_64)
+    message(STATUS "AngelScript using MSVC ASM_MASM")
+
     enable_language(ASM_MASM)
     if(CMAKE_ASM_MASM_COMPILER_WORKS)
         set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/source/as_callfunc_x64_msvc_asm.asm)
     else()
         message(FATAL_ERROR "MSVC x86_64 target requires a working assembler")
     endif()
-else()
-    message(FATAL_ERROR "MSVC x86_64 target requires a working assembler")
 endif()
 
 if(${ARCHFLAGS} MATCHES "^arm")
+    message(STATUS "AngelScript using ARM ASM")
+
     enable_language(ASM)
     if(CMAKE_ASM_COMPILER_WORKS)
         set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/source/as_callfunc_arm.cpp ${CMAKE_CURRENT_SOURCE_DIR}/source/as_callfunc_arm_gcc.S)
@@ -106,6 +108,8 @@ if(${ARCHFLAGS} MATCHES "^arm")
 endif()
 
 if(${ARCHFLAGS} MATCHES "^aarch64")
+    message(STATUS "AngelScript using AARCH64 ASM")
+
     enable_language(ASM)
     if(CMAKE_ASM_COMPILER_WORKS)
         if(NOT APPLE)
