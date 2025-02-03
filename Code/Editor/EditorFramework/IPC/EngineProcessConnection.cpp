@@ -357,7 +357,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
-    msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : 1.0f;
+    msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : QGuiApplication::primaryScreen()->devicePixelRatio();
 
     SendMessage(&msg);
   }
