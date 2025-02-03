@@ -1,0 +1,203 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{17248399532039307811,3732066756556529703}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %DefaultValue{"Joint Broke"}
+		s %Name{"Text"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16606571382638262940,4824012501236368365}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{16606571382638262940,4824012501236368365}}
+		u4 %Hash{13804809102027418618}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{334586900160985804,14703767279695491221}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{334586900160985804,14703767279695491221}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{17248399532039307811,3732066756556529703}}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{10740826615265613734,4942408714307029089}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"ezString Text = Joint Broke"}
+		s %DefaultValue{"Joint Broke"}
+		b %Expose{1}
+		s %Name{"Text"}
+	}
+}
+o
+{
+	Uuid %id{u4{2927951940968267419,5749654719157539860}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"ScriptObject"}
+		s %Code{"class ScriptObject :  ezAngelScriptClass\n{\n    ezString Text = \"Joint Broke\";\n\n    void OnMsgPhysicsJointBroke(ezMsgPhysicsJointBroke@ msg)\n    {\n        ezLog::Info(Text);\n    }\n}\n"}
+		VarArray %Parameters
+		{
+			Uuid{u4{10740826615265613734,4942408714307029089}}
+		}
+		s %Source{"ezAngelScriptCodeMode::Inline"}
+		s %SourceFile{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2927951940968267419,5749654719157539860}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

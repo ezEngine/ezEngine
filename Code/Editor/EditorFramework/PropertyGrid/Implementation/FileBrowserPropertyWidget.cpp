@@ -33,6 +33,7 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
     QAction* pActionOpenFile = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile()));
     QAction* pActionOpenWith = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open With..."), this, SLOT(OnOpenFileWith()));
+
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
     connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
@@ -75,6 +76,11 @@ void ezQtFilePropertyWidget::OnInit()
 {
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
   EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
+
+  if (!pAttr->GetCreateTitle().IsEmpty())
+  {
+    m_pButton->menu()->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentAdd.svg")), QString("Create %1...").arg(ezMakeQString(pAttr->GetCreateTitle())), this, SLOT(OnCreateFile()));
+  }
 
   if (!pAttr->GetCustomAction().IsEmpty())
   {
@@ -163,6 +169,39 @@ void ezQtFilePropertyWidget::OnOpenFileWith()
     return;
 
   ezQtUiServices::OpenWith(sPath);
+}
+
+void ezQtFilePropertyWidget::OnCreateFile()
+{
+  static QString sLastDir;
+  if (sLastDir.isEmpty())
+  {
+    sLastDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
+  }
+
+  const ezFileBrowserAttribute* pFileAttribute = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+
+  const QString sTitle = QString("Create %1").arg(ezMakeQString(pFileAttribute->GetCreateTitle()));
+  const QString sExt = QString("%1 %2").arg(ezMakeQString(pFileAttribute->GetCreateTitle())).arg(ezMakeQString(pFileAttribute->GetTypeFilter()));
+
+  QString sResult = QFileDialog::getSaveFileName(this, sTitle, sLastDir, sExt, nullptr);
+
+  if (sResult.isEmpty())
+    return;
+
+  ezStringBuilder sPath = sResult.toUtf8().data();
+
+  if (!ezOSFile::ExistsFile(sPath))
+  {
+    ezOSFile file;
+    file.Open(sPath, ezFileOpenMode::Write).IgnoreResult();
+  }
+
+  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    return;
+
+  m_pWidget->setText(ezMakeQString(sPath));
+  on_TextFinished_triggered();
 }
 
 static ezMap<ezString, ezString> s_StartDirs;

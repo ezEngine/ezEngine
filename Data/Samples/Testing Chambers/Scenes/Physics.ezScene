@@ -11,26 +11,25 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{8437521118241769030}
+		u4 %Hash{12498749597964689076}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0af8fc54-92ce-464e-b825-661c83f34a3a }"}
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 0de9da9e-70a6-4471-b887-2dcde70302dd }"}
-			s{"{ 1036c0f2-0008-448f-8b9a-c5aa1069a394 }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
+			s{"{ 339f8279-a740-4549-8b39-04e02b8572d3 }"}
 			s{"{ 3410e50f-3950-4659-a789-ca8ade120699 }"}
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
+			s{"{ 4707a8ad-5b78-4c5c-a3e9-9ad67662a954 }"}
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
 			s{"{ 4b0daaa1-09df-4ede-9b19-7c3599c98595 }"}
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 580aefec-1a70-4442-9c88-d213519f8b8f }"}
-			s{"{ 5960ee74-2c47-480e-baf2-d773a2d50fff }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 674588c4-12b6-49c1-b18a-805c23a417a3 }"}
 			s{"{ 69ce5162-8938-4fcf-af58-4b590317f807 }"}
@@ -43,6 +42,7 @@ o
 			s{"{ 8156b4eb-9610-4b40-8053-67211496cad5 }"}
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 			s{"{ a0ccc0eb-9782-4245-b892-a31cc42bcf7b }"}
+			s{"{ a83cc3ed-55cf-42f2-9c3a-52e7af6476e6 }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ cb3fcb70-258b-4b4e-a79e-0537ace7d7e3 }"}
@@ -63,8 +63,10 @@ o
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
+			s{"{ 339f8279-a740-4549-8b39-04e02b8572d3 }"}
 			s{"{ 3410e50f-3950-4659-a789-ca8ade120699 }"}
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
+			s{"{ 4707a8ad-5b78-4c5c-a3e9-9ad67662a954 }"}
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 580aefec-1a70-4442-9c88-d213519f8b8f }"}
@@ -78,6 +80,7 @@ o
 			s{"{ 8156b4eb-9610-4b40-8053-67211496cad5 }"}
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 			s{"{ a0ccc0eb-9782-4245-b892-a31cc42bcf7b }"}
+			s{"{ a83cc3ed-55cf-42f2-9c3a-52e7af6476e6 }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ cb3fcb70-258b-4b4e-a79e-0537ace7d7e3 }"}
@@ -5556,7 +5559,7 @@ o
 	p
 	{
 		b %Active{1}
-		f %BreakForce{0}
+		f %BreakForce{0x00002041}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 480acb70-dc30-ce2c-c83b-2e86e088605a }"}
 		s %ChildActorAnchor{""}
@@ -6203,7 +6206,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{6585407156190760627,5308879853437258111}}
+			Uuid{u4{8575192049838683301,5364471565813497281}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00008CC1,0x000000BF,0x0000803F}}
@@ -6890,6 +6893,24 @@ o
 }
 o
 {
+	Uuid %id{u4{12162796148580858260,4881283623536703694}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters
+		{
+			s %Text{"Swinging door joint broke !"}
+		}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ a83cc3ed-55cf-42f2-9c3a-52e7af6476e6 }"}
+		Time %UpdateInterval{d{0}}
+	}
+}
+o
+{
 	Uuid %id{u4{11391805883289609135,4886541258292910786}}
 	s %t{"ezJoltShapeBoxComponent"}
 	u3 %v{1}
@@ -7055,23 +7076,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3369617150843492785,4907628841073797887}}
-	s %t{"ezTypeScriptComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters
-		{
-			s %OnBreakMsg{"Swinging door joint broke !"}
-		}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 1036c0f2-0008-448f-8b9a-c5aa1069a394 }"}
-	}
-}
-o
-{
 	Uuid %id{u4{17410144178842397322,4910901210769235953}}
 	s %t{"ezJoltDynamicActorComponent"}
 	u3 %v{4}
@@ -7128,23 +7132,6 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-	}
-}
-o
-{
-	Uuid %id{u4{1097878022231609242,4917661210775098456}}
-	s %t{"ezTypeScriptComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters
-		{
-			s %OnBreakMsg{"Joint in wall broke !"}
-		}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 1036c0f2-0008-448f-8b9a-c5aa1069a394 }"}
 	}
 }
 o
@@ -9348,6 +9335,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2845116923601909643,5178444839545424280}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters
+		{
+			s %Text{"Joint in wall broke !"}
+		}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ a83cc3ed-55cf-42f2-9c3a-52e7af6476e6 }"}
+		Time %UpdateInterval{d{0}}
+	}
+}
+o
+{
 	Uuid %id{u4{9007945781909473198,5179677010314768006}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -9510,23 +9515,6 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{9402449884103659435,5202960372486020930}}
-	s %t{"ezTypeScriptComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters
-		{
-			d %Seconds{0x0000000000001440}
-		}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 0de9da9e-70a6-4471-b887-2dcde70302dd }"}
 	}
 }
 o
@@ -10290,7 +10278,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
+		b %Active{0}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -10302,7 +10290,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"SwingSpawn1"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -10390,20 +10378,6 @@ o
 		b %Active{1}
 		f %Height{0x9A99193F}
 		f %Radius{0x0000003F}
-	}
-}
-o
-{
-	Uuid %id{u4{6585407156190760627,5308879853437258111}}
-	s %t{"ezTypeScriptComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{1}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 5960ee74-2c47-480e-baf2-d773a2d50fff }"}
 	}
 }
 o
@@ -10822,6 +10796,21 @@ o
 	{
 		b %Active{1}
 		Vec3 %HalfExtents{f{0x0000003F,0x0000003F,0x0000003F}}
+	}
+}
+o
+{
+	Uuid %id{u4{8575192049838683301,5364471565813497281}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{1}
+		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ 339f8279-a740-4549-8b39-04e02b8572d3 }"}
+		Time %UpdateInterval{d{0}}
 	}
 }
 o
@@ -12235,7 +12224,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10248944803886373270,5207768599901272215}}
-			Uuid{u4{9402449884103659435,5202960372486020930}}
+			Uuid{u4{2371554003040457601,5695621429228305255}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000803E,0,0}}
@@ -12917,6 +12906,7 @@ o
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -13302,7 +13292,7 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{1097878022231609242,4917661210775098456}}
+			Uuid{u4{2845116923601909643,5178444839545424280}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x018029C2,0x565529C1,0x0000D03F}}
@@ -13513,6 +13503,24 @@ o
 		f %Value1{0}
 		f %Value2{0}
 		f %Value3{0}
+	}
+}
+o
+{
+	Uuid %id{u4{2371554003040457601,5695621429228305255}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters
+		{
+			Time %Interval{d{0x0000000000001440}}
+		}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ 4707a8ad-5b78-4c5c-a3e9-9ad67662a954 }"}
+		Time %UpdateInterval{d{0}}
 	}
 }
 o
@@ -21037,7 +21045,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{1}
+		b %Active{0}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -21049,7 +21057,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"PaddleWheelSpawn1"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -26067,7 +26075,7 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{3369617150843492785,4907628841073797887}}
+			Uuid{u4{12162796148580858260,4881283623536703694}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000F2C1,0x000000BF,0x00000040}}
@@ -38953,6 +38961,23 @@ o
 }
 o
 {
+	Uuid %id{u4{13180226495177211365,3486873224131216715}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezScriptComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10410885489792813498,3493566296382582107}}
 	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
@@ -40264,9 +40289,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Material"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -40587,9 +40612,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"CollisionMesh"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -40698,23 +40723,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezJoltClothSheetFlags::FixedEdgeRight"}
 		s %Type{"ezUInt16"}
-	}
-}
-o
-{
-	Uuid %id{u4{11568452837770943362,10420668725217181016}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEventMessageHandlerComponent"}
-		s %PluginName{"ezEditorPluginTypeScript"}
-		VarArray %Properties{}
-		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeVersion{4}
 	}
 }
 o
@@ -41334,9 +41342,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -41722,7 +41730,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -41866,9 +41874,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o

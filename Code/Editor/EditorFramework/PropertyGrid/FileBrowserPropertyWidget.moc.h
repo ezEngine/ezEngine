@@ -25,6 +25,7 @@ protected slots:
   void OnCustomAction();
   void OnOpenFile();
   void OnOpenFileWith();
+  void OnCreateFile();
 
 protected:
   virtual void OnInit() override;
