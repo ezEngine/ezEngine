@@ -85,5 +85,3 @@ ezResult ezGALVertexDeclarationDX11::DeInitPlatform(ezGALDevice* pDevice)
   EZ_GAL_DX11_RELEASE(m_pDXInputLayout);
   return EZ_SUCCESS;
 }
-
-

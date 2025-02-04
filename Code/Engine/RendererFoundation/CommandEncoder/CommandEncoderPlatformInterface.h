@@ -101,5 +101,4 @@ public:
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
-
 };

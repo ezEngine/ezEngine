@@ -53,5 +53,3 @@ ezResult ezTexturePacker::PackTextures()
 
   return EZ_SUCCESS;
 }
-
-

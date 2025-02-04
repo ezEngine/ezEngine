@@ -242,5 +242,3 @@ void ezGALTextureDX11::SetDebugNamePlatform(const char* szName) const
     m_pDXTexture->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
   }
 }
-
-
