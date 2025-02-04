@@ -265,6 +265,18 @@ static ezString GetNiceFuncDecl(const asIScriptFunction* pFunc)
   return tmp;
 }
 
+void GetOrder(ezDynamicArray<ezString>& typeOrder, const ezRTTI* pRtti)
+{
+  if (pRtti == nullptr)
+    return;
+
+  if (typeOrder.Contains(pRtti->GetTypeName()))
+    return;
+
+  GetOrder(typeOrder, pRtti->GetParentType());
+  typeOrder.PushBack(pRtti->GetTypeName());
+}
+
 void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 {
   ezSet<ezString> typeNames;
@@ -364,9 +376,29 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
   {
     sPredef.Append("\n// *** TYPES *** \n\n");
 
+    ezDynamicArray<ezString> typeOrder;
+
     for (ezUInt32 typeIdx = 0; typeIdx < pEngine->GetObjectTypeCount(); ++typeIdx)
     {
       const asITypeInfo* pType = pEngine->GetObjectTypeByIndex(typeIdx);
+      const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
+
+      if (pRtti != nullptr)
+      {
+        GetOrder(typeOrder, pRtti);
+      }
+      else
+      {
+        typeOrder.PushBack(pType->GetName());
+      }
+    }
+
+    for (const ezString& sType : typeOrder)
+    {
+      const asITypeInfo* pType = pEngine->GetTypeInfoByName(sType);
+      if (pType == nullptr)
+        continue;
+
       const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
 
       typeNames.Insert(pType->GetName());
@@ -381,7 +413,10 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 
       if (pRtti && pRtti->GetParentType() && pRtti->GetParentType() != ezGetStaticRTTI<ezReflectedClass>())
       {
-        sPredef.Append(" : ", pRtti->GetParentType()->GetTypeName());
+        if (pEngine->GetTypeInfoByName(pRtti->GetParentType()->GetTypeName().GetStartPointer()))
+        {
+          sPredef.Append(" : ", pRtti->GetParentType()->GetTypeName());
+        }
       }
 
       sPredef.Append("\n{\n");

@@ -72,8 +72,12 @@ bool ezColorAnimationComponent::get_ApplyToChildren() const
 bool ezColorAnimationComponent::get_RandomStartOffset() const
 bool ezCommentComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezCommentComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezComponent::IsActive() const
+bool ezComponent::IsActiveAndInitialized() const
+bool ezComponent::IsActiveAndSimulating() const
 bool ezComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezComponent::get_Active() const
 bool ezComponentHandle::IsInvalidated() const
 bool ezComponentHandle::opEquals(ezComponentHandle) const
 bool ezCreatureCrawlComponent::SendMessage(ezMessage&inout ref_msg)
@@ -1150,6 +1154,7 @@ ezFollowPathMode::OnlyPosition
 ezForwardEventsToGameStateComponent@ ezComponent::opCast()
 ezForwardEventsToGameStateComponent@ ezEventMessageHandlerComponent::opCast()
 ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self)
+ezGameObject@ ezComponent::GetOwner() const
 ezGameObject@ ezGameObject::FindChildByName(const ezTempHashedString&in sName, bool bRecursive = true)
 ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
@@ -2062,6 +2067,7 @@ ezWindVolumeCylinderMode::Vortex
 ezWindVolumeSphereComponent@ ezComponent::opCast()
 ezWindVolumeSphereComponent@ ezWindVolumeComponent::opCast()
 ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self)
+ezWorld@ ezComponent::GetWorld() const
 ezWorld@ ezGameObject::GetWorld()
 ezXRDeviceType ezDeviceTrackingComponent::get_DeviceType() const
 ezXRDeviceType::DeviceID0
@@ -2392,6 +2398,7 @@ int ezVec3::opCmp(const ezVec3&in) const
 int ezVec4::opCmp(const ezVec4&in) const
 int8 ezCameraComponent::get_EditorShortcut() const
 uint ezAiNavigationComponent::get_CollisionLayer() const
+uint ezComponent::GetUniqueID() const
 uint ezDirectionalLightComponent::get_NumCascades() const
 uint ezFillLightComponent::get_Temperature() const
 uint ezGameObject::GetChildCount()
@@ -2581,7 +2588,14 @@ void ezColorAnimationComponent::set_RandomStartOffset(bool)
 void ezColorAnimationComponent::set_SetColorMode(ezSetColorMode)
 void ezColorGammaUB::opAssign(const ezColor&in)
 void ezCommentComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime :: MakeZero ( ), ezObjectMsgQueueType queueType = ezObjectMsgQueueType :: NextFrame) const
+void ezComponent::Deinitialize()
+void ezComponent::Initialize()
+void ezComponent::OnActivated()
+void ezComponent::OnDeactivated()
+void ezComponent::OnSimulationStarted()
 void ezComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime :: MakeZero ( ), ezObjectMsgQueueType queueType = ezObjectMsgQueueType :: NextFrame) const
+void ezComponent::Update(ezTime DeltaTime)
+void ezComponent::set_Active(bool)
 void ezComponentHandle::Invalidate()
 void ezCreatureCrawlComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime :: MakeZero ( ), ezObjectMsgQueueType queueType = ezObjectMsgQueueType :: NextFrame) const
 void ezCreatureCrawlComponent::set_CastDown(float)

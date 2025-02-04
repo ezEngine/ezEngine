@@ -437,31 +437,39 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
   // first register the type
   ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
     {
-      if (pRtti == pBaseType)
-        return;
+      // if (pRtti == pBaseType)
+      //   return;
 
       typeName = pRtti->GetTypeName();
+      auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
 
-      if (bCreatable)
+      if (pTypeInfo == nullptr)
       {
-        const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF);
-        AS_CHECK(typeId);
-        m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
-
-        if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
+        if (bCreatable)
         {
-          op.Set(typeName, "@ f()");
-          m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, op, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
-          m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
-          m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
+          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF);
+          AS_CHECK(typeId);
+          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
+
+          if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
+          {
+            op.Set(typeName, "@ f()");
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, op, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
+          }
+        }
+        else
+        {
+
+          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF | asOBJ_NOCOUNT);
+          AS_CHECK(typeId);
+
+          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
         }
       }
-      else
-      {
-        const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF | asOBJ_NOCOUNT);
-        AS_CHECK(typeId);
-        m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
-      }
+
+      pTypeInfo->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
 
       AddForbiddenType(typeName);
 
