@@ -12,7 +12,7 @@ namespace DirectoryWatcherTestHelpers
 
   struct ExpectedEvent
   {
-    ~ExpectedEvent() {}; // NOLINT: To make it non-pod
+    ~ExpectedEvent(){}; // NOLINT: To make it non-pod
 
     const char* path;
     ezDirectoryWatcherAction action;
