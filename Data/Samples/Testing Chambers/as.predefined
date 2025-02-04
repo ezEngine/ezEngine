@@ -1,0 +1,6202 @@
+// *** TYPEDEFS *** 
+
+typedef int8 ezInt8;
+typedef int16 ezInt16;
+typedef int32 ezInt32;
+typedef int64 ezInt64;
+typedef uint8 ezUInt8;
+typedef uint16 ezUInt16;
+typedef uint32 ezUInt32;
+typedef uint64 ezUInt64;
+
+// *** ENUMS *** 
+
+enum ezObjectMsgQueueType
+{
+  PostAsync = 0,
+  PostTransform = 1,
+  NextFrame = 2,
+  AfterInitialized = 3,
+}
+
+enum ezTransformPreservation
+{
+  PreserveLocal = 0,
+  PreserveGlobal = 1,
+}
+
+enum ezPhysicsShapeType
+{
+  Static = 1,
+  Dynamic = 2,
+  Query = 4,
+  Trigger = 8,
+  Character = 16,
+  Ragdoll = 32,
+  Rope = 64,
+}
+
+enum ezDebugTextHAlign
+{
+  Left = 0,
+  Center = 1,
+  Right = 2,
+}
+
+enum ezDebugTextPlacement
+{
+  TopLeft = 0,
+  TopCenter = 1,
+  TopRight = 2,
+  BottomLeft = 3,
+  BottomCenter = 4,
+  BottomRight = 5,
+}
+
+enum ezSkeletonPoseMode
+{
+  CustomPose = 0,
+  RestPose = 1,
+  Disabled = 2,
+}
+
+enum ezCameraUsageHint
+{
+  None = 0,
+  MainView = 1,
+  EditorView = 2,
+  RenderTarget = 3,
+  Culling = 4,
+  Thumbnail = 7,
+}
+
+enum ezCameraMode
+{
+  PerspectiveFixedFovX = 1,
+  PerspectiveFixedFovY = 2,
+  OrthoFixedWidth = 3,
+  OrthoFixedHeight = 4,
+}
+
+enum ezOccluderType
+{
+  Box = 0,
+  QuadPosX = 1,
+}
+
+enum ezSpriteBlendMode
+{
+  Masked = 0,
+  Transparent = 1,
+  Additive = 2,
+}
+
+enum ezBasisAxis
+{
+  PositiveX = 0,
+  PositiveY = 1,
+  PositiveZ = 2,
+  NegativeX = 3,
+  NegativeY = 4,
+  NegativeZ = 5,
+}
+
+enum ezOnComponentFinishedAction
+{
+  None = 0,
+  DeleteComponent = 1,
+  DeleteGameObject = 2,
+}
+
+enum ezReflectionProbeMode
+{
+  Static = 0,
+  Dynamic = 1,
+}
+
+enum ezFillLightMode
+{
+  Additive = 0,
+  Subtractive = 1,
+  ModulateIndirect = 2,
+}
+
+enum ezUpdateRate
+{
+  EveryFrame = 0,
+  Max30fps = 1,
+  Max20fps = 2,
+  Max10fps = 3,
+  Max5fps = 4,
+  Max2fps = 5,
+  Max1fps = 6,
+  Never = 7,
+}
+
+enum ezSetColorMode
+{
+  SetRGBA = 0,
+  SetRGB = 1,
+  SetAlpha = 2,
+  AlphaBlend = 3,
+  Additive = 4,
+  Modulate = 5,
+}
+
+enum ezPropertyAnimMode
+{
+  Once = 0,
+  Loop = 1,
+  BackAndForth = 2,
+}
+
+enum ezFollowPathMode
+{
+  OnlyPosition = 0,
+  AlignUpZ = 1,
+  FullRotation = 2,
+}
+
+enum ezPathComponentFlags
+{
+  VisualizePath = 1,
+  VisualizeUpDir = 2,
+}
+
+enum ezPathNodeTangentMode
+{
+  Auto = 0,
+  Linear = 1,
+}
+
+enum ezRootMotionMode
+{
+  Ignore = 0,
+  ApplyToOwner = 1,
+  SendMoveCharacterMsg = 2,
+}
+
+enum ezAnimationInvisibleUpdateRate
+{
+  FullUpdate = 0,
+  Max60FPS = 1,
+  Max30FPS = 2,
+  Max15FPS = 3,
+  Max10FPS = 4,
+  Max5FPS = 5,
+  Pause = 6,
+}
+
+enum ezWindStrength
+{
+  Calm = 0,
+  LightBreeze = 1,
+  GentleBreeze = 2,
+  ModerateBreeze = 3,
+  StrongBreeze = 4,
+  Storm = 5,
+  WeakShockwave = 6,
+  MediumShockwave = 7,
+  StrongShockwave = 8,
+  ExtremeShockwave = 9,
+}
+
+enum ezWindVolumeCylinderMode
+{
+  Directional = 0,
+  Vortex = 1,
+}
+
+enum ezGlobalBlackboardInitMode
+{
+  EnsureEntriesExist = 0,
+  ResetEntryValues = 1,
+  ClearEntireBlackboard = 2,
+}
+
+enum ezGreyBoxShape
+{
+  Box = 0,
+  RampPosX = 1,
+  RampNegX = 2,
+  RampPosY = 3,
+  RampNegY = 4,
+  Column = 5,
+  StairsPosX = 6,
+  StairsNegX = 7,
+  StairsPosY = 8,
+  StairsNegY = 9,
+  ArchX = 10,
+  ArchY = 11,
+  SpiralStairs = 12,
+}
+
+enum ezInputMessageGranularity
+{
+  PressOnly = 0,
+  PressAndRelease = 1,
+  PressReleaseAndDown = 2,
+}
+
+enum ezSceneLoadMode
+{
+  None = 0,
+  LoadAndSwitch = 1,
+  Preload = 2,
+  CancelPreload = 3,
+}
+
+enum ezXRDeviceType
+{
+  HMD = 0,
+  LeftController = 1,
+  RightController = 2,
+  DeviceID0 = 3,
+  DeviceID1 = 4,
+  DeviceID2 = 5,
+  DeviceID3 = 6,
+  DeviceID4 = 7,
+  DeviceID5 = 8,
+  DeviceID6 = 9,
+  DeviceID7 = 10,
+  DeviceID8 = 11,
+  DeviceID9 = 12,
+  DeviceID10 = 13,
+  DeviceID11 = 14,
+  DeviceID12 = 15,
+  DeviceID13 = 16,
+  DeviceID14 = 17,
+  DeviceID15 = 18,
+}
+
+enum ezXRPoseLocation
+{
+  Grip = 0,
+  Aim = 1,
+}
+
+enum ezXRTransformSpace
+{
+  Local = 0,
+  Global = 1,
+}
+
+enum ezXRStageSpace
+{
+  Seated = 0,
+  Standing = 1,
+}
+
+enum ezAiNavigationComponentState
+{
+  Idle = 0,
+  Moving = 1,
+  Falling = 2,
+  Fallen = 3,
+  Failed = 4,
+}
+
+enum ezAiNavigationDebugFlags
+{
+  PrintState = 1,
+  VisPathCorridor = 2,
+  VisPathLine = 4,
+  VisTarget = 8,
+}
+
+enum ezClothSheetFlags
+{
+  FixedCornerTopLeft = 1,
+  FixedCornerTopRight = 2,
+  FixedCornerBottomRight = 4,
+  FixedCornerBottomLeft = 8,
+  FixedEdgeTop = 16,
+  FixedEdgeRight = 32,
+  FixedEdgeBottom = 64,
+  FixedEdgeLeft = 128,
+}
+
+enum ezOnJoltContact
+{
+  ImpactReactions = 2,
+  SlideReactions = 4,
+  RollXReactions = 8,
+  RollYReactions = 16,
+  RollZReactions = 32,
+}
+
+enum ezJoltCharacterDebugFlags
+{
+  PrintState = 1,
+  VisShape = 2,
+  VisContacts = 4,
+  VisCasts = 8,
+  VisGroundContact = 16,
+  VisFootCheck = 32,
+}
+
+enum ezJoltClothSheetFlags
+{
+  FixedCornerTopLeft = 1,
+  FixedCornerTopRight = 2,
+  FixedCornerBottomRight = 4,
+  FixedCornerBottomLeft = 8,
+  FixedEdgeTop = 16,
+  FixedEdgeRight = 32,
+  FixedEdgeBottom = 64,
+  FixedEdgeLeft = 128,
+}
+
+enum ezSkeletonJointType
+{
+  None = 0,
+  Fixed = 1,
+  SwingTwist = 2,
+}
+
+enum ezJoltRagdollStartMode
+{
+  WithBindPose = 0,
+  WithNextAnimPose = 1,
+  WithCurrentMeshPose = 2,
+}
+
+enum ezJoltRopeAnchorConstraintMode
+{
+  None = 0,
+  Point = 1,
+  Fixed = 2,
+  Cone = 3,
+}
+
+enum ezJoltSteppingMode
+{
+  Variable = 0,
+  Fixed = 1,
+  SemiFixed = 2,
+}
+
+enum ezJoltConstraintLimitMode
+{
+  NoLimit = 0,
+  HardLimit = 1,
+}
+
+enum ezJoltConstraintDriveMode
+{
+  NoDrive = 0,
+  DriveVelocity = 1,
+  DrivePosition = 2,
+}
+
+enum ezOnComponentFinishedAction2
+{
+  None = 0,
+  DeleteComponent = 1,
+  DeleteGameObject = 2,
+  Restart = 3,
+}
+
+enum ezProcGenBlendMode
+{
+  Add = 0,
+  Subtract = 1,
+  Multiply = 2,
+  Divide = 3,
+  Max = 4,
+  Min = 5,
+  Set = 6,
+}
+
+enum ezTriggerState
+{
+  Activated = 0,
+  Continuing = 1,
+  Deactivated = 2,
+}
+
+
+// *** TYPES *** 
+
+class ezRTTI
+{
+}
+
+class ezVec2
+{
+  ezVec2(float x, float y);
+  ezVec2(float xyz);
+  ezVec3 GetAsVec3(float z)const;
+  ezVec4 GetAsVec4(float z, float w)const;
+  void Set(float xyz);
+  void Set(float x, float y);
+  void SetZero();
+  float GetLength()const;
+  float GetDistanceTo(const ezVec2&in rhs)const;
+  float GetSquaredDistanceTo(const ezVec2&in rhs)const;
+  float GetLengthSquared()const;
+  float GetLengthAndNormalize();
+  ezVec2 GetNormalized()const;
+  void Normalize();
+  bool IsZero()const;
+  bool IsZero(float fEpsilon)const;
+  bool IsNormalized(float fEpsilon = 0.001f)const;
+  bool IsNaN()const;
+  bool IsValid()const;
+  void opAddAssign(const ezVec2&in);
+  void opSubAssign(const ezVec2&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec2&in)const;
+  bool IsEqual(const ezVec2&in, float fEpsilon)const;
+  float Dot(const ezVec2&in)const;
+  ezVec2 CompMin(const ezVec2&in rhs)const;
+  ezVec2 CompMax(const ezVec2&in rhs)const;
+  ezVec2 CompClamp(const ezVec2&in rhs)const;
+  ezVec2 CompMul(const ezVec2&in rhs)const;
+  ezVec2 CompDiv(const ezVec2&in rhs)const;
+  ezVec2 Abs()const;
+  void MakeOrthogonalTo(const ezVec2&in);
+  ezVec2 GetOrthogonalVector()const;
+  ezVec2 GetReflectedVector(const ezVec2&in)const;
+  ezVec2 opNeg()const;
+  ezVec2 opAdd(const ezVec2&in)const;
+  ezVec2 opSub(const ezVec2&in)const;
+  ezVec2 opMul(float)const;
+  ezVec2 opMul_r(float)const;
+  ezVec2 opDiv(float)const;
+  bool opEquals(const ezVec2&in)const;
+  int opCmp(const ezVec2&in)const;
+}
+
+class ezVec3
+{
+  ezVec3(float x, float y, float z);
+  ezVec3(float xyz);
+  ezVec2 GetAsVec2()const;
+  ezVec4 GetAsVec4(float w)const;
+  ezVec4 GetAsPositionVec4()const;
+  ezVec4 GetAsDirectionVec4()const;
+  void Set(float xyz);
+  void Set(float x, float y, float z);
+  void SetZero();
+  float GetLength()const;
+  float GetDistanceTo(const ezVec3&in rhs)const;
+  float GetSquaredDistanceTo(const ezVec3&in rhs)const;
+  float GetLengthSquared()const;
+  float GetLengthAndNormalize();
+  ezVec3 GetNormalized()const;
+  void Normalize();
+  bool IsZero()const;
+  bool IsZero(float fEpsilon)const;
+  bool IsNormalized(float fEpsilon = 0.001f)const;
+  bool IsNaN()const;
+  bool IsValid()const;
+  void opAddAssign(const ezVec3&in);
+  void opSubAssign(const ezVec3&in);
+  void opMulAssign(const ezVec3&in);
+  void opDivAssign(const ezVec3&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec3&in)const;
+  bool IsEqual(const ezVec3&in, float fEpsilon)const;
+  float Dot(const ezVec3&in)const;
+  ezVec3 CrossRH(const ezVec3&in)const;
+  ezVec3 CompMin(const ezVec3&in)const;
+  ezVec3 CompMax(const ezVec3&in)const;
+  ezVec3 CompClamp(const ezVec3&in)const;
+  ezVec3 CompMul(const ezVec3&in)const;
+  ezVec3 CompDiv(const ezVec3&in)const;
+  ezVec3 Abs()const;
+  void MakeOrthogonalTo(const ezVec3&in);
+  ezVec3 GetOrthogonalVector()const;
+  ezVec3 GetReflectedVector(const ezVec3&in)const;
+  ezVec3 opNeg()const;
+  ezVec3 opAdd(const ezVec3&in)const;
+  ezVec3 opSub(const ezVec3&in)const;
+  ezVec3 opMul(float)const;
+  ezVec3 opMul_r(float)const;
+  ezVec3 opDiv(float)const;
+  bool opEquals(const ezVec3&in)const;
+  int opCmp(const ezVec3&in)const;
+}
+
+class ezVec4
+{
+  ezVec4(float x, float y, float z, float w);
+  ezVec4(float xyzw);
+  ezVec2 GetAsVec2()const;
+  ezVec3 GetAsVec3()const;
+  void Set(float xyzw);
+  void Set(float x, float y, float z, float w);
+  void SetZero();
+  float GetLength()const;
+  float GetLengthSquared()const;
+  float GetLengthAndNormalize();
+  ezVec4 GetNormalized()const;
+  void Normalize();
+  bool IsZero()const;
+  bool IsZero(float fEpsilon)const;
+  bool IsNormalized(float fEpsilon = 0.001f)const;
+  bool IsNaN()const;
+  bool IsValid()const;
+  void opAddAssign(const ezVec4&in);
+  void opSubAssign(const ezVec4&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec4&in)const;
+  bool IsEqual(const ezVec4&in, float)const;
+  float Dot(const ezVec4&in)const;
+  ezVec4 CompMin(const ezVec4&in)const;
+  ezVec4 CompMax(const ezVec4&in)const;
+  ezVec4 CompClamp(const ezVec4&in)const;
+  ezVec4 CompMul(const ezVec4&in)const;
+  ezVec4 CompDiv(const ezVec4&in)const;
+  ezVec4 Abs()const;
+  ezVec4 opNeg()const;
+  ezVec4 opAdd(const ezVec4&in)const;
+  ezVec4 opSub(const ezVec4&in)const;
+  ezVec4 opMul(float)const;
+  ezVec4 opMul_r(float)const;
+  ezVec4 opDiv(float)const;
+  bool opEquals(const ezVec4&in)const;
+  int opCmp(const ezVec4&in)const;
+}
+
+class ezAngle
+{
+  float GetDegree()const;
+  float GetRadian()const;
+  void SetRadian(float fRadians);
+  void NormalizeRange();
+  ezAngle GetNormalizedRange()const;
+  bool IsEqualSimple(ezAngle rhs, ezAngle epsilon)const;
+  bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon)const;
+  ezAngle opNeg()const;
+  ezAngle opAdd(ezAngle)const;
+  ezAngle opSub(ezAngle)const;
+  void opAddAssign(ezAngle);
+  void opSubAssign(ezAngle);
+  bool opEquals(ezAngle)const;
+  int opCmp(ezAngle)const;
+  ezAngle opMul(float)const;
+  ezAngle opDiv(float)const;
+  float opDiv(ezAngle)const;
+}
+
+class ezQuat
+{
+  void SetIdentity();
+  void ReconstructFromMat3(const ezMat3&in);
+  void ReconstructFromMat4(const ezMat3&in);
+  void Normalize();
+  void GetRotationAxisAndAngle(ezVec3&out, ezAngle&out, float fEpsilon = 0.00001)const;
+  ezVec3 GetVectorPart()const;
+  ezMat3 GetAsMat3()const;
+  ezMat3 GetAsMat4()const;
+  bool IsValid(float fEpsilon = 0.00001)const;
+  bool IsNaN()const;
+  bool IsEqualRotation(const ezQuat&in, float fEpsilon = 0.00001)const;
+  void Invert();
+  ezQuat GetInverse()const;
+  ezQuat GetNegated()const;
+  float Dot(const ezQuat&in)const;
+  ezVec3 Rotate(const ezVec3&in)const;
+  void GetAsEulerAngles(float&out, float&out, float&out)const;
+  ezQuat opMul(const ezQuat&in)const;
+  ezVec3 opMul(const ezVec3&in)const;
+  bool opEquals(const ezQuat&in)const;
+}
+
+class ezMat3
+{
+}
+
+class ezMat4
+{
+}
+
+class ezTransform
+{
+  ezTransform(const ezVec3&in vPosition);
+  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation);
+  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
+  void SetIdentity();
+  float GetMaxScale()const;
+  bool HasMirrorScaling()const;
+  bool ContainsUniformScale()const;
+  bool IsValid()const;
+  bool IsIdentical(const ezTransform&in)const;
+  bool IsEqual(const ezTransform&in, float fEpsilon)const;
+  void Invert();
+  ezTransform GetInverse()const;
+  ezVec3 TransformPosition(const ezVec3&in vPosition)const;
+  ezVec3 TransformDirection(const ezVec3&in vDirection)const;
+  void opAddAssign(const ezVec3&in);
+  void opSubAssign(const ezVec3&in);
+  ezMat4 GetAsMat4()const;
+  ezVec3 opMul(const ezVec3&in)const;
+  ezTransform opMul_r(const ezQuat&in qRotation)const;
+  ezTransform opMul(const ezQuat&in qRotation)const;
+  ezTransform opAdd(const ezVec3&in)const;
+  ezTransform opSub(const ezVec3&in)const;
+  ezTransform opMul(const ezTransform&in)const;
+  bool opEquals(const ezTransform&in)const;
+}
+
+class ezTime
+{
+  bool IsZero()const;
+  bool IsNegative()const;
+  bool IsPositive()const;
+  bool IsZeroOrNegative()const;
+  bool IsZeroOrPositive()const;
+  float AsFloatInSeconds()const;
+  double GetNanoseconds()const;
+  double GetMicroseconds()const;
+  double GetMilliseconds()const;
+  double GetSeconds()const;
+  double GetMinutes()const;
+  double GetHours()const;
+  void opSubAssign(const ezTime&in);
+  void opAddAssign(const ezTime&in);
+  void opMulAssign(double);
+  void opDivAssign(double);
+  ezTime opSub(const ezTime&in)const;
+  ezTime opAdd(const ezTime&in)const;
+  ezTime opNeg()const;
+  int opCmp(const ezTime&in)const;
+  bool opEquals(const ezTime&in)const;
+  ezTime opMul(double)const;
+  ezTime opMul_r(double)const;
+  ezTime opMul(const ezTime&in)const;
+  ezTime opDiv(double)const;
+  ezTime opDiv_r(double)const;
+  ezTime opDiv(const ezTime&in)const;
+}
+
+class ezColor
+{
+  ezColor(float r, float g, float b, float a = 1.0f);
+  ezColor(const ezColorGammaUB&in);
+  void opAssign(const ezColorGammaUB&in);
+  void opAddAssign(const ezColor&in);
+  void opSubAssign(const ezColor&in);
+  void opMulAssign(const ezColor&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  void opMulAssign(const ezMat4&in);
+  ezColor opAdd(const ezColor&in)const;
+  ezColor opSub(const ezColor&in)const;
+  ezColor opMul(const ezColor&in)const;
+  ezColor opMul(float)const;
+  ezColor opMul_r(float)const;
+  ezColor opDiv(float)const;
+  ezColor opMul_r(const ezMat4&in)const;
+  bool opEquals(const ezColor&in)const;
+  void SetRGB(float r, float g, float b);
+  void SetRGBA(float r, float g, float b, float a = 1.0f);
+  void GetHSV(float&out fHue, float&out fSaturation, float&out fValue)const;
+  ezVec4 GetAsVec4()const;
+  bool IsNormalized()const;
+  float CalcAverageRGB()const;
+  float GetSaturation()const;
+  float GetLuminance()const;
+  ezColor GetInvertedColor()const;
+  ezColor GetComplementaryColor()const;
+  void ScaleRGB(float);
+  void ScaleRGBA(float);
+  float ComputeHdrMultiplier()const;
+  float ComputeHdrExposureValue()const;
+  void ApplyHdrExposureValue(float fExposure);
+  void NormalizeToLdrRange();
+  ezColor GetDarker(float fFactor = 2.0f)const;
+  bool IsNaN()const;
+  bool IsValid()const;
+  bool IsIdenticalRGB(const ezColor&in)const;
+  bool IsIdenticalRGBA(const ezColor&in)const;
+  bool IsEqualRGB(const ezColor&in, float fEpsilon)const;
+  bool IsEqualRGBA(const ezColor&in, float fEpsilon)const;
+  ezColor WithAlpha(float fAlpha)const;
+}
+
+class ezColorGammaUB : ezColorBaseUB
+{
+  ezColorGammaUB(uint8 r, uint8 g, uint8 b, uint8 a = 255);
+  ezColorGammaUB(const ezColor&in);
+  void opAssign(const ezColor&in);
+  ezColor ToLinearFloat()const;
+}
+
+class ezStringView
+{
+  ezStringView(const ezString&in);
+  ezStringView(const ezStringBuilder&in);
+  bool StartsWith(ezStringView)const;
+  bool StartsWith_NoCase(ezStringView)const;
+  bool EndsWith(ezStringView)const;
+  bool EndsWith_NoCase(ezStringView)const;
+  int Compare(ezStringView)const;
+  int Compare_NoCase(ezStringView)const;
+  int CompareN(ezStringView, uint)const;
+  int CompareN_NoCase(ezStringView, uint)const;
+  uint GetElementCount()const;
+  bool IsEmpty()const;
+  bool IsEqual(ezStringView)const;
+  bool IsEqual_NoCase(ezStringView)const;
+  bool IsEqualN(ezStringView, uint)const;
+  bool IsEqualN_NoCase(ezStringView, uint)const;
+  bool HasAnyExtension()const;
+  bool HasExtension(ezStringView)const;
+  ezStringView GetFileExtension(bool full = false)const;
+  ezStringView GetFileName()const;
+  ezStringView GetFileNameAndExtension()const;
+  ezStringView GetFileDirectory()const;
+  bool IsAbsolutePath()const;
+  bool IsRelativePath()const;
+  bool IsRootedPath()const;
+  bool GetRootedPathRootName()const;
+  void Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack);
+  ezStringView GetShrunk(uint uiShrinkCharsFront, uint uiShrinkCharsBack = 0)const;
+  ezStringView GetSubString(uint uiFirstCharacter, uint uiNumCharacters)const;
+  void ChopAwayFirstCharacterUtf8();
+  void ChopAwayFirstCharacterAscii();
+  bool TrimWordStart(ezStringView sWord);
+  bool TrimWordEnd(ezStringView sWord);
+  bool opEquals(ezStringView)const;
+  int opCmp(ezStringView)const;
+  void opAssign(const ezString&in);
+  void opAssign(const ezStringBuilder&in);
+}
+
+class ezGameObjectHandle
+{
+  ezGameObjectHandle();
+  void Invalidate();
+  bool IsInvalidated()const;
+  bool opEquals(ezGameObjectHandle)const;
+}
+
+class ezComponentHandle
+{
+  ezComponentHandle();
+  void Invalidate();
+  bool IsInvalidated()const;
+  bool opEquals(ezComponentHandle)const;
+}
+
+class ezTempHashedString
+{
+  ezTempHashedString();
+  ezTempHashedString(const ezStringView);
+  ezTempHashedString(const ezHashedString&in);
+  void opAssign(ezStringView);
+  void opAssign(const ezHashedString&in);
+  bool opEquals(ezTempHashedString)const;
+  bool IsEmpty()const;
+  void Clear();
+}
+
+class ezHashedString
+{
+  ezHashedString();
+  ezHashedString(const ezStringView);
+  ezHashedString(const ezHashedString&in);
+  void opAssign(ezStringView);
+  bool IsEmpty()const;
+  void Clear();
+  void Assign(ezStringView);
+  bool opEquals(const ezHashedString&in)const;
+  bool opEquals(const ezTempHashedString&in)const;
+  bool opEquals(ezStringView)const;
+  ezStringView GetView()const;
+}
+
+class ezString
+{
+  ezString();
+  ezString(const ezString&in);
+  ezString(const ezStringView);
+  ezString(const ezStringBuilder&in);
+  bool StartsWith(ezStringView)const;
+  bool StartsWith_NoCase(ezStringView)const;
+  bool EndsWith(ezStringView)const;
+  bool EndsWith_NoCase(ezStringView)const;
+  int Compare(ezStringView)const;
+  int Compare_NoCase(ezStringView)const;
+  int CompareN(ezStringView, uint)const;
+  int CompareN_NoCase(ezStringView, uint)const;
+  uint GetElementCount()const;
+  bool IsEmpty()const;
+  bool IsEqual(ezStringView)const;
+  bool IsEqual_NoCase(ezStringView)const;
+  bool IsEqualN(ezStringView, uint)const;
+  bool IsEqualN_NoCase(ezStringView, uint)const;
+  bool HasAnyExtension()const;
+  bool HasExtension(ezStringView)const;
+  ezStringView GetFileExtension(bool full = false)const;
+  ezStringView GetFileName()const;
+  ezStringView GetFileNameAndExtension()const;
+  ezStringView GetFileDirectory()const;
+  bool IsAbsolutePath()const;
+  bool IsRelativePath()const;
+  bool IsRootedPath()const;
+  bool GetRootedPathRootName()const;
+  ezStringView GetView()const;
+  int opCmp(const ezString&in)const;
+  void opAssign(const ezString&in);
+  void opAssign(const ezStringView);
+  void opAssign(const ezStringBuilder&in);
+}
+
+class ezStringBuilder
+{
+  ezStringBuilder();
+  ezStringBuilder(const ezStringView s1);
+  ezStringBuilder(const ezStringView s1, const ezStringView s2, const ezStringView s3 = "", const ezStringView s4 = "");
+  bool StartsWith(ezStringView)const;
+  bool StartsWith_NoCase(ezStringView)const;
+  bool EndsWith(ezStringView)const;
+  bool EndsWith_NoCase(ezStringView)const;
+  int Compare(ezStringView)const;
+  int Compare_NoCase(ezStringView)const;
+  int CompareN(ezStringView, uint)const;
+  int CompareN_NoCase(ezStringView, uint)const;
+  uint GetElementCount()const;
+  bool IsEmpty()const;
+  bool IsEqual(ezStringView)const;
+  bool IsEqual_NoCase(ezStringView)const;
+  bool IsEqualN(ezStringView, uint)const;
+  bool IsEqualN_NoCase(ezStringView, uint)const;
+  bool HasAnyExtension()const;
+  bool HasExtension(ezStringView)const;
+  ezStringView GetFileExtension(bool full = false)const;
+  ezStringView GetFileName()const;
+  ezStringView GetFileNameAndExtension()const;
+  ezStringView GetFileDirectory()const;
+  bool IsAbsolutePath()const;
+  bool IsRelativePath()const;
+  bool IsRootedPath()const;
+  bool GetRootedPathRootName()const;
+  void opAssign(const ezStringBuilder&in rhs);
+  void opAssign(ezStringView rhs);
+  void opAssign(const ezString&in rhs);
+  ezStringView GetView()const;
+  void Clear();
+  uint GetCharacterCount()const;
+  void ToUpper();
+  void ToLower();
+  void Set(ezStringView sData1);
+  void Set(ezStringView sData1, ezStringView sData2);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "");
+  void SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3 = "", ezStringView sData4 = "");
+  void Append(ezStringView sData1);
+  void Append(ezStringView sData1, ezStringView sData2);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "");
+  void Prepend(ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "");
+  void Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack);
+  void Reserve(uint uiNumElements);
+  uint ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement);
+  uint ReplaceAll_NoCase(ezStringView sSearchFor, ezStringView sReplacement);
+  void MakeCleanPath();
+  void PathParentDirectory(uint uiLevelsUp = 1);
+  void AppendPath(ezStringView sPath1, ezStringView sPath2 = "", ezStringView sPath3 = "", ezStringView sPath4 = "");
+  void AppendWithSeparator(ezStringView sSeparator, ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "");
+  void ChangeFileName(ezStringView sNewFileName);
+  void ChangeFileNameAndExtension(ezStringView sNewFileNameWithExtension);
+  void ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension = false);
+  void RemoveFileExtension(bool bFullExtension = false);
+  bool TrimWordStart(ezStringView sWord);
+  bool TrimWordEnd(ezStringView sWord);
+}
+
+class ezGameObject
+{
+  ezGameObjectHandle GetHandle()const;
+  void MakeDynamic();
+  void MakeStatic();
+  bool IsDynamic()const;
+  bool IsStatic()const;
+  void SetActiveFlag(bool bActive);
+  bool GetActiveFlag()const;
+  bool IsActive()const;
+  void SetName(ezStringView sName);
+  void SetName(const ezHashedString&in sName);
+  ezStringView GetName()const;
+  bool HasName(const ezTempHashedString&in sName)const;
+  void SetGlobalKey(ezStringView sKey);
+  void SetGlobalKey(const ezHashedString&in sKey);
+  ezStringView GetGlobalKey()const;
+  void SetParent(const ezGameObjectHandle&in hParent, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  ezGameObject@ GetParent()const;
+  ezGameObject@ GetParent();
+  void AddChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  void DetachChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  uint GetChildCount();
+  ezGameObject@ FindChildByName(const ezTempHashedString&in sName, bool bRecursive = true);
+  ezGameObject@ FindChildByPath(ezStringView sPath);
+  ezWorld@ GetWorld();
+  const ezWorld@ GetWorld()const;
+  void SetLocalPosition(const ezVec3&in);
+  ezVec3 GetLocalPosition()const;
+  void SetLocalRotation(const ezQuat&in);
+  ezQuat GetLocalRotation()const;
+  void SetLocalScaling(const ezVec3&in);
+  ezVec3 GetLocalScaling()const;
+  void SetLocalUniformScaling(float fScale);
+  float GetLocalUniformScaling()const;
+  ezTransform GetLocalTransform()const;
+  void SetGlobalPosition(const ezVec3&in);
+  ezVec3 GetGlobalPosition()const;
+  void SetGlobalRotation(const ezQuat&in);
+  void SetGlobalScaling(const ezVec3&in);
+  ezVec3 GetGlobalScaling()const;
+  void SetGlobalTransform(const ezTransform&in);
+  ezTransform GetGlobalTransform()const;
+  ezTransform GetLastGlobalTransform()const;
+  ezVec3 GetGlobalDirForwards()const;
+  ezVec3 GetGlobalDirRight()const;
+  ezVec3 GetGlobalDirUp()const;
+  ezVec3 GetLinearVelocity()const;
+  ezVec3 GetAngularVelocity()const;
+  void UpdateGlobalTransform();
+  void UpdateLocalBounds();
+  void UpdateGlobalBounds();
+  void UpdateGlobalTransformAndBounds();
+  bool TryGetComponentOfBaseType(const ezRTTI@ pType, ezComponent@&out pComponent);
+  bool TryGetComponentOfBaseType(?&out pTypedComponent);
+  bool CreateComponent(?&out pTypedComponent);
+  uint16 GetComponentVersion();
+  bool SendMessage(ezMessage&inout);
+  bool SendMessage(ezMessage&inout)const;
+  bool SendMessageRecursive(ezMessage&inout);
+  bool SendMessageRecursive(ezMessage&inout)const;
+  void PostMessage(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)const;
+  void PostMessageRecursive(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)const;
+  bool SendEventMessage(ezMessage&inout, const ezComponent@ pSender);
+  bool SendEventMessage(ezMessage&inout, const ezComponent@ pSender)const;
+  void PostEventMessage(const ezMessage&in msg, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)const;
+  bool HasTag(const ezTempHashedString&in sTagName)const;
+  uint16 GetTeamID();
+  void SetTeamID(uint16 id);
+  uint GetStableRandomSeed();
+  void SetStableRandomSeed(uint seed);
+}
+
+class ezComponent
+{
+  ezCollectionComponent@ opCast();
+  ezForwardEventsToGameStateComponent@ opCast();
+  ezPrefabReferenceComponent@ opCast();
+  ezScriptComponent@ opCast();
+  ezEventMessageHandlerComponent@ opCast();
+  ezSettingsComponent@ opCast();
+  ezSkeletonComponent@ opCast();
+  ezSkeletonPoseComponent@ opCast();
+  ezBakedProbesComponent@ opCast();
+  ezBakedProbesVolumeComponent@ opCast();
+  ezAlwaysVisibleComponent@ opCast();
+  ezBeamComponent@ opCast();
+  ezCameraComponent@ opCast();
+  ezFogComponent@ opCast();
+  ezLensFlareComponent@ opCast();
+  ezLodComponent@ opCast();
+  ezOccluderComponent@ opCast();
+  ezRenderComponent@ opCast();
+  ezRenderTargetActivatorComponent@ opCast();
+  ezRopeRenderComponent@ opCast();
+  ezSkyBoxComponent@ opCast();
+  ezSpriteComponent@ opCast();
+  ezDebugTextComponent@ opCast();
+  ezDecalComponent@ opCast();
+  ezAmbientLightComponent@ opCast();
+  ezBoxReflectionProbeComponent@ opCast();
+  ezDirectionalLightComponent@ opCast();
+  ezFillLightComponent@ opCast();
+  ezLightComponent@ opCast();
+  ezPointLightComponent@ opCast();
+  ezReflectionProbeComponentBase@ opCast();
+  ezSkyLightComponent@ opCast();
+  ezSphereReflectionProbeComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+  ezCustomMeshComponent@ opCast();
+  ezInstancedMeshComponent@ opCast();
+  ezLodMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezMeshComponentBase@ opCast();
+  ezSensorComponent@ opCast();
+  ezSensorSphereComponent@ opCast();
+  ezSensorCylinderComponent@ opCast();
+  ezSensorConeComponent@ opCast();
+  ezColorAnimationComponent@ opCast();
+  ezFollowPathComponent@ opCast();
+  ezPathComponent@ opCast();
+  ezPathNodeComponent@ opCast();
+  ezPropertyAnimComponent@ opCast();
+  ezResetTransformComponent@ opCast();
+  ezRotorComponent@ opCast();
+  ezSliderComponent@ opCast();
+  ezTransformComponent@ opCast();
+  ezAimIKComponent@ opCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezAnimationControllerComponent@ opCast();
+  ezJointAttachmentComponent@ opCast();
+  ezJointOverrideComponent@ opCast();
+  ezLodAnimatedMeshComponent@ opCast();
+  ezSimpleAnimationComponent@ opCast();
+  ezTwoBoneIKComponent@ opCast();
+  ezPostProcessingComponent@ opCast();
+  ezSimpleWindComponent@ opCast();
+  ezWindVolumeComponent@ opCast();
+  ezWindVolumeSphereComponent@ opCast();
+  ezWindVolumeCylinderComponent@ opCast();
+  ezWindVolumeConeComponent@ opCast();
+  ezBlackboardComponent@ opCast();
+  ezLocalBlackboardComponent@ opCast();
+  ezGlobalBlackboardComponent@ opCast();
+  ezGrabbableItemComponent@ opCast();
+  ezGreyBoxComponent@ opCast();
+  ezInputComponent@ opCast();
+  ezMarkerComponent@ opCast();
+  ezPlayerStartPointComponent@ opCast();
+  ezSceneTransitionComponent@ opCast();
+  ezSpawnBoxComponent@ opCast();
+  ezSpawnComponent@ opCast();
+  ezTimedDeathComponent@ opCast();
+  ezTriggerDelayModifierComponent@ opCast();
+  ezCharacterControllerComponent@ opCast();
+  ezStateMachineComponent@ opCast();
+  ezVolumeComponent@ opCast();
+  ezVolumeSphereComponent@ opCast();
+  ezVolumeBoxComponent@ opCast();
+  ezDeviceTrackingComponent@ opCast();
+  ezSpatialAnchorComponent@ opCast();
+  ezStageSpaceComponent@ opCast();
+  ezVisualizeHandComponent@ opCast();
+  ezGizmoComponent@ opCast();
+  ezNavMeshObstacleComponent@ opCast();
+  ezAiNavMeshPathTestComponent@ opCast();
+  ezAiNavigationComponent@ opCast();
+  ezFmodComponent@ opCast();
+  ezFmodEventComponent@ opCast();
+  ezFmodListenerComponent@ opCast();
+  ezCreatureCrawlComponent@ opCast();
+  ezMoveToComponent@ opCast();
+  ezLineToComponent@ opCast();
+  ezCameraShakeComponent@ opCast();
+  ezCameraShakeVolumeComponent@ opCast();
+  ezCameraShakeVolumeSphereComponent@ opCast();
+  ezAreaDamageComponent@ opCast();
+  ezHeadBoneComponent@ opCast();
+  ezPowerConnectorComponent@ opCast();
+  ezProjectileComponent@ opCast();
+  ezRaycastComponent@ opCast();
+  ezClothSheetComponent@ opCast();
+  ezFakeRopeComponent@ opCast();
+  ezRandomPrefabComponent@ opCast();
+  ezHeightfieldComponent@ opCast();
+  ezJoltActorComponent@ opCast();
+  ezJoltDynamicActorComponent@ opCast();
+  ezJoltQueryShapeActorComponent@ opCast();
+  ezJoltStaticActorComponent@ opCast();
+  ezJoltTriggerComponent@ opCast();
+  ezJoltCharacterControllerComponent@ opCast();
+  ezJoltDefaultCharacterComponent@ opCast();
+  ezJoltClothSheetComponent@ opCast();
+  ezJoltHitboxComponent@ opCast();
+  ezJoltRagdollComponent@ opCast();
+  ezJoltRopeComponent@ opCast();
+  ezJoltSettingsComponent@ opCast();
+  ezJoltVisColMeshComponent@ opCast();
+  ezJoltConeConstraintComponent@ opCast();
+  ezJoltConstraintComponent@ opCast();
+  ezJoltDistanceConstraintComponent@ opCast();
+  ezJoltFixedConstraintComponent@ opCast();
+  ezJoltGrabObjectComponent@ opCast();
+  ezJoltHingeConstraintComponent@ opCast();
+  ezJoltPointConstraintComponent@ opCast();
+  ezJoltSliderConstraintComponent@ opCast();
+  ezJoltSwingTwistConstraintComponent@ opCast();
+  ezJoltShapeBoxComponent@ opCast();
+  ezJoltShapeCapsuleComponent@ opCast();
+  ezJoltShapeComponent@ opCast();
+  ezJoltShapeConvexHullComponent@ opCast();
+  ezJoltShapeCylinderComponent@ opCast();
+  ezJoltShapeSphereComponent@ opCast();
+  ezKrautTreeComponent@ opCast();
+  ezParticleComponent@ opCast();
+  ezParticleFinisherComponent@ opCast();
+  ezProcPlacementComponent@ opCast();
+  ezProcVertexColorComponent@ opCast();
+  ezProcVolumeComponent@ opCast();
+  ezProcVolumeSphereComponent@ opCast();
+  ezProcVolumeBoxComponent@ opCast();
+  ezProcVolumeImageComponent@ opCast();
+  ezRmlUiCanvas2DComponent@ opCast();
+  ezTypeScriptComponent@ opCast();
+  ezCommentComponent@ opCast();
+  ezShapeIconComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezWorld
+{
+  ezStringView GetName();
+  ezGameObjectHandle CreateObject(ezGameObjectDesc&in desc);
+  ezGameObjectHandle CreateObject(ezGameObjectDesc&in desc, ezGameObject&out object);
+  void DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true);
+  bool IsValidObject(const ezGameObjectHandle&in hObject);
+  bool TryGetObject(ezGameObjectHandle&in, ezGameObject@&out pObject);
+  bool TryGetObject(ezGameObjectHandle&in, const ezGameObject@&out pObject)const;
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, ezGameObject@&out pObject);
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, const ezGameObject@&out pObject);
+  bool IsValidComponent(ezComponentHandle&in);
+  bool TryGetComponent(const ezComponentHandle&in hComponent, ?&out component);
+  void SendMessage(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg);
+  void SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg);
+  void PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  void PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  void SendMessage(const ezComponentHandle&in hReceiverObject, ezMessage&inout msg);
+  void PostMessage(const ezComponentHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezClock@ GetClock();
+  const ezClock@ GetClock()const;
+  ezRandom@ GetRandomNumberGenerator();
+}
+
+class ezMessage
+{
+  ezMsgPhysicsAddImpulse@ opCast();
+  ezMsgPhysicsAddForce@ opCast();
+  ezMsgPhysicsJointBroke@ opCast();
+  ezMsgObjectGrabbed@ opCast();
+  ezMsgReleaseObjectGrab@ opCast();
+  ezMsgBuildStaticMesh@ opCast();
+  ezMsgOnlyApplyToObject@ opCast();
+  ezEventMessage@ opCast();
+  ezMsgCollision@ opCast();
+  ezMsgDeleteGameObject@ opCast();
+  ezMsgComponentInternalTrigger@ opCast();
+  ezMsgUpdateLocalBounds@ opCast();
+  ezMsgSetPlaying@ opCast();
+  ezMsgInterruptPlaying@ opCast();
+  ezMsgParentChanged@ opCast();
+  ezMsgChildrenChanged@ opCast();
+  ezMsgComponentsChanged@ opCast();
+  ezMsgTransformChanged@ opCast();
+  ezMsgSetFloatParameter@ opCast();
+  ezMsgGenericEvent@ opCast();
+  ezMsgAnimationReachedEnd@ opCast();
+  ezMsgTriggerTriggered@ opCast();
+  ezMsgSetColor@ opCast();
+  ezMsgSetCustomData@ opCast();
+  ezMsgAnimationPosePreparing@ opCast();
+  ezMsgAnimationPoseGeneration@ opCast();
+  ezMsgAnimationPoseUpdated@ opCast();
+  ezMsgRopePoseUpdated@ opCast();
+  ezMsgQueryAnimationSkeleton@ opCast();
+  ezMsgApplyRootMotion@ opCast();
+  ezMsgRetrieveBoneState@ opCast();
+  ezMsgSetMeshMaterial@ opCast();
+  ezMsgExtractRenderData@ opCast();
+  ezMsgExtractOccluderData@ opCast();
+  ezMsgExtractGeometry@ opCast();
+  ezMsgSensorDetectedObjectsChanged@ opCast();
+  ezMsgPathChanged@ opCast();
+  ezMsgBlackboardEntryChanged@ opCast();
+  ezMsgInputActionTriggered@ opCast();
+  ezMsgDamage@ opCast();
+  ezMsgMoveCharacterController@ opCast();
+  ezMsgStateMachineStateChanged@ opCast();
+  ezMsgFmodSoundFinished@ opCast();
+  ezEventMsgSetPowerInput@ opCast();
+  ezJoltMsgDisconnectConstraints@ opCast();
+  ezMsgExtractVolumes@ opCast();
+  ezMsgRmlUiReload@ opCast();
+  ezMsgTypeScriptMsgProxy@ opCast();
+}
+
+class ezClock
+{
+  void SetPaused(bool);
+  bool GetPaused()const;
+  ezTime GetTimeDiff()const;
+  void SetSpeed(double);
+  double GetSpeed()const;
+}
+
+class ezRandom
+{
+  uint UInt();
+  uint UIntInRange(uint uiRange);
+  uint UInt32Index(uint uiArraySize, uint uiFallbackValue = 0xFFFFFFFF);
+  uint16 UInt16Index(uint16 uiArraySize, uint16 uiFallbackValue = 0xFFFF);
+  int IntMinMax(int iMinValue, int iMaxValue);
+  bool Bool();
+  double DoubleZeroToOneExclusive();
+  double DoubleZeroToOneInclusive();
+  double DoubleMinMax(double fMinValue, double fMaxValue);
+  double DoubleVariance(double fValue, double fVariance);
+  double DoubleVarianceAroundZero(double fAbsMaxValue);
+  float FloatZeroToOneExclusive();
+  float FloatZeroToOneInclusive();
+  float FloatMinMax(float fMinValue, float fMaxValue);
+  float FloatVariance(float fValue, float fVariance);
+  float FloatVarianceAroundZero(float fAbsMaxValue);
+}
+
+class ezGameObjectDesc
+{
+  ezGameObjectDesc();
+}
+
+class ezCollectionComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Collection;
+  bool RegisterNames;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool HandleGlobalEvents;
+  bool PassThroughUnhandledEvents;
+  ezEventMessageHandlerComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPrefabReferenceComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Prefab;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezScriptComponent : ezEventMessageHandlerComponent
+{
+  void SetScriptVariable(ezHashedString Name, ?&in Value);
+  void SetUpdateInterval(ezTime interval);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool HandleGlobalEvents;
+  bool PassThroughUnhandledEvents;
+  ezTime UpdateInterval;
+  ezStringView ScriptClass;
+  ezEventMessageHandlerComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+  void BroadcastEventMsg(const ezEventMessage&in msg);
+}
+
+class ezEventMessageHandlerComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool HandleGlobalEvents;
+  bool PassThroughUnhandledEvents;
+  ezForwardEventsToGameStateComponent@ opCast();
+  ezScriptComponent@ opCast();
+  ezComponent@ opImplCast();
+  ezTypeScriptComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSettingsComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  ezBakedProbesComponent@ opCast();
+  ezFogComponent@ opCast();
+  ezAmbientLightComponent@ opCast();
+  ezSkyLightComponent@ opCast();
+  ezJoltSettingsComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSkeletonComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Skeleton;
+  bool VisualizeSkeleton;
+  bool VisualizeColliders;
+  bool VisualizeJoints;
+  bool VisualizeSwingLimits;
+  bool VisualizeTwistLimits;
+  ezString BonesToHighlight;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSkeletonPoseComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Skeleton;
+  ezSkeletonPoseMode Mode;
+  float EditBones;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezBakedProbesComponent : ezSettingsComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool ShowDebugOverlay;
+  bool ShowDebugProbes;
+  bool UseTestPosition;
+  ezVec3 TestPosition;
+  ezSettingsComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezBakedProbesVolumeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec3 Extents;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAlwaysVisibleComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezBeamComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString TargetObject;
+  ezStringView Material;
+  ezColor Color;
+  float Width;
+  float UVUnitsPerWorldUnit;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCameraComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezInt8 EditorShortcut;
+  ezCameraUsageHint UsageHint;
+  ezCameraMode Mode;
+  ezStringView RenderTarget;
+  ezVec2 RenderTargetOffset;
+  ezVec2 RenderTargetSize;
+  float NearPlane;
+  float FarPlane;
+  float FOV;
+  float Dimensions;
+  ezString CameraRenderPipeline;
+  float Aperture;
+  ezTime ShutterTime;
+  float ISO;
+  float ExposureCompensation;
+  bool ShowStats;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFogComponent : ezSettingsComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColor Color;
+  float Density;
+  float HeightFalloff;
+  bool ModulateWithSkyColor;
+  float SkyDistance;
+  ezSettingsComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLensFlareComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool LinkToLightShape;
+  float Intensity;
+  float OcclusionSampleRadius;
+  float OcclusionSampleSpread;
+  float OcclusionDepthOffset;
+  bool ApplyFog;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLodComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezOccluderComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezOccluderType Type;
+  ezVec3 Extents;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRenderComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezSkeletonComponent@ opCast();
+  ezAlwaysVisibleComponent@ opCast();
+  ezBeamComponent@ opCast();
+  ezLensFlareComponent@ opCast();
+  ezLodComponent@ opCast();
+  ezComponent@ opImplCast();
+  ezRenderTargetActivatorComponent@ opCast();
+  ezRopeRenderComponent@ opCast();
+  ezSkyBoxComponent@ opCast();
+  ezSpriteComponent@ opCast();
+  ezDecalComponent@ opCast();
+  ezDirectionalLightComponent@ opCast();
+  ezFillLightComponent@ opCast();
+  ezLightComponent@ opCast();
+  ezPointLightComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+  ezCustomMeshComponent@ opCast();
+  ezInstancedMeshComponent@ opCast();
+  ezLodMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezMeshComponentBase@ opCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezLodAnimatedMeshComponent@ opCast();
+  ezGreyBoxComponent@ opCast();
+  ezGizmoComponent@ opCast();
+  ezClothSheetComponent@ opCast();
+  ezHeightfieldComponent@ opCast();
+  ezJoltClothSheetComponent@ opCast();
+  ezJoltVisColMeshComponent@ opCast();
+  ezKrautTreeComponent@ opCast();
+  ezParticleComponent@ opCast();
+  ezParticleFinisherComponent@ opCast();
+  ezProcVertexColorComponent@ opCast();
+  ezRmlUiCanvas2DComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRenderTargetActivatorComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView RenderTarget;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRopeRenderComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Material;
+  ezColor Color;
+  float Thickness;
+  ezUInt32 Detail;
+  bool Subdivide;
+  float UScale;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSkyBoxComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView CubeMap;
+  float ExposureBias;
+  bool InverseTonemap;
+  bool UseFog;
+  float VirtualDistance;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSpriteComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Texture;
+  ezSpriteBlendMode BlendMode;
+  ezColor Color;
+  float Size;
+  float MaxScreenSize;
+  float AspectRatio;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezDebugTextComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Text;
+  float Value0;
+  float Value1;
+  float Value2;
+  float Value3;
+  ezColorGammaUB Color;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezDecalComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezBasisAxis ProjectionAxis;
+  ezVec3 Extents;
+  float SizeVariance;
+  ezColorGammaUB Color;
+  ezColor EmissiveColor;
+  float SortOrder;
+  bool WrapAround;
+  bool MapNormalToGeometry;
+  ezAngle InnerFadeAngle;
+  ezAngle OuterFadeAngle;
+  ezTime FadeOutDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezString ApplyToDynamic;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAmbientLightComponent : ezSettingsComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB TopColor;
+  ezColorGammaUB BottomColor;
+  float Intensity;
+  ezSettingsComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezBoxReflectionProbeComponent : ezReflectionProbeComponentBase
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezReflectionProbeMode ReflectionProbeMode;
+  float NearPlane;
+  float FarPlane;
+  ezVec3 CaptureOffset;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+  ezVec3 Extents;
+  ezVec3 InfluenceScale;
+  ezVec3 InfluenceShift;
+  ezVec3 PositiveFalloff;
+  ezVec3 NegativeFalloff;
+  bool BoxProjection;
+  ezReflectionProbeComponentBase@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezDirectionalLightComponent : ezLightComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB EffectiveColor;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  ezUInt32 Temperature;
+  float Intensity;
+  float SpecularMultiplier;
+  bool CastShadows;
+  bool TransparentShadows;
+  float PenumbraSize;
+  float SlopeBias;
+  float ConstantBias;
+  ezUInt32 NumCascades;
+  float MinShadowRange;
+  float FadeOutStart;
+  float SplitModeWeight;
+  float NearPlaneOffset;
+  ezLightComponent@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFillLightComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB EffectiveColor;
+  ezFillLightMode LightMode;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  ezUInt32 Temperature;
+  float Intensity;
+  float Range;
+  float FalloffExponent;
+  float Directionality;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLightComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB EffectiveColor;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  ezUInt32 Temperature;
+  float Intensity;
+  float SpecularMultiplier;
+  bool CastShadows;
+  bool TransparentShadows;
+  float PenumbraSize;
+  float SlopeBias;
+  float ConstantBias;
+  ezDirectionalLightComponent@ opCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  ezPointLightComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPointLightComponent : ezLightComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB EffectiveColor;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  ezUInt32 Temperature;
+  float Intensity;
+  float SpecularMultiplier;
+  bool CastShadows;
+  bool TransparentShadows;
+  float PenumbraSize;
+  float SlopeBias;
+  float ConstantBias;
+  float Range;
+  float ShadowFadeOutRange;
+  ezLightComponent@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezReflectionProbeComponentBase : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezReflectionProbeMode ReflectionProbeMode;
+  float NearPlane;
+  float FarPlane;
+  ezVec3 CaptureOffset;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+  ezBoxReflectionProbeComponent@ opCast();
+  ezComponent@ opImplCast();
+  ezSphereReflectionProbeComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSkyLightComponent : ezSettingsComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezReflectionProbeMode ReflectionProbeMode;
+  ezStringView CubeMap;
+  float Intensity;
+  float Saturation;
+  float NearPlane;
+  float FarPlane;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+  ezSettingsComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSphereReflectionProbeComponent : ezReflectionProbeComponentBase
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezReflectionProbeMode ReflectionProbeMode;
+  float NearPlane;
+  float FarPlane;
+  ezVec3 CaptureOffset;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+  float Radius;
+  float Falloff;
+  bool SphereProjection;
+  ezReflectionProbeComponentBase@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSpotLightComponent : ezLightComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColorGammaUB EffectiveColor;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  ezUInt32 Temperature;
+  float Intensity;
+  float SpecularMultiplier;
+  bool CastShadows;
+  bool TransparentShadows;
+  float PenumbraSize;
+  float SlopeBias;
+  float ConstantBias;
+  float Range;
+  ezAngle InnerSpotAngle;
+  ezAngle OuterSpotAngle;
+  float ShadowFadeOutRange;
+  ezLightComponent@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCustomMeshComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColor Color;
+  ezVec4 CustomData;
+  ezStringView Material;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezInstancedMeshComponent : ezMeshComponentBase
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Mesh;
+  ezColor MainColor;
+  ezMeshComponentBase@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLodMeshComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezMeshComponent : ezMeshComponentBase
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezMeshComponentBase@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  ezGizmoComponent@ opCast();
+  ezProcVertexColorComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezMeshComponentBase : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezInstancedMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezGizmoComponent@ opCast();
+  ezProcVertexColorComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSensorComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUpdateRate UpdateRate;
+  ezString SpatialCategory;
+  bool TestVisibility;
+  ezUInt8 CollisionLayer;
+  bool ShowDebugInfo;
+  ezColorGammaUB Color;
+  ezComponent@ opImplCast();
+  ezSensorSphereComponent@ opCast();
+  ezSensorCylinderComponent@ opCast();
+  ezSensorConeComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSensorSphereComponent : ezSensorComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUpdateRate UpdateRate;
+  ezString SpatialCategory;
+  bool TestVisibility;
+  ezUInt8 CollisionLayer;
+  bool ShowDebugInfo;
+  ezColorGammaUB Color;
+  float Radius;
+  ezSensorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSensorCylinderComponent : ezSensorComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUpdateRate UpdateRate;
+  ezString SpatialCategory;
+  bool TestVisibility;
+  ezUInt8 CollisionLayer;
+  bool ShowDebugInfo;
+  ezColorGammaUB Color;
+  float Radius;
+  float Height;
+  ezSensorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSensorConeComponent : ezSensorComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUpdateRate UpdateRate;
+  ezString SpatialCategory;
+  bool TestVisibility;
+  ezUInt8 CollisionLayer;
+  bool ShowDebugInfo;
+  ezColorGammaUB Color;
+  float NearDistance;
+  float FarDistance;
+  ezAngle Angle;
+  ezSensorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezColorAnimationComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Gradient;
+  ezTime Duration;
+  ezSetColorMode SetColorMode;
+  ezPropertyAnimMode AnimationMode;
+  bool RandomStartOffset;
+  bool ApplyToChildren;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFollowPathComponent : ezComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards()const;
+  void ToggleDirection();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Path;
+  float StartDistance;
+  bool Running;
+  ezPropertyAnimMode Mode;
+  float Speed;
+  float LookAhead;
+  float Smoothing;
+  ezFollowPathMode FollowMode;
+  float TiltAmount;
+  ezAngle MaxTilt;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPathComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezPathComponentFlags Flags;
+  bool Closed;
+  float Detail;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPathNodeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezAngle Roll;
+  ezPathNodeTangentMode Tangent1;
+  ezPathNodeTangentMode Tangent2;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPropertyAnimComponent : ezComponent
+{
+  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Animation;
+  bool Playing;
+  ezPropertyAnimMode Mode;
+  ezTime RandomOffset;
+  float Speed;
+  ezTime RangeLow;
+  ezTime RangeHigh;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezResetTransformComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool ResetPositionX;
+  bool ResetPositionY;
+  bool ResetPositionZ;
+  ezVec3 LocalPosition;
+  bool ResetRotation;
+  ezQuat LocalRotation;
+  bool ResetScaling;
+  ezVec3 LocalScaling;
+  float LocalUniformScaling;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRotorComponent : ezTransformComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards()const;
+  void ToggleDirection();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Speed;
+  bool Running;
+  bool ReverseAtEnd;
+  bool ReverseAtStart;
+  ezBasisAxis Axis;
+  ezAngle AxisDeviation;
+  ezInt32 DegreesToRotate;
+  float Acceleration;
+  float Deceleration;
+  ezTransformComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSliderComponent : ezTransformComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards()const;
+  void ToggleDirection();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Speed;
+  bool Running;
+  bool ReverseAtEnd;
+  bool ReverseAtStart;
+  ezBasisAxis Axis;
+  float Distance;
+  float Acceleration;
+  float Deceleration;
+  ezTime RandomStart;
+  ezTransformComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezTransformComponent : ezComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards()const;
+  void ToggleDirection();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Speed;
+  bool Running;
+  bool ReverseAtEnd;
+  bool ReverseAtStart;
+  ezRotorComponent@ opCast();
+  ezSliderComponent@ opCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAimIKComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezBasisAxis ForwardVector;
+  ezBasisAxis UpVector;
+  ezString PoleVector;
+  float Weight;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAnimatedMeshComponent : ezMeshComponentBase
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  ezMeshComponentBase@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAnimationControllerComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView AnimGraph;
+  ezRootMotionMode RootMotionMode;
+  ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
+  bool EnableIK;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJointAttachmentComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString JointName;
+  ezVec3 PositionOffset;
+  ezQuat RotationOffset;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJointOverrideComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString JointName;
+  bool OverridePosition;
+  bool OverrideRotation;
+  bool OverrideScale;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLodAnimatedMeshComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSimpleAnimationComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView AnimationClip;
+  ezPropertyAnimMode AnimationMode;
+  float Speed;
+  ezRootMotionMode RootMotionMode;
+  ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
+  bool EnableIK;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezTwoBoneIKComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezHashedString JointStart;
+  ezHashedString JointMiddle;
+  ezHashedString JointEnd;
+  ezBasisAxis MidAxis;
+  ezString PoleVector;
+  float Weight;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPostProcessingComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString VolumeType;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSimpleWindComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezWindStrength MinWindStrength;
+  ezWindStrength MaxWindStrength;
+  ezAngle MaxDeviation;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezWindVolumeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezWindStrength Strength;
+  float StrengthFactor;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezComponent@ opImplCast();
+  ezWindVolumeSphereComponent@ opCast();
+  ezWindVolumeCylinderComponent@ opCast();
+  ezWindVolumeConeComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezWindVolumeSphereComponent : ezWindVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezWindStrength Strength;
+  float StrengthFactor;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  float Radius;
+  ezWindVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezWindVolumeCylinderComponent : ezWindVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezWindStrength Strength;
+  float StrengthFactor;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  float Radius;
+  float RadiusFalloff;
+  float Length;
+  float PositiveFalloff;
+  float NegativeFalloff;
+  ezWindVolumeCylinderMode Mode;
+  ezWindVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezWindVolumeConeComponent : ezWindVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezWindStrength Strength;
+  float StrengthFactor;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezAngle Angle;
+  float Length;
+  ezWindVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezBlackboardComponent : ezComponent
+{
+  void SetEntryValue(ezString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Template;
+  bool ShowDebugInfo;
+  ezComponent@ opImplCast();
+  ezLocalBlackboardComponent@ opCast();
+  ezGlobalBlackboardComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLocalBlackboardComponent : ezBlackboardComponent
+{
+  void SetEntryValue(ezString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Template;
+  bool ShowDebugInfo;
+  ezString BlackboardName;
+  bool SendEntryChangedMessage;
+  ezBlackboardComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezGlobalBlackboardComponent : ezBlackboardComponent
+{
+  void SetEntryValue(ezString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Template;
+  bool ShowDebugInfo;
+  ezString BlackboardName;
+  ezGlobalBlackboardInitMode InitMode;
+  ezBlackboardComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezGrabbableItemComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool DebugShowPoints;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezGreyBoxComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezGreyBoxShape Shape;
+  ezStringView Material;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SizeNegX;
+  float SizePosX;
+  float SizeNegY;
+  float SizePosY;
+  float SizeNegZ;
+  float SizePosZ;
+  ezUInt32 Detail;
+  ezAngle Curvature;
+  float Thickness;
+  bool SlopedTop;
+  bool SlopedBottom;
+  bool GenerateCollision;
+  bool IncludeInNavmesh;
+  bool UseAsOccluder;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezInputComponent : ezComponent
+{
+  float GetCurrentInputState(ezString InputAction, bool OnlyKeyPressed)const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString InputSet;
+  ezInputMessageGranularity Granularity;
+  bool ForwardToBlackboard;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezMarkerComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Marker;
+  float Radius;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPlayerStartPointComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView PlayerPrefab;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSceneTransitionComponent : ezComponent
+{
+  void StartTransition(ezVec3 PositionOffset, ezQuat RotationOffset);
+  void StartTransitionWithOffsetTo(ezVec3 GlobalPosition, ezQuat GlobalRotation);
+  void StartPreload();
+  void CancelPreload();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezSceneLoadMode Mode;
+  ezHashedString TargetScene;
+  ezHashedString PreloadCollection;
+  ezHashedString SpawnPoint;
+  bool RelativeSpawnPosition;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSpawnBoxComponent : ezComponent
+{
+  void StartSpawning();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec3 HalfExtents;
+  ezStringView Prefab;
+  bool SpawnAtStart;
+  bool SpawnContinuously;
+  ezUInt16 MinSpawnCount;
+  ezUInt16 SpawnCountRange;
+  ezTime Duration;
+  ezAngle MaxRotationZ;
+  ezAngle MaxTiltZ;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSpawnComponent : ezComponent
+{
+  bool CanTriggerManualSpawn()const;
+  bool TriggerManualSpawn(bool IgnoreSpawnDelay, ezVec3 LocalOffset);
+  void ScheduleSpawn();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Prefab;
+  bool AttachAsChild;
+  bool SpawnAtStart;
+  bool SpawnContinuously;
+  ezTime MinDelay;
+  ezTime DelayRange;
+  ezAngle Deviation;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezTimedDeathComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezTime MinDelay;
+  ezTime DelayRange;
+  ezStringView TimeoutPrefab;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezTriggerDelayModifierComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezTime ActivationDelay;
+  ezTime DeactivationDelay;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCharacterControllerComponent : ezComponent
+{
+  void RawMove(ezVec3 moveDeltaGlobal);
+  void TeleportCharacter(ezVec3 globalFootPosition);
+  bool IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight);
+  bool IsTouchingGround();
+  bool IsCrouching();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezStateMachineComponent : ezComponent
+{
+  bool SetState(ezStringView Name);
+  ezStringView GetCurrentState()const;
+  void FireTransitionEvent(ezStringView Name);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Resource;
+  ezString InitialState;
+  ezString BlackboardName;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezVolumeComponent : ezComponent
+{
+  void SetValue(ezHashedString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Type;
+  float SortOrder;
+  ezStringView Template;
+  ezComponent@ opImplCast();
+  ezVolumeSphereComponent@ opCast();
+  ezVolumeBoxComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezVolumeSphereComponent : ezVolumeComponent
+{
+  void SetValue(ezHashedString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Type;
+  float SortOrder;
+  ezStringView Template;
+  float Radius;
+  float Falloff;
+  ezVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezVolumeBoxComponent : ezVolumeComponent
+{
+  void SetValue(ezHashedString Name, ?&in Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Type;
+  float SortOrder;
+  ezStringView Template;
+  ezVec3 Extents;
+  ezVec3 Falloff;
+  ezVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezDeviceTrackingComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezXRDeviceType DeviceType;
+  ezXRPoseLocation PoseLocation;
+  ezXRTransformSpace TransformSpace;
+  bool Rotation;
+  bool Scale;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezSpatialAnchorComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezStageSpaceComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezXRStageSpace StageSpace;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezVisualizeHandComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezGizmoComponent : ezMeshComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezMeshComponent@ opImplCast();
+  ezMeshComponentBase@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezNavMeshObstacleComponent : ezComponent
+{
+  void InvalidateSectors();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAiNavMeshPathTestComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool VisualizePathCorridor;
+  bool VisualizePathLine;
+  bool VisualizePathState;
+  ezString PathEnd;
+  ezHashedString NavmeshConfig;
+  ezHashedString PathSearchConfig;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAiNavigationComponent : ezComponent
+{
+  void SetDestination(ezVec3 Destination, bool AllowPartialPaths);
+  void CancelNavigation();
+  ezAiNavigationComponentState GetState()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezHashedString NavmeshConfig;
+  ezHashedString PathSearchConfig;
+  float Speed;
+  float Acceleration;
+  float Deceleration;
+  float FootRadius;
+  float ReachedDistance;
+  ezUInt32 CollisionLayer;
+  float FallHeight;
+  ezAiNavigationDebugFlags DebugFlags;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFmodComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  ezFmodEventComponent@ opCast();
+  ezFmodListenerComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFmodEventComponent : ezFmodComponent
+{
+  void Restart();
+  void StartOneShot();
+  void StopSound(bool Immediate);
+  void SoundCue();
+  void SetEventParameter(ezString ParamName, float Value);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool Paused;
+  float Volume;
+  float Pitch;
+  bool NoGlobalPitch;
+  ezStringView SoundEvent;
+  bool UseOcclusion;
+  float OcclusionThreshold;
+  ezUInt8 OcclusionCollisionLayer;
+  ezOnComponentFinishedAction OnFinishedAction;
+  bool ShowDebugInfo;
+  ezFmodComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFmodListenerComponent : ezFmodComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 ListenerIndex;
+  ezFmodComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCreatureCrawlComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Body;
+  float CastUp;
+  float CastDown;
+  float StepDistance;
+  float MinLegDistance;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezMoveToComponent : ezComponent
+{
+  void SetTargetPosition(ezVec3 position);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool Running;
+  float TranslationSpeed;
+  float TranslationAcceleration;
+  float TranslationDeceleration;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezLineToComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Target;
+  ezColor Color;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCameraShakeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezAngle MinShake;
+  ezAngle MaxShake;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCameraShakeVolumeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Strength;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezComponent@ opImplCast();
+  ezCameraShakeVolumeSphereComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCameraShakeVolumeSphereComponent : ezCameraShakeVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Strength;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  float Radius;
+  ezCameraShakeVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezAreaDamageComponent : ezComponent
+{
+  void ApplyAreaDamage();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool OnCreation;
+  float Radius;
+  ezUInt8 CollisionLayer;
+  float Damage;
+  float Impulse;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezHeadBoneComponent : ezComponent
+{
+  void SetVerticalRotation(float Radians);
+  void ChangeVerticalRotation(float Radians);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezAngle VerticalRotation;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezPowerConnectorComponent : ezComponent
+{
+  bool IsConnected()const;
+  bool IsAttached()const;
+  void Detach();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt16 Output;
+  ezString Buddy;
+  ezString ConnectedTo;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProjectileComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Speed;
+  float GravityMultiplier;
+  ezTime MaxLifetime;
+  bool SpawnPrefabOnStatic;
+  ezStringView OnDeathPrefab;
+  ezUInt8 CollisionLayer;
+  ezPhysicsShapeType ShapeTypesToHit;
+  ezStringView FallbackSurface;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRaycastComponent : ezComponent
+{
+  float GetCurrentDistance()const;
+  ezVec3 GetCurrentEndPosition()const;
+  bool HasHit()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float MaxDistance;
+  bool DisableTargetObjectOnNoHit;
+  ezString RaycastEndObject;
+  bool ForceTargetParentless;
+  ezPhysicsShapeType ShapeTypesToHit;
+  ezUInt8 CollisionLayerEndPoint;
+  ezHashedString ChangeNotificationMsg;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezClothSheetComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec2 Size;
+  ezVec2 Slack;
+  float Damping;
+  float WindInfluence;
+  ezClothSheetFlags Flags;
+  ezStringView Material;
+  ezColor Color;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezFakeRopeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Anchor1;
+  ezString Anchor2;
+  bool AttachToAnchor1;
+  bool AttachToAnchor2;
+  ezUInt16 Pieces;
+  float Slack;
+  float Damping;
+  float WindInfluence;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRandomPrefabComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool Preview;
+  ezUInt16 Count;
+  bool InstantiateAsChildren;
+  ezVec3 Position;
+  ezVec3 Rotation;
+  float MinScale;
+  float MaxScale;
+  ezColor Color1;
+  ezColor Color2;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezHeightfieldComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView HeightfieldImage;
+  ezStringView Material;
+  ezVec2 HalfExtents;
+  float Height;
+  ezVec2 TexCoordOffset;
+  ezVec2 TexCoordScale;
+  bool GenerateCollision;
+  bool IncludeInNavmesh;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltActorComponent : ezComponent
+{
+  uint GetObjectFilterID()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezComponent@ opImplCast();
+  ezJoltDynamicActorComponent@ opCast();
+  ezJoltQueryShapeActorComponent@ opCast();
+  ezJoltStaticActorComponent@ opCast();
+  ezJoltTriggerComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltDynamicActorComponent : ezJoltActorComponent
+{
+  void AddLinearForce(ezVec3 vForce);
+  void AddLinearImpulse(ezVec3 vImpulse);
+  void AddAngularForce(ezVec3 vForce);
+  void AddAngularImpulse(ezVec3 vImpulse);
+  uint GetObjectFilterID()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  bool Kinematic;
+  bool StartAsleep;
+  bool AllowSleeping;
+  float Mass;
+  float Density;
+  ezStringView Surface;
+  float GravityFactor;
+  float LinearDamping;
+  float AngularDamping;
+  bool ContinuousCollisionDetection;
+  ezOnJoltContact OnContact;
+  bool CustomCenterOfMass;
+  ezVec3 CenterOfMass;
+  ezJoltActorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltQueryShapeActorComponent : ezJoltActorComponent
+{
+  uint GetObjectFilterID()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezStringView Surface;
+  ezJoltActorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltStaticActorComponent : ezJoltActorComponent
+{
+  uint GetObjectFilterID()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezStringView CollisionMesh;
+  bool IncludeInNavmesh;
+  bool PullSurfacesFromGraphicsMesh;
+  ezStringView Surface;
+  ezJoltActorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltTriggerComponent : ezJoltActorComponent
+{
+  uint GetObjectFilterID()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezString TriggerMessage;
+  ezJoltActorComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltCharacterControllerComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezUInt8 PresenceCollisionLayer;
+  float Mass;
+  float Strength;
+  ezAngle MaxClimbingSlope;
+  ezJoltCharacterDebugFlags DebugFlags;
+  ezComponent@ opImplCast();
+  ezJoltDefaultCharacterComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
+{
+  void TeleportCharacter(ezVec3 globalFootPosition);
+  bool IsStandingOnGround()const;
+  bool IsSlidingOnGround()const;
+  bool IsInAir()const;
+  bool IsCrouching()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezUInt8 CollisionLayer;
+  ezUInt8 PresenceCollisionLayer;
+  float Mass;
+  float Strength;
+  ezAngle MaxClimbingSlope;
+  ezJoltCharacterDebugFlags DebugFlags;
+  float ShapeRadius;
+  float CrouchHeight;
+  float StandHeight;
+  float FootRadius;
+  float WalkSpeedCrouching;
+  float WalkSpeedStanding;
+  float WalkSpeedRunning;
+  float AirSpeed;
+  float AirFriction;
+  float MaxStepUp;
+  float MaxStepDown;
+  float JumpImpulse;
+  ezAngle RotateSpeed;
+  ezString WalkSurfaceInteraction;
+  float WalkInteractionDistance;
+  float RunInteractionDistance;
+  ezStringView FallbackWalkSurface;
+  ezString HeadObject;
+  ezJoltCharacterControllerComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltClothSheetComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec2 Size;
+  ezUInt8 CollisionLayer;
+  float WindInfluence;
+  float GravityFactor;
+  float Damping;
+  float Thickness;
+  ezJoltClothSheetFlags Flags;
+  ezStringView Material;
+  ezVec2 TextureScale;
+  ezColor Color;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltHitboxComponent : ezComponent
+{
+  uint GetObjectFilterID()const;
+  void RecreatePhysicsShapes();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool QueryShapeOnly;
+  ezTime UpdateThreshold;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltRagdollComponent : ezComponent
+{
+  uint GetObjectFilterID()const;
+  void SetInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
+  void AddInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
+  void SetJointTypeOverride(ezStringView JointName, ezSkeletonJointType OverrideType);
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool SelfCollision;
+  ezJoltRagdollStartMode StartMode;
+  float GravityFactor;
+  float Mass;
+  float StiffnessFactor;
+  float OwnerVelocityScale;
+  ezVec3 CenterPosition;
+  float CenterVelocity;
+  float CenterAngularVelocity;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltRopeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Anchor1;
+  ezString Anchor2;
+  ezJoltRopeAnchorConstraintMode Anchor1Constraint;
+  ezJoltRopeAnchorConstraintMode Anchor2Constraint;
+  ezUInt16 Pieces;
+  float Slack;
+  float Mass;
+  float Thickness;
+  float BendStiffness;
+  ezAngle MaxBend;
+  ezAngle MaxTwist;
+  ezUInt8 CollisionLayer;
+  ezStringView Surface;
+  float GravityFactor;
+  bool SelfCollision;
+  bool ContinuousCollisionDetection;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltSettingsComponent : ezSettingsComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec3 ObjectGravity;
+  ezVec3 CharacterGravity;
+  ezJoltSteppingMode SteppingMode;
+  float FixedFrameRate;
+  ezUInt32 MaxSubSteps;
+  ezUInt32 MaxBodies;
+  float SleepVelocityThreshold;
+  ezSettingsComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltVisColMeshComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView CollisionMesh;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltConeConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezAngle ConeAngle;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltConstraintComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConeConstraintComponent@ opCast();
+  ezComponent@ opImplCast();
+  ezJoltDistanceConstraintComponent@ opCast();
+  ezJoltFixedConstraintComponent@ opCast();
+  ezJoltHingeConstraintComponent@ opCast();
+  ezJoltPointConstraintComponent@ opCast();
+  ezJoltSliderConstraintComponent@ opCast();
+  ezJoltSwingTwistConstraintComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltDistanceConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  float MinDistance;
+  float MaxDistance;
+  float Frequency;
+  float Damping;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltFixedConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltGrabObjectComponent : ezComponent
+{
+  bool GrabNearbyObject();
+  bool HasObjectGrabbed()const;
+  void DropGrabbedObject();
+  void ThrowGrabbedObject(ezVec3 Direction);
+  void BreakObjectGrab();
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float MaxGrabPointDistance;
+  float CastRadius;
+  ezUInt8 CollisionLayer;
+  float SpringStiffness;
+  float SpringDamping;
+  float BreakDistance;
+  ezString AttachTo;
+  float GrabAnyObjectWithSize;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltHingeConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConstraintLimitMode LimitMode;
+  ezAngle LowerLimit;
+  ezAngle UpperLimit;
+  float Friction;
+  ezJoltConstraintDriveMode DriveMode;
+  ezAngle DriveTargetValue;
+  float DriveStrength;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltPointConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltSliderConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConstraintLimitMode LimitMode;
+  float LowerLimit;
+  float UpperLimit;
+  float Friction;
+  ezJoltConstraintDriveMode DriveMode;
+  float DriveTargetValue;
+  float DriveStrength;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltSwingTwistConstraintComponent : ezJoltConstraintComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezAngle SwingLimitY;
+  ezAngle SwingLimitZ;
+  float Friction;
+  ezAngle LowerTwistLimit;
+  ezAngle UpperTwistLimit;
+  ezJoltConstraintComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeBoxComponent : ezJoltShapeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezVec3 HalfExtents;
+  ezJoltShapeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeCapsuleComponent : ezJoltShapeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Height;
+  float Radius;
+  ezJoltShapeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezJoltShapeBoxComponent@ opCast();
+  ezJoltShapeCapsuleComponent@ opCast();
+  ezComponent@ opImplCast();
+  ezJoltShapeConvexHullComponent@ opCast();
+  ezJoltShapeCylinderComponent@ opCast();
+  ezJoltShapeSphereComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeConvexHullComponent : ezJoltShapeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView CollisionMesh;
+  ezJoltShapeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeCylinderComponent : ezJoltShapeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Height;
+  float Radius;
+  ezJoltShapeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezJoltShapeSphereComponent : ezJoltShapeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Radius;
+  ezJoltShapeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezKrautTreeComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView KrautTree;
+  ezUInt16 VariationIndex;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezParticleComponent : ezRenderComponent
+{
+  bool StartEffect();
+  void StopEffect();
+  void InterruptEffect();
+  bool IsEffectActive()const;
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Effect;
+  bool SpawnAtStart;
+  ezOnComponentFinishedAction2 OnFinishedAction;
+  ezTime MinRestartDelay;
+  ezTime RestartDelayRange;
+  ezUInt64 RandomSeed;
+  ezBasisAxis SpawnDirection;
+  bool IgnoreOwnerRotation;
+  ezString SharedInstanceName;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezParticleFinisherComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcPlacementComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Resource;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcVertexColorComponent : ezMeshComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezStringView Resource;
+  ezMeshComponent@ opImplCast();
+  ezMeshComponentBase@ opImplCast();
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcVolumeComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Value;
+  float SortOrder;
+  ezProcGenBlendMode BlendMode;
+  ezComponent@ opImplCast();
+  ezProcVolumeSphereComponent@ opCast();
+  ezProcVolumeBoxComponent@ opCast();
+  ezProcVolumeImageComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcVolumeSphereComponent : ezProcVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Value;
+  float SortOrder;
+  ezProcGenBlendMode BlendMode;
+  float Radius;
+  float Falloff;
+  ezProcVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcVolumeBoxComponent : ezProcVolumeComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Value;
+  float SortOrder;
+  ezProcGenBlendMode BlendMode;
+  ezVec3 Extents;
+  ezVec3 Falloff;
+  ezProcVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  ezProcVolumeImageComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezProcVolumeImageComponent : ezProcVolumeBoxComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  float Value;
+  float SortOrder;
+  ezProcGenBlendMode BlendMode;
+  ezVec3 Extents;
+  ezVec3 Falloff;
+  ezStringView Image;
+  ezProcVolumeBoxComponent@ opImplCast();
+  ezProcVolumeComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezRmlUiCanvas2DComponent : ezRenderComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezStringView RmlFile;
+  ezVec2 AnchorPoint;
+  bool PassInput;
+  bool AutobindBlackboards;
+  bool OnDemandUpdate;
+  ezRenderComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezTypeScriptComponent : ezEventMessageHandlerComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  bool HandleGlobalEvents;
+  bool PassThroughUnhandledEvents;
+  ezString Script;
+  ezEventMessageHandlerComponent@ opImplCast();
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezCommentComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezString Comment;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezShapeIconComponent : ezComponent
+{
+  bool IsActive()const;
+  bool IsActiveAndInitialized()const;
+  bool IsActiveAndSimulating()const;
+  ezGameObject@ GetOwner()const;
+  ezWorld@ GetWorld()const;
+  uint GetUniqueID()const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezComponent@ opImplCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg)const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame)const;
+  ezComponentHandle GetHandle()const;
+}
+
+class ezMsgPhysicsAddImpulse : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Impulse;
+  ezUInt32 ObjectFilterID;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgPhysicsAddForce : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Force;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgPhysicsJointBroke : ezEventMessage
+{
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgObjectGrabbed : ezMessage
+{
+  bool GotGrabbed;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgReleaseObjectGrab : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgBuildStaticMesh : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgOnlyApplyToObject : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezEventMessage : ezMessage
+{
+  ezMsgPhysicsJointBroke@ opCast();
+  ezMessage@ opImplCast();
+  ezMsgGenericEvent@ opCast();
+  ezMsgAnimationReachedEnd@ opCast();
+  ezMsgTriggerTriggered@ opCast();
+  ezMsgSensorDetectedObjectsChanged@ opCast();
+  ezMsgPathChanged@ opCast();
+  ezMsgBlackboardEntryChanged@ opCast();
+  ezMsgInputActionTriggered@ opCast();
+  ezMsgDamage@ opCast();
+  ezMsgStateMachineStateChanged@ opCast();
+  ezMsgFmodSoundFinished@ opCast();
+  ezEventMsgSetPowerInput@ opCast();
+}
+
+class ezMsgCollision : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgDeleteGameObject : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgComponentInternalTrigger : ezMessage
+{
+  ezHashedString Message;
+  ezInt32 Payload;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgUpdateLocalBounds : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSetPlaying : ezMessage
+{
+  bool Play;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgInterruptPlaying : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgParentChanged : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgChildrenChanged : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgComponentsChanged : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgTransformChanged : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSetFloatParameter : ezMessage
+{
+  ezString Name;
+  float Value;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgGenericEvent : ezEventMessage
+{
+  ezHashedString Message;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgAnimationReachedEnd : ezEventMessage
+{
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgTriggerTriggered : ezEventMessage
+{
+  ezHashedString Message;
+  ezTriggerState TriggerState;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSetColor : ezMessage
+{
+  ezColor Color;
+  ezSetColorMode Mode;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSetCustomData : ezMessage
+{
+  float Data0;
+  float Data1;
+  float Data2;
+  float Data3;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgAnimationPosePreparing : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgAnimationPoseGeneration : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgAnimationPoseUpdated : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgRopePoseUpdated : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgQueryAnimationSkeleton : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgApplyRootMotion : ezMessage
+{
+  ezVec3 Translation;
+  ezAngle RotationX;
+  ezAngle RotationY;
+  ezAngle RotationZ;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgRetrieveBoneState : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSetMeshMaterial : ezMessage
+{
+  ezStringView Material;
+  ezUInt32 MaterialSlot;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgExtractRenderData : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgExtractOccluderData : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgExtractGeometry : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgSensorDetectedObjectsChanged : ezEventMessage
+{
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgPathChanged : ezEventMessage
+{
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgBlackboardEntryChanged : ezEventMessage
+{
+  ezString Name;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgInputActionTriggered : ezEventMessage
+{
+  ezString InputAction;
+  float KeyPressValue;
+  ezTriggerState TriggerState;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgDamage : ezEventMessage
+{
+  double Damage;
+  ezString HitObjectName;
+  ezVec3 GlobalPosition;
+  ezVec3 ImpactDirection;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgMoveCharacterController : ezMessage
+{
+  double MoveForwards;
+  double MoveBackwards;
+  double StrafeLeft;
+  double StrafeRight;
+  double RotateLeft;
+  double RotateRight;
+  bool Run;
+  bool Jump;
+  bool Crouch;
+  ezMessage@ opImplCast();
+}
+
+class ezMsgStateMachineStateChanged : ezEventMessage
+{
+  ezString OldStateName;
+  ezString NewStateName;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezMsgFmodSoundFinished : ezEventMessage
+{
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezEventMsgSetPowerInput : ezEventMessage
+{
+  ezUInt16 PrevValue;
+  ezUInt16 NewValue;
+  ezEventMessage@ opImplCast();
+  ezMessage@ opImplCast();
+}
+
+class ezJoltMsgDisconnectConstraints : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgExtractVolumes : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgRmlUiReload : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezMsgTypeScriptMsgProxy : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
+class ezIAngelScriptClass
+{
+}
+
+
+// *** EXTRA *** 
+
+
+class ezAngelScriptClass : ezIAngelScriptClass
+{
+    ezScriptComponent@ GetOwnerComponent();
+    ezGameObject@ GetOwner();
+    ezWorld@ GetWorld();
+    void SetUpdateInterval(ezTime interval);
+}
+    
+// *** GLOBAL FUNCTIONS *** 
+
+namespace ezRTTI
+{
+  const ezRTTI@ GetType(ezStringView);
+}
+
+namespace ezVec2
+{
+  ezVec2 MakeNaN();
+  ezVec2 MakeZero();
+}
+
+namespace ezVec3
+{
+  ezVec3 MakeNaN();
+  ezVec3 MakeZero();
+  ezVec3 MakeAxisX();
+  ezVec3 MakeAxisY();
+  ezVec3 MakeAxisZ();
+  ezVec3 Make(float x, float y, float z);
+  ezVec3 MakeRandomDirection(ezRandom&inout rng);
+  ezVec3 MakeRandomPointInSphere(ezRandom&inout rng);
+  ezVec3 MakeRandomDeviationX(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviationY(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviationZ(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviation(ezRandom&inout rng, const ezAngle&in maxDeviation, const ezVec3&in normal);
+}
+
+namespace ezVec4
+{
+  ezVec4 MakeNaN();
+  ezVec4 MakeZero();
+}
+
+namespace ezAngle
+{
+  float DegToRad(float fDegree);
+  float RadToDeg(float fRadians);
+  ezAngle MakeZero();
+  ezAngle MakeFromDegree(float fDegree);
+  ezAngle MakeFromRadian(float fRadians);
+  ezAngle AngleBetween(ezAngle a1, ezAngle a2);
+}
+
+namespace ezQuat
+{
+  ezQuat MakeIdentity();
+  ezQuat MakeFromElements(float x, float y, float z, float w);
+  ezQuat MakeFromAxisAndAngle(const ezVec3&in vAxis, ezAngle angle);
+  ezQuat MakeShortestRotation(const ezVec3&in vFrom, const ezVec3&in vTo);
+  ezQuat MakeFromMat3(const ezMat3&in);
+  ezQuat MakeSlerp(const ezQuat&in qFrom, const ezQuat&in qTo, float fFactor);
+  ezQuat MakeFromEulerAngles(ezAngle x, ezAngle y, ezAngle z);
+}
+
+namespace ezTransform
+{
+  ezTransform Make(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
+  ezTransform MakeIdentity();
+  ezTransform MakeFromMat4(const ezMat4&in);
+  ezTransform MakeLocalTransform(const ezTransform&in, const ezTransform&in);
+  ezTransform MakeGlobalTransform(const ezTransform&in, const ezTransform&in);
+}
+
+namespace ezTime
+{
+  ezTime Now();
+  ezTime MakeFromNanoseconds(double fNanoSeconds);
+  ezTime Nanoseconds(double fNanoSeconds);
+  ezTime MakeFromMicroseconds(double fMicroSeconds);
+  ezTime Microseconds(double fMicroSeconds);
+  ezTime MakeFromMilliseconds(double fMilliSeconds);
+  ezTime Milliseconds(double fMilliSeconds);
+  ezTime MakeFromSeconds(double fSeconds);
+  ezTime Seconds(double fSeconds);
+  ezTime MakeFromMinutes(double fMinutes);
+  ezTime Minutes(double fMinutes);
+  ezTime MakeFromHours(double fHours);
+  ezTime Hours(double fHours);
+  ezTime MakeZero();
+}
+
+namespace ezColor
+{
+  ezColor MakeNaN();
+  ezColor MakeZero();
+  ezColor MakeRGBA(float r, float g, float b, float a);
+  ezColor MakeFromKelvin(uint uiKelvin);
+  ezColor MakeHSV(float fHue, float fSat, float fVal);
+}
+
+namespace ezMath
+{
+  bool IsNaN(float value);
+  bool IsNaN(double value);
+  bool IsFinite(float value);
+  bool IsFinite(double value);
+  float Sin(ezAngle a);
+  float Cos(ezAngle a);
+  float Tan(ezAngle a);
+  ezAngle ASin(float f);
+  ezAngle ACos(float f);
+  ezAngle ATan(float f);
+  ezAngle ATan2(float x, float y);
+  float Exp(float f);
+  float Ln(float f);
+  float Log2(float f);
+  uint Log2i(uint uiVal);
+  float Log10(float f);
+  float Log(float fBase, float f);
+  float Pow2(float f);
+  float Pow(float fBase, float fExp);
+  int Pow2(int i);
+  int Pow(int iBase, int iExp);
+  float Sqrt(float f);
+  double Sqrt(double f);
+  float Sign(float f);
+  int Sign(int f);
+  float Abs(float f);
+  int Abs(int f);
+  int Min(int f1, int f2);
+  float Min(float f1, float f2);
+  int Max(int f1, int f2);
+  float Max(float f1, float f2);
+  int Clamp(int val, int min, int max);
+  float Clamp(float val, float min, float max);
+  float Floor(float f);
+  float Ceil(float f);
+  int FloorToInt(float f);
+  int CeilToInt(float f);
+  float Lerp(float from, float to, float factor);
+  float Unlerp(float from, float to, float value);
+  bool IsEqual(float lhs, float rhs, float fEpsilon);
+  bool IsZero(float value, float fEpsilon);
+  bool IsInRange(float value, float min, float max);
+}
+
+namespace ezQuat
+{
+  ezQuat MakeFromAxisAndAngle(ezVec3 Axis, ezAngle Angle);
+  ezQuat MakeShortestRotation(ezVec3 DirFrom, ezVec3 DirTo);
+  ezQuat MakeSlerp(ezQuat From, ezQuat To, float Lerp);
+}
+
+namespace ezTransform
+{
+  ezTransform Make(ezVec3 Position, ezQuat Rotation, ezVec3 Scale);
+  ezTransform MakeLocalTransform(ezTransform Parent, ezTransform GlobalChild);
+  ezTransform MakeGlobalTransform(ezTransform Parent, ezTransform LocalChild);
+}
+
+namespace ezClock
+{
+  ezClock@ GetGlobalClock();
+}
+
+namespace ezCVar
+{
+  bool GetBoolValue(ezStringView Name);
+  int GetIntValue(ezStringView Name);
+  float GetFloatValue(ezStringView Name);
+  ezString GetStringValue(ezStringView Name);
+  void SetValue(ezStringView Name, ?&in Value);
+  void SetBoolValue(ezStringView Name, bool Value);
+  void SetIntValue(ezStringView Name, int Value);
+  void SetFloatValue(ezStringView Name, float Value);
+  void SetStringValue(ezStringView Name, ezString Value);
+}
+
+namespace ezLog
+{
+  void Info(ezStringView Text);
+  void Info(ezStringView Text, ?&in VarArg1);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Warning(ezStringView Text);
+  void Warning(ezStringView Text, ?&in VarArg1);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Error(ezStringView Text);
+  void Error(ezStringView Text, ?&in VarArg1);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+}
+
+namespace ezPhysics
+{
+  ezVec3 GetGravity(ezWorld@ World);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = - 1);
+  bool OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+}
+
+namespace ezPrefabs
+{
+  void SpawnPrefab(ezWorld@ World, ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefabAsChild(ezWorld@ World, ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+}
+
+namespace ezDebug
+{
+  void DrawCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawSolidBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void Draw2DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0));
+  void Draw3DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16);
+  void DrawInfoText(ezWorld@ World, ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color);
+  void AddPersistentCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+}
+
+ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self);
+ezScriptComponent@ GetScriptOwnerComponent(ezIAngelScriptClass@ self);
+ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self);

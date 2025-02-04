@@ -907,6 +907,9 @@ ezString ezAngelScriptEngineSingleton::Register_EnumType(const ezRTTI* pEnumType
 
   m_pEngine->RegisterEnum(enumName);
 
+  pEnumTypeInfo = m_pEngine->GetTypeInfoByName(enumName);
+  pEnumTypeInfo->SetUserData((void*)pEnumType, ezAsUserData::RttiPtr);
+
   ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
   ezReflectionUtils::GetEnumKeysAndValues(pEnumType, enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
   for (auto& enumValue : enumValues)
