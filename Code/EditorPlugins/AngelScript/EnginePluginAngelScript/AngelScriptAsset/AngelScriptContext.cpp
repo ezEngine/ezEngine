@@ -153,7 +153,6 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
 
     bool isPrivate = false, isProtected = false, isReference = false;
     pClassType->GetProperty(i2, &szName, &typeId, &isPrivate, &isProtected, nullptr, &isReference);
-    ezStringBuilder sDecl = pClassType->GetPropertyDeclaration(i2);
 
     if (isPrivate || isProtected)
       continue;
@@ -421,6 +420,21 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 
       sPredef.Append("\n{\n");
 
+      for (ezUInt32 idx = 0; idx < pType->GetPropertyCount(); ++idx)
+      {
+        const char* szName;
+        int typeId;
+
+        bool isPrivate = false, isProtected = false, isReference = false;
+        pType->GetProperty(idx, &szName, &typeId, &isPrivate, &isProtected, nullptr, &isReference);
+        ezStringBuilder sDecl = pType->GetPropertyDeclaration(idx);
+
+        if (isPrivate || isProtected)
+          continue;
+
+        sPredef.Append("  ", sDecl, ";\n");
+      }
+
       for (ezUInt32 methodIdx = 0; methodIdx < pType->GetBehaviourCount(); ++methodIdx)
       {
         asEBehaviours behavior;
@@ -542,6 +556,48 @@ class ezAngelScriptClass : ezIAngelScriptClass
       sPredef.Append("}\n\n");
     }
   }
+
+  {
+    sPredef.Append("\n// *** GLOBAL PROPERTIES *** \n\n");
+
+    ezStringBuilder sNamespace;
+
+    for (ezUInt32 idx = 0; idx < pEngine->GetGlobalPropertyCount(); ++idx)
+    {
+      const char* szName;
+      const char* szNamespace;
+      int typeId;
+      bool isConst;
+      pEngine->GetGlobalPropertyByIndex(idx, &szName, &szNamespace, &typeId, &isConst);
+
+      if (sNamespace != szNamespace)
+      {
+        if (!sNamespace.IsEmpty())
+        {
+          sPredef.Append("}\n\n");
+        }
+
+        sNamespace = szNamespace;
+        sIndent = "";
+
+        if (!sNamespace.IsEmpty())
+        {
+          sPredef.Append("namespace ", sNamespace, "\n{\n");
+          sIndent = "  ";
+        }
+      }
+
+      tmp = pEngine->GetTypeDeclaration(typeId, false);
+
+      sPredef.Append(sIndent, tmp, " ", szName, ";\n");
+    }
+
+    if (!sNamespace.IsEmpty())
+    {
+      sPredef.Append("}\n\n");
+    }
+  }
+
 
   ezStringBuilder sFullPath;
 

@@ -424,6 +424,8 @@ class ezRTTI
 
 class ezVec2
 {
+  float x;
+  float y;
   ezVec2(float x, float y);
   ezVec2(float xyz);
   ezVec3 GetAsVec3(float z) const;
@@ -471,6 +473,9 @@ class ezVec2
 
 class ezVec3
 {
+  float x;
+  float y;
+  float z;
   ezVec3(float x, float y, float z);
   ezVec3(float xyz);
   ezVec2 GetAsVec2() const;
@@ -523,6 +528,10 @@ class ezVec3
 
 class ezVec4
 {
+  float x;
+  float y;
+  float z;
+  float w;
   ezVec4(float x, float y, float z, float w);
   ezVec4(float xyzw);
   ezVec2 GetAsVec2() const;
@@ -586,6 +595,10 @@ class ezAngle
 
 class ezQuat
 {
+  float x;
+  float y;
+  float z;
+  float w;
   void SetIdentity();
   void ReconstructFromMat3(const ezMat3&in);
   void ReconstructFromMat4(const ezMat3&in);
@@ -618,6 +631,9 @@ class ezMat4
 
 class ezTransform
 {
+  ezVec3 m_vPosition;
+  ezQuat m_qRotation;
+  ezVec3 m_vScale;
   ezTransform(const ezVec3&in vPosition);
   ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation);
   ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
@@ -677,6 +693,10 @@ class ezTime
 
 class ezColor
 {
+  float r;
+  float g;
+  float b;
+  float a;
   ezColor(float r, float g, float b, float a = 1.0f);
   ezColor(const ezColorGammaUB&in);
   void opAssign(const ezColorGammaUB&in);
@@ -722,6 +742,10 @@ class ezColor
 
 class ezColorGammaUB
 {
+  uint8 r;
+  uint8 g;
+  uint8 b;
+  uint8 a;
   ezColorGammaUB(uint8 r, uint8 g, uint8 b, uint8 a = 255);
   ezColorGammaUB(const ezColor&in);
   void opAssign(const ezColor&in);
@@ -1271,6 +1295,16 @@ class ezRandom
 
 class ezGameObjectDesc
 {
+  bool m_bActiveFlag;
+  bool m_bDynamic;
+  uint16 m_uiTeamID;
+  ezHashedString m_sName;
+  ezGameObjectHandle m_hParent;
+  ezVec3 m_LocalPosition;
+  ezQuat m_LocalRotation;
+  ezVec3 m_LocalScaling;
+  float m_LocalUniformScaling;
+  uint m_uiStableRandomSeed;
   ezGameObjectDesc();
 }
 
@@ -4068,3 +4102,158 @@ namespace ezDebug
 ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self);
 ezScriptComponent@ GetScriptOwnerComponent(ezIAngelScriptClass@ self);
 ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self);
+
+// *** GLOBAL PROPERTIES *** 
+
+namespace ezColor
+{
+  ezColor AliceBlue;
+  ezColor AntiqueWhite;
+  ezColor Aqua;
+  ezColor Aquamarine;
+  ezColor Azure;
+  ezColor Beige;
+  ezColor Bisque;
+  ezColor Black;
+  ezColor BlanchedAlmond;
+  ezColor Blue;
+  ezColor BlueViolet;
+  ezColor Brown;
+  ezColor BurlyWood;
+  ezColor CadetBlue;
+  ezColor Chartreuse;
+  ezColor Chocolate;
+  ezColor Coral;
+  ezColor CornflowerBlue;
+  ezColor Cornsilk;
+  ezColor Crimson;
+  ezColor Cyan;
+  ezColor DarkBlue;
+  ezColor DarkCyan;
+  ezColor DarkGoldenRod;
+  ezColor DarkGray;
+  ezColor DarkGrey;
+  ezColor DarkGreen;
+  ezColor DarkKhaki;
+  ezColor DarkMagenta;
+  ezColor DarkOliveGreen;
+  ezColor DarkOrange;
+  ezColor DarkOrchid;
+  ezColor DarkRed;
+  ezColor DarkSalmon;
+  ezColor DarkSeaGreen;
+  ezColor DarkSlateBlue;
+  ezColor DarkSlateGray;
+  ezColor DarkSlateGrey;
+  ezColor DarkTurquoise;
+  ezColor DarkViolet;
+  ezColor DeepPink;
+  ezColor DeepSkyBlue;
+  ezColor DimGray;
+  ezColor DimGrey;
+  ezColor DodgerBlue;
+  ezColor FireBrick;
+  ezColor FloralWhite;
+  ezColor ForestGreen;
+  ezColor Fuchsia;
+  ezColor Gainsboro;
+  ezColor GhostWhite;
+  ezColor Gold;
+  ezColor GoldenRod;
+  ezColor Gray;
+  ezColor Grey;
+  ezColor Green;
+  ezColor GreenYellow;
+  ezColor HoneyDew;
+  ezColor HotPink;
+  ezColor IndianRed;
+  ezColor Indigo;
+  ezColor Ivory;
+  ezColor Khaki;
+  ezColor Lavender;
+  ezColor LavenderBlush;
+  ezColor LawnGreen;
+  ezColor LemonChiffon;
+  ezColor LightBlue;
+  ezColor LightCoral;
+  ezColor LightCyan;
+  ezColor LightGoldenRodYellow;
+  ezColor LightGray;
+  ezColor LightGrey;
+  ezColor LightGreen;
+  ezColor LightPink;
+  ezColor LightSalmon;
+  ezColor LightSeaGreen;
+  ezColor LightSkyBlue;
+  ezColor LightSlateGray;
+  ezColor LightSlateGrey;
+  ezColor LightSteelBlue;
+  ezColor LightYellow;
+  ezColor Lime;
+  ezColor LimeGreen;
+  ezColor Linen;
+  ezColor Magenta;
+  ezColor Maroon;
+  ezColor MediumAquaMarine;
+  ezColor MediumBlue;
+  ezColor MediumOrchid;
+  ezColor MediumPurple;
+  ezColor MediumSeaGreen;
+  ezColor MediumSlateBlue;
+  ezColor MediumSpringGreen;
+  ezColor MediumTurquoise;
+  ezColor MediumVioletRed;
+  ezColor MidnightBlue;
+  ezColor MintCream;
+  ezColor MistyRose;
+  ezColor Moccasin;
+  ezColor NavajoWhite;
+  ezColor Navy;
+  ezColor OldLace;
+  ezColor Olive;
+  ezColor OliveDrab;
+  ezColor Orange;
+  ezColor OrangeRed;
+  ezColor Orchid;
+  ezColor PaleGoldenRod;
+  ezColor PaleGreen;
+  ezColor PaleTurquoise;
+  ezColor PaleVioletRed;
+  ezColor PapayaWhip;
+  ezColor PeachPuff;
+  ezColor Peru;
+  ezColor Pink;
+  ezColor Plum;
+  ezColor PowderBlue;
+  ezColor Purple;
+  ezColor RebeccaPurple;
+  ezColor Red;
+  ezColor RosyBrown;
+  ezColor RoyalBlue;
+  ezColor SaddleBrown;
+  ezColor Salmon;
+  ezColor SandyBrown;
+  ezColor SeaGreen;
+  ezColor SeaShell;
+  ezColor Sienna;
+  ezColor Silver;
+  ezColor SkyBlue;
+  ezColor SlateBlue;
+  ezColor SlateGray;
+  ezColor SlateGrey;
+  ezColor Snow;
+  ezColor SpringGreen;
+  ezColor SteelBlue;
+  ezColor Tan;
+  ezColor Teal;
+  ezColor Thistle;
+  ezColor Tomato;
+  ezColor Turquoise;
+  ezColor Violet;
+  ezColor Wheat;
+  ezColor White;
+  ezColor WhiteSmoke;
+  ezColor Yellow;
+  ezColor YellowGreen;
+}
+
