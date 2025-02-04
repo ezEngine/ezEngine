@@ -450,6 +450,8 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
     case ezVariantType::Vector4:
       s.SetFormat("ezVec4({}, {}, {}, {})", value.Get<ezVec4>().x, value.Get<ezVec4>().y, value.Get<ezVec4>().z, value.Get<ezVec4>().w);
       return s;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;

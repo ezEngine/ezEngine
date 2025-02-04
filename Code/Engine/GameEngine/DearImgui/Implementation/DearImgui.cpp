@@ -240,7 +240,7 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
   if (!hFont.IsValid())
   {
     ezGALSystemMemoryDescription memoryDesc;
-    memoryDesc.m_pData = ezMakeByteBlobPtr(pixels, ezUInt64(width) * height * 4ull);
+    memoryDesc.m_pData = ezMakeByteBlobPtr(pixels, ezUInt32(width * height * 4));
     memoryDesc.m_uiRowPitch = width * 4;
     memoryDesc.m_uiSlicePitch = width * height * 4;
 

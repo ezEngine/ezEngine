@@ -253,6 +253,8 @@ private:
       case ezPreprocessor::ProcessingEvent::Warning:
         ezLog::Warning("{0}: Line {1} [{2}]: {}", event.m_pToken->m_File.GetString(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn, event.m_sInfo);
         break;
+      default:
+        break;
     }
   }
 

@@ -149,7 +149,7 @@ void ezAngelScriptEngineSingleton::Register_Vec2()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Set(float x, float y)", asMETHODPR(ezVec2, Set, (float, float), void), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void SetZero()", asMETHOD(ezVec2, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLength() const", asMETHOD(ezVec2, GetLength<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLength() const", asMETHODPR(ezVec2, GetLength, () const, float), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetDistanceTo(const ezVec2& in rhs) const", asMETHOD(ezVec2, GetDistanceTo<float>), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetSquaredDistanceTo(const ezVec2& in rhs) const", asMETHOD(ezVec2, GetSquaredDistanceTo<float>), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthSquared() const", asMETHOD(ezVec2, GetLengthSquared), asCALL_THISCALL));
