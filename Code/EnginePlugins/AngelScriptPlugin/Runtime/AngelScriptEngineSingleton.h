@@ -67,9 +67,9 @@ private:
   void Register_GlobalReflectedFunctions();
   void Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable);
   void Register_ReflectedTypes();
-  void RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass);
-  void RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass);
-  void RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsBaseClass);
+  void RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited);
+  void RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited);
+  void RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited);
   bool AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs);
   bool AppendFuncArgs(ezStringBuilder& decl, const ezAbstractFunctionProperty* pFunc, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs);
   ezString Register_EnumType(const ezRTTI* pEnumType);

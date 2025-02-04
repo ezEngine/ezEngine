@@ -465,8 +465,8 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
 
       AddForbiddenType(typeName);
 
-      RegisterTypeFunctions(typeName, pRtti, true);
-      RegisterTypeProperties(typeName, pRtti, true);
+      RegisterTypeFunctions(typeName, pRtti, false);
+      RegisterTypeProperties(typeName, pRtti, false);
 
       //
     },
@@ -611,7 +611,7 @@ static void CollectFunctionArgumentAttributes(const ezAbstractFunctionProperty* 
   }
 }
 
-void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsBaseClass)
+void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited)
 {
   ezStringBuilder decl;
   bool bVarArgs = false;
@@ -715,7 +715,7 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
   }
 
   intptr_t flags = 0;
-  if (bIsBaseClass)
+  if (bIsInherited)
   {
     flags |= 0x01;
   }
@@ -764,7 +764,7 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
   }
 }
 
-void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass)
+void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)
 {
   for (auto pFunc : pRtti->GetFunctions())
   {
@@ -773,13 +773,13 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
     if (!pFuncAttr)
       continue;
 
-    RegisterGenericFunction(szTypeName, pFunc, pFuncAttr, bIsBaseClass);
+    RegisterGenericFunction(szTypeName, pFunc, pFuncAttr, bIsInherited);
   }
 
   if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezReflectedClass>())
     return;
 
-  RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), false);
+  RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), true);
 }
 
 void ezAngelScriptEngineSingleton::Register_ScriptClass()
@@ -841,7 +841,7 @@ void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
         if (pFunc->GetFunctionType() != ezFunctionType::StaticMember)
           continue;
 
-        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, true);
+        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, false);
       }
 
       //
@@ -865,13 +865,13 @@ static void GetPropertyGeneric(asIScriptGeneric* gen)
   pMember->GetValuePtr(gen->GetObject(), gen->GetAddressOfReturnLocation());
 }
 
-void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass)
+void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)
 {
   if (pRtti == nullptr)
     return;
 
   intptr_t flags = 0;
-  if (bIsBaseClass)
+  if (bIsInherited)
   {
     flags |= 0x01;
   }
@@ -921,7 +921,7 @@ void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName
     }
   }
 
-  RegisterTypeProperties(szTypeName, pRtti->GetParentType(), false);
+  RegisterTypeProperties(szTypeName, pRtti->GetParentType(), true);
 }
 
 ezString ezAngelScriptEngineSingleton::Register_EnumType(const ezRTTI* pEnumType)

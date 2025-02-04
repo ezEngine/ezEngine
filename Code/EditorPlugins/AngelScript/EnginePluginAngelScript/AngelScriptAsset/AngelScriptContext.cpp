@@ -258,6 +258,7 @@ static ezString GetNiceFuncDecl(const asIScriptFunction* pFunc)
   tmp.ReplaceAll(" )", ")");
   tmp.ReplaceAll(") ", ")");
   tmp.ReplaceAll(" ,", ",");
+  tmp.ReplaceAll(")const", ") const");
 
   tmp.Append(";");
 
@@ -371,6 +372,11 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
       typeNames.Insert(pType->GetName());
       namespaceNames.Insert(pType->GetNamespace());
 
+      if (ezStringUtils::FindSubString(pType->GetName(), "String") != nullptr)
+      {
+        sPredef.Append("[BuiltinString]\n");
+      }
+
       sPredef.Append("class ", pType->GetName());
 
       if (pRtti && pRtti->GetParentType() && pRtti->GetParentType() != ezGetStaticRTTI<ezReflectedClass>())
@@ -404,7 +410,7 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 
         const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(ezAsUserData::FuncFlags));
 
-        if ((flags & 0x01) == 0)
+        if ((flags & 0x01) != 0)
           continue;
 
         if (pFunc->IsProperty())
