@@ -1850,7 +1850,7 @@ Ret ezJniObject::UnsafeGetField(const char* name, const char* signature) const
   }
 }
 
-template<>
+template <>
 struct ezJniTraits<ezJniNullPtr>
 {
 
