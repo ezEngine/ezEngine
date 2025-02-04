@@ -150,12 +150,12 @@ void ezAngelScriptEngineSingleton::Register_Vec2()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void SetZero()", asMETHOD(ezVec2, SetZero), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLength() const", asMETHODPR(ezVec2, GetLength, () const, float), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetDistanceTo(const ezVec2& in rhs) const", asMETHOD(ezVec2, GetDistanceTo<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetSquaredDistanceTo(const ezVec2& in rhs) const", asMETHOD(ezVec2, GetSquaredDistanceTo<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetDistanceTo(const ezVec2& in rhs) const", asMETHODPR(ezVec2, GetDistanceTo, (const ezVec2&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetSquaredDistanceTo(const ezVec2& in rhs) const", asMETHODPR(ezVec2, GetSquaredDistanceTo, (const ezVec2&) const, float), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthSquared() const", asMETHOD(ezVec2, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthAndNormalize()", asMETHOD(ezVec2, GetLengthAndNormalize<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetNormalized() const", asMETHOD(ezVec2, GetNormalized<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Normalize()", asMETHOD(ezVec2, Normalize<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "float GetLengthAndNormalize()", asMETHODPR(ezVec2, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetNormalized() const", asMETHODPR(ezVec2, GetNormalized, () const, const ezVec2), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void Normalize()", asMETHODPR(ezVec2, Normalize, (), void), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsZero() const", asMETHODPR(ezVec2, IsZero, () const, bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec2, IsZero, (float) const, bool), asCALL_THISCALL));
@@ -180,9 +180,9 @@ void ezAngelScriptEngineSingleton::Register_Vec2()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 CompDiv(const ezVec2& in rhs) const", asMETHOD(ezVec2, CompDiv), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 Abs() const", asMETHOD(ezVec2, Abs), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void MakeOrthogonalTo(const ezVec2& in)", asMETHOD(ezVec2, MakeOrthogonalTo<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetOrthogonalVector()", asMETHOD(ezVec2, GetOrthogonalVector), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetReflectedVector(ezVec2)", asMETHOD(ezVec2, GetReflectedVector<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "void MakeOrthogonalTo(const ezVec2& in)", asMETHODPR(ezVec2, MakeOrthogonalTo, (const ezVec2&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetOrthogonalVector() const", asMETHOD(ezVec2, GetOrthogonalVector), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 GetReflectedVector(const ezVec2& in) const", asMETHODPR(ezVec2, GetReflectedVector, (const ezVec2&) const, const ezVec2), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec2", "ezVec2 opNeg() const", asMETHODPR(ezVec2, operator-, () const, const ezVec2), asCALL_THISCALL));
 
@@ -259,13 +259,13 @@ void ezAngelScriptEngineSingleton::Register_Vec3()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Set(float x, float y, float z)", asMETHODPR(ezVec3, Set, (float, float, float), void), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void SetZero()", asMETHOD(ezVec3, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLength() const", asMETHOD(ezVec3, GetLength<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetDistanceTo(const ezVec3& in rhs) const", asMETHOD(ezVec3, GetDistanceTo<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetSquaredDistanceTo(const ezVec3& in rhs) const", asMETHOD(ezVec3, GetSquaredDistanceTo<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLength() const", asMETHODPR(ezVec3, GetLength, () const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetDistanceTo(const ezVec3& in rhs) const", asMETHODPR(ezVec3, GetDistanceTo, (const ezVec3&) const, float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetSquaredDistanceTo(const ezVec3& in rhs) const", asMETHODPR(ezVec3, GetSquaredDistanceTo, (const ezVec3&) const, float), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLengthSquared() const", asMETHOD(ezVec3, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLengthAndNormalize()", asMETHOD(ezVec3, GetLengthAndNormalize<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetNormalized() const", asMETHOD(ezVec3, GetNormalized<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Normalize()", asMETHOD(ezVec3, Normalize<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "float GetLengthAndNormalize()", asMETHODPR(ezVec3, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetNormalized() const", asMETHODPR(ezVec3, GetNormalized, () const, const ezVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void Normalize()", asMETHODPR(ezVec3, Normalize, (), void), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsZero() const", asMETHODPR(ezVec3, IsZero, () const, bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec3, IsZero, (float) const, bool), asCALL_THISCALL));
@@ -293,9 +293,9 @@ void ezAngelScriptEngineSingleton::Register_Vec3()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 CompDiv(const ezVec3& in) const", asMETHOD(ezVec3, CompDiv), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 Abs() const", asMETHOD(ezVec3, Abs), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void MakeOrthogonalTo(const ezVec3& in)", asMETHOD(ezVec3, MakeOrthogonalTo<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetOrthogonalVector()", asMETHOD(ezVec3, GetOrthogonalVector<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetReflectedVector(const ezVec3& in)", asMETHOD(ezVec3, GetReflectedVector<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "void MakeOrthogonalTo(const ezVec3& in)", asMETHODPR(ezVec3, MakeOrthogonalTo, (const ezVec3&), void), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetOrthogonalVector() const", asMETHODPR(ezVec3, GetOrthogonalVector, () const, const ezVec3), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 GetReflectedVector(const ezVec3& in) const", asMETHODPR(ezVec3, GetReflectedVector, (const ezVec3&) const, const ezVec3), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec3", "ezVec3 opNeg() const", asMETHODPR(ezVec3, operator-, () const, const ezVec3), asCALL_THISCALL));
 
@@ -358,11 +358,11 @@ void ezAngelScriptEngineSingleton::Register_Vec4()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Set(float x, float y, float z, float w)", asMETHODPR(ezVec4, Set, (float, float, float, float), void), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void SetZero()", asMETHOD(ezVec4, SetZero), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLength() const", asMETHOD(ezVec4, GetLength<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLength() const", asMETHODPR(ezVec4, GetLength, () const, float), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLengthSquared() const", asMETHOD(ezVec4, GetLengthSquared), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLengthAndNormalize()", asMETHOD(ezVec4, GetLengthAndNormalize<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 GetNormalized() const", asMETHOD(ezVec4, GetNormalized<float>), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Normalize()", asMETHOD(ezVec4, Normalize<float>), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "float GetLengthAndNormalize()", asMETHODPR(ezVec4, GetLengthAndNormalize, (), float), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "ezVec4 GetNormalized() const", asMETHODPR(ezVec4, GetNormalized, () const, const ezVec4), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "void Normalize()", asMETHODPR(ezVec4, Normalize, (), void), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsZero() const", asMETHODPR(ezVec4, IsZero, () const, bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezVec4", "bool IsZero(float fEpsilon) const", asMETHODPR(ezVec4, IsZero, (float) const, bool), asCALL_THISCALL));

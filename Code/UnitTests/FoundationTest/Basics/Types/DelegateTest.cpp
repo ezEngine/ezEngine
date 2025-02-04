@@ -8,7 +8,7 @@ namespace
 {
   struct TestType
   {
-    TestType(){}; // NOLINT: Allow default construction
+    TestType() {}; // NOLINT: Allow default construction
 
     ezInt32 MethodWithManyParams(ezInt32 a, ezInt32 b, ezInt32 c, ezInt32 d, ezInt32 e, ezInt32 f) { return m_iA + a + b + c + d + e + f; }
 
