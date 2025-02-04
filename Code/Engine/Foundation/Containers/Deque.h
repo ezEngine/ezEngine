@@ -260,7 +260,7 @@ private:
                                 ///< memory.
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  ezUInt32 m_uiChunkSize;       // needed for debugger visualization
+  ezUInt32 m_uiChunkSize; // needed for debugger visualization
 #endif
 };
 
