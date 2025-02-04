@@ -21,4 +21,5 @@ enum ezAsUserData
 {
   ScriptInstancePtr = 0,
   RttiPtr = 1,
+  FuncFlags = 2,
 };

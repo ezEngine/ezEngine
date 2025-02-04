@@ -465,8 +465,8 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
 
       AddForbiddenType(typeName);
 
-      RegisterTypeFunctions(typeName, pRtti);
-      RegisterTypeProperties(typeName, pRtti);
+      RegisterTypeFunctions(typeName, pRtti, true);
+      RegisterTypeProperties(typeName, pRtti, true);
 
       //
     },
@@ -611,7 +611,7 @@ static void CollectFunctionArgumentAttributes(const ezAbstractFunctionProperty* 
   }
 }
 
-void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr)
+void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsBaseClass)
 {
   ezStringBuilder decl;
   bool bVarArgs = false;
@@ -714,6 +714,12 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
     }
   }
 
+  intptr_t flags = 0;
+  if (bIsBaseClass)
+  {
+    flags |= 0x01;
+  }
+
   for (ezUInt32 uiVarArgOpt = 0; uiVarArgOpt < 9; ++uiVarArgOpt)
   {
     decl.Append(")");
@@ -727,7 +733,10 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
       // this allows us to register more optimized versions first
       if (m_pEngine->GetTypeInfoByName(szTypeName)->GetMethodByDecl(decl) == nullptr)
       {
-        AS_CHECK(m_pEngine->RegisterObjectMethod(szTypeName, decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc));
+        const int funcID = m_pEngine->RegisterObjectMethod(szTypeName, decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
+        AS_CHECK(funcID);
+
+        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
       }
     }
     else if (pFunc->GetFunctionType() == ezFunctionType::StaticMember)
@@ -738,7 +747,10 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
       // this allows us to register more optimized versions first
       if (m_pEngine->GetGlobalFunctionByDecl(decl) == nullptr)
       {
-        AS_CHECK(m_pEngine->RegisterGlobalFunction(decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc));
+        const int funcID = m_pEngine->RegisterGlobalFunction(decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
+        AS_CHECK(funcID);
+
+        m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
       }
 
       m_pEngine->SetDefaultNamespace("");
@@ -752,7 +764,7 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
   }
 }
 
-void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti)
+void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass)
 {
   for (auto pFunc : pRtti->GetFunctions())
   {
@@ -761,13 +773,13 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
     if (!pFuncAttr)
       continue;
 
-    RegisterGenericFunction(szTypeName, pFunc, pFuncAttr);
+    RegisterGenericFunction(szTypeName, pFunc, pFuncAttr, bIsBaseClass);
   }
 
   if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezReflectedClass>())
     return;
 
-  RegisterTypeFunctions(szTypeName, pRtti->GetParentType());
+  RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), false);
 }
 
 void ezAngelScriptEngineSingleton::Register_ScriptClass()
@@ -829,7 +841,7 @@ void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
         if (pFunc->GetFunctionType() != ezFunctionType::StaticMember)
           continue;
 
-        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr);
+        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, true);
       }
 
       //
@@ -853,10 +865,18 @@ static void GetPropertyGeneric(asIScriptGeneric* gen)
   pMember->GetValuePtr(gen->GetObject(), gen->GetAddressOfReturnLocation());
 }
 
-void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti)
+void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsBaseClass)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
-  pRtti->GetAllProperties(properties);
+  if (pRtti == nullptr)
+    return;
+
+  intptr_t flags = 0;
+  if (bIsBaseClass)
+  {
+    flags |= 0x01;
+  }
+
+  ezArrayPtr<const ezAbstractProperty* const> properties = pRtti->GetProperties();
 
   ezStringBuilder funcName, sVarTypeName;
 
@@ -886,14 +906,22 @@ void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName
         if (!pMember->GetFlags().IsAnySet(ezPropertyFlags::Const | ezPropertyFlags::ReadOnly))
         {
           funcName.Set("void set_", pMember->GetPropertyName(), "(", sVarTypeName, ") property ");
-          AS_CHECK(m_pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(SetPropertyGeneric), asCALL_GENERIC, (void*)pMember));
+          const int funcID = m_pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(SetPropertyGeneric), asCALL_GENERIC, (void*)pMember);
+          AS_CHECK(funcID);
+          m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
         }
 
-        funcName.Set(sVarTypeName, " get_", pMember->GetPropertyName(), "() const property");
-        AS_CHECK(m_pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(GetPropertyGeneric), asCALL_GENERIC, (void*)pMember));
+        {
+          funcName.Set(sVarTypeName, " get_", pMember->GetPropertyName(), "() const property");
+          const int funcID = m_pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(GetPropertyGeneric), asCALL_GENERIC, (void*)pMember);
+          AS_CHECK(funcID);
+          m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+        }
       }
     }
   }
+
+  RegisterTypeProperties(szTypeName, pRtti->GetParentType(), false);
 }
 
 ezString ezAngelScriptEngineSingleton::Register_EnumType(const ezRTTI* pEnumType)

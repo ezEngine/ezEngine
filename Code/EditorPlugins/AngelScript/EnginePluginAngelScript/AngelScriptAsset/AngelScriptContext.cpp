@@ -402,6 +402,11 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
         if (pFunc->IsPrivate())
           continue;
 
+        const intptr_t flags = reinterpret_cast<const intptr_t>(pFunc->GetUserData(ezAsUserData::FuncFlags));
+
+        if ((flags & 0x01) == 0)
+          continue;
+
         if (pFunc->IsProperty())
         {
           tmp = pFunc->GetName();
