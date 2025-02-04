@@ -2,6 +2,9 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
+#include <Core/World/Declarations.h>
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 #include <Foundation/Strings/HashedString.h>
 
 void ezAngelScriptEngineSingleton::RegisterStandardTypes()

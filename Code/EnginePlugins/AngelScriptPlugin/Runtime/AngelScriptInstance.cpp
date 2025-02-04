@@ -1,8 +1,10 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
+#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
 #include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
+#include <Core/Scripting/ScriptComponent.h>
 
 ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld, asIScriptModule* pModule, const char* szObjectTypeName)
   : ezScriptInstance(inout_owner, pWorld)
