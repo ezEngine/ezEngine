@@ -12,6 +12,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptResource, 1, ezRTTIDefaultAllocator<ezAngelScriptResource>)
@@ -192,23 +193,19 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
     if (pFunc->GetParamCount() != 1)
       continue;
 
+    // that start with "OnMsg"
     if (ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg") == false)
       continue;
 
     int iArgTypeId;
     pFunc->GetParam(0, &iArgTypeId);
 
-    const asITypeInfo* pTInfo = pAs->GetEngine()->GetTypeInfoById(iArgTypeId);
+    const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
 
-    if (pTInfo == nullptr)
-      continue;
-
-    sArgType = pTInfo->GetName();
-
-    const ezRTTI* pArgType = ezRTTI::FindTypeByName(sArgType);
     if (pArgType == nullptr)
       continue;
 
+    // has to be a type derived from ezMessage
     if (!pArgType->IsDerivedFrom<ezMessage>())
       continue;
 
