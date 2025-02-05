@@ -64,7 +64,7 @@ void ezAngelScriptInstance::SetInstanceVariable(const ezHashedString& sName, con
         const int typeId = m_pObject->GetPropertyTypeId(i);
         void* pProp = m_pObject->GetAddressOfProperty(i);
 
-        ezAngelScriptUtils::WriteAsProperty(typeId, pProp, m_pObject->GetEngine(), value);
+        ezAngelScriptUtils::WriteToAsTypeLocation(m_pObject->GetEngine(), typeId, pProp, value).AssertSuccess();
         return;
       }
     }

@@ -49,259 +49,245 @@ const ezRTTI* ezAngelScriptUtils::MapToRTTI(int iAsTypeID, asIScriptEngine* pEng
   return nullptr;
 }
 
-void ezAngelScriptUtils::WriteAsProperty(int iPropertyTypeID, void* pPropertyAddress, asIScriptEngine* pEngine, const ezVariant& value)
+ezResult ezAngelScriptUtils::WriteToAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value)
 {
-  void* pProp = pPropertyAddress;
+  void* pMemDst = pMemoryLocation;
 
-  switch (iPropertyTypeID)
+  switch (iAsTypeID)
   {
     case asTYPEID_BOOL:
-      *static_cast<ezInt8*>(pProp) = value.ConvertTo<bool>() ? 1 : 0;
-      return;
+      *static_cast<ezInt8*>(pMemDst) = value.ConvertTo<bool>() ? 1 : 0;
+      return EZ_SUCCESS;
     case asTYPEID_INT8:
-      *static_cast<ezInt8*>(pProp) = value.ConvertTo<ezInt8>();
-      return;
+      *static_cast<ezInt8*>(pMemDst) = value.ConvertTo<ezInt8>();
+      return EZ_SUCCESS;
     case asTYPEID_INT16:
-      *static_cast<ezInt16*>(pProp) = value.ConvertTo<ezInt16>();
-      return;
+      *static_cast<ezInt16*>(pMemDst) = value.ConvertTo<ezInt16>();
+      return EZ_SUCCESS;
     case asTYPEID_INT32:
-      *static_cast<ezInt32*>(pProp) = value.ConvertTo<ezInt32>();
-      return;
+      *static_cast<ezInt32*>(pMemDst) = value.ConvertTo<ezInt32>();
+      return EZ_SUCCESS;
     case asTYPEID_INT64:
-      *static_cast<ezInt64*>(pProp) = value.ConvertTo<ezInt64>();
-      return;
+      *static_cast<ezInt64*>(pMemDst) = value.ConvertTo<ezInt64>();
+      return EZ_SUCCESS;
     case asTYPEID_UINT8:
-      *static_cast<ezUInt8*>(pProp) = value.ConvertTo<ezUInt8>();
-      return;
+      *static_cast<ezUInt8*>(pMemDst) = value.ConvertTo<ezUInt8>();
+      return EZ_SUCCESS;
     case asTYPEID_UINT16:
-      *static_cast<ezUInt16*>(pProp) = value.ConvertTo<ezUInt16>();
-      return;
+      *static_cast<ezUInt16*>(pMemDst) = value.ConvertTo<ezUInt16>();
+      return EZ_SUCCESS;
     case asTYPEID_UINT32:
-      *static_cast<ezUInt32*>(pProp) = value.ConvertTo<ezUInt32>();
-      return;
+      *static_cast<ezUInt32*>(pMemDst) = value.ConvertTo<ezUInt32>();
+      return EZ_SUCCESS;
     case asTYPEID_UINT64:
-      *static_cast<ezUInt64*>(pProp) = value.ConvertTo<ezUInt64>();
-      return;
+      *static_cast<ezUInt64*>(pMemDst) = value.ConvertTo<ezUInt64>();
+      return EZ_SUCCESS;
     case asTYPEID_FLOAT:
-      *static_cast<float*>(pProp) = value.ConvertTo<float>();
-      return;
+      *static_cast<float*>(pMemDst) = value.ConvertTo<float>();
+      return EZ_SUCCESS;
     case asTYPEID_DOUBLE:
-      *static_cast<double*>(pProp) = value.ConvertTo<double>();
-      return;
+      *static_cast<double*>(pMemDst) = value.ConvertTo<double>();
+      return EZ_SUCCESS;
   }
 
-  if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iPropertyTypeID))
+  if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iAsTypeID))
   {
-    ezStringView sTypeName = pInfo->GetName();
     const ezRTTI* pRtti = (const ezRTTI*)pInfo->GetUserData(ezAsUserData::RttiPtr);
 
-    if (sTypeName == "string")
+    if (pRtti == ezGetStaticRTTI<ezAngle>())
     {
-      *static_cast<std::string*>(pProp) = value.ConvertTo<ezString>();
-      return;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezAngle>())
-    {
-      *static_cast<ezAngle*>(pProp) = value.ConvertTo<ezAngle>();
-      return;
+      *static_cast<ezAngle*>(pMemDst) = value.ConvertTo<ezAngle>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezTime>())
     {
-      *static_cast<ezTime*>(pProp) = value.ConvertTo<ezTime>();
-      return;
+      *static_cast<ezTime*>(pMemDst) = value.ConvertTo<ezTime>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezColor>())
     {
-      *static_cast<ezColor*>(pProp) = value.ConvertTo<ezColor>();
-      return;
+      *static_cast<ezColor*>(pMemDst) = value.ConvertTo<ezColor>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
     {
-      *static_cast<ezColorGammaUB*>(pProp) = value.ConvertTo<ezColorGammaUB>();
-      return;
+      *static_cast<ezColorGammaUB*>(pMemDst) = value.ConvertTo<ezColorGammaUB>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec2>())
     {
-      *static_cast<ezVec2*>(pProp) = value.ConvertTo<ezVec2>();
-      return;
+      *static_cast<ezVec2*>(pMemDst) = value.ConvertTo<ezVec2>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec3>())
     {
-      *static_cast<ezVec3*>(pProp) = value.ConvertTo<ezVec3>();
-      return;
+      *static_cast<ezVec3*>(pMemDst) = value.ConvertTo<ezVec3>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec4>())
     {
-      *static_cast<ezVec4*>(pProp) = value.ConvertTo<ezVec4>();
-      return;
+      *static_cast<ezVec4*>(pMemDst) = value.ConvertTo<ezVec4>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezQuat>())
     {
-      *static_cast<ezQuat*>(pProp) = value.ConvertTo<ezQuat>();
-      return;
+      *static_cast<ezQuat*>(pMemDst) = value.ConvertTo<ezQuat>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezTransform>())
     {
-      *static_cast<ezTransform*>(pProp) = value.ConvertTo<ezTransform>();
-      return;
+      *static_cast<ezTransform*>(pMemDst) = value.ConvertTo<ezTransform>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezString>())
     {
-      *static_cast<ezString*>(pProp) = value.ConvertTo<ezString>();
-      return;
+      *static_cast<ezString*>(pMemDst) = value.ConvertTo<ezString>();
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezHashedString>())
     {
-      static_cast<ezHashedString*>(pProp)->Assign(value.ConvertTo<ezString>());
-      return;
+      static_cast<ezHashedString*>(pMemDst)->Assign(value.ConvertTo<ezString>());
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
     {
-      *static_cast<ezGameObjectHandle*>(pProp) = *((const ezGameObjectHandle*)value.GetData());
-      return;
+      *static_cast<ezGameObjectHandle*>(pMemDst) = *((const ezGameObjectHandle*)value.GetData());
+      return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezComponentHandle>())
     {
-      *static_cast<ezComponentHandle*>(pProp) = *((const ezComponentHandle*)value.GetData());
-      return;
+      *static_cast<ezComponentHandle*>(pMemDst) = *((const ezComponentHandle*)value.GetData());
+      return EZ_SUCCESS;
     }
   }
 
   // currently unsupported type for exposed parameter
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return EZ_FAILURE;
 }
 
-ezResult ezAngelScriptUtils::ReadAsProperty(int iPropertyTypeID, void* pPropertyAddress, asIScriptEngine* pEngine, ezVariant& out_Value)
+ezResult ezAngelScriptUtils::ReadFromAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value)
 {
-  void* pProp = pPropertyAddress;
+  void* pMemLoc = pMemoryLocation;
 
-  if ((iPropertyTypeID & asTYPEID_APPOBJECT) == 0)
+  if ((iAsTypeID & asTYPEID_APPOBJECT) == 0)
   {
-
-    switch (iPropertyTypeID)
+    switch (iAsTypeID)
     {
       case asTYPEID_VOID:
         return EZ_FAILURE;
 
       case asTYPEID_BOOL:
-        out_Value = (*static_cast<ezInt8*>(pProp) != 0) ? true : false;
+        out_Value = (*static_cast<ezInt8*>(pMemLoc) != 0) ? true : false;
         return EZ_SUCCESS;
 
       case asTYPEID_INT8:
-        out_Value = *static_cast<ezInt8*>(pProp);
+        out_Value = *static_cast<ezInt8*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT16:
-        out_Value = *static_cast<ezInt16*>(pProp);
+        out_Value = *static_cast<ezInt16*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT32:
-        out_Value = *static_cast<ezInt32*>(pProp);
+        out_Value = *static_cast<ezInt32*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT64:
-        out_Value = *static_cast<ezInt64*>(pProp);
+        out_Value = *static_cast<ezInt64*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT8:
-        out_Value = *static_cast<ezUInt8*>(pProp);
+        out_Value = *static_cast<ezUInt8*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT16:
-        out_Value = *static_cast<ezUInt16*>(pProp);
+        out_Value = *static_cast<ezUInt16*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT32:
-        out_Value = *static_cast<ezUInt32*>(pProp);
+        out_Value = *static_cast<ezUInt32*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT64:
-        out_Value = *static_cast<ezUInt64*>(pProp);
+        out_Value = *static_cast<ezUInt64*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_FLOAT:
-        out_Value = *static_cast<float*>(pProp);
+        out_Value = *static_cast<float*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_DOUBLE:
-        out_Value = *static_cast<double*>(pProp);
+        out_Value = *static_cast<double*>(pMemLoc);
         return EZ_SUCCESS;
     }
   }
-  else if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iPropertyTypeID))
+  else if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iAsTypeID))
   {
-    const ezString sTypeName = pInfo->GetName();
+    const ezRTTI* pRtti = (const ezRTTI*)pInfo->GetUserData(ezAsUserData::RttiPtr);
 
-    // TODO AngelScript: compare against ezRTTI instead of string
-
-    if (sTypeName == "string")
+    if (pRtti == ezGetStaticRTTI<ezAngle>())
     {
-      out_Value = static_cast<std::string*>(pProp)->c_str();
+      out_Value = *static_cast<ezAngle*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezAngle")
+    else if (pRtti == ezGetStaticRTTI<ezTime>())
     {
-      out_Value = *static_cast<ezAngle*>(pProp);
+      out_Value = *static_cast<ezTime*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezTime")
+    else if (pRtti == ezGetStaticRTTI<ezColor>())
     {
-      out_Value = *static_cast<ezTime*>(pProp);
+      out_Value = *static_cast<ezColor*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezColor")
+    else if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
     {
-      out_Value = *static_cast<ezColor*>(pProp);
+      out_Value = *static_cast<ezColorGammaUB*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezColorGammaUB")
+    else if (pRtti == ezGetStaticRTTI<ezVec2>())
     {
-      out_Value = *static_cast<ezColorGammaUB*>(pProp);
+      out_Value = *static_cast<ezVec2*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezVec2")
+    else if (pRtti == ezGetStaticRTTI<ezVec3>())
     {
-      out_Value = *static_cast<ezVec2*>(pProp);
+      out_Value = *static_cast<ezVec3*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezVec3")
+    else if (pRtti == ezGetStaticRTTI<ezVec4>())
     {
-      out_Value = *static_cast<ezVec3*>(pProp);
+      out_Value = *static_cast<ezVec4*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezVec4")
+    else if (pRtti == ezGetStaticRTTI<ezQuat>())
     {
-      out_Value = *static_cast<ezVec4*>(pProp);
+      out_Value = *static_cast<ezQuat*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezQuat")
+    else if (pRtti == ezGetStaticRTTI<ezTransform>())
     {
-      out_Value = *static_cast<ezQuat*>(pProp);
+      out_Value = *static_cast<ezTransform*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezTransform")
+    else if (pRtti == ezGetStaticRTTI<ezString>())
     {
-      out_Value = *static_cast<ezTransform*>(pProp);
+      out_Value = *static_cast<ezString*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezString")
+    else if (pRtti == ezGetStaticRTTI<ezStringView>())
     {
-      out_Value = *static_cast<ezString*>(pProp);
+      out_Value = *static_cast<ezStringView*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezStringView")
+    else if (pRtti == ezGetStaticRTTI<ezHashedString>())
     {
-      out_Value = *static_cast<ezStringView*>(pProp);
+      out_Value = *static_cast<ezHashedString*>(pMemLoc);
       return EZ_SUCCESS;
     }
-    else if (sTypeName == "ezHashedString")
+    else if (pRtti == ezGetStaticRTTI<ezTempHashedString>())
     {
-      out_Value = *static_cast<ezHashedString*>(pProp);
-      return EZ_SUCCESS;
-    }
-    else if (sTypeName == "ezTempHashedString")
-    {
-      out_Value = *static_cast<ezTempHashedString*>(pProp);
+      out_Value = *static_cast<ezTempHashedString*>(pMemLoc);
       return EZ_SUCCESS;
     }
   }
@@ -404,7 +390,6 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
     case ezVariantType::HashedString:
     case ezVariantType::String:
     case ezVariantType::StringView:
-    case ezVariantType::TempHashedString:
       s.SetFormat("\"{}\"", value.ConvertTo<ezString>());
       return s;
 
@@ -451,7 +436,8 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
       s.SetFormat("ezVec4({}, {}, {}, {})", value.Get<ezVec4>().x, value.Get<ezVec4>().y, value.Get<ezVec4>().z, value.Get<ezVec4>().w);
       return s;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    default:
+      break;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -585,7 +571,7 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, cons
   {
     auto argTypeId = gen->GetArgTypeId(uiArg);
 
-    if (ezAngelScriptUtils::ReadAsProperty(argTypeId, gen->GetArgAddress(uiArg), gen->GetEngine(), out_arg).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), out_arg).Succeeded())
       return;
 
     ezStringBuilder typeName("null");
@@ -610,7 +596,7 @@ void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStart
     auto argTypeId = gen->GetArgTypeId(uiArg);
 
     ezVariant res;
-    if (ezAngelScriptUtils::ReadAsProperty(argTypeId, gen->GetArgAddress(uiArg), gen->GetEngine(), res).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), res).Succeeded())
     {
       resArr.PushBack(res);
       continue;
@@ -628,7 +614,6 @@ void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStart
 
   out_arg = resArr;
 }
-
 
 void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
 {
@@ -659,7 +644,7 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
     {
       if (pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
       {
-        ezAngelScriptUtils::WriteAsProperty(gen->GetArgTypeId(uiArg), gen->GetArgAddress(uiArg), gen->GetEngine(), args[uiArg]);
+        ezAngelScriptUtils::WriteToAsTypeLocation(gen->GetEngine(), gen->GetArgTypeId(uiArg), gen->GetArgAddress(uiArg), args[uiArg]).AssertSuccess();
       }
     }
   }
@@ -731,21 +716,26 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
         return;
 
       case ezVariantType::String:
-      case ezVariantType::HashedString:
-      case ezVariantType::StringView:
-      case ezVariantType::TempHashedString:
-      {
-        // TODO AngelScript: all the string types
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        void* dst = gen->GetAddressOfReturnLocation();
-        new (dst) std::string(ret.ConvertTo<ezString>());
+        new (gen->GetAddressOfReturnLocation()) ezString(ret.Get<ezString>());
         return;
-      }
+
+      case ezVariantType::HashedString:
+        new (gen->GetAddressOfReturnLocation()) ezHashedString(ret.Get<ezHashedString>());
+        return;
+
+      case ezVariantType::StringView:
+        new (gen->GetAddressOfReturnLocation()) ezStringView(ret.Get<ezStringView>());
+        return;
+
+      case ezVariantType::TempHashedString:
+        new (gen->GetAddressOfReturnLocation()) ezTempHashedString(ret.Get<ezTempHashedString>());
+        return;
 
       default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
         break;
     }
+
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
 

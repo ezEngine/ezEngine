@@ -158,7 +158,7 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
       continue;
 
     ezVariant defVal;
-    if (ezAngelScriptUtils::ReadAsProperty(typeId, pInstance->GetAddressOfProperty(i2), pModule->GetEngine(), defVal).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeLocation(pModule->GetEngine(), typeId, pInstance->GetAddressOfProperty(i2), defVal).Succeeded())
     {
       ezSimpleDocumentConfigMsgToEditor msg;
       msg.m_DocumentGuid = m_DocumentGuid;
