@@ -5,6 +5,60 @@
 #include <Core/World/World.h>
 #include <Foundation/Types/Variant.h>
 
+const char* ezAngelScriptUtils::GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID)
+{
+  switch (iAsTypeID)
+  {
+    case asTYPEID_BOOL:
+      return "bool";
+    case asTYPEID_INT8:
+      return "int8";
+    case asTYPEID_INT16:
+      return "int16";
+    case asTYPEID_INT32:
+      return "int32";
+    case asTYPEID_INT64:
+      return "int64";
+    case asTYPEID_UINT8:
+      return "uint8";
+    case asTYPEID_UINT16:
+      return "uint16";
+    case asTYPEID_UINT32:
+      return "uint32";
+    case asTYPEID_UINT64:
+      return "uint64";
+    case asTYPEID_FLOAT:
+      return "float";
+    case asTYPEID_DOUBLE:
+      return "double";
+
+    default:
+      if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iAsTypeID))
+      {
+        return pInfo->GetName();
+      }
+
+      return nullptr;
+  }
+}
+
+
+ezString ezAngelScriptUtils::GetNiceFunctionDeclaration(const asIScriptFunction* pFunc, bool bIncludeObjectName, bool bIncludeNamespace)
+{
+  ezStringBuilder tmp;
+
+  tmp = pFunc->GetDeclaration(bIncludeObjectName, bIncludeNamespace, true);
+
+  tmp.ReplaceAll(" :: ", "::");
+  tmp.ReplaceAll(" (", "(");
+  tmp.ReplaceAll("( ", "(");
+  tmp.ReplaceAll(" )", ")");
+  tmp.ReplaceAll(") ", ")");
+  tmp.ReplaceAll(" ,", ",");
+  tmp.ReplaceAll(")const", ") const");
+
+  return tmp;
+}
 
 const ezRTTI* ezAngelScriptUtils::MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine)
 {

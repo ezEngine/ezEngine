@@ -86,15 +86,10 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
 {
   EZ_LOG_BLOCK("Register_ReflectedType", pBaseType->GetTypeName());
 
-  ezStringBuilder typeName, parentName, op;
-
   // first register the type
   ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
     {
-      // if (pRtti == pBaseType)
-      //   return;
-
-      typeName = pRtti->GetTypeName();
+      ezStringBuilder typeName = pRtti->GetTypeName();
       auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
 
       if (pTypeInfo == nullptr)
@@ -107,8 +102,8 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
 
           if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
           {
-            op.Set(typeName, "@ f()");
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, op, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            const ezStringBuilder sFactoryOp(typeName, "@ f()");
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, sFactoryOp, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
             m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
             m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
           }
@@ -140,19 +135,21 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
       if (pRtti == pBaseType)
         return;
 
-      typeName = pRtti->GetTypeName();
+      const ezStringBuilder typeName = pRtti->GetTypeName();
 
       const ezRTTI* pParentRtti = pRtti->GetParentType();
+
+      ezStringBuilder parentName, castOp;
 
       while (pParentRtti)
       {
         parentName = pParentRtti->GetTypeName();
-        op.Set(parentName, "@ opImplCast()");
+        castOp.Set(parentName, "@ opImplCast()");
 
-        AS_CHECK(m_pEngine->RegisterObjectMethod(typeName, op, asFUNCTION(CastToBase), asCALL_GENERIC, (void*)pParentRtti));
+        AS_CHECK(m_pEngine->RegisterObjectMethod(typeName, castOp, asFUNCTION(CastToBase), asCALL_GENERIC, (void*)pParentRtti));
 
-        op.Set(typeName, "@ opCast()");
-        AS_CHECK(m_pEngine->RegisterObjectMethod(parentName, op, asFUNCTION(CastToDerived), asCALL_GENERIC, (void*)pRtti));
+        castOp.Set(typeName, "@ opCast()");
+        AS_CHECK(m_pEngine->RegisterObjectMethod(parentName, castOp, asFUNCTION(CastToDerived), asCALL_GENERIC, (void*)pRtti));
 
         if (pParentRtti == pBaseType)
           break;

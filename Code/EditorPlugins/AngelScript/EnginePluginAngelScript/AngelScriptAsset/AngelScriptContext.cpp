@@ -146,19 +146,19 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
     SendProcessMessage(&msg);
   }
 
-  for (ezUInt32 i2 = 0; i2 < pClassType->GetPropertyCount(); ++i2)
+  for (ezUInt32 idx = 0; idx < pClassType->GetPropertyCount(); ++idx)
   {
     const char* szName;
     int typeId;
 
     bool isPrivate = false, isProtected = false, isReference = false;
-    pClassType->GetProperty(i2, &szName, &typeId, &isPrivate, &isProtected, nullptr, &isReference);
+    pClassType->GetProperty(idx, &szName, &typeId, &isPrivate, &isProtected, nullptr, &isReference);
 
     if (isPrivate || isProtected)
       continue;
 
     ezVariant defVal;
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pModule->GetEngine(), typeId, pInstance->GetAddressOfProperty(i2), defVal).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pModule->GetEngine(), typeId, pInstance->GetAddressOfProperty(idx), defVal).Succeeded())
     {
       ezSimpleDocumentConfigMsgToEditor msg;
       msg.m_DocumentGuid = m_DocumentGuid;
@@ -245,25 +245,6 @@ static void WriteSet(ezStringView file, const ezSet<ezString>& set)
   }
 }
 
-static ezString GetNiceFuncDecl(const asIScriptFunction* pFunc)
-{
-  ezStringBuilder tmp;
-
-  tmp = pFunc->GetDeclaration(false, false, true);
-
-  tmp.ReplaceAll(" :: ", "::");
-  tmp.ReplaceAll(" (", "(");
-  tmp.ReplaceAll("( ", "(");
-  tmp.ReplaceAll(" )", ")");
-  tmp.ReplaceAll(") ", ")");
-  tmp.ReplaceAll(" ,", ",");
-  tmp.ReplaceAll(")const", ") const");
-
-  tmp.Append(";");
-
-  return tmp;
-}
-
 void GetOrder(ezDynamicArray<ezString>& typeOrder, const ezRTTI* pRtti)
 {
   if (pRtti == nullptr)
@@ -278,21 +259,12 @@ void GetOrder(ezDynamicArray<ezString>& typeOrder, const ezRTTI* pRtti)
 
 void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 {
-  ezSet<ezString> typeNames;
-  ezSet<ezString> namespaceNames;
-  ezSet<ezString> globalFunctionNames;
-  ezSet<ezString> methodNames;
-  ezSet<ezString> allDecls;
-  ezSet<ezString> properties;
-  ezSet<ezString> enums;
-
   ezStringView sIndent;
 
   ezStringBuilder sPredef;
   sPredef.Reserve(1024 * 32);
 
-  auto pAS = ezAngelScriptEngineSingleton::GetSingleton();
-  asIScriptEngine* pEngine = pAS->GetEngine();
+  asIScriptEngine* pEngine = ezAngelScriptEngineSingleton::GetSingleton()->GetEngine();
 
   ezStringBuilder tmp;
 
@@ -352,7 +324,6 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
     for (ezUInt32 idx = 0; idx < pEngine->GetEnumCount(); ++idx)
     {
       const asITypeInfo* pType = pEngine->GetEnumByIndex(idx);
-      typeNames.Insert(pType->GetName());
 
       sPredef.Append("enum ", pType->GetName(), "\n{\n");
 
@@ -360,10 +331,6 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
       {
         int value;
         const char* szString = pType->GetEnumValueByIndex(valIdx, &value);
-
-        enums.Insert(szString);
-        tmp.Set(pType->GetName(), "::", szString);
-        allDecls.Insert(tmp);
 
         sPredef.AppendFormat("  {} = {},\n", szString, value);
       }
@@ -399,9 +366,6 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
         continue;
 
       const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
-
-      typeNames.Insert(pType->GetName());
-      namespaceNames.Insert(pType->GetNamespace());
 
       if (ezStringUtils::FindSubString(pType->GetName(), "String") != nullptr)
       {
@@ -446,8 +410,8 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
         if (behavior != asEBehaviours::asBEHAVE_CONSTRUCT)
           continue;
 
-        tmp = GetNiceFuncDecl(pFunc);
-        sPredef.Append("  ", tmp, "\n");
+        tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
+        sPredef.Append("  ", tmp, ";\n");
       }
 
       for (ezUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
@@ -478,20 +442,13 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
               tmp.Prepend("unknown-type ");
             }
 
-            properties.Insert(tmp);
-
             sPredef.Append("  ", tmp, ";\n");
           }
-
-          allDecls.Insert(pFunc->GetDeclaration(true, true, true));
         }
         else
         {
-          methodNames.Insert(pFunc->GetName());
-          allDecls.Insert(pFunc->GetDeclaration(true, true, true));
-
-          tmp = GetNiceFuncDecl(pFunc);
-          sPredef.Append("  ", tmp, "\n");
+          tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
+          sPredef.Append("  ", tmp, ";\n");
         }
       }
 
@@ -541,14 +498,9 @@ class ezAngelScriptClass : ezIAngelScriptClass
         }
       }
 
-      globalFunctionNames.Insert(pFunc->GetName());
-      tmp = pFunc->GetDeclaration(true, true, true);
-      allDecls.Insert(tmp);
-      namespaceNames.Insert(pFunc->GetNamespace());
+      tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
 
-      tmp = GetNiceFuncDecl(pFunc);
-
-      sPredef.Append(sIndent, tmp, "\n");
+      sPredef.Append(sIndent, tmp, ";\n");
     }
 
     if (!sNamespace.IsEmpty())
@@ -599,38 +551,43 @@ class ezAngelScriptClass : ezIAngelScriptClass
   }
 
 
-  ezStringBuilder sFullPath;
-
-  sFullPath.SetPath(sBasePath, "Types.txt");
-  WriteSet(sFullPath, typeNames);
-
-  sFullPath.SetPath(sBasePath, "Namespaces.txt");
-  WriteSet(sFullPath, namespaceNames);
-
-  sFullPath.SetPath(sBasePath, "GlobalFunctions.txt");
-  WriteSet(sFullPath, globalFunctionNames);
-
-  sFullPath.SetPath(sBasePath, "Methods.txt");
-  WriteSet(sFullPath, methodNames);
-
-  sFullPath.SetPath(sBasePath, "Properties.txt");
-  WriteSet(sFullPath, properties);
-
-  sFullPath.SetPath(sBasePath, "Enums.txt");
-  WriteSet(sFullPath, enums);
-
-  sFullPath.SetPath(sBasePath, "AllDeclarations.txt");
-  WriteSet(sFullPath, allDecls);
-
-  sFullPath.SetPath(sBasePath, "NotRegisteredDecls.txt");
-  WriteSet(sFullPath, pAS->GetNotRegistered());
-
   {
-    sFullPath.SetPath(sBasePath, "../../as.predefined");
-    ezFileWriter file;
-    if (file.Open(sFullPath).Succeeded())
+    ezAsInfos infos;
+    ezAngelScriptUtils::RetrieveAsInfos(pEngine, infos);
+
+    ezStringBuilder sFullPath;
+
+    sFullPath.SetPath(sBasePath, "Types.txt");
+    WriteSet(sFullPath, infos.m_Types);
+
+    sFullPath.SetPath(sBasePath, "Namespaces.txt");
+    WriteSet(sFullPath, infos.m_Namespaces);
+
+    sFullPath.SetPath(sBasePath, "GlobalFunctions.txt");
+    WriteSet(sFullPath, infos.m_GlobalFunctions);
+
+    sFullPath.SetPath(sBasePath, "Methods.txt");
+    WriteSet(sFullPath, infos.m_Methods);
+
+    sFullPath.SetPath(sBasePath, "Properties.txt");
+    WriteSet(sFullPath, infos.m_Properties);
+
+    sFullPath.SetPath(sBasePath, "Enums.txt");
+    WriteSet(sFullPath, infos.m_EnumValues);
+
+    sFullPath.SetPath(sBasePath, "AllDeclarations.txt");
+    WriteSet(sFullPath, infos.m_AllDeclarations);
+
+    sFullPath.SetPath(sBasePath, "NotRegisteredDecls.txt");
+    WriteSet(sFullPath, ezAngelScriptEngineSingleton::GetSingleton()->GetNotRegistered());
+
     {
-      file.WriteBytes(sPredef.GetData(), sPredef.GetElementCount()).AssertSuccess();
+      sFullPath.SetPath(sBasePath, "../../as.predefined");
+      ezFileWriter file;
+      if (file.Open(sFullPath).Succeeded())
+      {
+        file.WriteBytes(sPredef.GetData(), sPredef.GetElementCount()).AssertSuccess();
+      }
     }
   }
 }

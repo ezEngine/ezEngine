@@ -372,6 +372,7 @@ void ezQtAngelScriptAssetDocumentWindow::RetrieveScriptInfos()
   ReadSet(sBasePath, "Namespaces.txt", g_KeywordsGreen);
   ReadSet(sBasePath, "GlobalFunctions.txt", g_BuiltIn);
   ReadSet(sBasePath, "Methods.txt", g_BuiltIn);
+  ReadSet(sBasePath, "Enums.txt", g_BuiltIn);
   ReadSet(sBasePath, "Properties.txt", g_BuiltIn);
 }
 

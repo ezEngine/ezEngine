@@ -10,10 +10,25 @@ class ezVariant;
 class asIScriptGeneric;
 class ezAbstractFunctionProperty;
 
+struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
+{
+  ezSet<ezString> m_Types;
+  ezSet<ezString> m_Namespaces;
+  ezSet<ezString> m_GlobalFunctions;
+  ezSet<ezString> m_Methods;
+  ezSet<ezString> m_AllDeclarations;
+  ezSet<ezString> m_Properties;
+  ezSet<ezString> m_EnumValues;
+};
+
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
 {
 public:
   static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_ByteCode);
+
+  static const char* GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID);
+
+  static ezString GetNiceFunctionDeclaration(const asIScriptFunction* pFunc, bool bIncludeObjectName = false, bool bIncludeNamespace = false);
 
   static asIScriptModule* LoadFromByteCode(asIScriptEngine* pEngine, ezStringView sModuleName, ezArrayPtr<ezUInt8> byteCode);
 
@@ -33,4 +48,6 @@ public:
   static void MakeGenericFunctionCall(asIScriptGeneric* gen);
 
   static void DefaultConstructInPlace(void* ptr, const ezRTTI* pRtti);
+
+  static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_Infos);
 };
