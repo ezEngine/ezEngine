@@ -3,8 +3,9 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Resources/AngelScriptResource.h>
 #include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptFunctionProperty.h>
+#include <AngelScriptPlugin/Runtime/AngelScriptFunctionDispatch.h>
 #include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/Component.h>
 #include <Foundation/Communication/Message.h>
@@ -12,7 +13,6 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
-#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptResource, 1, ezRTTIDefaultAllocator<ezAngelScriptResource>)

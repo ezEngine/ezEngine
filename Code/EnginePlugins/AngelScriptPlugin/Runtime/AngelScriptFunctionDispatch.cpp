@@ -1,7 +1,7 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptFunctionProperty.h>
+#include <AngelScriptPlugin/Runtime/AngelScriptFunctionDispatch.h>
 #include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
@@ -68,6 +68,7 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
   auto pThis = static_cast<ezAngelScriptMessageHandler*>(pSelf);
   auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
   auto pContext = pScriptInstance->GetContext();
+  pContext->PushState();
 
   if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
   {
@@ -76,4 +77,6 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
     pContext->SetArgObject(0, &ref_msg);
     pContext->Execute();
   }
+
+  pContext->PopState();
 }
