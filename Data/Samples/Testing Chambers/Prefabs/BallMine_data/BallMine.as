@@ -7,7 +7,7 @@ enum BallMineState
     Attacking
 }
 
-class ScriptObject :  ezAngelScriptClass
+class ScriptObject : ezAngelScriptClass
 {
     float AlertDistance = 15;
     float ApproachDistance = 10;

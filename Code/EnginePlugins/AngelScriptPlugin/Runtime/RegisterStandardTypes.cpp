@@ -930,8 +930,8 @@ void ezAngelScriptEngineSingleton::Register_World()
   }
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezStringView GetName()", asMETHOD(ezWorld, GetName), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObjectHandle CreateObject(ezGameObjectDesc& in desc)", asMETHODPR(ezWorld, CreateObject, (const ezGameObjectDesc& desc), ezGameObjectHandle), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObjectHandle CreateObject(ezGameObjectDesc& in desc, ezGameObject& out object)", asMETHODPR(ezWorld, CreateObject, (const ezGameObjectDesc& desc, ezGameObject*&), ezGameObjectHandle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObjectHandle CreateObject(const ezGameObjectDesc& in desc)", asMETHODPR(ezWorld, CreateObject, (const ezGameObjectDesc& desc), ezGameObjectHandle), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObjectHandle CreateObject(const ezGameObjectDesc& in desc, ezGameObject@& out object)", asMETHODPR(ezWorld, CreateObject, (const ezGameObjectDesc& desc, ezGameObject*&), ezGameObjectHandle), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void DeleteObjectDelayed(const ezGameObjectHandle& in hObject, bool bAlsoDeleteEmptyParents = true)", asMETHOD(ezWorld, DeleteObjectDelayed), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool IsValidObject(const ezGameObjectHandle& in hObject)", asMETHOD(ezWorld, IsValidObject), asCALL_THISCALL));

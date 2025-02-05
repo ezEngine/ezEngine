@@ -1160,8 +1160,8 @@ ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
 ezGameObjectHandle ezGameObject::GetHandle() const
-ezGameObjectHandle ezWorld::CreateObject(ezGameObjectDesc&in desc)
-ezGameObjectHandle ezWorld::CreateObject(ezGameObjectDesc&in desc, ezGameObject&out object)
+ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc)
+ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object)
 ezGizmoComponent@ ezComponent::opCast()
 ezGizmoComponent@ ezMeshComponent::opCast()
 ezGizmoComponent@ ezMeshComponentBase::opCast()

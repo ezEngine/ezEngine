@@ -1191,8 +1191,8 @@ class ezComponent
 class ezWorld
 {
   ezStringView GetName();
-  ezGameObjectHandle CreateObject(ezGameObjectDesc&in desc);
-  ezGameObjectHandle CreateObject(ezGameObjectDesc&in desc, ezGameObject&out object);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc&in desc);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object);
   void DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true);
   bool IsValidObject(const ezGameObjectHandle&in hObject);
   bool TryGetObject(ezGameObjectHandle&in, ezGameObject@&out pObject);
