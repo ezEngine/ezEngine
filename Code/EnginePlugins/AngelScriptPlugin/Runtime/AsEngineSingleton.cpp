@@ -36,44 +36,7 @@ ON_HIGHLEVELSYSTEMS_SHUTDOWN
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezGameObject* GetAngelScriptOwnerObject(asIScriptObject* pSelf)
-{
-  if (pSelf)
-  {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
-    pSelf->Release();
 
-    return pInstance->GetOwnerComponent()->GetOwner();
-  }
-
-  return nullptr;
-}
-
-ezWorld* GetAngelScriptOwnerWorld(asIScriptObject* pSelf)
-{
-  if (pSelf)
-  {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
-    pSelf->Release();
-
-    return pInstance->GetOwnerComponent()->GetWorld();
-  }
-
-  return nullptr;
-}
-
-ezScriptComponent* GetAngelScriptOwnerComponent(asIScriptObject* pSelf)
-{
-  if (pSelf)
-  {
-    ezAngelScriptInstance* pInstance = (ezAngelScriptInstance*)pSelf->GetUserData(ezAsUserData::ScriptInstancePtr);
-    pSelf->Release();
-
-    return pInstance->GetOwnerComponent();
-  }
-
-  return nullptr;
-}
 
 static ezProxyAllocator* g_pAsAllocator = nullptr;
 
@@ -113,7 +76,7 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
   Register_GlobalReflectedFunctions();
   Register_ReflectedTypes();
 
-  Register_ScriptClass();
+  Register_ezAngelScriptClass();
 
   AddForbiddenType("ezStringBuilder");
 }
@@ -743,47 +706,6 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
     return;
 
   RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), true);
-}
-
-void ezAngelScriptEngineSingleton::Register_ScriptClass()
-{
-  AS_CHECK(m_pEngine->RegisterInterface("ezIAngelScriptClass"));
-
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerObject), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezScriptComponent@ GetScriptOwnerComponent(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerComponent), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self)", asFUNCTION(GetAngelScriptOwnerWorld), asCALL_CDECL));
-
-  const char* szClassCode = R"(
-shared class ezAngelScriptClass : ezIAngelScriptClass
-{
-    ezScriptComponent@ GetOwnerComponent()
-    {
-        return GetScriptOwnerComponent(@this);
-    }
-
-    ezGameObject@ GetOwner()
-    {
-        return GetScriptOwnerObject(@this);
-    }
-
-    ezWorld@ GetWorld()
-    {
-        return GetScriptOwnerWorld(@this);
-    }
-
-    void SetUpdateInterval(ezTime interval)
-    {
-      GetScriptOwnerComponent(@this).SetUpdateInterval(interval);
-    }
-}
-    )";
-
-  if (SetModuleCode("Builtin_AngelScriptClass", szClassCode, false) == nullptr)
-  {
-    EZ_REPORT_FAILURE("Failed to register ezAngelScriptClass class");
-  }
-
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezScriptComponent", "void BroadcastEventMsg(const ezEventMessage& in msg)", asMETHOD(ezScriptComponent, BroadcastEventMsg), asCALL_THISCALL));
 }
 
 void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()

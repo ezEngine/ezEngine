@@ -63,7 +63,7 @@ private:
   void Register_Random();
   void Register_Math();
 
-  void Register_ScriptClass();
+  void Register_ezAngelScriptClass();
   void Register_GlobalReflectedFunctions();
   void Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable);
   void Register_ReflectedTypes();
