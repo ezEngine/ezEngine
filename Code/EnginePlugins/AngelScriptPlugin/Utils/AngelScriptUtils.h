@@ -9,6 +9,8 @@ class asIScriptEngine;
 class ezVariant;
 class asIScriptGeneric;
 class ezAbstractFunctionProperty;
+class asIScriptModule;
+class asIScriptFunction;
 
 struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
 {
