@@ -892,7 +892,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 }
 
 // static
-void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color)
+void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color, bool bBackFaceCulling)
 {
   if (triangles.IsEmpty())
     return;
@@ -912,9 +912,28 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
       vertex.m_color = col;
     }
   }
+
+  if (!bBackFaceCulling)
+  {
+    for (auto& triangle : triangles)
+    {
+      const ezColorLinearUB col = triangle.m_color * color;
+
+      auto& v1 = data.m_triangleVertices.ExpandAndGetRef();
+      auto& v2 = data.m_triangleVertices.ExpandAndGetRef();
+      auto& v3 = data.m_triangleVertices.ExpandAndGetRef();
+
+      v1.m_position = triangle.m_position[0];
+      v1.m_color = col;
+      v2.m_position = triangle.m_position[2];
+      v2.m_color = col;
+      v3.m_position = triangle.m_position[1];
+      v3.m_color = col;
+    }
+  }
 }
 
-void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bBackFaceCulling)
 {
   if (triangles.IsEmpty())
     return;
@@ -936,6 +955,28 @@ void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& contex
       vertex.m_position = triangle.m_position[i];
       vertex.m_texCoord = triangle.m_texcoord[i];
       vertex.m_color = col;
+    }
+  }
+
+  if (!bBackFaceCulling)
+  {
+    for (auto& triangle : triangles)
+    {
+      const ezColorLinearUB col = triangle.m_color * color;
+
+      auto& v1 = data.ExpandAndGetRef();
+      auto& v2 = data.ExpandAndGetRef();
+      auto& v3 = data.ExpandAndGetRef();
+
+      v1.m_position = triangle.m_position[0];
+      v1.m_texCoord = triangle.m_texcoord[0];
+      v1.m_color = col;
+      v2.m_position = triangle.m_position[2];
+      v2.m_texCoord = triangle.m_texcoord[2];
+      v2.m_color = col;
+      v3.m_position = triangle.m_position[1];
+      v3.m_texCoord = triangle.m_texcoord[1];
+      v3.m_color = col;
     }
   }
 }
