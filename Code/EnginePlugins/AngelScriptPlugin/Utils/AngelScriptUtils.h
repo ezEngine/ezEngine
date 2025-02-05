@@ -15,8 +15,8 @@ class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
 public:
   static const ezRTTI* MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine);
 
-  static ezResult WriteToAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value);
-  static ezResult ReadFromAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value);
+  static ezResult WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value);
+  static ezResult ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value);
 
   static const char* VariantTypeToString(ezVariantType::Enum type);
 

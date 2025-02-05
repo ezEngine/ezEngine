@@ -49,7 +49,7 @@ const ezRTTI* ezAngelScriptUtils::MapToRTTI(int iAsTypeID, asIScriptEngine* pEng
   return nullptr;
 }
 
-ezResult ezAngelScriptUtils::WriteToAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value)
+ezResult ezAngelScriptUtils::WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value)
 {
   void* pMemDst = pMemoryLocation;
 
@@ -165,7 +165,7 @@ ezResult ezAngelScriptUtils::WriteToAsTypeLocation(asIScriptEngine* pEngine, int
   return EZ_FAILURE;
 }
 
-ezResult ezAngelScriptUtils::ReadFromAsTypeLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value)
+ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value)
 {
   void* pMemLoc = pMemoryLocation;
 
@@ -571,7 +571,7 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, cons
   {
     auto argTypeId = gen->GetArgTypeId(uiArg);
 
-    if (ezAngelScriptUtils::ReadFromAsTypeLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), out_arg).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), out_arg).Succeeded())
       return;
 
     ezStringBuilder typeName("null");
@@ -596,7 +596,7 @@ void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStart
     auto argTypeId = gen->GetArgTypeId(uiArg);
 
     ezVariant res;
-    if (ezAngelScriptUtils::ReadFromAsTypeLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), res).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), res).Succeeded())
     {
       resArr.PushBack(res);
       continue;
@@ -644,7 +644,7 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
     {
       if (pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
       {
-        ezAngelScriptUtils::WriteToAsTypeLocation(gen->GetEngine(), gen->GetArgTypeId(uiArg), gen->GetArgAddress(uiArg), args[uiArg]).AssertSuccess();
+        ezAngelScriptUtils::WriteToAsTypeAtLocation(gen->GetEngine(), gen->GetArgTypeId(uiArg), gen->GetArgAddress(uiArg), args[uiArg]).AssertSuccess();
       }
     }
   }

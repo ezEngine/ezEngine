@@ -17,7 +17,7 @@ ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWo
 
   m_pContext = pAsEngine->GetEngine()->CreateContext();
 
-  if (asITypeInfo* pClassType = pModule->GetTypeInfoByDecl(szObjectTypeName))
+  if (asITypeInfo* pClassType = pModule->GetTypeInfoByName(szObjectTypeName))
   {
     if (auto pFactory = pClassType->GetFactoryByIndex(0))
     {
@@ -25,15 +25,17 @@ ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWo
       AS_CHECK(m_pContext->Execute());
 
       m_pObject = (asIScriptObject*)m_pContext->GetReturnObject();
-      EZ_ASSERT_DEBUG(m_pObject, "Failed to create script object");
 
       if (m_pObject)
       {
         m_pObject->AddRef();
         m_pObject->SetUserData(this, ezAsUserData::ScriptInstancePtr);
+        return;
       }
     }
   }
+
+  ezLog::Error("Failed to create AngelScript object of type '{}'", szObjectTypeName);
 }
 
 ezAngelScriptInstance::~ezAngelScriptInstance()
@@ -53,24 +55,24 @@ ezAngelScriptInstance::~ezAngelScriptInstance()
 
 void ezAngelScriptInstance::SetInstanceVariable(const ezHashedString& sName, const ezVariant& value)
 {
-  if (m_pObject)
+  if (!m_pObject)
+    return;
+
+  // TODO AngelScript: this could be a more efficient lookup instead of a search
+
+  for (ezUInt32 i = 0; i < m_pObject->GetPropertyCount(); ++i)
   {
-    // TODO AngelScript: this could be a more efficient lookup instead of a search
-
-    for (ezUInt32 i = 0; i < m_pObject->GetPropertyCount(); ++i)
+    if (sName == m_pObject->GetPropertyName(i))
     {
-      if (sName == m_pObject->GetPropertyName(i))
-      {
-        const int typeId = m_pObject->GetPropertyTypeId(i);
-        void* pProp = m_pObject->GetAddressOfProperty(i);
+      const int typeId = m_pObject->GetPropertyTypeId(i);
+      void* pProp = m_pObject->GetAddressOfProperty(i);
 
-        ezAngelScriptUtils::WriteToAsTypeLocation(m_pObject->GetEngine(), typeId, pProp, value).AssertSuccess();
-        return;
-      }
+      ezAngelScriptUtils::WriteToAsTypeAtLocation(m_pObject->GetEngine(), typeId, pProp, value).AssertSuccess();
+      return;
     }
-
-    ezLog::Error("The variable '{}' doesn't exist in the Angel Script.", sName);
   }
+
+  ezLog::Error("The variable '{}' doesn't exist in the Angel Script.", sName);
 }
 
 ezVariant ezAngelScriptInstance::GetInstanceVariable(const ezHashedString& sName)
