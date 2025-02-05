@@ -45,7 +45,7 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
   }
 
   ezHybridArray<ezUInt8, 1024 * 8> bytecode;
-  ezAngelScriptEngineSingleton::SaveByteCode(pModule, bytecode);
+  ezAngelScriptUtils::SaveByteCode(pModule, bytecode);
   pModule->Discard();
 
   ezDeferredFileWriter out;

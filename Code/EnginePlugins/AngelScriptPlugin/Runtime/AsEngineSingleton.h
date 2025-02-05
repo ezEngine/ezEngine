@@ -22,21 +22,14 @@ public:
   asIScriptEngine* GetEngine() const { return m_pEngine; }
 
   asIScriptModule* SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection);
-
   asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode);
-
-  void AddForbiddenType(const char* szTypeName);
-
-  bool IsTypeForbidden(const asITypeInfo* pType) const;
-
   ezResult ValidateModule(asIScriptModule* pModule) const;
-
-  static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_ByteCode);
-  asIScriptModule* LoadFromByteCode(ezStringView sModuleName, ezDynamicArray<ezUInt8>& out_ByteCode) const;
 
   const ezSet<ezString>& GetNotRegistered() const { return m_NotRegistered; }
 
 private:
+  void AddForbiddenType(const char* szTypeName);
+  bool IsTypeForbidden(const asITypeInfo* pType) const;
   static void MessageCallback(const asSMessageInfo* msg, void* param);
 
   void RegisterStandardTypes();

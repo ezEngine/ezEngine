@@ -13,6 +13,10 @@ class ezAbstractFunctionProperty;
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
 {
 public:
+  static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_ByteCode);
+
+  static asIScriptModule* LoadFromByteCode(asIScriptEngine* pEngine, ezStringView sModuleName, ezArrayPtr<ezUInt8> byteCode);
+
   static const ezRTTI* MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine);
 
   static ezResult WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value);

@@ -106,7 +106,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
     ezHybridArray<ezUInt8, 1024 * 8> bytecode;
     (*pStream).ReadArray(bytecode).AssertSuccess();
 
-    m_pModule = pAs->LoadFromByteCode(sModuleID, bytecode);
+    m_pModule = ezAngelScriptUtils::LoadFromByteCode(pAs->GetEngine(), sModuleID, bytecode);
   }
 
   if (m_pModule == nullptr)
