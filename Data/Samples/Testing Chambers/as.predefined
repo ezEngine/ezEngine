@@ -426,8 +426,10 @@ class ezVec2
 {
   float x;
   float y;
+
   ezVec2(float x, float y);
   ezVec2(float xyz);
+
   ezVec3 GetAsVec3(float z) const;
   ezVec4 GetAsVec4(float z, float w) const;
   void Set(float xyz);
@@ -476,8 +478,10 @@ class ezVec3
   float x;
   float y;
   float z;
+
   ezVec3(float x, float y, float z);
   ezVec3(float xyz);
+
   ezVec2 GetAsVec2() const;
   ezVec4 GetAsVec4(float w) const;
   ezVec4 GetAsPositionVec4() const;
@@ -532,8 +536,10 @@ class ezVec4
   float y;
   float z;
   float w;
+
   ezVec4(float x, float y, float z, float w);
   ezVec4(float xyzw);
+
   ezVec2 GetAsVec2() const;
   ezVec3 GetAsVec3() const;
   void Set(float xyzw);
@@ -599,6 +605,7 @@ class ezQuat
   float y;
   float z;
   float w;
+
   void SetIdentity();
   void ReconstructFromMat3(const ezMat3&in);
   void ReconstructFromMat4(const ezMat3&in);
@@ -634,9 +641,11 @@ class ezTransform
   ezVec3 m_vPosition;
   ezQuat m_qRotation;
   ezVec3 m_vScale;
+
   ezTransform(const ezVec3&in vPosition);
   ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation);
   ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
+
   void SetIdentity();
   float GetMaxScale() const;
   bool HasMirrorScaling() const;
@@ -697,8 +706,10 @@ class ezColor
   float g;
   float b;
   float a;
+
   ezColor(float r, float g, float b, float a = 1.0f);
   ezColor(const ezColorGammaUB&in);
+
   void opAssign(const ezColorGammaUB&in);
   void opAddAssign(const ezColor&in);
   void opSubAssign(const ezColor&in);
@@ -746,8 +757,10 @@ class ezColorGammaUB
   uint8 g;
   uint8 b;
   uint8 a;
+
   ezColorGammaUB(uint8 r, uint8 g, uint8 b, uint8 a = 255);
   ezColorGammaUB(const ezColor&in);
+
   void opAssign(const ezColor&in);
   ezColor ToLinearFloat() const;
 }
@@ -757,6 +770,7 @@ class ezStringView
 {
   ezStringView(const ezString&in);
   ezStringView(const ezStringBuilder&in);
+
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;
   bool EndsWith(ezStringView) const;
@@ -797,6 +811,7 @@ class ezStringView
 class ezGameObjectHandle
 {
   ezGameObjectHandle();
+
   void Invalidate();
   bool IsInvalidated() const;
   bool opEquals(ezGameObjectHandle) const;
@@ -805,6 +820,7 @@ class ezGameObjectHandle
 class ezComponentHandle
 {
   ezComponentHandle();
+
   void Invalidate();
   bool IsInvalidated() const;
   bool opEquals(ezComponentHandle) const;
@@ -816,6 +832,7 @@ class ezTempHashedString
   ezTempHashedString();
   ezTempHashedString(const ezStringView);
   ezTempHashedString(const ezHashedString&in);
+
   void opAssign(ezStringView);
   void opAssign(const ezHashedString&in);
   bool opEquals(ezTempHashedString) const;
@@ -829,6 +846,7 @@ class ezHashedString
   ezHashedString();
   ezHashedString(const ezStringView);
   ezHashedString(const ezHashedString&in);
+
   void opAssign(ezStringView);
   bool IsEmpty() const;
   void Clear();
@@ -846,6 +864,7 @@ class ezString
   ezString(const ezString&in);
   ezString(const ezStringView);
   ezString(const ezStringBuilder&in);
+
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;
   bool EndsWith(ezStringView) const;
@@ -883,6 +902,7 @@ class ezStringBuilder
   ezStringBuilder();
   ezStringBuilder(const ezStringView s1);
   ezStringBuilder(const ezStringView s1, const ezStringView s2, const ezStringView s3 = "", const ezStringView s4 = "");
+
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;
   bool EndsWith(ezStringView) const;
@@ -1305,7 +1325,9 @@ class ezGameObjectDesc
   ezVec3 m_LocalScaling;
   float m_LocalUniformScaling;
   uint m_uiStableRandomSeed;
+
   ezGameObjectDesc();
+
 }
 
 class ezCollectionComponent : ezComponent
@@ -1504,7 +1526,7 @@ class ezBeamComponent : ezRenderComponent
 
 class ezCameraComponent : ezComponent
 {
-  ezInt8 EditorShortcut;
+  int8 EditorShortcut;
   ezCameraUsageHint UsageHint;
   ezCameraMode Mode;
   ezStringView RenderTarget;
@@ -1599,7 +1621,7 @@ class ezRopeRenderComponent : ezRenderComponent
   ezStringView Material;
   ezColor Color;
   float Thickness;
-  ezUInt32 Detail;
+  uint32 Detail;
   bool Subdivide;
   float UScale;
   ezRenderComponent@ opImplCast();
@@ -1730,7 +1752,7 @@ class ezLightComponent : ezRenderComponent
   ezColorGammaUB EffectiveColor;
   bool UseColorTemperature;
   ezColorGammaUB LightColor;
-  ezUInt32 Temperature;
+  uint32 Temperature;
   float Intensity;
   float SpecularMultiplier;
   bool CastShadows;
@@ -1751,7 +1773,7 @@ class ezLightComponent : ezRenderComponent
 
 class ezDirectionalLightComponent : ezLightComponent
 {
-  ezUInt32 NumCascades;
+  uint32 NumCascades;
   float MinShadowRange;
   float FadeOutStart;
   float SplitModeWeight;
@@ -1771,7 +1793,7 @@ class ezFillLightComponent : ezRenderComponent
   ezFillLightMode LightMode;
   bool UseColorTemperature;
   ezColorGammaUB LightColor;
-  ezUInt32 Temperature;
+  uint32 Temperature;
   float Intensity;
   float Range;
   float FalloffExponent;
@@ -1923,7 +1945,7 @@ class ezSensorComponent : ezComponent
   ezUpdateRate UpdateRate;
   ezString SpatialCategory;
   bool TestVisibility;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   bool ShowDebugInfo;
   ezColorGammaUB Color;
   ezComponent@ opImplCast();
@@ -2090,7 +2112,7 @@ class ezRotorComponent : ezTransformComponent
 {
   ezBasisAxis Axis;
   ezAngle AxisDeviation;
-  ezInt32 DegreesToRotate;
+  int32 DegreesToRotate;
   float Acceleration;
   float Deceleration;
   ezTransformComponent@ opImplCast();
@@ -2365,7 +2387,7 @@ class ezGreyBoxComponent : ezRenderComponent
   float SizePosY;
   float SizeNegZ;
   float SizePosZ;
-  ezUInt32 Detail;
+  uint32 Detail;
   ezAngle Curvature;
   float Thickness;
   bool SlopedTop;
@@ -2440,8 +2462,8 @@ class ezSpawnBoxComponent : ezComponent
   ezStringView Prefab;
   bool SpawnAtStart;
   bool SpawnContinuously;
-  ezUInt16 MinSpawnCount;
-  ezUInt16 SpawnCountRange;
+  uint16 MinSpawnCount;
+  uint16 SpawnCountRange;
   ezTime Duration;
   ezAngle MaxRotationZ;
   ezAngle MaxTiltZ;
@@ -2653,7 +2675,7 @@ class ezAiNavigationComponent : ezComponent
   float Deceleration;
   float FootRadius;
   float ReachedDistance;
-  ezUInt32 CollisionLayer;
+  uint32 CollisionLayer;
   float FallHeight;
   ezAiNavigationDebugFlags DebugFlags;
   ezComponent@ opImplCast();
@@ -2688,7 +2710,7 @@ class ezFmodEventComponent : ezFmodComponent
   ezStringView SoundEvent;
   bool UseOcclusion;
   float OcclusionThreshold;
-  ezUInt8 OcclusionCollisionLayer;
+  uint8 OcclusionCollisionLayer;
   ezOnComponentFinishedAction OnFinishedAction;
   bool ShowDebugInfo;
   ezFmodComponent@ opImplCast();
@@ -2701,7 +2723,7 @@ class ezFmodEventComponent : ezFmodComponent
 
 class ezFmodListenerComponent : ezFmodComponent
 {
-  ezUInt8 ListenerIndex;
+  uint8 ListenerIndex;
   ezFmodComponent@ opImplCast();
   ezComponent@ opImplCast();
   bool SendMessage(ezMessage&inout ref_msg);
@@ -2789,7 +2811,7 @@ class ezAreaDamageComponent : ezComponent
   void ApplyAreaDamage();
   bool OnCreation;
   float Radius;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   float Damage;
   float Impulse;
   ezComponent@ opImplCast();
@@ -2816,7 +2838,7 @@ class ezPowerConnectorComponent : ezComponent
   bool IsConnected() const;
   bool IsAttached() const;
   void Detach();
-  ezUInt16 Output;
+  uint16 Output;
   ezString Buddy;
   ezString ConnectedTo;
   ezComponent@ opImplCast();
@@ -2833,7 +2855,7 @@ class ezProjectileComponent : ezComponent
   ezTime MaxLifetime;
   bool SpawnPrefabOnStatic;
   ezStringView OnDeathPrefab;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   ezPhysicsShapeType ShapeTypesToHit;
   ezStringView FallbackSurface;
   ezComponent@ opImplCast();
@@ -2853,7 +2875,7 @@ class ezRaycastComponent : ezComponent
   ezString RaycastEndObject;
   bool ForceTargetParentless;
   ezPhysicsShapeType ShapeTypesToHit;
-  ezUInt8 CollisionLayerEndPoint;
+  uint8 CollisionLayerEndPoint;
   ezHashedString ChangeNotificationMsg;
   ezComponent@ opImplCast();
   bool SendMessage(ezMessage&inout ref_msg);
@@ -2885,7 +2907,7 @@ class ezFakeRopeComponent : ezComponent
   ezString Anchor2;
   bool AttachToAnchor1;
   bool AttachToAnchor2;
-  ezUInt16 Pieces;
+  uint16 Pieces;
   float Slack;
   float Damping;
   float WindInfluence;
@@ -2899,7 +2921,7 @@ class ezFakeRopeComponent : ezComponent
 class ezRandomPrefabComponent : ezComponent
 {
   bool Preview;
-  ezUInt16 Count;
+  uint16 Count;
   bool InstantiateAsChildren;
   ezVec3 Position;
   ezVec3 Rotation;
@@ -2935,7 +2957,7 @@ class ezHeightfieldComponent : ezRenderComponent
 class ezJoltActorComponent : ezComponent
 {
   uint GetObjectFilterID() const;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   ezComponent@ opImplCast();
   ezJoltDynamicActorComponent@ opCast();
   ezJoltQueryShapeActorComponent@ opCast();
@@ -3012,8 +3034,8 @@ class ezJoltTriggerComponent : ezJoltActorComponent
 
 class ezJoltCharacterControllerComponent : ezComponent
 {
-  ezUInt8 CollisionLayer;
-  ezUInt8 PresenceCollisionLayer;
+  uint8 CollisionLayer;
+  uint8 PresenceCollisionLayer;
   float Mass;
   float Strength;
   ezAngle MaxClimbingSlope;
@@ -3062,7 +3084,7 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
 class ezJoltClothSheetComponent : ezRenderComponent
 {
   ezVec2 Size;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   float WindInfluence;
   float GravityFactor;
   float Damping;
@@ -3120,14 +3142,14 @@ class ezJoltRopeComponent : ezComponent
   ezString Anchor2;
   ezJoltRopeAnchorConstraintMode Anchor1Constraint;
   ezJoltRopeAnchorConstraintMode Anchor2Constraint;
-  ezUInt16 Pieces;
+  uint16 Pieces;
   float Slack;
   float Mass;
   float Thickness;
   float BendStiffness;
   ezAngle MaxBend;
   ezAngle MaxTwist;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   ezStringView Surface;
   float GravityFactor;
   bool SelfCollision;
@@ -3145,8 +3167,8 @@ class ezJoltSettingsComponent : ezSettingsComponent
   ezVec3 CharacterGravity;
   ezJoltSteppingMode SteppingMode;
   float FixedFrameRate;
-  ezUInt32 MaxSubSteps;
-  ezUInt32 MaxBodies;
+  uint32 MaxSubSteps;
+  uint32 MaxBodies;
   float SleepVelocityThreshold;
   ezSettingsComponent@ opImplCast();
   ezComponent@ opImplCast();
@@ -3233,7 +3255,7 @@ class ezJoltGrabObjectComponent : ezComponent
   void BreakObjectGrab();
   float MaxGrabPointDistance;
   float CastRadius;
-  ezUInt8 CollisionLayer;
+  uint8 CollisionLayer;
   float SpringStiffness;
   float SpringDamping;
   float BreakDistance;
@@ -3379,7 +3401,7 @@ class ezJoltShapeSphereComponent : ezJoltShapeComponent
 class ezKrautTreeComponent : ezRenderComponent
 {
   ezStringView KrautTree;
-  ezUInt16 VariationIndex;
+  uint16 VariationIndex;
   ezRenderComponent@ opImplCast();
   ezComponent@ opImplCast();
   bool SendMessage(ezMessage&inout ref_msg);
@@ -3399,7 +3421,7 @@ class ezParticleComponent : ezRenderComponent
   ezOnComponentFinishedAction2 OnFinishedAction;
   ezTime MinRestartDelay;
   ezTime RestartDelayRange;
-  ezUInt64 RandomSeed;
+  uint64 RandomSeed;
   ezBasisAxis SpawnDirection;
   bool IgnoreOwnerRotation;
   ezString SharedInstanceName;
@@ -3545,7 +3567,7 @@ class ezMsgPhysicsAddImpulse : ezMessage
 {
   ezVec3 GlobalPosition;
   ezVec3 Impulse;
-  ezUInt32 ObjectFilterID;
+  uint32 ObjectFilterID;
   ezMessage@ opImplCast();
 }
 
@@ -3613,7 +3635,7 @@ class ezMsgDeleteGameObject : ezMessage
 class ezMsgComponentInternalTrigger : ezMessage
 {
   ezHashedString Message;
-  ezInt32 Payload;
+  int32 Payload;
   ezMessage@ opImplCast();
 }
 
@@ -3739,7 +3761,7 @@ class ezMsgRetrieveBoneState : ezMessage
 class ezMsgSetMeshMaterial : ezMessage
 {
   ezStringView Material;
-  ezUInt32 MaterialSlot;
+  uint32 MaterialSlot;
   ezMessage@ opImplCast();
 }
 
@@ -3826,8 +3848,8 @@ class ezMsgFmodSoundFinished : ezEventMessage
 
 class ezEventMsgSetPowerInput : ezEventMessage
 {
-  ezUInt16 PrevValue;
-  ezUInt16 NewValue;
+  uint16 PrevValue;
+  uint16 NewValue;
   ezEventMessage@ opImplCast();
   ezMessage@ opImplCast();
 }

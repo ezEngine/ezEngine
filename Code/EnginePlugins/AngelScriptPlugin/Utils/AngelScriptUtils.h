@@ -50,4 +50,6 @@ public:
   static void DefaultConstructInPlace(void* ptr, const ezRTTI* pRtti);
 
   static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_Infos);
+
+  static void GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezStringBuilder& out_sContent);
 };
