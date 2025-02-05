@@ -84,8 +84,6 @@ private:
     AS_CHECK(typeId);
 
     m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
-
-    m_WhitelistedValueTypes.Insert(pRtti->GetTypeName());
   }
 
   template <typename T>
@@ -96,8 +94,6 @@ private:
     AS_CHECK(typeId);
 
     m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
-
-    m_WhitelistedValueTypes.Insert(pRtti->GetTypeName());
   }
 
   template <typename T>
@@ -117,8 +113,6 @@ private:
   ezUniquePtr<ezProxyAllocator> m_pAllocator;
   asIScriptEngine* m_pEngine = nullptr;
 
-  // TODO AngelScript: Use this ?
-  ezSet<ezString> m_WhitelistedValueTypes;
   ezSet<ezString> m_WhitelistedRefTypes;
 
   ezHybridArray<const asITypeInfo*, 16> m_ForbiddenTypes;
