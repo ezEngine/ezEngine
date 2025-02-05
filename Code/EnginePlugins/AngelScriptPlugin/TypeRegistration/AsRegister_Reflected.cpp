@@ -1,0 +1,165 @@
+#include <AngelScriptPlugin/AngelScriptPluginPCH.h>
+
+#include <AngelScript/include/angelscript.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+
+static void CastToBase(asIScriptGeneric* gen)
+{
+  int derivedTypeId = gen->GetObjectTypeId();
+  auto derivedTypeInfo = gen->GetEngine()->GetTypeInfoById(derivedTypeId);
+  const ezRTTI* pDerivedRtti = (const ezRTTI*)derivedTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+
+  const ezRTTI* pBaseRtti = (const ezRTTI*)gen->GetAuxiliary();
+
+  if (pDerivedRtti != nullptr && pBaseRtti != nullptr)
+  {
+    if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
+    {
+      gen->SetReturnObject(gen->GetObject());
+      return;
+    }
+  }
+
+  gen->SetReturnObject(nullptr);
+}
+
+static void CastToDerived(asIScriptGeneric* gen)
+{
+  int baseTypeId = gen->GetObjectTypeId();
+  auto baseTypeInfo = gen->GetEngine()->GetTypeInfoById(baseTypeId);
+  const ezRTTI* pBaseRtti = (const ezRTTI*)baseTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+
+  const ezRTTI* pDerivedRtti = (const ezRTTI*)gen->GetAuxiliary();
+
+  if (pBaseRtti != nullptr && pDerivedRtti != nullptr)
+  {
+    if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
+    {
+      gen->SetReturnObject(gen->GetObject());
+      return;
+    }
+  }
+
+  gen->SetReturnObject(nullptr);
+}
+
+struct RefInstance
+{
+  ezUInt32 m_uiRefCount = 1;
+  const ezRTTI* m_pRtti = nullptr;
+};
+
+static ezMutex s_RefCountMutex;
+static ezMap<void*, RefInstance> s_RefCounts;
+
+static void* ezRtti_Create(const ezRTTI* pRtti)
+{
+  auto inst = pRtti->GetAllocator()->Allocate<ezReflectedClass>();
+
+  EZ_LOCK(s_RefCountMutex);
+  auto& ref = s_RefCounts[inst.m_pInstance];
+  ref.m_pRtti = pRtti;
+
+  return inst.m_pInstance;
+}
+
+static void ezRtti_AddRef(void* instance)
+{
+  EZ_LOCK(s_RefCountMutex);
+  ++s_RefCounts[instance].m_uiRefCount;
+}
+
+static void ezRtti_Release(void* instance)
+{
+  EZ_LOCK(s_RefCountMutex);
+  auto it = s_RefCounts.Find(instance);
+  RefInstance& ri = it.Value();
+  if (--ri.m_uiRefCount == 0)
+  {
+    ri.m_pRtti->GetAllocator()->Deallocate(instance);
+    s_RefCounts.Remove(it);
+  }
+}
+
+
+void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable)
+{
+  EZ_LOG_BLOCK("Register_ReflectedType", pBaseType->GetTypeName());
+
+  ezStringBuilder typeName, parentName, op;
+
+  // first register the type
+  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
+    {
+      // if (pRtti == pBaseType)
+      //   return;
+
+      typeName = pRtti->GetTypeName();
+      auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
+
+      if (pTypeInfo == nullptr)
+      {
+        if (bCreatable)
+        {
+          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF);
+          AS_CHECK(typeId);
+          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
+
+          if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
+          {
+            op.Set(typeName, "@ f()");
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, op, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
+            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
+          }
+        }
+        else
+        {
+
+          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF | asOBJ_NOCOUNT);
+          AS_CHECK(typeId);
+
+          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
+        }
+      }
+
+      pTypeInfo->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
+
+      AddForbiddenType(typeName);
+
+      RegisterTypeFunctions(typeName, pRtti, false);
+      RegisterTypeProperties(typeName, pRtti, false);
+
+      //
+    },
+    ezRTTI::ForEachOptions::None);
+
+  // then register the type hierarchy
+  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
+    {
+      if (pRtti == pBaseType)
+        return;
+
+      typeName = pRtti->GetTypeName();
+
+      const ezRTTI* pParentRtti = pRtti->GetParentType();
+
+      while (pParentRtti)
+      {
+        parentName = pParentRtti->GetTypeName();
+        op.Set(parentName, "@ opImplCast()");
+
+        AS_CHECK(m_pEngine->RegisterObjectMethod(typeName, op, asFUNCTION(CastToBase), asCALL_GENERIC, (void*)pParentRtti));
+
+        op.Set(typeName, "@ opCast()");
+        AS_CHECK(m_pEngine->RegisterObjectMethod(parentName, op, asFUNCTION(CastToDerived), asCALL_GENERIC, (void*)pRtti));
+
+        if (pParentRtti == pBaseType)
+          break;
+
+        pParentRtti = pParentRtti->GetParentType();
+      }
+      //
+    },
+    ezRTTI::ForEachOptions::None);
+}

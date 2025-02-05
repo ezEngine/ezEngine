@@ -95,10 +95,6 @@ ezAngelScriptEngineSingleton::~ezAngelScriptEngineSingleton()
   m_pAllocator.Clear();
 }
 
-
-
-
-
 void ezAngelScriptEngineSingleton::AddForbiddenType(const char* szTypeName)
 {
   asITypeInfo* pTypeInfo = m_pEngine->GetTypeInfoByName(szTypeName);
@@ -128,44 +124,106 @@ void ezAngelScriptEngineSingleton::MessageCallback(const asSMessageInfo* msg, vo
   }
 }
 
-void CastToBase(asIScriptGeneric* gen)
+void ezAngelScriptEngineSingleton::RegisterStandardTypes()
 {
-  int derivedTypeId = gen->GetObjectTypeId();
-  auto derivedTypeInfo = gen->GetEngine()->GetTypeInfoById(derivedTypeId);
-  const ezRTTI* pDerivedRtti = (const ezRTTI*)derivedTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+  EZ_LOG_BLOCK("AS::RegisterStandardTypes");
 
-  const ezRTTI* pBaseRtti = (const ezRTTI*)gen->GetAuxiliary();
+  AS_CHECK(m_pEngine->RegisterTypedef("ezInt8", "int8"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezInt16", "int16"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezInt32", "int32"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezInt64", "int64"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt8", "uint8"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt16", "uint16"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt32", "uint32"));
+  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt64", "uint64"));
 
-  if (pDerivedRtti != nullptr && pBaseRtti != nullptr)
+  AS_CHECK(m_pEngine->RegisterObjectType("ezRTTI", 0, asOBJ_REF | asOBJ_NOCOUNT));
+
+  // TODO AngelScript: ezResult ?
+
+  RegisterPodValueType<ezVec2>();
+  RegisterPodValueType<ezVec3>();
+  RegisterPodValueType<ezVec4>();
+  RegisterPodValueType<ezAngle>();
+  RegisterPodValueType<ezQuat>();
+  RegisterPodValueType<ezMat3>();
+  RegisterPodValueType<ezMat4>();
+  RegisterPodValueType<ezTransform>();
+  RegisterPodValueType<ezTime>();
+  RegisterPodValueType<ezColor>();
+  RegisterPodValueType<ezColorGammaUB>();
+  RegisterPodValueType<ezStringView>();
+  RegisterPodValueType<ezGameObjectHandle>();
+  RegisterPodValueType<ezComponentHandle>();
+  RegisterPodValueType<ezTempHashedString>();
+  RegisterPodValueType<ezHashedString>();
+
+  RegisterNonPodValueType<ezString>();
+  RegisterNonPodValueType<ezStringBuilder>();
+
+  RegisterRefType<ezGameObject>();
+  RegisterRefType<ezComponent>();
+  RegisterRefType<ezWorld>();
+  RegisterRefType<ezMessage>();
+  RegisterRefType<ezClock>();
+
   {
-    if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
-    {
-      gen->SetReturnObject(gen->GetObject());
-      return;
-    }
+    AS_CHECK(m_pEngine->RegisterObjectType("ezRandom", 0, asOBJ_REF | asOBJ_NOCOUNT));
+    AddForbiddenType("ezRandom");
   }
 
-  gen->SetReturnObject(nullptr);
+  Register_RTTI();
+  Register_Vec2();
+  Register_Vec3();
+  Register_Vec4();
+  Register_Angle();
+  Register_Quat();
+  Register_Transform();
+  Register_GameObject();
+  Register_Time();
+  Register_Mat3();
+  Register_Mat4();
+  Register_World();
+  Register_Clock();
+  Register_StringView();
+  Register_String();
+  Register_StringBuilder();
+  Register_HashedString();
+  Register_TempHashedString();
+  Register_Color();
+  Register_ColorGammaUB();
+  Register_Random();
+  Register_Math();
+
+  // TODO AngelScript: register these standard types
+  // ezBoundingBox
+  // ezBoundingSphere
+  // ezPlane
 }
 
-void CastToDerived(asIScriptGeneric* gen)
+void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
 {
-  int baseTypeId = gen->GetObjectTypeId();
-  auto baseTypeInfo = gen->GetEngine()->GetTypeInfoById(baseTypeId);
-  const ezRTTI* pBaseRtti = (const ezRTTI*)baseTypeInfo->GetUserData(ezAsUserData::RttiPtr);
+  EZ_LOG_BLOCK("Register_GlobalReflectedFunctions");
 
-  const ezRTTI* pDerivedRtti = (const ezRTTI*)gen->GetAuxiliary();
-
-  if (pBaseRtti != nullptr && pDerivedRtti != nullptr)
-  {
-    if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
     {
-      gen->SetReturnObject(gen->GetObject());
-      return;
-    }
-  }
+      if (pRtti->GetParentType() != nullptr && pRtti->GetParentType() != ezGetStaticRTTI<ezNoBase>())
+        return;
 
-  gen->SetReturnObject(nullptr);
+      for (auto pFunc : pRtti->GetFunctions())
+      {
+        auto pFuncAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+        if (!pFuncAttr)
+          continue;
+
+        if (pFunc->GetFunctionType() != ezFunctionType::StaticMember)
+          continue;
+
+        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, false);
+      }
+
+      //
+    });
 }
 
 void ezAngelScriptEngineSingleton::Register_ReflectedTypes()
@@ -192,125 +250,15 @@ void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
     });
 }
 
-struct RefInstance
-{
-  ezUInt32 m_uiRefCount = 1;
-  const ezRTTI* m_pRtti = nullptr;
-};
 
-static ezMutex s_RefCountMutex;
-static ezMap<void*, RefInstance> s_RefCounts;
 
-static void* ezRtti_Create(const ezRTTI* pRtti)
-{
-  auto inst = pRtti->GetAllocator()->Allocate<ezReflectedClass>();
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-  EZ_LOCK(s_RefCountMutex);
-  auto& ref = s_RefCounts[inst.m_pInstance];
-  ref.m_pRtti = pRtti;
 
-  return inst.m_pInstance;
-}
-
-static void ezRtti_AddRef(void* instance)
-{
-  EZ_LOCK(s_RefCountMutex);
-  ++s_RefCounts[instance].m_uiRefCount;
-}
-
-static void ezRtti_Release(void* instance)
-{
-  EZ_LOCK(s_RefCountMutex);
-  auto it = s_RefCounts.Find(instance);
-  RefInstance& ri = it.Value();
-  if (--ri.m_uiRefCount == 0)
-  {
-    ri.m_pRtti->GetAllocator()->Deallocate(instance);
-    s_RefCounts.Remove(it);
-  }
-}
-
-void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseType, bool bCreatable)
-{
-  EZ_LOG_BLOCK("Register_ReflectedType", pBaseType->GetTypeName());
-
-  ezStringBuilder typeName, parentName, op;
-
-  // first register the type
-  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
-    {
-      // if (pRtti == pBaseType)
-      //   return;
-
-      typeName = pRtti->GetTypeName();
-      auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
-
-      if (pTypeInfo == nullptr)
-      {
-        if (bCreatable)
-        {
-          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF);
-          AS_CHECK(typeId);
-          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
-
-          if (pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate())
-          {
-            op.Set(typeName, "@ f()");
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_FACTORY, op, asFUNCTION(ezRtti_Create), asCALL_CDECL_OBJLAST, (void*)pRtti);
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_ADDREF, "void f()", asFUNCTION(ezRtti_AddRef), asCALL_CDECL_OBJLAST, (void*)pRtti);
-            m_pEngine->RegisterObjectBehaviour(typeName, asBEHAVE_RELEASE, "void f()", asFUNCTION(ezRtti_Release), asCALL_CDECL_OBJLAST, (void*)pRtti);
-          }
-        }
-        else
-        {
-
-          const int typeId = m_pEngine->RegisterObjectType(typeName, 0, asOBJ_REF | asOBJ_NOCOUNT);
-          AS_CHECK(typeId);
-
-          pTypeInfo = m_pEngine->GetTypeInfoById(typeId);
-        }
-      }
-
-      pTypeInfo->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);
-
-      AddForbiddenType(typeName);
-
-      RegisterTypeFunctions(typeName, pRtti, false);
-      RegisterTypeProperties(typeName, pRtti, false);
-
-      //
-    },
-    ezRTTI::ForEachOptions::None);
-
-  // then register the type hierarchy
-  ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
-    {
-      if (pRtti == pBaseType)
-        return;
-
-      typeName = pRtti->GetTypeName();
-
-      const ezRTTI* pParentRtti = pRtti->GetParentType();
-
-      while (pParentRtti)
-      {
-        parentName = pParentRtti->GetTypeName();
-        op.Set(parentName, "@ opImplCast()");
-
-        AS_CHECK(m_pEngine->RegisterObjectMethod(typeName, op, asFUNCTION(CastToBase), asCALL_GENERIC, (void*)pParentRtti));
-
-        op.Set(typeName, "@ opCast()");
-        AS_CHECK(m_pEngine->RegisterObjectMethod(parentName, op, asFUNCTION(CastToDerived), asCALL_GENERIC, (void*)pRtti));
-
-        if (pParentRtti == pBaseType)
-          break;
-
-        pParentRtti = pParentRtti->GetParentType();
-      }
-      //
-    },
-    ezRTTI::ForEachOptions::None);
-}
 
 bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs)
 {
@@ -592,30 +540,7 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
   RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), true);
 }
 
-void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
-{
-  EZ_LOG_BLOCK("Register_GlobalReflectedFunctions");
 
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
-    {
-      if (pRtti->GetParentType() != nullptr && pRtti->GetParentType() != ezGetStaticRTTI<ezNoBase>())
-        return;
-
-      for (auto pFunc : pRtti->GetFunctions())
-      {
-        auto pFuncAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
-        if (!pFuncAttr)
-          continue;
-
-        if (pFunc->GetFunctionType() != ezFunctionType::StaticMember)
-          continue;
-
-        RegisterGenericFunction(pRtti->GetTypeName().GetStartPointer(), pFunc, pFuncAttr, false);
-      }
-
-      //
-    });
-}
 
 static void SetPropertyGeneric(asIScriptGeneric* gen)
 {
@@ -715,83 +640,4 @@ ezString ezAngelScriptEngineSingleton::Register_EnumType(const ezRTTI* pEnumType
   }
 
   return enumName;
-}
-
-
-
-void ezAngelScriptEngineSingleton::RegisterStandardTypes()
-{
-  EZ_LOG_BLOCK("AS::RegisterStandardTypes");
-
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt8", "int8"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt16", "int16"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt32", "int32"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezInt64", "int64"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt8", "uint8"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt16", "uint16"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt32", "uint32"));
-  AS_CHECK(m_pEngine->RegisterTypedef("ezUInt64", "uint64"));
-
-  AS_CHECK(m_pEngine->RegisterObjectType("ezRTTI", 0, asOBJ_REF | asOBJ_NOCOUNT));
-
-  // TODO AngelScript: ezResult ?
-
-  RegisterPodValueType<ezVec2>();
-  RegisterPodValueType<ezVec3>();
-  RegisterPodValueType<ezVec4>();
-  RegisterPodValueType<ezAngle>();
-  RegisterPodValueType<ezQuat>();
-  RegisterPodValueType<ezMat3>();
-  RegisterPodValueType<ezMat4>();
-  RegisterPodValueType<ezTransform>();
-  RegisterPodValueType<ezTime>();
-  RegisterPodValueType<ezColor>();
-  RegisterPodValueType<ezColorGammaUB>();
-  RegisterPodValueType<ezStringView>();
-  RegisterPodValueType<ezGameObjectHandle>();
-  RegisterPodValueType<ezComponentHandle>();
-  RegisterPodValueType<ezTempHashedString>();
-  RegisterPodValueType<ezHashedString>();
-
-  RegisterNonPodValueType<ezString>();
-  RegisterNonPodValueType<ezStringBuilder>();
-
-  RegisterRefType<ezGameObject>();
-  RegisterRefType<ezComponent>();
-  RegisterRefType<ezWorld>();
-  RegisterRefType<ezMessage>();
-  RegisterRefType<ezClock>();
-
-  {
-    AS_CHECK(m_pEngine->RegisterObjectType("ezRandom", 0, asOBJ_REF | asOBJ_NOCOUNT));
-    AddForbiddenType("ezRandom");
-  }
-
-  Register_RTTI();
-  Register_Vec2();
-  Register_Vec3();
-  Register_Vec4();
-  Register_Angle();
-  Register_Quat();
-  Register_Transform();
-  Register_GameObject();
-  Register_Time();
-  Register_Mat3();
-  Register_Mat4();
-  Register_World();
-  Register_Clock();
-  Register_StringView();
-  Register_String();
-  Register_StringBuilder();
-  Register_HashedString();
-  Register_TempHashedString();
-  Register_Color();
-  Register_ColorGammaUB();
-  Register_Random();
-  Register_Math();
-
-  // TODO AngelScript: register these standard types
-  // ezBoundingBox
-  // ezBoundingSphere
-  // ezPlane
 }
