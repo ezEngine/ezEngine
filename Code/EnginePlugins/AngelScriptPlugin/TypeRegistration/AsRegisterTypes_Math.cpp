@@ -1,7 +1,7 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezMath

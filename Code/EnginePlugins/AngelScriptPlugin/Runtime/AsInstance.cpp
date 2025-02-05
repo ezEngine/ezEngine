@@ -1,8 +1,8 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptComponent.h>
 

@@ -2,9 +2,9 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Resources/AngelScriptResource.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptFunctionDispatch.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsFunctionDispatch.h>
+#include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/Component.h>

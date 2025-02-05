@@ -1,9 +1,9 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScript/source/add_on/scriptstdstring/scriptstdstring.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsInstance.h>
+#include <AngelScriptPlugin/Runtime/AsStringFactory.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/World/Component.h>
@@ -35,51 +35,6 @@ ON_HIGHLEVELSYSTEMS_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
-
-class ezAsStringFactory : public asIStringFactory
-{
-public:
-  ezAsStringFactory() = default;
-  ~ezAsStringFactory() = default;
-
-  const void* GetStringConstant(const char* data, asUINT length) override
-  {
-    ezHashedString hs;
-    hs.Assign(ezStringView(data, length));
-
-    // we need to give out a pointer to a StringView that doesn't vanish
-    EZ_LOCK(m_Mutex);
-    auto it = m_Strings.Insert(hs.GetView());
-    const ezStringView& view = it.Key();
-
-    return &view;
-  }
-
-
-  int ReleaseStringConstant(const void* str) override
-  {
-    // we don't clean up the strings
-    return 0;
-  }
-
-  int GetRawStringData(const void* str, char* data, asUINT* length) const override
-  {
-    const ezStringView* pView = (const ezStringView*)str;
-
-    *length = pView->GetElementCount();
-
-    if (data)
-    {
-      ezStringUtils::Copy(data, *length + 1, pView->GetStartPointer());
-    }
-
-    return 0;
-  }
-
-private:
-  ezMutex m_Mutex;
-  ezSet<ezStringView> m_Strings;
-};
 
 ezGameObject* GetAngelScriptOwnerObject(asIScriptObject* pSelf)
 {

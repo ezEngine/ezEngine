@@ -1,8 +1,8 @@
 #include <EnginePluginAngelScript/EnginePluginAngelScriptPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <EnginePluginAngelScript/AngelScriptAsset/AngelScriptContext.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>

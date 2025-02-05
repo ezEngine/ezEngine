@@ -1,8 +1,8 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptFunctionDispatch.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptInstance.h>
+#include <AngelScriptPlugin/Runtime/AsFunctionDispatch.h>
+#include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 

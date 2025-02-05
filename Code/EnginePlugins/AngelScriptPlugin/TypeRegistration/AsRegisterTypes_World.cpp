@@ -1,7 +1,7 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
 

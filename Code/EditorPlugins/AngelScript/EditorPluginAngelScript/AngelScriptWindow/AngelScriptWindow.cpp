@@ -1,7 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <AngelScript/include/angelscript.h>
-#include <AngelScriptPlugin/Runtime/AngelScriptEngineSingleton.h>
+#include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
