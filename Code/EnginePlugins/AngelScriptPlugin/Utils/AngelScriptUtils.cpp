@@ -219,7 +219,7 @@ ezResult ezAngelScriptUtils::WriteToAsTypeAtLocation(asIScriptEngine* pEngine, i
   return EZ_FAILURE;
 }
 
-ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value)
+ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_value)
 {
   void* pMemLoc = pMemoryLocation;
 
@@ -231,47 +231,47 @@ ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, 
         return EZ_FAILURE;
 
       case asTYPEID_BOOL:
-        out_Value = (*static_cast<ezInt8*>(pMemLoc) != 0) ? true : false;
+        out_value = (*static_cast<ezInt8*>(pMemLoc) != 0) ? true : false;
         return EZ_SUCCESS;
 
       case asTYPEID_INT8:
-        out_Value = *static_cast<ezInt8*>(pMemLoc);
+        out_value = *static_cast<ezInt8*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT16:
-        out_Value = *static_cast<ezInt16*>(pMemLoc);
+        out_value = *static_cast<ezInt16*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT32:
-        out_Value = *static_cast<ezInt32*>(pMemLoc);
+        out_value = *static_cast<ezInt32*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_INT64:
-        out_Value = *static_cast<ezInt64*>(pMemLoc);
+        out_value = *static_cast<ezInt64*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT8:
-        out_Value = *static_cast<ezUInt8*>(pMemLoc);
+        out_value = *static_cast<ezUInt8*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT16:
-        out_Value = *static_cast<ezUInt16*>(pMemLoc);
+        out_value = *static_cast<ezUInt16*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT32:
-        out_Value = *static_cast<ezUInt32*>(pMemLoc);
+        out_value = *static_cast<ezUInt32*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_UINT64:
-        out_Value = *static_cast<ezUInt64*>(pMemLoc);
+        out_value = *static_cast<ezUInt64*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_FLOAT:
-        out_Value = *static_cast<float*>(pMemLoc);
+        out_value = *static_cast<float*>(pMemLoc);
         return EZ_SUCCESS;
 
       case asTYPEID_DOUBLE:
-        out_Value = *static_cast<double*>(pMemLoc);
+        out_value = *static_cast<double*>(pMemLoc);
         return EZ_SUCCESS;
     }
   }
@@ -281,67 +281,67 @@ ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, 
 
     if (pRtti == ezGetStaticRTTI<ezAngle>())
     {
-      out_Value = *static_cast<ezAngle*>(pMemLoc);
+      out_value = *static_cast<ezAngle*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezTime>())
     {
-      out_Value = *static_cast<ezTime*>(pMemLoc);
+      out_value = *static_cast<ezTime*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezColor>())
     {
-      out_Value = *static_cast<ezColor*>(pMemLoc);
+      out_value = *static_cast<ezColor*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
     {
-      out_Value = *static_cast<ezColorGammaUB*>(pMemLoc);
+      out_value = *static_cast<ezColorGammaUB*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec2>())
     {
-      out_Value = *static_cast<ezVec2*>(pMemLoc);
+      out_value = *static_cast<ezVec2*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec3>())
     {
-      out_Value = *static_cast<ezVec3*>(pMemLoc);
+      out_value = *static_cast<ezVec3*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezVec4>())
     {
-      out_Value = *static_cast<ezVec4*>(pMemLoc);
+      out_value = *static_cast<ezVec4*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezQuat>())
     {
-      out_Value = *static_cast<ezQuat*>(pMemLoc);
+      out_value = *static_cast<ezQuat*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezTransform>())
     {
-      out_Value = *static_cast<ezTransform*>(pMemLoc);
+      out_value = *static_cast<ezTransform*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezString>())
     {
-      out_Value = *static_cast<ezString*>(pMemLoc);
+      out_value = *static_cast<ezString*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezStringView>())
     {
-      out_Value = *static_cast<ezStringView*>(pMemLoc);
+      out_value = *static_cast<ezStringView*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezHashedString>())
     {
-      out_Value = *static_cast<ezHashedString*>(pMemLoc);
+      out_value = *static_cast<ezHashedString*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezTempHashedString>())
     {
-      out_Value = *static_cast<ezTempHashedString*>(pMemLoc);
+      out_value = *static_cast<ezTempHashedString*>(pMemLoc);
       return EZ_SUCCESS;
     }
   }
@@ -498,13 +498,13 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
   return "";
 }
 
-void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
+void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
 {
   const ezRTTI* pArgRtti = pAbstractFuncProp->GetArgumentType(uiArg);
 
   if (pArgRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
   {
-    out_arg = (ezInt32)gen->GetArgDWord(uiArg);
+    out_arg = (ezInt32)pGen->GetArgDWord(uiArg);
     return;
   }
 
@@ -512,87 +512,87 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, cons
   switch (type)
   {
     case ezVariantType::Bool:
-      out_arg = gen->GetArgByte(uiArg) != 0;
+      out_arg = pGen->GetArgByte(uiArg) != 0;
       return;
     case ezVariantType::Double:
-      out_arg = gen->GetArgDouble(uiArg);
+      out_arg = pGen->GetArgDouble(uiArg);
       return;
     case ezVariantType::Float:
-      out_arg = gen->GetArgFloat(uiArg);
+      out_arg = pGen->GetArgFloat(uiArg);
       return;
     case ezVariantType::Int8:
-      out_arg = (ezInt8)gen->GetArgByte(uiArg);
+      out_arg = (ezInt8)pGen->GetArgByte(uiArg);
       return;
     case ezVariantType::Int16:
-      out_arg = (ezInt16)gen->GetArgWord(uiArg);
+      out_arg = (ezInt16)pGen->GetArgWord(uiArg);
       return;
     case ezVariantType::Int32:
-      out_arg = (ezInt32)gen->GetArgDWord(uiArg);
+      out_arg = (ezInt32)pGen->GetArgDWord(uiArg);
       return;
     case ezVariantType::Int64:
-      out_arg = (ezInt64)gen->GetArgQWord(uiArg);
+      out_arg = (ezInt64)pGen->GetArgQWord(uiArg);
       return;
     case ezVariantType::UInt8:
-      out_arg = (ezUInt8)gen->GetArgByte(uiArg);
+      out_arg = (ezUInt8)pGen->GetArgByte(uiArg);
       return;
     case ezVariantType::UInt16:
-      out_arg = (ezUInt16)gen->GetArgWord(uiArg);
+      out_arg = (ezUInt16)pGen->GetArgWord(uiArg);
       return;
     case ezVariantType::UInt32:
-      out_arg = (ezUInt32)gen->GetArgDWord(uiArg);
+      out_arg = (ezUInt32)pGen->GetArgDWord(uiArg);
       return;
     case ezVariantType::UInt64:
-      out_arg = (ezUInt64)gen->GetArgQWord(uiArg);
+      out_arg = (ezUInt64)pGen->GetArgQWord(uiArg);
       return;
 
     case ezVariantType::Vector2:
-      out_arg = *((const ezVec2*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezVec2*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Vector3:
-      out_arg = *((const ezVec3*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezVec3*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Vector4:
-      out_arg = *((const ezVec4*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezVec4*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Quaternion:
-      out_arg = *((const ezQuat*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezQuat*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Matrix3:
-      out_arg = *((const ezMat3*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezMat3*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Matrix4:
-      out_arg = *((const ezMat4*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezMat4*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Transform:
-      out_arg = *((const ezTransform*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezTransform*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Time:
-      out_arg = *((const ezTime*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezTime*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Angle:
-      out_arg = *((const ezAngle*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezAngle*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::Color:
-      out_arg = *((const ezColor*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezColor*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::ColorGamma:
-      out_arg = *((const ezColorGammaUB*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezColorGammaUB*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::String:
-      out_arg = *((const ezString*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezString*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::HashedString:
-      out_arg = *((const ezHashedString*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezHashedString*)pGen->GetArgObject(uiArg));
       return;
     case ezVariantType::StringView:
-      out_arg = ezVariant(*(const ezStringView*)gen->GetArgObject(uiArg), false);
+      out_arg = ezVariant(*(const ezStringView*)pGen->GetArgObject(uiArg), false);
       return;
     case ezVariantType::TempHashedString:
-      out_arg = *((const ezTempHashedString*)gen->GetArgObject(uiArg));
+      out_arg = *((const ezTempHashedString*)pGen->GetArgObject(uiArg));
       return;
 
     case ezVariantType::VariantArray:
-      RetrieveVarArgs(gen, uiArg, pAbstractFuncProp, out_arg);
+      RetrieveVarArgs(pGen, uiArg, pAbstractFuncProp, out_arg);
       return;
 
     case ezVariantType::Invalid:
@@ -605,31 +605,31 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, cons
 
   if (pArgRtti->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
   {
-    out_arg = (ezComponent*)gen->GetArgObject(uiArg);
+    out_arg = (ezComponent*)pGen->GetArgObject(uiArg);
     return;
   }
 
   if (pArgRtti == ezGetStaticRTTI<ezWorld>())
   {
-    out_arg = (ezWorld*)gen->GetArgObject(uiArg);
+    out_arg = (ezWorld*)pGen->GetArgObject(uiArg);
     return;
   }
 
   if (pArgRtti == ezGetStaticRTTI<ezGameObjectHandle>())
   {
-    out_arg = (ezGameObjectHandle*)gen->GetArgObject(uiArg);
+    out_arg = (ezGameObjectHandle*)pGen->GetArgObject(uiArg);
     return;
   }
 
   if (pArgRtti->GetTypeName().StartsWith("ezVariant"))
   {
-    auto argTypeId = gen->GetArgTypeId(uiArg);
+    auto argTypeId = pGen->GetArgTypeId(uiArg);
 
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), out_arg).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(uiArg), out_arg).Succeeded())
       return;
 
     ezStringBuilder typeName("null");
-    if (const asITypeInfo* pInfo = gen->GetEngine()->GetTypeInfoById(argTypeId))
+    if (const asITypeInfo* pInfo = pGen->GetEngine()->GetTypeInfoById(argTypeId))
     {
       typeName = pInfo->GetName();
     }
@@ -641,23 +641,23 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, cons
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
+void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
 {
   ezVariantArray resArr;
 
-  for (ezUInt32 uiArg = uiStartArg; uiArg < (ezUInt32)gen->GetArgCount(); ++uiArg)
+  for (ezUInt32 uiArg = uiStartArg; uiArg < (ezUInt32)pGen->GetArgCount(); ++uiArg)
   {
-    auto argTypeId = gen->GetArgTypeId(uiArg);
+    auto argTypeId = pGen->GetArgTypeId(uiArg);
 
     ezVariant res;
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(gen->GetEngine(), argTypeId, gen->GetArgAddress(uiArg), res).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(uiArg), res).Succeeded())
     {
       resArr.PushBack(res);
       continue;
     }
 
     ezStringBuilder typeName("null");
-    if (const asITypeInfo* pInfo = gen->GetEngine()->GetTypeInfoById(argTypeId))
+    if (const asITypeInfo* pInfo = pGen->GetEngine()->GetTypeInfoById(argTypeId))
     {
       typeName = pInfo->GetName();
     }
@@ -669,11 +669,11 @@ void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStart
   out_arg = resArr;
 }
 
-void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
+void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* pGen)
 {
-  const ezAbstractFunctionProperty* pAbstractFuncProp = (const ezAbstractFunctionProperty*)gen->GetAuxiliary();
+  const ezAbstractFunctionProperty* pAbstractFuncProp = (const ezAbstractFunctionProperty*)pGen->GetAuxiliary();
   const ezScriptableFunctionAttribute* pFuncAttr = pAbstractFuncProp->GetAttributeByType<ezScriptableFunctionAttribute>();
-  void* pObject = gen->GetObject();
+  void* pObject = pGen->GetObject();
 
   EZ_ASSERT_DEBUG(pAbstractFuncProp->GetArgumentCount() < 12, "Too many arguments");
   ezVariant args[12];
@@ -686,7 +686,7 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
       bHasOutArgs = true;
     }
 
-    ezAngelScriptUtils::RetrieveArg(gen, uiArg, pAbstractFuncProp, args[uiArg]);
+    ezAngelScriptUtils::RetrieveArg(pGen, uiArg, pAbstractFuncProp, args[uiArg]);
   }
 
   ezVariant ret;
@@ -698,7 +698,7 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
     {
       if (pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
       {
-        ezAngelScriptUtils::WriteToAsTypeAtLocation(gen->GetEngine(), gen->GetArgTypeId(uiArg), gen->GetArgAddress(uiArg), args[uiArg]).AssertSuccess();
+        ezAngelScriptUtils::WriteToAsTypeAtLocation(pGen->GetEngine(), pGen->GetArgTypeId(uiArg), pGen->GetArgAddress(uiArg), args[uiArg]).AssertSuccess();
       }
     }
   }
@@ -708,81 +708,81 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
     switch (pAbstractFuncProp->GetReturnType()->GetVariantType())
     {
       case ezVariantType::Bool:
-        gen->SetReturnByte(ret.Get<bool>() ? 1 : 0);
+        pGen->SetReturnByte(ret.Get<bool>() ? 1 : 0);
         return;
       case ezVariantType::Double:
-        gen->SetReturnDouble(ret.Get<double>());
+        pGen->SetReturnDouble(ret.Get<double>());
         return;
       case ezVariantType::Float:
-        gen->SetReturnFloat(ret.Get<float>());
+        pGen->SetReturnFloat(ret.Get<float>());
         return;
       case ezVariantType::Int8:
-        gen->SetReturnByte(ret.Get<ezInt8>());
+        pGen->SetReturnByte(ret.Get<ezInt8>());
         return;
       case ezVariantType::Int16:
-        gen->SetReturnWord(ret.Get<ezInt16>());
+        pGen->SetReturnWord(ret.Get<ezInt16>());
         return;
       case ezVariantType::Int32:
-        gen->SetReturnDWord(ret.Get<ezInt32>());
+        pGen->SetReturnDWord(ret.Get<ezInt32>());
         return;
       case ezVariantType::Int64:
-        gen->SetReturnQWord(ret.Get<ezInt64>());
+        pGen->SetReturnQWord(ret.Get<ezInt64>());
         return;
       case ezVariantType::UInt8:
-        gen->SetReturnByte(ret.Get<ezUInt8>());
+        pGen->SetReturnByte(ret.Get<ezUInt8>());
         return;
       case ezVariantType::UInt16:
-        gen->SetReturnWord(ret.Get<ezUInt16>());
+        pGen->SetReturnWord(ret.Get<ezUInt16>());
         return;
       case ezVariantType::UInt32:
-        gen->SetReturnDWord(ret.Get<ezUInt32>());
+        pGen->SetReturnDWord(ret.Get<ezUInt32>());
         return;
       case ezVariantType::UInt64:
-        gen->SetReturnQWord(ret.Get<ezUInt64>());
+        pGen->SetReturnQWord(ret.Get<ezUInt64>());
         return;
 
       case ezVariantType::Vector2:
-        *((ezVec2*)gen->GetAddressOfReturnLocation()) = ret.Get<ezVec2>();
+        *((ezVec2*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec2>();
         return;
       case ezVariantType::Vector3:
-        *((ezVec3*)gen->GetAddressOfReturnLocation()) = ret.Get<ezVec3>();
+        *((ezVec3*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec3>();
         return;
       case ezVariantType::Vector4:
-        *((ezVec4*)gen->GetAddressOfReturnLocation()) = ret.Get<ezVec4>();
+        *((ezVec4*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec4>();
         return;
       case ezVariantType::Quaternion:
-        *((ezQuat*)gen->GetAddressOfReturnLocation()) = ret.Get<ezQuat>();
+        *((ezQuat*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezQuat>();
         return;
       case ezVariantType::Matrix3:
-        *((ezMat3*)gen->GetAddressOfReturnLocation()) = ret.Get<ezMat3>();
+        *((ezMat3*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezMat3>();
         return;
       case ezVariantType::Matrix4:
-        *((ezMat4*)gen->GetAddressOfReturnLocation()) = ret.Get<ezMat4>();
+        *((ezMat4*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezMat4>();
         return;
       case ezVariantType::Transform:
-        *((ezTransform*)gen->GetAddressOfReturnLocation()) = ret.Get<ezTransform>();
+        *((ezTransform*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezTransform>();
         return;
       case ezVariantType::Time:
-        *((ezTime*)gen->GetAddressOfReturnLocation()) = ret.Get<ezTime>();
+        *((ezTime*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezTime>();
         return;
       case ezVariantType::Angle:
-        *((ezAngle*)gen->GetAddressOfReturnLocation()) = ret.Get<ezAngle>();
+        *((ezAngle*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezAngle>();
         return;
 
       case ezVariantType::String:
-        new (gen->GetAddressOfReturnLocation()) ezString(ret.Get<ezString>());
+        new (pGen->GetAddressOfReturnLocation()) ezString(ret.Get<ezString>());
         return;
 
       case ezVariantType::HashedString:
-        new (gen->GetAddressOfReturnLocation()) ezHashedString(ret.Get<ezHashedString>());
+        new (pGen->GetAddressOfReturnLocation()) ezHashedString(ret.Get<ezHashedString>());
         return;
 
       case ezVariantType::StringView:
-        new (gen->GetAddressOfReturnLocation()) ezStringView(ret.Get<ezStringView>());
+        new (pGen->GetAddressOfReturnLocation()) ezStringView(ret.Get<ezStringView>());
         return;
 
       case ezVariantType::TempHashedString:
-        new (gen->GetAddressOfReturnLocation()) ezTempHashedString(ret.Get<ezTempHashedString>());
+        new (pGen->GetAddressOfReturnLocation()) ezTempHashedString(ret.Get<ezTempHashedString>());
         return;
 
       default:
@@ -793,17 +793,17 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* gen)
   }
 }
 
-void ezAngelScriptUtils::DefaultConstructInPlace(void* ptr, const ezRTTI* pRtti)
+void ezAngelScriptUtils::DefaultConstructInPlace(void* pPtr, const ezRTTI* pRtti)
 {
   if (pRtti == ezGetStaticRTTI<ezString>())
   {
-    new (ptr) ezString();
+    new (pPtr) ezString();
     return;
   }
 
   if (pRtti == ezGetStaticRTTI<ezStringBuilder>())
   {
-    new (ptr) ezStringBuilder();
+    new (pPtr) ezStringBuilder();
     return;
   }
 

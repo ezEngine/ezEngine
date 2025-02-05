@@ -17,9 +17,9 @@ public:
     m_Processor.m_ProcessingEvents.AddEventHandler(ezMakeDelegate(&ezAsPreprocessor::PreProc_Event, this));
   }
 
-  ezResult Process(ezStringBuilder& result)
+  ezResult Process(ezStringBuilder& ref_sResult)
   {
-    return m_Processor.Process(m_sRefFilePath, result);
+    return m_Processor.Process(m_sRefFilePath, ref_sResult);
   };
 
 private:

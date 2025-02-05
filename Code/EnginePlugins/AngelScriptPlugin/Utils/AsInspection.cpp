@@ -3,7 +3,7 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 
-void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_Infos)
+void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_infos)
 {
   ezStringBuilder tmp;
 
@@ -13,18 +13,18 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
     {
       const asITypeInfo* pType = pEngine->GetEnumByIndex(idx);
 
-      out_Infos.m_Types.Insert(pType->GetName());
-      out_Infos.m_Namespaces.Insert(pType->GetNamespace());
+      out_infos.m_Types.Insert(pType->GetName());
+      out_infos.m_Namespaces.Insert(pType->GetNamespace());
 
       for (ezUInt32 valIdx = 0; valIdx < pType->GetEnumValueCount(); ++valIdx)
       {
         int value;
         const char* szString = pType->GetEnumValueByIndex(valIdx, &value);
 
-        out_Infos.m_EnumValues.Insert(szString);
+        out_infos.m_EnumValues.Insert(szString);
 
         tmp.Set(pType->GetName(), "::", szString);
-        out_Infos.m_AllDeclarations.Insert(tmp);
+        out_infos.m_AllDeclarations.Insert(tmp);
       }
     }
   }
@@ -36,8 +36,8 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
       const asITypeInfo* pType = pEngine->GetObjectTypeByIndex(idx);
       const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine);
 
-      out_Infos.m_Types.Insert(pType->GetName());
-      out_Infos.m_Namespaces.Insert(pType->GetNamespace());
+      out_infos.m_Types.Insert(pType->GetName());
+      out_infos.m_Namespaces.Insert(pType->GetNamespace());
 
       for (ezUInt32 methodIdx = 0; methodIdx < pType->GetMethodCount(); ++methodIdx)
       {
@@ -58,15 +58,15 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
           if (tmp.TrimWordStart("get_"))
           {
-            out_Infos.m_Properties.Insert(tmp);
+            out_infos.m_Properties.Insert(tmp);
           }
         }
         else
         {
-          out_Infos.m_Methods.Insert(pFunc->GetName());
+          out_infos.m_Methods.Insert(pFunc->GetName());
         }
 
-        out_Infos.m_AllDeclarations.Insert(GetNiceFunctionDeclaration(pFunc, true, true));
+        out_infos.m_AllDeclarations.Insert(GetNiceFunctionDeclaration(pFunc, true, true));
       }
     }
   }
@@ -77,9 +77,9 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
     {
       const asIScriptFunction* pFunc = pEngine->GetGlobalFunctionByIndex(funcIdx);
 
-      out_Infos.m_GlobalFunctions.Insert(pFunc->GetName());
-      out_Infos.m_Namespaces.Insert(pFunc->GetNamespace());
-      out_Infos.m_AllDeclarations.Insert(GetNiceFunctionDeclaration(pFunc, true, true));
+      out_infos.m_GlobalFunctions.Insert(pFunc->GetName());
+      out_infos.m_Namespaces.Insert(pFunc->GetNamespace());
+      out_infos.m_AllDeclarations.Insert(GetNiceFunctionDeclaration(pFunc, true, true));
     }
   }
 
@@ -95,8 +95,8 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
       bool isConst;
       pEngine->GetGlobalPropertyByIndex(idx, &szName, &szNamespace, &typeId, &isConst);
 
-      out_Infos.m_Namespaces.Insert(szNamespace);
-      out_Infos.m_Properties.Insert(szName);
+      out_infos.m_Namespaces.Insert(szNamespace);
+      out_infos.m_Properties.Insert(szName);
 
       if (ezStringUtils::IsNullOrEmpty(szNamespace))
       {
@@ -107,7 +107,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
         tmp.Set(pEngine->GetTypeDeclaration(typeId, true), " ", szNamespace, "::", szName);
       }
 
-      out_Infos.m_AllDeclarations.Insert(tmp);
+      out_infos.m_AllDeclarations.Insert(tmp);
     }
   }
 }

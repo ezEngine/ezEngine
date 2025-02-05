@@ -328,7 +328,7 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
   }
 }
 
-static void ReadSet(ezStringView sBasePath, ezStringView sFile, QSet<QString>& inout_Set)
+static void ReadSet(ezStringView sBasePath, ezStringView sFile, QSet<QString>& inout_set)
 {
   const ezStringBuilder fullPath(sBasePath, "/", sFile);
 
@@ -348,7 +348,7 @@ static void ReadSet(ezStringView sBasePath, ezStringView sFile, QSet<QString>& i
 
     if (!line.IsEmpty())
     {
-      inout_Set.insert(ezMakeQString(line));
+      inout_set.insert(ezMakeQString(line));
     }
   }
 }

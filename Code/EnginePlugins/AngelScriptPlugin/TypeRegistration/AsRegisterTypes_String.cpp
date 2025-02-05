@@ -73,9 +73,9 @@ static void StdString_opAssignStringView(std::string* lhs, ezStringView rhs)
   lhs->assign(rhs.GetStartPointer(), rhs.GetElementCount());
 }
 
-static void ezStringView_ConstructString(void* memory, const ezString& rhs)
+static void ezStringView_ConstructString(void* pMemory, const ezString& rhs)
 {
-  new (memory) ezStringView(rhs);
+  new (pMemory) ezStringView(rhs);
 }
 
 static void ezStringView_opAssignString(ezStringView* lhs, const ezString& rhs)
@@ -83,9 +83,9 @@ static void ezStringView_opAssignString(ezStringView* lhs, const ezString& rhs)
   *lhs = rhs;
 }
 
-static void ezStringView_ConstructStringBuilder(void* memory, const ezStringBuilder& rhs)
+static void ezStringView_ConstructStringBuilder(void* pMemory, const ezStringBuilder& rhs)
 {
-  new (memory) ezStringView(rhs);
+  new (pMemory) ezStringView(rhs);
 }
 
 static void ezStringView_opAssignStringBuilder(ezStringView* lhs, const ezStringBuilder& rhs)
@@ -121,30 +121,30 @@ void ezAngelScriptEngineSingleton::Register_StringView()
 // ezString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezString_Construct(void* memory)
+static void ezString_Construct(void* pMemory)
 {
-  new (memory) ezString();
+  new (pMemory) ezString();
 }
 
-static void ezString_Destruct(void* memory)
+static void ezString_Destruct(void* pMemory)
 {
-  ezString* p = (ezString*)memory;
+  ezString* p = (ezString*)pMemory;
   p->~ezString();
 }
 
-static void ezString_ConstructView(void* memory, ezStringView rhs)
+static void ezString_ConstructView(void* pMemory, ezStringView rhs)
 {
-  new (memory) ezString(rhs);
+  new (pMemory) ezString(rhs);
 }
 
-static void ezString_ConstructString(void* memory, const ezString& rhs)
+static void ezString_ConstructString(void* pMemory, const ezString& rhs)
 {
-  new (memory) ezString(rhs);
+  new (pMemory) ezString(rhs);
 }
 
-static void ezString_ConstructStringBuilder(void* memory, const ezStringBuilder& rhs)
+static void ezString_ConstructStringBuilder(void* pMemory, const ezStringBuilder& rhs)
 {
-  new (memory) ezString(rhs);
+  new (pMemory) ezString(rhs);
 }
 
 static int ezString_opCmp(const ezString& lhs, const ezString& rhs)
@@ -215,24 +215,24 @@ void ezAngelScriptEngineSingleton::Register_String()
 // ezStringBuilder
 //////////////////////////////////////////////////////////////////////////
 
-static void ezStringBuilder_Construct(void* memory)
+static void ezStringBuilder_Construct(void* pMemory)
 {
-  new (memory) ezStringBuilder();
+  new (pMemory) ezStringBuilder();
 }
 
-static void ezStringBuilder_ConstructSV1(void* memory, const ezStringView sb)
+static void ezStringBuilder_ConstructSV1(void* pMemory, const ezStringView sb)
 {
-  new (memory) ezStringBuilder(sb);
+  new (pMemory) ezStringBuilder(sb);
 }
 
-static void ezStringBuilder_ConstructSV4(void* memory, const ezStringView sv1, const ezStringView sv2, const ezStringView sv3, const ezStringView sv4)
+static void ezStringBuilder_ConstructSV4(void* pMemory, const ezStringView sV1, const ezStringView sV2, const ezStringView sV3, const ezStringView sV4)
 {
-  new (memory) ezStringBuilder(sv1, sv2, sv3, sv4);
+  new (pMemory) ezStringBuilder(sV1, sV2, sV3, sV4);
 }
 
-static void ezStringBuilder_Destruct(void* memory)
+static void ezStringBuilder_Destruct(void* pMemory)
 {
-  ezStringBuilder* p = (ezStringBuilder*)memory;
+  ezStringBuilder* p = (ezStringBuilder*)pMemory;
   p->~ezStringBuilder();
 }
 
@@ -327,29 +327,29 @@ void ezAngelScriptEngineSingleton::Register_StringBuilder()
 // ezTempHashedString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezTempHashedString_Construct(void* memory)
+static void ezTempHashedString_Construct(void* pMemory)
 {
-  new (memory) ezTempHashedString();
+  new (pMemory) ezTempHashedString();
 }
 
-static void ezTempHashedString_ConstructView(void* memory, ezStringView view)
+static void ezTempHashedString_ConstructView(void* pMemory, ezStringView sView)
 {
-  new (memory) ezTempHashedString(view);
+  new (pMemory) ezTempHashedString(sView);
 }
 
-static void ezTempHashedString_ConstructHS(void* memory, const ezHashedString& hs)
+static void ezTempHashedString_ConstructHS(void* pMemory, const ezHashedString& sString)
 {
-  new (memory) ezTempHashedString(hs);
+  new (pMemory) ezTempHashedString(sString);
 }
 
-static void ezTempHashedString_AssignStringView(ezTempHashedString* pStr, ezStringView view)
+static void ezTempHashedString_AssignStringView(ezTempHashedString* pStr, ezStringView sView)
 {
-  *pStr = view;
+  *pStr = sView;
 }
 
-static void ezTempHashedString_AssignHS(ezTempHashedString* pStr, const ezHashedString& hs)
+static void ezTempHashedString_AssignHS(ezTempHashedString* pStr, const ezHashedString& sString)
 {
-  *pStr = hs;
+  *pStr = sString;
 }
 
 void ezAngelScriptEngineSingleton::Register_TempHashedString()
@@ -371,30 +371,30 @@ void ezAngelScriptEngineSingleton::Register_TempHashedString()
 // ezHashedString
 //////////////////////////////////////////////////////////////////////////
 
-static void ezHashedString_Construct(void* memory)
+static void ezHashedString_Construct(void* pMemory)
 {
-  new (memory) ezHashedString();
+  new (pMemory) ezHashedString();
 }
 
-static void ezHashedString_ConstructView(void* memory, ezStringView view)
+static void ezHashedString_ConstructView(void* pMemory, ezStringView sView)
 {
-  ezHashedString* obj = new (memory) ezHashedString();
-  obj->Assign(view);
+  ezHashedString* obj = new (pMemory) ezHashedString();
+  obj->Assign(sView);
 }
 
-static void ezHashedString_ConstructHS(void* memory, const ezHashedString& hs)
+static void ezHashedString_ConstructHS(void* pMemory, const ezHashedString& sString)
 {
-  new (memory) ezHashedString(hs);
+  new (pMemory) ezHashedString(sString);
 }
 
-static void ezHashedString_AssignStringView(ezHashedString* pStr, ezStringView view)
+static void ezHashedString_AssignStringView(ezHashedString* pStr, ezStringView sView)
 {
-  pStr->Assign(view);
+  pStr->Assign(sView);
 }
 
-static bool ezHashedString_EqualsStringView(ezHashedString* pStr, ezStringView view)
+static bool ezHashedString_EqualsStringView(ezHashedString* pStr, ezStringView sView)
 {
-  return *pStr == view;
+  return *pStr == sView;
 }
 
 void ezAngelScriptEngineSingleton::Register_HashedString()

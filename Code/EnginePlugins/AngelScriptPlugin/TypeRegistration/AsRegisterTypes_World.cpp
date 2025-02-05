@@ -9,37 +9,37 @@
 // ezGameObject
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameObject_TryGetComponentOfBaseType(asIScriptGeneric* gen)
+void ezGameObject_TryGetComponentOfBaseType(asIScriptGeneric* pGen)
 {
-  ezGameObject* pObj = (ezGameObject*)gen->GetObject();
-  int typeId = gen->GetArgTypeId(0);
+  ezGameObject* pObj = (ezGameObject*)pGen->GetObject();
+  int typeId = pGen->GetArgTypeId(0);
 
-  if (auto info = gen->GetEngine()->GetTypeInfoById(typeId))
+  if (auto info = pGen->GetEngine()->GetTypeInfoById(typeId))
   {
     if (const ezRTTI* pRtti = static_cast<const ezRTTI*>(info->GetUserData(ezAsUserData::RttiPtr)))
     {
       ezComponent* pComponent;
       if (pObj->TryGetComponentOfBaseType(pRtti, pComponent))
       {
-        ezComponent** ref = (ezComponent**)gen->GetArgAddress(0);
+        ezComponent** ref = (ezComponent**)pGen->GetArgAddress(0);
         *ref = pComponent;
 
-        gen->SetReturnByte(1);
+        pGen->SetReturnByte(1);
         return;
       }
     }
   }
 
-  gen->SetReturnByte(0);
+  pGen->SetReturnByte(0);
 }
 
-void ezGameObject_CreateComponent(asIScriptGeneric* gen)
+void ezGameObject_CreateComponent(asIScriptGeneric* pGen)
 {
-  ezGameObject* pObj = (ezGameObject*)gen->GetObject();
+  ezGameObject* pObj = (ezGameObject*)pGen->GetObject();
   ezWorld* pWorld = pObj->GetWorld();
-  const int typeId = gen->GetArgTypeId(0);
+  const int typeId = pGen->GetArgTypeId(0);
 
-  if (auto info = gen->GetEngine()->GetTypeInfoById(typeId))
+  if (auto info = pGen->GetEngine()->GetTypeInfoById(typeId))
   {
     if (const ezRTTI* pRtti = static_cast<const ezRTTI*>(info->GetUserData(ezAsUserData::RttiPtr)))
     {
@@ -50,27 +50,27 @@ void ezGameObject_CreateComponent(asIScriptGeneric* gen)
         ezComponent* pComponent;
         if (pWorld->TryGetComponent(hComp, pComponent))
         {
-          ezComponent** ref = (ezComponent**)gen->GetArgAddress(0);
+          ezComponent** ref = (ezComponent**)pGen->GetArgAddress(0);
           *ref = pComponent;
 
-          gen->SetReturnByte(1);
+          pGen->SetReturnByte(1);
           return;
         }
       }
     }
   }
 
-  gen->SetReturnByte(0);
+  pGen->SetReturnByte(0);
 }
 
-void ezGameObjectHandle_Construct(void* memory)
+void ezGameObjectHandle_Construct(void* pMemory)
 {
-  new (memory) ezGameObjectHandle();
+  new (pMemory) ezGameObjectHandle();
 }
 
-void ezComponentHandle_Construct(void* memory)
+void ezComponentHandle_Construct(void* pMemory)
 {
-  new (memory) ezComponentHandle();
+  new (pMemory) ezComponentHandle();
 }
 
 void ezAngelScriptEngineSingleton::Register_GameObject()
@@ -197,34 +197,34 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
 // ezWorld
 //////////////////////////////////////////////////////////////////////////
 
-static void ezGameObjectDesc_Construct(void* memory)
+static void ezGameObjectDesc_Construct(void* pMemory)
 {
-  new (memory) ezGameObjectDesc();
+  new (pMemory) ezGameObjectDesc();
 }
 
-void ezWorld_TryGetComponent(asIScriptGeneric* gen)
+void ezWorld_TryGetComponent(asIScriptGeneric* pGen)
 {
-  ezWorld* pWorld = (ezWorld*)gen->GetObject();
-  ezComponentHandle* hComponent = (ezComponentHandle*)gen->GetArgObject(0);
-  int typeId = gen->GetArgTypeId(1);
+  ezWorld* pWorld = (ezWorld*)pGen->GetObject();
+  ezComponentHandle* hComponent = (ezComponentHandle*)pGen->GetArgObject(0);
+  int typeId = pGen->GetArgTypeId(1);
 
-  if (auto info = gen->GetEngine()->GetTypeInfoById(typeId))
+  if (auto info = pGen->GetEngine()->GetTypeInfoById(typeId))
   {
     if (const ezRTTI* pRtti = static_cast<const ezRTTI*>(info->GetUserData(ezAsUserData::RttiPtr)))
     {
       ezComponent* pComponent;
       if (pWorld->TryGetComponent(*hComponent, pComponent))
       {
-        ezComponent** ref = (ezComponent**)gen->GetArgAddress(1);
+        ezComponent** ref = (ezComponent**)pGen->GetArgAddress(1);
         *ref = pComponent;
 
-        gen->SetReturnByte((*ref)->GetDynamicRTTI()->IsDerivedFrom(pRtti) ? 1 : 0);
+        pGen->SetReturnByte((*ref)->GetDynamicRTTI()->IsDerivedFrom(pRtti) ? 1 : 0);
         return;
       }
     }
   }
 
-  gen->SetReturnByte(0);
+  pGen->SetReturnByte(0);
 }
 
 void ezAngelScriptEngineSingleton::Register_World()

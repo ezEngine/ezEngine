@@ -3,44 +3,44 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 
-static void CastToBase(asIScriptGeneric* gen)
+static void CastToBase(asIScriptGeneric* pGen)
 {
-  int derivedTypeId = gen->GetObjectTypeId();
-  auto derivedTypeInfo = gen->GetEngine()->GetTypeInfoById(derivedTypeId);
+  int derivedTypeId = pGen->GetObjectTypeId();
+  auto derivedTypeInfo = pGen->GetEngine()->GetTypeInfoById(derivedTypeId);
   const ezRTTI* pDerivedRtti = (const ezRTTI*)derivedTypeInfo->GetUserData(ezAsUserData::RttiPtr);
 
-  const ezRTTI* pBaseRtti = (const ezRTTI*)gen->GetAuxiliary();
+  const ezRTTI* pBaseRtti = (const ezRTTI*)pGen->GetAuxiliary();
 
   if (pDerivedRtti != nullptr && pBaseRtti != nullptr)
   {
     if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
     {
-      gen->SetReturnObject(gen->GetObject());
+      pGen->SetReturnObject(pGen->GetObject());
       return;
     }
   }
 
-  gen->SetReturnObject(nullptr);
+  pGen->SetReturnObject(nullptr);
 }
 
-static void CastToDerived(asIScriptGeneric* gen)
+static void CastToDerived(asIScriptGeneric* pGen)
 {
-  int baseTypeId = gen->GetObjectTypeId();
-  auto baseTypeInfo = gen->GetEngine()->GetTypeInfoById(baseTypeId);
+  int baseTypeId = pGen->GetObjectTypeId();
+  auto baseTypeInfo = pGen->GetEngine()->GetTypeInfoById(baseTypeId);
   const ezRTTI* pBaseRtti = (const ezRTTI*)baseTypeInfo->GetUserData(ezAsUserData::RttiPtr);
 
-  const ezRTTI* pDerivedRtti = (const ezRTTI*)gen->GetAuxiliary();
+  const ezRTTI* pDerivedRtti = (const ezRTTI*)pGen->GetAuxiliary();
 
   if (pBaseRtti != nullptr && pDerivedRtti != nullptr)
   {
     if (pDerivedRtti->IsDerivedFrom(pBaseRtti))
     {
-      gen->SetReturnObject(gen->GetObject());
+      pGen->SetReturnObject(pGen->GetObject());
       return;
     }
   }
 
-  gen->SetReturnObject(nullptr);
+  pGen->SetReturnObject(nullptr);
 }
 
 struct RefInstance
@@ -63,20 +63,20 @@ static void* ezRtti_Create(const ezRTTI* pRtti)
   return inst.m_pInstance;
 }
 
-static void ezRtti_AddRef(void* instance)
+static void ezRtti_AddRef(void* pInstance)
 {
   EZ_LOCK(s_RefCountMutex);
-  ++s_RefCounts[instance].m_uiRefCount;
+  ++s_RefCounts[pInstance].m_uiRefCount;
 }
 
-static void ezRtti_Release(void* instance)
+static void ezRtti_Release(void* pInstance)
 {
   EZ_LOCK(s_RefCountMutex);
-  auto it = s_RefCounts.Find(instance);
+  auto it = s_RefCounts.Find(pInstance);
   RefInstance& ri = it.Value();
   if (--ri.m_uiRefCount == 0)
   {
-    ri.m_pRtti->GetAllocator()->Deallocate(instance);
+    ri.m_pRtti->GetAllocator()->Deallocate(pInstance);
     s_RefCounts.Remove(it);
   }
 }

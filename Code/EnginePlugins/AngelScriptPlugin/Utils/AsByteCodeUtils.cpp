@@ -1,6 +1,6 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
-
+#include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 
 class ezAsWriteStream : public asIBinaryStream
@@ -44,10 +44,10 @@ public:
   ezArrayPtr<ezUInt8> m_Buffer;
 };
 
-void ezAngelScriptUtils::SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_ByteCode)
+void ezAngelScriptUtils::SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_byteCode)
 {
   ezAsWriteStream stream;
-  stream.m_pBuffer = &out_ByteCode;
+  stream.m_pBuffer = &out_byteCode;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   pModule->SaveByteCode(&stream, false); // TODO AS: strip debug info ? (flag?)

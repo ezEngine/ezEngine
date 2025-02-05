@@ -9,9 +9,9 @@
 // ezRTTI
 //////////////////////////////////////////////////////////////////////////
 
-const ezRTTI* ezRTTI_GetType(ezStringView name)
+const ezRTTI* ezRTTI_GetType(ezStringView sName)
 {
-  return ezRTTI::FindTypeByName(name);
+  return ezRTTI::FindTypeByName(sName);
 }
 
 void ezAngelScriptEngineSingleton::Register_RTTI()
@@ -153,14 +153,14 @@ void ezAngelScriptEngineSingleton::Register_Random()
 // ezColor
 //////////////////////////////////////////////////////////////////////////
 
-static void ezColor_ConstructRGBA(void* memory, float r, float g, float b, float a)
+static void ezColor_ConstructRGBA(void* pMemory, float r, float g, float b, float a)
 {
-  new (memory) ezColor(r, g, b, a);
+  new (pMemory) ezColor(r, g, b, a);
 }
 
-static void ezColor_ConstructGamma(void* memory, const ezColorGammaUB& col)
+static void ezColor_ConstructGamma(void* pMemory, const ezColorGammaUB& col)
 {
-  new (memory) ezColor(col);
+  new (pMemory) ezColor(col);
 }
 
 void ezAngelScriptEngineSingleton::Register_Color()
@@ -394,14 +394,14 @@ void ezAngelScriptEngineSingleton::Register_Color()
 // ezColorGammaUB
 //////////////////////////////////////////////////////////////////////////
 
-void ezColorGamma_ConstructRGBA(void* memory, ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a)
+void ezColorGamma_ConstructRGBA(void* pMemory, ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a)
 {
-  new (memory) ezColorGammaUB(r, g, b, a);
+  new (pMemory) ezColorGammaUB(r, g, b, a);
 }
 
-void ezColorGamma_ConstructColor(void* memory, const ezColor& col)
+void ezColorGamma_ConstructColor(void* pMemory, const ezColor& col)
 {
-  new (memory) ezColorGammaUB(col);
+  new (pMemory) ezColorGammaUB(col);
 }
 
 void ezAngelScriptEngineSingleton::Register_ColorGammaUB()

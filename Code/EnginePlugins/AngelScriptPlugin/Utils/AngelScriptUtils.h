@@ -26,7 +26,7 @@ struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
 {
 public:
-  static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_ByteCode);
+  static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_byteCode);
 
   static const char* GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID);
 
@@ -37,21 +37,21 @@ public:
   static const ezRTTI* MapToRTTI(int iAsTypeID, asIScriptEngine* pEngine);
 
   static ezResult WriteToAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, const ezVariant& value);
-  static ezResult ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_Value);
+  static ezResult ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, int iAsTypeID, void* pMemoryLocation, ezVariant& out_value);
 
   static const char* VariantTypeToString(ezVariantType::Enum type);
 
   static ezString DefaultValueToString(const ezVariant& value);
 
-  static void RetrieveArg(asIScriptGeneric* gen, ezUInt32 uiArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 
-  static void RetrieveVarArgs(asIScriptGeneric* gen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 
-  static void MakeGenericFunctionCall(asIScriptGeneric* gen);
+  static void MakeGenericFunctionCall(asIScriptGeneric* pGen);
 
-  static void DefaultConstructInPlace(void* ptr, const ezRTTI* pRtti);
+  static void DefaultConstructInPlace(void* pPtr, const ezRTTI* pRtti);
 
-  static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_Infos);
+  static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_infos);
 
   static void GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezStringBuilder& out_sContent);
 };

@@ -40,9 +40,9 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 static ezProxyAllocator* g_pAsAllocator = nullptr;
 
-static void* ezAsMalloc(size_t size)
+static void* ezAsMalloc(size_t uiSize)
 {
-  return g_pAsAllocator->Allocate(size, 8);
+  return g_pAsAllocator->Allocate(uiSize, 8);
 }
 
 static void ezAsFree(void* pPtr)
@@ -542,21 +542,21 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
 
 
 
-static void SetPropertyGeneric(asIScriptGeneric* gen)
+static void SetPropertyGeneric(asIScriptGeneric* pGen)
 {
-  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(gen->GetAuxiliary());
+  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
 
-  pMember->SetValuePtr(gen->GetObject(), gen->GetAddressOfArg(0));
+  pMember->SetValuePtr(pGen->GetObject(), pGen->GetAddressOfArg(0));
 }
 
-static void GetPropertyGeneric(asIScriptGeneric* gen)
+static void GetPropertyGeneric(asIScriptGeneric* pGen)
 {
-  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(gen->GetAuxiliary());
+  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
 
-  const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(gen->GetReturnTypeId(), gen->GetEngine());
-  ezAngelScriptUtils::DefaultConstructInPlace(gen->GetAddressOfReturnLocation(), pRtti);
+  const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pGen->GetReturnTypeId(), pGen->GetEngine());
+  ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pRtti);
 
-  pMember->GetValuePtr(gen->GetObject(), gen->GetAddressOfReturnLocation());
+  pMember->GetValuePtr(pGen->GetObject(), pGen->GetAddressOfReturnLocation());
 }
 
 void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)

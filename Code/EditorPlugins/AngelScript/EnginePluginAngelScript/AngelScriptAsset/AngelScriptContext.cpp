@@ -227,10 +227,10 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule()
   return pModule;
 }
 
-static void WriteSet(ezStringView file, const ezSet<ezString>& set)
+static void WriteSet(ezStringView sFile, const ezSet<ezString>& set)
 {
   ezFileWriter writer;
-  if (writer.Open(file).Failed())
+  if (writer.Open(sFile).Failed())
     return;
 
   const char* szLineBreak = "\n";

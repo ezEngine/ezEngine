@@ -205,14 +205,14 @@ static int ezVec2_opCmp(const ezVec2& lhs, const ezVec2& rhs)
   return 0;
 }
 
-static void ezVec2_Construct1(void* memory, float xyz)
+static void ezVec2_Construct1(void* pMemory, float fXyz)
 {
-  new (memory) ezVec2(xyz);
+  new (pMemory) ezVec2(fXyz);
 }
 
-static void ezVec2_Construct2(void* memory, float x, float y)
+static void ezVec2_Construct2(void* pMemory, float x, float y)
 {
-  new (memory) ezVec2(x, y);
+  new (pMemory) ezVec2(x, y);
 }
 
 void ezAngelScriptEngineSingleton::Register_Vec2()
@@ -300,13 +300,13 @@ static int ezVec3_opCmp(const ezVec3& lhs, const ezVec3& rhs)
   return 0;
 }
 
-static void ezVec3_Construct1(void* memory, float xyz)
+static void ezVec3_Construct1(void* pMemory, float fXyz)
 {
-  new (memory) ezVec3(xyz);
+  new (pMemory) ezVec3(fXyz);
 }
-static void ezVec3_Construct3(void* memory, float x, float y, float z)
+static void ezVec3_Construct3(void* pMemory, float x, float y, float z)
 {
-  new (memory) ezVec3(x, y, z);
+  new (pMemory) ezVec3(x, y, z);
 }
 
 void ezAngelScriptEngineSingleton::Register_Vec3()
@@ -413,13 +413,13 @@ static int ezVec4_opCmp(const ezVec4& lhs, const ezVec4& rhs)
   return 0;
 }
 
-static void ezVec4_Construct1(void* memory, float xyzw)
+static void ezVec4_Construct1(void* pMemory, float xyzw)
 {
-  new (memory) ezVec4(xyzw);
+  new (pMemory) ezVec4(xyzw);
 }
-static void ezVec4_Construct4(void* memory, float x, float y, float z, float w)
+static void ezVec4_Construct4(void* pMemory, float x, float y, float z, float w)
 {
-  new (memory) ezVec4(x, y, z, w);
+  new (pMemory) ezVec4(x, y, z, w);
 }
 
 void ezAngelScriptEngineSingleton::Register_Vec4()
@@ -544,19 +544,19 @@ void ezAngelScriptEngineSingleton::Register_Quat()
 // ezTransform
 //////////////////////////////////////////////////////////////////////////
 
-static void ezTransform_Construct1(void* memory, const ezVec3& v)
+static void ezTransform_Construct1(void* pMemory, const ezVec3& v)
 {
-  new (memory) ezTransform(v);
+  new (pMemory) ezTransform(v);
 }
 
-static void ezTransform_Construct2(void* memory, const ezVec3& v, const ezQuat& r)
+static void ezTransform_Construct2(void* pMemory, const ezVec3& v, const ezQuat& r)
 {
-  new (memory) ezTransform(v, r);
+  new (pMemory) ezTransform(v, r);
 }
 
-static void ezTransform_Construct3(void* memory, const ezVec3& v, const ezQuat& r, const ezVec3& s)
+static void ezTransform_Construct3(void* pMemory, const ezVec3& v, const ezQuat& r, const ezVec3& s)
 {
-  new (memory) ezTransform(v, r, s);
+  new (pMemory) ezTransform(v, r, s);
 }
 
 void ezAngelScriptEngineSingleton::Register_Transform()
