@@ -220,9 +220,9 @@ static void ezStringBuilder_Construct(void* pMemory)
   new (pMemory) ezStringBuilder();
 }
 
-static void ezStringBuilder_ConstructSV1(void* pMemory, const ezStringView sb)
+static void ezStringBuilder_ConstructSV1(void* pMemory, const ezStringView sView)
 {
-  new (pMemory) ezStringBuilder(sb);
+  new (pMemory) ezStringBuilder(sView);
 }
 
 static void ezStringBuilder_ConstructSV4(void* pMemory, const ezStringView sV1, const ezStringView sV2, const ezStringView sV3, const ezStringView sV4)

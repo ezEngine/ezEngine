@@ -114,16 +114,16 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
 //////////////////////////////////////////////////////////////////////////
 
-static void InsertInOrder(ezDynamicArray<ezString>& typeOrder, const ezRTTI* pRtti)
+static void InsertInOrder(ezDynamicArray<ezString>& ref_typeOrder, const ezRTTI* pRtti)
 {
   if (pRtti == nullptr)
     return;
 
-  if (typeOrder.Contains(pRtti->GetTypeName()))
+  if (ref_typeOrder.Contains(pRtti->GetTypeName()))
     return;
 
-  InsertInOrder(typeOrder, pRtti->GetParentType());
-  typeOrder.PushBack(pRtti->GetTypeName());
+  InsertInOrder(ref_typeOrder, pRtti->GetParentType());
+  ref_typeOrder.PushBack(pRtti->GetTypeName());
 }
 
 static ezStringView DealWithNamespace(ezStringBuilder& inout_sNamespace, const char* szNewNamespace, ezStringBuilder& out_sContent)

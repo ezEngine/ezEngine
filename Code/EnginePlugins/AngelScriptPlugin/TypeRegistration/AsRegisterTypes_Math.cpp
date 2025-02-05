@@ -413,9 +413,9 @@ static int ezVec4_opCmp(const ezVec4& lhs, const ezVec4& rhs)
   return 0;
 }
 
-static void ezVec4_Construct1(void* pMemory, float xyzw)
+static void ezVec4_Construct1(void* pMemory, float fXyzw)
 {
-  new (pMemory) ezVec4(xyzw);
+  new (pMemory) ezVec4(fXyzw);
 }
 static void ezVec4_Construct4(void* pMemory, float x, float y, float z, float w)
 {

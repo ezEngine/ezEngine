@@ -6,13 +6,13 @@
 class ezAsWriteStream : public asIBinaryStream
 {
 public:
-  int Write(const void* ptr, asUINT uiSize)
+  int Write(const void* pPtr, asUINT size)
   {
-    m_pBuffer->PushBackRange(ezConstByteArrayPtr((const ezUInt8*)ptr, uiSize));
-    return uiSize;
+    m_pBuffer->PushBackRange(ezConstByteArrayPtr((const ezUInt8*)pPtr, size));
+    return size;
   }
 
-  int Read(void* pPtr, asUINT uiSize)
+  int Read(void* pPtr, asUINT size)
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
     return 0;
@@ -24,15 +24,15 @@ public:
 class ezAsReadStream : public asIBinaryStream
 {
 public:
-  int Write(const void* ptr, asUINT uiSize)
+  int Write(const void* pPtr, asUINT size)
   {
     EZ_ASSERT_NOT_IMPLEMENTED;
     return 0;
   }
 
-  int Read(void* pPtr, asUINT uiSize)
+  int Read(void* pPtr, asUINT size)
   {
-    const ezUInt32 uiReadSize = ezMath::Min(uiSize, m_Buffer.GetCount() - m_uiReadPos);
+    const ezUInt32 uiReadSize = ezMath::Min(size, m_Buffer.GetCount() - m_uiReadPos);
 
     ezMemoryUtils::RawByteCopy(pPtr, m_Buffer.GetPtr() + m_uiReadPos, uiReadSize);
 
