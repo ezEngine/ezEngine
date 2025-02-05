@@ -892,7 +892,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 }
 
 // static
-void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color, bool bBackFaceCulling)
+void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color, bool bTwoSided)
 {
   if (triangles.IsEmpty())
     return;
@@ -913,7 +913,7 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
     }
   }
 
-  if (!bBackFaceCulling)
+  if (bTwoSided)
   {
     for (auto& triangle : triangles)
     {
@@ -933,7 +933,7 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
   }
 }
 
-void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bBackFaceCulling)
+void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided)
 {
   if (triangles.IsEmpty())
     return;
@@ -958,7 +958,7 @@ void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& contex
     }
   }
 
-  if (!bBackFaceCulling)
+  if (bTwoSided)
   {
     for (auto& triangle : triangles)
     {
