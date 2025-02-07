@@ -1519,6 +1519,7 @@ ezMessage@ ezMsgComponentInternalTrigger::opImplCast()
 ezMessage@ ezMsgComponentsChanged::opImplCast()
 ezMessage@ ezMsgDamage::opImplCast()
 ezMessage@ ezMsgDeleteGameObject::opImplCast()
+ezMessage@ ezMsgDeliverAngelScriptMsg::opImplCast()
 ezMessage@ ezMsgExtractGeometry::opImplCast()
 ezMessage@ ezMsgExtractOccluderData::opImplCast()
 ezMessage@ ezMsgExtractRenderData::opImplCast()
@@ -1568,6 +1569,7 @@ ezMsgComponentsChanged@ ezMessage::opCast()
 ezMsgDamage@ ezEventMessage::opCast()
 ezMsgDamage@ ezMessage::opCast()
 ezMsgDeleteGameObject@ ezMessage::opCast()
+ezMsgDeliverAngelScriptMsg@ ezMessage::opCast()
 ezMsgExtractGeometry@ ezMessage::opCast()
 ezMsgExtractOccluderData@ ezMessage::opCast()
 ezMsgExtractRenderData@ ezMessage::opCast()
@@ -1698,6 +1700,7 @@ ezPropertyAnimMode ezSimpleAnimationComponent::get_AnimationMode() const
 ezPropertyAnimMode::BackAndForth
 ezPropertyAnimMode::Loop
 ezPropertyAnimMode::Once
+ezQuat ezGameObject::GetGlobalRotation() const
 ezQuat ezGameObject::GetLocalRotation() const
 ezQuat ezJointAttachmentComponent::get_RotationOffset() const
 ezQuat ezQuat::GetInverse() const
@@ -2512,6 +2515,7 @@ float ezWindVolumeCylinderComponent::get_PositiveFalloff() const
 float ezWindVolumeCylinderComponent::get_Radius() const
 float ezWindVolumeCylinderComponent::get_RadiusFalloff() const
 float ezWindVolumeSphereComponent::get_Radius() const
+funcdef bool ReportObjectCB(ezGameObject@)
 int ezAngle::opCmp(ezAngle) const
 int ezCVar::GetIntValue(ezStringView Name)
 int ezMath::Abs(int f)
@@ -2593,6 +2597,7 @@ uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
+uint8 ezPhysics::GetCollisionLayerByName(ezWorld@ World, ezStringView Name)
 uint8 ezProjectileComponent::get_CollisionLayer() const
 uint8 ezRaycastComponent::get_CollisionLayerEndPoint() const
 uint8 ezSensorComponent::get_CollisionLayer() const
@@ -2860,8 +2865,14 @@ void ezGameObject::DetachChild(const ezGameObjectHandle&in hChild, ezTransformPr
 void ezGameObject::MakeDynamic()
 void ezGameObject::MakeStatic()
 void ezGameObject::PostEventMessage(const ezMessage&in msg, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const
+void ezGameObject::PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)
 void ezGameObject::PostMessage(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const
+void ezGameObject::PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)
 void ezGameObject::PostMessageRecursive(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const
+void ezGameObject::SendMessage(ezAngelScriptMessage&inout)
+void ezGameObject::SendMessage(ezAngelScriptMessage&inout) const
+void ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout)
+void ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout) const
 void ezGameObject::SetActiveFlag(bool bActive)
 void ezGameObject::SetGlobalKey(const ezHashedString&in sKey)
 void ezGameObject::SetGlobalKey(ezStringView sKey)
@@ -3442,6 +3453,7 @@ void ezSliderComponent::set_Axis(ezBasisAxis)
 void ezSliderComponent::set_Deceleration(float)
 void ezSliderComponent::set_Distance(float)
 void ezSliderComponent::set_RandomStart(ezTime)
+void ezSpatial::FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback)
 void ezSpatialAnchorComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpawnBoxComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpawnBoxComponent::StartSpawning()

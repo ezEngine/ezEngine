@@ -6,6 +6,12 @@
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 
+// clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeliverAngelScriptMsg, 1, ezRTTIDefaultAllocator<ezMsgDeliverAngelScriptMsg>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezAngelScriptFunctionProperty::ezAngelScriptFunctionProperty(ezStringView sName, asIScriptFunction* pFunction)
   : ezScriptFunctionProperty(sName)
 {
@@ -79,4 +85,88 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
   }
 
   pContext->PopState();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezAngelScriptCustomAsMessageHandler::ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction)
+  : ezScriptMessageHandler(desc)
+{
+  m_DispatchFunc = &Dispatch;
+
+  m_pAsFunction = pFunction;
+  m_pAsFunction->AddRef();
+}
+
+ezAngelScriptCustomAsMessageHandler::~ezAngelScriptCustomAsMessageHandler()
+{
+  if (m_pAsFunction)
+  {
+    m_pAsFunction->Release();
+    m_pAsFunction = nullptr;
+  }
+}
+
+void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+{
+  auto pScriptComp = static_cast<ezScriptComponent*>(pInstance);
+
+  auto pThis = static_cast<ezAngelScriptCustomAsMessageHandler*>(pSelf);
+  auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
+  auto pContext = pScriptInstance->GetContext();
+  pContext->PushState();
+
+  if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
+  {
+    ezMsgDeliverAngelScriptMsg& asMsg = static_cast<ezMsgDeliverAngelScriptMsg&>(ref_msg);
+
+    EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
+    pContext->SetObject(pScriptInstance->GetObject());
+    pContext->SetArgObject(0, asMsg.m_pAsMsg);
+    pContext->Execute();
+  }
+
+  pContext->PopState();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezMsgDeliverAngelScriptMsg::~ezMsgDeliverAngelScriptMsg()
+{
+  if (m_bRelease)
+  {
+    auto pObj = reinterpret_cast<asIScriptObject*>(m_pAsMsg);
+    pObj->Release();
+  }
+}
+
+ezMsgDeliverAngelScriptMsg::ezMsgDeliverAngelScriptMsg(const ezMsgDeliverAngelScriptMsg& rhs)
+{
+  *this = rhs;
+}
+
+ezMsgDeliverAngelScriptMsg::ezMsgDeliverAngelScriptMsg(ezMsgDeliverAngelScriptMsg&& rhs)
+{
+  *this = std::move(rhs);
+}
+
+void ezMsgDeliverAngelScriptMsg::operator=(const ezMsgDeliverAngelScriptMsg& rhs)
+{
+  ezMemoryUtils::RawByteCopy(this, &rhs, sizeof(ezMsgDeliverAngelScriptMsg));
+
+  if (m_bRelease)
+  {
+    auto pObj = reinterpret_cast<asIScriptObject*>(m_pAsMsg);
+    pObj->AddRef();
+  }
+}
+
+void ezMsgDeliverAngelScriptMsg::operator=(ezMsgDeliverAngelScriptMsg&& rhs)
+{
+  m_bRelease = rhs.m_bRelease;
+  m_pAsMsg = rhs.m_pAsMsg;
+  rhs.m_bRelease = false;
+  rhs.m_pAsMsg = nullptr;
 }

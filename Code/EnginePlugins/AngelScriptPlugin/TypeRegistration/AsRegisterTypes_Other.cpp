@@ -2,6 +2,7 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <Core/World/SpatialData.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Clock.h>
 
@@ -426,4 +427,46 @@ void ezAngelScriptEngineSingleton::Register_ColorGammaUB()
   {
     AS_CHECK(m_pEngine->RegisterObjectMethod("ezColorGammaUB", "ezColor ToLinearFloat() const", asMETHOD(ezColorGammaUB, ToLinearFloat), asCALL_THISCALL));
   }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ezSpatial
+//////////////////////////////////////////////////////////////////////////
+
+void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ezVec3& vCenter, float fRadius, asIScriptFunction* callback)
+{
+  auto category = ezSpatialData::FindCategory(sType);
+  if (category != ezInvalidSpatialDataCategory)
+  {
+    ezSpatialSystem::QueryParams params;
+    params.m_uiCategoryBitmask = category.GetBitmask();
+
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [callback](ezGameObject* go) -> ezVisitorExecution::Enum
+      {
+        asIScriptContext* pCtx = asGetActiveContext();
+        pCtx->PushState();
+
+        pCtx->Prepare(callback);
+        pCtx->SetArgObject(0, go);
+        pCtx->Execute();
+
+        const ezVisitorExecution::Enum res = (pCtx->GetReturnByte() != 0) ? ezVisitorExecution::Continue : ezVisitorExecution::Stop;
+
+        pCtx->PopState();
+
+        return res;
+        //
+      });
+  }
+}
+
+void ezAngelScriptEngineSingleton::Register_Spatial()
+{
+  AS_CHECK(m_pEngine->RegisterFuncdef("bool ReportObjectCB(ezGameObject@)"));
+
+  m_pEngine->SetDefaultNamespace("ezSpatial");
+
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("void FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3& in vCenter, float fRadius, ReportObjectCB@ callback)", asFUNCTION(ezSpatial_FindObjectsInSphere), asCALL_CDECL));
+
+  m_pEngine->SetDefaultNamespace("");
 }

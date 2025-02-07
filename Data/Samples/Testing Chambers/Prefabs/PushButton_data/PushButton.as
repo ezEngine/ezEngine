@@ -10,7 +10,7 @@ class ScriptObject :  ezAngelScriptClass
         ezGameObject@ button = GetOwner().FindChildByName("Button");
 
         ezTransformComponent@ slider;
-        if (!button.TryGetComponentOfBaseType(slider))
+        if (!button.TryGetComponentOfBaseType(@slider))
             return;
 
         if (slider.Running)

@@ -2,50 +2,56 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{3344616924391243525,4869656013481586559}}
+	Uuid %id{u4{6140756238220602317,1894318394264742976}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
 		VarArray %Parameters
 		{
-			Uuid{u4{12600545583228508556,11303081472576712832}}
+			Uuid{u4{14174253969718733738,4567279119277075983}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{6100515432796187043,5502373416885790893}}
+	Uuid %id{u4{14174253969718733738,4567279119277075983}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x00004842}
+		s %Name{"Health"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6341283596832803775,4835719356355967274}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
 	p
 	{
 		s %AssetType{"AngelScript"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{6100515432796187043,5502373416885790893}}
-		u4 %Hash{4684993269185566298}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/Turret_data/Turret.as"}
+		}
+		Uuid %DocumentID{u4{6341283596832803775,4835719356355967274}}
+		u4 %Hash{8323330490864892050}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{3344616924391243525,4869656013481586559}}
+			Uuid{u4{6140756238220602317,1894318394264742976}}
 		}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
-		VarArray %References{}
+		VarArray %References
+		{
+			s{"Prefabs/Turret_data/Turret.as"}
+		}
 		s %Tags{""}
-	}
-}
-o
-{
-	Uuid %id{u4{12600545583228508556,11303081472576712832}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		Time %DefaultValue{d{0x0000000000002440}}
-		s %Name{"Interval"}
-		s %Type{""}
 	}
 }
 }
@@ -53,32 +59,32 @@ Objects
 {
 o
 {
-	Uuid %id{u4{10015798364581570734,4826244013425066573}}
+	Uuid %id{u4{2837054639475688633,4801220311714150597}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float Health = 50"}
+		f %DefaultValue{0x00004842}
+		b %Expose{1}
+		s %Name{"Health"}
+	}
+}
+o
+{
+	Uuid %id{u4{3091745430824664759,5358176266583597894}}
 	s %t{"ezAngelScriptAssetProperties"}
 	u3 %v{1}
 	p
 	{
 		s %ClassName{"ScriptObject"}
-		s %Code{" class ScriptObject : ezAngelScriptClass\n {\n    ezTime Interval = ezTime::MakeFromSeconds(10);\n\n    void OnSimulationStarted()\n    {\n        ezMsgComponentInternalTrigger msg;\n        msg.Message = \"FlipMotor\";\n\n        GetOwner().PostMessage(msg, Interval);\n    }\n\n    void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger@ msg)\n    {\n        ezJoltHingeConstraintComponent@ joint;\n        if (GetOwner().TryGetComponentOfBaseType(@joint))\n        {\n            joint.DriveTargetValue = -joint.DriveTargetValue;\n        }\n\n        GetOwner().PostMessage(msg, Interval);\n    }\n}\n\n"}
+		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
 		VarArray %Parameters
 		{
-			Uuid{u4{7980154311346584707,5330016736335725095}}
+			Uuid{u4{2837054639475688633,4801220311714150597}}
 		}
-		s %Source{"ezAngelScriptCodeMode::Inline"}
-		s %SourceFile{""}
-	}
-}
-o
-{
-	Uuid %id{u4{7980154311346584707,5330016736335725095}}
-	s %t{"ezAngelScriptParameter"}
-	u3 %v{1}
-	p
-	{
-		s %Declaration{"ezTime Interval = 10sec"}
-		Time %DefaultValue{d{0x0000000000002440}}
-		b %Expose{1}
-		s %Name{"Interval"}
+		s %Source{"ezAngelScriptCodeMode::FromFile"}
+		s %SourceFile{"Prefabs/Turret_data/Turret.as"}
 	}
 }
 o
@@ -91,7 +97,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{10015798364581570734,4826244013425066573}}
+			Uuid{u4{3091745430824664759,5358176266583597894}}
 		}
 	}
 }

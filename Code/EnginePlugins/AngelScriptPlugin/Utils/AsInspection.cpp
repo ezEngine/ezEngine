@@ -110,6 +110,22 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
       out_infos.m_AllDeclarations.Insert(tmp);
     }
   }
+
+  // Callbacks
+  {
+    for (ezUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
+    {
+      const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
+
+      out_infos.m_Namespaces.Insert(pFunc->GetNamespace());
+      out_infos.m_Types.Insert(pFunc->GetName());
+
+      tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature());
+
+      tmp.Prepend("funcdef "); 
+      out_infos.m_AllDeclarations.Insert(tmp);
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -188,6 +204,25 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       }
 
       out_sContent.Append("}\n\n");
+    }
+
+    if (!sNamespace.IsEmpty())
+    {
+      out_sContent.Append("}\n\n");
+      sNamespace.Clear();
+    }
+  }
+
+  {
+    out_sContent.Append("\n// *** CALLBACKS *** \n\n");
+
+    for (ezUInt32 idx = 0; idx < pEngine->GetFuncdefCount(); ++idx)
+    {
+      const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
+
+      sIndent = DealWithNamespace(sNamespace, pFunc->GetNamespace(), out_sContent);
+
+      out_sContent.Append(sIndent, "funcdef ", ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature()), ";\n");
     }
 
     if (!sNamespace.IsEmpty())

@@ -8,21 +8,21 @@ class ScriptObject :  ezAngelScriptClass
             return;
             
         ezJoltHitboxComponent@ col;
-        if (GetOwner().TryGetComponentOfBaseType(col))
+        if (GetOwner().TryGetComponentOfBaseType(@col))
         {
             // if present, deactivate the bone collider component, it isn't needed anymore
             col.Active = false;
         }
         
         ezJoltDynamicActorComponent@ da;
-        if (GetOwner().TryGetComponentOfBaseType(da))
+        if (GetOwner().TryGetComponentOfBaseType(@da))
         {
             // if present, deactivate the dynamic actor component, it isn't needed anymore
             da.Active = false;
         }            
         
         ezJoltRagdollComponent@ rdc;
-        if (GetOwner().TryGetComponentOfBaseType(rdc))
+        if (GetOwner().TryGetComponentOfBaseType(@rdc))
         {
             if (rdc.IsActiveAndSimulating())
             {

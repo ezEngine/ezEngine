@@ -10,6 +10,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Physics, ezNoBase, 1, ezRT
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGravity, In, "World"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionLayerByName, In, "World", In, "Name"),
+
     EZ_SCRIPT_FUNCTION_PROPERTY(Raycast, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Start", In, "Direction", In, "Distance", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
       new ezFunctionArgumentAttributes(7, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       new ezFunctionArgumentAttributes(8, new ezDefaultValueAttribute((ezInt32)ezPhysicsShapeType::Static | (ezInt32)ezPhysicsShapeType::Dynamic)),
@@ -49,6 +51,16 @@ ezVec3 ezScriptExtensionClass_Physics::GetGravity(ezWorld* pWorld)
   }
 
   return ezVec3::MakeZero();
+}
+
+ezUInt8 ezScriptExtensionClass_Physics::GetCollisionLayerByName(ezWorld* pWorld, ezStringView sLayerName)
+{
+  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  {
+    return static_cast<ezUInt8>(pInterface->GetCollisionLayerByName(sLayerName));
+  }
+
+  return 0;
 }
 
 bool ezScriptExtensionClass_Physics::Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/, ezUInt32 uiIgnoreObjectID)

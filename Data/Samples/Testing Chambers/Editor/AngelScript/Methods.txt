@@ -94,6 +94,7 @@ GetGlobalDirRight
 GetGlobalDirUp
 GetGlobalKey
 GetGlobalPosition
+GetGlobalRotation
 GetGlobalScaling
 GetGlobalTransform
 GetHSV

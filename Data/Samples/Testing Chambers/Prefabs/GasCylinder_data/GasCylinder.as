@@ -55,7 +55,7 @@ class ScriptObject :  ezAngelScriptClass
                     if (leakObj != null)
                     {
                         ezParticleComponent@ leakFX;
-                        if (leakObj.TryGetComponentOfBaseType(leakFX))
+                        if (leakObj.TryGetComponentOfBaseType(@leakFX))
                         {
                             leakFX.StartEffect();
                         }
@@ -65,7 +65,7 @@ class ScriptObject :  ezAngelScriptClass
                         }
 
                         ezFmodEventComponent@ leakSound;
-                        if (leakObj.TryGetComponentOfBaseType(leakSound))
+                        if (leakObj.TryGetComponentOfBaseType(@leakSound))
                         {
                             leakSound.Restart();
                         }
@@ -94,7 +94,7 @@ class ScriptObject :  ezAngelScriptClass
         if (exp != null)
         {
             ezSpawnComponent@ spawnExpl;
-            if (exp.TryGetComponentOfBaseType(spawnExpl))
+            if (exp.TryGetComponentOfBaseType(@spawnExpl))
             {
                 spawnExpl.TriggerManualSpawn(false, ezVec3::MakeZero());
             }

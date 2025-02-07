@@ -31,6 +31,7 @@ private:
   void AddForbiddenType(const char* szTypeName);
   bool IsTypeForbidden(const asITypeInfo* pType) const;
   static void MessageCallback(const asSMessageInfo* msg, void* param);
+  void ExceptionCallback(asIScriptContext* pContext);
 
   void RegisterStandardTypes();
   void Register_RTTI();
@@ -55,6 +56,7 @@ private:
   void Register_ColorGammaUB();
   void Register_Random();
   void Register_Math();
+  void Register_Spatial();
 
   void Register_ezAngelScriptClass();
   void Register_GlobalReflectedFunctions();

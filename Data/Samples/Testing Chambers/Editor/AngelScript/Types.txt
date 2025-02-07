@@ -1,3 +1,4 @@
+ReportObjectCB
 ezAiNavMeshPathTestComponent
 ezAiNavigationComponent
 ezAiNavigationComponentState
@@ -5,6 +6,7 @@ ezAiNavigationDebugFlags
 ezAimIKComponent
 ezAlwaysVisibleComponent
 ezAmbientLightComponent
+ezAngelScriptMessage
 ezAngle
 ezAnimatedMeshComponent
 ezAnimationControllerComponent
@@ -136,6 +138,7 @@ ezMsgComponentInternalTrigger
 ezMsgComponentsChanged
 ezMsgDamage
 ezMsgDeleteGameObject
+ezMsgDeliverAngelScriptMsg
 ezMsgExtractGeometry
 ezMsgExtractOccluderData
 ezMsgExtractRenderData

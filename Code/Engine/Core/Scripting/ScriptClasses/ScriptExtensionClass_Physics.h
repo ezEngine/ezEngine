@@ -13,6 +13,8 @@ class EZ_CORE_DLL ezScriptExtensionClass_Physics
 public:
   static ezVec3 GetGravity(ezWorld* pWorld);
 
+  static ezUInt8 GetCollisionLayerByName(ezWorld* pWorld, ezStringView sLayerName);
+
   static bool Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreObjectID = ezInvalidIndex);
 
   static bool OverlapTestSphere(ezWorld* pWorld, float fRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);

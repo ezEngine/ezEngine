@@ -21,9 +21,11 @@ DrawLineSphere
 DrawSolidBox
 Error
 Exp
+FindObjectsInSphere
 Floor
 FloorToInt
 GetBoolValue
+GetCollisionLayerByName
 GetFloatValue
 GetGlobalClock
 GetGravity

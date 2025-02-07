@@ -6,12 +6,10 @@ class ScriptObject :  ezAngelScriptClass
     {
         if (msg.Message == "RaycastChanged")
         {
-            ezLog::Info("RaycastChanged");
-
             ezGameObject@ beamObj = GetOwner().FindChildByName("Beam");
 
             ezRaycastComponent@ rayComp;
-            if (beamObj.TryGetComponentOfBaseType(rayComp))
+            if (beamObj.TryGetComponentOfBaseType(@rayComp))
             {
                 const float newDist = rayComp.GetCurrentDistance();
                 if (newDist < distance - 0.01)
@@ -32,7 +30,7 @@ class ScriptObject :  ezAngelScriptClass
         if (exp != null)
         {
             ezSpawnComponent@ spawnExpl;
-            if (exp.TryGetComponentOfBaseType(spawnExpl))
+            if (exp.TryGetComponentOfBaseType(@spawnExpl))
             {
                 spawnExpl.TriggerManualSpawn(true, ezVec3::MakeZero());
             }

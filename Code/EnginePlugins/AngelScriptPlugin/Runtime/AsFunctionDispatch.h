@@ -2,7 +2,10 @@
 
 #include <AngelScriptPlugin/AngelScriptPluginDLL.h>
 #include <Core/Scripting/ScriptRTTI.h>
+#include <Foundation/Communication/Message.h>
 #include <Foundation/Strings/String.h>
+
+//////////////////////////////////////////////////////////////////////////
 
 class asIScriptFunction;
 
@@ -25,11 +28,42 @@ private:
   asIScriptFunction* m_pAsFunction = nullptr;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptMessageHandler : public ezScriptMessageHandler
 {
 public:
   ezAngelScriptMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction);
   ~ezAngelScriptMessageHandler();
+
+  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+
+private:
+  asIScriptFunction* m_pAsFunction = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ezMsgDeliverAngelScriptMsg : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg, ezMessage);
+
+  ~ezMsgDeliverAngelScriptMsg();
+
+  ezMsgDeliverAngelScriptMsg(const ezMsgDeliverAngelScriptMsg& rhs);
+  ezMsgDeliverAngelScriptMsg(ezMsgDeliverAngelScriptMsg&& rhs);
+  void operator=(const ezMsgDeliverAngelScriptMsg& rhs);
+  void operator=(ezMsgDeliverAngelScriptMsg&& rhs);
+
+  bool m_bRelease = false;
+  void* m_pAsMsg = nullptr;
+};
+
+class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptCustomAsMessageHandler : public ezScriptMessageHandler
+{
+public:
+  ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction);
+  ~ezAngelScriptCustomAsMessageHandler();
 
   static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
 

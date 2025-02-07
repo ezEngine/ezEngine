@@ -16,6 +16,7 @@ ezAngelScriptInstance::ezAngelScriptInstance(ezReflectedClass& inout_owner, ezWo
   auto pAsEngine = ezAngelScriptEngineSingleton::GetSingleton();
 
   m_pContext = pAsEngine->GetEngine()->CreateContext();
+  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(ezAngelScriptInstance, ExceptionCallback), this, asCALL_THISCALL));
 
   if (asITypeInfo* pClassType = pModule->GetTypeInfoByName(szObjectTypeName))
   {
@@ -79,4 +80,9 @@ ezVariant ezAngelScriptInstance::GetInstanceVariable(const ezHashedString& sName
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return {};
+}
+
+void ezAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
+{
+  ezLog::Error("AS '{}': {}", m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription(), pContext->GetExceptionString());
 }

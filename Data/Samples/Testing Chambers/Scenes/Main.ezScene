@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{16755033294588116062}
+		u4 %Hash{4232653073200458149}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -1776,7 +1776,7 @@ o
 {
 	Uuid %id{u4{7637833199886384716,2019411274305111394}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1789,9 +1789,11 @@ o
 		Angle %OuterSpotAngle{f{0x021F803F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -4914,7 +4916,7 @@ o
 {
 	Uuid %id{u4{1858528583027429518,4701599625077754898}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -4925,9 +4927,11 @@ o
 		ColorGamma %LightColor{u1{250,172,62,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -6845,7 +6849,7 @@ o
 {
 	Uuid %id{u4{3624915416387412864,4930814367434938780}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -6858,9 +6862,11 @@ o
 		Angle %OuterSpotAngle{f{0xC3B8B23E}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -7234,7 +7240,7 @@ o
 {
 	Uuid %id{u4{33520117217802127,4991864715795660734}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -7245,9 +7251,11 @@ o
 		ColorGamma %LightColor{u1{201,255,167,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -7707,7 +7715,7 @@ o
 {
 	Uuid %id{u4{14620141923529280663,5037877793516156781}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -7718,9 +7726,11 @@ o
 		ColorGamma %LightColor{u1{250,69,69,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000A041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -8230,7 +8240,7 @@ o
 {
 	Uuid %id{u4{8482008573672875710,5074089289957229263}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -8243,9 +8253,11 @@ o
 		Angle %OuterSpotAngle{f{0x021F803F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -8992,7 +9004,7 @@ o
 {
 	Uuid %id{u4{1359976739621312909,5166509852256428505}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -9005,9 +9017,11 @@ o
 		Angle %OuterSpotAngle{f{0xAB611C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -9600,7 +9614,7 @@ o
 {
 	Uuid %id{u4{7456247291786586038,5237826881788458010}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -9613,9 +9627,11 @@ o
 		Angle %OuterSpotAngle{f{0x0672933F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -10020,7 +10036,7 @@ o
 {
 	Uuid %id{u4{12878888586516470964,5279506183701447268}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -10031,9 +10047,11 @@ o
 		ColorGamma %LightColor{u1{61,177,231,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -10579,7 +10597,7 @@ o
 {
 	Uuid %id{u4{6218508829324579500,5358920157964571716}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -10590,9 +10608,11 @@ o
 		ColorGamma %LightColor{u1{109,172,239,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00004040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -12782,7 +12802,7 @@ o
 {
 	Uuid %id{u4{4274421462207855751,5588225273737058366}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -12793,9 +12813,11 @@ o
 		ColorGamma %LightColor{u1{12,226,254,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -12983,6 +13005,7 @@ o
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x9A99193F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -13577,7 +13600,7 @@ o
 {
 	Uuid %id{u4{18017593732756027315,5678538944175573142}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -13588,9 +13611,11 @@ o
 		ColorGamma %LightColor{u1{203,226,253,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x46E11241}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -15254,7 +15279,7 @@ o
 {
 	Uuid %id{u4{17144819138273016273,7064642233905784022}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -15267,9 +15292,11 @@ o
 		Angle %OuterSpotAngle{f{0x021F803F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -20344,7 +20371,7 @@ o
 {
 	Uuid %id{u4{14999901443678559793,10316464629111920753}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -20357,9 +20384,11 @@ o
 		Angle %OuterSpotAngle{f{0xAB611C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -25126,7 +25155,7 @@ o
 {
 	Uuid %id{u4{4569420705140982408,12579507353726827391}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -25139,9 +25168,11 @@ o
 		Angle %OuterSpotAngle{f{0x021F803F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -28867,7 +28898,7 @@ o
 {
 	Uuid %id{u4{4066031002799150795,15331932869883856948}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -28880,9 +28911,11 @@ o
 		Angle %OuterSpotAngle{f{0xAB611C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -33597,7 +33630,7 @@ o
 {
 	Uuid %id{u4{7316988400963194655,17821231518150554822}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -33610,9 +33643,11 @@ o
 		Angle %OuterSpotAngle{f{0x021F803F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000E040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -35297,9 +35332,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -36381,9 +36416,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Material"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -36399,9 +36434,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Material"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -36577,9 +36612,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"HeightfieldImage"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -36821,7 +36856,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -37254,7 +37289,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -37361,7 +37396,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -37547,9 +37582,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -37744,9 +37779,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"CollisionMesh"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o

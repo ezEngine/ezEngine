@@ -61,13 +61,16 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
   asSetGlobalMemoryFunctions(ezAsMalloc, ezAsFree);
 
   m_pEngine = asCreateScriptEngine();
-  m_pEngine->SetEngineProperty(asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE, 1);
+  // m_pEngine->SetEngineProperty(asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE, 1); // means we can't copy messages during PostMessage
   m_pEngine->SetEngineProperty(asEP_REQUIRE_ENUM_SCOPE, 1);
   m_pEngine->SetEngineProperty(asEP_DISALLOW_GLOBAL_VARS, 1);
 
   AS_CHECK(m_pEngine->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL));
+  AS_CHECK(m_pEngine->SetTranslateAppExceptionCallback(asMETHOD(ezAngelScriptEngineSingleton, ExceptionCallback), this, asCALL_THISCALL));
 
   m_pStringFactory = EZ_DEFAULT_NEW(ezAsStringFactory);
+
+  AS_CHECK(m_pEngine->RegisterInterface("ezAngelScriptMessage"));
 
   RegisterStandardTypes();
 
@@ -122,6 +125,11 @@ void ezAngelScriptEngineSingleton::MessageCallback(const asSMessageInfo* msg, vo
       ezLog::Info("AngelScript: {} ({}, {}) : {}", msg->section, msg->row, msg->col, msg->message);
       break;
   }
+}
+
+void ezAngelScriptEngineSingleton::ExceptionCallback(asIScriptContext* pContext)
+{
+  ezLog::Error("AngelScript: App-Exception: {}", pContext->GetExceptionString());
 }
 
 void ezAngelScriptEngineSingleton::RegisterStandardTypes()
@@ -194,6 +202,7 @@ void ezAngelScriptEngineSingleton::RegisterStandardTypes()
   Register_ColorGammaUB();
   Register_Random();
   Register_Math();
+  Register_Spatial();
 
   // TODO AngelScript: register these standard types
   // ezBoundingBox

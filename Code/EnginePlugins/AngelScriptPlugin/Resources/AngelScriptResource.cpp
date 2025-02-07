@@ -181,6 +181,8 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
 
   ezStringBuilder sArgType;
 
+  // TODO AngelScript: more elaborate error reporting
+
   for (ezUInt32 i = 0; i < pClassType->GetMethodCount(); ++i)
   {
     asIScriptFunction* pFunc = pClassType->GetMethodByIndex(i, false);
@@ -193,26 +195,44 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
     if (pFunc->GetParamCount() != 1)
       continue;
 
-    // that start with "OnMsg"
-    if (ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg") == false)
-      continue;
-
     int iArgTypeId;
     pFunc->GetParam(0, &iArgTypeId);
 
-    const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
+    // that start with "OnMsg"
+    if (ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg"))
+    {
+      if (iArgTypeId & asTYPEID_APPOBJECT)
+      {
+        const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
 
-    if (pArgType == nullptr)
-      continue;
+        if (pArgType == nullptr)
+          continue;
 
-    // has to be a type derived from ezMessage
-    if (!pArgType->IsDerivedFrom<ezMessage>())
-      continue;
+        // has to be a type derived from ezMessage
+        if (!pArgType->IsDerivedFrom<ezMessage>())
+          continue;
 
-    ezScriptMessageDesc desc;
-    desc.m_pType = pArgType;
+        ezScriptMessageDesc desc;
+        desc.m_pType = pArgType;
 
-    ezUniquePtr<ezAngelScriptMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptMessageHandler, desc, pFunc);
-    inout_Handlers.PushBack(std::move(pFunctionProperty));
+        ezUniquePtr<ezAngelScriptMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptMessageHandler, desc, pFunc);
+        inout_Handlers.PushBack(std::move(pFunctionProperty));
+      }
+
+      if (iArgTypeId & asTYPEID_SCRIPTOBJECT)
+      {
+        if (auto pArgType = pAs->GetEngine()->GetTypeInfoById(iArgTypeId))
+        {
+          if (pArgType->GetInterfaceCount() == 1 && ezStringUtils::IsEqual(pArgType->GetInterface(0)->GetName(), "ezAngelScriptMessage"))
+          {
+            ezScriptMessageDesc desc;
+            desc.m_pType = ezGetStaticRTTI<ezMsgDeliverAngelScriptMsg>();
+
+            ezUniquePtr<ezAngelScriptCustomAsMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptCustomAsMessageHandler, desc, pFunc);
+            inout_Handlers.PushBack(std::move(pFunctionProperty));
+          }
+        }
+      }
+    }
   }
 }

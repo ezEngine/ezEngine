@@ -3,6 +3,7 @@
 #include <AngelScriptPlugin/AngelScriptPluginDLL.h>
 #include <Core/Scripting/ScriptClassResource.h>
 #include <Core/Scripting/ScriptRTTI.h>
+#include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Blob.h>
 
 class asIScriptContext;
@@ -25,6 +26,8 @@ public:
   ezScriptComponent* GetOwnerComponent() const { return m_pOwnerComponent; }
 
 private:
+  void ExceptionCallback(asIScriptContext* pContext);
+
   asIScriptObject* m_pObject = nullptr;
   asIScriptContext* m_pContext = nullptr;
   ezScriptComponent* m_pOwnerComponent = nullptr;

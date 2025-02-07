@@ -17,7 +17,7 @@ class ScriptObject : ezAngelScriptClass
 
     private ezGameObjectHandle _player;
     private BallMineState _state = BallMineState::Init;
-
+ 
     void OnSimulationStarted()
     {
         ezGameObject@ obj;
@@ -29,12 +29,12 @@ class ScriptObject : ezAngelScriptClass
         Update();
     }
 
-    // QueryForNPC = (go: ez.GameObject): boolean => {
-
-    //     // just accept the first object that was found
-    //     _player = go;
-    //     return false;
-    // }
+    bool QueryForNPC(ezGameObject@ go)
+    {
+         // just accept the first object that was found
+         _player = go.GetHandle();
+         return false;
+    }
 
     void Update()
     {
@@ -43,7 +43,7 @@ class ScriptObject : ezAngelScriptClass
 
         if (_player.IsInvalidated())
         {
-            // ez.World.FindObjectsInSphere("Player", owner.GetGlobalPosition(), AlertDistance, QueryForNPC);
+            ezSpatial::FindObjectsInSphere(GetWorld(), "Player", owner.GetGlobalPosition(), AlertDistance, ReportObjectCB(QueryForNPC));
             return;
         }
 
@@ -62,7 +62,7 @@ class ScriptObject : ezAngelScriptClass
                 _state = BallMineState::Approaching;
 
                 ezJoltDynamicActorComponent@ actor;
-                if (GetOwner().TryGetComponentOfBaseType(actor))
+                if (GetOwner().TryGetComponentOfBaseType(@actor))
                 {
                     diffPos.Normalize();
                     diffPos *= RollForce;
@@ -100,7 +100,7 @@ class ScriptObject : ezAngelScriptClass
                     matMsg.Material = "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }";
                     GetOwner().SendMessageRecursive(matMsg);
 
-                    SetUpdateInterval(ezTime::MakeFromMilliseconds(500));
+                    SetUpdateInterval(ezTime::MakeFromMilliseconds(1000));
                     return;
                 }
             case BallMineState::Alert:
@@ -109,7 +109,7 @@ class ScriptObject : ezAngelScriptClass
                     matMsg.Material = "{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }";
                     GetOwner().SendMessageRecursive(matMsg);
 
-                    SetUpdateInterval(ezTime::MakeFromMilliseconds(100));
+                    SetUpdateInterval(ezTime::MakeFromMilliseconds(500));
                     return;
                 }
             case BallMineState::Approaching:
@@ -133,7 +133,7 @@ class ScriptObject : ezAngelScriptClass
     void Explode()
     {
         ezSpawnComponent@ spawnExpl;
-        if (GetOwner().TryGetComponentOfBaseType(spawnExpl))
+        if (GetOwner().TryGetComponentOfBaseType(@spawnExpl))
         {
             spawnExpl.TriggerManualSpawn(true, ezVec3::MakeZero());
         }
@@ -154,4 +154,3 @@ class ScriptObject : ezAngelScriptClass
         }
     }
 }
-

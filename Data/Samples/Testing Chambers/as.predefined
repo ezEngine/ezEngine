@@ -416,7 +416,15 @@ enum ezTriggerState
 }
 
 
+// *** CALLBACKS *** 
+
+funcdef bool ReportObjectCB(ezGameObject@);
+
 // *** TYPES *** 
+
+class ezAngelScriptMessage
+{
+}
 
 class ezRTTI
 {
@@ -1002,6 +1010,7 @@ class ezGameObject
   void SetGlobalPosition(const ezVec3&in);
   ezVec3 GetGlobalPosition() const;
   void SetGlobalRotation(const ezQuat&in);
+  ezQuat GetGlobalRotation() const;
   void SetGlobalScaling(const ezVec3&in);
   ezVec3 GetGlobalScaling() const;
   void SetGlobalTransform(const ezTransform&in);
@@ -1034,6 +1043,12 @@ class ezGameObject
   void SetTeamID(uint16 id);
   uint GetStableRandomSeed();
   void SetStableRandomSeed(uint seed);
+  void SendMessage(ezAngelScriptMessage&inout);
+  void SendMessage(ezAngelScriptMessage&inout) const;
+  void SendMessageRecursive(ezAngelScriptMessage&inout);
+  void SendMessageRecursive(ezAngelScriptMessage&inout) const;
+  void PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+  void PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
 }
 
 class ezComponent
@@ -1276,6 +1291,7 @@ class ezMessage
   ezMsgDamage@ opCast();
   ezMsgMoveCharacterController@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
+  ezMsgDeliverAngelScriptMsg@ opCast();
   ezMsgFmodSoundFinished@ opCast();
   ezEventMsgSetPowerInput@ opCast();
   ezJoltMsgDisconnectConstraints@ opCast();
@@ -3840,6 +3856,11 @@ class ezMsgStateMachineStateChanged : ezEventMessage
   ezMessage@ opImplCast();
 }
 
+class ezMsgDeliverAngelScriptMsg : ezMessage
+{
+  ezMessage@ opImplCast();
+}
+
 class ezMsgFmodSoundFinished : ezEventMessage
 {
   ezEventMessage@ opImplCast();
@@ -4028,6 +4049,11 @@ namespace ezMath
   bool IsInRange(float value, float min, float max);
 }
 
+namespace ezSpatial
+{
+  void FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback);
+}
+
 namespace ezQuat
 {
   ezQuat MakeFromAxisAndAngle(ezVec3 Axis, ezAngle Angle);
@@ -4094,6 +4120,7 @@ namespace ezLog
 namespace ezPhysics
 {
   ezVec3 GetGravity(ezWorld@ World);
+  uint8 GetCollisionLayerByName(ezWorld@ World, ezStringView Name);
   bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = - 1);
   bool OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
