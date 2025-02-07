@@ -122,7 +122,7 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
 
       tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature());
 
-      tmp.Prepend("funcdef "); 
+      tmp.Prepend("funcdef ");
       out_infos.m_AllDeclarations.Insert(tmp);
     }
   }
