@@ -433,7 +433,7 @@ void ezAngelScriptEngineSingleton::Register_ColorGammaUB()
 // ezSpatial
 //////////////////////////////////////////////////////////////////////////
 
-void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ezVec3& vCenter, float fRadius, asIScriptFunction* callback)
+void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ezVec3& vCenter, float fRadius, asIScriptFunction* pCallback)
 {
   auto category = ezSpatialData::FindCategory(sType);
   if (category != ezInvalidSpatialDataCategory)
@@ -441,12 +441,12 @@ void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ez
     ezSpatialSystem::QueryParams params;
     params.m_uiCategoryBitmask = category.GetBitmask();
 
-    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [callback](ezGameObject* go) -> ezVisitorExecution::Enum
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), params, [pCallback](ezGameObject* go) -> ezVisitorExecution::Enum
       {
         asIScriptContext* pCtx = asGetActiveContext();
         pCtx->PushState();
 
-        pCtx->Prepare(callback);
+        pCtx->Prepare(pCallback);
         pCtx->SetArgObject(0, go);
         pCtx->Execute();
 
