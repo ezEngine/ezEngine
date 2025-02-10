@@ -294,8 +294,8 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       break;
     case SubTests::ST_StructuredBuffer:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_InitialData);
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_CopyToTempStorage);
-      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient1);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient2);
       break;
@@ -389,6 +389,12 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
+
+  if (iIdentifier == SubTests::ST_StructuredBuffer)
+  {
+    StructuredBufferTestUpload();
+  }
+
   BeginFrame();
 
   switch (iIdentifier)
@@ -642,25 +648,28 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
   EndCommands();
 }
 
+void ezRendererTestPipelineStates::StructuredBufferTestUpload()
+{
+  if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
+  {
+    // Replace the elements at [0, 3] with more green ones by offsetting the color by 16.
+    ezHybridArray<ezTestShaderData, 16> instanceData;
+    FillStructuredBuffer(instanceData, 16 /*green*/);
+    m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 4).ToByteArray());
+  }
+  if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
+  {
+    // Replace the elements at [8, 15] with the same data as the original 8 elements. We will render these afterwards using custom buffer views.
+    ezHybridArray<ezTestShaderData, 16> instanceData;
+    FillStructuredBuffer(instanceData);
+    m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), sizeof(ezTestShaderData) * 8);
+  }
+}
 
 void ezRendererTestPipelineStates::StructuredBufferTest()
 {
   BeginCommands("InstancingTest");
   {
-    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage)
-    {
-      // Replace the elements at [0, 3] with more green ones by offsetting the color by 16.
-      ezHybridArray<ezTestShaderData, 16> instanceData;
-      FillStructuredBuffer(instanceData, 16 /*green*/);
-      m_pEncoder->UpdateBuffer(m_hInstancingData, 0, instanceData.GetArrayPtr().GetSubArray(0, 4).ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
-    }
-    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2)
-    {
-      // Replace the elements at [8, 15] with the same data as the original 8 elements. We will render these afterwards using custom buffer views.
-      ezHybridArray<ezTestShaderData, 16> instanceData;
-      FillStructuredBuffer(instanceData);
-      m_pEncoder->UpdateBuffer(m_hInstancingData, sizeof(ezTestShaderData) * 8, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
-    }
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
 
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
@@ -668,12 +677,12 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
 
-      if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_CopyToTempStorage)
+      if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
       {
         pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
-      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_CopyToTempStorage2)
+      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
       {
         // Use the second half of the buffer to render the 8 triangles using two draw calls.
         pContext->BindBuffer("instancingData", m_hInstancingDataView_8_4);

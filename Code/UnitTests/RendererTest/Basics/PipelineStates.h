@@ -30,8 +30,8 @@ private:
   {
     DefaultCapture = 5,
     StructuredBuffer_InitialData = 5,
-    StructuredBuffer_CopyToTempStorage = 6,
-    StructuredBuffer_CopyToTempStorage2 = 7,
+    StructuredBuffer_UpdateForNextFrame = 6,
+    StructuredBuffer_UpdateForNextFrame2 = 7,
     StructuredBuffer_Transient1 = 8,
     StructuredBuffer_Transient2 = 9,
     Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
@@ -65,6 +65,7 @@ private:
   void VertexBufferTest();
   void IndexBufferTest();
   void ConstantBufferTest();
+  void StructuredBufferTestUpload();
   void StructuredBufferTest();
   void Texture2D();
   void Texture2DArray();
