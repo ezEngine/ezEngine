@@ -85,8 +85,8 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (m_sText.IsEmpty())
     return;
 
-  const float fDistance = msg.m_pView->GetCullingCamera()->GetCenterPosition().GetDistanceTo(GetOwner()->GetGlobalPosition());
-  if (fDistance > m_fMaxDistance)
+  const float fSquaredDistance = msg.m_pView->GetCullingCamera()->GetCenterPosition().GetSquaredDistanceTo(GetOwner()->GetGlobalPosition());
+  if (fSquaredDistance > m_fMaxDistance * m_fMaxDistance)
     return;
 
   ezStringBuilder sb;
