@@ -95,7 +95,7 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   c.a *= fFade;
 
   ezStringBuilder sb;
-  sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);  
+  sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
 
   ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), c);
 }
