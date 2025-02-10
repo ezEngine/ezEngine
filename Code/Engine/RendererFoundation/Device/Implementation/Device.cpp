@@ -978,6 +978,12 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
     EZ_ASSERT_DEV(sourceData.m_uiSlicePitch == 0 || sourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
     EZ_ASSERT_DEBUG(sourceData.m_pData.GetCount() >= uiSlicePitch * uiDepth, "Not enough data provided to update texture");
 
+    ezGALSystemMemoryDescription finalSourceData = sourceData;
+    if (finalSourceData.m_uiSlicePitch == 0)
+    {
+      finalSourceData.m_uiSlicePitch = uiSlicePitch;
+    }
+
     ezBoundingBoxu32 finalDestBox = destinationBox;
     if (bDestBoxIsValid)
     {
@@ -989,7 +995,7 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
       finalDestBox.m_vMax = ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
     }
 
-    UpdateTextureForNextFramePlatform(pTexture, sourceData, destinationSubResource, finalDestBox);
+    UpdateTextureForNextFramePlatform(pTexture, finalSourceData, destinationSubResource, finalDestBox);
   }
   else
   {
