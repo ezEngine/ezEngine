@@ -708,7 +708,7 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
 #endif
 
   const ezUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
-  
+
   auto& copy = m_PendingCopies.ExpandAndGetRef();
   copy.m_SourceResource = CopyToTempBuffer(sourceData, m_uiFrameCounter + 1);
   copy.m_pDestResource = pBufferDX11->GetDXBuffer();

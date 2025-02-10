@@ -1352,7 +1352,7 @@ void ezGALDeviceVulkan::UpdateTextureForNextFramePlatform(const ezGALTexture* pT
 {
   const ezGALTextureVulkan* pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture);
 
-  //m_pInitContext->UpdateTexture(pTextureVulkan, sourceData, destinationSubResource, destinationBox);
+  // m_pInitContext->UpdateTexture(pTextureVulkan, sourceData, destinationSubResource, destinationBox);
 }
 
 ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)

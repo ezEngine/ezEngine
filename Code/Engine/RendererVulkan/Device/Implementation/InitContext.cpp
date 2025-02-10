@@ -4,10 +4,10 @@
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
+#include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
-#include <RendererVulkan/Resources/BufferVulkan.h>
 
 ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)

@@ -2,8 +2,8 @@
 
 #include <RendererVulkan/Pools/QueryPoolVulkan.h>
 
-#include <RendererVulkan/Device/DeviceVulkan.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <RendererVulkan/Device/DeviceVulkan.h>
 
 ezQueryPoolVulkan::ezQueryPoolVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
