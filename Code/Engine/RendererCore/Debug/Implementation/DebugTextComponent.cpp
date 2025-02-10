@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Value2", m_fValue2),
     EZ_MEMBER_PROPERTY("Value3", m_fValue3),
     EZ_MEMBER_PROPERTY("Color", m_Color),
-    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -89,10 +89,15 @@ void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   if (fSquaredDistance > m_fMaxDistance * m_fMaxDistance)
     return;
 
-  ezStringBuilder sb;
-  sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
+  const float fFade = ezMath::Saturate(ezMath::Sqrt(fSquaredDistance) / ezMath::Max(m_fMaxDistance, 0.0001f) * -5.0f + 5.0f);
 
-  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color);
+  ezColor c = m_Color;
+  c.a *= fFade;
+
+  ezStringBuilder sb;
+  sb.SetFormat(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);  
+
+  ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), c);
 }
 
 
