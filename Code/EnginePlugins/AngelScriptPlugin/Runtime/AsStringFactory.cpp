@@ -48,10 +48,10 @@ int ezAsStringFactory::GetRawStringData(const void* pStr, char* szData, asUINT* 
   return 0;
 }
 
-const ezString& ezAsStringFactory::StoreString(const ezString& str)
+const ezString& ezAsStringFactory::StoreString(const ezString& sStr)
 {
   EZ_LOCK(m_Mutex);
-  auto itStr = m_Strings.Insert(str);
+  auto itStr = m_Strings.Insert(sStr);
 
   return itStr.Key();
 }

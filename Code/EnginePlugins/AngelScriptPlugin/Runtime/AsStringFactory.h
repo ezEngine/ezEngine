@@ -19,7 +19,7 @@ public:
 
   static ezAsStringFactory* GetFactory() { return s_pFactory; }
 
-  const ezString& StoreString(const ezString& str);
+  const ezString& StoreString(const ezString& sStr);
 
 private:
   static ezAsStringFactory* s_pFactory;
