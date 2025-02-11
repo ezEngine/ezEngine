@@ -27,7 +27,7 @@ class ScriptObject :  ezAngelScriptClass
     {
         ezGameObject@ exp = GetOwner().FindChildByName("Explosion");
 
-        if (exp != null)
+        if (@exp != null)
         {
             ezSpawnComponent@ spawnExpl;
             if (exp.TryGetComponentOfBaseType(@spawnExpl))

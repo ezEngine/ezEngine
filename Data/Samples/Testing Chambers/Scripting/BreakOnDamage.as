@@ -14,7 +14,7 @@ class ScriptObject : ezAngelScriptClass
             return;
 
         auto spawnNode = GetOwner().FindChildByName("OnBreakSpawn");
-        if (spawnNode != null)
+        if (@spawnNode != null)
         {
             ezSpawnComponent@ spawnComp;
             if (spawnNode.TryGetComponentOfBaseType(@spawnComp))

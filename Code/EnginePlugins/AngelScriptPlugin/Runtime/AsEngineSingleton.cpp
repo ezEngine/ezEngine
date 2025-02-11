@@ -37,8 +37,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 
-
-static ezProxyAllocator* g_pAsAllocator = nullptr;
+static ezAsAllocatorType* g_pAsAllocator = nullptr;
 
 static void* ezAsMalloc(size_t uiSize)
 {
@@ -55,7 +54,7 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
 {
   EZ_LOG_BLOCK("ezAngelScriptEngineSingleton");
 
-  m_pAllocator = EZ_DEFAULT_NEW(ezProxyAllocator, "AngelScript", ezFoundation::GetDefaultAllocator());
+  m_pAllocator = EZ_DEFAULT_NEW(ezAsAllocatorType, "AngelScript", ezFoundation::GetDefaultAllocator());
   g_pAsAllocator = m_pAllocator.Borrow();
 
   asSetGlobalMemoryFunctions(ezAsMalloc, ezAsFree);
@@ -81,12 +80,13 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
 
   Register_ezAngelScriptClass();
 
+  AddForbiddenType("ezStringView");
   AddForbiddenType("ezStringBuilder");
 }
 
 ezAngelScriptEngineSingleton::~ezAngelScriptEngineSingleton()
 {
-  m_pEngine->Release();
+  m_pEngine->ShutDownAndRelease();
 
   if (m_pStringFactory)
   {

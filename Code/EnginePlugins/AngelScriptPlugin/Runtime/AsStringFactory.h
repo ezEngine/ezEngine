@@ -10,14 +10,20 @@
 class ezAsStringFactory : public asIStringFactory
 {
 public:
-  ezAsStringFactory() = default;
-  ~ezAsStringFactory() = default;
+  ezAsStringFactory();
+  ~ezAsStringFactory();
 
   const void* GetStringConstant(const char* szData, asUINT length) override;
   int ReleaseStringConstant(const void* pStr) override;
   int GetRawStringData(const void* pStr, char* szData, asUINT* pLength) const override;
 
+  static ezAsStringFactory* GetFactory() { return s_pFactory; }
+
+  const ezString& StoreString(const ezString& str);
+
 private:
+  static ezAsStringFactory* s_pFactory;
   ezMutex m_Mutex;
-  ezSet<ezStringView> m_Strings;
+  ezSet<ezString> m_Strings;
+  ezSet<ezStringView> m_StringViews;
 };

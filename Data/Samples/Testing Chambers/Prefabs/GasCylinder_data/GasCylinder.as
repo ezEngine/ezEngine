@@ -52,7 +52,7 @@ class ScriptObject :  ezAngelScriptClass
                     SetUpdateInterval(ezTime::MakeZero());
 
                     auto leakObj = GetOwner().FindChildByName("LeakEffect");
-                    if (leakObj != null)
+                    if (@leakObj != null)
                     {
                         ezParticleComponent@ leakFX;
                         if (leakObj.TryGetComponentOfBaseType(@leakFX))
@@ -91,7 +91,7 @@ class ScriptObject :  ezAngelScriptClass
         auto owner = GetOwner();
         auto exp = owner.FindChildByName("Explosion");
 
-        if (exp != null)
+        if (@exp != null)
         {
             ezSpawnComponent@ spawnExpl;
             if (exp.TryGetComponentOfBaseType(@spawnExpl))

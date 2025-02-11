@@ -19,7 +19,7 @@ protected:
   void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
 
   void SyncExposedParameters();
-  asIScriptModule* CompileModule();
+  asIScriptModule* CompileModule(ezStringBuilder& out_sCode);
   void RetrieveScriptInfos(ezStringView sBasePath);
 
   ezString m_sInputFile;

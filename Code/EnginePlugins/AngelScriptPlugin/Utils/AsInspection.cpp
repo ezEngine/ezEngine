@@ -357,6 +357,12 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
         }
         else
         {
+          if (ezStringUtils::IsEqual(pFunc->GetName(), "opImplCast"))
+          {
+            // not needed, we have the base class
+            continue;
+          }
+
           tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
           out_sContent.Append(sIndent, "  ", tmp, ";\n");
         }

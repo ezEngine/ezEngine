@@ -86,7 +86,7 @@ external shared class ezAngelScriptClass;
   return pModule;
 }
 
-asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode)
+asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode)
 {
   ezAsPreprocessor asPP;
   asPP.m_sRefFilePath = sRefFilePath;
@@ -97,6 +97,11 @@ asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModul
   {
     ezLog::Error("Failed to pre-process AngelScript");
     return nullptr;
+  }
+
+  if (out_pProcessedCode)
+  {
+    *out_pProcessedCode = fullCode;
   }
 
   asIScriptModule* pModule = SetModuleCode(sModuleName, fullCode, true);

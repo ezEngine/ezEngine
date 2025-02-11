@@ -37,7 +37,8 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
 
   ezLogSystemScope logScope(&logBuffer);
 
-  asIScriptModule* pModule = CompileModule();
+  ezStringBuilder sCode;
+  asIScriptModule* pModule = CompileModule(sCode);
 
   if (pModule == nullptr)
   {
@@ -57,12 +58,14 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
     header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
     header.Write(out).AssertSuccess();
 
-    ezUInt8 uiVersion = 2;
+    ezUInt8 uiVersion = 3;
     out << uiVersion;
   }
 
   out << m_sClass;
   out.WriteArray(bytecode).AssertSuccess();
+
+  out << sCode;
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -120,7 +123,8 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
   ezLogSystemNull logNull;
   ezLogSystemScope scope(&logNull); // disable logging
 
-  asIScriptModule* pModule = CompileModule();
+  ezStringBuilder sCode;
+  asIScriptModule* pModule = CompileModule(sCode);
   if (pModule == nullptr)
     return;
 
@@ -177,7 +181,7 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
   }
 }
 
-asIScriptModule* ezAngelScriptDocumentContext::CompileModule()
+asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& out_sCode)
 {
   ezStringBuilder sCode;
 
@@ -213,7 +217,7 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule()
   sTempName.SetFormat("asTempModule-{}", s_iCompileCounter.Increment());
 
   auto pAs = ezAngelScriptEngineSingleton::GetSingleton();
-  auto pModule = pAs->CompileModule(sTempName, m_sClass, m_sInputFile, sCode);
+  auto pModule = pAs->CompileModule(sTempName, m_sClass, m_sInputFile, sCode, &out_sCode);
 
   if (pModule == nullptr)
     return nullptr;

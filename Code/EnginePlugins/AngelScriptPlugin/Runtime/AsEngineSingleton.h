@@ -10,6 +10,14 @@ class asIScriptEngine;
 class asIScriptModule;
 class asIStringFactory;
 struct asSMessageInfo;
+class ezAsStringFactory;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+// AngelScript will allocate thread-local data, for which there currently is no way to free it again, so we don't want to report memory leaks
+using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
+#else
+using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
+#endif
 
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptEngineSingleton
 {
@@ -22,7 +30,7 @@ public:
   asIScriptEngine* GetEngine() const { return m_pEngine; }
 
   asIScriptModule* SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection);
-  asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode);
+  asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode);
   ezResult ValidateModule(asIScriptModule* pModule) const;
 
   const ezSet<ezString>& GetNotRegistered() const { return m_NotRegistered; }
@@ -105,14 +113,14 @@ private:
     m_WhitelistedRefTypes.Insert(pRtti->GetTypeName());
   }
 
-  ezUniquePtr<ezProxyAllocator> m_pAllocator;
+  ezUniquePtr<ezAsAllocatorType> m_pAllocator;
   asIScriptEngine* m_pEngine = nullptr;
 
   ezSet<ezString> m_WhitelistedRefTypes;
 
   ezHybridArray<const asITypeInfo*, 16> m_ForbiddenTypes;
 
-  asIStringFactory* m_pStringFactory = nullptr;
+  ezAsStringFactory* m_pStringFactory = nullptr;
 
   ezSet<ezString> m_NotRegistered;
 };

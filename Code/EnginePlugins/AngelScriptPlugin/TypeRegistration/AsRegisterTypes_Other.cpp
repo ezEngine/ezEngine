@@ -458,6 +458,9 @@ void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ez
         //
       });
   }
+
+  // need to release the refcount
+  pCallback->Release();
 }
 
 void ezAngelScriptEngineSingleton::Register_Spatial()

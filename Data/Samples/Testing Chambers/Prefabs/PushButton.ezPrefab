@@ -24,7 +24,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2748503368244801213,5677744300305575374}}
-		u4 %Hash{16033364847062477258}
+		u4 %Hash{10817018077523667597}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13485460540666280126,647087153874927426}}
@@ -178,7 +178,7 @@ o
 		b %Active{1}
 		s %Axis{"ezBasisAxis::NegativeX"}
 		f %Deceleration{0x0000003F}
-		f %Distance{0x8FC2F53C}
+		f %Distance{0x0AD7A33C}
 		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{0}

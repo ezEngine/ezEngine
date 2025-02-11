@@ -20,7 +20,7 @@ class ScriptObject : ezAngelScriptClass
         SetUpdateInterval(ezTime::Seconds(60)); // basically deactivate future updates
 
         auto expObj = GetOwner().FindChildByName("Explosion", true);
-        if (expObj == null)
+        if (@expObj == null)
             return;
 
         ezSpawnComponent@ spawnComp;

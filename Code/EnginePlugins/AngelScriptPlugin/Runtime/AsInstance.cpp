@@ -49,6 +49,8 @@ ezAngelScriptInstance::~ezAngelScriptInstance()
 
   if (m_pContext)
   {
+    EZ_ASSERT_DEBUG(!m_pContext->IsNested(), "Invalid time to release context!");
+
     m_pContext->Release();
     m_pContext = nullptr;
   }
