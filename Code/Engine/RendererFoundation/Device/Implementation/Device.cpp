@@ -974,9 +974,23 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
 
     const ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
     const ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
-    EZ_ASSERT_DEV(sourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
-    EZ_ASSERT_DEV(sourceData.m_uiSlicePitch == 0 || sourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
-    EZ_ASSERT_DEBUG(sourceData.m_pData.GetCount() >= uiSlicePitch * uiDepth, "Not enough data provided to update texture");
+    if (sourceData.m_uiRowPitch != uiRowPitch)
+    {
+      ezLog::Error("Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
+      return;
+    }
+
+    if (sourceData.m_uiSlicePitch != 0 && sourceData.m_uiSlicePitch != uiSlicePitch)
+    {
+      ezLog::Error("Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
+      return;
+    }
+
+    if (sourceData.m_pData.GetCount() < uiSlicePitch * uiDepth)
+    {
+      ezLog::Error("Not enough data provided to update texture");
+      return;
+    }
 
     ezGALSystemMemoryDescription finalSourceData = sourceData;
     if (finalSourceData.m_uiSlicePitch == 0)

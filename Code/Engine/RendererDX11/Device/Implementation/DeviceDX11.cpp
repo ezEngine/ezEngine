@@ -701,8 +701,13 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
   {
     if (copy.m_pDestResource == pBufferDX11->GetDXBuffer())
     {
-      ezLog::Error("Buffer is already updated for next frame.");
-      return;
+      const bool bWholeBuffer = copy.m_vSourceSize.x == ezInvalidIndex;
+      const bool bOverlapping = uiDestOffset < copy.m_vDestPoint.x + copy.m_vSourceSize.x && copy.m_vDestPoint.x < uiDestOffset + sourceData.GetCount();
+      if (bWholeBuffer || bOverlapping)
+      {
+        ezLog::Error("Buffer range is already updated for next frame.");
+        return;
+      }
     }
   }
 #endif
@@ -714,7 +719,7 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
   copy.m_pDestResource = pBufferDX11->GetDXBuffer();
   copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
 
-  bool bWholeBuffer = uiDestOffset == 0 && copy.m_SourceResource.m_uiRowPitch == uiDestBufferSize;
+  const bool bWholeBuffer = uiDestOffset == 0 && copy.m_SourceResource.m_uiRowPitch == uiDestBufferSize;
   copy.m_vSourceSize = bWholeBuffer ? ezVec3U32(ezInvalidIndex) : ezVec3U32(sourceData.GetCount(), 1, 1);
 }
 
