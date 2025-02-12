@@ -738,7 +738,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
     return EZ_SUCCESS;
   }
 
-  WaitIdlePlatform();
+  WaitIdleInternal(true);
 
   m_pStagingBufferPool->DeInitialize();
   m_pStagingBufferPool = nullptr;
@@ -1688,8 +1688,13 @@ void ezGALDeviceVulkan::FlushPlatform()
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
 {
+  WaitIdleInternal(false);
+}
+
+void ezGALDeviceVulkan::WaitIdleInternal(bool bAddUpdateForNextFrameCommands)
+{
   // Make sure command buffers get flushed. Also, no need to add a wait semaphore if we flush anyway, all commands will be done.
-  Submit(false);
+  Submit(false, bAddUpdateForNextFrameCommands);
   m_device.waitIdle();
   DestroyDeadObjects();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)

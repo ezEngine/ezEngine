@@ -391,6 +391,8 @@ protected:
   /// \endcond
 
 private:
+  void WaitIdleInternal(bool bAddUpdateForNextFrameCommands);
+
   struct PerFrameData
   {
     /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
