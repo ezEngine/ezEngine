@@ -180,7 +180,7 @@ public:
 
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
-  vk::Fence Submit(bool bAddSignalSemaphore = true);
+  vk::Fence Submit(bool bAddSignalSemaphore = true, bool bAddUpdateForNextFrameCommands = false);
 
   void DeleteLaterImpl(const PendingDeletion& deletion);
 
@@ -440,6 +440,7 @@ private:
   ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
   ezUniquePtr<ezFenceQueueVulkan> m_pFenceQueue;
   ezUniquePtr<ezInitContextVulkan> m_pInitContext;
+  ezUniquePtr<ezInitContextVulkan> m_pUpdateForNextFrameContext;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;
