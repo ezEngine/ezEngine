@@ -238,7 +238,7 @@ static void ezStringBuilder_Destruct(void* pMemory)
   p->~ezStringBuilder();
 }
 
-static void ezStringBuilder_Format(ezStringBuilder& sb, asIScriptGeneric* pGen)
+static void ezStringBuilder_Format(ezStringBuilder& ref_sStr, asIScriptGeneric* pGen)
 {
   const ezUInt32 uiNumArgs = (ezUInt32)pGen->GetArgCount();
   const ezStringView sText = *((ezStringView*)pGen->GetArgObject(0));
@@ -275,7 +275,7 @@ static void ezStringBuilder_Format(ezStringBuilder& sb, asIScriptGeneric* pGen)
   }
 
   ezFormatString fs(sText);
-  fs.BuildFormattedText(sb, stringViews.GetData(), stringViews.GetCount());
+  fs.BuildFormattedText(ref_sStr, stringViews.GetData(), stringViews.GetCount());
 }
 
 static void ezStringBuilder_SetFormat(asIScriptGeneric* pGen)
