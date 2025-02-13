@@ -159,8 +159,8 @@ bool ezGreyBoxComponent::get_SlopedTop() const
 bool ezGreyBoxComponent::get_UseAsOccluder() const
 bool ezHashedString::IsEmpty() const
 bool ezHashedString::opEquals(const ezHashedString&in) const
+bool ezHashedString::opEquals(const ezStringView) const
 bool ezHashedString::opEquals(const ezTempHashedString&in) const
-bool ezHashedString::opEquals(ezStringView) const
 bool ezHeadBoneComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezHeadBoneComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezHeightfieldComponent::SendMessage(ezMessage&inout ref_msg)
@@ -321,7 +321,7 @@ bool ezPathNodeComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezPathNodeComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezPhysics::OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = - 1)
+bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
 bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPlayerStartPointComponent::SendMessage(ezMessage&inout ref_msg)
@@ -537,8 +537,6 @@ bool ezTriggerDelayModifierComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezTriggerDelayModifierComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezTwoBoneIKComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezTwoBoneIKComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezTypeScriptComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezTypeScriptComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezVec2::IsEqual(const ezVec2&in, float fEpsilon) const
 bool ezVec2::IsIdentical(const ezVec2&in) const
 bool ezVec2::IsNaN() const
@@ -582,8 +580,8 @@ bool ezWindVolumeSphereComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezWorld::IsValidComponent(ezComponentHandle&in)
 bool ezWorld::IsValidObject(const ezGameObjectHandle&in hObject)
 bool ezWorld::TryGetComponent(const ezComponentHandle&in hComponent, ?&out component)
-bool ezWorld::TryGetObject(ezGameObjectHandle&in, const ezGameObject@&out pObject) const
-bool ezWorld::TryGetObject(ezGameObjectHandle&in, ezGameObject@&out pObject)
+bool ezWorld::TryGetObject(const ezGameObjectHandle&in, const ezGameObject@&out pObject) const
+bool ezWorld::TryGetObject(const ezGameObjectHandle&in, ezGameObject@&out pObject)
 bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, const ezGameObject@&out pObject)
 bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, ezGameObject@&out pObject)
 const ezClock@ ezWorld::GetClock() const
@@ -1079,7 +1077,6 @@ ezComponent@ ezTimedDeathComponent::opImplCast()
 ezComponent@ ezTransformComponent::opImplCast()
 ezComponent@ ezTriggerDelayModifierComponent::opImplCast()
 ezComponent@ ezTwoBoneIKComponent::opImplCast()
-ezComponent@ ezTypeScriptComponent::opImplCast()
 ezComponent@ ezVisualizeHandComponent::opImplCast()
 ezComponent@ ezVolumeBoxComponent::opImplCast()
 ezComponent@ ezVolumeComponent::opImplCast()
@@ -1231,7 +1228,6 @@ ezComponentHandle ezTimedDeathComponent::GetHandle() const
 ezComponentHandle ezTransformComponent::GetHandle() const
 ezComponentHandle ezTriggerDelayModifierComponent::GetHandle() const
 ezComponentHandle ezTwoBoneIKComponent::GetHandle() const
-ezComponentHandle ezTypeScriptComponent::GetHandle() const
 ezComponentHandle ezVisualizeHandComponent::GetHandle() const
 ezComponentHandle ezVolumeBoxComponent::GetHandle() const
 ezComponentHandle ezVolumeComponent::GetHandle() const
@@ -1275,7 +1271,6 @@ ezEventMessage@ ezMsgTriggerTriggered::opImplCast()
 ezEventMessageHandlerComponent@ ezComponent::opCast()
 ezEventMessageHandlerComponent@ ezForwardEventsToGameStateComponent::opImplCast()
 ezEventMessageHandlerComponent@ ezScriptComponent::opImplCast()
-ezEventMessageHandlerComponent@ ezTypeScriptComponent::opImplCast()
 ezEventMsgSetPowerInput@ ezEventMessage::opCast()
 ezEventMsgSetPowerInput@ ezMessage::opCast()
 ezFakeRopeComponent@ ezComponent::opCast()
@@ -1550,7 +1545,6 @@ ezMessage@ ezMsgSetPlaying::opImplCast()
 ezMessage@ ezMsgStateMachineStateChanged::opImplCast()
 ezMessage@ ezMsgTransformChanged::opImplCast()
 ezMessage@ ezMsgTriggerTriggered::opImplCast()
-ezMessage@ ezMsgTypeScriptMsgProxy::opImplCast()
 ezMessage@ ezMsgUpdateLocalBounds::opImplCast()
 ezMoveToComponent@ ezComponent::opCast()
 ezMsgAnimationPoseGeneration@ ezMessage::opCast()
@@ -1608,7 +1602,6 @@ ezMsgStateMachineStateChanged@ ezMessage::opCast()
 ezMsgTransformChanged@ ezMessage::opCast()
 ezMsgTriggerTriggered@ ezEventMessage::opCast()
 ezMsgTriggerTriggered@ ezMessage::opCast()
-ezMsgTypeScriptMsgProxy@ ezMessage::opCast()
 ezMsgUpdateLocalBounds@ ezMessage::opCast()
 ezNavMeshObstacleComponent@ ezComponent::opCast()
 ezObjectMsgQueueType::AfterInitialized
@@ -1887,7 +1880,6 @@ ezString ezSkeletonComponent::get_BonesToHighlight() const
 ezString ezStateMachineComponent::get_BlackboardName() const
 ezString ezStateMachineComponent::get_InitialState() const
 ezString ezTwoBoneIKComponent::get_PoleVector() const
-ezString ezTypeScriptComponent::get_Script() const
 ezString ezVolumeComponent::get_Type() const
 ezStringView ezAnimatedMeshComponent::get_Mesh() const
 ezStringView ezAnimationControllerComponent::get_AnimGraph() const
@@ -1962,6 +1954,7 @@ ezStringView ezVolumeComponent::get_Template() const
 ezStringView ezWorld::GetName()
 ezTime ezCameraComponent::get_ShutterTime() const
 ezTime ezCameraShakeVolumeComponent::get_BurstDuration() const
+ezTime ezClock::GetAccumulatedTime() const
 ezTime ezClock::GetTimeDiff() const
 ezTime ezColorAnimationComponent::get_Duration() const
 ezTime ezDecalComponent::get_FadeOutDuration() const
@@ -2035,8 +2028,6 @@ ezTriggerState::Activated
 ezTriggerState::Continuing
 ezTriggerState::Deactivated
 ezTwoBoneIKComponent@ ezComponent::opCast()
-ezTypeScriptComponent@ ezComponent::opCast()
-ezTypeScriptComponent@ ezEventMessageHandlerComponent::opCast()
 ezUpdateRate ezSensorComponent::get_UpdateRate() const
 ezUpdateRate::EveryFrame
 ezUpdateRate::Max10fps
@@ -2288,6 +2279,7 @@ float ezCreatureCrawlComponent::get_CastDown() const
 float ezCreatureCrawlComponent::get_CastUp() const
 float ezCreatureCrawlComponent::get_MinLegDistance() const
 float ezCreatureCrawlComponent::get_StepDistance() const
+float ezDebugTextComponent::get_MaxDistance() const
 float ezDebugTextComponent::get_Value0() const
 float ezDebugTextComponent::get_Value1() const
 float ezDebugTextComponent::get_Value2() const
@@ -2771,6 +2763,7 @@ void ezDebug::DrawLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, 
 void ezDebug::DrawSolidBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
 void ezDebugTextComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezDebugTextComponent::set_Color(ezColorGammaUB)
+void ezDebugTextComponent::set_MaxDistance(float)
 void ezDebugTextComponent::set_Text(ezString)
 void ezDebugTextComponent::set_Value0(float)
 void ezDebugTextComponent::set_Value1(float)
@@ -2918,9 +2911,9 @@ void ezGreyBoxComponent::set_SlopedBottom(bool)
 void ezGreyBoxComponent::set_SlopedTop(bool)
 void ezGreyBoxComponent::set_Thickness(float)
 void ezGreyBoxComponent::set_UseAsOccluder(bool)
-void ezHashedString::Assign(ezStringView)
+void ezHashedString::Assign(const ezStringView)
 void ezHashedString::Clear()
-void ezHashedString::opAssign(ezStringView)
+void ezHashedString::opAssign(const ezStringView)
 void ezHeadBoneComponent::ChangeVerticalRotation(float Radians)
 void ezHeadBoneComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezHeadBoneComponent::SetVerticalRotation(float Radians)
@@ -3496,6 +3489,7 @@ void ezStageSpaceComponent::set_StageSpace(ezXRStageSpace)
 void ezStateMachineComponent::FireTransitionEvent(ezStringView Name)
 void ezStateMachineComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezStateMachineComponent::set_Resource(ezStringView)
+void ezString::opAssign(const ezHashedString&in)
 void ezString::opAssign(const ezString&in)
 void ezString::opAssign(const ezStringBuilder&in)
 void ezString::opAssign(const ezStringView)
@@ -3504,6 +3498,14 @@ void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2)
 void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3)
 void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)
 void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "")
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)
+void ezStringBuilder::AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)
 void ezStringBuilder::AppendPath(ezStringView sPath1, ezStringView sPath2 = "", ezStringView sPath3 = "", ezStringView sPath4 = "")
 void ezStringBuilder::AppendWithSeparator(ezStringView sSeparator, ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "")
 void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension = false)
@@ -3513,6 +3515,14 @@ void ezStringBuilder::Clear()
 void ezStringBuilder::MakeCleanPath()
 void ezStringBuilder::PathParentDirectory(uint uiLevelsUp = 1)
 void ezStringBuilder::Prepend(ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "")
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)
+void ezStringBuilder::PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)
 void ezStringBuilder::RemoveFileExtension(bool bFullExtension = false)
 void ezStringBuilder::Reserve(uint uiNumElements)
 void ezStringBuilder::Set(ezStringView sData1)
@@ -3520,6 +3530,14 @@ void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2)
 void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3)
 void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4)
 void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "")
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)
+void ezStringBuilder::SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)
 void ezStringBuilder::SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3 = "", ezStringView sData4 = "")
 void ezStringBuilder::Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack)
 void ezStringBuilder::ToLower()
@@ -3563,7 +3581,6 @@ void ezTwoBoneIKComponent::set_JointMiddle(ezHashedString)
 void ezTwoBoneIKComponent::set_JointStart(ezHashedString)
 void ezTwoBoneIKComponent::set_MidAxis(ezBasisAxis)
 void ezTwoBoneIKComponent::set_Weight(float)
-void ezTypeScriptComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezVec2::MakeOrthogonalTo(const ezVec2&in)
 void ezVec2::Normalize()
 void ezVec2::Set(float x, float y)

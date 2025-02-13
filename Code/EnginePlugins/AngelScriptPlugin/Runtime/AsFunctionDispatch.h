@@ -62,11 +62,19 @@ struct ezMsgDeliverAngelScriptMsg : public ezMessage
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptCustomAsMessageHandler : public ezScriptMessageHandler
 {
 public:
-  ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction);
+  ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc);
   ~ezAngelScriptCustomAsMessageHandler();
+
+  void AddReceiver(asIScriptFunction* pFunction, const char* szArgType);
 
   static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
 
 private:
-  asIScriptFunction* m_pAsFunction = nullptr;
+  struct Receiver
+  {
+    ezHashedString m_sArgType;
+    asIScriptFunction* m_pAsFunction = nullptr;
+  };
+
+  ezHybridArray<Receiver, 2> m_Receivers;
 };

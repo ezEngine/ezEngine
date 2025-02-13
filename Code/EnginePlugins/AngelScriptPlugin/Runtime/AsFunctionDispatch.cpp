@@ -89,44 +89,62 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
 
 //////////////////////////////////////////////////////////////////////////
 
-ezAngelScriptCustomAsMessageHandler::ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc, asIScriptFunction* pFunction)
+ezAngelScriptCustomAsMessageHandler::ezAngelScriptCustomAsMessageHandler(const ezScriptMessageDesc& desc)
   : ezScriptMessageHandler(desc)
 {
   m_DispatchFunc = &Dispatch;
-
-  m_pAsFunction = pFunction;
-  m_pAsFunction->AddRef();
 }
 
 ezAngelScriptCustomAsMessageHandler::~ezAngelScriptCustomAsMessageHandler()
 {
-  if (m_pAsFunction)
+  for (auto& r : m_Receivers)
   {
-    m_pAsFunction->Release();
-    m_pAsFunction = nullptr;
+    r.m_pAsFunction->Release();
+    r.m_pAsFunction = nullptr;
   }
+}
+
+
+void ezAngelScriptCustomAsMessageHandler::AddReceiver(asIScriptFunction* pFunction, const char* szArgType)
+{
+  auto& r = m_Receivers.ExpandAndGetRef();
+  r.m_pAsFunction = pFunction;
+  r.m_pAsFunction->AddRef();
+  r.m_sArgType.Assign(szArgType);
 }
 
 void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
 {
-  auto pScriptComp = static_cast<ezScriptComponent*>(pInstance);
-
   auto pThis = static_cast<ezAngelScriptCustomAsMessageHandler*>(pSelf);
-  auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
-  auto pContext = pScriptInstance->GetContext();
-  pContext->PushState();
+  ezMsgDeliverAngelScriptMsg& asMsg = static_cast<ezMsgDeliverAngelScriptMsg&>(ref_msg);
 
-  if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
+  auto pMsgObj = reinterpret_cast<asIScriptObject*>(asMsg.m_pAsMsg);
+  const char* szObjType = pMsgObj->GetObjectType()->GetName();
+  const ezTempHashedString sObjType(szObjType);
+
+  for (const auto& r : pThis->m_Receivers)
   {
-    ezMsgDeliverAngelScriptMsg& asMsg = static_cast<ezMsgDeliverAngelScriptMsg&>(ref_msg);
+    if (r.m_sArgType != sObjType)
+      continue;
 
+    auto pScriptComp = static_cast<ezScriptComponent*>(pInstance);
+    auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
     EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
-    pContext->SetObject(pScriptInstance->GetObject());
-    pContext->SetArgObject(0, asMsg.m_pAsMsg);
-    pContext->Execute();
-  }
 
-  pContext->PopState();
+    auto pContext = pScriptInstance->GetContext();
+    pContext->PushState();
+
+    if (pContext->Prepare(r.m_pAsFunction) >= 0)
+    {
+
+      pContext->SetObject(pScriptInstance->GetObject());
+      pContext->SetArgObject(0, pMsgObj);
+      pContext->Execute();
+    }
+
+    pContext->PopState();
+    break;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

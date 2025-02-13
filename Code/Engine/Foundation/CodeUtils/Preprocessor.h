@@ -144,6 +144,9 @@ public:
   /// \brief If set to true, all #line commands are passed through to the output, otherwise they are removed.
   void SetPassThroughLine(bool bPassThrough) { m_bPassThroughLine = bPassThrough; }
 
+  /// \brief If set to true, all files are treated as if they contain a '#pragma once' directive, ie they will never be #included twice.
+  void SetImplicitPragmaOnce(bool bEnable) { m_bImplicitPragmaOnce = bEnable; }
+
   /// \brief Sets the callback that is used to determine whether an unknown command is passed through or triggers an error.
   void SetPassThroughUnknownCmdsCB(PassThroughUnknownCmdCB callback) { m_PassThroughUnknownCmdCB = callback; }
 
@@ -215,8 +218,9 @@ private:
   // happen before the allocator get destroyed.
   ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_ClassAllocator;
 
-  bool m_bPassThroughPragma;
-  bool m_bPassThroughLine;
+  bool m_bPassThroughPragma = false;
+  bool m_bPassThroughLine = false;
+  bool m_bImplicitPragmaOnce = false; // all files will be treated as if they contain a #pragma once directive
   PassThroughUnknownCmdCB m_PassThroughUnknownCmdCB;
 
   // this file cache is used as long as the user does not provide his own

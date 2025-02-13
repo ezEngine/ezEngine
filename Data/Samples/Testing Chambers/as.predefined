@@ -857,13 +857,13 @@ class ezHashedString
   ezHashedString(const ezStringView);
   ezHashedString(const ezHashedString&in);
 
-  void opAssign(ezStringView);
+  void opAssign(const ezStringView);
   bool IsEmpty() const;
   void Clear();
-  void Assign(ezStringView);
+  void Assign(const ezStringView);
   bool opEquals(const ezHashedString&in) const;
   bool opEquals(const ezTempHashedString&in) const;
-  bool opEquals(ezStringView) const;
+  bool opEquals(const ezStringView) const;
   ezStringView GetView() const;
 }
 
@@ -874,6 +874,7 @@ class ezString
   ezString(const ezStringView);
   ezString(const ezString&in);
   ezString(const ezStringBuilder&in);
+  ezString(const ezHashedString&in);
 
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;
@@ -904,6 +905,7 @@ class ezString
   void opAssign(const ezStringView);
   void opAssign(const ezString&in);
   void opAssign(const ezStringBuilder&in);
+  void opAssign(const ezHashedString&in);
 }
 
 [BuiltinString]
@@ -957,6 +959,30 @@ class ezStringBuilder
   void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4);
   void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "");
   void Prepend(ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "");
+  void SetFormat(ezStringView sText, ?&in VarArg1);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void AppendFormat(ezStringView sText, ?&in VarArg1);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void PrependFormat(ezStringView sText, ?&in VarArg1);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
   void Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack);
   void Reserve(uint uiNumElements);
   uint ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement);
@@ -1216,7 +1242,6 @@ class ezComponent
   ezProcVolumeBoxComponent@ opCast();
   ezProcVolumeImageComponent@ opCast();
   ezRmlUiCanvas2DComponent@ opCast();
-  ezTypeScriptComponent@ opCast();
   ezCommentComponent@ opCast();
   ezShapeIconComponent@ opCast();
   bool SendMessage(ezMessage&inout ref_msg);
@@ -1232,8 +1257,8 @@ class ezWorld
   ezGameObjectHandle CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object);
   void DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true);
   bool IsValidObject(const ezGameObjectHandle&in hObject);
-  bool TryGetObject(ezGameObjectHandle&in, ezGameObject@&out pObject);
-  bool TryGetObject(ezGameObjectHandle&in, const ezGameObject@&out pObject) const;
+  bool TryGetObject(const ezGameObjectHandle&in, ezGameObject@&out pObject);
+  bool TryGetObject(const ezGameObjectHandle&in, const ezGameObject@&out pObject) const;
   bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, ezGameObject@&out pObject);
   bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, const ezGameObject@&out pObject);
   bool IsValidComponent(ezComponentHandle&in);
@@ -1299,7 +1324,6 @@ class ezMessage
   ezJoltMsgDisconnectConstraints@ opCast();
   ezMsgExtractVolumes@ opCast();
   ezMsgRmlUiReload@ opCast();
-  ezMsgTypeScriptMsgProxy@ opCast();
 }
 
 class ezClock
@@ -1309,6 +1333,7 @@ class ezClock
   ezTime GetTimeDiff() const;
   void SetSpeed(double);
   double GetSpeed() const;
+  ezTime GetAccumulatedTime() const;
 }
 
 class ezRandom
@@ -1364,7 +1389,6 @@ class ezEventMessageHandlerComponent : ezComponent
   bool PassThroughUnhandledEvents;
   ezForwardEventsToGameStateComponent@ opCast();
   ezScriptComponent@ opCast();
-  ezTypeScriptComponent@ opCast();
   bool SendMessage(ezMessage&inout ref_msg);
   bool SendMessage(ezMessage&inout ref_msg) const;
   void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
@@ -1654,6 +1678,7 @@ class ezDebugTextComponent : ezComponent
   float Value2;
   float Value3;
   ezColorGammaUB Color;
+  float MaxDistance;
   bool SendMessage(ezMessage&inout ref_msg);
   bool SendMessage(ezMessage&inout ref_msg) const;
   void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
@@ -3315,15 +3340,6 @@ class ezRmlUiCanvas2DComponent : ezRenderComponent
   ezComponentHandle GetHandle() const;
 }
 
-class ezTypeScriptComponent : ezEventMessageHandlerComponent
-{
-  ezString Script;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
-}
-
 class ezCommentComponent : ezComponent
 {
   ezString Comment;
@@ -3592,10 +3608,6 @@ class ezMsgRmlUiReload : ezMessage
 {
 }
 
-class ezMsgTypeScriptMsgProxy : ezMessage
-{
-}
-
 class ezIAngelScriptClass
 {
 }
@@ -3604,12 +3616,19 @@ class ezIAngelScriptClass
 // *** EXTRA *** 
 
 
+// Base class for objects that one shall be able to instantiate through the ezScriptComponent.
 class ezAngelScriptClass : ezIAngelScriptClass
 {
     ezScriptComponent@ GetOwnerComponent();
     ezGameObject@ GetOwner();
     ezWorld@ GetWorld();
     void SetUpdateInterval(ezTime interval);
+
+    // Functions to override:
+    // void OnActivated();
+    // void OnDeactivated();
+    // void OnSimulationStarted();
+    // void Update();
 }
     
 // *** GLOBAL FUNCTIONS *** 
@@ -3822,7 +3841,7 @@ namespace ezPhysics
 {
   ezVec3 GetGravity(ezWorld@ World);
   uint8 GetCollisionLayerByName(ezWorld@ World, ezStringView Name);
-  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = - 1);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
   bool OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));

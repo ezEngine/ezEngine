@@ -148,6 +148,12 @@ ezResult ezAngelScriptUtils::WriteToAsTypeAtLocation(asIScriptEngine* pEngine, i
   {
     const ezRTTI* pRtti = (const ezRTTI*)pInfo->GetUserData(ezAsUserData::RttiPtr);
 
+    if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+    {
+      *static_cast<ezUInt32*>(pMemDst) = value.ConvertTo<ezUInt32>();
+      return EZ_SUCCESS;
+    }
+
     if (pRtti == ezGetStaticRTTI<ezAngle>())
     {
       *static_cast<ezAngle*>(pMemDst) = value.ConvertTo<ezAngle>();
@@ -278,6 +284,12 @@ ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, 
   else if (const asITypeInfo* pInfo = pEngine->GetTypeInfoById(iAsTypeID))
   {
     const ezRTTI* pRtti = (const ezRTTI*)pInfo->GetUserData(ezAsUserData::RttiPtr);
+
+    if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+    {
+      out_value = *static_cast<ezUInt32*>(pMemLoc);
+      return EZ_SUCCESS;
+    }
 
     if (pRtti == ezGetStaticRTTI<ezAngle>())
     {
@@ -628,7 +640,7 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, con
     if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(uiArg), out_arg).Succeeded())
       return;
 
-    ezStringBuilder typeName("null");
+    const char* typeName = "null";
     if (const asITypeInfo* pInfo = pGen->GetEngine()->GetTypeInfoById(argTypeId))
     {
       typeName = pInfo->GetName();
@@ -705,91 +717,8 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* pGen)
 
   if (pAbstractFuncProp->GetReturnType() != nullptr)
   {
-    switch (pAbstractFuncProp->GetReturnType()->GetVariantType())
-    {
-      case ezVariantType::Bool:
-        pGen->SetReturnByte(ret.Get<bool>() ? 1 : 0);
-        return;
-      case ezVariantType::Double:
-        pGen->SetReturnDouble(ret.Get<double>());
-        return;
-      case ezVariantType::Float:
-        pGen->SetReturnFloat(ret.Get<float>());
-        return;
-      case ezVariantType::Int8:
-        pGen->SetReturnByte(ret.Get<ezInt8>());
-        return;
-      case ezVariantType::Int16:
-        pGen->SetReturnWord(ret.Get<ezInt16>());
-        return;
-      case ezVariantType::Int32:
-        pGen->SetReturnDWord(ret.Get<ezInt32>());
-        return;
-      case ezVariantType::Int64:
-        pGen->SetReturnQWord(ret.Get<ezInt64>());
-        return;
-      case ezVariantType::UInt8:
-        pGen->SetReturnByte(ret.Get<ezUInt8>());
-        return;
-      case ezVariantType::UInt16:
-        pGen->SetReturnWord(ret.Get<ezUInt16>());
-        return;
-      case ezVariantType::UInt32:
-        pGen->SetReturnDWord(ret.Get<ezUInt32>());
-        return;
-      case ezVariantType::UInt64:
-        pGen->SetReturnQWord(ret.Get<ezUInt64>());
-        return;
-
-      case ezVariantType::Vector2:
-        *((ezVec2*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec2>();
-        return;
-      case ezVariantType::Vector3:
-        *((ezVec3*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec3>();
-        return;
-      case ezVariantType::Vector4:
-        *((ezVec4*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezVec4>();
-        return;
-      case ezVariantType::Quaternion:
-        *((ezQuat*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezQuat>();
-        return;
-      case ezVariantType::Matrix3:
-        *((ezMat3*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezMat3>();
-        return;
-      case ezVariantType::Matrix4:
-        *((ezMat4*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezMat4>();
-        return;
-      case ezVariantType::Transform:
-        *((ezTransform*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezTransform>();
-        return;
-      case ezVariantType::Time:
-        *((ezTime*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezTime>();
-        return;
-      case ezVariantType::Angle:
-        *((ezAngle*)pGen->GetAddressOfReturnLocation()) = ret.Get<ezAngle>();
-        return;
-
-      case ezVariantType::String:
-        new (pGen->GetAddressOfReturnLocation()) ezString(ret.Get<ezString>());
-        return;
-
-      case ezVariantType::HashedString:
-        new (pGen->GetAddressOfReturnLocation()) ezHashedString(ret.Get<ezHashedString>());
-        return;
-
-      case ezVariantType::StringView:
-        new (pGen->GetAddressOfReturnLocation()) ezStringView(ret.Get<ezStringView>());
-        return;
-
-      case ezVariantType::TempHashedString:
-        new (pGen->GetAddressOfReturnLocation()) ezTempHashedString(ret.Get<ezTempHashedString>());
-        return;
-
-      default:
-        break;
-    }
-
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pAbstractFuncProp->GetReturnType());
+    ezAngelScriptUtils::WriteToAsTypeAtLocation(pGen->GetEngine(), pGen->GetReturnTypeId(), pGen->GetAddressOfReturnLocation(), ret).AssertSuccess();
   }
 }
 
@@ -804,6 +733,12 @@ void ezAngelScriptUtils::DefaultConstructInPlace(void* pPtr, const ezRTTI* pRtti
   if (pRtti == ezGetStaticRTTI<ezStringBuilder>())
   {
     new (pPtr) ezStringBuilder();
+    return;
+  }
+
+  if (pRtti == ezGetStaticRTTI<ezHashedString>())
+  {
+    new (pPtr) ezHashedString();
     return;
   }
 

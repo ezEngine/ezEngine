@@ -15,6 +15,7 @@ public:
   {
     m_Processor.SetFileOpenFunction(ezMakeDelegate(&ezAsPreprocessor::PreProc_OpenFile, this));
     m_Processor.m_ProcessingEvents.AddEventHandler(ezMakeDelegate(&ezAsPreprocessor::PreProc_Event, this));
+    m_Processor.SetImplicitPragmaOnce(true);
   }
 
   ezResult Process(ezStringBuilder& ref_sResult)

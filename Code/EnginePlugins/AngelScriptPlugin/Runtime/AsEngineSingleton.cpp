@@ -435,6 +435,8 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
     }
     else
     {
+      const ezRTTI* pArgType = pFunc->GetArgumentType(uiArg);
+
       if (const char* szName = pFuncAttr->GetArgumentName(uiArg))
       {
         decl.Append(" ", szName);
@@ -442,7 +444,7 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
 
       if (bHasDefaultArgs)
       {
-        defaultValue = ezReflectionUtils::GetDefaultVariantFromType(pFunc->GetArgumentType(uiArg));
+        defaultValue = ezReflectionUtils::GetDefaultVariantFromType(pArgType);
       }
 
       if (!argAttributes.IsEmpty() && argAttributes[uiArg])
@@ -459,19 +461,29 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
 
       if (bHasDefaultArgs)
       {
-        const bool bIsEnum = pFunc->GetArgumentType(uiArg)->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags);
+        const bool bIsEnum = pArgType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags);
 
         decl.Append(" = ");
 
         if (bIsEnum)
         {
-          decl.Append(pFunc->GetArgumentType(uiArg)->GetTypeName(), "(");
+          decl.Append(pArgType->GetTypeName(), "(");
         }
 
         if (defaultValue.IsValid())
+        {
+          if (pArgType->GetVariantType() == ezVariantType::UInt32)
+          {
+            // special case to make the default value unsigned
+            defaultValue = defaultValue.ConvertTo<ezUInt32>();
+          }
+
           decl.Append(ezAngelScriptUtils::DefaultValueToString(defaultValue));
+        }
         else
+        {
           decl.Append("0"); // fallback for enums
+        }
 
         if (bIsEnum)
         {
@@ -555,17 +567,22 @@ static void SetPropertyGeneric(asIScriptGeneric* pGen)
 {
   const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
 
-  pMember->SetValuePtr(pGen->GetObject(), pGen->GetAddressOfArg(0));
+  ezVariant value;
+  ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), pGen->GetArgTypeId(0), pGen->GetAddressOfArg(0), value).AssertSuccess();
+
+  ezReflectionUtils::SetMemberPropertyValue(pMember, pGen->GetObject(), value);
 }
 
 static void GetPropertyGeneric(asIScriptGeneric* pGen)
 {
   const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
 
+  const ezVariant value = ezReflectionUtils::GetMemberPropertyValue(pMember, pGen->GetObject());
+
   const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pGen->GetReturnTypeId(), pGen->GetEngine());
   ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pRtti);
 
-  pMember->GetValuePtr(pGen->GetObject(), pGen->GetAddressOfReturnLocation());
+  ezAngelScriptUtils::WriteToAsTypeAtLocation(pGen->GetEngine(), pGen->GetReturnTypeId(), pGen->GetAddressOfReturnLocation(), value).AssertSuccess();
 }
 
 void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)

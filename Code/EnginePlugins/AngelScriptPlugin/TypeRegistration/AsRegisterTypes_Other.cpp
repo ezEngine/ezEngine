@@ -120,6 +120,8 @@ void ezAngelScriptEngineSingleton::Register_Clock()
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "void SetSpeed(double)", asMETHOD(ezClock, SetSpeed), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "double GetSpeed() const", asMETHOD(ezClock, GetSpeed), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezClock", "ezTime GetAccumulatedTime() const", asMETHOD(ezClock, GetAccumulatedTime), asCALL_THISCALL));
 }
 
 

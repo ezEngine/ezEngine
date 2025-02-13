@@ -339,8 +339,8 @@ void ezAngelScriptEngineSingleton::Register_World()
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void DeleteObjectDelayed(const ezGameObjectHandle& in hObject, bool bAlsoDeleteEmptyParents = true)", asMETHOD(ezWorld, DeleteObjectDelayed), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool IsValidObject(const ezGameObjectHandle& in hObject)", asMETHOD(ezWorld, IsValidObject), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObject(ezGameObjectHandle& in, ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObject, (const ezGameObjectHandle&, ezGameObject*&), bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObject(ezGameObjectHandle& in, const ezGameObject@& out pObject) const", asMETHODPR(ezWorld, TryGetObject, (const ezGameObjectHandle&, const ezGameObject*&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObject(const ezGameObjectHandle& in, ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObject, (const ezGameObjectHandle&, ezGameObject*&), bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObject(const ezGameObjectHandle& in, const ezGameObject@& out pObject) const", asMETHODPR(ezWorld, TryGetObject, (const ezGameObjectHandle&, const ezGameObject*&) const, bool), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject), bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, const ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const, bool), asCALL_THISCALL));

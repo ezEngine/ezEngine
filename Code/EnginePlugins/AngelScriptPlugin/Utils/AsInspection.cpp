@@ -377,12 +377,19 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
     out_sContent.Append("\n// *** EXTRA *** \n\n");
 
     const char* szClassCode = R"(
+// Base class for objects that one shall be able to instantiate through the ezScriptComponent.
 class ezAngelScriptClass : ezIAngelScriptClass
 {
     ezScriptComponent@ GetOwnerComponent();
     ezGameObject@ GetOwner();
     ezWorld@ GetWorld();
     void SetUpdateInterval(ezTime interval);
+
+    // Functions to override:
+    // void OnActivated();
+    // void OnDeactivated();
+    // void OnSimulationStarted();
+    // void Update();
 }
     )";
 

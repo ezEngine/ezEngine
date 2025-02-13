@@ -6,6 +6,7 @@ AddInitialImpulse
 AddLinearForce
 AddLinearImpulse
 Append
+AppendFormat
 AppendPath
 AppendWithSeparator
 ApplyAreaDamage
@@ -62,6 +63,7 @@ FloatVariance
 FloatVarianceAroundZero
 FloatZeroToOneExclusive
 FloatZeroToOneInclusive
+GetAccumulatedTime
 GetActiveFlag
 GetAngularVelocity
 GetAsDirectionVec4
@@ -218,6 +220,7 @@ PostEventMessage
 PostMessage
 PostMessageRecursive
 Prepend
+PrependFormat
 RawMove
 ReconstructFromMat3
 ReconstructFromMat4
@@ -240,6 +243,7 @@ SetDestination
 SetDirectionForwards
 SetEntryValue
 SetEventParameter
+SetFormat
 SetGlobalKey
 SetGlobalPosition
 SetGlobalRotation

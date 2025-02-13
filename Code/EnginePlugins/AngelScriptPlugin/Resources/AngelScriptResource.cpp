@@ -189,58 +189,81 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
 
   ezStringBuilder sArgType;
 
-  // TODO AngelScript: more elaborate error reporting
+  ezUniquePtr<ezAngelScriptCustomAsMessageHandler> pAsMsgHandler;
 
   for (ezUInt32 i = 0; i < pClassType->GetMethodCount(); ++i)
   {
     asIScriptFunction* pFunc = pClassType->GetMethodByIndex(i, false);
 
+    if (!ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg"))
+      continue;
+
     // only allow void functions
     if (pFunc->GetReturnTypeId() != asTYPEID_VOID)
+    {
+      ezLog::Error("Malformed message handler '{}': Return type must be 'void'.", pFunc->GetName());
       continue;
+    }
 
     // that take exactly one argument
     if (pFunc->GetParamCount() != 1)
+    {
+      ezLog::Error("Malformed message handler '{}': Must take exactly one argument.", pFunc->GetName());
       continue;
+    }
 
     int iArgTypeId;
     pFunc->GetParam(0, &iArgTypeId);
 
-    // that start with "OnMsg"
-    if (ezStringUtils::StartsWith(pFunc->GetName(), "OnMsg"))
+    if (iArgTypeId & asTYPEID_APPOBJECT)
     {
-      if (iArgTypeId & asTYPEID_APPOBJECT)
+      const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
+
+      if (pArgType == nullptr)
       {
-        const ezRTTI* pArgType = ezAngelScriptUtils::MapToRTTI(iArgTypeId, pAs->GetEngine());
-
-        if (pArgType == nullptr)
-          continue;
-
-        // has to be a type derived from ezMessage
-        if (!pArgType->IsDerivedFrom<ezMessage>())
-          continue;
-
-        ezScriptMessageDesc desc;
-        desc.m_pType = pArgType;
-
-        ezUniquePtr<ezAngelScriptMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptMessageHandler, desc, pFunc);
-        inout_Handlers.PushBack(std::move(pFunctionProperty));
+        ezLog::Error("Malformed message handler '{}': Argument has unknown type.", pFunc->GetName());
+        continue;
       }
 
-      if (iArgTypeId & asTYPEID_SCRIPTOBJECT)
+      // has to be a type derived from ezMessage
+      if (!pArgType->IsDerivedFrom<ezMessage>())
       {
-        if (auto pArgType = pAs->GetEngine()->GetTypeInfoById(iArgTypeId))
-        {
-          if (pArgType->GetInterfaceCount() == 1 && ezStringUtils::IsEqual(pArgType->GetInterface(0)->GetName(), "ezAngelScriptMessage"))
-          {
-            ezScriptMessageDesc desc;
-            desc.m_pType = ezGetStaticRTTI<ezMsgDeliverAngelScriptMsg>();
+        ezLog::Error("Malformed message handler '{}': Argument type has to derive from ezMessage or ezAngelScriptMessage.", pFunc->GetName());
+        continue;
+      }
 
-            ezUniquePtr<ezAngelScriptCustomAsMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptCustomAsMessageHandler, desc, pFunc);
-            inout_Handlers.PushBack(std::move(pFunctionProperty));
-          }
+      ezScriptMessageDesc desc;
+      desc.m_pType = pArgType;
+
+      ezUniquePtr<ezAngelScriptMessageHandler> pFunctionProperty = EZ_SCRIPT_NEW(ezAngelScriptMessageHandler, desc, pFunc);
+      inout_Handlers.PushBack(std::move(pFunctionProperty));
+    }
+
+    if (iArgTypeId & asTYPEID_SCRIPTOBJECT)
+    {
+      if (auto pArgType = pAs->GetEngine()->GetTypeInfoById(iArgTypeId))
+      {
+        if (pArgType->GetInterfaceCount() != 1 || !ezStringUtils::IsEqual(pArgType->GetInterface(0)->GetName(), "ezAngelScriptMessage"))
+        {
+          ezLog::Error("Malformed message handler '{}': Argument type has to derive from ezMessage or ezAngelScriptMessage.", pFunc->GetName());
+          continue;
         }
+
+        if (!pAsMsgHandler)
+        {
+          ezScriptMessageDesc desc;
+          desc.m_pType = ezGetStaticRTTI<ezMsgDeliverAngelScriptMsg>();
+
+          pAsMsgHandler = EZ_SCRIPT_NEW(ezAngelScriptCustomAsMessageHandler, desc);
+        }
+
+        pAsMsgHandler->AddReceiver(pFunc, pArgType->GetName());
       }
     }
+  }
+
+  if (pAsMsgHandler)
+  {
+    inout_Handlers.PushBack(std::move(pAsMsgHandler));
   }
 }

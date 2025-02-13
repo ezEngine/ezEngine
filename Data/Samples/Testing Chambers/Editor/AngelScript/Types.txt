@@ -169,7 +169,6 @@ ezMsgSetPlaying
 ezMsgStateMachineStateChanged
 ezMsgTransformChanged
 ezMsgTriggerTriggered
-ezMsgTypeScriptMsgProxy
 ezMsgUpdateLocalBounds
 ezNavMeshObstacleComponent
 ezObjectMsgQueueType
@@ -254,7 +253,6 @@ ezTransformPreservation
 ezTriggerDelayModifierComponent
 ezTriggerState
 ezTwoBoneIKComponent
-ezTypeScriptComponent
 ezUpdateRate
 ezVec2
 ezVec3

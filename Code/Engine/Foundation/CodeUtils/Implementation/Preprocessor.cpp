@@ -19,9 +19,6 @@ ezPreprocessor::ezPreprocessor()
   SetCustomFileCache();
   m_pLog = nullptr;
 
-  m_bPassThroughPragma = false;
-  m_bPassThroughLine = false;
-
   m_FileLocatorCallback = DefaultFileLocator;
   m_FileOpenCallback = DefaultFileOpen;
 
