@@ -49,12 +49,12 @@ static void ezAsFree(void* pPtr)
   g_pAsAllocator->Deallocate(pPtr);
 }
 
-static void AsThrow(ezStringView msg)
+static void AsThrow(ezStringView sMsg)
 {
   if (asIScriptContext* ctx = asGetActiveContext())
   {
     ezStringBuilder tmp;
-    ctx->SetException(msg.GetData(tmp), false);
+    ctx->SetException(sMsg.GetData(tmp), false);
   }
 }
 
