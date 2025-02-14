@@ -11,9 +11,9 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
-#include <Foundation/IO/CompressedStreamZstd.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptResource, 1, ezRTTIDefaultAllocator<ezAngelScriptResource>)
