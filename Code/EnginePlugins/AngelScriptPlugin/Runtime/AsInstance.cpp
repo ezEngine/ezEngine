@@ -86,5 +86,5 @@ ezVariant ezAngelScriptInstance::GetInstanceVariable(const ezHashedString& sName
 
 void ezAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
 {
-  ezLog::Error("AS '{}': {}", m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription(), pContext->GetExceptionString());
+  ezLog::Error("AS Exception '{}' - in '{}'", pContext->GetExceptionString(), m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
 }

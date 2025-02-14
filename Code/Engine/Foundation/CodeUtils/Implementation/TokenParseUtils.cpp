@@ -236,19 +236,22 @@ namespace ezTokenParseUtils
           sCurFile = Tokens[t]->m_File;
         }
 
-        if (Tokens[t]->m_iType == ezTokenType::Newline)
-        {
-          ++uiCurLine;
-        }
-
         if (t > 0 && Tokens[t - 1]->m_iType == ezTokenType::Newline)
         {
           if (Tokens[t]->m_uiLine != uiCurLine || Tokens[t]->m_File != sCurFile)
           {
-            ref_sResult.AppendFormat("\n#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File);
+            if (!ref_sResult.EndsWith("\n"))
+              ref_sResult.Append("\n");
+
+            ref_sResult.AppendFormat("#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File);
             uiCurLine = Tokens[t]->m_uiLine;
             sCurFile = Tokens[t]->m_File;
           }
+        }
+
+        if (Tokens[t]->m_iType == ezTokenType::Newline)
+        {
+          ++uiCurLine;
         }
       }
 

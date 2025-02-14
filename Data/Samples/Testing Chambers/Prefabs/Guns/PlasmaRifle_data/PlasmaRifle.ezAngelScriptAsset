@@ -12,9 +12,11 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/Guns/PlasmaRifle_data/PlasmaRifle.as"}
+			s{"Prefabs/Guns/Weapon.as"}
+			s{"Scripting/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{12712196599291816839,5266986229344438210}}
-		u4 %Hash{12485662029005573017}
+		u4 %Hash{5874244306660053868}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13700463139157668186,9902105918934074528}}
@@ -50,6 +52,11 @@ o
 	{
 		s %ClassName{"PlasmaRifle"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/Guns/Weapon.as"}
+			s{"Scripting/GameDecls.as"}
+		}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Prefabs/Guns/PlasmaRifle_data/PlasmaRifle.as"}

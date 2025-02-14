@@ -1272,6 +1272,10 @@ class ezWorld
   ezClock@ GetClock();
   const ezClock@ GetClock() const;
   ezRandom@ GetRandomNumberGenerator();
+  void SendMessage(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout);
+  void SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout);
+  void PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+  void PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
 }
 
 class ezMessage
@@ -3388,15 +3392,18 @@ class ezEventMessage : ezMessage
 
 class ezMsgPhysicsJointBroke : ezEventMessage
 {
+  ezGameObjectHandle JointObject;
 }
 
 class ezMsgObjectGrabbed : ezMessage
 {
+  ezGameObjectHandle GrabbedBy;
   bool GotGrabbed;
 }
 
 class ezMsgReleaseObjectGrab : ezMessage
 {
+  ezGameObjectHandle GrabbedObjectToRelease;
 }
 
 class ezMsgBuildStaticMesh : ezMessage
@@ -3405,6 +3412,7 @@ class ezMsgBuildStaticMesh : ezMessage
 
 class ezMsgOnlyApplyToObject : ezMessage
 {
+  ezGameObjectHandle Object;
 }
 
 class ezMsgCollision : ezMessage
@@ -3469,6 +3477,7 @@ class ezMsgTriggerTriggered : ezEventMessage
 {
   ezHashedString Message;
   ezTriggerState TriggerState;
+  ezGameObjectHandle GameObject;
 }
 
 class ezMsgSetColor : ezMessage
@@ -3774,6 +3783,7 @@ namespace ezSpatial
   void FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback);
 }
 
+void throw(ezStringView);
 namespace ezQuat
 {
   ezQuat MakeFromAxisAndAngle(ezVec3 Axis, ezAngle Angle);

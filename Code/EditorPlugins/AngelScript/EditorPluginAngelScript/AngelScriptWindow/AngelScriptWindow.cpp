@@ -241,6 +241,7 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
     if (pMsg->m_sWhatToDo == "SyncExposedParams_Clear")
     {
       m_ExposedParams.Clear();
+      m_Dependencies.Clear();
     }
 
     if (pMsg->m_sWhatToDo == "SyncExposedParams_Add")
@@ -248,6 +249,11 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
       auto& p = m_ExposedParams.ExpandAndGetRef();
       p.m_sName = pMsg->m_sPayload;
       p.m_DefaultValue = pMsg->m_PayloadValue;
+    }
+
+    if (pMsg->m_sWhatToDo == "SyncDependencies_Add")
+    {
+      m_Dependencies.PushBack(pMsg->m_sPayload);
     }
 
     if (pMsg->m_sWhatToDo == "SyncExposedParams_Finish")
@@ -299,7 +305,8 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
         }
       }
 
-      if (bAnyChange)
+
+      if (bAnyChange || m_pAssetDoc->GetProperties()->m_Dependencies != m_Dependencies)
       {
         accessor.StartTransaction("Sync Parameters");
 
@@ -320,6 +327,17 @@ void ezQtAngelScriptAssetDocumentWindow::ProcessMessageEventHandler(const ezEdit
           accessor.SetValueByName(pNewItem, "Declaration", sDecl.GetData()).AssertSuccess();
           accessor.SetValueByName(pNewItem, "Expose", m_ExposedParams[clip].m_bExpose).AssertSuccess();
           accessor.SetValueByName(pNewItem, "DefaultValue", m_ExposedParams[clip].m_DefaultValue).AssertSuccess();
+        }
+
+        // clear the entire array
+        accessor.ClearByName(pProps, "Dependencies").AssertSuccess();
+
+        const ezAbstractProperty* pPropDeps = accessor.FindPropertyByName(pProps, "Dependencies");
+
+        // and fill it again
+        for (ezUInt32 clip = 0; clip < m_Dependencies.GetCount(); ++clip)
+        {
+          accessor.InsertValue(pProps, pPropDeps, m_Dependencies[clip], -1).AssertSuccess();
         }
 
         accessor.FinishTransaction();

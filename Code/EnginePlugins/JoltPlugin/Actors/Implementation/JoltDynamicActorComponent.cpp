@@ -362,7 +362,12 @@ void ezJoltDynamicActorComponent::AddLinearForce(const ezVec3& vForce)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddForce(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vForce));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddForce(bodyId, ezJoltConversionUtils::ToVec3(vForce));
+  }
 }
 
 void ezJoltDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
@@ -371,7 +376,12 @@ void ezJoltDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vImpulse));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImpulse));
+  }
 }
 
 void ezJoltDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
@@ -380,7 +390,12 @@ void ezJoltDynamicActorComponent::AddAngularForce(const ezVec3& vForce)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddTorque(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vForce));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddTorque(bodyId, ezJoltConversionUtils::ToVec3(vForce));
+  }
 }
 
 void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
@@ -389,7 +404,12 @@ void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddAngularImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(vImpulse));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddAngularImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImpulse));
+  }
 }
 
 void ezJoltDynamicActorComponent::AddConstraint(ezComponentHandle hComponent)
@@ -408,7 +428,12 @@ void ezJoltDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddForce(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(ref_msg.m_vForce), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddForce(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vForce), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+  }
 }
 
 void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
@@ -417,7 +442,12 @@ void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_ms
     return;
 
   auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  pBodies->AddImpulse(JPH::BodyID(m_uiJoltBodyID), ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+  const JPH::BodyID bodyId(m_uiJoltBodyID);
+
+  if (pBodies->IsAdded(bodyId))
+  {
+    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+  }
 }
 
 float ezJoltDynamicActorComponent::GetMass() const

@@ -30,7 +30,7 @@ public:
   asIScriptEngine* GetEngine() const { return m_pEngine; }
 
   asIScriptModule* SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection);
-  asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode);
+  asIScriptModule* CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies);
   ezResult ValidateModule(asIScriptModule* pModule) const;
 
   const ezSet<ezString>& GetNotRegistered() const { return m_NotRegistered; }
@@ -38,7 +38,7 @@ public:
 private:
   void AddForbiddenType(const char* szTypeName);
   bool IsTypeForbidden(const asITypeInfo* pType) const;
-  static void MessageCallback(const asSMessageInfo* msg, void* param);
+  void CompilerMessageCallback(const asSMessageInfo* msg);
   void ExceptionCallback(asIScriptContext* pContext);
 
   void RegisterStandardTypes();
@@ -123,4 +123,7 @@ private:
   ezAsStringFactory* m_pStringFactory = nullptr;
 
   ezSet<ezString> m_NotRegistered;
+
+  ezMutex m_CompilerMutex;
+  ezStringView m_sCodeInCompilation;
 };

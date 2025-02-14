@@ -1303,6 +1303,11 @@ ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
 ezGameObjectHandle ezGameObject::GetHandle() const
+ezGameObjectHandle ezMsgObjectGrabbed::get_GrabbedBy() const
+ezGameObjectHandle ezMsgOnlyApplyToObject::get_Object() const
+ezGameObjectHandle ezMsgPhysicsJointBroke::get_JointObject() const
+ezGameObjectHandle ezMsgReleaseObjectGrab::get_GrabbedObjectToRelease() const
+ezGameObjectHandle ezMsgTriggerTriggered::get_GameObject() const
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc)
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object)
 ezGizmoComponent@ ezComponent::opCast()
@@ -3216,11 +3221,15 @@ void ezMsgMoveCharacterController::set_Run(bool)
 void ezMsgMoveCharacterController::set_StrafeLeft(double)
 void ezMsgMoveCharacterController::set_StrafeRight(double)
 void ezMsgObjectGrabbed::set_GotGrabbed(bool)
+void ezMsgObjectGrabbed::set_GrabbedBy(ezGameObjectHandle)
+void ezMsgOnlyApplyToObject::set_Object(ezGameObjectHandle)
 void ezMsgPhysicsAddForce::set_Force(ezVec3)
 void ezMsgPhysicsAddForce::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_Impulse(ezVec3)
 void ezMsgPhysicsAddImpulse::set_ObjectFilterID(uint)
+void ezMsgPhysicsJointBroke::set_JointObject(ezGameObjectHandle)
+void ezMsgReleaseObjectGrab::set_GrabbedObjectToRelease(ezGameObjectHandle)
 void ezMsgSetColor::set_Color(ezColor)
 void ezMsgSetColor::set_Mode(ezSetColorMode)
 void ezMsgSetCustomData::set_Data0(float)
@@ -3232,6 +3241,7 @@ void ezMsgSetFloatParameter::set_Value(float)
 void ezMsgSetMeshMaterial::set_Material(ezStringView)
 void ezMsgSetMeshMaterial::set_MaterialSlot(uint)
 void ezMsgSetPlaying::set_Play(bool)
+void ezMsgTriggerTriggered::set_GameObject(ezGameObjectHandle)
 void ezMsgTriggerTriggered::set_Message(ezHashedString)
 void ezMsgTriggerTriggered::set_TriggerState(ezTriggerState)
 void ezNavMeshObstacleComponent::InvalidateSectors()
@@ -3639,8 +3649,13 @@ void ezWindVolumeSphereComponent::PostMessage(const ezMessage&in msg, ezTime del
 void ezWindVolumeSphereComponent::set_Radius(float)
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true)
 void ezWorld::PostMessage(const ezComponentHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
+void ezWorld::PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)
 void ezWorld::PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
+void ezWorld::PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)
 void ezWorld::PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezWorld::SendMessage(const ezComponentHandle&in hReceiverObject, ezMessage&inout msg)
+void ezWorld::SendMessage(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout)
 void ezWorld::SendMessage(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg)
+void ezWorld::SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout)
 void ezWorld::SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg)
+void throw(ezStringView)

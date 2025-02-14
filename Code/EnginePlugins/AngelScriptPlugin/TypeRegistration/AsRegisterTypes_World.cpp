@@ -288,7 +288,7 @@ static void ezGameObjectDesc_Construct(void* pMemory)
   new (pMemory) ezGameObjectDesc();
 }
 
-void ezWorld_TryGetComponent(asIScriptGeneric* pGen)
+static void ezWorld_TryGetComponent(asIScriptGeneric* pGen)
 {
   ezWorld* pWorld = (ezWorld*)pGen->GetObject();
   ezComponentHandle* hComponent = (ezComponentHandle*)pGen->GetArgObject(0);
@@ -312,6 +312,65 @@ void ezWorld_TryGetComponent(asIScriptGeneric* pGen)
 
   pGen->SetReturnByte(0);
 }
+
+static void ezWorld_SendAsMessage(asIScriptGeneric* pGen)
+{
+  ezWorld* pObj = (ezWorld*)pGen->GetObject();
+  ezGameObjectHandle* pReceiver = (ezGameObjectHandle*)pGen->GetArgObject(0);
+  void* pAsMsg = pGen->GetArgObject(1);
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_pAsMsg = pAsMsg;
+  pObj->SendMessage(*pReceiver, msg);
+}
+
+static void ezWorld_SendAsMessageRecursive(asIScriptGeneric* pGen)
+{
+  ezWorld* pObj = (ezWorld*)pGen->GetObject();
+  ezGameObjectHandle* pReceiver = (ezGameObjectHandle*)pGen->GetArgObject(0);
+  void* pAsMsg = pGen->GetArgObject(1);
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_pAsMsg = pAsMsg;
+  pObj->SendMessageRecursive(*pReceiver, msg);
+}
+
+static void ezWorld_PostAsMessage(asIScriptGeneric* pGen)
+{
+  ezWorld* pObj = (ezWorld*)pGen->GetObject();
+  ezGameObjectHandle* pReceiver = (ezGameObjectHandle*)pGen->GetArgObject(0);
+  void* pAsMsg = pGen->GetArgObject(1);
+
+  ezTime delay = *((const ezTime*)pGen->GetArgObject(2));
+  ezInt32 delivery = (ezInt32)pGen->GetArgDWord(3);
+
+  void* pMsgCopy = pGen->GetEngine()->CreateScriptObjectCopy(pAsMsg, reinterpret_cast<asIScriptObject*>(pAsMsg)->GetObjectType());
+  EZ_ASSERT_DEV(pMsgCopy != nullptr, "Failed to create copy of message");
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_bRelease = true;
+  msg.m_pAsMsg = pMsgCopy;
+  pObj->PostMessage(*pReceiver, msg, delay, static_cast<ezObjectMsgQueueType::Enum>(delivery));
+}
+
+static void ezWorld_PostAsMessageRecursive(asIScriptGeneric* pGen)
+{
+  ezWorld* pObj = (ezWorld*)pGen->GetObject();
+  ezGameObjectHandle* pReceiver = (ezGameObjectHandle*)pGen->GetArgObject(0);
+  void* pAsMsg = pGen->GetArgObject(1);
+
+  ezTime delay = *((const ezTime*)pGen->GetArgObject(2));
+  ezInt32 delivery = (ezInt32)pGen->GetArgDWord(3);
+
+  void* pMsgCopy = pGen->GetEngine()->CreateScriptObjectCopy(pAsMsg, reinterpret_cast<asIScriptObject*>(pAsMsg)->GetObjectType());
+  EZ_ASSERT_DEV(pMsgCopy != nullptr, "Failed to create copy of message");
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_bRelease = true;
+  msg.m_pAsMsg = pMsgCopy;
+  pObj->PostMessageRecursive(*pReceiver, msg, delay, static_cast<ezObjectMsgQueueType::Enum>(delivery));
+}
+
 
 void ezAngelScriptEngineSingleton::Register_World()
 {
@@ -364,4 +423,13 @@ void ezAngelScriptEngineSingleton::Register_World()
     asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezRandom@ GetRandomNumberGenerator()", asMETHOD(ezWorld, GetRandomNumberGenerator), asCALL_THISCALL));
+
+  // AS messages
+  {
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void SendMessage(const ezGameObjectHandle& in hReceiverObject, ezAngelScriptMessage& inout)", asFUNCTION(ezWorld_SendAsMessage), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void SendMessageRecursive(const ezGameObjectHandle& in hReceiverObject, ezAngelScriptMessage& inout)", asFUNCTION(ezWorld_SendAsMessageRecursive), asCALL_GENERIC));
+
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void PostMessage(const ezGameObjectHandle& in hReceiverObject, const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezWorld_PostAsMessage), asCALL_GENERIC));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "void PostMessageRecursive(const ezGameObjectHandle& in hReceiverObject, const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezWorld_PostAsMessageRecursive), asCALL_GENERIC));
+  }
 }

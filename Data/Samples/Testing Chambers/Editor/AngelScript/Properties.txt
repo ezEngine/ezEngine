@@ -178,6 +178,7 @@ Frequency
 Friction
 Fuchsia
 Gainsboro
+GameObject
 GenerateCollision
 GhostWhite
 GlobalPosition
@@ -185,6 +186,8 @@ Gold
 GoldenRod
 GotGrabbed
 GrabAnyObjectWithSize
+GrabbedBy
+GrabbedObjectToRelease
 Gradient
 Granularity
 GravityFactor
@@ -226,6 +229,7 @@ Ivory
 JointEnd
 JointMiddle
 JointName
+JointObject
 JointStart
 Jump
 JumpImpulse
@@ -336,6 +340,7 @@ NewStateName
 NewValue
 NoGlobalPitch
 NumCascades
+Object
 ObjectFilterID
 ObjectGravity
 OcclusionCollisionLayer

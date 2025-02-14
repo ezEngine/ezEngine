@@ -42,6 +42,7 @@ class ezAngelScriptAssetProperties : public ezReflectedClass
   ezString m_sCode;
 
   ezDynamicArray<ezAngelScriptParameter> m_Parameters;
+  ezDynamicArray<ezString> m_Dependencies;
 };
 
 class ezAngelScriptAssetDocument : public ezSimpleAssetDocument<ezAngelScriptAssetProperties>

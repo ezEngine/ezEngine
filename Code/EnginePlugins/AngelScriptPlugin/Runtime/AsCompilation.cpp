@@ -10,17 +10,21 @@ class ezAsPreprocessor
 public:
   ezStringView m_sRefFilePath;
   ezStringView m_sMainCode;
+  ezSet<ezString>* m_pDependencies = nullptr;
 
   ezAsPreprocessor()
   {
     m_Processor.SetFileOpenFunction(ezMakeDelegate(&ezAsPreprocessor::PreProc_OpenFile, this));
     m_Processor.m_ProcessingEvents.AddEventHandler(ezMakeDelegate(&ezAsPreprocessor::PreProc_Event, this));
     m_Processor.SetImplicitPragmaOnce(true);
+    m_Processor.SetPassThroughLine(true);
   }
 
   ezResult Process(ezStringBuilder& ref_sResult)
   {
-    return m_Processor.Process(m_sRefFilePath, ref_sResult);
+    auto res = m_Processor.Process(m_sRefFilePath, ref_sResult, false, false, true);
+    ref_sResult.ReplaceAll("#line", "//#ln");
+    return res;
   };
 
 private:
@@ -36,6 +40,11 @@ private:
     ezFileReader file;
     if (file.Open(sAbsFile).Failed())
       return EZ_FAILURE;
+
+    if (m_pDependencies)
+    {
+      m_pDependencies->Insert(sAbsFile);
+    }
 
     out_Content.SetCountUninitialized((ezUInt32)file.GetFileSize());
     file.ReadBytes(out_Content.GetData(), out_Content.GetCount());
@@ -60,8 +69,63 @@ private:
   ezPreprocessor m_Processor;
 };
 
+void ezAngelScriptEngineSingleton::CompilerMessageCallback(const asSMessageInfo* msg)
+{
+  ezDynamicArray<ezStringView> lines;
+  m_sCodeInCompilation.Split(true, lines, "\n");
+
+  ezInt32 iLine = msg->row;
+  ezStringView sSection = msg->section;
+
+  if (iLine - 1 < (ezInt32)lines.GetCount())
+  {
+    --iLine;
+
+    int iStepsBack = 0;
+
+    while (iLine >= 0)
+    {
+      if (lines[iLine].StartsWith("//#ln"))
+      {
+        ezStringView line = lines[iLine];
+        line.TrimWordStart("//#ln ");
+
+        const char* szParsePos;
+        ezConversionUtils::StringToInt(line, iLine, &szParsePos).AssertSuccess();
+
+        line.SetStartPosition(szParsePos + 1);
+        line.Trim("\"");
+
+        sSection = line;
+        iLine += iStepsBack - 1;
+        break;
+      }
+
+      --iLine;
+      ++iStepsBack;
+    }
+  }
+
+  switch (msg->type)
+  {
+    case asMSGTYPE_ERROR:
+      ezLog::Error("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      break;
+    case asMSGTYPE_WARNING:
+      ezLog::Warning("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      break;
+    case asMSGTYPE_INFORMATION:
+      ezLog::Info("{} ({}, {}) : {}", sSection, iLine, msg->col, msg->message);
+      break;
+  }
+}
+
 asIScriptModule* ezAngelScriptEngineSingleton::SetModuleCode(ezStringView sModuleName, ezStringView sCode, bool bAddExternalSection)
 {
+  EZ_LOCK(m_CompilerMutex);
+
+  m_sCodeInCompilation = sCode;
+
   ezStringBuilder tmp;
   asIScriptModule* pModule = m_pEngine->GetModule(sModuleName.GetData(tmp), asGM_ALWAYS_CREATE);
 
@@ -76,10 +140,36 @@ external shared class ezAngelScriptClass;
 
   pModule->AddScriptSection("Main", sCode.GetStartPointer(), sCode.GetElementCount());
 
-  if (int r = pModule->Build(); r < 0)
+  const int res = pModule->Build();
+  switch (res)
+  {
+    case asBUILD_IN_PROGRESS:
+      ezLog::Error("AS: Another compilation is in progress.");
+      break;
+
+    case asINVALID_CONFIGURATION:
+      ezLog::Error("AS: Invalid Configuration.");
+      break;
+
+    case asINIT_GLOBAL_VARS_FAILED:
+      ezLog::Error("AS: Global Variable initialization failed.");
+      break;
+
+    case asNOT_SUPPORTED:
+      ezLog::Error("AS: Compiler support is disabled in the engine.");
+      break;
+
+    case asMODULE_IS_IN_USE:
+      ezLog::Error("AS: Module is in use.");
+      break;
+
+    case asERROR:
+      break;
+  }
+
+  if (res < 0)
   {
     // TODO AngelScript: Forward compiler errors
-
     pModule->Discard();
     return nullptr;
   }
@@ -87,11 +177,12 @@ external shared class ezAngelScriptClass;
   return pModule;
 }
 
-asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode)
+asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
 {
   ezAsPreprocessor asPP;
   asPP.m_sRefFilePath = sRefFilePath;
   asPP.m_sMainCode = sCode;
+  asPP.m_pDependencies = out_pDependencies;
 
   ezStringBuilder fullCode;
   if (asPP.Process(fullCode).Failed())

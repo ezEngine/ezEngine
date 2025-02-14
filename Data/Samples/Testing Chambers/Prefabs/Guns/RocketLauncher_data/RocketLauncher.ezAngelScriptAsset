@@ -22,9 +22,11 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/Guns/RocketLauncher_data/RocketLauncher.as"}
+			s{"Prefabs/Guns/Weapon.as"}
+			s{"Scripting/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{2126202199220389306,4929291486868465546}}
-		u4 %Hash{7465761332366830939}
+		u4 %Hash{2669246774345395559}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14526129409328794426,3093375623949258268}}
@@ -50,6 +52,11 @@ o
 	{
 		s %ClassName{"RocketLauncher"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/Guns/Weapon.as"}
+			s{"Scripting/GameDecls.as"}
+		}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Prefabs/Guns/RocketLauncher_data/RocketLauncher.as"}

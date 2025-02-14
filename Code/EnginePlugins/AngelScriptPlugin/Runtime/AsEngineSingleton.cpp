@@ -49,6 +49,15 @@ static void ezAsFree(void* pPtr)
   g_pAsAllocator->Deallocate(pPtr);
 }
 
+static void AsThrow(ezStringView msg)
+{
+  if (asIScriptContext* ctx = asGetActiveContext())
+  {
+    ezStringBuilder tmp;
+    ctx->SetException(msg.GetData(tmp), false);
+  }
+}
+
 ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
   : m_SingletonRegistrar(this)
 {
@@ -64,7 +73,7 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
   m_pEngine->SetEngineProperty(asEP_REQUIRE_ENUM_SCOPE, 1);
   m_pEngine->SetEngineProperty(asEP_DISALLOW_GLOBAL_VARS, 1);
 
-  AS_CHECK(m_pEngine->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL));
+  AS_CHECK(m_pEngine->SetMessageCallback(asMETHOD(ezAngelScriptEngineSingleton, CompilerMessageCallback), this, asCALL_THISCALL));
   AS_CHECK(m_pEngine->SetTranslateAppExceptionCallback(asMETHOD(ezAngelScriptEngineSingleton, ExceptionCallback), this, asCALL_THISCALL));
 
   m_pStringFactory = EZ_DEFAULT_NEW(ezAsStringFactory);
@@ -72,6 +81,8 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
   AS_CHECK(m_pEngine->RegisterInterface("ezAngelScriptMessage"));
 
   RegisterStandardTypes();
+
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("void throw(ezStringView)", asFUNCTION(AsThrow), asCALL_CDECL));
 
   m_pEngine->RegisterStringFactory("ezStringView", m_pStringFactory);
 
@@ -109,22 +120,6 @@ void ezAngelScriptEngineSingleton::AddForbiddenType(const char* szTypeName)
 bool ezAngelScriptEngineSingleton::IsTypeForbidden(const asITypeInfo* pType) const
 {
   return m_ForbiddenTypes.Contains(pType);
-}
-
-void ezAngelScriptEngineSingleton::MessageCallback(const asSMessageInfo* msg, void* param)
-{
-  switch (msg->type)
-  {
-    case asMSGTYPE_ERROR:
-      ezLog::Error("AngelScript: {} ({}, {}) : {}", msg->section, msg->row, msg->col, msg->message);
-      break;
-    case asMSGTYPE_WARNING:
-      ezLog::Warning("AngelScript: {} ({}, {}) : {}", msg->section, msg->row, msg->col, msg->message);
-      break;
-    case asMSGTYPE_INFORMATION:
-      ezLog::Info("AngelScript: {} ({}, {}) : {}", msg->section, msg->row, msg->col, msg->message);
-      break;
-  }
 }
 
 void ezAngelScriptEngineSingleton::ExceptionCallback(asIScriptContext* pContext)
@@ -619,6 +614,14 @@ void ezAngelScriptEngineSingleton::RegisterTypeProperties(const char* szTypeName
         const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
         sVarTypeName = ezAngelScriptUtils::VariantTypeToString(pPropRtti->GetVariantType());
+
+        if (sVarTypeName.IsEmpty())
+        {
+          if (pPropRtti->GetTypeName() == "ezGameObjectHandle" || pPropRtti->GetTypeName() == "ezComponentHandle")
+          {
+            sVarTypeName = pPropRtti->GetTypeName();
+          }
+        }
       }
 
       if (!sVarTypeName.IsEmpty())

@@ -73,6 +73,7 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{"class ScriptObject :  ezAngelScriptClass\n{\n    ezString Text = \"Joint Broke\";\n\n    void OnMsgPhysicsJointBroke(ezMsgPhysicsJointBroke@ msg)\n    {\n        ezLog::Info(Text);\n    }\n}\n"}
+		VarArray %Dependencies{}
 		VarArray %Parameters
 		{
 			Uuid{u4{10740826615265613734,4942408714307029089}}

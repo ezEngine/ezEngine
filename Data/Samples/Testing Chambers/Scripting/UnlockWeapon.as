@@ -8,15 +8,10 @@ class UnlockWeapon : ezAngelScriptClass
     {
         if (msg.TriggerState == ezTriggerState::Activated && msg.Message == "Pickup")
         {
-            // TODO: need GO handles in messages to identify who entered the trigger
-            ezGameObject@ player;
-            if (!GetWorld().TryGetObjectWithGlobalKey("Player", @player))
-                return;
-
             MsgUnlockWeapon hm;
             hm.weaponType = WeaponType(weaponType);
 
-            player.SendMessageRecursive(hm);
+            GetWorld().SendMessageRecursive(msg.GameObject, hm);
 
             if (!hm.return_consumed)
                 return;

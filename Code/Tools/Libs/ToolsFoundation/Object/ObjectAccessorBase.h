@@ -60,6 +60,8 @@ public:
 
   ezStatus ClearByName(const ezDocumentObject* pObject, ezStringView sProp);
 
+  const ezAbstractProperty* FindPropertyByName(const ezDocumentObject* pObject, ezStringView sProp);
+
   template <typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
   template <typename T>

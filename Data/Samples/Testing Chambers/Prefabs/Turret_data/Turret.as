@@ -53,7 +53,7 @@ class ScriptObject : ezAngelScriptClass
         return false;
     }
 
-    void Update()
+    void Update(ezTime deltaTime)
     {
         if (Health <= 0)
             return;

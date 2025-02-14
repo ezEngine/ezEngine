@@ -13,6 +13,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptResource, 1, ezRTTIDefaultAllocator<ezAngelScriptResource>)
@@ -88,7 +89,43 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
   ezUInt8 uiVersion = 1;
   (*pStream) >> uiVersion;
 
-  (*pStream) >> m_sClassName;
+  ezUInt8 uiCompressionMode = 0;
+
+  if (uiVersion >= 4)
+  {
+    (*pStream) >> uiCompressionMode;
+  }
+
+  ezStreamReader* pDeCompressor = pStream;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  ezCompressedStreamReaderZstd decompressorZstd;
+#endif
+
+  switch (uiCompressionMode)
+  {
+    case 0:
+      break;
+
+    case 1:
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+      decompressorZstd.SetInputStream(pStream);
+      pDeCompressor = &decompressorZstd;
+      break;
+#else
+      ezLog::Error("AngelScript is compressed with zstandard, but support for this compressor is not compiled in.");
+      ld.m_State = ezResourceState::LoadedResourceMissing;
+      return res;
+#endif
+
+    default:
+      ezLog::Error("AngelScript is compressed with an unknown algorithm.");
+      ld.m_State = ezResourceState::LoadedResourceMissing;
+      return ld;
+  }
+
+  ezStreamReader& stream = *pDeCompressor;
+  stream >> m_sClassName;
 
   ezStringBuilder sModuleID;
   sModuleID.SetFormat("{}-{}", GetResourceID(), GetCurrentResourceChangeCounter());
@@ -97,19 +134,18 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
   if (uiVersion == 1)
   {
-    (*pStream) >> m_sScriptContent;
-    // m_pModule = pAs->CompileModule(sModuleID, m_sClassName, m_sScriptContent);
-    return ld;
+    stream >> m_sScriptContent;
+    m_pModule = pAs->CompileModule(sModuleID, m_sClassName, "main", m_sScriptContent, nullptr, nullptr);
   }
   else
   {
     ezHybridArray<ezUInt8, 1024 * 8> bytecode;
-    (*pStream).ReadArray(bytecode).AssertSuccess();
+    stream.ReadArray(bytecode).AssertSuccess();
 
     if (uiVersion >= 3)
     {
-      (*pStream) >> m_sScriptContent;
-      m_pModule = pAs->CompileModule(sModuleID, m_sClassName, "main", m_sScriptContent, nullptr);
+      stream >> m_sScriptContent;
+      m_pModule = pAs->CompileModule(sModuleID, m_sClassName, "main", m_sScriptContent, nullptr, nullptr);
     }
     else
     {

@@ -371,7 +371,11 @@ void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_
   if (!bodyId.IsInvalid())
   {
     auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+
+    if (pBodies->IsAdded(bodyId))
+    {
+      pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+    }
   }
 }
 
@@ -725,7 +729,10 @@ void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule,
     }
   }
 
-  pJoltSystem->GetBodyInterface().AddImpulse(closestBody, ezJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
+  if (pJoltSystem->GetBodyInterface().IsAdded(closestBody))
+  {
+    pJoltSystem->GetBodyInterface().AddImpulse(closestBody, ezJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
+  }
 }
 
 

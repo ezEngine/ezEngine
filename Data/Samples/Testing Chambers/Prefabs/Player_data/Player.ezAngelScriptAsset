@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Player_data/Player.as"}
 		}
 		Uuid %DocumentID{u4{5967608025336921517,5557651060148712635}}
-		u4 %Hash{9973714235819001047}
+		u4 %Hash{11355554131486594524}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5188246925958840120,17028944065193808758}}
@@ -80,10 +80,15 @@ o
 	{
 		s %ClassName{"Player"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/Guns/Weapon.as"}
+			s{"Scripting/GameDecls.as"}
+		}
 		VarArray %Parameters
 		{
-			Uuid{u4{15864886478433129653,5168665553977808296}}
-			Uuid{u4{13241372975068593801,5420549005398797090}}
+			Uuid{u4{11087143322895431846,4761117206212665443}}
+			Uuid{u4{7846732528233788843,5095627809616113803}}
 		}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Prefabs/Player_data/Player.as"}
@@ -91,7 +96,7 @@ o
 }
 o
 {
-	Uuid %id{u4{15864886478433129653,5168665553977808296}}
+	Uuid %id{u4{11087143322895431846,4761117206212665443}}
 	s %t{"ezAngelScriptParameter"}
 	u3 %v{1}
 	p
@@ -104,7 +109,7 @@ o
 }
 o
 {
-	Uuid %id{u4{13241372975068593801,5420549005398797090}}
+	Uuid %id{u4{7846732528233788843,5095627809616113803}}
 	s %t{"ezAngelScriptParameter"}
 	u3 %v{1}
 	p

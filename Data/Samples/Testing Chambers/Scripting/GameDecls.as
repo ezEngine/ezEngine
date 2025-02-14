@@ -47,7 +47,7 @@ class AmmoPouch
             return AmmoRocketLauncher;
         }
 
-        // TODO: assert ?
+        throw("Missing Case");
         return AmmoPistol;
     }
 }

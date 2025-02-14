@@ -5,6 +5,7 @@
 #include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <EnginePluginAngelScript/AngelScriptAsset/AngelScriptContext.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
@@ -38,7 +39,7 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
   ezLogSystemScope logScope(&logBuffer);
 
   ezStringBuilder sCode;
-  asIScriptModule* pModule = CompileModule(sCode);
+  asIScriptModule* pModule = CompileModule(sCode, nullptr);
 
   if (pModule == nullptr)
   {
@@ -58,14 +59,26 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
     header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
     header.Write(out).AssertSuccess();
 
-    ezUInt8 uiVersion = 3;
+    ezUInt8 uiVersion = 4;
     out << uiVersion;
   }
 
-  out << m_sClass;
-  out.WriteArray(bytecode).AssertSuccess();
+  ezUInt8 uiCompressionMode = 0;
 
-  out << sCode;
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd stream(&out, 0, ezCompressedStreamWriterZstd::Compression::Average);
+#else
+  ezStreamWriter& stream = out;
+#endif
+
+  // write uncompressed
+  out << uiCompressionMode;
+
+  // write the rest compressed
+  stream << m_sClass;
+  stream.WriteArray(bytecode).AssertSuccess();
+  stream << sCode;
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -124,7 +137,8 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
   ezLogSystemScope scope(&logNull); // disable logging
 
   ezStringBuilder sCode;
-  asIScriptModule* pModule = CompileModule(sCode);
+  ezSet<ezString> dependencies;
+  asIScriptModule* pModule = CompileModule(sCode, &dependencies);
   if (pModule == nullptr)
     return;
 
@@ -173,6 +187,15 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
     }
   }
 
+  for (const auto& dep : dependencies)
+  {
+    ezSimpleDocumentConfigMsgToEditor msg;
+    msg.m_DocumentGuid = m_DocumentGuid;
+    msg.m_sWhatToDo = "SyncDependencies_Add";
+    msg.m_sPayload = dep;
+    SendProcessMessage(&msg);
+  }
+
   {
     ezSimpleDocumentConfigMsgToEditor msg;
     msg.m_DocumentGuid = m_DocumentGuid;
@@ -181,13 +204,15 @@ void ezAngelScriptDocumentContext::SyncExposedParameters()
   }
 }
 
-asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& out_sCode)
+asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& out_sCode, ezSet<ezString>* out_pDependencies)
 {
-  ezStringBuilder sCode;
+  ezStringBuilder sCode, sInputFile;
 
-  if (m_sInputFile == ":inline:")
+  if (m_sInputFile.StartsWith(":inline:"))
   {
     sCode = m_sCode;
+    sInputFile = m_sInputFile;
+    sInputFile.TrimWordStart(":inline:");
   }
   else
   {
@@ -205,6 +230,8 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& ou
     }
 
     sCode.ReadAll(file);
+
+    sInputFile = m_sInputFile;
   }
 
   if (sCode.IsEmpty())
@@ -217,7 +244,7 @@ asIScriptModule* ezAngelScriptDocumentContext::CompileModule(ezStringBuilder& ou
   sTempName.SetFormat("asTempModule-{}", s_iCompileCounter.Increment());
 
   auto pAs = ezAngelScriptEngineSingleton::GetSingleton();
-  auto pModule = pAs->CompileModule(sTempName, m_sClass, m_sInputFile, sCode, &out_sCode);
+  auto pModule = pAs->CompileModule(sTempName, m_sClass, sInputFile, sCode, &out_sCode, out_pDependencies);
 
   if (pModule == nullptr)
     return nullptr;

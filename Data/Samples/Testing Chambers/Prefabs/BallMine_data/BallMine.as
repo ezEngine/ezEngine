@@ -26,7 +26,7 @@ class ScriptObject : ezAngelScriptClass
             _player = obj.GetHandle();
         }
 
-        Update();
+        Update(ezTime::MakeZero());
     }
 
     bool QueryForNPC(ezGameObject@ go)
@@ -36,7 +36,7 @@ class ScriptObject : ezAngelScriptClass
          return false;
     }
 
-    void Update()
+    void Update(ezTime deltaTime)
     {
         auto oldState = _state;
         auto owner = GetOwner();

@@ -9,7 +9,7 @@ class ScriptObject :  ezAngelScriptClass
         SetUpdateInterval(ezTime::MakeFromSeconds(10));
     }
 
-    void Update()
+    void Update(ezTime deltaTime)
     {
         if (capHealth <= 0) 
         {

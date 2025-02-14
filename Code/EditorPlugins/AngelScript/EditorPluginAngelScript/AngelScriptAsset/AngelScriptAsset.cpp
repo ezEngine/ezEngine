@@ -2,6 +2,7 @@
 
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAngelScript/AngelScriptAsset/AngelScriptAsset.h>
+#include <Foundation/CodeUtils/Preprocessor.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
@@ -33,6 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetProperties, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("SourceFile", m_sScriptFile)->AddAttributes(new ezFileBrowserAttribute("Select Script", "*.as", {}, "AngelScript")),
     EZ_MEMBER_PROPERTY("ClassName", m_sClassName)->AddAttributes(new ezDefaultValueAttribute("ScriptObject")),
     EZ_ARRAY_MEMBER_PROPERTY("Parameters", m_Parameters)->AddAttributes(new ezContainerAttribute(false, false, false)),
+    EZ_ARRAY_MEMBER_PROPERTY("Dependencies", m_Dependencies)->AddAttributes(new ezContainerAttribute(false, false, false), new ezReadOnlyAttribute()),
     EZ_MEMBER_PROPERTY("Code", m_sCode)->AddAttributes(new ezHiddenAttribute(), new ezDefaultValueAttribute("class ScriptObject : ezAngelScriptClass\n\
 {\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}")),
   }
@@ -40,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetProperties, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetDocument, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -55,9 +57,111 @@ ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(ezStreamWri
   return ezTransformStatus("");
 }
 
+class ezAsPreprocessor2
+{
+public:
+  ezStringBuilder m_sRefFilePath;
+  ezStringBuilder m_sMainCode;
+  ezSet<ezString> m_Dependencies;
+
+  ezAsPreprocessor2()
+  {
+    m_Processor.SetFileOpenFunction(ezMakeDelegate(&ezAsPreprocessor2::PreProc_OpenFile, this));
+    m_Processor.SetImplicitPragmaOnce(true);
+  }
+
+  ezResult Process()
+  {
+    ezStringBuilder sResult;
+    return m_Processor.Process(m_sRefFilePath, sResult, false);
+  };
+
+private:
+  ezResult PreProc_OpenFile(ezStringView sAbsFile, ezDynamicArray<ezUInt8>& out_Content, ezTimestamp& out_FileModification)
+  {
+    if (sAbsFile == m_sRefFilePath)
+    {
+      out_Content.SetCount(m_sMainCode.GetElementCount());
+      ezMemoryUtils::RawByteCopy(out_Content.GetData(), m_sMainCode.GetData(), m_sMainCode.GetElementCount());
+      return EZ_SUCCESS;
+    }
+
+    ezFileReader file;
+    if (file.Open(sAbsFile).Failed())
+      return EZ_FAILURE;
+
+    m_Dependencies.Insert(sAbsFile);
+
+    out_Content.SetCountUninitialized((ezUInt32)file.GetFileSize());
+    file.ReadBytes(out_Content.GetData(), out_Content.GetCount());
+    return EZ_SUCCESS;
+  }
+
+  ezPreprocessor m_Processor;
+};
+
 ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   SyncInfos();
+
+  const bool bCanModify = !transformFlags.IsSet(ezTransformFlags::BackgroundProcessing);
+
+  auto pProps = GetProperties();
+
+  ezAsPreprocessor2 preProc;
+
+  if (pProps->m_CodeMode == ezAngelScriptCodeMode::Inline)
+  {
+    preProc.m_sRefFilePath = GetDocumentPath();
+    preProc.m_sMainCode = pProps->m_sCode;
+
+    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(preProc.m_sRefFilePath);
+  }
+  else
+  {
+    preProc.m_sRefFilePath = pProps->m_sScriptFile;
+
+    ezFileReader file;
+    if (file.Open(pProps->m_sScriptFile).Succeeded())
+    {
+      preProc.m_sMainCode.ReadAll(file);
+    }
+  }
+
+  if (preProc.Process().Succeeded())
+  {
+    ezHybridArray<ezString, 16> newDeps;
+    for (const auto& str : preProc.m_Dependencies)
+    {
+      newDeps.PushBack(str);
+    }
+
+    if (pProps->m_Dependencies != newDeps)
+    {
+      if (!bCanModify)
+        return ezTransformResult::NeedsImport;
+
+      auto pPropObj = GetPropertyObject();
+
+      ezCommandHistory* history = GetCommandHistory();
+      ezObjectCommandAccessor accessor(history);
+
+      accessor.StartTransaction("Update Dependencies");
+
+      // clear the entire array
+      accessor.ClearByName(pPropObj, "Dependencies").AssertSuccess();
+
+      const ezAbstractProperty* pPropDeps = pPropObj->GetType()->FindPropertyByName("Dependencies");
+
+      // and fill it again
+      for (ezUInt32 clip = 0; clip < newDeps.GetCount(); ++clip)
+      {
+        accessor.InsertValue(pPropObj, pPropDeps, newDeps[clip], -1).AssertSuccess();
+      }
+
+      accessor.FinishTransaction();
+    }
+  }
 
   return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
@@ -76,9 +180,13 @@ void ezAngelScriptAssetDocument::SyncInfos()
   else
   {
     {
+      ezStringBuilder sStartFile = GetDocumentPath();
+      ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sStartFile);
+      sStartFile.Prepend(":inline:");
+
       ezDocumentConfigMsgToEngine cfg;
       cfg.m_sWhatToDo = "InputFile";
-      cfg.m_sValue = ":inline:";
+      cfg.m_sValue = sStartFile;
       GetEditorEngineConnection()->SendMessage(&cfg);
     }
 
@@ -121,6 +229,11 @@ void ezAngelScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
     // }
 
     pExposedParams->m_Parameters.PushBack(param);
+  }
+
+  for (const auto& p : GetProperties()->m_Dependencies)
+  {
+    pInfo->m_TransformDependencies.Insert(p);
   }
 
   // Info takes ownership of meta data.

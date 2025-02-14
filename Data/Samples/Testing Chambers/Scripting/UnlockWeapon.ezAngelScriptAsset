@@ -11,10 +11,11 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
+			s{"Scripting/GameDecls.as"}
 			s{"Scripting/UnlockWeapon.as"}
 		}
 		Uuid %DocumentID{u4{18353314003251839166,5725247999247466157}}
-		u4 %Hash{5385216487346731579}
+		u4 %Hash{683992239689923063}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7670945929406840423,7059934551145565828}}
@@ -66,9 +67,13 @@ o
 	{
 		s %ClassName{"UnlockWeapon"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Scripting/GameDecls.as"}
+		}
 		VarArray %Parameters
 		{
-			Uuid{u4{3873946572314018203,5413922000228535960}}
+			Uuid{u4{7637037525266942869,5756583826343957143}}
 		}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Scripting/UnlockWeapon.as"}
@@ -76,7 +81,7 @@ o
 }
 o
 {
-	Uuid %id{u4{3873946572314018203,5413922000228535960}}
+	Uuid %id{u4{7637037525266942869,5756583826343957143}}
 	s %t{"ezAngelScriptParameter"}
 	u3 %v{1}
 	p

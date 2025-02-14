@@ -41,6 +41,7 @@ private:
   };
 
   ezDynamicArray<ExposedParam> m_ExposedParams;
+  ezDynamicArray<ezString> m_Dependencies;
 
   ezAngelScriptAssetDocument* m_pAssetDoc = nullptr;
 

@@ -21,10 +21,11 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
+			s{"Features/RenderToTexture/Monitor_data/Monitor.as"}
 			s{"Scenes/Main_data/Corridor.as"}
 		}
 		Uuid %DocumentID{u4{16450976138972234425,4687106429097080588}}
-		u4 %Hash{443077794545903753}
+		u4 %Hash{18337396432930092362}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16616245777925676785,940473987124105707}}
@@ -50,6 +51,10 @@ o
 	{
 		s %ClassName{"Corridor"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Features/RenderToTexture/Monitor_data/Monitor.as"}
+		}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Scenes/Main_data/Corridor.as"}

@@ -34,16 +34,34 @@ void ezAngelScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVarian
   {
     auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pInstance);
     auto pContext = pScriptInstance->GetContext();
-    pContext->PushState();
+
+    bool bPush = false;
+    if (pContext->GetState() == asEContextState::asEXECUTION_ACTIVE)
+    {
+      bPush = true;
+      AS_CHECK(pContext->PushState());
+    }
+
+    ezTime tDiff;
 
     if (pContext->Prepare(m_pAsFunction) >= 0)
     {
       EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
       pContext->SetObject(pScriptInstance->GetObject());
-      pContext->Execute();
+
+      if (m_pAsFunction->GetParamCount() > 0)
+      {
+        tDiff = arguments[0].Get<ezTime>();
+        AS_CHECK(pContext->SetArgObject(0, &tDiff));
+      }
+
+      AS_CHECK(pContext->Execute());
     }
 
-    pContext->PopState();
+    if (bPush)
+    {
+      AS_CHECK(pContext->PopState());
+    }
   }
 }
 
@@ -74,17 +92,26 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
   auto pThis = static_cast<ezAngelScriptMessageHandler*>(pSelf);
   auto pScriptInstance = static_cast<ezAngelScriptInstance*>(pScriptComp->GetScriptInstance());
   auto pContext = pScriptInstance->GetContext();
-  pContext->PushState();
+
+  bool bPush = false;
+  if (pContext->GetState() == asEContextState::asEXECUTION_ACTIVE)
+  {
+    bPush = true;
+    AS_CHECK(pContext->PushState());
+  }
 
   if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
   {
     EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
-    pContext->SetObject(pScriptInstance->GetObject());
-    pContext->SetArgObject(0, &ref_msg);
-    pContext->Execute();
+    AS_CHECK(pContext->SetObject(pScriptInstance->GetObject()));
+    AS_CHECK(pContext->SetArgObject(0, &ref_msg));
+    AS_CHECK(pContext->Execute());
   }
 
-  pContext->PopState();
+  if (bPush)
+  {
+    AS_CHECK(pContext->PopState());
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -132,17 +159,27 @@ void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSe
     EZ_ASSERT_DEBUG(pScriptInstance->GetObject(), "Invalid script object");
 
     auto pContext = pScriptInstance->GetContext();
-    pContext->PushState();
+
+    bool bPush = false;
+    if (pContext->GetState() == asEContextState::asEXECUTION_ACTIVE)
+    {
+      bPush = true;
+      AS_CHECK(pContext->PushState());
+    }
 
     if (pContext->Prepare(r.m_pAsFunction) >= 0)
     {
 
-      pContext->SetObject(pScriptInstance->GetObject());
-      pContext->SetArgObject(0, pMsgObj);
-      pContext->Execute();
+      AS_CHECK(pContext->SetObject(pScriptInstance->GetObject()));
+      AS_CHECK(pContext->SetArgObject(0, pMsgObj));
+      AS_CHECK(pContext->Execute());
     }
 
-    pContext->PopState();
+    if (bPush)
+    {
+      AS_CHECK(pContext->PopState());
+    }
+
     break;
   }
 }

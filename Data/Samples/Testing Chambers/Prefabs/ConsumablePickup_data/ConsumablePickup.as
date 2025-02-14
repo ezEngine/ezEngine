@@ -9,16 +9,11 @@ class ConsumablePickup : ezAngelScriptClass
     {
         if (msg.TriggerState == ezTriggerState::Activated && msg.Message == "Pickup")
         {
-            // TODO: need GO handles in messages to identify who entered the trigger
-            ezGameObject@ player;
-            if (!GetWorld().TryGetObjectWithGlobalKey("Player", player))
-                return;
-
             MsgAddConsumable hm;
             hm.consumableType = ConsumableType(ObjectType);
             hm.amount = Amount;
 
-            player.SendMessageRecursive(hm);
+            GetWorld().SendMessageRecursive(msg.GameObject, hm);
 
             if (hm.return_consumed == false)
                 return;

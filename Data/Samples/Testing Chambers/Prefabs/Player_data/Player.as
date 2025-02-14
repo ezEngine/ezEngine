@@ -112,7 +112,7 @@ class Player : ezAngelScriptClass
         }
     }
 
-    void Update()
+    void Update(ezTime deltaTime)
     {
         ezGameObject@ cameraObj;
         if (!GetWorld().TryGetObject(hCameraObj, @cameraObj))
@@ -158,16 +158,11 @@ class Player : ezAngelScriptClass
                     ezDebug::DrawInfoText(GetWorld(), text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
                 }
     
-                ezGameObject@ weaponObj;
-                if (GetWorld().TryGetObject(weaponInfo.hObject, @weaponObj))
-                {
-                    MsgWeaponInteraction msgInteract;
-                    @msgInteract.ammoPouch = @ammoPouch;
-                    @msgInteract.weaponInfo = @weaponInfo;
-                    msgInteract.interaction = WeaponInteraction::Update;
-
-                    weaponObj.SendMessageRecursive(msgInteract);
-                }
+                MsgWeaponInteraction msgInteract;
+                @msgInteract.ammoPouch = @ammoPouch;
+                @msgInteract.weaponInfo = @weaponInfo;
+                msgInteract.interaction = WeaponInteraction::Update;
+                GetWorld().SendMessageRecursive(weaponInfo.hObject, msgInteract);
 
                 // TODO: gunComp[activeWeapon].RenderCrosshair();
             }            
@@ -241,26 +236,23 @@ class Player : ezAngelScriptClass
             if (!GetWorld().TryGetComponent(hGrabComp, @grabComp))
                 return;
 
-            if (!grabComp.HasObjectGrabbed()) 
-            {
-                if (msg.InputAction == "SwitchWeapon0")
-                    SwitchToWeapon(WeaponType::None);
+            if (msg.InputAction == "SwitchWeapon0")
+                SwitchToWeapon(WeaponType::None);
 
-                if (msg.InputAction == "SwitchWeapon1")
-                    SwitchToWeapon(WeaponType::Pistol);
+            if (msg.InputAction == "SwitchWeapon1")
+                SwitchToWeapon(WeaponType::Pistol);
 
-                if (msg.InputAction == "SwitchWeapon2")
-                    SwitchToWeapon(WeaponType::Shotgun);
+            if (msg.InputAction == "SwitchWeapon2")
+                SwitchToWeapon(WeaponType::Shotgun);
 
-                if (msg.InputAction == "SwitchWeapon3")
-                    SwitchToWeapon(WeaponType::MachineGun);
+            if (msg.InputAction == "SwitchWeapon3")
+                SwitchToWeapon(WeaponType::MachineGun);
 
-                if (msg.InputAction == "SwitchWeapon4")
-                    SwitchToWeapon(WeaponType::PlasmaRifle);
+            if (msg.InputAction == "SwitchWeapon4")
+                SwitchToWeapon(WeaponType::PlasmaRifle);
 
-                if (msg.InputAction == "SwitchWeapon5")
-                    SwitchToWeapon(WeaponType::RocketLauncher);
-            }
+            if (msg.InputAction == "SwitchWeapon5")
+                SwitchToWeapon(WeaponType::RocketLauncher);
 
             if (msg.InputAction == "Flashlight")
             {
@@ -302,7 +294,6 @@ class Player : ezAngelScriptClass
                         ezMsgGenericEvent msgUse;
                         msgUse.Message = "Use";
 
-                        // TODO: add ezWorld::SendEventMessage
                         ezGameObject@ hitObj;
                         if (GetWorld().TryGetObject(hHitObject, @hitObj))
                         {
@@ -316,17 +307,13 @@ class Player : ezAngelScriptClass
             {
                 WeaponInfo@ weaponInfo = GetWeaponInfo(eActiveWeapon);
 
-                ezGameObject@ weaponObj;
-                if (GetWorld().TryGetObject(weaponInfo.hObject, @weaponObj))
-                {
-                    MsgWeaponInteraction msgInteract;
-                    msgInteract.keyState = msg.TriggerState;
-                    @msgInteract.ammoPouch = @ammoPouch;
-                    @msgInteract.weaponInfo = @weaponInfo;
-                    msgInteract.interaction = WeaponInteraction::Reload;
+                MsgWeaponInteraction msgInteract;
+                msgInteract.keyState = msg.TriggerState;
+                @msgInteract.ammoPouch = @ammoPouch;
+                @msgInteract.weaponInfo = @weaponInfo;
+                msgInteract.interaction = WeaponInteraction::Reload;
 
-                    weaponObj.SendMessageRecursive(msgInteract);
-                }
+                GetWorld().SendMessageRecursive(weaponInfo.hObject, msgInteract);
             }
 
             if (msg.InputAction == "Teleport")
@@ -373,17 +360,13 @@ class Player : ezAngelScriptClass
                 {
                     WeaponInfo@ weaponInfo = GetWeaponInfo(eActiveWeapon);
 
-                    ezGameObject@ weaponObj;
-                    if (GetWorld().TryGetObject(weaponInfo.hObject, @weaponObj))
-                    {
-                        MsgWeaponInteraction msgInteract;
-                        msgInteract.keyState = msg.TriggerState;
-                        @msgInteract.ammoPouch = @ammoPouch;
-                        @msgInteract.weaponInfo = @weaponInfo;
-                        msgInteract.interaction = WeaponInteraction::Fire;
+                    MsgWeaponInteraction msgInteract;
+                    msgInteract.keyState = msg.TriggerState;
+                    @msgInteract.ammoPouch = @ammoPouch;
+                    @msgInteract.weaponInfo = @weaponInfo;
+                    msgInteract.interaction = WeaponInteraction::Fire;
 
-                        weaponObj.SendMessageRecursive(msgInteract);
-                    }
+                    GetWorld().SendMessageRecursive(weaponInfo.hObject, msgInteract);
                 }
             }
         }
@@ -451,6 +434,16 @@ class Player : ezAngelScriptClass
         if (eActiveWeapon == weapon)
             return;
 
+        if (weapon != WeaponType::None)
+        {
+            ezJoltGrabObjectComponent@ grabComp;
+            if (GetWorld().TryGetComponent(hGrabComp, @grabComp))
+            {
+                if (grabComp.HasObjectGrabbed())
+                    return;
+            }
+        }
+
         auto infoNew = GetWeaponInfo(weapon);
 
         if (!infoNew.bUnlocked)
@@ -460,21 +453,13 @@ class Player : ezAngelScriptClass
 
         bRequireNoShoot = true;
 
-        ezGameObject@ oldObj;
-        if (GetWorld().TryGetObject(infoOld.hObject, oldObj))
-        {
-            MsgWeaponInteraction msg;
-            msg.interaction = WeaponInteraction::HolsterWeapon;
-            oldObj.SendMessage(msg);
-        }
+        MsgWeaponInteraction msg;
 
-        ezGameObject@ newObj;
-        if (GetWorld().TryGetObject(infoNew.hObject, newObj))
-        {
-            MsgWeaponInteraction msg;
-            msg.interaction = WeaponInteraction::DrawWeapon;
-            newObj.SendMessage(msg);
-        }
+        msg.interaction = WeaponInteraction::HolsterWeapon;
+        GetWorld().SendMessage(infoOld.hObject, msg);
+
+        msg.interaction = WeaponInteraction::DrawWeapon;
+        GetWorld().SendMessage(infoNew.hObject, msg);
 
          eActiveWeapon = weapon;
     }
@@ -516,7 +501,7 @@ class Player : ezAngelScriptClass
             return 20;
         }
     
-        // TODO: assert
+        throw("Missing Case");
         return 0;
     }
 

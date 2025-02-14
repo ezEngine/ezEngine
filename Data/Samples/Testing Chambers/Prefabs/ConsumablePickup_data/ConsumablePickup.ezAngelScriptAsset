@@ -12,9 +12,10 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.as"}
+			s{"Scripting/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{15093952775324887440,4755446790216139985}}
-		u4 %Hash{6837973678878459689}
+		u4 %Hash{17193738463330394903}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3849098155197325966,14027127256261368063}}
@@ -80,10 +81,14 @@ o
 	{
 		s %ClassName{"ConsumablePickup"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies
+		{
+			s{"Scripting/GameDecls.as"}
+		}
 		VarArray %Parameters
 		{
-			Uuid{u4{4314210376975429564,5764037692530829574}}
-			Uuid{u4{9937236735064536477,5085449825073821705}}
+			Uuid{u4{5658861719800082359,4902781441944077681}}
+			Uuid{u4{13215161804877139843,5682523784638819288}}
 		}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"Prefabs/ConsumablePickup_data/ConsumablePickup.as"}
@@ -91,20 +96,7 @@ o
 }
 o
 {
-	Uuid %id{u4{9937236735064536477,5085449825073821705}}
-	s %t{"ezAngelScriptParameter"}
-	u3 %v{1}
-	p
-	{
-		s %Declaration{"int32 Amount = 0"}
-		i3 %DefaultValue{0}
-		b %Expose{1}
-		s %Name{"Amount"}
-	}
-}
-o
-{
-	Uuid %id{u4{4314210376975429564,5764037692530829574}}
+	Uuid %id{u4{5658861719800082359,4902781441944077681}}
 	s %t{"ezAngelScriptParameter"}
 	u3 %v{1}
 	p
@@ -113,6 +105,19 @@ o
 		i3 %DefaultValue{0}
 		b %Expose{1}
 		s %Name{"ObjectType"}
+	}
+}
+o
+{
+	Uuid %id{u4{13215161804877139843,5682523784638819288}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 Amount = 0"}
+		i3 %DefaultValue{0}
+		b %Expose{1}
+		s %Name{"Amount"}
 	}
 }
 o
