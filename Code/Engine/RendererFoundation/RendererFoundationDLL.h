@@ -50,6 +50,7 @@ class ezGALResourceBase;
 class ezGALTexture;
 class ezGALSharedTexture;
 class ezGALBuffer;
+class ezGALDynamicBuffer;
 class ezGALReadbackBuffer;
 class ezGALReadbackTexture;
 class ezGALDepthStencilState;
@@ -438,6 +439,13 @@ class ezGALReadbackTextureHandle
 class ezGALBufferHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALDynamicBufferHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALDynamicBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };

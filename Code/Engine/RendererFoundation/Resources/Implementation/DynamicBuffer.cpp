@@ -2,53 +2,6 @@
 
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
-ezIdTable<ezGALDynamicBufferHandle::IdType, ezGALDynamicBuffer*> ezGALDynamicBuffer::s_Buffers;
-static bool s_bInitialized = false;
-static ezMutex s_Mutex;
-
-// static
-ezGALDynamicBufferHandle ezGALDynamicBuffer::Create(const ezGALBufferCreationDescription& desc, ezStringView sDebugName)
-{
-  EZ_LOCK(s_Mutex);
-
-  if (!s_bInitialized)
-  {
-    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALDynamicBuffer::DeviceEventHandler));
-    s_bInitialized = true;
-  }
-
-  auto pBuffer = EZ_DEFAULT_NEW(ezGALDynamicBuffer);
-  pBuffer->Initialize(desc, sDebugName);
-
-  return ezGALDynamicBufferHandle(s_Buffers.Insert(pBuffer));
-}
-
-// static
-void ezGALDynamicBuffer::Destroy(ezGALDynamicBufferHandle& inout_hBuffer)
-{
-  if (inout_hBuffer.IsInvalidated())
-    return;
-
-  EZ_LOCK(s_Mutex);
-
-  ezGALDynamicBuffer* pOldBuffer = nullptr;
-  s_Buffers.Remove(inout_hBuffer, &pOldBuffer);
-
-  EZ_DEFAULT_DELETE(pOldBuffer);
-
-  inout_hBuffer.Invalidate();
-}
-
-// static
-ezGALDynamicBuffer* ezGALDynamicBuffer::Get(ezGALDynamicBufferHandle hBuffer)
-{
-  EZ_LOCK(s_Mutex);
-
-  ezGALDynamicBuffer* pBuffer = nullptr;
-  s_Buffers.TryGetValue(hBuffer, pBuffer);
-  return pBuffer;
-}
-
 ezGALDynamicBuffer::~ezGALDynamicBuffer()
 {
   Deinitialize();
@@ -89,6 +42,8 @@ void ezGALDynamicBuffer::Deinitialize()
 
 ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
 {
+  EZ_LOCK(m_Mutex);
+
   ezUInt32 uiOffset = ezInvalidIndex;
 
   for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
@@ -130,6 +85,8 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
 
 void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
 {
+  EZ_LOCK(m_Mutex);
+
   auto it = m_Allocations.Find(uiOffset);
   EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
@@ -142,6 +99,8 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
 
 ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount)
 {
+  EZ_LOCK(m_Mutex);
+
   auto it = m_Allocations.Find(uiOffset);
   EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
@@ -155,6 +114,8 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
 
 void ezGALDynamicBuffer::UploadChanges()
 {
+  EZ_LOCK(m_Mutex);
+
   if (m_DirtyRange.IsValid() == false)
     return;
 
@@ -185,6 +146,8 @@ void ezGALDynamicBuffer::UploadChanges()
 
 void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& out_changedAllocations, ezUInt32 uiMaxSteps)
 {
+  EZ_LOCK(m_Mutex);
+
   out_changedAllocations.Clear();
 
   //EZ_ASSERT_NOT_IMPLEMENTED;
@@ -209,18 +172,4 @@ void ezGALDynamicBuffer::Resize(ezUInt32 uiNewSize)
   m_Data.SetCountUninitialized(uiSize);
 
   m_DirtyRange.SetToIncludeRange(0, (uiSize / m_Desc.m_uiStructSize) - 1);
-}
-
-void ezGALDynamicBuffer::DeviceEventHandler(const ezGALDeviceEvent& e)
-{
-  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
-    return;
-
-  EZ_LOCK(s_Mutex);
-
-  for (auto it = s_Buffers.GetIterator(); it.IsValid(); ++it)
-  {
-    auto pBuffer = it.Value();
-    pBuffer->m_hBufferForRendering = pBuffer->m_hBufferForUpload;
-  }
 }

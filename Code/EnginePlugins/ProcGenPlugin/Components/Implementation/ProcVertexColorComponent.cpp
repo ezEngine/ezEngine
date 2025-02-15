@@ -54,7 +54,7 @@ void ezProcVertexColorComponentManager::Initialize()
     {
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
     }
-    m_hVertexColorBuffer = ezGALDynamicBuffer::Create(desc, "ProcVertexColor");
+    m_hVertexColorBuffer = ezGALDevice::GetDefaultDevice()->CreateDynamicBuffer(desc, "ProcVertexColor");
   }
 
   {
@@ -75,7 +75,7 @@ void ezProcVertexColorComponentManager::Initialize()
 
 void ezProcVertexColorComponentManager::Deinitialize()
 {
-  ezGALDynamicBuffer::Destroy(m_hVertexColorBuffer);
+  ezGALDevice::GetDefaultDevice()->DestroyDynamicBuffer(m_hVertexColorBuffer);
 
   ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
 
@@ -88,7 +88,7 @@ void ezProcVertexColorComponentManager::Deinitialize()
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
 {
-  auto pBuffer = ezGALDynamicBuffer::Get(m_hVertexColorBuffer);
+  auto pBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hVertexColorBuffer);
 
   // Buffer compaction
   {
@@ -238,7 +238,7 @@ void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExt
   m_UpdateTaskGroupID.Invalidate();
   m_uiNextTaskIndex = 0;
 
-  ezGALDynamicBuffer::Get(m_hVertexColorBuffer)->UploadChanges();
+  ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hVertexColorBuffer)->UploadChanges();
 }
 
 void ezProcVertexColorComponentManager::EnqueueUpdate(ezProcVertexColorComponent* pComponent)
@@ -261,7 +261,7 @@ void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorCompone
 
   if (pComponent->m_uiBufferAccessData != 0)
   {
-    ezGALDynamicBuffer::Get(m_hVertexColorBuffer)->Deallocate(pComponent->GetBufferOffset());
+    ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hVertexColorBuffer)->Deallocate(pComponent->GetBufferOffset());
     pComponent->m_uiBufferAccessData = 0;
   }
 }

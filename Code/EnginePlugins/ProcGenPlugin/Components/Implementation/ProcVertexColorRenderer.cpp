@@ -27,7 +27,7 @@ void ezProcVertexColorRenderer::SetAdditionalData(const ezRenderViewContext& ren
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
   auto pProcVertexColorRenderData = static_cast<const ezProcVertexColorRenderData*>(pRenderData);
-  if (auto pVertexColorBuffer = ezGALDynamicBuffer::Get(pProcVertexColorRenderData->m_hVertexColorBuffer))
+  if (auto pVertexColorBuffer = pDevice->GetDynamicBuffer(pProcVertexColorRenderData->m_hVertexColorBuffer))
   {
     pContext->BindBuffer("perInstanceVertexColors", pDevice->GetDefaultResourceView(pVertexColorBuffer->GetBufferForRendering()));
   }

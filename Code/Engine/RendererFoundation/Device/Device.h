@@ -57,6 +57,9 @@ public:
   ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>());
   void DestroyBuffer(ezGALBufferHandle hBuffer);
 
+  ezGALDynamicBufferHandle CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName);
+  void DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer);
+
   // Helper functions for buffers (for common, simple use cases)
 
   ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
@@ -202,6 +205,8 @@ public:
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
   virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const = 0;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
+  const ezGALDynamicBuffer* GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer) const;
+  ezGALDynamicBuffer* GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer);
   const ezGALReadbackBuffer* GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const;
   const ezGALReadbackTexture* GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const;
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
@@ -275,6 +280,7 @@ protected:
   using DepthStencilStateTable = ezIdTable<ezGALDepthStencilStateHandle::IdType, ezGALDepthStencilState*, ezLocalAllocatorWrapper>;
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
+  using DynamicBufferTable = ezIdTable<ezGALDynamicBufferHandle::IdType, ezGALDynamicBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
   using ReadbackBufferTable = ezIdTable<ezGALReadbackBufferHandle::IdType, ezGALReadbackBuffer*, ezLocalAllocatorWrapper>;
   using ReadbackTextureTable = ezIdTable<ezGALReadbackTextureHandle::IdType, ezGALReadbackTexture*, ezLocalAllocatorWrapper>;
@@ -292,6 +298,7 @@ protected:
   DepthStencilStateTable m_DepthStencilStates;
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
+  DynamicBufferTable m_DynamicBuffers;
   TextureTable m_Textures;
   ReadbackBufferTable m_ReadbackBuffers;
   ReadbackTextureTable m_ReadbackTextures;

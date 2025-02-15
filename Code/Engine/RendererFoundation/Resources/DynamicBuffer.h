@@ -2,22 +2,9 @@
 
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class ezGALDynamicBufferHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALDynamicBufferHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDynamicBuffer;
-};
-
-
 class EZ_RENDERERFOUNDATION_DLL ezGALDynamicBuffer
 {
 public:
-  static ezGALDynamicBufferHandle Create(const ezGALBufferCreationDescription& desc, ezStringView sDebugName);
-  static void Destroy(ezGALDynamicBufferHandle& inout_hBuffer);
-  static ezGALDynamicBuffer* Get(ezGALDynamicBufferHandle hBuffer);
-
-
   template <typename U>
   ezUInt32 Allocate(const U& userData, ezUInt32 uiCount)
   {
@@ -69,6 +56,13 @@ private:
 
   void Resize(ezUInt32 uiNewSize);
 
+  void SwapBuffers()
+  {
+    m_hBufferForRendering = m_hBufferForUpload;
+  }
+
+  ezMutex m_Mutex;
+
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
   ezUInt32 m_uiNextOffset = 0;
 
@@ -91,7 +85,4 @@ private:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezString m_sDebugName;
 #endif
-
-  static void DeviceEventHandler(const ezGALDeviceEvent& e);
-  static ezIdTable<ezGALDynamicBufferHandle::IdType, ezGALDynamicBuffer*> s_Buffers;
 };

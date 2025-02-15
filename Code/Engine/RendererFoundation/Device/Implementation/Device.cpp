@@ -8,6 +8,7 @@
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/DynamicBuffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -28,6 +29,7 @@ namespace
       SamplerState,
       Shader,
       Buffer,
+      DynamicBuffer,
       Texture,
       ReadbackTexture,
       ReadbackBuffer,
@@ -606,6 +608,28 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
   else
   {
     ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
+  }
+}
+
+ezGALDynamicBufferHandle ezGALDevice::CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  auto pBuffer = EZ_NEW(&m_Allocator, ezGALDynamicBuffer);
+  pBuffer->Initialize(description, sDebugName);
+
+  return ezGALDynamicBufferHandle(m_DynamicBuffers.Insert(pBuffer));
+}
+
+void ezGALDevice::DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALDynamicBuffer* pBuffer = nullptr;
+  if (m_DynamicBuffers.TryGetValue(inout_hBuffer, pBuffer))
+  {
+    AddDeadObject(GALObjectType::DynamicBuffer, inout_hBuffer);
+    inout_hBuffer.Invalidate();
   }
 }
 
@@ -1587,6 +1611,11 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)
     BeginFramePlatform(m_FrameSwapChains, uiAppFrame);
   }
 
+  for (auto it = m_DynamicBuffers.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value()->SwapBuffers();
+  }
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
@@ -1816,6 +1845,17 @@ void ezGALDevice::DestroyDeadObjects()
 
         DestroyViews(pBuffer);
         DestroyBufferPlatform(pBuffer);
+
+        break;
+      }
+      case GALObjectType::DynamicBuffer:
+      {
+        ezGALDynamicBufferHandle hDynamicBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALDynamicBuffer* pDynamicBuffer = nullptr;
+
+        EZ_VERIFY(m_DynamicBuffers.Remove(hDynamicBuffer, &pDynamicBuffer), "");
+
+        EZ_DELETE(&m_Allocator, pDynamicBuffer);
 
         break;
       }
