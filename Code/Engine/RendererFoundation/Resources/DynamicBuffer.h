@@ -70,6 +70,7 @@ private:
   void Resize(ezUInt32 uiNewSize);
 
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
+  ezUInt32 m_uiNextOffset = 0;
 
   struct Allocation
   {

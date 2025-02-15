@@ -261,7 +261,7 @@ void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorCompone
 
   if (pComponent->m_uiBufferAccessData != 0)
   {
-    ezGALDynamicBuffer::Get(m_hVertexColorBuffer)->Deallocate(pComponent->m_uiBufferAccessData);
+    ezGALDynamicBuffer::Get(m_hVertexColorBuffer)->Deallocate(pComponent->GetBufferOffset());
     pComponent->m_uiBufferAccessData = 0;
   }
 }

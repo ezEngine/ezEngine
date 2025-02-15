@@ -540,20 +540,17 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     return ezGALBufferHandle();
   }
 
-  if (desc.m_ResourceAccess.IsImmutable())
+  if (desc.m_ResourceAccess.IsImmutable() && initialData.IsEmpty())
   {
-    if (initialData.IsEmpty())
-    {
-      ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
-      return ezGALBufferHandle();
-    }
+    ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
+    return ezGALBufferHandle();
+  }
 
-    ezUInt32 uiBufferSize = desc.m_uiTotalSize;
-    if (uiBufferSize != initialData.GetCount())
-    {
-      ezLog::Error("Trying to create a buffer with invalid initial data!");
-      return ezGALBufferHandle();
-    }
+  ezUInt32 uiBufferSize = desc.m_uiTotalSize;
+  if (initialData.GetCount() > 0 && uiBufferSize != initialData.GetCount())
+  {
+    ezLog::Error("Trying to create a buffer with invalid initial data!");
+    return ezGALBufferHandle();
   }
 
   if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))

@@ -59,7 +59,7 @@ void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, 
   EZ_ASSERT_DEV(desc.m_uiStructSize > 0, "Struct size must be greater than 0");
 
   m_Desc = desc;
-  m_Data.Reserve(desc.m_uiTotalSize);
+  m_Data.SetCountUninitialized(desc.m_uiTotalSize);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_sDebugName = sDebugName;
@@ -114,15 +114,14 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
 
   if (uiOffset == ezInvalidIndex)
   {
-    uiOffset = m_Data.GetCount() / m_Desc.m_uiStructSize;
+    uiOffset = m_uiNextOffset;
+    m_uiNextOffset += uiCount;
 
     const ezUInt32 uiTotalByteSize = m_Data.GetCount() + (uiCount * m_Desc.m_uiStructSize);
     if (uiTotalByteSize > m_Desc.m_uiTotalSize)
     {
       Resize(uiTotalByteSize);
     }
-
-    m_Data.SetCountUninitialized(uiTotalByteSize);
   }
 
   m_Allocations.Insert(uiOffset, Allocation{uiUserData, uiCount});
@@ -164,6 +163,7 @@ void ezGALDynamicBuffer::UploadChanges()
   if (m_hBufferForUpload.IsInvalidated() == false && pDevice->GetBuffer(m_hBufferForUpload)->GetDescription().m_uiTotalSize != m_Desc.m_uiTotalSize)
   {
     pDevice->DestroyBuffer(m_hBufferForUpload);
+    m_hBufferForUpload.Invalidate();
   }
 
   if (m_hBufferForUpload.IsInvalidated())
@@ -206,7 +206,7 @@ void ezGALDynamicBuffer::Resize(ezUInt32 uiNewSize)
   }
 
   m_Desc.m_uiTotalSize = uiSize;
-  m_Data.Reserve(uiSize);
+  m_Data.SetCountUninitialized(uiSize);
 
   m_DirtyRange.SetToIncludeRange(0, (uiSize / m_Desc.m_uiStructSize) - 1);
 }
