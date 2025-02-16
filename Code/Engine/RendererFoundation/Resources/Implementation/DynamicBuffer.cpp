@@ -12,6 +12,14 @@ namespace
     }
   };
 
+  struct CompareRangesByStartReverse
+  {
+    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    {
+      return a.m_uiMin > b.m_uiMin;
+    }
+  };
+
   struct CompareRangesByCount
   {
     bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
@@ -113,27 +121,35 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
   EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
   const ezUInt32 uiCount = it.Value().m_uiCount;
-  m_Allocations.Remove(it);
 
-  m_FreeRanges.PushBack(ezGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
-
-  // Merge adjacent free ranges
-  m_FreeRanges.Sort(CompareRangesByStart());
-  for (ezUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
+  if (it.Key() == m_Allocations.GetReverseIterator().Key())
   {
-    auto& currentFreeRange = m_FreeRanges[i];
-    auto& nextFreeRange = m_FreeRanges[i + 1];
+    m_uiNextOffset = uiOffset;
+  }
+  else
+  {
+    m_FreeRanges.PushBack(ezGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
 
-    if (currentFreeRange.m_uiMax + 1 == nextFreeRange.m_uiMin)
+    // Merge adjacent free ranges
+    m_FreeRanges.Sort(CompareRangesByStart());
+    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
     {
-      currentFreeRange.m_uiMax = nextFreeRange.m_uiMax;
-      m_FreeRanges.RemoveAtAndCopy(i + 1);
-      --i;
+      auto& currentFreeRange = m_FreeRanges[i];
+      auto& nextFreeRange = m_FreeRanges[i + 1];
+
+      if (currentFreeRange.m_uiMax + 1 == nextFreeRange.m_uiMin)
+      {
+        currentFreeRange.m_uiMax = nextFreeRange.m_uiMax;
+        m_FreeRanges.RemoveAtAndCopy(i + 1);
+        --i;
+      }
     }
+
+    // Sort by count to make sure that the smaller holes are filled first
+    m_FreeRanges.Sort(CompareRangesByCount());
   }
 
-  // Sort by count to make sure that the smaller holes are filled first
-  m_FreeRanges.Sort(CompareRangesByCount());
+  m_Allocations.Remove(it);
 }
 
 ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount)
@@ -189,8 +205,82 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 
   out_changedAllocations.Clear();
 
-  // EZ_ASSERT_NOT_IMPLEMENTED;
-  EZ_IGNORE_UNUSED(uiMaxSteps);
+  if (m_FreeRanges.IsEmpty() || m_Allocations.IsEmpty())
+    return;
+
+  m_FreeRanges.Sort(CompareRangesByStartReverse());
+  EZ_SCOPE_EXIT(m_FreeRanges.Sort(CompareRangesByCount()));
+
+  auto MoveAllocation = [&](const Allocation& allocation, ezUInt32 uiOldOffset, ezUInt32 uiNewOffset)
+  {
+    out_changedAllocations.PushBack(ChangedAllocation{allocation.m_uiUserData, uiNewOffset});
+
+    const ezUInt32 uiOldByteOffset = uiOldOffset * m_Desc.m_uiStructSize;
+    const ezUInt32 uiNewByteOffset = uiNewOffset * m_Desc.m_uiStructSize;
+    const ezUInt32 uiByteSize = allocation.m_uiCount * m_Desc.m_uiStructSize;
+    ezMemoryUtils::Copy(&m_Data[uiNewByteOffset], &m_Data[uiOldByteOffset], uiByteSize);
+
+    m_DirtyRange.SetToIncludeRange(uiNewOffset, uiNewOffset + allocation.m_uiCount - 1);
+
+    m_Allocations.Insert(uiNewOffset, allocation);
+    m_Allocations.Remove(uiOldOffset);
+  };
+
+  for (ezUInt32 i = 0; i < uiMaxSteps; ++i)
+  {
+    if (m_FreeRanges.IsEmpty())
+      return;
+
+    auto& freeRange = m_FreeRanges.PeekBack();
+    const ezUInt32 uiFreeCount = freeRange.GetCount();
+    const ezUInt32 uiNewOffset = freeRange.m_uiMin;
+
+    // first check whether the last allocation fits into the hole
+    auto revIt = m_Allocations.GetReverseIterator();
+    if (revIt.IsValid())
+    {
+      if (revIt.Value().m_uiCount == uiFreeCount)
+      {
+        m_FreeRanges.PopBack();
+
+        MoveAllocation(revIt.Value(), revIt.Key(), uiNewOffset);
+        continue;
+      }
+    }
+
+    // if not start to move the allocations forward
+    auto it = m_Allocations.Find(freeRange.m_uiMax + 1);
+    EZ_ASSERT_DEV(it.IsValid(), "Implementation error");
+    {
+      const ezUInt32 uiNewFreeRangeMin = uiNewOffset + it.Value().m_uiCount;
+
+      if (it.Key() == revIt.Key())
+      {
+        // This was the last allocation
+        m_uiNextOffset = uiNewFreeRangeMin;
+        m_FreeRanges.PopBack();
+      }
+      else
+      {
+        freeRange.m_uiMin = uiNewFreeRangeMin;
+        freeRange.m_uiMax = freeRange.m_uiMin + uiFreeCount - 1;
+
+        // merge adjacent free ranges
+        if (m_FreeRanges.GetCount() > 1)
+        {
+          const ezUInt32 uiSecondIndex = m_FreeRanges.GetCount() - 2;
+          auto& secondFreeRange = m_FreeRanges[uiSecondIndex];
+          if (freeRange.m_uiMax + 1 == secondFreeRange.m_uiMin)
+          {
+            freeRange.m_uiMax = secondFreeRange.m_uiMax;
+            m_FreeRanges.RemoveAtAndCopy(uiSecondIndex);
+          }
+        }
+      }
+
+      MoveAllocation(it.Value(), it.Key(), uiNewOffset);
+    }
+  }
 }
 
 void ezGALDynamicBuffer::Resize(ezUInt32 uiNewSize)

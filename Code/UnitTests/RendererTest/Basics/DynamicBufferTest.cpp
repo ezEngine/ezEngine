@@ -8,6 +8,7 @@ void ezRendererTestDynamicBuffer::SetupSubTests()
 {
   AddSubTest("Allocations", SubTests::ST_Allocations);
   AddSubTest("Deallocations", SubTests::ST_Deallocations);
+  AddSubTest("Compaction", SubTests::ST_Compaction);
 }
 
 ezResult ezRendererTestDynamicBuffer::InitializeSubTest(ezInt32 iIdentifier)
@@ -40,7 +41,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 {
   if (iIdentifier == SubTests::ST_Allocations)
   {
-    constexpr ezUInt32 uiAllocationSizes[] = {11, 23, 4, 5, 6};
+    constexpr ezUInt32 uiAllocationSizes[] = {11, 23, 4, 5, 6, 7, 8, 9};
 
     auto pDevice = ezGALDevice::GetDefaultDevice();
     auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
@@ -95,12 +96,10 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     // Now the new buffer should be returned
     hNewBuffer = pDynamicBuffer->GetBufferForRendering();
     EZ_TEST_BOOL(hNewBuffer != hBuffer);
-
-    return ezTestAppRun::Quit;
   }
   else if (iIdentifier == SubTests::ST_Deallocations)
   {
-    constexpr ezUInt32 uiAllocationSizes[] = {3, 4, 5, 6, 7, 9, 11};
+    constexpr ezUInt32 uiAllocationSizes[] = {3, 4, 5, 6, 7, 9, 11, 13};
 
     auto pDevice = ezGALDevice::GetDefaultDevice();
     auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
@@ -116,7 +115,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     pDynamicBuffer->Deallocate(offsets[5]);
     pDynamicBuffer->Deallocate(offsets[3]);
 
-    // Should try to waste as little space as possible so this allocation should go into the middle hole with size 6. 
+    // Should try to waste as little space as possible so this allocation should go into the middle hole with size 6.
     ezUInt32 uiNewOffset = pDynamicBuffer->Allocate(100, 5);
     EZ_TEST_INT(uiNewOffset, offsets[3]);
 
@@ -130,7 +129,51 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     uiNewOffset = pDynamicBuffer->Allocate(101, 30);
     EZ_TEST_INT(uiNewOffset, offsets[1]);
 
-    return ezTestAppRun::Quit;
+    // Deallocate the last allocation
+    pDynamicBuffer->Deallocate(offsets[7]);
+
+    uiNewOffset = pDynamicBuffer->Allocate(102, 100);
+    EZ_TEST_INT(uiNewOffset, offsets[7]);
+  }
+  else if (iIdentifier == SubTests::ST_Compaction)
+  {
+    constexpr ezUInt32 uiAllocationSizes[] = {15, 14, 13, 11, 7, 9, 15, 14};
+
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+
+    ezHybridArray<ezUInt32, 16> offsets;
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
+    {
+      offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
+    }
+
+    // Create some holes out of order
+    pDynamicBuffer->Deallocate(offsets[5]);
+    pDynamicBuffer->Deallocate(offsets[1]);
+    pDynamicBuffer->Deallocate(offsets[3]);
+
+    ezHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
+
+    // The first compaction step should move the last allocation into the first hole
+    {
+      pDynamicBuffer->RunCompactionSteps(changedAllocations, 1);
+
+      EZ_TEST_INT(changedAllocations.GetCount(), 1);
+      EZ_TEST_INT(changedAllocations[0].m_uiUserData, 7);
+      EZ_TEST_INT(changedAllocations[0].m_uiNewOffset, offsets[1]);
+    }
+
+    // For the next steps the last allocation does not match the hole size so it should start to move allocations forward to close the hole
+    {
+      pDynamicBuffer->RunCompactionSteps(changedAllocations, 16);
+
+      EZ_TEST_INT(changedAllocations.GetCount(), 2);
+      EZ_TEST_INT(changedAllocations[0].m_uiUserData, 4);
+      EZ_TEST_INT(changedAllocations[0].m_uiNewOffset, offsets[3]);
+      EZ_TEST_INT(changedAllocations[1].m_uiUserData, 6);
+      EZ_TEST_INT(changedAllocations[1].m_uiNewOffset, offsets[3] + uiAllocationSizes[4]);
+    }
   }
 
   return ezTestAppRun::Quit;

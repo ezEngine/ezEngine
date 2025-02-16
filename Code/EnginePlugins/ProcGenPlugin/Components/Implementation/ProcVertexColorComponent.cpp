@@ -557,6 +557,9 @@ void ezProcVertexColorComponent::SetBufferOffset(ezUInt32 uiOffset)
 {
   const ezUInt32 uiNumOutputs = m_Outputs.GetCount();
   m_uiBufferAccessData = uiNumOutputs << BUFFER_ACCESS_OFFSET_BITS | (uiOffset & ezProcVertexColorComponent::BUFFER_ACCESS_OFFSET_MASK);
+
+  // Invalidate all cached render data so the new offset is propagated to the render data
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 }
 
 
