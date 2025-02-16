@@ -1,0 +1,139 @@
+#include <RendererTest/RendererTestPCH.h>
+
+#include <RendererTest/Basics/DynamicBufferTest.h>
+
+#include <RendererFoundation/Resources/DynamicBuffer.h>
+
+void ezRendererTestDynamicBuffer::SetupSubTests()
+{
+  AddSubTest("Allocations", SubTests::ST_Allocations);
+  AddSubTest("Deallocations", SubTests::ST_Deallocations);
+}
+
+ezResult ezRendererTestDynamicBuffer::InitializeSubTest(ezInt32 iIdentifier)
+{
+  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
+
+  m_iFrame = -1;
+
+  ezGALBufferCreationDescription desc;
+  desc.m_uiStructSize = sizeof(ezUInt64);
+  desc.m_uiTotalSize = desc.m_uiStructSize * 16;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+
+  m_hDynamicBuffer = ezGALDevice::GetDefaultDevice()->CreateDynamicBuffer(desc, "Test buffer");
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestDynamicBuffer::DeInitializeSubTest(ezInt32 iIdentifier)
+{
+  ezGALDevice::GetDefaultDevice()->DestroyDynamicBuffer(m_hDynamicBuffer);
+
+  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+{
+  if (iIdentifier == SubTests::ST_Allocations)
+  {
+    constexpr ezUInt32 uiAllocationSizes[] = {11, 23, 4, 5, 6};
+
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+
+    ezUInt32 uiTotalOffset = 0;
+    auto AllocateAndMap = [&](ezUInt32 uiIndex)
+    {
+      ezUInt32 uiOffset = pDynamicBuffer->Allocate(uiIndex, uiAllocationSizes[uiIndex]);
+      EZ_TEST_INT(uiOffset, uiTotalOffset);
+
+      auto pMappedData = pDynamicBuffer->MapForWriting<ezUInt64>(uiOffset);
+      EZ_TEST_INT(pMappedData.GetCount(), uiAllocationSizes[uiIndex]);
+
+      uiTotalOffset += uiAllocationSizes[uiIndex];
+    };
+
+    AllocateAndMap(0);
+
+    pDynamicBuffer->UploadChanges();
+
+    // Internal buffer should be have been created after upload but GetBufferForRendering should still return the old handle until the next frame.
+    ezGALBufferHandle hBuffer = pDynamicBuffer->GetBufferForRendering();
+    EZ_TEST_BOOL(hBuffer.IsInvalidated());
+
+    {
+      BeginFrame();
+
+      // After the one frame the buffer should be created
+      ezGALBufferHandle hNewBuffer = pDynamicBuffer->GetBufferForRendering();
+      EZ_TEST_BOOL(hNewBuffer.IsInvalidated() == false);
+      hBuffer = hNewBuffer;
+
+      EndFrame();
+    }
+
+    for (ezUInt32 i = 1; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
+    {
+      AllocateAndMap(i);
+    }
+
+    pDynamicBuffer->UploadChanges();
+
+    ezGALBufferHandle hNewBuffer = pDynamicBuffer->GetBufferForRendering();
+    EZ_TEST_BOOL(hNewBuffer.IsInvalidated() == false);
+
+    // The internal buffer has been re-allocated but GetBufferForRendering should still return the old handle until the next frame.
+    EZ_TEST_BOOL(hNewBuffer == hBuffer);
+
+    BeginFrame();
+    EZ_SCOPE_EXIT(EndFrame());
+
+    // Now the new buffer should be returned
+    hNewBuffer = pDynamicBuffer->GetBufferForRendering();
+    EZ_TEST_BOOL(hNewBuffer != hBuffer);
+
+    return ezTestAppRun::Quit;
+  }
+  else if (iIdentifier == SubTests::ST_Deallocations)
+  {
+    constexpr ezUInt32 uiAllocationSizes[] = {3, 4, 5, 6, 7, 9, 11};
+
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+
+    ezHybridArray<ezUInt32, 16> offsets;
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
+    {
+      offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
+    }
+
+    // Create some holes out of order
+    pDynamicBuffer->Deallocate(offsets[1]);
+    pDynamicBuffer->Deallocate(offsets[5]);
+    pDynamicBuffer->Deallocate(offsets[3]);
+
+    // Should try to waste as little space as possible so this allocation should go into the middle hole with size 6. 
+    ezUInt32 uiNewOffset = pDynamicBuffer->Allocate(100, 5);
+    EZ_TEST_INT(uiNewOffset, offsets[3]);
+
+    pDynamicBuffer->Deallocate(uiNewOffset);
+
+    // Should merge all the holes into one big hole
+    pDynamicBuffer->Deallocate(offsets[4]);
+    pDynamicBuffer->Deallocate(offsets[2]);
+
+    // Test whether the merging was done correctly by allocation something almost as big as the hole
+    uiNewOffset = pDynamicBuffer->Allocate(101, 30);
+    EZ_TEST_INT(uiNewOffset, offsets[1]);
+
+    return ezTestAppRun::Quit;
+  }
+
+  return ezTestAppRun::Quit;
+}
+
+static ezRendererTestDynamicBuffer g_DynamicBufferTest;

@@ -22,7 +22,7 @@ public:
   {
     ezUInt32 uiCount = 0;
     ezByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
-    EZ_ASSERT_DEBUG(uiCount * m_Desc.m_uiStructSize == byteData.GetCount(), "Invalid Type");
+    EZ_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
     return ezArrayPtr<T>(reinterpret_cast<T*>(byteData.GetPtr()), uiCount);
   }
 

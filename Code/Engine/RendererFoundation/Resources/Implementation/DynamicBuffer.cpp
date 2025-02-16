@@ -2,6 +2,27 @@
 
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
+namespace
+{
+  struct CompareRangesByStart
+  {
+    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    {
+      return a.m_uiMin < b.m_uiMin;
+    }
+  };
+
+  struct CompareRangesByCount
+  {
+    bool Less(const ezGAL::ModifiedRange& a, const ezGAL::ModifiedRange& b) const
+    {
+      return a.GetCount() < b.GetCount();
+    }
+  };
+} // namespace
+
+////////////////////////////////////////////////////////////////////////
+
 ezGALDynamicBuffer::~ezGALDynamicBuffer()
 {
   Deinitialize();
@@ -53,6 +74,8 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
 
     if (uiFreeCount >= uiCount)
     {
+      uiOffset = freeRange.m_uiMin;
+
       if (uiFreeCount == uiCount)
       {
         m_FreeRanges.RemoveAtAndCopy(i);
@@ -62,7 +85,6 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
         freeRange.m_uiMin += uiCount;
       }
 
-      uiOffset = freeRange.m_uiMin;
       break;
     }
   }
@@ -72,7 +94,7 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
     uiOffset = m_uiNextOffset;
     m_uiNextOffset += uiCount;
 
-    const ezUInt32 uiTotalByteSize = m_Data.GetCount() + (uiCount * m_Desc.m_uiStructSize);
+    const ezUInt32 uiTotalByteSize = m_uiNextOffset * m_Desc.m_uiStructSize;
     if (uiTotalByteSize > m_Desc.m_uiTotalSize)
     {
       Resize(uiTotalByteSize);
@@ -90,11 +112,28 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
   auto it = m_Allocations.Find(uiOffset);
   EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
-  // const ezUInt32 uiCount = it.Value().m_uiCount;
+  const ezUInt32 uiCount = it.Value().m_uiCount;
   m_Allocations.Remove(it);
 
-  // First check for adjacent free ranges
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_FreeRanges.PushBack(ezGAL::ModifiedRange{uiOffset, uiOffset + uiCount - 1});
+
+  // Merge adjacent free ranges
+  m_FreeRanges.Sort(CompareRangesByStart());
+  for (ezUInt32 i = 0; i < m_FreeRanges.GetCount() - 1; ++i)
+  {
+    auto& currentFreeRange = m_FreeRanges[i];
+    auto& nextFreeRange = m_FreeRanges[i + 1];
+
+    if (currentFreeRange.m_uiMax + 1 == nextFreeRange.m_uiMin)
+    {
+      currentFreeRange.m_uiMax = nextFreeRange.m_uiMax;
+      m_FreeRanges.RemoveAtAndCopy(i + 1);
+      --i;
+    }
+  }
+
+  // Sort by count to make sure that the smaller holes are filled first
+  m_FreeRanges.Sort(CompareRangesByCount());
 }
 
 ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount)
@@ -150,7 +189,7 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
 
   out_changedAllocations.Clear();
 
-  //EZ_ASSERT_NOT_IMPLEMENTED;
+  // EZ_ASSERT_NOT_IMPLEMENTED;
   EZ_IGNORE_UNUSED(uiMaxSteps);
 }
 

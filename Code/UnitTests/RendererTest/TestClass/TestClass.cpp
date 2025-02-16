@@ -278,7 +278,10 @@ void ezGraphicsTest::BeginFrame()
 
 void ezGraphicsTest::EndFrame()
 {
-  m_pWindow->ProcessWindowMessages();
+  if (m_pWindow)
+  {
+    m_pWindow->ProcessWindowMessages();
+  }
 
   ezRenderContext::GetDefaultInstance()->ResetContextState();
 
