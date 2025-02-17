@@ -157,7 +157,7 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
 bool ezProcVertexColorComponentManager::UpdateComponentOutputs(ezProcVertexColorComponent* pComponent)
 {
   pComponent->m_Outputs.Clear();
-  
+
   {
     ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
     auto outputs = pResource->GetVertexColorOutputs();
