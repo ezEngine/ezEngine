@@ -216,7 +216,7 @@ void ezArrayBase<T, Derived>::InsertAt(ezUInt32 uiIndex, T&& value)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::InsertRangeAt(ezUInt32 uiIndex, const ezArrayPtr<const T>& range)
 {
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);

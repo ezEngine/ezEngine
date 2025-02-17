@@ -21,6 +21,8 @@ enum WeaponType
     MachineGun = 3,
     PlasmaRifle = 4,
     RocketLauncher = 5,
+
+    COUNT
 };
 
 class AmmoPouch

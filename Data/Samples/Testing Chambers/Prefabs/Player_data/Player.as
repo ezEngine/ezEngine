@@ -13,12 +13,8 @@ class Player : ezAngelScriptClass
     private ezGameObjectHandle hFlashlightObj;
     private ezGameObjectHandle hDamageIndicatorObj;
 
-    private WeaponInfo weaponInfoNone;
-    private WeaponInfo weaponInfoPistol;
-    private WeaponInfo weaponInfoShotgun;
-    private WeaponInfo weaponInfoMachineGun;
-    private WeaponInfo weaponInfoPlasmaRifle;
-    private WeaponInfo weaponInfoRocketLauncher;
+    private array<WeaponInfo> weaponInfos(WeaponType::COUNT);
+
 
     private int iPlayerHealth = 100;
     private float fDamageIndicatorValue = 0;
@@ -26,27 +22,6 @@ class Player : ezAngelScriptClass
     private WeaponType eActiveWeapon = WeaponType::None;
     private WeaponType eHolsteredWeapon = WeaponType::None;
     private AmmoPouch ammoPouch;
-
-    WeaponInfo& GetWeaponInfo(WeaponType type)
-    {
-        switch(type)
-        {
-        case WeaponType::None:
-            return weaponInfoNone;
-        case WeaponType::Pistol:
-            return weaponInfoPistol;
-        case WeaponType::Shotgun:
-            return weaponInfoShotgun;
-        case WeaponType::MachineGun:
-            return weaponInfoMachineGun;
-        case WeaponType::PlasmaRifle:
-            return weaponInfoPlasmaRifle;
-        case WeaponType::RocketLauncher:
-            return weaponInfoRocketLauncher;
-        }
-
-        return weaponInfoNone;
-    }
 
     void OnSimulationStarted()
     {
@@ -57,31 +32,31 @@ class Player : ezAngelScriptClass
         hDamageIndicatorObj = owner.FindChildByName("DamageIndicator").GetHandle();
         ezGameObject@ grabObj = owner.FindChildByName("GrabObject", true);
 
-        weaponInfoPistol.hObject = owner.FindChildByName("Pistol", true).GetHandle();
-        weaponInfoShotgun.hObject = owner.FindChildByName("Shotgun", true).GetHandle();
-        weaponInfoMachineGun.hObject = owner.FindChildByName("MachineGun", true).GetHandle();
-        weaponInfoPlasmaRifle.hObject = owner.FindChildByName("PlasmaRifle", true).GetHandle();
-        weaponInfoRocketLauncher.hObject = owner.FindChildByName("RocketLauncher", true).GetHandle();
+        weaponInfos[WeaponType::Pistol].hObject = owner.FindChildByName("Pistol", true).GetHandle();
+        weaponInfos[WeaponType::Shotgun].hObject = owner.FindChildByName("Shotgun", true).GetHandle();
+        weaponInfos[WeaponType::MachineGun].hObject = owner.FindChildByName("MachineGun", true).GetHandle();
+        weaponInfos[WeaponType::PlasmaRifle].hObject = owner.FindChildByName("PlasmaRifle", true).GetHandle();
+        weaponInfos[WeaponType::RocketLauncher].hObject = owner.FindChildByName("RocketLauncher", true).GetHandle();
 
-        weaponInfoPistol.eAmmoType = ConsumableType::Ammo_None;
-        weaponInfoShotgun.eAmmoType = ConsumableType::Ammo_Shotgun;
-        weaponInfoMachineGun.eAmmoType = ConsumableType::Ammo_MachineGun;
-        weaponInfoPlasmaRifle.eAmmoType = ConsumableType::Ammo_Plasma;
-        weaponInfoRocketLauncher.eAmmoType = ConsumableType::Ammo_Rocket;
+        weaponInfos[WeaponType::Pistol].eAmmoType = ConsumableType::Ammo_None;
+        weaponInfos[WeaponType::Shotgun].eAmmoType = ConsumableType::Ammo_Shotgun;
+        weaponInfos[WeaponType::MachineGun].eAmmoType = ConsumableType::Ammo_MachineGun;
+        weaponInfos[WeaponType::PlasmaRifle].eAmmoType = ConsumableType::Ammo_Plasma;
+        weaponInfos[WeaponType::RocketLauncher].eAmmoType = ConsumableType::Ammo_Rocket;
 
-        weaponInfoPistol.iClipSize = 8;
-        weaponInfoShotgun.iClipSize = 8;
-        weaponInfoMachineGun.iClipSize = 30;
-        weaponInfoPlasmaRifle.iClipSize = 30;
-        weaponInfoRocketLauncher.iClipSize = 3;
+        weaponInfos[WeaponType::Pistol].iClipSize = 8;
+        weaponInfos[WeaponType::Shotgun].iClipSize = 8;
+        weaponInfos[WeaponType::MachineGun].iClipSize = 30;
+        weaponInfos[WeaponType::PlasmaRifle].iClipSize = 30;
+        weaponInfos[WeaponType::RocketLauncher].iClipSize = 3;
 
         if (GiveAllWeapons)
         {
-            weaponInfoPistol.bUnlocked = true;
-            weaponInfoShotgun.bUnlocked = true;
-            weaponInfoMachineGun.bUnlocked = true;
-            weaponInfoPlasmaRifle.bUnlocked = true;
-            weaponInfoRocketLauncher.bUnlocked = true;
+            weaponInfos[WeaponType::Pistol].bUnlocked = true;
+            weaponInfos[WeaponType::Shotgun].bUnlocked = true;
+            weaponInfos[WeaponType::MachineGun].bUnlocked = true;
+            weaponInfos[WeaponType::PlasmaRifle].bUnlocked = true;
+            weaponInfos[WeaponType::RocketLauncher].bUnlocked = true;
 
             ammoPouch.AmmoMachineGun = 9999;
             ammoPouch.AmmoPistol = 9999;
@@ -126,10 +101,10 @@ class Player : ezAngelScriptClass
         if (!GetWorld().TryGetComponent(hInputComp, @inputComp))
             return;
 
-        if (!weaponInfoNone.bUnlocked)
+        if (!weaponInfos[WeaponType::None].bUnlocked)
         {
-            weaponInfoNone.bUnlocked = true;
-            weaponInfoPistol.bUnlocked = true;
+            weaponInfos[WeaponType::None].bUnlocked = true;
+            weaponInfos[WeaponType::Pistol].bUnlocked = true;
 
             // weapon to start with
             SwitchToWeapon(WeaponType::Pistol);
@@ -144,7 +119,7 @@ class Player : ezAngelScriptClass
             
             if (eActiveWeapon != WeaponType::None)
             {
-                WeaponInfo@ weaponInfo = GetWeaponInfo(eActiveWeapon);
+                WeaponInfo@ weaponInfo = weaponInfos[eActiveWeapon];
 
                 if (weaponInfo.eAmmoType == ConsumableType::Ammo_None)
                 {
@@ -163,8 +138,6 @@ class Player : ezAngelScriptClass
                 @msgInteract.weaponInfo = @weaponInfo;
                 msgInteract.interaction = WeaponInteraction::Update;
                 GetWorld().SendMessageRecursive(weaponInfo.hObject, msgInteract);
-
-                // TODO: gunComp[activeWeapon].RenderCrosshair();
             }            
 
             // character controller update
@@ -305,7 +278,7 @@ class Player : ezAngelScriptClass
 
             if (eActiveWeapon != WeaponType::None && msg.InputAction == "Reload")
             {
-                WeaponInfo@ weaponInfo = GetWeaponInfo(eActiveWeapon);
+                WeaponInfo@ weaponInfo = weaponInfos[eActiveWeapon];
 
                 MsgWeaponInteraction msgInteract;
                 msgInteract.keyState = msg.TriggerState;
@@ -358,7 +331,7 @@ class Player : ezAngelScriptClass
                 }
                 else
                 {
-                    WeaponInfo@ weaponInfo = GetWeaponInfo(eActiveWeapon);
+                    WeaponInfo@ weaponInfo = weaponInfos[eActiveWeapon];
 
                     MsgWeaponInteraction msgInteract;
                     msgInteract.keyState = msg.TriggerState;
@@ -444,12 +417,12 @@ class Player : ezAngelScriptClass
             }
         }
 
-        auto infoNew = GetWeaponInfo(weapon);
+        WeaponInfo@ infoNew = weaponInfos[weapon];
 
         if (!infoNew.bUnlocked)
             return;
 
-        auto infoOld = GetWeaponInfo(eActiveWeapon);
+        WeaponInfo@ infoOld = weaponInfos[eActiveWeapon];
 
         bRequireNoShoot = true;
 
@@ -468,7 +441,7 @@ class Player : ezAngelScriptClass
     {
         msg.return_consumed = true;
 
-        WeaponInfo@ wi = GetWeaponInfo(msg.weaponType);
+        WeaponInfo@ wi = weaponInfos[msg.weaponType];
 
         if (wi.bUnlocked == false)
         {

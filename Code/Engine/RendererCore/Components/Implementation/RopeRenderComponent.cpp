@@ -139,7 +139,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   if (cvar_FeatureRopesVisBones)
   {
-    ezHybridArray<ezDebugRenderer::Line, 128> lines(ezFrameAllocator::GetCurrentAllocator());
+    ezHybridArray<ezDebugRendererLine, 128> lines(ezFrameAllocator::GetCurrentAllocator());
     lines.Reserve(m_SkinningState.m_Transforms.GetCount() * 3);
 
     ezMat4 offsetMat;

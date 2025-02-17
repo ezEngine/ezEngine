@@ -7,6 +7,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -435,7 +436,7 @@ namespace
 
   struct PersistentLineData
   {
-    ezHybridArray<ezDebugRenderer::Line, 32> m_Lines;
+    ezHybridArray<ezDebugRendererLine, 32> m_Lines;
     ezColor m_Color;
     ezTransform m_Transform;
     ezTime m_Timeout;
@@ -485,7 +486,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
-void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   if (lines.IsEmpty())
     return;
@@ -508,7 +509,7 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
   }
 }
 
-void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color)
+void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color)
 {
   if (lines.IsEmpty())
     return;
@@ -597,7 +598,7 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
   edgeEnds[10] = corners[6]; // 2 -> 6
   edgeEnds[11] = corners[7]; // 3 -> 7
 
-  Line lines[24];
+  ezDebugRendererLine lines[24];
   for (ezUInt32 i = 0; i < 12; ++i)
   {
     ezVec3 edgeStart = corners[i % 8];
@@ -664,7 +665,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
 
   const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / (float)NUM_SEGMENTS);
 
-  Line lines[NUM_LINES];
+  ezDebugRendererLine lines[NUM_LINES];
 
   const float fOffsetZ = fLength * 0.5f;
 
@@ -754,7 +755,7 @@ void ezDebugRenderer::DrawLineCylinderZ(const ezDebugRendererContext& context, f
 
   const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / (float)NUM_SEGMENTS);
 
-  Line lines[NUM_LINES];
+  ezDebugRendererLine lines[NUM_LINES];
 
   const float fOffsetZ = fLength * 0.5f;
 
@@ -809,21 +810,21 @@ void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, con
   if (frustum.ComputeCornerPoints(cornerPoints).Failed())
     return;
 
-  Line lines[12] = {
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight]),
+  ezDebugRendererLine lines[12] = {
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight]),
 
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft]),
 
-    Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft]),
-    Line(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft]),
+    ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft]),
   };
 
   DrawLines(context, lines, color);
@@ -840,36 +841,36 @@ void ezDebugRenderer::DrawLineFrustum(const ezDebugRendererContext& context, con
     const ezVec3 bottomPlaneNormal = frustum.GetPlane(4).m_vNormal * fDrawLength;
     const ezVec3 topPlaneNormal = frustum.GetPlane(5).m_vNormal * fDrawLength;
 
-    Line normalLines[24] = {
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + nearPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + nearPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + nearPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + nearPlaneNormal),
+    ezDebugRendererLine normalLines[24] = {
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + nearPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + nearPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + nearPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + nearPlaneNormal),
 
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + farPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + farPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + farPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + farPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + farPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + farPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + farPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + farPlaneNormal),
 
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + leftPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + leftPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + leftPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + leftPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + leftPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + leftPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + leftPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + leftPlaneNormal),
 
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + rightPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + rightPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + rightPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + rightPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + rightPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + rightPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + rightPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + rightPlaneNormal),
 
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + bottomPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + bottomPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + bottomPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + bottomPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft], cornerPoints[ezFrustum::FrustumCorner::NearBottomLeft] + bottomPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearBottomRight], cornerPoints[ezFrustum::FrustumCorner::NearBottomRight] + bottomPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft], cornerPoints[ezFrustum::FrustumCorner::FarBottomLeft] + bottomPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarBottomRight], cornerPoints[ezFrustum::FrustumCorner::FarBottomRight] + bottomPlaneNormal),
 
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + topPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + topPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + topPlaneNormal),
-      Line(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + topPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopLeft], cornerPoints[ezFrustum::FrustumCorner::NearTopLeft] + topPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::NearTopRight], cornerPoints[ezFrustum::FrustumCorner::NearTopRight] + topPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopLeft], cornerPoints[ezFrustum::FrustumCorner::FarTopLeft] + topPlaneNormal),
+      ezDebugRendererLine(cornerPoints[ezFrustum::FrustumCorner::FarTopRight], cornerPoints[ezFrustum::FrustumCorner::FarTopRight] + topPlaneNormal),
     };
 
     DrawLines(context, normalLines, normalColor);
@@ -892,7 +893,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 }
 
 // static
-void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color, bool bTwoSided)
+void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTriangle> triangles, const ezColor& color, bool bTwoSided)
 {
   if (triangles.IsEmpty())
     return;
@@ -933,7 +934,7 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
   }
 }
 
-void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided)
+void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided)
 {
   if (triangles.IsEmpty())
     return;
@@ -1043,7 +1044,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 void ezDebugRenderer::Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
 {
-  Line lines[4];
+  ezDebugRendererLine lines[4];
 
   lines[0].m_start = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
   lines[0].m_end = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
@@ -1134,7 +1135,7 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform, ezTime duration)
+void ezDebugRenderer::AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezTransform& transform, ezTime duration)
 {
   EZ_LOCK(s_Mutex);
 
@@ -1163,8 +1164,8 @@ void ezDebugRenderer::AddPersistentInfoText(const ezDebugRendererContext& contex
 
 void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
-  ezHybridArray<Triangle, 64> tris;
-  ezHybridArray<Line, 64> lines;
+  ezHybridArray<ezDebugRendererTriangle, 64> tris;
+  ezHybridArray<ezDebugRendererLine, 64> lines;
 
   startAngle.NormalizeRange();
   endAngle.NormalizeRange();
@@ -1184,7 +1185,7 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 
   if (lineColor.a > 0)
   {
-    Line& l1 = lines.ExpandAndGetRef();
+    ezDebugRendererLine& l1 = lines.ExpandAndGetRef();
     l1.m_start.SetZero();
     l1.m_end = vCurDir;
   }
@@ -1195,12 +1196,12 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 
     if (solidColor.a > 0)
     {
-      Triangle& tri1 = tris.ExpandAndGetRef();
+      ezDebugRendererTriangle& tri1 = tris.ExpandAndGetRef();
       tri1.m_position[0] = transform.m_vPosition;
       tri1.m_position[1] = transform.TransformPosition(vNextDir);
       tri1.m_position[2] = transform.TransformPosition(vCurDir);
 
-      Triangle& tri2 = tris.ExpandAndGetRef();
+      ezDebugRendererTriangle& tri2 = tris.ExpandAndGetRef();
       tri2.m_position[0] = transform.m_vPosition;
       tri2.m_position[1] = transform.TransformPosition(vCurDir);
       tri2.m_position[2] = transform.TransformPosition(vNextDir);
@@ -1208,11 +1209,11 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 
     if (lineColor.a > 0)
     {
-      Line& l1 = lines.ExpandAndGetRef();
+      ezDebugRendererLine& l1 = lines.ExpandAndGetRef();
       l1.m_start.SetZero();
       l1.m_end = vNextDir;
 
-      Line& l2 = lines.ExpandAndGetRef();
+      ezDebugRendererLine& l2 = lines.ExpandAndGetRef();
       l2.m_start = vCurDir;
       l2.m_end = vNextDir;
     }
@@ -1226,8 +1227,8 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 
 void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/)
 {
-  ezHybridArray<Triangle, 64> trisInside;
-  ezHybridArray<Triangle, 64> trisOutside;
+  ezHybridArray<ezDebugRendererTriangle, 64> trisInside;
+  ezHybridArray<ezDebugRendererTriangle, 64> trisOutside;
 
   halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::MakeFromDegree(180));
 
@@ -1248,7 +1249,7 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
 
     if (colorInside.a > 0)
     {
-      Triangle& tri = trisInside.ExpandAndGetRef();
+      ezDebugRendererTriangle& tri = trisInside.ExpandAndGetRef();
       tri.m_position[0] = transform.m_vPosition;
       tri.m_position[1] = transform.TransformPosition(vCurDir);
       tri.m_position[2] = transform.TransformPosition(vNextDir);
@@ -1256,7 +1257,7 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
 
     if (colorOutside.a > 0)
     {
-      Triangle& tri = trisOutside.ExpandAndGetRef();
+      ezDebugRendererTriangle& tri = trisOutside.ExpandAndGetRef();
       tri.m_position[0] = transform.m_vPosition;
       tri.m_position[1] = transform.TransformPosition(vNextDir);
       tri.m_position[2] = transform.TransformPosition(vCurDir);
@@ -1273,8 +1274,8 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
 void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAngle halfAngle1, ezAngle halfAngle2, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform)
 {
   constexpr ezUInt32 NUM_LINES = 32;
-  ezHybridArray<Line, NUM_LINES * 2> lines;
-  ezHybridArray<Triangle, NUM_LINES * 2> tris;
+  ezHybridArray<ezDebugRendererLine, NUM_LINES * 2> lines;
+  ezHybridArray<ezDebugRendererTriangle, NUM_LINES * 2> tris;
 
   // no clue how this works
   // copied 1:1 from NVIDIA's PhysX SDK: Cm::visualizeLimitCone
@@ -1333,8 +1334,8 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   const ezTransform transform = transform0 * tilt;
 
   constexpr ezUInt32 NUM_SEGMENTS = 16;
-  ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
-  ezHybridArray<Triangle, NUM_SEGMENTS * 2 * 2> tris;
+  ezHybridArray<ezDebugRendererLine, NUM_SEGMENTS * 3> lines;
+  ezHybridArray<ezDebugRendererTriangle, NUM_SEGMENTS * 2 * 2> tris;
 
   const ezAngle step = ezAngle::MakeFromDegree(360) / NUM_SEGMENTS;
   ezAngle angle = {};
@@ -1399,16 +1400,16 @@ void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSi
   const ezVec3 endPoint2 = vForwardAxis * fSize * 0.9f;
   const float tipSize = fSize * 0.1f;
 
-  Line lines[9];
-  lines[0] = Line(ezVec3::MakeZero(), endPoint);
-  lines[1] = Line(endPoint, endPoint2 + right * tipSize);
-  lines[2] = Line(endPoint, endPoint2 + up * tipSize);
-  lines[3] = Line(endPoint, endPoint2 - right * tipSize);
-  lines[4] = Line(endPoint, endPoint2 - up * tipSize);
-  lines[5] = Line(lines[1].m_end, lines[2].m_end);
-  lines[6] = Line(lines[2].m_end, lines[3].m_end);
-  lines[7] = Line(lines[3].m_end, lines[4].m_end);
-  lines[8] = Line(lines[4].m_end, lines[1].m_end);
+  ezDebugRendererLine lines[9];
+  lines[0] = ezDebugRendererLine(ezVec3::MakeZero(), endPoint);
+  lines[1] = ezDebugRendererLine(endPoint, endPoint2 + right * tipSize);
+  lines[2] = ezDebugRendererLine(endPoint, endPoint2 + up * tipSize);
+  lines[3] = ezDebugRendererLine(endPoint, endPoint2 - right * tipSize);
+  lines[4] = ezDebugRendererLine(endPoint, endPoint2 - up * tipSize);
+  lines[5] = ezDebugRendererLine(lines[1].m_end, lines[2].m_end);
+  lines[6] = ezDebugRendererLine(lines[2].m_end, lines[3].m_end);
+  lines[7] = ezDebugRendererLine(lines[3].m_end, lines[4].m_end);
+  lines[8] = ezDebugRendererLine(lines[4].m_end, lines[1].m_end);
 
   DrawLines(context, lines, color, transform);
 }
@@ -2139,6 +2140,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTI
 {
   EZ_BEGIN_FUNCTIONS
   {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetResolution),
+
     EZ_SCRIPT_FUNCTION_PROPERTY(DrawCross, In, "World", In, "Position", In, "Size", In, "Color", In, "Transform")->AddAttributes(
       new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(0.1f)),
       new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
@@ -2179,6 +2182,14 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTI
       new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(1.0f)),
       new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
       new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawLine, In, "World", In, "Start", In, "End", In, "StartColor", In, "EndColor")->AddAttributes(
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(4, new ezExposeColorAlphaAttribute())),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Draw2DLine, In, "World", In, "Start", In, "End", In, "StartColor", In, "EndColor")->AddAttributes(
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(4, new ezExposeColorAlphaAttribute())),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -2189,6 +2200,20 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTI
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
+
+ezVec2 ezScriptExtensionClass_Debug::GetResolution()
+{
+  for (const ezViewHandle& hView : ezRenderWorld::GetMainViews())
+  {
+    ezView* pView;
+    if (ezRenderWorld::TryGetView(hView, pView))
+    {
+      return ezVec2(pView->GetViewport().width, pView->GetViewport().height);
+    }
+  }
+
+  return ezVec2::MakeZero();
+}
 
 // static
 void ezScriptExtensionClass_Debug::DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform)
@@ -2258,6 +2283,28 @@ void ezScriptExtensionClass_Debug::AddPersistentLineSphere(const ezWorld* pWorld
   t.m_vPosition += vPosition;
 
   ezDebugRenderer::AddPersistentLineSphere(pWorld, fRadius, color, t, duration);
+}
+
+void ezScriptExtensionClass_Debug::DrawLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor)
+{
+  ezDebugRendererLine line[1];
+  line[0].m_start = vStart;
+  line[0].m_end = vEnd;
+  line[0].m_startColor = startColor;
+  line[0].m_endColor = endColor;
+
+  ezDebugRenderer::DrawLines(pWorld, line, ezColor::White);
+}
+
+void ezScriptExtensionClass_Debug::Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor)
+{
+  ezDebugRendererLine line[1];
+  line[0].m_start = vStart;
+  line[0].m_end = vEnd;
+  line[0].m_startColor = startColor;
+  line[0].m_endColor = endColor;
+
+  ezDebugRenderer::Draw2DLines(pWorld, line, ezColor::White);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);

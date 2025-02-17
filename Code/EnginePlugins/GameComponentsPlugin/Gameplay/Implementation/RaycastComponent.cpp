@@ -293,7 +293,7 @@ void ezRaycastComponent::Update()
 
   if (false)
   {
-    ezDebugRenderer::Line lines[] = {{rayStartPosition, vNewPos}};
+    ezDebugRendererLine lines[] = {{rayStartPosition, vNewPos}};
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::GreenYellow);
   }
 }

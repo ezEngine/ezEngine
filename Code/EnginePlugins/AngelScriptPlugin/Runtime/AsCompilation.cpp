@@ -22,7 +22,10 @@ public:
 
   ezResult Process(ezStringBuilder& ref_sResult)
   {
-    auto res = m_Processor.Process(m_sRefFilePath, ref_sResult, false, false, true);
+    const bool bNeedsLineStmts = !m_sMainCode.StartsWith("//#ln");
+    const bool bKeepComments = !bNeedsLineStmts;
+
+    auto res = m_Processor.Process(m_sRefFilePath, ref_sResult, bKeepComments, false, bNeedsLineStmts);
     ref_sResult.ReplaceAll("#line", "//#ln");
     return res;
   };

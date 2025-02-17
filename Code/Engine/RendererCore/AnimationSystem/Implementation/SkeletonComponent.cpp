@@ -316,7 +316,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
       ezVec3 v0 = bone.pos;
       ezVec3 v1 = bone.pos + bone.dir * len;
 
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, v1));
       m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
       m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
     }
@@ -355,17 +355,17 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
       s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
       s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
 
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, v1));
       m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
       m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
 
       for (ezUInt32 si = 0; si < 4; ++si)
       {
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
+        m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, s[si]));
         m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
         m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
 
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
+        m_LinesSkeleton.PushBack(ezDebugRendererLine(s[si], v1));
         m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
         m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
       }
@@ -674,7 +674,7 @@ void ezSkeletonComponent::VisualizeSkeletonDefaultState()
   TriggerLocalBoundsUpdate();
 }
 
-ezDebugRenderer::Line& ezSkeletonComponent::AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
+ezDebugRendererLine& ezSkeletonComponent::AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
 {
   auto& line = m_LinesSkeleton.ExpandAndGetRef();
   line.m_start = vStart;

@@ -393,7 +393,7 @@ void ezKrautTreeComponent::ComputeWind() const
   {
     const ezVec3 offset = GetOwner()->GetGlobalPosition() + ezVec3(2, 0, 1);
 
-    ezHybridArray<ezDebugRenderer::Line, 2> lines;
+    ezHybridArray<ezDebugRendererLine, 2> lines;
 
     // actual wind
     {

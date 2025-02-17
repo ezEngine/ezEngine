@@ -651,6 +651,7 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, con
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
+  // out_arg = ezVariant(pGen->GetArgObject(uiArg), pArgRtti); // works, but currently isn't needed
 }
 
 void ezAngelScriptUtils::RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)

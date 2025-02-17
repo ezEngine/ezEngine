@@ -27,7 +27,7 @@ BEGIN_AS_NAMESPACE
 struct SArrayBuffer;
 struct SArrayCache;
 
-class CScriptArray
+class AS_API CScriptArray
 {
 public:
 	// Set the memory functions that should be used by all CScriptArrays
@@ -105,6 +105,15 @@ public:
 	void EnumReferences(asIScriptEngine *engine);
 	void ReleaseAllHandles(asIScriptEngine *engine);
 
+  // *** EZ SPECIFIC CHANGES
+  void Clear() { Resize(0); }
+  bool Contains(const void *value) const { return Find(value) >= 0; }
+	void       *PeekBack() { return At(GetSize() - 1); }
+	const void *PeekBack() const { return At(GetSize() - 1); }
+	      void *ExpandAndGetRef() { Resize(GetSize() + 1); return PeekBack(); }
+
+  // *** EZ SPECIFIC CHANGES
+
 protected:
 	mutable int     refCount;
 	mutable bool    gcFlag;
@@ -136,7 +145,7 @@ protected:
 	bool  Equals(const void *a, const void *b, asIScriptContext *ctx, SArrayCache *cache) const;
 };
 
-void RegisterScriptArray(asIScriptEngine *engine, bool defaultArray);
+AS_API void RegisterScriptArray(asIScriptEngine *engine, bool defaultArray);
 
 END_AS_NAMESPACE
 

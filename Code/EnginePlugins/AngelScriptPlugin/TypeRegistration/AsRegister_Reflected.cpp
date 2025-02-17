@@ -92,6 +92,8 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
       ezStringBuilder typeName = pRtti->GetTypeName();
       auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
 
+      m_WhitelistedRefTypes.Insert(typeName);
+
       if (pTypeInfo == nullptr)
       {
         if (bCreatable)

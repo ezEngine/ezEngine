@@ -38,7 +38,7 @@ set(ANGELSCRIPT_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/source/as_typeinfo.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/as_variablescope.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptarray/scriptarray.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptstdstring/scriptstdstring.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptdictionary/scriptdictionary.h"
 )
 
 set(ANGELSCRIPT_SOURCE
@@ -76,8 +76,7 @@ set(ANGELSCRIPT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/source/as_typeinfo.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/as_variablescope.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptarray/scriptarray.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptstdstring/scriptstdstring.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptstdstring/scriptstdstring_utils.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/source/add_on/scriptdictionary/scriptdictionary.cpp"
 )
 
 

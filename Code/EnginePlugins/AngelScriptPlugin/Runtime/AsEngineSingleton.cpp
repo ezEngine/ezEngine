@@ -1,6 +1,8 @@
 #include <AngelScriptPlugin/AngelScriptPluginPCH.h>
 
 #include <AngelScript/include/angelscript.h>
+#include <AngelScript/source/add_on/scriptarray/scriptarray.h>
+#include <AngelScript/source/add_on/scriptdictionary/scriptdictionary.h>
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 #include <AngelScriptPlugin/Runtime/AsInstance.h>
 #include <AngelScriptPlugin/Runtime/AsStringFactory.h>
@@ -80,14 +82,17 @@ ezAngelScriptEngineSingleton::ezAngelScriptEngineSingleton()
 
   AS_CHECK(m_pEngine->RegisterInterface("ezAngelScriptMessage"));
 
+  RegisterScriptArray(m_pEngine, true);
+  // RegisterScriptDictionary(m_pEngine);
+
   RegisterStandardTypes();
 
   AS_CHECK(m_pEngine->RegisterGlobalFunction("void throw(ezStringView)", asFUNCTION(AsThrow), asCALL_CDECL));
 
   m_pEngine->RegisterStringFactory("ezStringView", m_pStringFactory);
 
-  Register_GlobalReflectedFunctions();
   Register_ReflectedTypes();
+  Register_GlobalReflectedFunctions();
 
   Register_ezAngelScriptClass();
 
@@ -318,10 +323,10 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
     }
   }
 
-  decl.Append(pRtti->GetTypeName());
-
   if (pRtti->GetTypeName() == "ezGameObjectHandle" || pRtti->GetTypeName() == "ezComponentHandle")
   {
+    decl.Append(pRtti->GetTypeName());
+
     if (pFuncAttr && pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
@@ -330,13 +335,13 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
     return true;
   }
 
-
   if (m_WhitelistedRefTypes.Contains(pRtti->GetTypeName()))
   {
-    decl.Append("@");
+    decl.Append(pRtti->GetTypeName(), "@");
     return true;
   }
 
+  decl.Append(pRtti->GetTypeName());
   m_NotRegistered.Insert(decl);
   return false;
 }
@@ -371,6 +376,21 @@ static void CollectFunctionArgumentAttributes(const ezAbstractFunctionProperty* 
       out_attributes[uiArgIndex] = pFuncArgAttr;
     }
   }
+}
+
+static bool ExistsGlobalFunc(asIScriptEngine* pEngine, const char* szNamespace, const char* szName)
+{
+  for (ezUInt32 i = 0; i < pEngine->GetGlobalFunctionCount(); ++i)
+  {
+    auto pFunc = pEngine->GetGlobalFunctionByIndex(i);
+
+    if (ezStringUtils::IsEqual(pFunc->GetNamespace(), szNamespace) && ezStringUtils::IsEqual(pFunc->GetName(), szName))
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited)
@@ -519,7 +539,7 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
 
       // only register functions that have not been registered before
       // this allows us to register more optimized versions first
-      if (m_pEngine->GetGlobalFunctionByDecl(decl) == nullptr)
+      if (uiVarArgOpt > 0 || !ExistsGlobalFunc(m_pEngine, sNamespace, sFuncName))
       {
         const int funcID = m_pEngine->RegisterGlobalFunction(decl, asFUNCTION(ezAngelScriptUtils::MakeGenericFunctionCall), asCALL_GENERIC, (void*)pFunc);
         AS_CHECK(funcID);
@@ -540,6 +560,9 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
 
 void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)
 {
+  if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezReflectedClass>())
+    return;
+
   for (auto pFunc : pRtti->GetFunctions())
   {
     auto pFuncAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
@@ -549,9 +572,6 @@ void ezAngelScriptEngineSingleton::RegisterTypeFunctions(const char* szTypeName,
 
     RegisterGenericFunction(szTypeName, pFunc, pFuncAttr, bIsInherited);
   }
-
-  if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezReflectedClass>())
-    return;
 
   RegisterTypeFunctions(szTypeName, pRtti->GetParentType(), true);
 }

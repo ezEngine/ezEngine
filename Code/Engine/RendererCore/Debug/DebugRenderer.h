@@ -71,6 +71,42 @@ struct ezDebugTextPlacement
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextPlacement);
 
+struct EZ_RENDERERCORE_DLL ezDebugRendererLine
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezDebugRendererLine();
+  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd);
+  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+
+  ezVec3 m_start;
+  ezVec3 m_end;
+
+  ezColor m_startColor = ezColor::White;
+  ezColor m_endColor = ezColor::White;
+};
+
+struct EZ_RENDERERCORE_DLL ezDebugRendererTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezDebugRendererTriangle();
+  ezDebugRendererTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
+
+  ezVec3 m_position[3];
+  ezColor m_color = ezColor::White;
+};
+
+struct EZ_RENDERERCORE_DLL ezDebugRendererTexturedTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezVec3 m_position[3];
+  ezVec2 m_texcoord[3];
+  ezColor m_color = ezColor::White;
+};
+
+
 /// \brief Draws simple shapes into the scene or view.
 ///
 /// Shapes can be rendered for a single frame, or 'persistent' for a certain duration.
@@ -80,46 +116,11 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextPlacement);
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
 public:
-  struct Line
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    Line();
-    Line(const ezVec3& vStart, const ezVec3& vEnd);
-    Line(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
-
-    ezVec3 m_start;
-    ezVec3 m_end;
-
-    ezColor m_startColor = ezColor::White;
-    ezColor m_endColor = ezColor::White;
-  };
-
-  struct Triangle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    Triangle();
-    Triangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
-
-    ezVec3 m_position[3];
-    ezColor m_color = ezColor::White;
-  };
-
-  struct TexturedTriangle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezVec3 m_position[3];
-    ezVec2 m_texcoord[3];
-    ezColor m_color = ezColor::White;
-  };
-
   /// \brief Renders the given set of lines for one frame.
-  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
 
   /// \brief Renders the given set of lines in 2D (screen-space) for one frame.
-  static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color);
+  static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color);
 
   /// \brief Renders a cross for one frame.
   static void DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
@@ -146,10 +147,10 @@ public:
   static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
 
   /// \brief Renders the set of filled triangles for one frame.
-  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color, bool bTwoSided = false);
+  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTriangle> triangles, const ezColor& color, bool bTwoSided = false);
 
   /// \brief Renders the set of textured triangles for one frame.
-  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided = false);
+  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided = false);
 
   /// \brief Renders a filled 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
@@ -204,7 +205,7 @@ public:
   static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
 
   /// \brief Renders lines at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, const ezTransform& transform, ezTime duration);
 
   /// \brief Renders a solid 2D cone in a plane with a given angle.
   ///
@@ -262,6 +263,9 @@ private:
 class EZ_RENDERERCORE_DLL ezScriptExtensionClass_Debug
 {
 public:
+  /// \brief Returns the resolution of the first main view that it can find.
+  static ezVec2 GetResolution();
+
   static void DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform);
   static void DrawLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform);
   static void DrawLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform);
@@ -275,6 +279,10 @@ public:
   static void AddPersistentCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
   static void AddPersistentLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform, ezTime duration);
   static void AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
+
+  static void DrawLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
+
+  static void Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezScriptExtensionClass_Debug);

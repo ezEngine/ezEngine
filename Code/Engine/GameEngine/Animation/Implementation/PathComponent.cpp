@@ -312,7 +312,7 @@ void ezPathComponent::DrawDebugVisualizations()
   if (m_LinearizedRepresentation.IsEmpty())
     return;
 
-  ezHybridArray<ezDebugRenderer::Line, 32> lines;
+  ezHybridArray<ezDebugRendererLine, 32> lines;
 
   ezUInt32 uiPrev = 0;
   ezUInt32 uiNext = 1;

@@ -79,43 +79,43 @@ namespace
             float r = ezMath::Clamp(lightCount / 16.0f, 0.0f, 1.0f);
             float g = ezMath::Clamp(decalCount / 16.0f, 0.0f, 1.0f);
 
-            ezDebugRenderer::Triangle tris[12];
+            ezDebugRendererTriangle tris[12];
             // back
-            tris[0] = ezDebugRenderer::Triangle(cc[0], cc[2], cc[1]);
-            tris[1] = ezDebugRenderer::Triangle(cc[2], cc[3], cc[1]);
+            tris[0] = ezDebugRendererTriangle(cc[0], cc[2], cc[1]);
+            tris[1] = ezDebugRendererTriangle(cc[2], cc[3], cc[1]);
             // front
-            tris[2] = ezDebugRenderer::Triangle(cc[4], cc[5], cc[6]);
-            tris[3] = ezDebugRenderer::Triangle(cc[6], cc[5], cc[7]);
+            tris[2] = ezDebugRendererTriangle(cc[4], cc[5], cc[6]);
+            tris[3] = ezDebugRendererTriangle(cc[6], cc[5], cc[7]);
             // top
-            tris[4] = ezDebugRenderer::Triangle(cc[4], cc[0], cc[5]);
-            tris[5] = ezDebugRenderer::Triangle(cc[0], cc[1], cc[5]);
+            tris[4] = ezDebugRendererTriangle(cc[4], cc[0], cc[5]);
+            tris[5] = ezDebugRendererTriangle(cc[0], cc[1], cc[5]);
             // bottom
-            tris[6] = ezDebugRenderer::Triangle(cc[6], cc[7], cc[2]);
-            tris[7] = ezDebugRenderer::Triangle(cc[2], cc[7], cc[3]);
+            tris[6] = ezDebugRendererTriangle(cc[6], cc[7], cc[2]);
+            tris[7] = ezDebugRendererTriangle(cc[2], cc[7], cc[3]);
             // left
-            tris[8] = ezDebugRenderer::Triangle(cc[4], cc[6], cc[0]);
-            tris[9] = ezDebugRenderer::Triangle(cc[0], cc[6], cc[2]);
+            tris[8] = ezDebugRendererTriangle(cc[4], cc[6], cc[0]);
+            tris[9] = ezDebugRendererTriangle(cc[0], cc[6], cc[2]);
             // right
-            tris[10] = ezDebugRenderer::Triangle(cc[5], cc[1], cc[7]);
-            tris[11] = ezDebugRenderer::Triangle(cc[1], cc[3], cc[7]);
+            tris[10] = ezDebugRendererTriangle(cc[5], cc[1], cc[7]);
+            tris[11] = ezDebugRendererTriangle(cc[1], cc[3], cc[7]);
 
             ezDebugRenderer::DrawSolidTriangles(view.GetHandle(), tris, ezColor(r, g, 0.0f, 0.1f));
 
-            ezDebugRenderer::Line lines[12];
-            lines[0] = ezDebugRenderer::Line(cc[4], cc[5]);
-            lines[1] = ezDebugRenderer::Line(cc[5], cc[7]);
-            lines[2] = ezDebugRenderer::Line(cc[7], cc[6]);
-            lines[3] = ezDebugRenderer::Line(cc[6], cc[4]);
+            ezDebugRendererLine lines[12];
+            lines[0] = ezDebugRendererLine(cc[4], cc[5]);
+            lines[1] = ezDebugRendererLine(cc[5], cc[7]);
+            lines[2] = ezDebugRendererLine(cc[7], cc[6]);
+            lines[3] = ezDebugRendererLine(cc[6], cc[4]);
 
-            lines[4] = ezDebugRenderer::Line(cc[0], cc[1]);
-            lines[5] = ezDebugRenderer::Line(cc[1], cc[3]);
-            lines[6] = ezDebugRenderer::Line(cc[3], cc[2]);
-            lines[7] = ezDebugRenderer::Line(cc[2], cc[0]);
+            lines[4] = ezDebugRendererLine(cc[0], cc[1]);
+            lines[5] = ezDebugRendererLine(cc[1], cc[3]);
+            lines[6] = ezDebugRendererLine(cc[3], cc[2]);
+            lines[7] = ezDebugRendererLine(cc[2], cc[0]);
 
-            lines[8] = ezDebugRenderer::Line(cc[4], cc[0]);
-            lines[9] = ezDebugRenderer::Line(cc[5], cc[1]);
-            lines[10] = ezDebugRenderer::Line(cc[7], cc[3]);
-            lines[11] = ezDebugRenderer::Line(cc[6], cc[2]);
+            lines[8] = ezDebugRendererLine(cc[4], cc[0]);
+            lines[9] = ezDebugRendererLine(cc[5], cc[1]);
+            lines[10] = ezDebugRendererLine(cc[7], cc[3]);
+            lines[11] = ezDebugRendererLine(cc[6], cc[2]);
 
             ezDebugRenderer::DrawLines(view.GetHandle(), lines, ezColor(r, g, 0.0f));
           }
@@ -134,11 +134,11 @@ namespace
         ezVec3 p2 = depthFar + leftWidth + bottomHeight;
         ezVec3 p3 = depthFar + leftWidth + topHeight;
 
-        ezDebugRenderer::Line lines[4];
-        lines[0] = ezDebugRenderer::Line(p0, p1);
-        lines[1] = ezDebugRenderer::Line(p1, p2);
-        lines[2] = ezDebugRenderer::Line(p2, p3);
-        lines[3] = ezDebugRenderer::Line(p3, p0);
+        ezDebugRendererLine lines[4];
+        lines[0] = ezDebugRendererLine(p0, p1);
+        lines[1] = ezDebugRendererLine(p1, p2);
+        lines[2] = ezDebugRendererLine(p2, p3);
+        lines[3] = ezDebugRendererLine(p3, p0);
 
         ezDebugRenderer::DrawLines(view.GetHandle(), lines, lineColor);
       }

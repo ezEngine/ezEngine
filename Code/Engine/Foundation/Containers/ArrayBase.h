@@ -88,7 +88,7 @@ public:
   void InsertAt(ezUInt32 uiIndex, T&& value); // [tested]
 
   /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
-  void InsertRange(const ezArrayPtr<const T>& range, ezUInt32 uiIndex); // [tested]
+  void InsertRangeAt(ezUInt32 uiIndex, const ezArrayPtr<const T>& range); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool RemoveAndCopy(const T& value); // [tested]

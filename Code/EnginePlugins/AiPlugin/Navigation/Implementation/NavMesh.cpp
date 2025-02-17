@@ -4,8 +4,8 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRenderer::Triangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRenderer::Line>& out_lines);
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRendererTriangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRendererLine>& out_lines);
 
 ezAiNavMeshSector::ezAiNavMeshSector()
 {
@@ -292,7 +292,7 @@ void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavi
   }
 
   {
-    ezDynamicArray<ezDebugRenderer::Triangle> triangles;
+    ezDynamicArray<ezDebugRendererTriangle> triangles;
     triangles.Reserve(pTile->header->polyCount * 2);
 
     DrawMeshTilePolygons(*pTile, triangles, areaColors);
@@ -300,7 +300,7 @@ void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavi
   }
 
   {
-    ezDynamicArray<ezDebugRenderer::Line> lines;
+    ezDynamicArray<ezDebugRendererLine> lines;
     lines.Reserve(pTile->header->polyCount * 10);
     DrawMeshTileEdges(*pTile, true, true, false, lines);
     ezDebugRenderer::DrawLines(context, lines, ezColor::White);

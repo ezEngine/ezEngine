@@ -7,12 +7,12 @@
 class ezJoltDebugRenderer : public JPH::DebugRenderer
 {
 public:
-  ezDynamicArray<ezDebugRenderer::Line> m_Lines;
-  ezDynamicArray<ezDebugRenderer::Triangle> m_Triangles;
+  ezDynamicArray<ezDebugRendererLine> m_Lines;
+  ezDynamicArray<ezDebugRendererTriangle> m_Triangles;
 
   struct TriangleBatch : public JPH::RefTargetVirtual
   {
-    ezDynamicArray<ezDebugRenderer::Triangle> m_Triangles;
+    ezDynamicArray<ezDebugRendererTriangle> m_Triangles;
 
     int m_iRefCount = 0;
 
