@@ -50,13 +50,13 @@ public:
   };
 
   /// \brief Tries to compact the buffer by moving allocations to free ranges. All moved allocations are returned in out_changedAllocations.
-  /// 
+  ///
   /// The user data can be used to update the owner of the allocation.
   /// To prevent too many changes per frame only uiMaxSteps are executed which corresponds to the number of allocations which can be moved.
   void RunCompactionSteps(ezDynamicArray<ChangedAllocation>& out_changedAllocations, ezUInt32 uiMaxSteps = 16);
 
   /// \brief This should be called inside the rendering code to retrieve the underlying buffer for rendering.
-  /// 
+  ///
   /// It is ensured that it will always return the same buffer until the next time BeginFrame is called on the GALDevice even if the buffer
   /// has been resized due to more allocations on the game play or extraction side.
   const ezGALBufferHandle& GetBufferForRendering() const
