@@ -1,5 +1,7 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 
 namespace
@@ -167,7 +169,7 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
   return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
 }
 
-void ezGALDynamicBuffer::UploadChanges()
+void ezGALDynamicBuffer::UploadChangesForNextFrame()
 {
   EZ_LOCK(m_Mutex);
 

@@ -60,16 +60,16 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 
     AllocateAndMap(0);
 
-    pDynamicBuffer->UploadChanges();
+    pDynamicBuffer->UploadChangesForNextFrame();
 
-    // Internal buffer should be have been created after upload but GetBufferForRendering should still return the old handle until the next frame.
+    // Internal buffer should have been created after upload but GetBufferForRendering should still return the old handle until the next frame.
     ezGALBufferHandle hBuffer = pDynamicBuffer->GetBufferForRendering();
     EZ_TEST_BOOL(hBuffer.IsInvalidated());
 
     {
       BeginFrame();
 
-      // After the one frame the buffer should be created
+      // After one frame the buffer should be created
       ezGALBufferHandle hNewBuffer = pDynamicBuffer->GetBufferForRendering();
       EZ_TEST_BOOL(hNewBuffer.IsInvalidated() == false);
       hBuffer = hNewBuffer;
@@ -82,7 +82,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       AllocateAndMap(i);
     }
 
-    pDynamicBuffer->UploadChanges();
+    pDynamicBuffer->UploadChangesForNextFrame();
 
     ezGALBufferHandle hNewBuffer = pDynamicBuffer->GetBufferForRendering();
     EZ_TEST_BOOL(hNewBuffer.IsInvalidated() == false);
@@ -90,12 +90,15 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     // The internal buffer has been re-allocated but GetBufferForRendering should still return the old handle until the next frame.
     EZ_TEST_BOOL(hNewBuffer == hBuffer);
 
-    BeginFrame();
-    EZ_SCOPE_EXIT(EndFrame());
+    {
+      BeginFrame();
 
-    // Now the new buffer should be returned
-    hNewBuffer = pDynamicBuffer->GetBufferForRendering();
-    EZ_TEST_BOOL(hNewBuffer != hBuffer);
+      // Now the new buffer should be returned
+      hNewBuffer = pDynamicBuffer->GetBufferForRendering();
+      EZ_TEST_BOOL(hNewBuffer != hBuffer);
+
+      EndFrame();
+    }
   }
   else if (iIdentifier == SubTests::ST_Deallocations)
   {
@@ -121,7 +124,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 
     pDynamicBuffer->Deallocate(uiNewOffset);
 
-    // Should merge all the holes into one big hole
+    // Should merge all holes into one big hole
     pDynamicBuffer->Deallocate(offsets[4]);
     pDynamicBuffer->Deallocate(offsets[2]);
 

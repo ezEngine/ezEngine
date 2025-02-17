@@ -238,7 +238,7 @@ void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExt
   m_UpdateTaskGroupID.Invalidate();
   m_uiNextTaskIndex = 0;
 
-  ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hVertexColorBuffer)->UploadChanges();
+  ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hVertexColorBuffer)->UploadChangesForNextFrame();
 }
 
 void ezProcVertexColorComponentManager::EnqueueUpdate(ezProcVertexColorComponent* pComponent)
