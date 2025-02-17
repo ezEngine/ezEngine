@@ -126,13 +126,13 @@ private:
   static void Initialize();
 };
 
-constexpr ezTime operator*(ezTime t, double f);
-constexpr ezTime operator*(double f, ezTime t);
-constexpr ezTime operator*(ezTime f, ezTime t); // not physically correct, but useful (should result in seconds squared)
+constexpr ezTime operator*(const ezTime& t, double f);
+constexpr ezTime operator*(double f, const ezTime& t);
+constexpr ezTime operator*(const ezTime& f, const ezTime& t); // not physically correct, but useful (should result in seconds squared)
 
-constexpr ezTime operator/(ezTime t, double f);
-constexpr ezTime operator/(double f, ezTime t);
-constexpr ezTime operator/(ezTime f, ezTime t); // not physically correct, but useful (should result in a value without a unit)
+constexpr ezTime operator/(const ezTime& t, double f);
+constexpr ezTime operator/(double f, const ezTime& t);
+constexpr ezTime operator/(const ezTime& f, const ezTime& t); // not physically correct, but useful (should result in a value without a unit)
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>

@@ -86,5 +86,38 @@ ezVariant ezAngelScriptInstance::GetInstanceVariable(const ezHashedString& sName
 
 void ezAngelScriptInstance::ExceptionCallback(asIScriptContext* pContext)
 {
+  EZ_LOG_BLOCK("AS Exception", m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
+
   ezLog::Error("AS Exception '{}' - in '{}'", pContext->GetExceptionString(), m_pOwnerComponent->GetScriptClass().GetResourceIdOrDescription());
+
+  const ezUInt32 uiNumLevels = pContext->GetCallstackSize();
+
+  for (ezUInt32 i = 0; i < uiNumLevels; ++i)
+  {
+    if (asIScriptFunction* pFunc = pContext->GetFunction(i))
+    {
+      ezStringBuilder line("  ");
+
+      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
+      {
+        line.Append(pFunc->GetNamespace(), "::");
+      }
+
+      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
+      {
+        line.Append(pFunc->GetObjectName(), "::");
+      }
+
+      const char* szSection = nullptr;
+      int lineNbr = pContext->GetLineNumber(i, nullptr, &szSection);
+
+      line.AppendFormat("{}() - Line {} in '{}'", pFunc->GetName(), lineNbr, szSection);
+
+      ezLog::Error(line);
+    }
+    else
+    {
+      ezLog::Error("  <nested call>");
+    }
+  }
 }

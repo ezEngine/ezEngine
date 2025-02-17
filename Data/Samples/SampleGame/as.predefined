@@ -313,7 +313,6 @@ enum ezDebugTextPlacement
 
 // *** CALLBACKS *** 
 
-funcdef bool Less(const T&in a, const T&in b);
 funcdef bool ReportObjectCB(ezGameObject@);
 
 // *** TYPES *** 
@@ -322,16 +321,18 @@ class ezAngelScriptMessage
 {
 }
 
-class array
+class array<T>
 {
+  funcdef bool Less(const T&in a, const T&in b);
+
   T& opIndex(uint index);
   const T& opIndex(uint index) const;
   T& PeekBack();
   const T& PeekBack() const;
   T& ExpandAndGetRef();
-  T[]& opAssign(const T[]&in);
+  array<T>& opAssign(const array<T>&in);
   void InsertAt(uint index, const T&in value);
-  void InsertRangeAt(uint index, const T[]&inout arr);
+  void InsertRangeAt(uint index, const array<T>&inout arr);
   void PushBack(const T&in value);
   void RemoveAtAndCopy(uint index);
   void PopBack();
@@ -347,9 +348,9 @@ class array
   int IndexOf(uint startAt, const T&in value) const;
   int IndexOfByRef(const T&in value) const;
   int IndexOfByRef(uint startAt, const T&in value) const;
-  bool opEquals(const T[]&in) const;
+  bool opEquals(const array<T>&in) const;
   bool IsEmpty() const;
-  void Sort(T[]::Less&in, uint startAt = 0, uint count = uint(- 1));
+  void Sort(array<T>::Less&in, uint startAt = 0, uint count = uint(- 1));
 }
 
 class ezRTTI
@@ -526,11 +527,12 @@ class ezAngle
   ezAngle opSub(ezAngle) const;
   void opAddAssign(ezAngle);
   void opSubAssign(ezAngle);
-  bool opEquals(ezAngle) const;
-  int opCmp(ezAngle) const;
+  bool opEquals(const ezAngle&in) const;
+  int opCmp(const ezAngle&in) const;
   ezAngle opMul(float) const;
+  ezAngle opMul_r(float) const;
   ezAngle opDiv(float) const;
-  float opDiv(ezAngle) const;
+  float opDiv(const ezAngle&in) const;
 }
 
 class ezQuat
@@ -576,9 +578,7 @@ class ezTransform
   ezQuat m_qRotation;
   ezVec3 m_vScale;
 
-  ezTransform(const ezVec3&in vPosition);
-  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation);
-  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
+  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation = ezQuat::MakeIdentity(), const ezVec3&in vScale = ezVec3(1));
 
   void SetIdentity();
   float GetMaxScale() const;
@@ -702,8 +702,10 @@ class ezColorGammaUB
 [BuiltinString]
 class ezStringView
 {
+  ezStringView();
   ezStringView(const ezStringView);
   ezStringView(const ezString&in);
+  ezStringView(const ezHashedString&in);
   ezStringView(const ezStringBuilder&in);
 
   bool StartsWith(ezStringView) const;
@@ -740,6 +742,7 @@ class ezStringView
   bool opEquals(ezStringView) const;
   int opCmp(ezStringView) const;
   void opAssign(const ezString&in);
+  void opAssign(const ezHashedString&in);
   void opAssign(const ezStringBuilder&in);
 }
 
@@ -832,6 +835,7 @@ class ezString
   void opAssign(const ezString&in);
   void opAssign(const ezStringBuilder&in);
   void opAssign(const ezHashedString&in);
+  void Clear();
 }
 
 [BuiltinString]
@@ -2857,7 +2861,7 @@ namespace ezQuat
 
 namespace ezTransform
 {
-  ezTransform Make(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale);
+  ezTransform Make(const ezVec3&in vPosition, const ezQuat&in qRotation = ezQuat::MakeIdentity(), const ezVec3&in vScale = ezVec3(1));
   ezTransform MakeIdentity();
   ezTransform MakeFromMat4(const ezMat4&in);
   ezTransform MakeLocalTransform(const ezTransform&in, const ezTransform&in);
@@ -2931,6 +2935,10 @@ namespace ezMath
   int FloorToInt(float f);
   int CeilToInt(float f);
   float Lerp(float from, float to, float factor);
+  ezVec2 Lerp(ezVec2 from, ezVec2 to, float factor);
+  ezVec3 Lerp(ezVec3 from, ezVec3 to, float factor);
+  ezVec4 Lerp(ezVec4 from, ezVec4 to, float factor);
+  ezColor Lerp(ezColor from, ezColor to, float factor);
   float Unlerp(float from, float to, float value);
   bool IsEqual(float lhs, float rhs, float fEpsilon);
   bool IsZero(float value, float fEpsilon);

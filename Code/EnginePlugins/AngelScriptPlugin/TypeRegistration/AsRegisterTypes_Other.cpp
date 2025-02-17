@@ -98,13 +98,13 @@ void ezAngelScriptEngineSingleton::Register_Time()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "int opCmp(const ezTime& in) const", asFUNCTIONPR(ezTime_opCmp, (const ezTime&, const ezTime&), int), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "bool opEquals(const ezTime& in) const", asMETHODPR(ezTime, operator==, (const ezTime&) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(double) const", asFUNCTIONPR(operator*, (ezTime, double), ezTime), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul_r(double) const", asFUNCTIONPR(operator*, (double, ezTime), ezTime), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(const ezTime& in) const", asFUNCTIONPR(operator*, (ezTime, ezTime), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(double) const", asFUNCTIONPR(operator*, (const ezTime&, double), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul_r(double) const", asFUNCTIONPR(operator*, (double, const ezTime&), ezTime), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opMul(const ezTime& in) const", asFUNCTIONPR(operator*, (const ezTime&, const ezTime&), ezTime), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(double) const", asFUNCTIONPR(operator/, (ezTime, double), ezTime), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv_r(double) const", asFUNCTIONPR(operator/, (double, ezTime), ezTime), asCALL_CDECL_OBJLAST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(const ezTime& in) const", asFUNCTIONPR(operator/, (ezTime, ezTime), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(double) const", asFUNCTIONPR(operator/, (const ezTime&, double), ezTime), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv_r(double) const", asFUNCTIONPR(operator/, (double, const ezTime&), ezTime), asCALL_CDECL_OBJLAST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTime", "ezTime opDiv(const ezTime& in) const", asFUNCTIONPR(operator/, (const ezTime&, const ezTime&), ezTime), asCALL_CDECL_OBJFIRST));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -357,9 +357,9 @@ void ezAngelScriptEngineSingleton::Register_Color()
     AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul(const ezColor& in) const", asFUNCTIONPR(operator*, (const ezColor&, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
 
     AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul(float) const", asFUNCTIONPR(operator*, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(float) const", asFUNCTIONPR(operator*, (float, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(float) const", asFUNCTIONPR(operator*, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
     AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opDiv(float) const", asFUNCTIONPR(operator/, (const ezColor&, float), const ezColor), asCALL_CDECL_OBJFIRST));
-    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(const ezMat4& in) const", asFUNCTIONPR(operator*, (const ezMat4&, const ezColor&), const ezColor), asCALL_CDECL_OBJFIRST));
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "ezColor opMul_r(const ezMat4& in) const", asFUNCTIONPR(operator*, (const ezMat4&, const ezColor&), const ezColor), asCALL_CDECL_OBJLAST));
 
     AS_CHECK(m_pEngine->RegisterObjectMethod("ezColor", "bool opEquals(const ezColor& in) const", asFUNCTIONPR(operator==, (const ezColor&, const ezColor&), bool), asCALL_CDECL_OBJFIRST));
   }

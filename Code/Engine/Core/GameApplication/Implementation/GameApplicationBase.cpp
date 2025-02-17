@@ -363,6 +363,8 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
     ezResourceManager::FreeAllUnusedResources();
   }
 
+  ezTaskSystem::BroadcastClearThreadLocalsEvent();
+
   Deinit_UnloadPlugins();
 
   // shut down telemetry if it was set up

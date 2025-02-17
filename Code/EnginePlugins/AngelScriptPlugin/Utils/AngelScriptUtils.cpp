@@ -219,6 +219,16 @@ ezResult ezAngelScriptUtils::WriteToAsTypeAtLocation(asIScriptEngine* pEngine, i
       *static_cast<ezComponentHandle*>(pMemDst) = *((const ezComponentHandle*)value.GetData());
       return EZ_SUCCESS;
     }
+    else if (pRtti == ezGetStaticRTTI<ezWorld>())
+    {
+      *static_cast<ezWorld**>(pMemDst) = ((ezWorld*)value.GetData());
+      return EZ_SUCCESS;
+    }
+    else if (pRtti == ezGetStaticRTTI<ezGameObject>())
+    {
+      *static_cast<ezGameObject**>(pMemDst) = ((ezGameObject*)value.GetData());
+      return EZ_SUCCESS;
+    }
   }
 
   // currently unsupported type for exposed parameter
@@ -354,6 +364,16 @@ ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, 
     else if (pRtti == ezGetStaticRTTI<ezTempHashedString>())
     {
       out_value = *static_cast<ezTempHashedString*>(pMemLoc);
+      return EZ_SUCCESS;
+    }
+    else if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
+    {
+      out_value = *static_cast<ezGameObjectHandle**>(pMemLoc);
+      return EZ_SUCCESS;
+    }
+    else if (pRtti == ezGetStaticRTTI<ezComponentHandle>())
+    {
+      out_value = *static_cast<ezComponentHandle**>(pMemLoc);
       return EZ_SUCCESS;
     }
   }

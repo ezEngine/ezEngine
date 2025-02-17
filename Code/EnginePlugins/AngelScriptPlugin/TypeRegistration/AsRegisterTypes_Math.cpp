@@ -64,6 +64,12 @@ void ezAngelScriptEngineSingleton::Register_Math()
   AS_CHECK(m_pEngine->RegisterGlobalFunction("ezInt32 CeilToInt(float f)", asFUNCTIONPR(ezMath::CeilToInt, (float), ezInt32), asCALL_CDECL));
 
   AS_CHECK(m_pEngine->RegisterGlobalFunction("float Lerp(float from, float to, float factor)", asFUNCTIONPR(ezMath::Lerp, (float, float, float), float), asCALL_CDECL));
+
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec2 Lerp(ezVec2 from, ezVec2 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec2, ezVec2, float), ezVec2), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec3 Lerp(ezVec3 from, ezVec3 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec3, ezVec3, float), ezVec3), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezVec4 Lerp(ezVec4 from, ezVec4 to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezVec4, ezVec4, float), ezVec4), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezColor Lerp(ezColor from, ezColor to, float factor)", asFUNCTIONPR(ezMath::Lerp, (ezColor, ezColor, float), ezColor), asCALL_CDECL));
+
   AS_CHECK(m_pEngine->RegisterGlobalFunction("float Unlerp(float from, float to, float value)", asFUNCTIONPR(ezMath::Unlerp, (float, float, float), float), asCALL_CDECL));
 
   AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsEqual(float lhs, float rhs, float fEpsilon)", asFUNCTIONPR(ezMath::IsEqual, (float, float, float), bool), asCALL_CDECL));
@@ -182,12 +188,13 @@ void ezAngelScriptEngineSingleton::Register_Angle()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opSub(ezAngle) const", asMETHODPR(ezAngle, operator-, (ezAngle) const, ezAngle), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void opAddAssign(ezAngle)", asMETHOD(ezAngle, operator+=), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "void opSubAssign(ezAngle)", asMETHOD(ezAngle, operator-=), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "bool opEquals(ezAngle) const", asMETHODPR(ezAngle, operator==, (const ezAngle&) const, bool), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "int opCmp(ezAngle) const", asFUNCTIONPR(ezAngle_opCmp, (const ezAngle&, const ezAngle&), int), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "bool opEquals(const ezAngle& in) const", asMETHODPR(ezAngle, operator==, (const ezAngle&) const, bool), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "int opCmp(const ezAngle& in) const", asFUNCTION(ezAngle_opCmp), asCALL_CDECL_OBJFIRST));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opMul(float) const", asFUNCTIONPR(operator*, (ezAngle, float), ezAngle), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opDiv(float) const", asFUNCTIONPR(operator/, (ezAngle, float), ezAngle), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "float opDiv(ezAngle) const", asFUNCTIONPR(operator/, (ezAngle, ezAngle), float), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opMul(float) const", asFUNCTIONPR(operator*, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opMul_r(float) const", asFUNCTIONPR(operator*, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "ezAngle opDiv(float) const", asFUNCTIONPR(operator/, (const ezAngle&, float), ezAngle), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezAngle", "float opDiv(const ezAngle& in) const", asFUNCTIONPR(operator/, (const ezAngle&, const ezAngle&), float), asCALL_CDECL_OBJFIRST));
 }
 
 
@@ -544,16 +551,6 @@ void ezAngelScriptEngineSingleton::Register_Quat()
 // ezTransform
 //////////////////////////////////////////////////////////////////////////
 
-static void ezTransform_Construct1(void* pMemory, const ezVec3& v)
-{
-  new (pMemory) ezTransform(v);
-}
-
-static void ezTransform_Construct2(void* pMemory, const ezVec3& v, const ezQuat& r)
-{
-  new (pMemory) ezTransform(v, r);
-}
-
 static void ezTransform_Construct3(void* pMemory, const ezVec3& v, const ezQuat& r, const ezVec3& s)
 {
   new (pMemory) ezTransform(v, r, s);
@@ -565,15 +562,13 @@ void ezAngelScriptEngineSingleton::Register_Transform()
   AS_CHECK(m_pEngine->RegisterObjectProperty("ezTransform", "ezQuat m_qRotation", asOFFSET(ezTransform, m_qRotation)));
   AS_CHECK(m_pEngine->RegisterObjectProperty("ezTransform", "ezVec3 m_vScale", asOFFSET(ezTransform, m_vScale)));
 
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTransform", asBEHAVE_CONSTRUCT, "void f(const ezVec3& in vPosition)", asFUNCTION(ezTransform_Construct1), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTransform", asBEHAVE_CONSTRUCT, "void f(const ezVec3& in vPosition, const ezQuat& in qRotation)", asFUNCTION(ezTransform_Construct2), asCALL_CDECL_OBJFIRST));
-  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTransform", asBEHAVE_CONSTRUCT, "void f(const ezVec3& in vPosition, const ezQuat& in qRotation, const ezVec3& in vScale)", asFUNCTION(ezTransform_Construct3), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezTransform", asBEHAVE_CONSTRUCT, "void f(const ezVec3& in vPosition, const ezQuat& in qRotation = ezQuat::MakeIdentity(), const ezVec3& in vScale = ezVec3(1))", asFUNCTION(ezTransform_Construct3), asCALL_CDECL_OBJFIRST));
 
   // static functions
   {
     m_pEngine->SetDefaultNamespace("ezTransform");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform Make(const ezVec3& in vPosition, const ezQuat& in qRotation, const ezVec3& in vScale)", asFUNCTION(ezTransform::Make), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform Make(const ezVec3& in vPosition, const ezQuat& in qRotation = ezQuat::MakeIdentity(), const ezVec3& in vScale = ezVec3(1))", asFUNCTION(ezTransform::Make), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeIdentity()", asFUNCTION(ezTransform::MakeIdentity), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeFromMat4(const ezMat4& in)", asFUNCTION(ezTransform::MakeFromMat4), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezTransform MakeLocalTransform(const ezTransform& in, const ezTransform& in)", asFUNCTION(ezTransform::MakeLocalTransform), asCALL_CDECL));

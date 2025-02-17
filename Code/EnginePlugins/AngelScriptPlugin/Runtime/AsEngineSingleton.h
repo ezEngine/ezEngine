@@ -13,8 +13,7 @@ struct asSMessageInfo;
 class ezAsStringFactory;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-// AngelScript will allocate thread-local data, for which there currently is no way to free it again, so we don't want to report memory leaks
-using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks>;
+using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStats>;
 #else
 using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing>;
 #endif
@@ -113,7 +112,6 @@ private:
     m_WhitelistedRefTypes.Insert(pRtti->GetTypeName());
   }
 
-  ezUniquePtr<ezAsAllocatorType> m_pAllocator;
   asIScriptEngine* m_pEngine = nullptr;
 
   ezSet<ezString> m_WhitelistedRefTypes;

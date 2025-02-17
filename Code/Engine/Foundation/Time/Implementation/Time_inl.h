@@ -77,32 +77,32 @@ constexpr EZ_ALWAYS_INLINE ezTime ezTime::operator+(const ezTime& other) const
   return ezTime(m_fTime + other.m_fTime);
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator*(ezTime t, double f)
+constexpr EZ_ALWAYS_INLINE ezTime operator*(const ezTime& t, double f)
 {
   return ezTime::MakeFromSeconds(t.GetSeconds() * f);
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator*(double f, ezTime t)
+constexpr EZ_ALWAYS_INLINE ezTime operator*(double f, const ezTime& t)
 {
   return ezTime::MakeFromSeconds(t.GetSeconds() * f);
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator*(ezTime f, ezTime t)
+constexpr EZ_ALWAYS_INLINE ezTime operator*(const ezTime& f, const ezTime& t)
 {
   return ezTime::MakeFromSeconds(t.GetSeconds() * f.GetSeconds());
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime t, double f)
+constexpr EZ_ALWAYS_INLINE ezTime operator/(const ezTime& t, double f)
 {
   return ezTime::MakeFromSeconds(t.GetSeconds() / f);
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator/(double f, ezTime t)
+constexpr EZ_ALWAYS_INLINE ezTime operator/(double f, const ezTime& t)
 {
   return ezTime::MakeFromSeconds(f / t.GetSeconds());
 }
 
-constexpr EZ_ALWAYS_INLINE ezTime operator/(ezTime f, ezTime t)
+constexpr EZ_ALWAYS_INLINE ezTime operator/(const ezTime& f, const ezTime& t)
 {
   return ezTime::MakeFromSeconds(f.GetSeconds() / t.GetSeconds());
 }

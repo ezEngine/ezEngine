@@ -117,6 +117,9 @@ void ezAngelScriptUtils::RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& ou
     {
       const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
 
+      if (pFunc->GetParentType() != nullptr)
+        continue;
+
       out_infos.m_Namespaces.Insert(pFunc->GetNamespace());
       out_infos.m_Types.Insert(pFunc->GetName());
 
@@ -220,6 +223,9 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
     {
       const asITypeInfo* pFunc = pEngine->GetFuncdefByIndex(idx);
 
+      if (pFunc->GetParentType() != nullptr)
+        continue;
+
       sIndent = DealWithNamespace(sNamespace, pFunc->GetNamespace(), out_sContent);
 
       out_sContent.Append(sIndent, "funcdef ", ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc->GetFuncdefSignature()), ";\n");
@@ -254,6 +260,8 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       }
     }
 
+    ezStringBuilder sTemplateName;
+
     for (const ezString& sType : typeOrder)
     {
       const asITypeInfo* pType = pEngine->GetTypeInfoByName(sType);
@@ -267,6 +275,12 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
       }
 
       out_sContent.Append("class ", pType->GetName());
+
+      if (pType->GetFlags() & asEObjTypeFlags::asOBJ_TEMPLATE)
+      {
+        out_sContent.Append("<T>");
+        sTemplateName.Set(pType->GetName(), "<T>");
+      }
 
       // append base class if available
       if (const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pType->GetTypeId(), pEngine))
@@ -282,7 +296,17 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
 
       out_sContent.Append("\n{\n");
 
-      // first append all the properties (members)
+      // child funcdefs
+      for (ezUInt32 idx = 0; idx < pType->GetChildFuncdefCount(); ++idx)
+      {
+        auto pFuncDefType = pType->GetChildFuncdef(idx);
+
+        tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFuncDefType->GetFuncdefSignature());
+        tmp.ReplaceAll("T[]", sTemplateName);
+        out_sContent.Append(sIndent, "  funcdef ", tmp, ";\n");
+      }
+
+      // append all the properties (members)
       for (ezUInt32 idx = 0; idx < pType->GetPropertyCount(); ++idx)
       {
         const char* szName;
@@ -364,6 +388,7 @@ void ezAngelScriptUtils::GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezSt
           }
 
           tmp = ezAngelScriptUtils::GetNiceFunctionDeclaration(pFunc);
+          tmp.ReplaceAll("T[]", sTemplateName);
           out_sContent.Append(sIndent, "  ", tmp, ";\n");
         }
       }

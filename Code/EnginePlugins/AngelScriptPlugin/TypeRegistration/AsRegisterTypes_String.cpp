@@ -65,6 +65,11 @@ static int ezStringView_opCmp(ezStringView lhs, ezStringView rhs)
   return 0;
 }
 
+static void ezStringView_Construct(void* pMemory)
+{
+  new (pMemory) ezStringView();
+}
+
 static void ezStringView_ConstructView(void* pMemory, const ezStringView rhs)
 {
   new (pMemory) ezStringView(rhs);
@@ -98,6 +103,20 @@ static void ezStringView_opAssignStringBuilder(ezStringView* lhs, const ezString
   *lhs = str;
 }
 
+static void ezStringView_ConstructHS(void* pMemory, const ezHashedString& rhs)
+{
+  const ezString& str = rhs.GetString();
+
+  new (pMemory) ezStringView(str);
+}
+
+static void ezStringView_opAssignHS(ezStringView* lhs, const ezHashedString& rhs)
+{
+  const ezString& str = rhs.GetString();
+
+  *lhs = str;
+}
+
 void ezAngelScriptEngineSingleton::Register_StringView()
 {
   RegisterStringBase<ezStringView>(m_pEngine, "ezStringView");
@@ -114,9 +133,13 @@ void ezAngelScriptEngineSingleton::Register_StringView()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool opEquals(ezStringView) const", asFUNCTIONPR(operator==, (ezStringView, ezStringView), bool), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "int opCmp(ezStringView) const", asFUNCTIONPR(ezStringView_opCmp, (ezStringView, ezStringView), int), asCALL_CDECL_OBJFIRST));
 
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezStringView_Construct), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezStringView)", asFUNCTION(ezStringView_ConstructView), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezString& in)", asFUNCTION(ezStringView_ConstructString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezStringView_ConstructHS), asCALL_CDECL_OBJFIRST));
+
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezString& in)", asFUNCTION(ezStringView_opAssignString), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezHashedString& in)", asFUNCTION(ezStringView_opAssignHS), asCALL_CDECL_OBJFIRST));
 
   AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f(const ezStringBuilder& in)", asFUNCTION(ezStringView_ConstructStringBuilder), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "void opAssign(const ezStringBuilder& in)", asFUNCTION(ezStringView_opAssignStringBuilder), asCALL_CDECL_OBJFIRST));
@@ -211,6 +234,11 @@ void ezAngelScriptEngineSingleton::Register_String()
 
   AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezString", asBEHAVE_CONSTRUCT, "void f(const ezHashedString& in)", asFUNCTION(ezString_ConstructHS), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void opAssign(const ezHashedString& in)", asFUNCTION(ezString_opAssignHS), asCALL_CDECL_OBJFIRST));
+
+  // Methods
+  {
+    AS_CHECK(m_pEngine->RegisterObjectMethod("ezString", "void Clear()", asMETHOD(ezString, Clear), asCALL_THISCALL));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

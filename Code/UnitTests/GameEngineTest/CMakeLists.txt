@@ -24,6 +24,13 @@ if (EZ_3RDPARTY_DUKTAPE_SUPPORT)
   )
 endif()
 
+if (EZ_3RDPARTY_ANGELSCRIPT_SUPPORT)
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    AngelScriptPlugin
+  )
+endif()
+
 if (EZ_BUILD_RMLUI AND (EZ_CMAKE_PLATFORM_WINDOWS OR EZ_CMAKE_PLATFORM_LINUX))
   target_link_libraries(${PROJECT_NAME}
     PUBLIC

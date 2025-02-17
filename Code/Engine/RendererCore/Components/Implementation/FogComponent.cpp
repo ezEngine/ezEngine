@@ -59,7 +59,11 @@ void ezFogComponent::OnDeactivated()
 void ezFogComponent::SetColor(ezColor color)
 {
   m_Color = color;
-  SetModified(EZ_BIT(1));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 ezColor ezFogComponent::GetColor() const
@@ -70,7 +74,11 @@ ezColor ezFogComponent::GetColor() const
 void ezFogComponent::SetDensity(float fDensity)
 {
   m_fDensity = ezMath::Max(fDensity, 0.0f);
-  SetModified(EZ_BIT(2));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetDensity() const
@@ -81,7 +89,11 @@ float ezFogComponent::GetDensity() const
 void ezFogComponent::SetHeightFalloff(float fHeightFalloff)
 {
   m_fHeightFalloff = ezMath::Max(fHeightFalloff, 0.0f);
-  SetModified(EZ_BIT(3));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetHeightFalloff() const
@@ -92,7 +104,11 @@ float ezFogComponent::GetHeightFalloff() const
 void ezFogComponent::SetModulateWithSkyColor(bool bModulate)
 {
   m_bModulateWithSkyColor = bModulate;
-  SetModified(EZ_BIT(4));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 bool ezFogComponent::GetModulateWithSkyColor() const
@@ -103,7 +119,11 @@ bool ezFogComponent::GetModulateWithSkyColor() const
 void ezFogComponent::SetSkyDistance(float fDistance)
 {
   m_fSkyDistance = fDistance;
-  SetModified(EZ_BIT(5));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetSkyDistance() const

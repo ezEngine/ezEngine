@@ -20,7 +20,7 @@ bool ezAmbientLightComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezAmbientLightComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
-bool ezAngle::opEquals(ezAngle) const
+bool ezAngle::opEquals(const ezAngle&in) const
 bool ezAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg)
 bool ezAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezAnimationControllerComponent::SendMessage(ezMessage&inout ref_msg)
@@ -642,6 +642,7 @@ ezAngle ezAngle::MakeZero()
 ezAngle ezAngle::opAdd(ezAngle) const
 ezAngle ezAngle::opDiv(float) const
 ezAngle ezAngle::opMul(float) const
+ezAngle ezAngle::opMul_r(float) const
 ezAngle ezAngle::opNeg() const
 ezAngle ezAngle::opSub(ezAngle) const
 ezAngle ezCameraShakeComponent::get_MaxShake() const
@@ -927,6 +928,7 @@ ezColor ezJoltClothSheetComponent::get_Color() const
 ezColor ezLineToComponent::get_Color() const
 ezColor ezLodAnimatedMeshComponent::get_Color() const
 ezColor ezLodMeshComponent::get_Color() const
+ezColor ezMath::Lerp(ezColor from, ezColor to, float factor)
 ezColor ezMeshComponent::get_Color() const
 ezColor ezMsgSetColor::get_Color() const
 ezColor ezRandomPrefabComponent::get_Color1() const
@@ -2014,7 +2016,7 @@ ezTransform ezGameObject::GetGlobalTransform() const
 ezTransform ezGameObject::GetLastGlobalTransform() const
 ezTransform ezGameObject::GetLocalTransform() const
 ezTransform ezTransform::GetInverse() const
-ezTransform ezTransform::Make(const ezVec3&in vPosition, const ezQuat&in qRotation, const ezVec3&in vScale)
+ezTransform ezTransform::Make(const ezVec3&in vPosition, const ezQuat&in qRotation = ezQuat::MakeIdentity(), const ezVec3&in vScale = ezVec3(1))
 ezTransform ezTransform::MakeFromMat4(const ezMat4&in)
 ezTransform ezTransform::MakeGlobalTransform(const ezTransform&in, const ezTransform&in)
 ezTransform ezTransform::MakeIdentity()
@@ -2055,6 +2057,7 @@ ezVec2 ezHeightfieldComponent::get_TexCoordOffset() const
 ezVec2 ezHeightfieldComponent::get_TexCoordScale() const
 ezVec2 ezJoltClothSheetComponent::get_Size() const
 ezVec2 ezJoltClothSheetComponent::get_TextureScale() const
+ezVec2 ezMath::Lerp(ezVec2 from, ezVec2 to, float factor)
 ezVec2 ezRmlUiCanvas2DComponent::get_AnchorPoint() const
 ezVec2 ezVec2::Abs() const
 ezVec2 ezVec2::CompClamp(const ezVec2&in rhs) const
@@ -2101,6 +2104,7 @@ ezVec3 ezJoltShapeBoxComponent::get_HalfExtents() const
 ezVec3 ezLodAnimatedMeshComponent::get_BoundsOffset() const
 ezVec3 ezLodComponent::get_BoundsOffset() const
 ezVec3 ezLodMeshComponent::get_BoundsOffset() const
+ezVec3 ezMath::Lerp(ezVec3 from, ezVec3 to, float factor)
 ezVec3 ezMsgApplyRootMotion::get_Translation() const
 ezVec3 ezMsgDamage::get_GlobalPosition() const
 ezVec3 ezMsgDamage::get_ImpactDirection() const
@@ -2163,6 +2167,7 @@ ezVec4 ezCustomMeshComponent::get_CustomData() const
 ezVec4 ezGreyBoxComponent::get_CustomData() const
 ezVec4 ezLodAnimatedMeshComponent::get_CustomData() const
 ezVec4 ezLodMeshComponent::get_CustomData() const
+ezVec4 ezMath::Lerp(ezVec4 from, ezVec4 to, float factor)
 ezVec4 ezMeshComponent::get_CustomData() const
 ezVec4 ezVec2::GetAsVec4(float z, float w) const
 ezVec4 ezVec3::GetAsDirectionVec4() const
@@ -2261,7 +2266,7 @@ float ezAngle::DegToRad(float fDegree)
 float ezAngle::GetDegree() const
 float ezAngle::GetRadian() const
 float ezAngle::RadToDeg(float fRadians)
-float ezAngle::opDiv(ezAngle) const
+float ezAngle::opDiv(const ezAngle&in) const
 float ezAreaDamageComponent::get_Damage() const
 float ezAreaDamageComponent::get_Impulse() const
 float ezAreaDamageComponent::get_Radius() const
@@ -2516,13 +2521,12 @@ float ezWindVolumeCylinderComponent::get_PositiveFalloff() const
 float ezWindVolumeCylinderComponent::get_Radius() const
 float ezWindVolumeCylinderComponent::get_RadiusFalloff() const
 float ezWindVolumeSphereComponent::get_Radius() const
-funcdef bool Less(const T&in a, const T&in b)
 funcdef bool ReportObjectCB(ezGameObject@)
 int T[]::IndexOf(const T&in value) const
 int T[]::IndexOf(uint startAt, const T&in value) const
 int T[]::IndexOfByRef(const T&in value) const
 int T[]::IndexOfByRef(uint startAt, const T&in value) const
-int ezAngle::opCmp(ezAngle) const
+int ezAngle::opCmp(const ezAngle&in) const
 int ezCVar::GetIntValue(ezStringView Name)
 int ezMath::Abs(int f)
 int ezMath::CeilToInt(float f)
@@ -3523,6 +3527,7 @@ void ezStageSpaceComponent::set_StageSpace(ezXRStageSpace)
 void ezStateMachineComponent::FireTransitionEvent(ezStringView Name)
 void ezStateMachineComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezStateMachineComponent::set_Resource(ezStringView)
+void ezString::Clear()
 void ezString::opAssign(const ezHashedString&in)
 void ezString::opAssign(const ezString&in)
 void ezString::opAssign(const ezStringBuilder&in)
@@ -3582,6 +3587,7 @@ void ezStringBuilder::opAssign(ezStringView rhs)
 void ezStringView::ChopAwayFirstCharacterAscii()
 void ezStringView::ChopAwayFirstCharacterUtf8()
 void ezStringView::Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack)
+void ezStringView::opAssign(const ezHashedString&in)
 void ezStringView::opAssign(const ezString&in)
 void ezStringView::opAssign(const ezStringBuilder&in)
 void ezTempHashedString::Clear()

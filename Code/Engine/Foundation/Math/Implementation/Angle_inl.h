@@ -128,22 +128,22 @@ constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>=(const ezAngle& r) const
   return m_fRadian >= r.m_fRadian;
 }
 
-constexpr inline ezAngle operator*(ezAngle a, float f)
+constexpr inline ezAngle operator*(const ezAngle& a, float f)
 {
   return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator*(float f, ezAngle a)
+constexpr inline ezAngle operator*(float f, const ezAngle& a)
 {
   return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator/(ezAngle a, float f)
+constexpr inline ezAngle operator/(const ezAngle& a, float f)
 {
   return ezAngle::MakeFromRadian(a.GetRadian() / f);
 }
 
-constexpr inline float operator/(ezAngle a, ezAngle b)
+constexpr inline float operator/(const ezAngle& a, const ezAngle& b)
 {
   return a.GetRadian() / b.GetRadian();
 }
