@@ -154,7 +154,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
 
       pRenderData->m_color.a = 1.0f;
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     extractedRenderData.AddRenderData(pRenderData, category);

@@ -11,7 +11,8 @@ class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSkinnedMeshRenderData, ezMeshRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey() override;
+  virtual bool CanBatch(const ezRenderData& other) const override { return false; }
+
   ezGALBufferHandle m_hSkinningTransforms;
 };
 

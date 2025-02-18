@@ -10,8 +10,6 @@ class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderData : public ezMeshRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderData, ezMeshRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey() override;
-
   ezGALDynamicBufferHandle m_hVertexColorBuffer;
   ezUInt32 m_uiBufferAccessData = 0;
 };

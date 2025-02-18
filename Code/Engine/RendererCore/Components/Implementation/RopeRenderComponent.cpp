@@ -123,7 +123,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
     pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   // Determine render data category.

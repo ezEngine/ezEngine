@@ -191,7 +191,7 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     // Determine render data category.

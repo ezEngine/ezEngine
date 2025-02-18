@@ -174,7 +174,7 @@ void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, caching);

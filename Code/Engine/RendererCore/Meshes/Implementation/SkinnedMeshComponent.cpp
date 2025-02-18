@@ -13,11 +13,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkinnedMeshRenderData, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSkinnedMeshRenderData::FillBatchIdAndSortingKey()
-{
-  FillBatchIdAndSortingKeyInternal(m_hSkinningTransforms.GetInternalID().m_Data);
-}
-
 ezSkinningState::ezSkinningState() = default;
 
 ezSkinningState::~ezSkinningState()

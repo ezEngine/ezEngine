@@ -27,6 +27,18 @@ public:
     ezUInt16 m_uiValue = 0xFFFF;
   };
 
+  /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
+  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+
+  static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
+  static Category FindCategory(ezTempHashedString sCategoryName);
+
+  static ezHashedString GetCategoryName(Category category);
+  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
+
+  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
+
+public:
   struct Caching
   {
     enum Enum
@@ -36,24 +48,16 @@ public:
     };
   };
 
-  /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+  /// \brief Returns the final sorting for this render data with the given category and camera.
+  ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
 
-  static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
-  static Category FindCategory(ezTempHashedString sCategoryName);
-
-  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
-
-  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
-
-  static ezHashedString GetCategoryName(Category category);
-
-  ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
+  /// \brief Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
+  /// An implementation can assume that the other render data is of the same type as this render data.
+  virtual bool CanBatch(const ezRenderData& other) const { return false; }
 
   ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
   ezBoundingBoxSphere m_GlobalBounds;
 
-  ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
   ezUInt32 m_uiSortingKey = 0;
   float m_fSortingDepthOffset = 0.0f;
 

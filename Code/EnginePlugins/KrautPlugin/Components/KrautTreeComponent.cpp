@@ -205,8 +205,6 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
-    const auto materials = pMesh->GetMaterials();
-
     const ezGameObject* pOwner = GetOwner();
 
     float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
@@ -218,25 +216,10 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
     {
-      const auto& subMesh = subMeshes[subMeshIdx];
-
-      const ezUInt32 uiMaterialIndex = subMesh.m_uiMaterialIndex;
-
-      if (uiMaterialIndex >= materials.GetCount())
-        continue;
-
-      const ezMaterialResourceHandle& hMaterial = materials[uiMaterialIndex];
-      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(hMaterial.GetResourceIDHash()) : 0;
-
-      // Generate batch id from mesh, material and part index.
-      const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
-      const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
       ezKrautRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner());
 
       {
-        pRenderData->m_uiBatchId = uiBatchId;
-        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + subMeshIdx) & 0xFFFF);
+        pRenderData->m_uiSortingKey = uiMeshIDHash + subMeshIdx;
 
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
@@ -244,7 +227,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
         pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
         pRenderData->m_uiSubMeshIndex = static_cast<ezUInt8>(subMeshIdx);
-        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(0);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
         pRenderData->m_vLeafCenter = pTree->GetDetails().m_vLeafCenter;

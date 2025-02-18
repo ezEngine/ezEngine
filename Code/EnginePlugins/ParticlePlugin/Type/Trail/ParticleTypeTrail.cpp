@@ -265,8 +265,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
 
-  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hTexture.GetResourceIDHash()) + m_uiMaxPoints;
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, pRenderData->m_uiBatchId);
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();

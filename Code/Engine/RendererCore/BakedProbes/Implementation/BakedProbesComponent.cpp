@@ -277,7 +277,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
       pRenderData->m_uiSubMeshIndex = 0;
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);

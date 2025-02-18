@@ -103,7 +103,7 @@ void ezSkyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);

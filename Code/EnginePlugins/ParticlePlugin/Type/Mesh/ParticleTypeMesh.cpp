@@ -208,7 +208,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
         pRenderData->m_uiSubMeshIndex = 0;
         pRenderData->m_uiUniqueID = 0xFFFFFFFF;
 
-        pRenderData->FillBatchIdAndSortingKey();
+        pRenderData->FillSortingKey();
       }
 
       ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);

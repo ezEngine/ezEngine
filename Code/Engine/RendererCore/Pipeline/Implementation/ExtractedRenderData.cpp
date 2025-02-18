@@ -11,7 +11,7 @@ void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRen
 
   auto& sortableRenderData = m_DataPerCategory[category.m_uiValue].m_SortableRenderData.ExpandAndGetRef();
   sortableRenderData.m_pRenderData = pRenderData;
-  sortableRenderData.m_uiSortingKey = pRenderData->GetCategorySortingKey(category, m_Camera);
+  sortableRenderData.m_uiSortingKey = pRenderData->GetFinalSortingKey(category, m_Camera);
 }
 
 void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
@@ -27,12 +27,12 @@ void ezExtractedRenderData::SortAndBatch()
   {
     EZ_FORCE_INLINE bool Less(const ezRenderDataBatch::SortableRenderData& a, const ezRenderDataBatch::SortableRenderData& b) const
     {
-      if (a.m_uiSortingKey == b.m_uiSortingKey)
+      if (a.m_uiSortingKey != b.m_uiSortingKey)
       {
-        return a.m_pRenderData->m_uiBatchId < b.m_pRenderData->m_uiBatchId;
+        return a.m_uiSortingKey < b.m_uiSortingKey;
       }
 
-      return a.m_uiSortingKey < b.m_uiSortingKey;
+      return a.m_pRenderData->m_hOwner < b.m_pRenderData->m_hOwner;
     }
   };
 
@@ -47,21 +47,21 @@ void ezExtractedRenderData::SortAndBatch()
     data.Sort(RenderDataComparer());
 
     // Find batches
-    ezUInt32 uiCurrentBatchId = data[0].m_pRenderData->m_uiBatchId;
+    const ezRenderData* pCurrentBatchRenderData = data[0].m_pRenderData;
+    const ezRTTI* pCurrentBatchType = pCurrentBatchRenderData->GetDynamicRTTI();
     ezUInt32 uiCurrentBatchStartIndex = 0;
-    const ezRTTI* pCurrentBatchType = data[0].m_pRenderData->GetDynamicRTTI();
 
     for (ezUInt32 i = 1; i < data.GetCount(); ++i)
     {
       auto pRenderData = data[i].m_pRenderData;
 
-      if (pRenderData->m_uiBatchId != uiCurrentBatchId || pRenderData->GetDynamicRTTI() != pCurrentBatchType)
+      if (pRenderData->GetDynamicRTTI() != pCurrentBatchType || pRenderData->CanBatch(*pCurrentBatchRenderData) == false)
       {
         dataPerCategory.m_Batches.ExpandAndGetRef().m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], i - uiCurrentBatchStartIndex);
 
-        uiCurrentBatchId = pRenderData->m_uiBatchId;
-        uiCurrentBatchStartIndex = i;
+        pCurrentBatchRenderData = pRenderData;
         pCurrentBatchType = pRenderData->GetDynamicRTTI();
+        uiCurrentBatchStartIndex = i;
       }
     }
 
@@ -78,8 +78,6 @@ void ezExtractedRenderData::Clear()
   }
 
   m_FrameData.Clear();
-
-  // TODO: intelligent compact
 }
 
 ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const

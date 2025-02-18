@@ -32,7 +32,8 @@ class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey();
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
 

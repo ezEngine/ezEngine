@@ -20,6 +20,17 @@ EZ_ALWAYS_INLINE bool ezRenderData::Category::operator!=(const Category& other) 
 //////////////////////////////////////////////////////////////////////////
 
 // static
+EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
+{
+  if (category.m_uiValue < s_CategoryData.GetCount())
+  {
+    return s_CategoryData[category.m_uiValue].m_sName;
+  }
+
+  return ezHashedString();
+}
+
+// static
 EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType)
 {
   if (s_bRendererInstancesDirty)
@@ -38,18 +49,9 @@ EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category cat
   return nullptr;
 }
 
-// static
-EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
-{
-  if (category.m_uiValue < s_CategoryData.GetCount())
-  {
-    return s_CategoryData[category.m_uiValue].m_sName;
-  }
+//////////////////////////////////////////////////////////////////////////
 
-  return ezHashedString();
-}
-
-EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, const ezCamera& camera) const
+EZ_FORCE_INLINE ezUInt64 ezRenderData::GetFinalSortingKey(Category category, const ezCamera& camera) const
 {
   return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, camera);
 }

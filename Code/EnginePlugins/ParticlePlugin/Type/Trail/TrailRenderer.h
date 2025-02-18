@@ -14,6 +14,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderDat
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);
 
 public:
+  virtual bool CanBatch(const ezRenderData& other) const override;
+
   ezTexture2DResourceHandle m_hTexture;
   ezUInt16 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;

@@ -13,6 +13,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderer, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+bool ezParticleQuadRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezParticleQuadRenderData&>(other0);
+
+  return m_RenderMode == other.m_RenderMode && m_hTexture == other.m_hTexture;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezParticleQuadRenderer::ezParticleQuadRenderer()
 {
   CreateParticleDataBuffer(m_BaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);

@@ -17,11 +17,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezProcVertexColorRenderData::FillBatchIdAndSortingKey()
-{
-  FillBatchIdAndSortingKeyInternal(m_hVertexColorBuffer.GetInternalID().m_Data);
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 using namespace ezProcGenInternal;

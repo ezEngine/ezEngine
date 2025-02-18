@@ -15,14 +15,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderData, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLensFlareRenderData::FillBatchIdAndSortingKey()
+void ezLensFlareRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
   const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
 
-  // Batch and sort by texture
-  m_uiBatchId = uiTextureIDHash;
+  // Sort by texture
   m_uiSortingKey = uiTextureIDHash;
+}
+
+bool ezLensFlareRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezLensFlareRenderData&>(other0);
+
+  return m_hTexture == other.m_hTexture;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -307,7 +313,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       pRenderData->m_bGreyscaleTexture = element.m_bGreyscaleTexture;
       pRenderData->m_bApplyFog = m_bApplyFog;
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent,

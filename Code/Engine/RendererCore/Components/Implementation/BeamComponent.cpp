@@ -157,7 +157,7 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   // Determine render data category.

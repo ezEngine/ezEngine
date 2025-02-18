@@ -38,7 +38,7 @@ class EZ_RENDERERCORE_DLL ezInstancedMeshRenderData : public ezMeshRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezInstancedMeshRenderData, ezMeshRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey() override;
+  virtual bool CanBatch(const ezRenderData& other) const override { return false; }
 
   ezInstanceData* m_pExplicitInstanceData = nullptr;
   ezUInt32 m_uiExplicitInstanceCount = 0;

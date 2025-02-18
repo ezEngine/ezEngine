@@ -204,7 +204,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_uiFirstPrimitive = ezMath::Min(m_uiFirstPrimitive, pMesh->GetDescriptor().m_uiMaxPrimitives);
     pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
@@ -265,22 +265,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-void ezCustomMeshRenderData::FillBatchIdAndSortingKey()
+void ezCustomMeshRenderData::FillSortingKey()
 {
-  const ezUInt32 uiAdditionalBatchData = 0;
-
   m_uiFlipWinding = m_GlobalTransform.HasMirrorScaling() ? 1 : 0;
   m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
 
   const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());
   const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
 
-  // Generate batch id from mesh, material and part index.
-  ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, 0 /*m_uiSubMeshIndex*/, m_uiFlipWinding, uiAdditionalBatchData};
-  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
   // Sort by material and then by mesh
-  m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + 0 /*m_uiSubMeshIndex*/) & 0xFFFE) | m_uiFlipWinding;
+  m_uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | m_uiFlipWinding;
+}
+
+bool ezCustomMeshRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezCustomMeshRenderData&>(other0);
+
+  return m_hMesh == other.m_hMesh && m_hMaterial == other.m_hMaterial && m_uiFlipWinding == other.m_uiFlipWinding;
 }
 
 //////////////////////////////////////////////////////////////////////////
