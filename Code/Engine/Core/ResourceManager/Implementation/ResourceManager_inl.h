@@ -3,13 +3,13 @@
 #include <Foundation/Logging/Log.h>
 
 template <typename ResourceType>
-ResourceType* ezResourceManager::GetResource(ezStringView sResourceID, bool bIsReloadable)
+EZ_FORCE_INLINE ResourceType* ezResourceManager::GetResource(ezStringView sResourceID, bool bIsReloadable)
 {
   return static_cast<ResourceType*>(GetResource(ezGetStaticRTTI<ResourceType>(), sResourceID, bIsReloadable));
 }
 
 template <typename ResourceType>
-ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(ezStringView sResourceID)
+EZ_FORCE_INLINE ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(ezStringView sResourceID)
 {
   // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
   EZ_LOCK(s_ResourceMutex);
