@@ -1026,8 +1026,6 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
   {
-    EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
-
     auto IsOccluded = [=](const ezSimdBBox& aabb)
     {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
@@ -1362,13 +1360,13 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
   ezRasterizerView* pRasterizer = nullptr;
 
   // extract all occlusion geometry from the scene
-  EZ_PROFILE_SCOPE("Occlusion::RasterizeView");
+  EZ_PROFILE_SCOPE("PrepareOcclusionCulling");
 
   pRasterizer = g_pRasterizerViewPool->GetRasterizerView(static_cast<ezUInt32>(view.GetViewport().width / 2), static_cast<ezUInt32>(view.GetViewport().height / 2), (float)view.GetViewport().width / (float)view.GetViewport().height);
   pRasterizer->SetCamera(view.GetCullingCamera());
 
   {
-    EZ_PROFILE_SCOPE("Occlusion::FindOccluders");
+    EZ_PROFILE_SCOPE("FindOccluders");
 
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::OcclusionStatic.GetBitmask() | ezDefaultSpatialDataCategories::OcclusionDynamic.GetBitmask();
@@ -1381,14 +1379,18 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
 
   pRasterizer->BeginScene();
 
-  for (const ezGameObject* pObj : m_VisibleObjects)
   {
-    ezMsgExtractOccluderData msg;
-    pObj->SendMessage(msg);
+    EZ_PROFILE_SCOPE("ExtractOccluders");
 
-    for (const auto& ed : msg.m_ExtractedOccluderData)
+    for (const ezGameObject* pObj : m_VisibleObjects)
     {
-      pRasterizer->AddObject(ed.m_pObject, ed.m_Transform);
+      ezMsgExtractOccluderData msg;
+      pObj->SendMessage(msg);
+
+      for (const auto& ed : msg.m_ExtractedOccluderData)
+      {
+        pRasterizer->AddObject(ed.m_pObject, ed.m_Transform);
+      }
     }
   }
 

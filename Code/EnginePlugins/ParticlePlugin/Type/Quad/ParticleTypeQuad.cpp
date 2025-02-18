@@ -215,8 +215,6 @@ struct sodComparer
 
 void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
-  EZ_PROFILE_SCOPE("PFX: Quad");
-
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   if (!m_hTexture.IsValid() || numParticles == 0)
     return;

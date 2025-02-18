@@ -16,8 +16,6 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   if (s_pState->m_bShutdown)
     return;
 
-  EZ_PROFILE_SCOPE("InternalPreloadResource");
-
   EZ_LOCK(s_ResourceMutex);
 
   // if there is nothing else that could be loaded, just return right away
@@ -28,6 +26,8 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     // pResource->GetDynamicRTTI()->GetTypeName());
     return;
   }
+
+  EZ_PROFILE_SCOPE("InternalPreloadResource");
 
   EZ_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");
 
