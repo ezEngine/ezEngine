@@ -85,16 +85,13 @@ namespace
     out_pCorners[7] = out_pCorners[6] + dirRight * fStepXn;
   }
 
-  void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
+  void FillClusterBoundingSpheres(const ezCamera& camera, ezMat4& mProj, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
     EZ_PROFILE_SCOPE("FillClusterBoundingSpheres");
 
     ///\todo proper implementation for orthographic views
     if (camera.IsOrthographic())
       return;
-
-    ezMat4 mProj;
-    camera.GetProjectionMatrix(fAspectRatio, mProj);
 
     ezSimdVec4f stepScale;
     ezSimdVec4f tanLBLB;
@@ -117,10 +114,9 @@ namespace
       tanLBLB = ezSimdVec4f(fTanLeft, fTanBottom, fTanLeft, fTanBottom);
     }
 
-    ezSimdVec4f pos = ezSimdConversion::ToVec3(camera.GetPosition());
-    ezSimdVec4f dirForward = ezSimdConversion::ToVec3(camera.GetDirForwards());
-    ezSimdVec4f dirRight = ezSimdConversion::ToVec3(camera.GetDirRight());
-    ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
+    const ezSimdVec4f dirForward = ezSimdVec4f(0, 0, 1, 0);
+    const ezSimdVec4f dirRight = ezSimdVec4f(1, 0, 0, 0);
+    const ezSimdVec4f dirUp = ezSimdVec4f(0, 1, 0, 0);
 
 
     ezSimdVec4f fZn = ezSimdVec4f::MakeZero();
@@ -132,8 +128,8 @@ namespace
       ezSimdVec4f zff_znn = fZf.GetCombined<ezSwizzle::XXXX>(fZn);
       ezSimdVec4f steps = zff_znn.CompMul(stepScale);
 
-      ezSimdVec4f depthF = pos + dirForward * fZf.x();
-      ezSimdVec4f depthN = pos + dirForward * fZn.x();
+      ezSimdVec4f depthF = dirForward * fZf.x();
+      ezSimdVec4f depthN = dirForward * fZn.x();
 
       ezSimdVec4f startLBLB = zff_znn.CompMul(tanLBLB);
 
@@ -293,11 +289,11 @@ namespace
   }
 
 
-  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& mViewMatrix, const ezSimdMat4f& mProjectionMatrix)
+  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& viewSpaceSphere, const ezSimdMat4f& mProjectionMatrix)
   {
-    ezSimdVec4f viewSpaceCenter = mViewMatrix.TransformPosition(sphere.GetCenter());
+    ezSimdVec4f viewSpaceCenter = viewSpaceSphere.GetCenter();
     ezSimdFloat depth = viewSpaceCenter.z();
-    ezSimdFloat radius = sphere.GetRadius();
+    ezSimdFloat radius = viewSpaceSphere.GetRadius();
 
     ezSimdVec4f mi;
     ezSimdVec4f ma;
@@ -377,14 +373,16 @@ namespace
   void RasterizeSphere(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix,
     const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres)
   {
-    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, mViewMatrix, mProjectionMatrix);
+    ezSimdBSphere viewSpaceSphere(mViewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
+
+    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(viewSpaceSphere, mProjectionMatrix);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
       [&](ezUInt32 uiClusterIndex)
-      { return pointLightSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
+      { return viewSpaceSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -399,9 +397,9 @@ namespace
   void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& mViewMatrix,
     const ezSimdMat4f& mProjectionMatrix, Cluster* pClusters, ezSimdBSphere* pClusterBoundingSpheres)
   {
-    ezSimdVec4f position = spotLightCone.m_PositionAndRange;
+    ezSimdVec4f position = mViewMatrix.TransformPosition(spotLightCone.m_PositionAndRange);
     ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
-    ezSimdVec4f forwardDir = spotLightCone.m_ForwardDir;
+    ezSimdVec4f forwardDir = mViewMatrix.TransformDirection(spotLightCone.m_ForwardDir);
     ezSimdFloat sinAngle = spotLightCone.m_SinCosAngle.x();
     ezSimdFloat cosAngle = spotLightCone.m_SinCosAngle.y();
 
@@ -420,7 +418,7 @@ namespace
     }
 
     ezSimdBSphere spotLightSphere(bSphereCenter, bSphereRadius);
-    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(spotLightSphere, mViewMatrix, mProjectionMatrix);
+    ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(spotLightSphere, mProjectionMatrix);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
@@ -455,16 +453,16 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& mViewProjectionMatrix, Cluster* pClusters,
+  void RasterizeBox(const ezTransform& transform, ezUInt32 uiDecalIndex, const ezSimdMat4f& mInvView, const ezSimdMat4f& mViewProjection, Cluster* pClusters,
     ezSimdBSphere* pClusterBoundingSpheres)
   {
-    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();
-    ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
+    ezSimdMat4f boxToWorld = ezSimdConversion::ToTransform(transform).GetAsMat4();
+    ezSimdMat4f viewToBox = boxToWorld.GetInverse() * mInvView;
 
     ezVec3 corners[8];
     ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
-    ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
+    ezSimdMat4f decalToScreen = mViewProjection * boxToWorld;
     ezSimdBBox screenSpaceBounds = ezSimdBBox::MakeInvalid();
     bool bInsideBox = false;
     for (ezUInt32 i = 0; i < 8; ++i)
@@ -496,7 +494,7 @@ namespace
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex)
       {
       ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
-      clusterSphere.Transform(worldToDecal);
+      clusterSphere.Transform(viewToBox);
 
       return localDecalBounds.Overlaps(clusterSphere); });
   }
