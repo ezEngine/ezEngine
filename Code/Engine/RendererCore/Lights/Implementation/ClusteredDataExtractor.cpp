@@ -253,7 +253,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           if (false)
           {
-            ezSimdBSphere viewSpaceSphere(viewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());    
+            ezSimdBSphere viewSpaceSphere(viewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
             ezSimdBBox ssb = GetScreenSpaceBounds(viewSpaceSphere, projectionMatrix);
             float minX = ((float)ssb.m_Min.x() * 0.5f + 0.5f) * view.GetViewport().width;
             float maxX = ((float)ssb.m_Max.x() * 0.5f + 0.5f) * view.GetViewport().width;

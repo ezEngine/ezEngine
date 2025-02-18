@@ -63,7 +63,7 @@ bool ezMeshRenderData::CanBatch(const ezRenderData& other0) const
   const auto& other = ezStaticCast<const ezMeshRenderData&>(other0);
 
   return m_hMesh == other.m_hMesh && m_uiSubMeshIndex == other.m_uiSubMeshIndex &&
-    m_hMaterial == other.m_hMaterial && m_uiFlipWinding == other.m_uiFlipWinding;
+         m_hMaterial == other.m_hMaterial && m_uiFlipWinding == other.m_uiFlipWinding;
 }
 
 //////////////////////////////////////////////////////////////////////////
