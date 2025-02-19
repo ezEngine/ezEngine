@@ -240,6 +240,15 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 1).Succeeded());
 }
 
+#  ifdef BUILDSYSTEM_ENABLE_ANGELSCRIPT_SUPPORT
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformAngelScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/AngelScript/ezProject", 1).Succeeded());
+}
+
+#  endif
+
 #endif
 
 
