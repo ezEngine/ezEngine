@@ -533,7 +533,7 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           const ezUInt32 item = pTempClusterItemListRange[uiDecalCount];
           pTempClusterItemListRange[uiDecalCount] = (uiDecalCount < uiLightCount ? item : 0) | MakeDecalIndex(uiDecalIndex);
-          
+
           ++uiDecalCount;
         }
 
