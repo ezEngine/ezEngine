@@ -459,14 +459,14 @@ ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
 
 namespace
 {
-  ezUInt32 PackIndex(ezUInt32 uiLightIndex, ezUInt32 uiDecalIndex)
+  EZ_FORCE_INLINE ezUInt32 MakeDecalIndex(ezUInt32 uiDecalIndex)
   {
-    return uiDecalIndex << 10 | uiLightIndex;
+    return uiDecalIndex << DECAL_SHIFT;
   }
 
-  ezUInt32 PackReflectionProbeIndex(ezUInt32 uiData, ezUInt32 uiReflectionProbeIndex)
+  EZ_FORCE_INLINE ezUInt32 MakeProbeIndex(ezUInt32 uiReflectionProbeIndex)
   {
-    return uiReflectionProbeIndex << 20 | uiData;
+    return uiReflectionProbeIndex << PROBE_SHIFT;
   }
 } // namespace
 
@@ -531,16 +531,9 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           uiDecalIndex += uiBlockIndex * 32;
 
-          if (uiDecalCount < uiLightCount)
-          {
-            auto& item = pTempClusterItemListRange[uiDecalCount];
-            item = PackIndex(item, uiDecalIndex);
-          }
-          else
-          {
-            pTempClusterItemListRange[uiDecalCount] = PackIndex(0, uiDecalIndex);
-          }
-
+          const ezUInt32 item = pTempClusterItemListRange[uiDecalCount];
+          pTempClusterItemListRange[uiDecalCount] = (uiDecalCount < uiLightCount ? item : 0) | MakeDecalIndex(uiDecalIndex);
+          
           ++uiDecalCount;
         }
 
@@ -564,15 +557,8 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
           uiReflectionProbeIndex += uiBlockIndex * 32;
 
-          if (uiReflectionProbeCount < uiMaxUsed)
-          {
-            auto& item = pTempClusterItemListRange[uiReflectionProbeCount];
-            item = PackReflectionProbeIndex(item, uiReflectionProbeIndex);
-          }
-          else
-          {
-            pTempClusterItemListRange[uiReflectionProbeCount] = PackReflectionProbeIndex(0, uiReflectionProbeIndex);
-          }
+          const ezUInt32 item = pTempClusterItemListRange[uiReflectionProbeCount];
+          pTempClusterItemListRange[uiReflectionProbeCount] = (uiReflectionProbeCount < uiMaxUsed ? item : 0) | MakeProbeIndex(uiReflectionProbeIndex);
 
           ++uiReflectionProbeCount;
         }
@@ -587,7 +573,7 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
     auto& clusterData = pData->m_ClusterData[i];
     clusterData.offset = uiOffset;
-    clusterData.counts = PackReflectionProbeIndex(PackIndex(uiLightCount, uiDecalCount), uiReflectionProbeCount);
+    clusterData.counts = uiLightCount | MakeDecalIndex(uiDecalCount) | MakeProbeIndex(uiReflectionProbeCount);
   }
 
   pData->m_ClusterItemList = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_TempClusterItemList.GetCount());
