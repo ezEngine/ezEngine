@@ -85,7 +85,7 @@ namespace
     out_pCorners[7] = out_pCorners[6] + dirRight * fStepXn;
   }
 
-  void FillClusterBoundingSpheres(const ezCamera& camera, ezMat4& mProj, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
+  void FillClusterBoundingSpheres(const ezCamera& camera, const ezMat4& mProj, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
   {
     EZ_PROFILE_SCOPE("FillClusterBoundingSpheres");
 

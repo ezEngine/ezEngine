@@ -204,9 +204,9 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   ezMat4 mProj;
   pCamera->GetProjectionMatrix(fAspectRatio, mProj);
-  if (m_ProjectionMatrix != mProj)
+  if (m_mProjection != mProj)
   {
-    m_ProjectionMatrix = mProj;
+    m_mProjection = mProj;
 
     FillClusterBoundingSpheres(*pCamera, mProj, m_ClusterBoundingSpheres);
   }
