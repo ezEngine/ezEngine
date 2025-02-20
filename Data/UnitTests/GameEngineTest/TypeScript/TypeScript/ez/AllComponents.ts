@@ -368,6 +368,8 @@ export class DebugTextComponent extends Component
   set Value3(value: number) { __CPP_ComponentProperty_set(this, 1816166542, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 1881354469); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 1881354469, value); }
+  get MaxDistance(): number { return __CPP_ComponentProperty_get(this, 1272349630); }
+  set MaxDistance(value: number) { __CPP_ComponentProperty_set(this, 1272349630, value); }
 }
 
 export class DecalComponent extends RenderComponent
@@ -817,6 +819,8 @@ export class MoveToComponent extends Component
 export class OccluderComponent extends Component
 {
   public static GetTypeNameHash(): number { return 88153051; }
+  get Type(): Enum.OccluderType { return __CPP_ComponentProperty_get(this, 2414574304); }
+  set Type(value: Enum.OccluderType) { __CPP_ComponentProperty_set(this, 2414574304, value); }
   get Extents(): Vec3 { return __CPP_ComponentProperty_get(this, 1943536156); }
   set Extents(value: Vec3) { __CPP_ComponentProperty_set(this, 1943536156, value); }
 }
@@ -855,6 +859,8 @@ export class PointLightComponent extends LightComponent
   public static GetTypeNameHash(): number { return 2694457879; }
   get Range(): number { return __CPP_ComponentProperty_get(this, 2070313016); }
   set Range(value: number) { __CPP_ComponentProperty_set(this, 2070313016, value); }
+  get ShadowFadeOutRange(): number { return __CPP_ComponentProperty_get(this, 929605317); }
+  set ShadowFadeOutRange(value: number) { __CPP_ComponentProperty_set(this, 929605317, value); }
 }
 
 export class PostProcessingComponent extends Component
@@ -926,9 +932,35 @@ export class PropertyAnimComponent extends Component
   set RangeHigh(value: number) { __CPP_ComponentProperty_set(this, 1788390653, value); }
 }
 
+export class RandomPrefabComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 3975593880; }
+  get Preview(): boolean { return __CPP_ComponentProperty_get(this, 3210520813); }
+  set Preview(value: boolean) { __CPP_ComponentProperty_set(this, 3210520813, value); }
+  get Count(): number { return __CPP_ComponentProperty_get(this, 3385665800); }
+  set Count(value: number) { __CPP_ComponentProperty_set(this, 3385665800, value); }
+  get InstantiateAsChildren(): boolean { return __CPP_ComponentProperty_get(this, 105570795); }
+  set InstantiateAsChildren(value: boolean) { __CPP_ComponentProperty_set(this, 105570795, value); }
+  get Position(): Vec3 { return __CPP_ComponentProperty_get(this, 2448774041); }
+  set Position(value: Vec3) { __CPP_ComponentProperty_set(this, 2448774041, value); }
+  get Rotation(): Vec3 { return __CPP_ComponentProperty_get(this, 183089699); }
+  set Rotation(value: Vec3) { __CPP_ComponentProperty_set(this, 183089699, value); }
+  get MinScale(): number { return __CPP_ComponentProperty_get(this, 3147827340); }
+  set MinScale(value: number) { __CPP_ComponentProperty_set(this, 3147827340, value); }
+  get MaxScale(): number { return __CPP_ComponentProperty_get(this, 749691562); }
+  set MaxScale(value: number) { __CPP_ComponentProperty_set(this, 749691562, value); }
+  get Color1(): Color { return __CPP_ComponentProperty_get(this, 3950381667); }
+  set Color1(value: Color) { __CPP_ComponentProperty_set(this, 3950381667, value); }
+  get Color2(): Color { return __CPP_ComponentProperty_get(this, 2363955726); }
+  set Color2(value: Color) { __CPP_ComponentProperty_set(this, 2363955726, value); }
+}
+
 export class RaycastComponent extends Component
 {
   public static GetTypeNameHash(): number { return 2138446516; }
+  GetCurrentDistance(): number { return __CPP_ComponentFunction_Call(this, 1334910084); }
+  GetCurrentEndPosition(): Vec3 { return __CPP_ComponentFunction_Call(this, 3885059304); }
+  HasHit(): boolean { return __CPP_ComponentFunction_Call(this, 4214800304); }
   get MaxDistance(): number { return __CPP_ComponentProperty_get(this, 3323574171); }
   set MaxDistance(value: number) { __CPP_ComponentProperty_set(this, 3323574171, value); }
   get DisableTargetObjectOnNoHit(): boolean { return __CPP_ComponentProperty_get(this, 2418328844); }
@@ -941,10 +973,8 @@ export class RaycastComponent extends Component
   set ShapeTypesToHit(value: Flags.PhysicsShapeType) { __CPP_ComponentProperty_set(this, 1368614702, value); }
   get CollisionLayerEndPoint(): number { return __CPP_ComponentProperty_get(this, 442462970); }
   set CollisionLayerEndPoint(value: number) { __CPP_ComponentProperty_set(this, 442462970, value); }
-  get CollisionLayerTrigger(): number { return __CPP_ComponentProperty_get(this, 2347476005); }
-  set CollisionLayerTrigger(value: number) { __CPP_ComponentProperty_set(this, 2347476005, value); }
-  get TriggerMessage(): string { return __CPP_ComponentProperty_get(this, 1295093099); }
-  set TriggerMessage(value: string) { __CPP_ComponentProperty_set(this, 1295093099, value); }
+  get ChangeNotificationMsg(): string { return __CPP_ComponentProperty_get(this, 3287938195); }
+  set ChangeNotificationMsg(value: string) { __CPP_ComponentProperty_set(this, 3287938195, value); }
 }
 
 export class RenderTargetActivatorComponent extends RenderComponent
@@ -1049,6 +1079,7 @@ export class ScriptComponent extends EventMessageHandlerComponent
   public static GetTypeNameHash(): number { return 1614462437; }
   SetScriptVariable(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 1554318557, Name, Value); }
   GetScriptVariable(Name: string): any { return __CPP_ComponentFunction_Call(this, 4178349120, Name); }
+  SetUpdateInterval(interval: number): void { __CPP_ComponentFunction_Call(this, 2103510945, interval); }
   get UpdateInterval(): number { return __CPP_ComponentProperty_get(this, 3597189607); }
   set UpdateInterval(value: number) { __CPP_ComponentProperty_set(this, 3597189607, value); }
   get ScriptClass(): string { return __CPP_ComponentProperty_get(this, 1184048898); }
@@ -1284,6 +1315,8 @@ export class SpotLightComponent extends LightComponent
   set InnerSpotAngle(value: number) { __CPP_ComponentProperty_set(this, 2388270276, value); }
   get OuterSpotAngle(): number { return __CPP_ComponentProperty_get(this, 1291241033); }
   set OuterSpotAngle(value: number) { __CPP_ComponentProperty_set(this, 1291241033, value); }
+  get ShadowFadeOutRange(): number { return __CPP_ComponentProperty_get(this, 701712349); }
+  set ShadowFadeOutRange(value: number) { __CPP_ComponentProperty_set(this, 701712349, value); }
 }
 
 export class SpriteComponent extends RenderComponent

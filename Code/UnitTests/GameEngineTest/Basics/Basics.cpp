@@ -187,10 +187,12 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 4).Succeeded());
 }
 
+#  ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 5).Succeeded());
 }
+#  endif
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
@@ -235,18 +237,18 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/ProcGen/ezProject", 6).Succeeded());
 }
 
+#  ifdef BUILDSYSTEM_ENABLE_RMLUI_SUPPORT
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 1).Succeeded());
 }
+#  endif
 
 #  ifdef BUILDSYSTEM_ENABLE_ANGELSCRIPT_SUPPORT
-
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAngelScript)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/AngelScript/ezProject", 1).Succeeded());
 }
-
 #  endif
 
 #endif
