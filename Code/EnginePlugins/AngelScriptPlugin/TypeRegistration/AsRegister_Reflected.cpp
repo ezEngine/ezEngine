@@ -2,6 +2,7 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs)
