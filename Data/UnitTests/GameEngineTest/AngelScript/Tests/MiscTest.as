@@ -21,15 +21,19 @@ class ScriptObject : ezAngelScriptTestClass
     {
         if (m_Phase == Phase::CVar)
         {
+            bool bOrgValue = ezCVar::GetBoolValue("App.ShowFPS");
+
             bool bShowFPS1 = ezCVar::GetBoolValue("App.ShowFPS");
             bool bShowFPS2 = ezCVar::GetValue_asBool("App.ShowFPS");
             EZ_TEST_BOOL(bShowFPS1 == bShowFPS2);
 
-            ezCVar::SetBoolValue("App.ShowFPS", !bShowFPS1);
+            ezCVar::SetBoolValue("App.ShowFPS", !bOrgValue);
             
             bShowFPS1 = ezCVar::GetBoolValue("App.ShowFPS");
             bShowFPS2 = ezCVar::GetValue_asBool("App.ShowFPS");
             EZ_TEST_BOOL(bShowFPS1 == bShowFPS2);
+
+            ezCVar::SetBoolValue("App.ShowFPS", false);
 
             m_Phase = Phase::Array;
         }
