@@ -265,12 +265,27 @@ void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
 {
   ezRTTI::ForEachDerivedType(ezGetStaticRTTI<ezComponent>(), [&](const ezRTTI* pRtti)
     {
+      const intptr_t flags = 0x01;
+
       const char* compName = pRtti->GetTypeName().GetStartPointer();
 
-      AS_CHECK(m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg)", asMETHODPR(ezComponent, SendMessage, (ezMessage&), bool), asCALL_THISCALL));
-      AS_CHECK(m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg) const", asMETHODPR(ezComponent, SendMessage, (ezMessage&) const, bool), asCALL_THISCALL));
-      AS_CHECK(m_pEngine->RegisterObjectMethod(compName, "void PostMessage(const ezMessage& in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const", asMETHOD(ezComponent, PostMessage), asCALL_THISCALL));
-      AS_CHECK(m_pEngine->RegisterObjectMethod(compName, "ezComponentHandle GetHandle() const", asMETHOD(ezComponent, GetHandle), asCALL_THISCALL));
+      int funcID;
+
+      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg)", asMETHODPR(ezComponent, SendMessage, (ezMessage&), bool), asCALL_THISCALL);
+      AS_CHECK(funcID);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+
+      funcID = m_pEngine->RegisterObjectMethod(compName, "bool SendMessage(ezMessage& inout ref_msg) const", asMETHODPR(ezComponent, SendMessage, (ezMessage&) const, bool), asCALL_THISCALL);
+      AS_CHECK(funcID);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+
+      funcID = m_pEngine->RegisterObjectMethod(compName, "void PostMessage(const ezMessage& in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const", asMETHOD(ezComponent, PostMessage), asCALL_THISCALL);
+      AS_CHECK(funcID);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+
+      funcID = m_pEngine->RegisterObjectMethod(compName, "ezComponentHandle GetHandle() const", asMETHOD(ezComponent, GetHandle), asCALL_THISCALL);
+      AS_CHECK(funcID);
+      m_pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
       //
     });
 }
