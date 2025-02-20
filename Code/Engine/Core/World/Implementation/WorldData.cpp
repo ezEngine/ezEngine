@@ -70,9 +70,9 @@ namespace ezInternal
     m_Objects.Insert(nullptr);
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    static_assert(sizeof(ezGameObject::TransformationData) == 240);
+    static_assert(sizeof(ezGameObject::TransformationData) == 256);
 #else
-    static_assert(sizeof(ezGameObject::TransformationData) == 192);
+    static_assert(sizeof(ezGameObject::TransformationData) == 224);
 #endif
 
     static_assert(sizeof(ezGameObject) == 128);
@@ -314,11 +314,13 @@ namespace ezInternal
     struct UserData
     {
       ezSpatialSystem* m_pSpatialSystem;
+      ezDynamicBitfield* m_pTransformChangeState;
       ezUInt32 m_uiUpdateCounter;
     };
 
     UserData userData;
     userData.m_pSpatialSystem = m_pSpatialSystem.Borrow();
+    userData.m_pTransformChangeState = &m_Hierarchies->m_TransformChangeState;
     userData.m_uiUpdateCounter = m_uiUpdateCounter;
 
     struct RootLevel
@@ -326,7 +328,8 @@ namespace ezInternal
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<const UserData*>(pUserData0);
-        WorldData::UpdateGlobalTransform(pData, pUserData->m_uiUpdateCounter);
+        if (WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
+          WorldData::UpdateGlobalTransform(pData, pUserData->m_uiUpdateCounter);
         return ezVisitorExecution::Continue;
       }
     };
@@ -336,7 +339,14 @@ namespace ezInternal
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<const UserData*>(pUserData0);
-        WorldData::UpdateGlobalTransformWithParent(pData, pUserData->m_uiUpdateCounter);
+        bool bParentHasChanged = WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData->m_pParentData);
+
+        if (bParentHasChanged)
+          WorldData::SetLocalTransformChanged(pUserData->m_pTransformChangeState, pData->m_pParentData);
+
+        if (bParentHasChanged || WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
+          WorldData::UpdateGlobalTransformWithParent(pData, pUserData->m_uiUpdateCounter);
+
         return ezVisitorExecution::Continue;
       }
     };
@@ -346,7 +356,8 @@ namespace ezInternal
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<UserData*>(pUserData0);
-        WorldData::UpdateGlobalTransformAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
+        if (WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
+          WorldData::UpdateGlobalTransformAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -356,7 +367,13 @@ namespace ezInternal
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData0)
       {
         auto pUserData = static_cast<UserData*>(pUserData0);
-        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
+        bool bParentHasChanged = WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData->m_pParentData);
+
+        if (bParentHasChanged)
+          WorldData::SetLocalTransformChanged(pUserData->m_pTransformChangeState, pData->m_pParentData);
+
+        if (bParentHasChanged || WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
+          WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -387,6 +404,8 @@ namespace ezInternal
         }
       }
     }
+
+    m_Hierarchies->m_TransformChangeState.ClearBitRange(0, static_cast<ezUInt32>(m_Objects.GetCapacity()));
   }
 
   void WorldData::ResourceEventHandler(const ezResourceEvent& e)

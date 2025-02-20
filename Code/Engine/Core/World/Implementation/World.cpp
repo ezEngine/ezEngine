@@ -193,6 +193,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   static_assert((GetMaxNumHierarchyLevels() - 1) <= ezMath::MaxValue<ezUInt16>());
   pNewObject->m_uiHierarchyLevel = static_cast<ezUInt16>(uiHierarchyLevel);
 
+  // keep the size of the bitfield the same as the objects table
+  m_Data.m_Hierarchies->m_TransformChangeState.SetCount(static_cast<ezUInt32>(m_Data.m_Objects.GetCapacity()));
+
   // fill out the transformation data
   pTransformationData->m_pObject = pNewObject;
   pTransformationData->m_pParentData = pParentData;
@@ -229,6 +232,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
 
+  pTransformationData->m_uiIndex = newId.m_InstanceIndex;
   pTransformationData->UpdateGlobalTransformNonRecursive(0);
 
   // link the transformation data to the game object

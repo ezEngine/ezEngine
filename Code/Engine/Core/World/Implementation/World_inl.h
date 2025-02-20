@@ -304,6 +304,11 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& hComponent, const 
   return false;
 }
 
+EZ_FORCE_INLINE void ezWorld::SetLocalTransformChanged(ezGameObject* pObject, bool bChanged)
+{
+  ezInternal::WorldData::SetLocalTransformChanged(&m_Data.m_Hierarchies->m_TransformChangeState, pObject->m_pTransformationData, bChanged);
+}
+
 EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg)
 {
   CheckForWriteAccess();

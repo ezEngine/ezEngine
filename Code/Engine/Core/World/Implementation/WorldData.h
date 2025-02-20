@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/MessageQueue.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -104,6 +105,7 @@ namespace ezInternal
       using DataBlockArray = ezDynamicArray<DataBlock>;
 
       ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;
+      ezDynamicBitfield m_TransformChangeState;
     };
 
     struct HierarchyType
@@ -133,6 +135,9 @@ namespace ezInternal
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
+
+    static bool HasLocalTransformChanged(const ezDynamicBitfield* pTransformChangeState, const ezGameObject::TransformationData* pData);
+    static void SetLocalTransformChanged(ezDynamicBitfield* pTransformChangeState, const ezGameObject::TransformationData* pData, bool bChanged = true);
 
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);

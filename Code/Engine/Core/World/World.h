@@ -57,6 +57,11 @@ public:
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
   void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true);
 
+  /// \brief If true markes object that its and its children global transform has to be updated according to its local transform.
+  /// Otherwise object's global transform won't be changed (but its children's transforms still will be updated!).
+  /// \note Normally you shouldn't call this function as it gets automatically called when GameObject::Set[Global/Local][Position/Rotation/Scale/Transform] are used.
+  void SetLocalTransformChanged(ezGameObject* pObject, bool bChanged = true);
+
   /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
   const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;

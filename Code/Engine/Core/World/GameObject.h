@@ -558,6 +558,10 @@ private:
 
   void SendNotificationMessage(ezMessage& msg);
 
+  void SetLocalTransformChanged();
+
+  void SetChildrenLocalTransformChanged();
+
   struct EZ_CORE_DLL alignas(16) TransformationData
   {
     EZ_DECLARE_POD_TYPE();
@@ -592,6 +596,7 @@ private:
 #else
     ezUInt32 m_uiPadding2[1];
 #endif
+    ezUInt32 m_uiIndex = 0;
 
     /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();

@@ -60,7 +60,20 @@ namespace ezInternal
     return ezVisitorExecution::Continue;
   }
 
+
   // static
+  EZ_FORCE_INLINE bool WorldData::HasLocalTransformChanged(const ezDynamicBitfield* pTransformChangeState, const ezGameObject::TransformationData* pData)
+  {
+    return pTransformChangeState->IsBitSet(pData->m_uiIndex);
+  }
+
+  // static
+  EZ_FORCE_INLINE
+  void WorldData::SetLocalTransformChanged(ezDynamicBitfield* pTransformChangeState, const ezGameObject::TransformationData* pData, bool bChanged)
+  {
+    pTransformChangeState->SetBitValue(pData->m_uiIndex, bChanged);
+  }
+
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter)
   {
     pData->UpdateGlobalTransformWithoutParent(uiUpdateCounter);

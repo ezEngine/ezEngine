@@ -277,6 +277,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& vPositio
 {
   m_pTransformationData->m_localPosition = vPosition;
 
+  SetLocalTransformChanged();
+
   if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
@@ -292,6 +294,8 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalPositionSimd() const
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& qRotation, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localRotation = qRotation;
+
+  SetLocalTransformChanged();
 
   if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
@@ -311,6 +315,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& vScaling,
   m_pTransformationData->m_localScaling = vScaling;
   m_pTransformationData->m_localScaling.SetW(uniformScale);
 
+  SetLocalTransformChanged();
+
   if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
@@ -326,6 +332,8 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalScalingSimd() const
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& fScaling, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localScaling.SetW(fScaling);
+
+  SetLocalTransformChanged();
 
   if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
@@ -353,6 +361,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezSimdVec4f& vPositi
 
   m_pTransformationData->UpdateLocalTransform();
 
+  SetChildrenLocalTransformChanged();
+
   if (IsStatic())
   {
     UpdateGlobalTransformAndBoundsRecursive();
@@ -373,6 +383,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezSimdQuat& qRotatio
 
   m_pTransformationData->UpdateLocalTransform();
 
+  SetChildrenLocalTransformChanged();
+
   if (IsStatic())
   {
     UpdateGlobalTransformAndBoundsRecursive();
@@ -392,6 +404,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezSimdVec4f& vScaling
   m_pTransformationData->m_globalTransform.m_Scale = vScaling;
 
   m_pTransformationData->UpdateLocalTransform();
+
+  SetChildrenLocalTransformChanged();
 
   if (IsStatic())
   {
@@ -416,6 +430,8 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& tr
   // use EZ_SIMD_IMPLEMENTATION_FPU, e.g. arm atm.
   m_pTransformationData->m_globalTransform.m_Scale.SetW(1.0f);
   m_pTransformationData->UpdateLocalTransform();
+
+  SetChildrenLocalTransformChanged();
 
   if (IsStatic())
   {

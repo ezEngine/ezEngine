@@ -1144,6 +1144,24 @@ void ezGameObject::SendNotificationMessage(ezMessage& msg)
   }
 }
 
+void ezGameObject::SetLocalTransformChanged()
+{
+  ChildIterator iter = GetChildren();
+  GetWorld()->SetLocalTransformChanged(this);
+}
+
+void ezGameObject::SetChildrenLocalTransformChanged()
+{
+  ChildIterator iter = GetChildren();
+  ezWorld* pWorld = GetWorld();
+
+  while (iter.IsValid())
+  {
+    pWorld->SetLocalTransformChanged(iter);
+    iter.Next();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void ezGameObject::TransformationData::UpdateLocalTransform()

@@ -91,6 +91,9 @@ public:
   /// \brief Returns the number of active entries in the table.
   IndexType GetCount() const; // [tested]
 
+  /// \brief Returns the max number of elements that can be stored in the table.
+  IndexType GetCapacity() const;
+
   /// \brief Returns true, if the table does not contain any elements.
   bool IsEmpty() const; // [tested]
 
