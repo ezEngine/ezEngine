@@ -358,6 +358,9 @@ namespace ezInternal
         auto pUserData = static_cast<UserData*>(pUserData0);
         if (WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
           WorldData::UpdateGlobalTransformAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
+        else
+          pData->UpdateGlobalBoundsAndSpatialData(*pUserData->m_pSpatialSystem);
+
         return ezVisitorExecution::Continue;
       }
     };
@@ -374,6 +377,9 @@ namespace ezInternal
 
         if (bParentHasChanged || WorldData::HasLocalTransformChanged(pUserData->m_pTransformChangeState, pData))
           WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, pUserData->m_uiUpdateCounter, *pUserData->m_pSpatialSystem);
+        else
+          pData->UpdateGlobalBoundsAndSpatialData(*pUserData->m_pSpatialSystem);
+
         return ezVisitorExecution::Continue;
       }
     };
