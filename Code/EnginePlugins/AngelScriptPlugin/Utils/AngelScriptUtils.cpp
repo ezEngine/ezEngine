@@ -3,6 +3,7 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/World/World.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Types/Variant.h>
 
 const char* ezAngelScriptUtils::GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID)
@@ -154,80 +155,83 @@ ezResult ezAngelScriptUtils::WriteToAsTypeAtLocation(asIScriptEngine* pEngine, i
       return EZ_SUCCESS;
     }
 
-    if (pRtti == ezGetStaticRTTI<ezAngle>())
+    if (pRtti == value.GetReflectedType() || value.CanConvertTo(pRtti->GetVariantType()))
     {
-      *static_cast<ezAngle*>(pMemDst) = value.ConvertTo<ezAngle>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezTime>())
-    {
-      *static_cast<ezTime*>(pMemDst) = value.ConvertTo<ezTime>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezColor>())
-    {
-      *static_cast<ezColor*>(pMemDst) = value.ConvertTo<ezColor>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
-    {
-      *static_cast<ezColorGammaUB*>(pMemDst) = value.ConvertTo<ezColorGammaUB>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezVec2>())
-    {
-      *static_cast<ezVec2*>(pMemDst) = value.ConvertTo<ezVec2>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezVec3>())
-    {
-      *static_cast<ezVec3*>(pMemDst) = value.ConvertTo<ezVec3>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezVec4>())
-    {
-      *static_cast<ezVec4*>(pMemDst) = value.ConvertTo<ezVec4>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezQuat>())
-    {
-      *static_cast<ezQuat*>(pMemDst) = value.ConvertTo<ezQuat>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezTransform>())
-    {
-      *static_cast<ezTransform*>(pMemDst) = value.ConvertTo<ezTransform>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezString>())
-    {
-      *static_cast<ezString*>(pMemDst) = value.ConvertTo<ezString>();
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezHashedString>())
-    {
-      static_cast<ezHashedString*>(pMemDst)->Assign(value.ConvertTo<ezString>());
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
-    {
-      *static_cast<ezGameObjectHandle*>(pMemDst) = *((const ezGameObjectHandle*)value.GetData());
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezComponentHandle>())
-    {
-      *static_cast<ezComponentHandle*>(pMemDst) = *((const ezComponentHandle*)value.GetData());
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezWorld>())
-    {
-      *static_cast<ezWorld**>(pMemDst) = ((ezWorld*)value.GetData());
-      return EZ_SUCCESS;
-    }
-    else if (pRtti == ezGetStaticRTTI<ezGameObject>())
-    {
-      *static_cast<ezGameObject**>(pMemDst) = ((ezGameObject*)value.GetData());
-      return EZ_SUCCESS;
+      if (pRtti == ezGetStaticRTTI<ezString>())
+      {
+        *static_cast<ezString*>(pMemDst) = value.ConvertTo<ezString>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezHashedString>())
+      {
+        static_cast<ezHashedString*>(pMemDst)->Assign(value.ConvertTo<ezString>());
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezAngle>())
+      {
+        *static_cast<ezAngle*>(pMemDst) = value.ConvertTo<ezAngle>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezTime>())
+      {
+        *static_cast<ezTime*>(pMemDst) = value.ConvertTo<ezTime>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezColor>())
+      {
+        *static_cast<ezColor*>(pMemDst) = value.ConvertTo<ezColor>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
+      {
+        *static_cast<ezColorGammaUB*>(pMemDst) = value.ConvertTo<ezColorGammaUB>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezVec2>())
+      {
+        *static_cast<ezVec2*>(pMemDst) = value.ConvertTo<ezVec2>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezVec3>())
+      {
+        *static_cast<ezVec3*>(pMemDst) = value.ConvertTo<ezVec3>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezVec4>())
+      {
+        *static_cast<ezVec4*>(pMemDst) = value.ConvertTo<ezVec4>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezQuat>())
+      {
+        *static_cast<ezQuat*>(pMemDst) = value.ConvertTo<ezQuat>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezTransform>())
+      {
+        *static_cast<ezTransform*>(pMemDst) = value.ConvertTo<ezTransform>();
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
+      {
+        *static_cast<ezGameObjectHandle*>(pMemDst) = *((const ezGameObjectHandle*)value.GetData());
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezComponentHandle>())
+      {
+        *static_cast<ezComponentHandle*>(pMemDst) = *((const ezComponentHandle*)value.GetData());
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezWorld>())
+      {
+        *static_cast<ezWorld**>(pMemDst) = ((ezWorld*)value.GetData());
+        return EZ_SUCCESS;
+      }
+      else if (pRtti == ezGetStaticRTTI<ezGameObject>())
+      {
+        *static_cast<ezGameObject**>(pMemDst) = ((ezGameObject*)value.GetData());
+        return EZ_SUCCESS;
+      }
     }
   }
 
@@ -368,12 +372,12 @@ ezResult ezAngelScriptUtils::ReadFromAsTypeAtLocation(asIScriptEngine* pEngine, 
     }
     else if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>())
     {
-      out_value = *static_cast<ezGameObjectHandle**>(pMemLoc);
+      out_value = *static_cast<ezGameObjectHandle*>(pMemLoc);
       return EZ_SUCCESS;
     }
     else if (pRtti == ezGetStaticRTTI<ezComponentHandle>())
     {
-      out_value = *static_cast<ezComponentHandle**>(pMemLoc);
+      out_value = *static_cast<ezComponentHandle*>(pMemLoc);
       return EZ_SUCCESS;
     }
   }
@@ -635,12 +639,6 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, con
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  if (pArgRtti->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
-  {
-    out_arg = (ezComponent*)pGen->GetArgObject(uiArg);
-    return;
-  }
-
   if (pArgRtti == ezGetStaticRTTI<ezWorld>())
   {
     out_arg = (ezWorld*)pGen->GetArgObject(uiArg);
@@ -650,6 +648,24 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, con
   if (pArgRtti == ezGetStaticRTTI<ezGameObjectHandle>())
   {
     out_arg = (ezGameObjectHandle*)pGen->GetArgObject(uiArg);
+    return;
+  }
+
+  if (pArgRtti == ezGetStaticRTTI<ezComponentHandle>())
+  {
+    out_arg = (ezComponentHandle*)pGen->GetArgObject(uiArg);
+    return;
+  }
+
+  if (pArgRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    out_arg = (ezGameObject*)pGen->GetArgObject(uiArg);
+    return;
+  }
+
+  if (pArgRtti->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
+  {
+    out_arg = (ezComponent*)pGen->GetArgObject(uiArg);
     return;
   }
 
@@ -738,7 +754,8 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* pGen)
 
   if (pAbstractFuncProp->GetReturnType() != nullptr)
   {
-    ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pAbstractFuncProp->GetReturnType());
+    const ezRTTI* pRetRtti = ezAngelScriptUtils::MapToRTTI(pGen->GetReturnTypeId(), pGen->GetEngine());
+    ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pRetRtti);
     ezAngelScriptUtils::WriteToAsTypeAtLocation(pGen->GetEngine(), pGen->GetReturnTypeId(), pGen->GetAddressOfReturnLocation(), ret).AssertSuccess();
   }
 }
@@ -764,4 +781,117 @@ void ezAngelScriptUtils::DefaultConstructInPlace(void* pPtr, const ezRTTI* pRtti
   }
 
   // TODO: add other non-POD types here as needed
+}
+
+ezString ezAngelScriptUtils::RegisterEnumType(asIScriptEngine* pEngine, const ezRTTI* pEnumType)
+{
+  ezStringBuilder enumName = pEnumType->GetTypeName();
+  enumName.ReplaceAll("::", "_");
+
+  asITypeInfo* pEnumTypeInfo = pEngine->GetTypeInfoByName(enumName);
+  if (pEnumTypeInfo != nullptr)
+    return enumName;
+
+  pEngine->RegisterEnum(enumName);
+
+  pEnumTypeInfo = pEngine->GetTypeInfoByName(enumName);
+  pEnumTypeInfo->SetUserData((void*)pEnumType, ezAsUserData::RttiPtr);
+
+  ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+  ezReflectionUtils::GetEnumKeysAndValues(pEnumType, enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+  for (auto& enumValue : enumValues)
+  {
+    pEngine->RegisterEnumValue(enumName, enumValue.m_sKey, enumValue.m_iValue);
+  }
+
+  return enumName;
+}
+
+static void SetPropertyGeneric(asIScriptGeneric* pGen)
+{
+  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
+
+  ezVariant value;
+  ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), pGen->GetArgTypeId(0), pGen->GetAddressOfArg(0), value).AssertSuccess();
+
+  ezReflectionUtils::SetMemberPropertyValue(pMember, pGen->GetObject(), value);
+}
+
+static void GetPropertyGeneric(asIScriptGeneric* pGen)
+{
+  const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pGen->GetAuxiliary());
+
+  const ezVariant value = ezReflectionUtils::GetMemberPropertyValue(pMember, pGen->GetObject());
+
+  const ezRTTI* pRtti = ezAngelScriptUtils::MapToRTTI(pGen->GetReturnTypeId(), pGen->GetEngine());
+  ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pRtti);
+
+  ezAngelScriptUtils::WriteToAsTypeAtLocation(pGen->GetEngine(), pGen->GetReturnTypeId(), pGen->GetAddressOfReturnLocation(), value).AssertSuccess();
+}
+
+void ezAngelScriptUtils::RegisterTypeProperties(asIScriptEngine* pEngine, const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited)
+{
+  if (pRtti == nullptr)
+    return;
+
+  intptr_t flags = 0;
+  if (bIsInherited)
+  {
+    flags |= 0x01;
+  }
+
+  ezArrayPtr<const ezAbstractProperty* const> properties = pRtti->GetProperties();
+
+  ezStringBuilder funcName, sVarTypeName;
+
+  for (auto pProp : properties)
+  {
+    if (pProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+
+      sVarTypeName.Clear();
+
+      if (pMember->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+      {
+        const ezAbstractEnumerationProperty* pEnumProp = static_cast<const ezAbstractEnumerationProperty*>(pMember);
+
+        sVarTypeName = ezAngelScriptUtils::RegisterEnumType(pEngine, pEnumProp->GetSpecificType());
+      }
+      else
+      {
+        const ezRTTI* pPropRtti = pMember->GetSpecificType();
+
+        sVarTypeName = ezAngelScriptUtils::VariantTypeToString(pPropRtti->GetVariantType());
+
+        if (sVarTypeName.IsEmpty())
+        {
+          if (pPropRtti->GetTypeName() == "ezGameObjectHandle" || pPropRtti->GetTypeName() == "ezComponentHandle")
+          {
+            sVarTypeName = pPropRtti->GetTypeName();
+          }
+        }
+      }
+
+      if (!sVarTypeName.IsEmpty())
+      {
+        if (!pMember->GetFlags().IsAnySet(ezPropertyFlags::Const | ezPropertyFlags::ReadOnly))
+        {
+          funcName.Set("void set_", pMember->GetPropertyName(), "(", sVarTypeName, ") property ");
+          const int funcID = pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(SetPropertyGeneric), asCALL_GENERIC, (void*)pMember);
+          AS_CHECK(funcID);
+          pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+        }
+
+        {
+          funcName.Set(sVarTypeName, " get_", pMember->GetPropertyName(), "() const property");
+          const int funcID = pEngine->RegisterObjectMethod(szTypeName, funcName, asFUNCTION(GetPropertyGeneric), asCALL_GENERIC, (void*)pMember);
+          AS_CHECK(funcID);
+          pEngine->GetFunctionById(funcID)->SetUserData(reinterpret_cast<void*>(flags), ezAsUserData::FuncFlags);
+        }
+      }
+    }
+  }
+
+  RegisterTypeProperties(pEngine, szTypeName, pRtti->GetParentType(), true);
 }

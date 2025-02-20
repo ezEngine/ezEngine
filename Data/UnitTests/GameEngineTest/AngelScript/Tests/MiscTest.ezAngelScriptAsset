@@ -2,33 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{12830220461833274385,209317361869974011}}
-	s %t{"ezExposedParameters"}
-	u3 %v{3}
-	p
-	{
-		VarArray %Parameters
-		{
-			Uuid{u4{10893059809548317527,5125277697132607708}}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{10893059809548317527,5125277697132607708}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		i3 %DefaultValue{-1}
-		s %Name{"Participant"}
-		s %Type{""}
-	}
-}
-o
-{
-	Uuid %id{u4{15727335422037903766,5278381954870091016}}
+	Uuid %id{u4{3509308479642746764,5292585280391944522}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -37,22 +11,32 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
-			s{"Tests/MessagingTest.as"}
+			s{"Tests/MiscTest.as"}
 			s{"Tests/TestFramework.as"}
 		}
-		Uuid %DocumentID{u4{15727335422037903766,5278381954870091016}}
-		u4 %Hash{6256730490186869727}
+		Uuid %DocumentID{u4{3509308479642746764,5292585280391944522}}
+		u4 %Hash{9008014900959125342}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{12830220461833274385,209317361869974011}}
+			Uuid{u4{12792149921136639155,15191088464620505668}}
 		}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"Tests/MessagingTest.as"}
+			s{"Tests/MiscTest.as"}
 		}
 		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12792149921136639155,15191088464620505668}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -60,20 +44,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{14145496262226627479,4672563889897782479}}
-	s %t{"ezAngelScriptParameter"}
-	u3 %v{1}
-	p
-	{
-		s %Declaration{"int32 Participant = -1"}
-		i3 %DefaultValue{-1}
-		b %Expose{1}
-		s %Name{"Participant"}
-	}
-}
-o
-{
-	Uuid %id{u4{7634051595802578070,4776779951152604021}}
+	Uuid %id{u4{7986419757476082088,5535676306150458111}}
 	s %t{"ezAngelScriptAssetProperties"}
 	u3 %v{1}
 	p
@@ -84,12 +55,9 @@ o
 		{
 			s{"Tests/TestFramework.as"}
 		}
-		VarArray %Parameters
-		{
-			Uuid{u4{14145496262226627479,4672563889897782479}}
-		}
+		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
-		s %SourceFile{"Tests/MessagingTest.as"}
+		s %SourceFile{"Tests/MiscTest.as"}
 	}
 }
 o
@@ -102,7 +70,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{7634051595802578070,4776779951152604021}}
+			Uuid{u4{7986419757476082088,5535676306150458111}}
 		}
 	}
 }

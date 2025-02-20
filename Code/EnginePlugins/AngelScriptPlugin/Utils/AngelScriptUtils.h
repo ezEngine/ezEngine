@@ -54,4 +54,8 @@ public:
   static void RetrieveAsInfos(asIScriptEngine* pEngine, ezAsInfos& out_infos);
 
   static void GenerateAsPredefinedFile(asIScriptEngine* pEngine, ezStringBuilder& out_sContent);
+
+  static ezString RegisterEnumType(asIScriptEngine* pEngine, const ezRTTI* pEnumType);
+
+  static void RegisterTypeProperties(asIScriptEngine* pEngine, const char* szTypeName, const ezRTTI* pRtti, bool bIsInherited);
 };

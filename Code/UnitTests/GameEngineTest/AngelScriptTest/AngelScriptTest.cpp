@@ -31,6 +31,8 @@ void ezGameEngineTestAngelScript::SetupSubTests()
   AddSubTest("World", SubTests::World);
   AddSubTest("Messaging", SubTests::Messaging);
   AddSubTest("GameObject", SubTests::GameObject);
+  AddSubTest("Physics", SubTests::Physics);
+  AddSubTest("Misc", SubTests::Misc);
 }
 
 ezResult ezGameEngineTestAngelScript::InitializeSubTest(ezInt32 iIdentifier)

@@ -169,7 +169,14 @@ class ScriptObject : ezAngelScriptTestClass
                 ezLocalBlackboardComponent@ bbComp;
                 EZ_TEST_BOOL(GetWorld().TryGetComponent(m_hBlackboard, @bbComp));
 
-                // TODO: doesn't exist bbComp.GetEntryValue()
+                EZ_TEST_INT(bbComp.GetEntryValue_asInt32("a"), 1);
+                EZ_TEST_FLOAT(bbComp.GetEntryValue_asFloat("b"), 2);
+                EZ_TEST_COLOR(bbComp.GetEntryValue_asColor("c"), ezColor::RebeccaPurple);
+                EZ_TEST_VEC3(bbComp.GetEntryValue_asVec3("d"), ezVec3(1, 2, 3));
+                EZ_TEST_STRING(bbComp.GetEntryValue_asString("e"), "HS");
+                EZ_TEST_COLOR(bbComp.GetEntryValue_asColor("f"), ezColorGammaUB(50, 100, 150, 250));
+                EZ_TEST_BOOL(bbComp.GetEntryValue_asGameObjectHandle("g") == m_hChild1);
+                EZ_TEST_BOOL(bbComp.GetEntryValue_asComponentHandle("h") == m_hFog);
             }
             
             m_Phase = Phase::CheckDelete;

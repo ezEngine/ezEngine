@@ -11,58 +11,26 @@ T& T[]::ExpandAndGetRef()
 T& T[]::PeekBack()
 T& T[]::opIndex(uint index)
 T[]& T[]::opAssign(const T[]&in)
-bool DebugRenderComponent::SendMessage(ezMessage&inout ref_msg)
-bool DebugRenderComponent::SendMessage(ezMessage&inout ref_msg) const
-bool DemoComponent::SendMessage(ezMessage&inout ref_msg)
-bool DemoComponent::SendMessage(ezMessage&inout ref_msg) const
-bool DisplayMsgComponent::SendMessage(ezMessage&inout ref_msg)
-bool DisplayMsgComponent::SendMessage(ezMessage&inout ref_msg) const
-bool SendMsgComponent::SendMessage(ezMessage&inout ref_msg)
-bool SendMsgComponent::SendMessage(ezMessage&inout ref_msg) const
 bool T[]::Contains(const T&in value) const
 bool T[]::IsEmpty() const
 bool T[]::opEquals(const T[]&in) const
-bool ezAimIKComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezAimIKComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezAlwaysVisibleComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezAlwaysVisibleComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezAmbientLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezAmbientLightComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::opEquals(const ezAngle&in) const
-bool ezAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezAnimationControllerComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezAnimationControllerComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezAnimationControllerComponent::get_EnableIK() const
-bool ezBakedProbesComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezBakedProbesComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezBakedProbesComponent::get_ShowDebugOverlay() const
 bool ezBakedProbesComponent::get_ShowDebugProbes() const
 bool ezBakedProbesComponent::get_UseTestPosition() const
-bool ezBakedProbesVolumeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezBakedProbesVolumeComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezBeamComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezBeamComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezBlackboardComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezBlackboardComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezBlackboardComponent::GetEntryValue_asBool(ezString Name) const
 bool ezBlackboardComponent::get_ShowDebugInfo() const
-bool ezBoxReflectionProbeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezBoxReflectionProbeComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezBoxReflectionProbeComponent::get_BoxProjection() const
 bool ezCVar::GetBoolValue(ezStringView Name)
-bool ezCameraComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezCameraComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezCVar::GetValue_asBool(ezStringView Name)
 bool ezCameraComponent::get_ShowStats() const
 bool ezCharacterControllerComponent::IsCrouching()
 bool ezCharacterControllerComponent::IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight)
 bool ezCharacterControllerComponent::IsTouchingGround()
-bool ezCharacterControllerComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezCharacterControllerComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezClock::GetPaused() const
-bool ezCollectionComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezCollectionComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezCollectionComponent::get_RegisterNames() const
 bool ezColor::IsEqualRGB(const ezColor&in, float fEpsilon) const
 bool ezColor::IsEqualRGBA(const ezColor&in, float fEpsilon) const
@@ -72,12 +40,8 @@ bool ezColor::IsNaN() const
 bool ezColor::IsNormalized() const
 bool ezColor::IsValid() const
 bool ezColor::opEquals(const ezColor&in) const
-bool ezColorAnimationComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezColorAnimationComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezColorAnimationComponent::get_ApplyToChildren() const
 bool ezColorAnimationComponent::get_RandomStartOffset() const
-bool ezCommentComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezCommentComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezComponent::IsActive() const
 bool ezComponent::IsActiveAndInitialized() const
 bool ezComponent::IsActiveAndSimulating() const
@@ -86,46 +50,20 @@ bool ezComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezComponent::get_Active() const
 bool ezComponentHandle::IsInvalidated() const
 bool ezComponentHandle::opEquals(ezComponentHandle) const
-bool ezCustomMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezCustomMeshComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezDebugTextComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezDebugTextComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezDecalComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezDecalComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezDecalComponent::get_MapNormalToGeometry() const
 bool ezDecalComponent::get_WrapAround() const
-bool ezDeviceTrackingComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezDeviceTrackingComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezDeviceTrackingComponent::get_Rotation() const
 bool ezDeviceTrackingComponent::get_Scale() const
-bool ezDirectionalLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezDirectionalLightComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezEventMessageHandlerComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezEventMessageHandlerComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezEventMessageHandlerComponent::get_HandleGlobalEvents() const
 bool ezEventMessageHandlerComponent::get_PassThroughUnhandledEvents() const
-bool ezFillLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFillLightComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezFillLightComponent::get_UseColorTemperature() const
-bool ezFmodComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFmodComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezFmodEventComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFmodEventComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezFmodEventComponent::get_NoGlobalPitch() const
 bool ezFmodEventComponent::get_Paused() const
 bool ezFmodEventComponent::get_ShowDebugInfo() const
 bool ezFmodEventComponent::get_UseOcclusion() const
-bool ezFmodListenerComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFmodListenerComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezFogComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFogComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezFogComponent::get_ModulateWithSkyColor() const
 bool ezFollowPathComponent::IsDirectionForwards() const
-bool ezFollowPathComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezFollowPathComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezFollowPathComponent::get_Running() const
-bool ezForwardEventsToGameStateComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezForwardEventsToGameStateComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezGameObject::CreateComponent(?&out pTypedComponent)
 bool ezGameObject::GetActiveFlag() const
 bool ezGameObject::HasName(const ezTempHashedString&in sName) const
@@ -135,23 +73,19 @@ bool ezGameObject::IsDynamic() const
 bool ezGameObject::IsStatic() const
 bool ezGameObject::SendEventMessage(ezMessage&inout, const ezComponent@ pSender)
 bool ezGameObject::SendEventMessage(ezMessage&inout, const ezComponent@ pSender) const
+bool ezGameObject::SendMessage(ezAngelScriptMessage&inout)
+bool ezGameObject::SendMessage(ezAngelScriptMessage&inout) const
 bool ezGameObject::SendMessage(ezMessage&inout)
 bool ezGameObject::SendMessage(ezMessage&inout) const
+bool ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout)
+bool ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout) const
 bool ezGameObject::SendMessageRecursive(ezMessage&inout)
 bool ezGameObject::SendMessageRecursive(ezMessage&inout) const
 bool ezGameObject::TryGetComponentOfBaseType(?&out pTypedComponent)
 bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI@ pType, ezComponent@&out pComponent)
 bool ezGameObjectHandle::IsInvalidated() const
 bool ezGameObjectHandle::opEquals(ezGameObjectHandle) const
-bool ezGizmoComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezGizmoComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezGlobalBlackboardComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezGlobalBlackboardComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezGrabbableItemComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezGrabbableItemComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezGrabbableItemComponent::get_DebugShowPoints() const
-bool ezGreyBoxComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezGreyBoxComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezGreyBoxComponent::get_GenerateCollision() const
 bool ezGreyBoxComponent::get_IncludeInNavmesh() const
 bool ezGreyBoxComponent::get_SlopedBottom() const
@@ -161,44 +95,22 @@ bool ezHashedString::IsEmpty() const
 bool ezHashedString::opEquals(const ezHashedString&in) const
 bool ezHashedString::opEquals(const ezStringView) const
 bool ezHashedString::opEquals(const ezTempHashedString&in) const
-bool ezInputComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezInputComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezInputComponent::get_ForwardToBlackboard() const
-bool ezInstancedMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezInstancedMeshComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezJointAttachmentComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezJointAttachmentComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezJointOverrideComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezJointOverrideComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezJointOverrideComponent::get_OverridePosition() const
 bool ezJointOverrideComponent::get_OverrideRotation() const
 bool ezJointOverrideComponent::get_OverrideScale() const
-bool ezLensFlareComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLensFlareComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLensFlareComponent::get_ApplyFog() const
 bool ezLensFlareComponent::get_LinkToLightShape() const
-bool ezLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLightComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLightComponent::get_CastShadows() const
 bool ezLightComponent::get_TransparentShadows() const
 bool ezLightComponent::get_UseColorTemperature() const
-bool ezLocalBlackboardComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLocalBlackboardComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLocalBlackboardComponent::get_SendEntryChangedMessage() const
-bool ezLodAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLodAnimatedMeshComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLodAnimatedMeshComponent::get_OverlapRanges() const
 bool ezLodAnimatedMeshComponent::get_ShowDebugInfo() const
-bool ezLodComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLodComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLodComponent::get_OverlapRanges() const
 bool ezLodComponent::get_ShowDebugInfo() const
-bool ezLodMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezLodMeshComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezLodMeshComponent::get_OverlapRanges() const
 bool ezLodMeshComponent::get_ShowDebugInfo() const
-bool ezMarkerComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezMarkerComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezMath::IsEqual(float lhs, float rhs, float fEpsilon)
 bool ezMath::IsFinite(double value)
 bool ezMath::IsFinite(float value)
@@ -206,138 +118,57 @@ bool ezMath::IsInRange(float value, float min, float max)
 bool ezMath::IsNaN(double value)
 bool ezMath::IsNaN(float value)
 bool ezMath::IsZero(float value, float fEpsilon)
-bool ezMeshComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezMeshComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezMeshComponentBase::SendMessage(ezMessage&inout ref_msg)
-bool ezMeshComponentBase::SendMessage(ezMessage&inout ref_msg) const
 bool ezMsgMoveCharacterController::get_Crouch() const
 bool ezMsgMoveCharacterController::get_Jump() const
 bool ezMsgMoveCharacterController::get_Run() const
 bool ezMsgObjectGrabbed::get_GotGrabbed() const
 bool ezMsgSetPlaying::get_Play() const
-bool ezOccluderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezOccluderComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezParticleComponent::IsEffectActive() const
-bool ezParticleComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezParticleComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezParticleComponent::StartEffect()
 bool ezParticleComponent::get_IgnoreOwnerRotation() const
 bool ezParticleComponent::get_SpawnAtStart() const
-bool ezParticleFinisherComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezParticleFinisherComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezPathComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPathComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezPathComponent::get_Closed() const
-bool ezPathNodeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPathNodeComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezPhysics::OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
 bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPlayerStartPointComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPlayerStartPointComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezPointLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPointLightComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezPostProcessingComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPostProcessingComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezPrefabReferenceComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPrefabReferenceComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezPropertyAnimComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezPropertyAnimComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezPropertyAnimComponent::get_Playing() const
 bool ezQuat::IsEqualRotation(const ezQuat&in, float fEpsilon = 0.00001) const
 bool ezQuat::IsNaN() const
 bool ezQuat::IsValid(float fEpsilon = 0.00001) const
 bool ezQuat::opEquals(const ezQuat&in) const
 bool ezRandom::Bool()
-bool ezReflectionProbeComponentBase::SendMessage(ezMessage&inout ref_msg)
-bool ezReflectionProbeComponentBase::SendMessage(ezMessage&inout ref_msg) const
 bool ezReflectionProbeComponentBase::get_ShowDebugInfo() const
 bool ezReflectionProbeComponentBase::get_ShowMipMaps() const
-bool ezRenderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezRenderComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezRenderTargetActivatorComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezRenderTargetActivatorComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezResetTransformComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezResetTransformComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezResetTransformComponent::get_ResetPositionX() const
 bool ezResetTransformComponent::get_ResetPositionY() const
 bool ezResetTransformComponent::get_ResetPositionZ() const
 bool ezResetTransformComponent::get_ResetRotation() const
 bool ezResetTransformComponent::get_ResetScaling() const
-bool ezRopeRenderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezRopeRenderComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezRopeRenderComponent::get_Subdivide() const
-bool ezRotorComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezRotorComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSceneTransitionComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSceneTransitionComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSceneTransitionComponent::get_RelativeSpawnPosition() const
-bool ezScriptComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezScriptComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSensorComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSensorComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezScriptComponent::GetScriptVariable_asBool(ezHashedString Name) const
 bool ezSensorComponent::get_ShowDebugInfo() const
 bool ezSensorComponent::get_TestVisibility() const
-bool ezSensorConeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSensorConeComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSensorCylinderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSensorCylinderComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSensorSphereComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSensorSphereComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSettingsComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSettingsComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezShapeIconComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezShapeIconComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSimpleAnimationComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSimpleAnimationComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSimpleAnimationComponent::get_EnableIK() const
-bool ezSimpleWindComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSimpleWindComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSkeletonComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSkeletonComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSkeletonComponent::get_VisualizeColliders() const
 bool ezSkeletonComponent::get_VisualizeJoints() const
 bool ezSkeletonComponent::get_VisualizeSkeleton() const
 bool ezSkeletonComponent::get_VisualizeSwingLimits() const
 bool ezSkeletonComponent::get_VisualizeTwistLimits() const
-bool ezSkeletonPoseComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSkeletonPoseComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSkyBoxComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSkyBoxComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSkyBoxComponent::get_InverseTonemap() const
 bool ezSkyBoxComponent::get_UseFog() const
-bool ezSkyLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSkyLightComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSkyLightComponent::get_ShowDebugInfo() const
 bool ezSkyLightComponent::get_ShowMipMaps() const
-bool ezSliderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSliderComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSpatialAnchorComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSpatialAnchorComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSpawnBoxComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSpawnBoxComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSpawnBoxComponent::get_SpawnAtStart() const
 bool ezSpawnBoxComponent::get_SpawnContinuously() const
 bool ezSpawnComponent::CanTriggerManualSpawn() const
-bool ezSpawnComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSpawnComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSpawnComponent::TriggerManualSpawn(bool IgnoreSpawnDelay, ezVec3 LocalOffset)
 bool ezSpawnComponent::get_AttachAsChild() const
 bool ezSpawnComponent::get_SpawnAtStart() const
 bool ezSpawnComponent::get_SpawnContinuously() const
-bool ezSphereReflectionProbeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSphereReflectionProbeComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezSphereReflectionProbeComponent::get_SphereProjection() const
-bool ezSpotLightComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSpotLightComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezSpriteComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezSpriteComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezStageSpaceComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezStageSpaceComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezStateMachineComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezStateMachineComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezStateMachineComponent::SetState(ezStringView Name)
 bool ezString::EndsWith(ezStringView) const
 bool ezString::EndsWith_NoCase(ezStringView) const
@@ -397,8 +228,6 @@ bool ezTime::IsZero() const
 bool ezTime::IsZeroOrNegative() const
 bool ezTime::IsZeroOrPositive() const
 bool ezTime::opEquals(const ezTime&in) const
-bool ezTimedDeathComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezTimedDeathComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezTransform::ContainsUniformScale() const
 bool ezTransform::HasMirrorScaling() const
 bool ezTransform::IsEqual(const ezTransform&in, float fEpsilon) const
@@ -406,15 +235,9 @@ bool ezTransform::IsIdentical(const ezTransform&in) const
 bool ezTransform::IsValid() const
 bool ezTransform::opEquals(const ezTransform&in) const
 bool ezTransformComponent::IsDirectionForwards() const
-bool ezTransformComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezTransformComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezTransformComponent::get_ReverseAtEnd() const
 bool ezTransformComponent::get_ReverseAtStart() const
 bool ezTransformComponent::get_Running() const
-bool ezTriggerDelayModifierComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezTriggerDelayModifierComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezTwoBoneIKComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezTwoBoneIKComponent::SendMessage(ezMessage&inout ref_msg) const
 bool ezVec2::IsEqual(const ezVec2&in, float fEpsilon) const
 bool ezVec2::IsIdentical(const ezVec2&in) const
 bool ezVec2::IsNaN() const
@@ -439,22 +262,7 @@ bool ezVec4::IsValid() const
 bool ezVec4::IsZero() const
 bool ezVec4::IsZero(float fEpsilon) const
 bool ezVec4::opEquals(const ezVec4&in) const
-bool ezVisualizeHandComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezVisualizeHandComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezVolumeBoxComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezVolumeBoxComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezVolumeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezVolumeComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezVolumeSphereComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezVolumeSphereComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezWindVolumeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezWindVolumeComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezWindVolumeConeComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezWindVolumeConeComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezWindVolumeCylinderComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezWindVolumeCylinderComponent::SendMessage(ezMessage&inout ref_msg) const
-bool ezWindVolumeSphereComponent::SendMessage(ezMessage&inout ref_msg)
-bool ezWindVolumeSphereComponent::SendMessage(ezMessage&inout ref_msg) const
+bool ezVolumeComponent::GetValue_asBool(ezTempHashedString Name) const
 bool ezWorld::IsValidComponent(ezComponentHandle&in)
 bool ezWorld::IsValidObject(const ezGameObjectHandle&in hObject)
 bool ezWorld::TryGetComponent(const ezComponentHandle&in hComponent, ?&out component)
@@ -504,6 +312,8 @@ ezAngle ezAngle::opMul(float) const
 ezAngle ezAngle::opMul_r(float) const
 ezAngle ezAngle::opNeg() const
 ezAngle ezAngle::opSub(ezAngle) const
+ezAngle ezBlackboardComponent::GetEntryValue_asAngle(ezString Name) const
+ezAngle ezCVar::GetValue_asAngle(ezStringView Name)
 ezAngle ezDecalComponent::get_InnerFadeAngle() const
 ezAngle ezDecalComponent::get_OuterFadeAngle() const
 ezAngle ezFollowPathComponent::get_MaxTilt() const
@@ -517,6 +327,7 @@ ezAngle ezMsgApplyRootMotion::get_RotationY() const
 ezAngle ezMsgApplyRootMotion::get_RotationZ() const
 ezAngle ezPathNodeComponent::get_Roll() const
 ezAngle ezRotorComponent::get_AxisDeviation() const
+ezAngle ezScriptComponent::GetScriptVariable_asAngle(ezHashedString Name) const
 ezAngle ezSensorConeComponent::get_Angle() const
 ezAngle ezSimpleWindComponent::get_MaxDeviation() const
 ezAngle ezSpawnBoxComponent::get_MaxRotationZ() const
@@ -524,6 +335,7 @@ ezAngle ezSpawnBoxComponent::get_MaxTiltZ() const
 ezAngle ezSpawnComponent::get_Deviation() const
 ezAngle ezSpotLightComponent::get_InnerSpotAngle() const
 ezAngle ezSpotLightComponent::get_OuterSpotAngle() const
+ezAngle ezVolumeComponent::GetValue_asAngle(ezTempHashedString Name) const
 ezAngle ezWindVolumeConeComponent::get_Angle() const
 ezAnimatedMeshComponent@ ezComponent::opCast()
 ezAnimatedMeshComponent@ ezMeshComponentBase::opCast()
@@ -581,6 +393,8 @@ ezCollectionComponent@ ezComponent::opCast()
 ezColor DebugRenderComponent::get_Color() const
 ezColor ezAnimatedMeshComponent::get_Color() const
 ezColor ezBeamComponent::get_Color() const
+ezColor ezBlackboardComponent::GetEntryValue_asColor(ezString Name) const
+ezColor ezCVar::GetValue_asColor(ezStringView Name)
 ezColor ezColor::AliceBlue
 ezColor ezColor::AntiqueWhite
 ezColor ezColor::Aqua
@@ -757,7 +571,9 @@ ezColor ezMath::Lerp(ezColor from, ezColor to, float factor)
 ezColor ezMeshComponent::get_Color() const
 ezColor ezMsgSetColor::get_Color() const
 ezColor ezRopeRenderComponent::get_Color() const
+ezColor ezScriptComponent::GetScriptVariable_asColor(ezHashedString Name) const
 ezColor ezSpriteComponent::get_Color() const
+ezColor ezVolumeComponent::GetValue_asColor(ezTempHashedString Name) const
 ezColorAnimationComponent@ ezComponent::opCast()
 ezColorGammaUB ezAmbientLightComponent::get_BottomColor() const
 ezColorGammaUB ezAmbientLightComponent::get_TopColor() const
@@ -869,107 +685,11 @@ ezComponent@ ezWindVolumeComponent::opImplCast()
 ezComponent@ ezWindVolumeConeComponent::opImplCast()
 ezComponent@ ezWindVolumeCylinderComponent::opImplCast()
 ezComponent@ ezWindVolumeSphereComponent::opImplCast()
-ezComponentHandle DebugRenderComponent::GetHandle() const
-ezComponentHandle DemoComponent::GetHandle() const
-ezComponentHandle DisplayMsgComponent::GetHandle() const
-ezComponentHandle SendMsgComponent::GetHandle() const
-ezComponentHandle ezAimIKComponent::GetHandle() const
-ezComponentHandle ezAlwaysVisibleComponent::GetHandle() const
-ezComponentHandle ezAmbientLightComponent::GetHandle() const
-ezComponentHandle ezAnimatedMeshComponent::GetHandle() const
-ezComponentHandle ezAnimationControllerComponent::GetHandle() const
-ezComponentHandle ezBakedProbesComponent::GetHandle() const
-ezComponentHandle ezBakedProbesVolumeComponent::GetHandle() const
-ezComponentHandle ezBeamComponent::GetHandle() const
-ezComponentHandle ezBlackboardComponent::GetHandle() const
-ezComponentHandle ezBoxReflectionProbeComponent::GetHandle() const
-ezComponentHandle ezCameraComponent::GetHandle() const
-ezComponentHandle ezCharacterControllerComponent::GetHandle() const
-ezComponentHandle ezCollectionComponent::GetHandle() const
-ezComponentHandle ezColorAnimationComponent::GetHandle() const
-ezComponentHandle ezCommentComponent::GetHandle() const
+ezComponentHandle ezBlackboardComponent::GetEntryValue_asComponentHandle(ezString Name) const
+ezComponentHandle ezCVar::GetValue_asComponentHandle(ezStringView Name)
 ezComponentHandle ezComponent::GetHandle() const
-ezComponentHandle ezCustomMeshComponent::GetHandle() const
-ezComponentHandle ezDebugTextComponent::GetHandle() const
-ezComponentHandle ezDecalComponent::GetHandle() const
-ezComponentHandle ezDeviceTrackingComponent::GetHandle() const
-ezComponentHandle ezDirectionalLightComponent::GetHandle() const
-ezComponentHandle ezEventMessageHandlerComponent::GetHandle() const
-ezComponentHandle ezFillLightComponent::GetHandle() const
-ezComponentHandle ezFmodComponent::GetHandle() const
-ezComponentHandle ezFmodEventComponent::GetHandle() const
-ezComponentHandle ezFmodListenerComponent::GetHandle() const
-ezComponentHandle ezFogComponent::GetHandle() const
-ezComponentHandle ezFollowPathComponent::GetHandle() const
-ezComponentHandle ezForwardEventsToGameStateComponent::GetHandle() const
-ezComponentHandle ezGizmoComponent::GetHandle() const
-ezComponentHandle ezGlobalBlackboardComponent::GetHandle() const
-ezComponentHandle ezGrabbableItemComponent::GetHandle() const
-ezComponentHandle ezGreyBoxComponent::GetHandle() const
-ezComponentHandle ezInputComponent::GetHandle() const
-ezComponentHandle ezInstancedMeshComponent::GetHandle() const
-ezComponentHandle ezJointAttachmentComponent::GetHandle() const
-ezComponentHandle ezJointOverrideComponent::GetHandle() const
-ezComponentHandle ezLensFlareComponent::GetHandle() const
-ezComponentHandle ezLightComponent::GetHandle() const
-ezComponentHandle ezLocalBlackboardComponent::GetHandle() const
-ezComponentHandle ezLodAnimatedMeshComponent::GetHandle() const
-ezComponentHandle ezLodComponent::GetHandle() const
-ezComponentHandle ezLodMeshComponent::GetHandle() const
-ezComponentHandle ezMarkerComponent::GetHandle() const
-ezComponentHandle ezMeshComponent::GetHandle() const
-ezComponentHandle ezMeshComponentBase::GetHandle() const
-ezComponentHandle ezOccluderComponent::GetHandle() const
-ezComponentHandle ezParticleComponent::GetHandle() const
-ezComponentHandle ezParticleFinisherComponent::GetHandle() const
-ezComponentHandle ezPathComponent::GetHandle() const
-ezComponentHandle ezPathNodeComponent::GetHandle() const
-ezComponentHandle ezPlayerStartPointComponent::GetHandle() const
-ezComponentHandle ezPointLightComponent::GetHandle() const
-ezComponentHandle ezPostProcessingComponent::GetHandle() const
-ezComponentHandle ezPrefabReferenceComponent::GetHandle() const
-ezComponentHandle ezPropertyAnimComponent::GetHandle() const
-ezComponentHandle ezReflectionProbeComponentBase::GetHandle() const
-ezComponentHandle ezRenderComponent::GetHandle() const
-ezComponentHandle ezRenderTargetActivatorComponent::GetHandle() const
-ezComponentHandle ezResetTransformComponent::GetHandle() const
-ezComponentHandle ezRopeRenderComponent::GetHandle() const
-ezComponentHandle ezRotorComponent::GetHandle() const
-ezComponentHandle ezSceneTransitionComponent::GetHandle() const
-ezComponentHandle ezScriptComponent::GetHandle() const
-ezComponentHandle ezSensorComponent::GetHandle() const
-ezComponentHandle ezSensorConeComponent::GetHandle() const
-ezComponentHandle ezSensorCylinderComponent::GetHandle() const
-ezComponentHandle ezSensorSphereComponent::GetHandle() const
-ezComponentHandle ezSettingsComponent::GetHandle() const
-ezComponentHandle ezShapeIconComponent::GetHandle() const
-ezComponentHandle ezSimpleAnimationComponent::GetHandle() const
-ezComponentHandle ezSimpleWindComponent::GetHandle() const
-ezComponentHandle ezSkeletonComponent::GetHandle() const
-ezComponentHandle ezSkeletonPoseComponent::GetHandle() const
-ezComponentHandle ezSkyBoxComponent::GetHandle() const
-ezComponentHandle ezSkyLightComponent::GetHandle() const
-ezComponentHandle ezSliderComponent::GetHandle() const
-ezComponentHandle ezSpatialAnchorComponent::GetHandle() const
-ezComponentHandle ezSpawnBoxComponent::GetHandle() const
-ezComponentHandle ezSpawnComponent::GetHandle() const
-ezComponentHandle ezSphereReflectionProbeComponent::GetHandle() const
-ezComponentHandle ezSpotLightComponent::GetHandle() const
-ezComponentHandle ezSpriteComponent::GetHandle() const
-ezComponentHandle ezStageSpaceComponent::GetHandle() const
-ezComponentHandle ezStateMachineComponent::GetHandle() const
-ezComponentHandle ezTimedDeathComponent::GetHandle() const
-ezComponentHandle ezTransformComponent::GetHandle() const
-ezComponentHandle ezTriggerDelayModifierComponent::GetHandle() const
-ezComponentHandle ezTwoBoneIKComponent::GetHandle() const
-ezComponentHandle ezVisualizeHandComponent::GetHandle() const
-ezComponentHandle ezVolumeBoxComponent::GetHandle() const
-ezComponentHandle ezVolumeComponent::GetHandle() const
-ezComponentHandle ezVolumeSphereComponent::GetHandle() const
-ezComponentHandle ezWindVolumeComponent::GetHandle() const
-ezComponentHandle ezWindVolumeConeComponent::GetHandle() const
-ezComponentHandle ezWindVolumeCylinderComponent::GetHandle() const
-ezComponentHandle ezWindVolumeSphereComponent::GetHandle() const
+ezComponentHandle ezScriptComponent::GetScriptVariable_asComponentHandle(ezHashedString Name) const
+ezComponentHandle ezVolumeComponent::GetValue_asComponentHandle(ezTempHashedString Name) const
 ezCustomMeshComponent@ ezComponent::opCast()
 ezCustomMeshComponent@ ezRenderComponent::opCast()
 ezDebugTextComponent@ ezComponent::opCast()
@@ -1031,12 +751,16 @@ ezGameObject@ ezGameObject::FindChildByName(const ezTempHashedString&in sName, b
 ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
+ezGameObjectHandle ezBlackboardComponent::GetEntryValue_asGameObjectHandle(ezString Name) const
+ezGameObjectHandle ezCVar::GetValue_asGameObjectHandle(ezStringView Name)
 ezGameObjectHandle ezGameObject::GetHandle() const
 ezGameObjectHandle ezMsgObjectGrabbed::get_GrabbedBy() const
 ezGameObjectHandle ezMsgOnlyApplyToObject::get_Object() const
 ezGameObjectHandle ezMsgPhysicsJointBroke::get_JointObject() const
 ezGameObjectHandle ezMsgReleaseObjectGrab::get_GrabbedObjectToRelease() const
 ezGameObjectHandle ezMsgTriggerTriggered::get_GameObject() const
+ezGameObjectHandle ezScriptComponent::GetScriptVariable_asGameObjectHandle(ezHashedString Name) const
+ezGameObjectHandle ezVolumeComponent::GetValue_asGameObjectHandle(ezTempHashedString Name) const
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc)
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object)
 ezGizmoComponent@ ezComponent::opCast()
@@ -1267,6 +991,8 @@ ezPropertyAnimMode ezSimpleAnimationComponent::get_AnimationMode() const
 ezPropertyAnimMode::BackAndForth
 ezPropertyAnimMode::Loop
 ezPropertyAnimMode::Once
+ezQuat ezBlackboardComponent::GetEntryValue_asQuat(ezString Name) const
+ezQuat ezCVar::GetValue_asQuat(ezStringView Name)
 ezQuat ezGameObject::GetGlobalRotation() const
 ezQuat ezGameObject::GetLocalRotation() const
 ezQuat ezJointAttachmentComponent::get_RotationOffset() const
@@ -1281,6 +1007,8 @@ ezQuat ezQuat::MakeShortestRotation(const ezVec3&in vFrom, const ezVec3&in vTo)
 ezQuat ezQuat::MakeSlerp(const ezQuat&in qFrom, const ezQuat&in qTo, float fFactor)
 ezQuat ezQuat::opMul(const ezQuat&in) const
 ezQuat ezResetTransformComponent::get_LocalRotation() const
+ezQuat ezScriptComponent::GetScriptVariable_asQuat(ezHashedString Name) const
+ezQuat ezVolumeComponent::GetValue_asQuat(ezTempHashedString Name) const
 ezRandom@ ezWorld::GetRandomNumberGenerator()
 ezReflectionProbeComponentBase@ ezBoxReflectionProbeComponent::opImplCast()
 ezReflectionProbeComponentBase@ ezComponent::opCast()
@@ -1394,7 +1122,9 @@ ezStageSpaceComponent@ ezComponent::opCast()
 ezStateMachineComponent@ ezComponent::opCast()
 ezString ezAimIKComponent::get_PoleVector() const
 ezString ezBeamComponent::get_TargetObject() const
+ezString ezBlackboardComponent::GetEntryValue_asString(ezString Name) const
 ezString ezCVar::GetStringValue(ezStringView Name)
+ezString ezCVar::GetValue_asString(ezStringView Name)
 ezString ezCameraComponent::get_CameraRenderPipeline() const
 ezString ezCommentComponent::get_Comment() const
 ezString ezDebugTextComponent::get_Text() const
@@ -1414,11 +1144,13 @@ ezString ezMsgStateMachineStateChanged::get_NewStateName() const
 ezString ezMsgStateMachineStateChanged::get_OldStateName() const
 ezString ezParticleComponent::get_SharedInstanceName() const
 ezString ezPostProcessingComponent::get_VolumeType() const
+ezString ezScriptComponent::GetScriptVariable_asString(ezHashedString Name) const
 ezString ezSensorComponent::get_SpatialCategory() const
 ezString ezSkeletonComponent::get_BonesToHighlight() const
 ezString ezStateMachineComponent::get_BlackboardName() const
 ezString ezStateMachineComponent::get_InitialState() const
 ezString ezTwoBoneIKComponent::get_PoleVector() const
+ezString ezVolumeComponent::GetValue_asString(ezTempHashedString Name) const
 ezString ezVolumeComponent::get_Type() const
 ezStringView DebugRenderComponent::get_CustomData() const
 ezStringView DebugRenderComponent::get_Texture() const
@@ -1474,6 +1206,8 @@ ezStringView ezStringView::GetSubString(uint uiFirstCharacter, uint uiNumCharact
 ezStringView ezTimedDeathComponent::get_TimeoutPrefab() const
 ezStringView ezVolumeComponent::get_Template() const
 ezStringView ezWorld::GetName()
+ezTime ezBlackboardComponent::GetEntryValue_asTime(ezString Name) const
+ezTime ezCVar::GetValue_asTime(ezStringView Name)
 ezTime ezCameraComponent::get_ShutterTime() const
 ezTime ezClock::GetAccumulatedTime() const
 ezTime ezClock::GetTimeDiff() const
@@ -1484,6 +1218,7 @@ ezTime ezParticleComponent::get_RestartDelayRange() const
 ezTime ezPropertyAnimComponent::get_RandomOffset() const
 ezTime ezPropertyAnimComponent::get_RangeHigh() const
 ezTime ezPropertyAnimComponent::get_RangeLow() const
+ezTime ezScriptComponent::GetScriptVariable_asTime(ezHashedString Name) const
 ezTime ezScriptComponent::get_UpdateInterval() const
 ezTime ezSliderComponent::get_RandomStart() const
 ezTime ezSpawnBoxComponent::get_Duration() const
@@ -1516,6 +1251,7 @@ ezTime ezTimedDeathComponent::get_DelayRange() const
 ezTime ezTimedDeathComponent::get_MinDelay() const
 ezTime ezTriggerDelayModifierComponent::get_ActivationDelay() const
 ezTime ezTriggerDelayModifierComponent::get_DeactivationDelay() const
+ezTime ezVolumeComponent::GetValue_asTime(ezTempHashedString Name) const
 ezTime ezWindVolumeComponent::get_BurstDuration() const
 ezTimedDeathComponent@ ezComponent::opCast()
 ezTransform ezGameObject::GetGlobalTransform() const
@@ -1553,10 +1289,13 @@ ezUpdateRate::Max2fps
 ezUpdateRate::Max30fps
 ezUpdateRate::Max5fps
 ezUpdateRate::Never
+ezVec2 ezBlackboardComponent::GetEntryValue_asVec2(ezString Name) const
+ezVec2 ezCVar::GetValue_asVec2(ezStringView Name)
 ezVec2 ezCameraComponent::get_RenderTargetOffset() const
 ezVec2 ezCameraComponent::get_RenderTargetSize() const
 ezVec2 ezDebug::GetResolution()
 ezVec2 ezMath::Lerp(ezVec2 from, ezVec2 to, float factor)
+ezVec2 ezScriptComponent::GetScriptVariable_asVec2(ezHashedString Name) const
 ezVec2 ezVec2::Abs() const
 ezVec2 ezVec2::CompClamp(const ezVec2&in rhs) const
 ezVec2 ezVec2::CompDiv(const ezVec2&in rhs) const
@@ -1576,13 +1315,16 @@ ezVec2 ezVec2::opNeg() const
 ezVec2 ezVec2::opSub(const ezVec2&in) const
 ezVec2 ezVec3::GetAsVec2() const
 ezVec2 ezVec4::GetAsVec2() const
+ezVec2 ezVolumeComponent::GetValue_asVec2(ezTempHashedString Name) const
 ezVec3 ezBakedProbesComponent::get_TestPosition() const
 ezVec3 ezBakedProbesVolumeComponent::get_Extents() const
+ezVec3 ezBlackboardComponent::GetEntryValue_asVec3(ezString Name) const
 ezVec3 ezBoxReflectionProbeComponent::get_Extents() const
 ezVec3 ezBoxReflectionProbeComponent::get_InfluenceScale() const
 ezVec3 ezBoxReflectionProbeComponent::get_InfluenceShift() const
 ezVec3 ezBoxReflectionProbeComponent::get_NegativeFalloff() const
 ezVec3 ezBoxReflectionProbeComponent::get_PositiveFalloff() const
+ezVec3 ezCVar::GetValue_asVec3(ezStringView Name)
 ezVec3 ezDecalComponent::get_Extents() const
 ezVec3 ezGameObject::GetAngularVelocity() const
 ezVec3 ezGameObject::GetGlobalDirForwards() const
@@ -1613,6 +1355,7 @@ ezVec3 ezQuat::opMul(const ezVec3&in) const
 ezVec3 ezReflectionProbeComponentBase::get_CaptureOffset() const
 ezVec3 ezResetTransformComponent::get_LocalPosition() const
 ezVec3 ezResetTransformComponent::get_LocalScaling() const
+ezVec3 ezScriptComponent::GetScriptVariable_asVec3(ezHashedString Name) const
 ezVec3 ezSpawnBoxComponent::get_HalfExtents() const
 ezVec3 ezTransform::TransformDirection(const ezVec3&in vDirection) const
 ezVec3 ezTransform::TransformPosition(const ezVec3&in vPosition) const
@@ -1649,7 +1392,10 @@ ezVec3 ezVec3::opSub(const ezVec3&in) const
 ezVec3 ezVec4::GetAsVec3() const
 ezVec3 ezVolumeBoxComponent::get_Extents() const
 ezVec3 ezVolumeBoxComponent::get_Falloff() const
+ezVec3 ezVolumeComponent::GetValue_asVec3(ezTempHashedString Name) const
 ezVec4 ezAnimatedMeshComponent::get_CustomData() const
+ezVec4 ezBlackboardComponent::GetEntryValue_asVec4(ezString Name) const
+ezVec4 ezCVar::GetValue_asVec4(ezStringView Name)
 ezVec4 ezColor::GetAsVec4() const
 ezVec4 ezCustomMeshComponent::get_CustomData() const
 ezVec4 ezGreyBoxComponent::get_CustomData() const
@@ -1657,6 +1403,7 @@ ezVec4 ezLodAnimatedMeshComponent::get_CustomData() const
 ezVec4 ezLodMeshComponent::get_CustomData() const
 ezVec4 ezMath::Lerp(ezVec4 from, ezVec4 to, float factor)
 ezVec4 ezMeshComponent::get_CustomData() const
+ezVec4 ezScriptComponent::GetScriptVariable_asVec4(ezHashedString Name) const
 ezVec4 ezVec2::GetAsVec4(float z, float w) const
 ezVec4 ezVec3::GetAsDirectionVec4() const
 ezVec4 ezVec3::GetAsPositionVec4() const
@@ -1676,6 +1423,7 @@ ezVec4 ezVec4::opMul(float) const
 ezVec4 ezVec4::opMul_r(float) const
 ezVec4 ezVec4::opNeg() const
 ezVec4 ezVec4::opSub(const ezVec4&in) const
+ezVec4 ezVolumeComponent::GetValue_asVec4(ezTempHashedString Name) const
 ezVisualizeHandComponent@ ezComponent::opCast()
 ezVolumeBoxComponent@ ezComponent::opCast()
 ezVolumeBoxComponent@ ezVolumeComponent::opCast()
@@ -1753,7 +1501,9 @@ float ezAngle::RadToDeg(float fRadians)
 float ezAngle::opDiv(const ezAngle&in) const
 float ezBeamComponent::get_UVUnitsPerWorldUnit() const
 float ezBeamComponent::get_Width() const
+float ezBlackboardComponent::GetEntryValue_asFloat(ezString Name) const
 float ezCVar::GetFloatValue(ezStringView Name)
+float ezCVar::GetValue_asFloat(ezStringView Name)
 float ezCameraComponent::get_Aperture() const
 float ezCameraComponent::get_Dimensions() const
 float ezCameraComponent::get_ExposureCompensation() const
@@ -1860,6 +1610,7 @@ float ezRopeRenderComponent::get_Thickness() const
 float ezRopeRenderComponent::get_UScale() const
 float ezRotorComponent::get_Acceleration() const
 float ezRotorComponent::get_Deceleration() const
+float ezScriptComponent::GetScriptVariable_asFloat(ezHashedString Name) const
 float ezSensorConeComponent::get_FarDistance() const
 float ezSensorConeComponent::get_NearDistance() const
 float ezSensorCylinderComponent::get_Height() const
@@ -1903,6 +1654,7 @@ float ezVec4::Dot(const ezVec4&in) const
 float ezVec4::GetLength() const
 float ezVec4::GetLengthAndNormalize()
 float ezVec4::GetLengthSquared() const
+float ezVolumeComponent::GetValue_asFloat(ezTempHashedString Name) const
 float ezVolumeComponent::get_SortOrder() const
 float ezVolumeSphereComponent::get_Falloff() const
 float ezVolumeSphereComponent::get_Radius() const
@@ -1920,7 +1672,9 @@ int T[]::IndexOf(uint startAt, const T&in value) const
 int T[]::IndexOfByRef(const T&in value) const
 int T[]::IndexOfByRef(uint startAt, const T&in value) const
 int ezAngle::opCmp(const ezAngle&in) const
+int ezBlackboardComponent::GetEntryValue_asInt32(ezString Name) const
 int ezCVar::GetIntValue(ezStringView Name)
+int ezCVar::GetValue_asInt32(ezStringView Name)
 int ezMath::Abs(int f)
 int ezMath::CeilToInt(float f)
 int ezMath::Clamp(int val, int min, int max)
@@ -1933,6 +1687,7 @@ int ezMath::Sign(int f)
 int ezMsgComponentInternalTrigger::get_Payload() const
 int ezRandom::IntMinMax(int iMinValue, int iMaxValue)
 int ezRotorComponent::get_DegreesToRotate() const
+int ezScriptComponent::GetScriptVariable_asInt32(ezHashedString Name) const
 int ezString::Compare(ezStringView) const
 int ezString::CompareN(ezStringView, uint) const
 int ezString::CompareN_NoCase(ezStringView, uint) const
@@ -1951,6 +1706,7 @@ int ezTime::opCmp(const ezTime&in) const
 int ezVec2::opCmp(const ezVec2&in) const
 int ezVec3::opCmp(const ezVec3&in) const
 int ezVec4::opCmp(const ezVec4&in) const
+int ezVolumeComponent::GetValue_asInt32(ezTempHashedString Name) const
 int8 ezCameraComponent::get_EditorShortcut() const
 uint T[]::GetCount() const
 uint ezComponent::GetUniqueID() const
@@ -1983,18 +1739,14 @@ uint8 ezFmodEventComponent::get_OcclusionCollisionLayer() const
 uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezPhysics::GetCollisionLayerByName(ezWorld@ World, ezStringView Name)
 uint8 ezSensorComponent::get_CollisionLayer() const
-void DebugRenderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void DebugRenderComponent::SetRandomColor()
 void DebugRenderComponent::set_Color(ezColor)
 void DebugRenderComponent::set_CustomData(ezStringView)
 void DebugRenderComponent::set_Render(DebugRenderComponentMask)
 void DebugRenderComponent::set_Size(float)
 void DebugRenderComponent::set_Texture(ezStringView)
-void DemoComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void DemoComponent::set_Amplitude(float)
 void DemoComponent::set_Speed(ezAngle)
-void DisplayMsgComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void SendMsgComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void T[]::Clear()
 void T[]::InsertAt(uint index, const T&in value)
 void T[]::InsertRangeAt(uint index, const T[]&inout arr)
@@ -2007,12 +1759,9 @@ void T[]::Reverse()
 void T[]::SetCount(uint length)
 void T[]::Sort()
 void T[]::Sort(T[]::Less&in, uint startAt = 0, uint count = uint(- 1))
-void ezAimIKComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezAimIKComponent::set_ForwardVector(ezBasisAxis)
 void ezAimIKComponent::set_UpVector(ezBasisAxis)
 void ezAimIKComponent::set_Weight(float)
-void ezAlwaysVisibleComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezAmbientLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezAmbientLightComponent::set_BottomColor(ezColorGammaUB)
 void ezAmbientLightComponent::set_Intensity(float)
 void ezAmbientLightComponent::set_TopColor(ezColorGammaUB)
@@ -2020,32 +1769,25 @@ void ezAngle::NormalizeRange()
 void ezAngle::SetRadian(float fRadians)
 void ezAngle::opAddAssign(ezAngle)
 void ezAngle::opSubAssign(ezAngle)
-void ezAnimatedMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezAnimatedMeshComponent::set_Color(ezColor)
 void ezAnimatedMeshComponent::set_CustomData(ezVec4)
 void ezAnimatedMeshComponent::set_Mesh(ezStringView)
-void ezAnimationControllerComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezAnimationControllerComponent::set_AnimGraph(ezStringView)
 void ezAnimationControllerComponent::set_EnableIK(bool)
 void ezAnimationControllerComponent::set_InvisibleUpdateRate(ezAnimationInvisibleUpdateRate)
 void ezAnimationControllerComponent::set_RootMotionMode(ezRootMotionMode)
-void ezBakedProbesComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezBakedProbesComponent::set_ShowDebugOverlay(bool)
 void ezBakedProbesComponent::set_ShowDebugProbes(bool)
 void ezBakedProbesComponent::set_TestPosition(ezVec3)
 void ezBakedProbesComponent::set_UseTestPosition(bool)
-void ezBakedProbesVolumeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezBakedProbesVolumeComponent::set_Extents(ezVec3)
-void ezBeamComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezBeamComponent::set_Color(ezColor)
 void ezBeamComponent::set_Material(ezStringView)
 void ezBeamComponent::set_UVUnitsPerWorldUnit(float)
 void ezBeamComponent::set_Width(float)
-void ezBlackboardComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezBlackboardComponent::SetEntryValue(ezString Name, ?&in Value)
 void ezBlackboardComponent::set_ShowDebugInfo(bool)
 void ezBlackboardComponent::set_Template(ezStringView)
-void ezBoxReflectionProbeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezBoxReflectionProbeComponent::set_BoxProjection(bool)
 void ezBoxReflectionProbeComponent::set_Extents(ezVec3)
 void ezBoxReflectionProbeComponent::set_InfluenceScale(ezVec3)
@@ -2057,7 +1799,6 @@ void ezCVar::SetFloatValue(ezStringView Name, float Value)
 void ezCVar::SetIntValue(ezStringView Name, int Value)
 void ezCVar::SetStringValue(ezStringView Name, ezString Value)
 void ezCVar::SetValue(ezStringView Name, ?&in Value)
-void ezCameraComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezCameraComponent::set_Aperture(float)
 void ezCameraComponent::set_Dimensions(float)
 void ezCameraComponent::set_EditorShortcut(int8)
@@ -2073,12 +1814,10 @@ void ezCameraComponent::set_RenderTargetSize(ezVec2)
 void ezCameraComponent::set_ShowStats(bool)
 void ezCameraComponent::set_ShutterTime(ezTime)
 void ezCameraComponent::set_UsageHint(ezCameraUsageHint)
-void ezCharacterControllerComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezCharacterControllerComponent::RawMove(ezVec3 moveDeltaGlobal)
 void ezCharacterControllerComponent::TeleportCharacter(ezVec3 globalFootPosition)
 void ezClock::SetPaused(bool)
 void ezClock::SetSpeed(double)
-void ezCollectionComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezCollectionComponent::set_Collection(ezStringView)
 void ezCollectionComponent::set_RegisterNames(bool)
 void ezColor::ApplyHdrExposureValue(float fExposure)
@@ -2095,7 +1834,6 @@ void ezColor::opMulAssign(const ezColor&in)
 void ezColor::opMulAssign(const ezMat4&in)
 void ezColor::opMulAssign(float)
 void ezColor::opSubAssign(const ezColor&in)
-void ezColorAnimationComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezColorAnimationComponent::set_AnimationMode(ezPropertyAnimMode)
 void ezColorAnimationComponent::set_ApplyToChildren(bool)
 void ezColorAnimationComponent::set_Duration(ezTime)
@@ -2103,7 +1841,6 @@ void ezColorAnimationComponent::set_Gradient(ezStringView)
 void ezColorAnimationComponent::set_RandomStartOffset(bool)
 void ezColorAnimationComponent::set_SetColorMode(ezSetColorMode)
 void ezColorGammaUB::opAssign(const ezColor&in)
-void ezCommentComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezComponent::Deinitialize()
 void ezComponent::Initialize()
 void ezComponent::OnActivated()
@@ -2113,7 +1850,6 @@ void ezComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::Mak
 void ezComponent::Update(ezTime DeltaTime)
 void ezComponent::set_Active(bool)
 void ezComponentHandle::Invalidate()
-void ezCustomMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezCustomMeshComponent::set_Color(ezColor)
 void ezCustomMeshComponent::set_CustomData(ezVec4)
 void ezCustomMeshComponent::set_Material(ezStringView)
@@ -2129,7 +1865,6 @@ void ezDebug::DrawLine(ezWorld@ World, ezVec3 Start, ezVec3 End, ezColor StartCo
 void ezDebug::DrawLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
 void ezDebug::DrawLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
 void ezDebug::DrawSolidBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
-void ezDebugTextComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezDebugTextComponent::set_Color(ezColorGammaUB)
 void ezDebugTextComponent::set_MaxDistance(float)
 void ezDebugTextComponent::set_Text(ezString)
@@ -2137,7 +1872,6 @@ void ezDebugTextComponent::set_Value0(float)
 void ezDebugTextComponent::set_Value1(float)
 void ezDebugTextComponent::set_Value2(float)
 void ezDebugTextComponent::set_Value3(float)
-void ezDecalComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezDecalComponent::set_Color(ezColorGammaUB)
 void ezDecalComponent::set_EmissiveColor(ezColor)
 void ezDecalComponent::set_Extents(ezVec3)
@@ -2150,22 +1884,18 @@ void ezDecalComponent::set_ProjectionAxis(ezBasisAxis)
 void ezDecalComponent::set_SizeVariance(float)
 void ezDecalComponent::set_SortOrder(float)
 void ezDecalComponent::set_WrapAround(bool)
-void ezDeviceTrackingComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezDeviceTrackingComponent::set_DeviceType(ezXRDeviceType)
 void ezDeviceTrackingComponent::set_PoseLocation(ezXRPoseLocation)
 void ezDeviceTrackingComponent::set_Rotation(bool)
 void ezDeviceTrackingComponent::set_Scale(bool)
 void ezDeviceTrackingComponent::set_TransformSpace(ezXRTransformSpace)
-void ezDirectionalLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezDirectionalLightComponent::set_FadeOutStart(float)
 void ezDirectionalLightComponent::set_MinShadowRange(float)
 void ezDirectionalLightComponent::set_NearPlaneOffset(float)
 void ezDirectionalLightComponent::set_NumCascades(uint)
 void ezDirectionalLightComponent::set_SplitModeWeight(float)
-void ezEventMessageHandlerComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezEventMessageHandlerComponent::set_HandleGlobalEvents(bool)
 void ezEventMessageHandlerComponent::set_PassThroughUnhandledEvents(bool)
-void ezFillLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezFillLightComponent::set_Directionality(float)
 void ezFillLightComponent::set_FalloffExponent(float)
 void ezFillLightComponent::set_Intensity(float)
@@ -2174,8 +1904,6 @@ void ezFillLightComponent::set_LightMode(ezFillLightMode)
 void ezFillLightComponent::set_Range(float)
 void ezFillLightComponent::set_Temperature(uint)
 void ezFillLightComponent::set_UseColorTemperature(bool)
-void ezFmodComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezFmodEventComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezFmodEventComponent::Restart()
 void ezFmodEventComponent::SetEventParameter(ezString ParamName, float Value)
 void ezFmodEventComponent::SoundCue()
@@ -2191,15 +1919,12 @@ void ezFmodEventComponent::set_ShowDebugInfo(bool)
 void ezFmodEventComponent::set_SoundEvent(ezStringView)
 void ezFmodEventComponent::set_UseOcclusion(bool)
 void ezFmodEventComponent::set_Volume(float)
-void ezFmodListenerComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezFmodListenerComponent::set_ListenerIndex(uint8)
-void ezFogComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezFogComponent::set_Color(ezColor)
 void ezFogComponent::set_Density(float)
 void ezFogComponent::set_HeightFalloff(float)
 void ezFogComponent::set_ModulateWithSkyColor(bool)
 void ezFogComponent::set_SkyDistance(float)
-void ezFollowPathComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezFollowPathComponent::SetDirectionForwards(bool Forwards)
 void ezFollowPathComponent::ToggleDirection()
 void ezFollowPathComponent::set_FollowMode(ezFollowPathMode)
@@ -2211,7 +1936,6 @@ void ezFollowPathComponent::set_Smoothing(float)
 void ezFollowPathComponent::set_Speed(float)
 void ezFollowPathComponent::set_StartDistance(float)
 void ezFollowPathComponent::set_TiltAmount(float)
-void ezForwardEventsToGameStateComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezGameObject::AddChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal)
 void ezGameObject::DetachChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal)
 void ezGameObject::MakeDynamic()
@@ -2221,10 +1945,6 @@ void ezGameObject::PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezOb
 void ezGameObject::PostMessage(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const
 void ezGameObject::PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)
 void ezGameObject::PostMessageRecursive(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const
-void ezGameObject::SendMessage(ezAngelScriptMessage&inout)
-void ezGameObject::SendMessage(ezAngelScriptMessage&inout) const
-void ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout)
-void ezGameObject::SendMessageRecursive(ezAngelScriptMessage&inout) const
 void ezGameObject::SetActiveFlag(bool bActive)
 void ezGameObject::SetGlobalKey(const ezHashedString&in sKey)
 void ezGameObject::SetGlobalKey(ezStringView sKey)
@@ -2246,12 +1966,8 @@ void ezGameObject::UpdateGlobalTransform()
 void ezGameObject::UpdateGlobalTransformAndBounds()
 void ezGameObject::UpdateLocalBounds()
 void ezGameObjectHandle::Invalidate()
-void ezGizmoComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezGlobalBlackboardComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezGlobalBlackboardComponent::set_InitMode(ezGlobalBlackboardInitMode)
-void ezGrabbableItemComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezGrabbableItemComponent::set_DebugShowPoints(bool)
-void ezGreyBoxComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezGreyBoxComponent::set_Color(ezColor)
 void ezGreyBoxComponent::set_Curvature(ezAngle)
 void ezGreyBoxComponent::set_CustomData(ezVec4)
@@ -2273,28 +1989,22 @@ void ezGreyBoxComponent::set_UseAsOccluder(bool)
 void ezHashedString::Assign(const ezStringView)
 void ezHashedString::Clear()
 void ezHashedString::opAssign(const ezStringView)
-void ezInputComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezInputComponent::set_ForwardToBlackboard(bool)
 void ezInputComponent::set_Granularity(ezInputMessageGranularity)
 void ezInputComponent::set_InputSet(ezString)
-void ezInstancedMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezInstancedMeshComponent::set_MainColor(ezColor)
 void ezInstancedMeshComponent::set_Mesh(ezStringView)
-void ezJointAttachmentComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezJointAttachmentComponent::set_PositionOffset(ezVec3)
 void ezJointAttachmentComponent::set_RotationOffset(ezQuat)
-void ezJointOverrideComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezJointOverrideComponent::set_OverridePosition(bool)
 void ezJointOverrideComponent::set_OverrideRotation(bool)
 void ezJointOverrideComponent::set_OverrideScale(bool)
-void ezLensFlareComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLensFlareComponent::set_ApplyFog(bool)
 void ezLensFlareComponent::set_Intensity(float)
 void ezLensFlareComponent::set_LinkToLightShape(bool)
 void ezLensFlareComponent::set_OcclusionDepthOffset(float)
 void ezLensFlareComponent::set_OcclusionSampleRadius(float)
 void ezLensFlareComponent::set_OcclusionSampleSpread(float)
-void ezLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLightComponent::set_CastShadows(bool)
 void ezLightComponent::set_ConstantBias(float)
 void ezLightComponent::set_Intensity(float)
@@ -2305,9 +2015,7 @@ void ezLightComponent::set_SpecularMultiplier(float)
 void ezLightComponent::set_Temperature(uint)
 void ezLightComponent::set_TransparentShadows(bool)
 void ezLightComponent::set_UseColorTemperature(bool)
-void ezLocalBlackboardComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLocalBlackboardComponent::set_SendEntryChangedMessage(bool)
-void ezLodAnimatedMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLodAnimatedMeshComponent::set_BoundsOffset(ezVec3)
 void ezLodAnimatedMeshComponent::set_BoundsRadius(float)
 void ezLodAnimatedMeshComponent::set_Color(ezColor)
@@ -2315,12 +2023,10 @@ void ezLodAnimatedMeshComponent::set_CustomData(ezVec4)
 void ezLodAnimatedMeshComponent::set_OverlapRanges(bool)
 void ezLodAnimatedMeshComponent::set_ShowDebugInfo(bool)
 void ezLodAnimatedMeshComponent::set_SortingDepthOffset(float)
-void ezLodComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLodComponent::set_BoundsOffset(ezVec3)
 void ezLodComponent::set_BoundsRadius(float)
 void ezLodComponent::set_OverlapRanges(bool)
 void ezLodComponent::set_ShowDebugInfo(bool)
-void ezLodMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezLodMeshComponent::set_BoundsOffset(ezVec3)
 void ezLodMeshComponent::set_BoundsRadius(float)
 void ezLodMeshComponent::set_Color(ezColor)
@@ -2355,14 +2061,11 @@ void ezLog::Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3,
 void ezLog::Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6)
 void ezLog::Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7)
 void ezLog::Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8)
-void ezMarkerComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezMarkerComponent::set_Radius(float)
-void ezMeshComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezMeshComponent::set_Color(ezColor)
 void ezMeshComponent::set_CustomData(ezVec4)
 void ezMeshComponent::set_Mesh(ezStringView)
 void ezMeshComponent::set_SortingDepthOffset(float)
-void ezMeshComponentBase::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezMsgApplyRootMotion::set_RotationX(ezAngle)
 void ezMsgApplyRootMotion::set_RotationY(ezAngle)
 void ezMsgApplyRootMotion::set_RotationZ(ezAngle)
@@ -2409,11 +2112,9 @@ void ezMsgSetPlaying::set_Play(bool)
 void ezMsgTriggerTriggered::set_GameObject(ezGameObjectHandle)
 void ezMsgTriggerTriggered::set_Message(ezHashedString)
 void ezMsgTriggerTriggered::set_TriggerState(ezTriggerState)
-void ezOccluderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezOccluderComponent::set_Extents(ezVec3)
 void ezOccluderComponent::set_Type(ezOccluderType)
 void ezParticleComponent::InterruptEffect()
-void ezParticleComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezParticleComponent::StopEffect()
 void ezParticleComponent::set_Effect(ezStringView)
 void ezParticleComponent::set_IgnoreOwnerRotation(bool)
@@ -2424,27 +2125,19 @@ void ezParticleComponent::set_RestartDelayRange(ezTime)
 void ezParticleComponent::set_SharedInstanceName(ezString)
 void ezParticleComponent::set_SpawnAtStart(bool)
 void ezParticleComponent::set_SpawnDirection(ezBasisAxis)
-void ezParticleFinisherComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezPathComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPathComponent::set_Closed(bool)
 void ezPathComponent::set_Detail(float)
 void ezPathComponent::set_Flags(ezPathComponentFlags)
-void ezPathNodeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPathNodeComponent::set_Roll(ezAngle)
 void ezPathNodeComponent::set_Tangent1(ezPathNodeTangentMode)
 void ezPathNodeComponent::set_Tangent2(ezPathNodeTangentMode)
-void ezPlayerStartPointComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPlayerStartPointComponent::set_PlayerPrefab(ezStringView)
-void ezPointLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPointLightComponent::set_Range(float)
 void ezPointLightComponent::set_ShadowFadeOutRange(float)
-void ezPostProcessingComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezPrefabReferenceComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPrefabReferenceComponent::set_Prefab(ezStringView)
 void ezPrefabs::SpawnPrefab(ezWorld@ World, ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation)
 void ezPrefabs::SpawnPrefabAsChild(ezWorld@ World, ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation)
 void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh)
-void ezPropertyAnimComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezPropertyAnimComponent::set_Animation(ezStringView)
 void ezPropertyAnimComponent::set_Mode(ezPropertyAnimMode)
 void ezPropertyAnimComponent::set_Playing(bool)
@@ -2459,17 +2152,13 @@ void ezQuat::Normalize()
 void ezQuat::ReconstructFromMat3(const ezMat3&in)
 void ezQuat::ReconstructFromMat4(const ezMat3&in)
 void ezQuat::SetIdentity()
-void ezReflectionProbeComponentBase::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezReflectionProbeComponentBase::set_CaptureOffset(ezVec3)
 void ezReflectionProbeComponentBase::set_FarPlane(float)
 void ezReflectionProbeComponentBase::set_NearPlane(float)
 void ezReflectionProbeComponentBase::set_ReflectionProbeMode(ezReflectionProbeMode)
 void ezReflectionProbeComponentBase::set_ShowDebugInfo(bool)
 void ezReflectionProbeComponentBase::set_ShowMipMaps(bool)
-void ezRenderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezRenderTargetActivatorComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezRenderTargetActivatorComponent::set_RenderTarget(ezStringView)
-void ezResetTransformComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezResetTransformComponent::set_LocalPosition(ezVec3)
 void ezResetTransformComponent::set_LocalRotation(ezQuat)
 void ezResetTransformComponent::set_LocalScaling(ezVec3)
@@ -2479,21 +2168,18 @@ void ezResetTransformComponent::set_ResetPositionY(bool)
 void ezResetTransformComponent::set_ResetPositionZ(bool)
 void ezResetTransformComponent::set_ResetRotation(bool)
 void ezResetTransformComponent::set_ResetScaling(bool)
-void ezRopeRenderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezRopeRenderComponent::set_Color(ezColor)
 void ezRopeRenderComponent::set_Detail(uint)
 void ezRopeRenderComponent::set_Material(ezStringView)
 void ezRopeRenderComponent::set_Subdivide(bool)
 void ezRopeRenderComponent::set_Thickness(float)
 void ezRopeRenderComponent::set_UScale(float)
-void ezRotorComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezRotorComponent::set_Acceleration(float)
 void ezRotorComponent::set_Axis(ezBasisAxis)
 void ezRotorComponent::set_AxisDeviation(ezAngle)
 void ezRotorComponent::set_Deceleration(float)
 void ezRotorComponent::set_DegreesToRotate(int)
 void ezSceneTransitionComponent::CancelPreload()
-void ezSceneTransitionComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSceneTransitionComponent::StartPreload()
 void ezSceneTransitionComponent::StartTransition(ezVec3 PositionOffset, ezQuat RotationOffset)
 void ezSceneTransitionComponent::StartTransitionWithOffsetTo(ezVec3 GlobalPosition, ezQuat GlobalRotation)
@@ -2503,57 +2189,44 @@ void ezSceneTransitionComponent::set_RelativeSpawnPosition(bool)
 void ezSceneTransitionComponent::set_SpawnPoint(ezHashedString)
 void ezSceneTransitionComponent::set_TargetScene(ezHashedString)
 void ezScriptComponent::BroadcastEventMsg(const ezEventMessage&in msg)
-void ezScriptComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezScriptComponent::SetScriptVariable(ezHashedString Name, ?&in Value)
 void ezScriptComponent::SetUpdateInterval(ezTime interval)
 void ezScriptComponent::set_ScriptClass(ezStringView)
 void ezScriptComponent::set_UpdateInterval(ezTime)
-void ezSensorComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSensorComponent::set_CollisionLayer(uint8)
 void ezSensorComponent::set_Color(ezColorGammaUB)
 void ezSensorComponent::set_ShowDebugInfo(bool)
 void ezSensorComponent::set_TestVisibility(bool)
 void ezSensorComponent::set_UpdateRate(ezUpdateRate)
-void ezSensorConeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSensorConeComponent::set_Angle(ezAngle)
 void ezSensorConeComponent::set_FarDistance(float)
 void ezSensorConeComponent::set_NearDistance(float)
-void ezSensorCylinderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSensorCylinderComponent::set_Height(float)
 void ezSensorCylinderComponent::set_Radius(float)
-void ezSensorSphereComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSensorSphereComponent::set_Radius(float)
-void ezSettingsComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezShapeIconComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezSimpleAnimationComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSimpleAnimationComponent::set_AnimationClip(ezStringView)
 void ezSimpleAnimationComponent::set_AnimationMode(ezPropertyAnimMode)
 void ezSimpleAnimationComponent::set_EnableIK(bool)
 void ezSimpleAnimationComponent::set_InvisibleUpdateRate(ezAnimationInvisibleUpdateRate)
 void ezSimpleAnimationComponent::set_RootMotionMode(ezRootMotionMode)
 void ezSimpleAnimationComponent::set_Speed(float)
-void ezSimpleWindComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSimpleWindComponent::set_MaxDeviation(ezAngle)
 void ezSimpleWindComponent::set_MaxWindStrength(ezWindStrength)
 void ezSimpleWindComponent::set_MinWindStrength(ezWindStrength)
-void ezSkeletonComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSkeletonComponent::set_Skeleton(ezStringView)
 void ezSkeletonComponent::set_VisualizeColliders(bool)
 void ezSkeletonComponent::set_VisualizeJoints(bool)
 void ezSkeletonComponent::set_VisualizeSkeleton(bool)
 void ezSkeletonComponent::set_VisualizeSwingLimits(bool)
 void ezSkeletonComponent::set_VisualizeTwistLimits(bool)
-void ezSkeletonPoseComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSkeletonPoseComponent::set_EditBones(float)
 void ezSkeletonPoseComponent::set_Mode(ezSkeletonPoseMode)
 void ezSkeletonPoseComponent::set_Skeleton(ezStringView)
-void ezSkyBoxComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSkyBoxComponent::set_CubeMap(ezStringView)
 void ezSkyBoxComponent::set_ExposureBias(float)
 void ezSkyBoxComponent::set_InverseTonemap(bool)
 void ezSkyBoxComponent::set_UseFog(bool)
 void ezSkyBoxComponent::set_VirtualDistance(float)
-void ezSkyLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSkyLightComponent::set_CubeMap(ezStringView)
 void ezSkyLightComponent::set_FarPlane(float)
 void ezSkyLightComponent::set_Intensity(float)
@@ -2562,15 +2235,12 @@ void ezSkyLightComponent::set_ReflectionProbeMode(ezReflectionProbeMode)
 void ezSkyLightComponent::set_Saturation(float)
 void ezSkyLightComponent::set_ShowDebugInfo(bool)
 void ezSkyLightComponent::set_ShowMipMaps(bool)
-void ezSliderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSliderComponent::set_Acceleration(float)
 void ezSliderComponent::set_Axis(ezBasisAxis)
 void ezSliderComponent::set_Deceleration(float)
 void ezSliderComponent::set_Distance(float)
 void ezSliderComponent::set_RandomStart(ezTime)
 void ezSpatial::FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback)
-void ezSpatialAnchorComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezSpawnBoxComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpawnBoxComponent::StartSpawning()
 void ezSpawnBoxComponent::set_Duration(ezTime)
 void ezSpawnBoxComponent::set_HalfExtents(ezVec3)
@@ -2581,7 +2251,6 @@ void ezSpawnBoxComponent::set_Prefab(ezStringView)
 void ezSpawnBoxComponent::set_SpawnAtStart(bool)
 void ezSpawnBoxComponent::set_SpawnContinuously(bool)
 void ezSpawnBoxComponent::set_SpawnCountRange(uint16)
-void ezSpawnComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpawnComponent::ScheduleSpawn()
 void ezSpawnComponent::set_AttachAsChild(bool)
 void ezSpawnComponent::set_DelayRange(ezTime)
@@ -2590,26 +2259,21 @@ void ezSpawnComponent::set_MinDelay(ezTime)
 void ezSpawnComponent::set_Prefab(ezStringView)
 void ezSpawnComponent::set_SpawnAtStart(bool)
 void ezSpawnComponent::set_SpawnContinuously(bool)
-void ezSphereReflectionProbeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSphereReflectionProbeComponent::set_Falloff(float)
 void ezSphereReflectionProbeComponent::set_Radius(float)
 void ezSphereReflectionProbeComponent::set_SphereProjection(bool)
-void ezSpotLightComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpotLightComponent::set_InnerSpotAngle(ezAngle)
 void ezSpotLightComponent::set_OuterSpotAngle(ezAngle)
 void ezSpotLightComponent::set_Range(float)
 void ezSpotLightComponent::set_ShadowFadeOutRange(float)
-void ezSpriteComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezSpriteComponent::set_AspectRatio(float)
 void ezSpriteComponent::set_BlendMode(ezSpriteBlendMode)
 void ezSpriteComponent::set_Color(ezColor)
 void ezSpriteComponent::set_MaxScreenSize(float)
 void ezSpriteComponent::set_Size(float)
 void ezSpriteComponent::set_Texture(ezStringView)
-void ezStageSpaceComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezStageSpaceComponent::set_StageSpace(ezXRStageSpace)
 void ezStateMachineComponent::FireTransitionEvent(ezStringView Name)
-void ezStateMachineComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezStateMachineComponent::set_Resource(ezStringView)
 void ezString::Clear()
 void ezString::opAssign(const ezHashedString&in)
@@ -2681,7 +2345,6 @@ void ezTime::opAddAssign(const ezTime&in)
 void ezTime::opDivAssign(double)
 void ezTime::opMulAssign(double)
 void ezTime::opSubAssign(const ezTime&in)
-void ezTimedDeathComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezTimedDeathComponent::set_DelayRange(ezTime)
 void ezTimedDeathComponent::set_MinDelay(ezTime)
 void ezTimedDeathComponent::set_TimeoutPrefab(ezStringView)
@@ -2689,17 +2352,14 @@ void ezTransform::Invert()
 void ezTransform::SetIdentity()
 void ezTransform::opAddAssign(const ezVec3&in)
 void ezTransform::opSubAssign(const ezVec3&in)
-void ezTransformComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezTransformComponent::SetDirectionForwards(bool Forwards)
 void ezTransformComponent::ToggleDirection()
 void ezTransformComponent::set_ReverseAtEnd(bool)
 void ezTransformComponent::set_ReverseAtStart(bool)
 void ezTransformComponent::set_Running(bool)
 void ezTransformComponent::set_Speed(float)
-void ezTriggerDelayModifierComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezTriggerDelayModifierComponent::set_ActivationDelay(ezTime)
 void ezTriggerDelayModifierComponent::set_DeactivationDelay(ezTime)
-void ezTwoBoneIKComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezTwoBoneIKComponent::set_JointEnd(ezHashedString)
 void ezTwoBoneIKComponent::set_JointMiddle(ezHashedString)
 void ezTwoBoneIKComponent::set_JointStart(ezHashedString)
@@ -2733,33 +2393,25 @@ void ezVec4::opAddAssign(const ezVec4&in)
 void ezVec4::opDivAssign(float)
 void ezVec4::opMulAssign(float)
 void ezVec4::opSubAssign(const ezVec4&in)
-void ezVisualizeHandComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
-void ezVolumeBoxComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezVolumeBoxComponent::set_Extents(ezVec3)
 void ezVolumeBoxComponent::set_Falloff(ezVec3)
-void ezVolumeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezVolumeComponent::SetValue(ezHashedString Name, ?&in Value)
 void ezVolumeComponent::set_SortOrder(float)
 void ezVolumeComponent::set_Template(ezStringView)
-void ezVolumeSphereComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezVolumeSphereComponent::set_Falloff(float)
 void ezVolumeSphereComponent::set_Radius(float)
-void ezWindVolumeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezWindVolumeComponent::set_BurstDuration(ezTime)
 void ezWindVolumeComponent::set_OnFinishedAction(ezOnComponentFinishedAction)
 void ezWindVolumeComponent::set_Strength(ezWindStrength)
 void ezWindVolumeComponent::set_StrengthFactor(float)
-void ezWindVolumeConeComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezWindVolumeConeComponent::set_Angle(ezAngle)
 void ezWindVolumeConeComponent::set_Length(float)
-void ezWindVolumeCylinderComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezWindVolumeCylinderComponent::set_Length(float)
 void ezWindVolumeCylinderComponent::set_Mode(ezWindVolumeCylinderMode)
 void ezWindVolumeCylinderComponent::set_NegativeFalloff(float)
 void ezWindVolumeCylinderComponent::set_PositiveFalloff(float)
 void ezWindVolumeCylinderComponent::set_Radius(float)
 void ezWindVolumeCylinderComponent::set_RadiusFalloff(float)
-void ezWindVolumeSphereComponent::PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const
 void ezWindVolumeSphereComponent::set_Radius(float)
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true)
 void ezWorld::PostMessage(const ezComponentHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const

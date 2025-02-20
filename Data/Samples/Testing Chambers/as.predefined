@@ -1106,10 +1106,10 @@ class ezGameObject
   void SetTeamID(uint16 id);
   uint GetStableRandomSeed();
   void SetStableRandomSeed(uint seed);
-  void SendMessage(ezAngelScriptMessage&inout);
-  void SendMessage(ezAngelScriptMessage&inout) const;
-  void SendMessageRecursive(ezAngelScriptMessage&inout);
-  void SendMessageRecursive(ezAngelScriptMessage&inout) const;
+  bool SendMessage(ezAngelScriptMessage&inout);
+  bool SendMessage(ezAngelScriptMessage&inout) const;
+  bool SendMessageRecursive(ezAngelScriptMessage&inout);
+  bool SendMessageRecursive(ezAngelScriptMessage&inout) const;
   void PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
   void PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
 }
@@ -1416,10 +1416,6 @@ class ezCollectionComponent : ezComponent
 {
   ezStringView Collection;
   bool RegisterNames;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezEventMessageHandlerComponent : ezComponent
@@ -1428,39 +1424,36 @@ class ezEventMessageHandlerComponent : ezComponent
   bool PassThroughUnhandledEvents;
   ezForwardEventsToGameStateComponent@ opCast();
   ezScriptComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPrefabReferenceComponent : ezComponent
 {
   ezStringView Prefab;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezScriptComponent : ezEventMessageHandlerComponent
 {
   void SetScriptVariable(ezHashedString Name, ?&in Value);
+  bool GetScriptVariable_asBool(ezHashedString Name) const;
+  int GetScriptVariable_asInt32(ezHashedString Name) const;
+  float GetScriptVariable_asFloat(ezHashedString Name) const;
+  ezTime GetScriptVariable_asTime(ezHashedString Name) const;
+  ezAngle GetScriptVariable_asAngle(ezHashedString Name) const;
+  ezVec2 GetScriptVariable_asVec2(ezHashedString Name) const;
+  ezVec3 GetScriptVariable_asVec3(ezHashedString Name) const;
+  ezVec4 GetScriptVariable_asVec4(ezHashedString Name) const;
+  ezQuat GetScriptVariable_asQuat(ezHashedString Name) const;
+  ezColor GetScriptVariable_asColor(ezHashedString Name) const;
+  ezString GetScriptVariable_asString(ezHashedString Name) const;
+  ezGameObjectHandle GetScriptVariable_asGameObjectHandle(ezHashedString Name) const;
+  ezComponentHandle GetScriptVariable_asComponentHandle(ezHashedString Name) const;
   void SetUpdateInterval(ezTime interval);
   ezTime UpdateInterval;
   ezStringView ScriptClass;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
   void BroadcastEventMsg(const ezEventMessage&in msg);
 }
 
@@ -1471,10 +1464,6 @@ class ezSettingsComponent : ezComponent
   ezAmbientLightComponent@ opCast();
   ezSkyLightComponent@ opCast();
   ezJoltSettingsComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRenderComponent : ezComponent
@@ -1512,10 +1501,6 @@ class ezRenderComponent : ezComponent
   ezParticleFinisherComponent@ opCast();
   ezProcVertexColorComponent@ opCast();
   ezRmlUiCanvas2DComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSkeletonComponent : ezRenderComponent
@@ -1527,10 +1512,6 @@ class ezSkeletonComponent : ezRenderComponent
   bool VisualizeSwingLimits;
   bool VisualizeTwistLimits;
   ezString BonesToHighlight;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSkeletonPoseComponent : ezComponent
@@ -1538,10 +1519,6 @@ class ezSkeletonPoseComponent : ezComponent
   ezStringView Skeleton;
   ezSkeletonPoseMode Mode;
   float EditBones;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezBakedProbesComponent : ezSettingsComponent
@@ -1550,27 +1527,15 @@ class ezBakedProbesComponent : ezSettingsComponent
   bool ShowDebugProbes;
   bool UseTestPosition;
   ezVec3 TestPosition;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezBakedProbesVolumeComponent : ezComponent
 {
   ezVec3 Extents;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAlwaysVisibleComponent : ezRenderComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezBeamComponent : ezRenderComponent
@@ -1580,10 +1545,6 @@ class ezBeamComponent : ezRenderComponent
   ezColor Color;
   float Width;
   float UVUnitsPerWorldUnit;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCameraComponent : ezComponent
@@ -1604,10 +1565,6 @@ class ezCameraComponent : ezComponent
   float ISO;
   float ExposureCompensation;
   bool ShowStats;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFogComponent : ezSettingsComponent
@@ -1617,10 +1574,6 @@ class ezFogComponent : ezSettingsComponent
   float HeightFalloff;
   bool ModulateWithSkyColor;
   float SkyDistance;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLensFlareComponent : ezRenderComponent
@@ -1631,10 +1584,6 @@ class ezLensFlareComponent : ezRenderComponent
   float OcclusionSampleSpread;
   float OcclusionDepthOffset;
   bool ApplyFog;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLodComponent : ezRenderComponent
@@ -1643,29 +1592,17 @@ class ezLodComponent : ezRenderComponent
   float BoundsRadius;
   bool ShowDebugInfo;
   bool OverlapRanges;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezOccluderComponent : ezComponent
 {
   ezOccluderType Type;
   ezVec3 Extents;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRenderTargetActivatorComponent : ezRenderComponent
 {
   ezStringView RenderTarget;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRopeRenderComponent : ezRenderComponent
@@ -1676,10 +1613,6 @@ class ezRopeRenderComponent : ezRenderComponent
   uint32 Detail;
   bool Subdivide;
   float UScale;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSkyBoxComponent : ezRenderComponent
@@ -1689,10 +1622,6 @@ class ezSkyBoxComponent : ezRenderComponent
   bool InverseTonemap;
   bool UseFog;
   float VirtualDistance;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSpriteComponent : ezRenderComponent
@@ -1703,10 +1632,6 @@ class ezSpriteComponent : ezRenderComponent
   float Size;
   float MaxScreenSize;
   float AspectRatio;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezDebugTextComponent : ezComponent
@@ -1718,10 +1643,6 @@ class ezDebugTextComponent : ezComponent
   float Value3;
   ezColorGammaUB Color;
   float MaxDistance;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezDecalComponent : ezRenderComponent
@@ -1739,10 +1660,6 @@ class ezDecalComponent : ezRenderComponent
   ezTime FadeOutDuration;
   ezOnComponentFinishedAction OnFinishedAction;
   ezString ApplyToDynamic;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAmbientLightComponent : ezSettingsComponent
@@ -1750,10 +1667,6 @@ class ezAmbientLightComponent : ezSettingsComponent
   ezColorGammaUB TopColor;
   ezColorGammaUB BottomColor;
   float Intensity;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezReflectionProbeComponentBase : ezComponent
@@ -1766,10 +1679,6 @@ class ezReflectionProbeComponentBase : ezComponent
   bool ShowMipMaps;
   ezBoxReflectionProbeComponent@ opCast();
   ezSphereReflectionProbeComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezBoxReflectionProbeComponent : ezReflectionProbeComponentBase
@@ -1780,10 +1689,6 @@ class ezBoxReflectionProbeComponent : ezReflectionProbeComponentBase
   ezVec3 PositiveFalloff;
   ezVec3 NegativeFalloff;
   bool BoxProjection;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLightComponent : ezRenderComponent
@@ -1802,10 +1707,6 @@ class ezLightComponent : ezRenderComponent
   ezDirectionalLightComponent@ opCast();
   ezPointLightComponent@ opCast();
   ezSpotLightComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezDirectionalLightComponent : ezLightComponent
@@ -1815,10 +1716,6 @@ class ezDirectionalLightComponent : ezLightComponent
   float FadeOutStart;
   float SplitModeWeight;
   float NearPlaneOffset;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFillLightComponent : ezRenderComponent
@@ -1832,20 +1729,12 @@ class ezFillLightComponent : ezRenderComponent
   float Range;
   float FalloffExponent;
   float Directionality;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPointLightComponent : ezLightComponent
 {
   float Range;
   float ShadowFadeOutRange;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSkyLightComponent : ezSettingsComponent
@@ -1858,10 +1747,6 @@ class ezSkyLightComponent : ezSettingsComponent
   float FarPlane;
   bool ShowDebugInfo;
   bool ShowMipMaps;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSphereReflectionProbeComponent : ezReflectionProbeComponentBase
@@ -1869,10 +1754,6 @@ class ezSphereReflectionProbeComponent : ezReflectionProbeComponentBase
   float Radius;
   float Falloff;
   bool SphereProjection;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSpotLightComponent : ezLightComponent
@@ -1881,10 +1762,6 @@ class ezSpotLightComponent : ezLightComponent
   ezAngle InnerSpotAngle;
   ezAngle OuterSpotAngle;
   float ShadowFadeOutRange;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCustomMeshComponent : ezRenderComponent
@@ -1892,10 +1769,6 @@ class ezCustomMeshComponent : ezRenderComponent
   ezColor Color;
   ezVec4 CustomData;
   ezStringView Material;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezMeshComponentBase : ezRenderComponent
@@ -1905,20 +1778,12 @@ class ezMeshComponentBase : ezRenderComponent
   ezAnimatedMeshComponent@ opCast();
   ezGizmoComponent@ opCast();
   ezProcVertexColorComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezInstancedMeshComponent : ezMeshComponentBase
 {
   ezStringView Mesh;
   ezColor MainColor;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLodMeshComponent : ezRenderComponent
@@ -1930,10 +1795,6 @@ class ezLodMeshComponent : ezRenderComponent
   float BoundsRadius;
   bool ShowDebugInfo;
   bool OverlapRanges;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezMeshComponent : ezMeshComponentBase
@@ -1944,10 +1805,6 @@ class ezMeshComponent : ezMeshComponentBase
   float SortingDepthOffset;
   ezGizmoComponent@ opCast();
   ezProcVertexColorComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSensorComponent : ezComponent
@@ -1961,29 +1818,17 @@ class ezSensorComponent : ezComponent
   ezSensorSphereComponent@ opCast();
   ezSensorCylinderComponent@ opCast();
   ezSensorConeComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSensorSphereComponent : ezSensorComponent
 {
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSensorCylinderComponent : ezSensorComponent
 {
   float Radius;
   float Height;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSensorConeComponent : ezSensorComponent
@@ -1991,10 +1836,6 @@ class ezSensorConeComponent : ezSensorComponent
   float NearDistance;
   float FarDistance;
   ezAngle Angle;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezColorAnimationComponent : ezComponent
@@ -2005,10 +1846,6 @@ class ezColorAnimationComponent : ezComponent
   ezPropertyAnimMode AnimationMode;
   bool RandomStartOffset;
   bool ApplyToChildren;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFollowPathComponent : ezComponent
@@ -2026,10 +1863,6 @@ class ezFollowPathComponent : ezComponent
   ezFollowPathMode FollowMode;
   float TiltAmount;
   ezAngle MaxTilt;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPathComponent : ezComponent
@@ -2037,10 +1870,6 @@ class ezPathComponent : ezComponent
   ezPathComponentFlags Flags;
   bool Closed;
   float Detail;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPathNodeComponent : ezComponent
@@ -2048,10 +1877,6 @@ class ezPathNodeComponent : ezComponent
   ezAngle Roll;
   ezPathNodeTangentMode Tangent1;
   ezPathNodeTangentMode Tangent2;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPropertyAnimComponent : ezComponent
@@ -2064,10 +1889,6 @@ class ezPropertyAnimComponent : ezComponent
   float Speed;
   ezTime RangeLow;
   ezTime RangeHigh;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezResetTransformComponent : ezComponent
@@ -2081,10 +1902,6 @@ class ezResetTransformComponent : ezComponent
   bool ResetScaling;
   ezVec3 LocalScaling;
   float LocalUniformScaling;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezTransformComponent : ezComponent
@@ -2098,10 +1915,6 @@ class ezTransformComponent : ezComponent
   bool ReverseAtStart;
   ezRotorComponent@ opCast();
   ezSliderComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRotorComponent : ezTransformComponent
@@ -2111,10 +1924,6 @@ class ezRotorComponent : ezTransformComponent
   int32 DegreesToRotate;
   float Acceleration;
   float Deceleration;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSliderComponent : ezTransformComponent
@@ -2124,10 +1933,6 @@ class ezSliderComponent : ezTransformComponent
   float Acceleration;
   float Deceleration;
   ezTime RandomStart;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAimIKComponent : ezComponent
@@ -2136,10 +1941,6 @@ class ezAimIKComponent : ezComponent
   ezBasisAxis UpVector;
   ezString PoleVector;
   float Weight;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAnimatedMeshComponent : ezMeshComponentBase
@@ -2147,10 +1948,6 @@ class ezAnimatedMeshComponent : ezMeshComponentBase
   ezStringView Mesh;
   ezColor Color;
   ezVec4 CustomData;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAnimationControllerComponent : ezComponent
@@ -2159,10 +1956,6 @@ class ezAnimationControllerComponent : ezComponent
   ezRootMotionMode RootMotionMode;
   ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
   bool EnableIK;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJointAttachmentComponent : ezComponent
@@ -2170,10 +1963,6 @@ class ezJointAttachmentComponent : ezComponent
   ezString JointName;
   ezVec3 PositionOffset;
   ezQuat RotationOffset;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJointOverrideComponent : ezComponent
@@ -2182,10 +1971,6 @@ class ezJointOverrideComponent : ezComponent
   bool OverridePosition;
   bool OverrideRotation;
   bool OverrideScale;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLodAnimatedMeshComponent : ezRenderComponent
@@ -2197,10 +1982,6 @@ class ezLodAnimatedMeshComponent : ezRenderComponent
   float BoundsRadius;
   bool ShowDebugInfo;
   bool OverlapRanges;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSimpleAnimationComponent : ezComponent
@@ -2211,10 +1992,6 @@ class ezSimpleAnimationComponent : ezComponent
   ezRootMotionMode RootMotionMode;
   ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
   bool EnableIK;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezTwoBoneIKComponent : ezComponent
@@ -2225,19 +2002,11 @@ class ezTwoBoneIKComponent : ezComponent
   ezBasisAxis MidAxis;
   ezString PoleVector;
   float Weight;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPostProcessingComponent : ezComponent
 {
   ezString VolumeType;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSimpleWindComponent : ezComponent
@@ -2245,10 +2014,6 @@ class ezSimpleWindComponent : ezComponent
   ezWindStrength MinWindStrength;
   ezWindStrength MaxWindStrength;
   ezAngle MaxDeviation;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezWindVolumeComponent : ezComponent
@@ -2260,19 +2025,11 @@ class ezWindVolumeComponent : ezComponent
   ezWindVolumeSphereComponent@ opCast();
   ezWindVolumeCylinderComponent@ opCast();
   ezWindVolumeConeComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezWindVolumeSphereComponent : ezWindVolumeComponent
 {
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezWindVolumeCylinderComponent : ezWindVolumeComponent
@@ -2283,62 +2040,51 @@ class ezWindVolumeCylinderComponent : ezWindVolumeComponent
   float PositiveFalloff;
   float NegativeFalloff;
   ezWindVolumeCylinderMode Mode;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezWindVolumeConeComponent : ezWindVolumeComponent
 {
   ezAngle Angle;
   float Length;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezBlackboardComponent : ezComponent
 {
   void SetEntryValue(ezString Name, ?&in Value);
+  bool GetEntryValue_asBool(ezString Name) const;
+  int GetEntryValue_asInt32(ezString Name) const;
+  float GetEntryValue_asFloat(ezString Name) const;
+  ezTime GetEntryValue_asTime(ezString Name) const;
+  ezAngle GetEntryValue_asAngle(ezString Name) const;
+  ezVec2 GetEntryValue_asVec2(ezString Name) const;
+  ezVec3 GetEntryValue_asVec3(ezString Name) const;
+  ezVec4 GetEntryValue_asVec4(ezString Name) const;
+  ezQuat GetEntryValue_asQuat(ezString Name) const;
+  ezColor GetEntryValue_asColor(ezString Name) const;
+  ezString GetEntryValue_asString(ezString Name) const;
+  ezGameObjectHandle GetEntryValue_asGameObjectHandle(ezString Name) const;
+  ezComponentHandle GetEntryValue_asComponentHandle(ezString Name) const;
   ezStringView Template;
   bool ShowDebugInfo;
   ezLocalBlackboardComponent@ opCast();
   ezGlobalBlackboardComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLocalBlackboardComponent : ezBlackboardComponent
 {
   ezString BlackboardName;
   bool SendEntryChangedMessage;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezGlobalBlackboardComponent : ezBlackboardComponent
 {
   ezString BlackboardName;
   ezGlobalBlackboardInitMode InitMode;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezGrabbableItemComponent : ezComponent
 {
   bool DebugShowPoints;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezGreyBoxComponent : ezRenderComponent
@@ -2361,10 +2107,6 @@ class ezGreyBoxComponent : ezRenderComponent
   bool GenerateCollision;
   bool IncludeInNavmesh;
   bool UseAsOccluder;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezInputComponent : ezComponent
@@ -2373,29 +2115,17 @@ class ezInputComponent : ezComponent
   ezString InputSet;
   ezInputMessageGranularity Granularity;
   bool ForwardToBlackboard;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezMarkerComponent : ezComponent
 {
   ezString Marker;
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPlayerStartPointComponent : ezComponent
 {
   ezStringView PlayerPrefab;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSceneTransitionComponent : ezComponent
@@ -2409,10 +2139,6 @@ class ezSceneTransitionComponent : ezComponent
   ezHashedString PreloadCollection;
   ezHashedString SpawnPoint;
   bool RelativeSpawnPosition;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSpawnBoxComponent : ezComponent
@@ -2427,10 +2153,6 @@ class ezSpawnBoxComponent : ezComponent
   ezTime Duration;
   ezAngle MaxRotationZ;
   ezAngle MaxTiltZ;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSpawnComponent : ezComponent
@@ -2445,10 +2167,6 @@ class ezSpawnComponent : ezComponent
   ezTime MinDelay;
   ezTime DelayRange;
   ezAngle Deviation;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezTimedDeathComponent : ezComponent
@@ -2456,20 +2174,12 @@ class ezTimedDeathComponent : ezComponent
   ezTime MinDelay;
   ezTime DelayRange;
   ezStringView TimeoutPrefab;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezTriggerDelayModifierComponent : ezComponent
 {
   ezTime ActivationDelay;
   ezTime DeactivationDelay;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCharacterControllerComponent : ezComponent
@@ -2479,10 +2189,6 @@ class ezCharacterControllerComponent : ezComponent
   bool IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight);
   bool IsTouchingGround();
   bool IsCrouching();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezStateMachineComponent : ezComponent
@@ -2493,44 +2199,41 @@ class ezStateMachineComponent : ezComponent
   ezStringView Resource;
   ezString InitialState;
   ezString BlackboardName;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezVolumeComponent : ezComponent
 {
   void SetValue(ezHashedString Name, ?&in Value);
+  bool GetValue_asBool(ezTempHashedString Name) const;
+  int GetValue_asInt32(ezTempHashedString Name) const;
+  float GetValue_asFloat(ezTempHashedString Name) const;
+  ezTime GetValue_asTime(ezTempHashedString Name) const;
+  ezAngle GetValue_asAngle(ezTempHashedString Name) const;
+  ezVec2 GetValue_asVec2(ezTempHashedString Name) const;
+  ezVec3 GetValue_asVec3(ezTempHashedString Name) const;
+  ezVec4 GetValue_asVec4(ezTempHashedString Name) const;
+  ezQuat GetValue_asQuat(ezTempHashedString Name) const;
+  ezColor GetValue_asColor(ezTempHashedString Name) const;
+  ezString GetValue_asString(ezTempHashedString Name) const;
+  ezGameObjectHandle GetValue_asGameObjectHandle(ezTempHashedString Name) const;
+  ezComponentHandle GetValue_asComponentHandle(ezTempHashedString Name) const;
   ezString Type;
   float SortOrder;
   ezStringView Template;
   ezVolumeSphereComponent@ opCast();
   ezVolumeBoxComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezVolumeSphereComponent : ezVolumeComponent
 {
   float Radius;
   float Falloff;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezVolumeBoxComponent : ezVolumeComponent
 {
   ezVec3 Extents;
   ezVec3 Falloff;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezDeviceTrackingComponent : ezComponent
@@ -2540,52 +2243,28 @@ class ezDeviceTrackingComponent : ezComponent
   ezXRTransformSpace TransformSpace;
   bool Rotation;
   bool Scale;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezSpatialAnchorComponent : ezComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezStageSpaceComponent : ezComponent
 {
   ezXRStageSpace StageSpace;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezVisualizeHandComponent : ezComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezGizmoComponent : ezMeshComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezNavMeshObstacleComponent : ezComponent
 {
   void InvalidateSectors();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAiNavMeshPathTestComponent : ezComponent
@@ -2596,10 +2275,6 @@ class ezAiNavMeshPathTestComponent : ezComponent
   ezString PathEnd;
   ezHashedString NavmeshConfig;
   ezHashedString PathSearchConfig;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAiNavigationComponent : ezComponent
@@ -2617,20 +2292,12 @@ class ezAiNavigationComponent : ezComponent
   uint32 CollisionLayer;
   float FallHeight;
   ezAiNavigationDebugFlags DebugFlags;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFmodComponent : ezComponent
 {
   ezFmodEventComponent@ opCast();
   ezFmodListenerComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFmodEventComponent : ezFmodComponent
@@ -2650,19 +2317,11 @@ class ezFmodEventComponent : ezFmodComponent
   uint8 OcclusionCollisionLayer;
   ezOnComponentFinishedAction OnFinishedAction;
   bool ShowDebugInfo;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFmodListenerComponent : ezFmodComponent
 {
   uint8 ListenerIndex;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCreatureCrawlComponent : ezComponent
@@ -2672,10 +2331,6 @@ class ezCreatureCrawlComponent : ezComponent
   float CastDown;
   float StepDistance;
   float MinLegDistance;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezMoveToComponent : ezComponent
@@ -2685,30 +2340,18 @@ class ezMoveToComponent : ezComponent
   float TranslationSpeed;
   float TranslationAcceleration;
   float TranslationDeceleration;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezLineToComponent : ezComponent
 {
   ezString Target;
   ezColor Color;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCameraShakeComponent : ezComponent
 {
   ezAngle MinShake;
   ezAngle MaxShake;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCameraShakeVolumeComponent : ezComponent
@@ -2717,19 +2360,11 @@ class ezCameraShakeVolumeComponent : ezComponent
   ezTime BurstDuration;
   ezOnComponentFinishedAction OnFinishedAction;
   ezCameraShakeVolumeSphereComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCameraShakeVolumeSphereComponent : ezCameraShakeVolumeComponent
 {
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezAreaDamageComponent : ezComponent
@@ -2740,10 +2375,6 @@ class ezAreaDamageComponent : ezComponent
   uint8 CollisionLayer;
   float Damage;
   float Impulse;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezHeadBoneComponent : ezComponent
@@ -2751,10 +2382,6 @@ class ezHeadBoneComponent : ezComponent
   void SetVerticalRotation(float Radians);
   void ChangeVerticalRotation(float Radians);
   ezAngle VerticalRotation;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezPowerConnectorComponent : ezComponent
@@ -2765,10 +2392,6 @@ class ezPowerConnectorComponent : ezComponent
   uint16 Output;
   ezString Buddy;
   ezString ConnectedTo;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProjectileComponent : ezComponent
@@ -2781,10 +2404,6 @@ class ezProjectileComponent : ezComponent
   uint8 CollisionLayer;
   ezPhysicsShapeType ShapeTypesToHit;
   ezStringView FallbackSurface;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRaycastComponent : ezComponent
@@ -2799,10 +2418,6 @@ class ezRaycastComponent : ezComponent
   ezPhysicsShapeType ShapeTypesToHit;
   uint8 CollisionLayerEndPoint;
   ezHashedString ChangeNotificationMsg;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezClothSheetComponent : ezRenderComponent
@@ -2814,10 +2429,6 @@ class ezClothSheetComponent : ezRenderComponent
   ezClothSheetFlags Flags;
   ezStringView Material;
   ezColor Color;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezFakeRopeComponent : ezComponent
@@ -2830,10 +2441,6 @@ class ezFakeRopeComponent : ezComponent
   float Slack;
   float Damping;
   float WindInfluence;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRandomPrefabComponent : ezComponent
@@ -2847,10 +2454,6 @@ class ezRandomPrefabComponent : ezComponent
   float MaxScale;
   ezColor Color1;
   ezColor Color2;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezHeightfieldComponent : ezRenderComponent
@@ -2863,10 +2466,6 @@ class ezHeightfieldComponent : ezRenderComponent
   ezVec2 TexCoordScale;
   bool GenerateCollision;
   bool IncludeInNavmesh;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltActorComponent : ezComponent
@@ -2877,10 +2476,6 @@ class ezJoltActorComponent : ezComponent
   ezJoltQueryShapeActorComponent@ opCast();
   ezJoltStaticActorComponent@ opCast();
   ezJoltTriggerComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltDynamicActorComponent : ezJoltActorComponent
@@ -2902,19 +2497,11 @@ class ezJoltDynamicActorComponent : ezJoltActorComponent
   ezOnJoltContact OnContact;
   bool CustomCenterOfMass;
   ezVec3 CenterOfMass;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltQueryShapeActorComponent : ezJoltActorComponent
 {
   ezStringView Surface;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltStaticActorComponent : ezJoltActorComponent
@@ -2923,19 +2510,11 @@ class ezJoltStaticActorComponent : ezJoltActorComponent
   bool IncludeInNavmesh;
   bool PullSurfacesFromGraphicsMesh;
   ezStringView Surface;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltTriggerComponent : ezJoltActorComponent
 {
   ezString TriggerMessage;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltCharacterControllerComponent : ezComponent
@@ -2947,10 +2526,6 @@ class ezJoltCharacterControllerComponent : ezComponent
   ezAngle MaxClimbingSlope;
   ezJoltCharacterDebugFlags DebugFlags;
   ezJoltDefaultCharacterComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
@@ -2978,10 +2553,6 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
   float RunInteractionDistance;
   ezStringView FallbackWalkSurface;
   ezString HeadObject;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltClothSheetComponent : ezRenderComponent
@@ -2996,10 +2567,6 @@ class ezJoltClothSheetComponent : ezRenderComponent
   ezStringView Material;
   ezVec2 TextureScale;
   ezColor Color;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltHitboxComponent : ezComponent
@@ -3008,10 +2575,6 @@ class ezJoltHitboxComponent : ezComponent
   void RecreatePhysicsShapes();
   bool QueryShapeOnly;
   ezTime UpdateThreshold;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltRagdollComponent : ezComponent
@@ -3029,10 +2592,6 @@ class ezJoltRagdollComponent : ezComponent
   ezVec3 CenterPosition;
   float CenterVelocity;
   float CenterAngularVelocity;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltRopeComponent : ezComponent
@@ -3053,10 +2612,6 @@ class ezJoltRopeComponent : ezComponent
   float GravityFactor;
   bool SelfCollision;
   bool ContinuousCollisionDetection;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltSettingsComponent : ezSettingsComponent
@@ -3068,19 +2623,11 @@ class ezJoltSettingsComponent : ezSettingsComponent
   uint32 MaxSubSteps;
   uint32 MaxBodies;
   float SleepVelocityThreshold;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltVisColMeshComponent : ezRenderComponent
 {
   ezStringView CollisionMesh;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltConstraintComponent : ezComponent
@@ -3098,19 +2645,11 @@ class ezJoltConstraintComponent : ezComponent
   ezJoltPointConstraintComponent@ opCast();
   ezJoltSliderConstraintComponent@ opCast();
   ezJoltSwingTwistConstraintComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltConeConstraintComponent : ezJoltConstraintComponent
 {
   ezAngle ConeAngle;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltDistanceConstraintComponent : ezJoltConstraintComponent
@@ -3119,18 +2658,10 @@ class ezJoltDistanceConstraintComponent : ezJoltConstraintComponent
   float MaxDistance;
   float Frequency;
   float Damping;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltFixedConstraintComponent : ezJoltConstraintComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltGrabObjectComponent : ezComponent
@@ -3148,10 +2679,6 @@ class ezJoltGrabObjectComponent : ezComponent
   float BreakDistance;
   ezString AttachTo;
   float GrabAnyObjectWithSize;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltHingeConstraintComponent : ezJoltConstraintComponent
@@ -3163,18 +2690,10 @@ class ezJoltHingeConstraintComponent : ezJoltConstraintComponent
   ezJoltConstraintDriveMode DriveMode;
   ezAngle DriveTargetValue;
   float DriveStrength;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltPointConstraintComponent : ezJoltConstraintComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltSliderConstraintComponent : ezJoltConstraintComponent
@@ -3186,10 +2705,6 @@ class ezJoltSliderConstraintComponent : ezJoltConstraintComponent
   ezJoltConstraintDriveMode DriveMode;
   float DriveTargetValue;
   float DriveStrength;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltSwingTwistConstraintComponent : ezJoltConstraintComponent
@@ -3199,10 +2714,6 @@ class ezJoltSwingTwistConstraintComponent : ezJoltConstraintComponent
   float Friction;
   ezAngle LowerTwistLimit;
   ezAngle UpperTwistLimit;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeComponent : ezComponent
@@ -3212,67 +2723,39 @@ class ezJoltShapeComponent : ezComponent
   ezJoltShapeConvexHullComponent@ opCast();
   ezJoltShapeCylinderComponent@ opCast();
   ezJoltShapeSphereComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeBoxComponent : ezJoltShapeComponent
 {
   ezVec3 HalfExtents;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeCapsuleComponent : ezJoltShapeComponent
 {
   float Height;
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeConvexHullComponent : ezJoltShapeComponent
 {
   ezStringView CollisionMesh;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeCylinderComponent : ezJoltShapeComponent
 {
   float Height;
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezJoltShapeSphereComponent : ezJoltShapeComponent
 {
   float Radius;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezKrautTreeComponent : ezRenderComponent
 {
   ezStringView KrautTree;
   uint16 VariationIndex;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezParticleComponent : ezRenderComponent
@@ -3290,36 +2773,20 @@ class ezParticleComponent : ezRenderComponent
   ezBasisAxis SpawnDirection;
   bool IgnoreOwnerRotation;
   ezString SharedInstanceName;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezParticleFinisherComponent : ezRenderComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcPlacementComponent : ezComponent
 {
   ezStringView Resource;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcVertexColorComponent : ezMeshComponent
 {
   ezStringView Resource;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcVolumeComponent : ezComponent
@@ -3330,20 +2797,12 @@ class ezProcVolumeComponent : ezComponent
   ezProcVolumeSphereComponent@ opCast();
   ezProcVolumeBoxComponent@ opCast();
   ezProcVolumeImageComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcVolumeSphereComponent : ezProcVolumeComponent
 {
   float Radius;
   float Falloff;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcVolumeBoxComponent : ezProcVolumeComponent
@@ -3351,19 +2810,11 @@ class ezProcVolumeBoxComponent : ezProcVolumeComponent
   ezVec3 Extents;
   ezVec3 Falloff;
   ezProcVolumeImageComponent@ opCast();
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezProcVolumeImageComponent : ezProcVolumeBoxComponent
 {
   ezStringView Image;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezRmlUiCanvas2DComponent : ezRenderComponent
@@ -3373,27 +2824,15 @@ class ezRmlUiCanvas2DComponent : ezRenderComponent
   bool PassInput;
   bool AutobindBlackboards;
   bool OnDemandUpdate;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezCommentComponent : ezComponent
 {
   ezString Comment;
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezShapeIconComponent : ezComponent
 {
-  bool SendMessage(ezMessage&inout ref_msg);
-  bool SendMessage(ezMessage&inout ref_msg) const;
-  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
-  ezComponentHandle GetHandle() const;
 }
 
 class ezMsgPhysicsAddImpulse : ezMessage
@@ -3830,6 +3269,19 @@ namespace ezClock
 
 namespace ezCVar
 {
+  bool GetValue_asBool(ezStringView Name);
+  int GetValue_asInt32(ezStringView Name);
+  float GetValue_asFloat(ezStringView Name);
+  ezTime GetValue_asTime(ezStringView Name);
+  ezAngle GetValue_asAngle(ezStringView Name);
+  ezVec2 GetValue_asVec2(ezStringView Name);
+  ezVec3 GetValue_asVec3(ezStringView Name);
+  ezVec4 GetValue_asVec4(ezStringView Name);
+  ezQuat GetValue_asQuat(ezStringView Name);
+  ezColor GetValue_asColor(ezStringView Name);
+  ezString GetValue_asString(ezStringView Name);
+  ezGameObjectHandle GetValue_asGameObjectHandle(ezStringView Name);
+  ezComponentHandle GetValue_asComponentHandle(ezStringView Name);
   bool GetBoolValue(ezStringView Name);
   int GetIntValue(ezStringView Name);
   float GetFloatValue(ezStringView Name);

@@ -29,6 +29,8 @@ public:
     Strings,
     Messaging,
     GameObject,
+    Physics,
+    Misc,
   };
 
 private:

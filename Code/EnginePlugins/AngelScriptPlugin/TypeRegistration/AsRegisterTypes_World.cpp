@@ -82,7 +82,14 @@ void ezGameObject_SendAsMessage(asIScriptGeneric* pGen)
 
   ezMsgDeliverAngelScriptMsg msg;
   msg.m_pAsMsg = pAsMsg;
-  pObj->SendMessage(msg);
+  if (pObj->SendMessage(msg))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
 }
 
 void ezGameObject_SendAsMessageConst(asIScriptGeneric* pGen)
@@ -92,7 +99,14 @@ void ezGameObject_SendAsMessageConst(asIScriptGeneric* pGen)
 
   ezMsgDeliverAngelScriptMsg msg;
   msg.m_pAsMsg = pAsMsg;
-  pObj->SendMessage(msg);
+  if (pObj->SendMessage(msg))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
 }
 
 void ezGameObject_SendAsMessageRecursive(asIScriptGeneric* pGen)
@@ -102,7 +116,14 @@ void ezGameObject_SendAsMessageRecursive(asIScriptGeneric* pGen)
 
   ezMsgDeliverAngelScriptMsg msg;
   msg.m_pAsMsg = pAsMsg;
-  pObj->SendMessageRecursive(msg);
+  if (pObj->SendMessageRecursive(msg))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
 }
 
 void ezGameObject_SendAsMessageRecursiveConst(asIScriptGeneric* pGen)
@@ -112,7 +133,14 @@ void ezGameObject_SendAsMessageRecursiveConst(asIScriptGeneric* pGen)
 
   ezMsgDeliverAngelScriptMsg msg;
   msg.m_pAsMsg = pAsMsg;
-  pObj->SendMessageRecursive(msg);
+  if (pObj->SendMessageRecursive(msg))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
 }
 
 void ezGameObject_PostAsMessage(asIScriptGeneric* pGen)
@@ -151,8 +179,8 @@ void ezGameObject_PostAsMessageRecursive(asIScriptGeneric* pGen)
 
 void ezAngelScriptEngineSingleton::Register_GameObject()
 {
-  Register_EnumType(ezGetStaticRTTI<ezObjectMsgQueueType>());
-  Register_EnumType(ezGetStaticRTTI<ezTransformPreservation>());
+  ezAngelScriptUtils::RegisterEnumType(m_pEngine, ezGetStaticRTTI<ezObjectMsgQueueType>());
+  ezAngelScriptUtils::RegisterEnumType(m_pEngine, ezGetStaticRTTI<ezTransformPreservation>());
 
   {
     AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezGameObjectHandle", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezGameObjectHandle_Construct), asCALL_CDECL_OBJFIRST));
@@ -270,10 +298,10 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
 
   // GetVisibilityState
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SendMessage(ezAngelScriptMessage& inout)", asFUNCTION(ezGameObject_SendAsMessage), asCALL_GENERIC));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SendMessage(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageConst), asCALL_GENERIC));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SendMessageRecursive(ezAngelScriptMessage& inout)", asFUNCTION(ezGameObject_SendAsMessageRecursive), asCALL_GENERIC));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SendMessageRecursive(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageRecursiveConst), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessage(ezAngelScriptMessage& inout)", asFUNCTION(ezGameObject_SendAsMessage), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessage(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageConst), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessageRecursive(ezAngelScriptMessage& inout)", asFUNCTION(ezGameObject_SendAsMessageRecursive), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessageRecursive(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageRecursiveConst), asCALL_GENERIC));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessage(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessage), asCALL_GENERIC));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessageRecursive(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessageRecursive), asCALL_GENERIC));
