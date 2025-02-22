@@ -1150,7 +1150,6 @@ void ezGameObject::SendNotificationMessage(ezMessage& msg)
 
 void ezGameObject::SetLocalTransformChanged()
 {
-  ChildIterator iter = GetChildren();
   GetWorld()->SetLocalTransformChanged(this);
 }
 
