@@ -242,6 +242,19 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST_BOOL(m1.IsFreelistValid());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCapacity")
+  {
+    ezIdTable<Id, st> table1;
+    Id id0 = table1.Insert(st(1));
+
+    EZ_TEST_BOOL(table1.GetCapacity() >= 1); // We added one element, so the capacity should be >= 1
+
+    ezIdTable<Id, st> table2;
+    table2.Reserve(10);
+
+    EZ_TEST_BOOL(table2.GetCapacity() >= 10); // We reserved 10 elements, so the capacity should be >= 10
+  }
+
   /*EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
   {
     ezIdTable<Id, st> a;

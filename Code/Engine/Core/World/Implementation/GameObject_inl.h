@@ -629,5 +629,7 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateLastGlobalTransfor
     m_lastGlobalTransform = m_globalTransform;
     m_uiLastGlobalTransformUpdateCounter = uiUpdateCounter;
   }
+#else
+  EZ_IGNORE_UNUSED(uiUpdateCounter);
 #endif
 }

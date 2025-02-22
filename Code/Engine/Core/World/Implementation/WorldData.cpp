@@ -72,7 +72,7 @@ namespace ezInternal
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
     static_assert(sizeof(ezGameObject::TransformationData) == 256);
 #else
-    static_assert(sizeof(ezGameObject::TransformationData) == 224);
+    static_assert(sizeof(ezGameObject::TransformationData) == 208);
 #endif
 
     static_assert(sizeof(ezGameObject) == 128);
