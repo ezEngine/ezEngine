@@ -308,18 +308,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorOutputDesc, ezNoBase, 1, ezRTTID
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("ProcGenOutputNameEnum")),
     EZ_MEMBER_PROPERTY("Mapping", m_Mapping),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezProcVertexColorOutputDesc::SetName(const char* szName)
-{
-  m_sName.Assign(szName);
-}
 
 static ezTypeVersion s_ProcVertexColorOutputDescVersion = 1;
 ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& inout_stream) const

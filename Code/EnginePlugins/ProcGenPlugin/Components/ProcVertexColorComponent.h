@@ -62,9 +62,6 @@ struct ezProcVertexColorOutputDesc
   ezHashedString m_sName;
   ezProcVertexColorMapping m_Mapping;
 
-  void SetName(const char* szName);
-  const char* GetName() const { return m_sName; }
-
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
 };
