@@ -103,7 +103,8 @@ class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey();
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezDynamicMeshBufferResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;

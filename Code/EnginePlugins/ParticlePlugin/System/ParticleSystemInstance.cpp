@@ -342,6 +342,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier)
 {
+  m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
@@ -620,7 +621,7 @@ void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volu
     fExpand = ezMath::Max(fExpand, pType->GetMaxParticleRadius(fMaxParticleSize));
   }
 
-  m_BoundingVolume.m_vBoxHalfExtends += ezVec3(fExpand);
+  m_BoundingVolume.m_vBoxHalfExtents += ezVec3(fExpand);
   m_BoundingVolume.m_fSphereRadius += fExpand;
 }
 

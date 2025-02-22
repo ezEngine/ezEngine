@@ -153,7 +153,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableParentChangesNotifications()
   m_Flags.Remove(ezObjectFlags::ParentChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -161,7 +161,7 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
   }
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {

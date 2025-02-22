@@ -14,7 +14,7 @@ o
 			s{"UI/SelectMode.rml"}
 		}
 		Uuid %DocumentID{u4{1305255426561629067,5673149715115996774}}
-		u4 %Hash{5419568398239815117}
+		u4 %Hash{6468534380519459840}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -35,9 +35,9 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2u %ReferenceResolution{u3{1920,1080}}
+		Vec2u %ReferenceResolution{u3{1280,720}}
 		s %RmlFile{"UI/SelectMode.rml"}
-		s %ScaleMode{"ezRmlUiScaleMode::Fixed"}
+		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
 o

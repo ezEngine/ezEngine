@@ -176,7 +176,7 @@ private:
   };
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  // This code ensures in debug build that a buffer is not updated twice per frame in the same location (without using CopyToTempStorage)
+  // This code ensures in debug build that a buffer is not updated twice per frame in the same location
   struct BufferRange
   {
     inline bool overlapRange(ezUInt32 uiOffset, ezUInt32 uiLength) const

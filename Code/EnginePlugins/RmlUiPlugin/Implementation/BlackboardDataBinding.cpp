@@ -63,8 +63,10 @@ namespace ezRmlUiInternal
     }
   }
 
-  void BlackboardDataBinding::Update()
+  bool BlackboardDataBinding::Update()
   {
+    bool bUpdated = false;
+
     if (m_uiBlackboardChangeCounter != m_pBlackboard->GetBlackboardChangeCounter())
     {
       ezLog::Warning("Data Binding doesn't work with values that are registered or unregistered after setup");
@@ -81,11 +83,14 @@ namespace ezRmlUiInternal
         {
           m_hDataModel.DirtyVariable(wrapper.m_sName.GetData());
           wrapper.m_uiChangeCounter = pEntry->m_uiChangeCounter;
+          bUpdated = true;
         }
       }
 
       m_uiBlackboardEntryChangeCounter = m_pBlackboard->GetBlackboardEntryChangeCounter();
     }
+
+    return bUpdated;
   }
 
   //////////////////////////////////////////////////////////////////////////

@@ -41,9 +41,9 @@ private:
   void FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const override;
   void FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const override;
 
-  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState visType) const override;
+  void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const override;
 
-  ezVisibilityState GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const override;
+  ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const override;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   virtual void GetInternalStats(ezStringBuilder& sb) const override;
@@ -85,8 +85,8 @@ private:
   void ForEachGrid(const Data& data, const ezSpatialDataHandle& hData, Functor func) const;
 
   struct Stats;
-  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, ezVisibilityState)>;
-  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState visType) const;
+  using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, ezVisibilityState::Enum)>;
+  void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const;
 
   struct CacheCandidate
   {

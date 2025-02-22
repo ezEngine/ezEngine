@@ -90,12 +90,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstancedMeshRenderData, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezInstancedMeshRenderData::FillBatchIdAndSortingKey()
-{
-  void* pData = &m_pExplicitInstanceData->m_InstanceDataBuffer;
-  FillBatchIdAndSortingKeyInternal(ezHashingUtils::xxHash32(pData, sizeof(pData)));
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 ezInstancedMeshComponentManager::ezInstancedMeshComponentManager(ezWorld* pWorld)

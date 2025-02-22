@@ -37,6 +37,8 @@ public:
   void SetUpdateInterval(ezTime interval);                                             // [ property ]
   ezTime GetUpdateInterval() const;                                                    // [ property ]
 
+  void BroadcastEventMsg(ezEventMessage& ref_msg);
+
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
   const ezRangeView<const char*, ezUInt32> GetParameters() const;
@@ -64,4 +66,13 @@ private:
 
   ezSharedPtr<ezScriptRTTI> m_pScriptType;
   ezUniquePtr<ezScriptInstance> m_pInstance;
+
+private:
+  struct EventSender
+  {
+    const ezRTTI* m_pMsgType = nullptr;
+    ezEventMessageSender<ezEventMessage> m_Sender;
+  };
+
+  ezSmallArray<EventSender, 1> m_EventSenders;
 };

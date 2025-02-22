@@ -9,7 +9,9 @@ RMLUI_MODE
 
 BlendingEnabled0 = true
 DestBlend0 = Blend_InvSrcAlpha
-SourceBlend0 = Blend_SrcAlpha
+SourceBlend0 = Blend_One
+DestBlendAlpha0 = Blend_InvSrcAlpha
+SourceBlendAlpha0 = Blend_One
 ScissorTest = true
 DepthTest = false
 DepthWrite = false
@@ -31,15 +33,28 @@ WriteMask0 = 0
 
 #endif
 
+[SHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+};
+
 [VERTEXSHADER]
 
 #include "RmlUiConstants.h"
 
 #if RMLUI_MODE != RMLUI_MODE_STENCIL_SET
-  #define USE_COLOR0
-  #define USE_TEXCOORD0
+  struct VS_IN
+  {
+    float2 Position : POSITION;
+    float2 TexCoord0 : TEXCOORD0;
+    float4 Color0 : COLOR0;
+  };
 
-  #include <Shaders/Materials/MaterialInterpolator.h>
+  typedef PS_IN VS_OUT;
 #endif
 
 float4 GetScreenPosition(float4 inputPos)
@@ -49,45 +64,40 @@ float4 GetScreenPosition(float4 inputPos)
   return float4(screenPosition, 1.0f);
 }
 
-#if RMLUI_MODE == RMLUI_MODE_STENCIL_SET
-  float4 main(uint VertexID : SV_VertexID) : SV_Position
-  {
-    float4 inputPos = QuadVertexPos[VertexID];
-    return GetScreenPosition(inputPos);
-  }
-#else
-  VS_OUT main(VS_IN Input)
-  {
-    VS_OUT RetVal;
-    
-    float4 inputPos = float4(Input.Position, 1);
-    inputPos.xy += UiTranslation.xy;
-    RetVal.Position = GetScreenPosition(inputPos);
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
 
-    RetVal.TexCoord0 = Input.TexCoord0;
-    RetVal.Color0 = Input.Color0;
+  float4 inputPos = float4(Input.Position, 0, 1);
+  inputPos.xy += UiTranslation.xy;
+  RetVal.Position = GetScreenPosition(inputPos);
 
-    return RetVal;
-  }
-#endif
+  RetVal.TexCoord0 = Input.TexCoord0;
+  RetVal.Color0 = Input.Color0;
+
+  return RetVal;
+}
 
 [PIXELSHADER]
+
+#include "RmlUiConstants.h"
 
 #if RMLUI_MODE == RMLUI_MODE_STENCIL_SET
   void main()
   {
   }
 #else
-  #define USE_COLOR0
-  #define USE_TEXCOORD0
-
-  #include <Shaders/Materials/MaterialInterpolator.h>
-
   Texture2D BaseTexture;
   SamplerState BaseTexture_AutoSampler;
 
   float4 main(PS_IN Input) : SV_Target
   {
-    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
+    float4 textureColor = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
+    if (TextureNeedsAlphaMultiplication)
+    {
+      textureColor.rgb *= textureColor.a;
+    }
+
+    return textureColor * Input.Color0;
   }
 #endif

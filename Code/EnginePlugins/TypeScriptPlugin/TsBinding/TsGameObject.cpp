@@ -843,8 +843,8 @@ static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
 
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 1);
 
-  const ezGameObject::TransformPreservation preserve =
-    duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
+  const ezTransformPreservation::Enum preserve =
+    duk.GetBoolValue(2) ? ezTransformPreservation::Enum::PreserveGlobal : ezTransformPreservation::Enum::PreserveLocal;
 
   switch (duk.GetFunctionMagicValue())
   {

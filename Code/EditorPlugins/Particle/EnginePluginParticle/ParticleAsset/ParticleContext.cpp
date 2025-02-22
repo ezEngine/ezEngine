@@ -299,7 +299,7 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 
           // shrink the bbox to zoom in
           m_ThumbnailBoundingVolume.m_fSphereRadius *= 0.7f;
-          m_ThumbnailBoundingVolume.m_vBoxHalfExtends *= 0.7f;
+          m_ThumbnailBoundingVolume.m_vBoxHalfExtents *= 0.7f;
         }
       }
 

@@ -700,7 +700,6 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
 
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
 
-  ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(sResourceID);
 
   ezHashedString* redirection;
@@ -712,17 +711,16 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
 
   LoadedResources& lr = s_pState->m_LoadedResources[pRtti];
 
-  if (lr.m_Resources.TryGetValue(sHashedResourceID, pResource))
+  ezResource*& pResource = lr.m_Resources[sHashedResourceID];
+  if (pResource != nullptr)
     return pResource;
 
-  ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
-  pNewResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
-  pNewResource->SetUniqueID(sResourceID, bIsReloadable);
-  pNewResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pNewResource->HasResourceTypeLoadingFallback());
+  pResource = pRtti->GetAllocator()->Allocate<ezResource>();
+  pResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
+  pResource->SetUniqueID(sResourceID, bIsReloadable);
+  pResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pResource->HasResourceTypeLoadingFallback());
 
-  lr.m_Resources.Insert(sHashedResourceID, pNewResource);
-
-  return pNewResource;
+  return pResource;
 }
 
 void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> overrideDecider)

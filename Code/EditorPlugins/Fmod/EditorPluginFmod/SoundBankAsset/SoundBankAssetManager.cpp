@@ -81,12 +81,11 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
 
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const
 {
-  ezHashedString sAssetsDocumentTypeName;
-  sAssetsDocumentTypeName.Assign("Sound Event");
+  EZ_PROFILE_SCOPE("GetSoundBankSubAssets");
 
-  auto* pSystem = m_pFmod->GetSystem();
-
-  ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
+  SoundBankCache& cache = m_Cache[assetInfo.m_DocumentID];
+  const ezTimestamp lastTS = cache.m_LastModification;
+  bool bCanEarlyOut = true;
 
   for (const ezString& dep : assetInfo.m_TransformDependencies)
   {
@@ -98,89 +97,138 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
         continue;
 
-      FMOD::Studio::Bank* pBank = nullptr;
-      auto res = pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
-      if (res != FMOD_OK || pBank == nullptr)
-        continue;
-
-      loadedBanks.PushBack(pBank);
-
-      ezStringBuilder sStringsBank = sAssetFile;
-      sStringsBank.PathParentDirectory();
-      sStringsBank.AppendPath("*.strings.bank");
-
-      // honestly we have no idea what the strings bank name should be
-      // and if there are multiple, which one is the correct one
-      // so we just load everything that we can find
-      ezFileSystemIterator fsIt;
-      for (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles); fsIt.IsValid(); fsIt.Next())
+      ezFileStats stat;
+      if (ezOSFile::GetFileStats(sAssetFile, stat).Succeeded())
       {
-        sStringsBank = fsIt.GetCurrentPath();
-        sStringsBank.AppendPath(fsIt.GetStats().m_sName);
-
-        FMOD::Studio::Bank* pStringsBank = nullptr;
-        if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)
+        if (stat.m_LastModificationTime.Compare(cache.m_LastModification, ezTimestamp::CompareMode::Newer))
         {
-          loadedBanks.PushBack(pStringsBank);
+          cache.m_LastModification = stat.m_LastModificationTime;
         }
-      }
 
-      int iEvents = 0;
-      EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
-
-      if (iEvents > 0)
-      {
-        ezDynamicArray<FMOD::Studio::EventDescription*> events;
-        events.SetCountUninitialized(iEvents);
-
-        pBank->getEventList(events.GetData(), iEvents, &iEvents);
-
-        char szPath[256];
-        int iLen;
-
-        FMOD_GUID guid;
-
-        ezStringBuilder sGuid, sGuidNoSpace, sEventName;
-
-        for (ezUInt32 i = 0; i < events.GetCount(); ++i)
+        if (stat.m_LastModificationTime.Compare(lastTS, ezTimestamp::CompareMode::Newer))
         {
-          iLen = 0;
-          EZ_FMOD_ASSERT(events[i]->getPath(szPath, 255, &iLen));
-          szPath[iLen] = '\0';
-
-          sEventName = szPath;
-
-          if (sEventName.StartsWith_NoCase("snapshot:/"))
-            continue;
-
-          if (sEventName.StartsWith_NoCase("event:/"))
-            sEventName.Shrink(7, 0);
-          else
-          {
-            ezLog::Warning("Skipping unknown FMOD event type: '{0}", sEventName);
-            continue;
-          }
-
-          events[i]->getID(&guid);
-
-          ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
-          ezConversionUtils::ToString(*ezGuid, sGuid);
-          sGuidNoSpace = sGuid;
-          sGuidNoSpace.ReplaceAll(" ", "");
-
-          auto& sub = out_subAssets.ExpandAndGetRef();
-          sub.m_Guid = *ezGuid;
-          sub.m_sName = sEventName;
-          sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
+          bCanEarlyOut = false;
         }
       }
     }
   }
 
-  for (FMOD::Studio::Bank* pBank : loadedBanks)
+  if (bCanEarlyOut)
   {
-    EZ_FMOD_ASSERT(pBank->unload());
+    out_subAssets = cache.m_CachedSubAssets;
+    return;
   }
+
+  cache.m_CachedSubAssets.Clear();
+
+  ezHashedString sAssetsDocumentTypeName;
+  sAssetsDocumentTypeName.Assign("Sound Event");
+
+  auto* pSystem = m_pFmod->GetSystem();
+  ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
+
+
+  // TODO: it is unclear whether the code below can produce deadlocks, because of locked soundbank files on disk
+  // in theory, since m_TransformDependencies is alphabetically sorted, the access order should always be the same, and thus
+  // no deadlock should be possible,
+
+  for (const ezString& dep : assetInfo.m_TransformDependencies)
+  {
+    if (!ezPathUtils::HasExtension(dep, "bank"))
+      continue;
+
+    ezString sAssetFile = dep;
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAssetFile))
+      continue;
+
+    FMOD::Studio::Bank* pBank = nullptr;
+    auto res = pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
+    if (res != FMOD_OK || pBank == nullptr)
+      continue;
+
+    loadedBanks.PushBack(pBank);
+
+    ezStringBuilder sStringsBank = sAssetFile;
+    sStringsBank.PathParentDirectory();
+    sStringsBank.AppendPath("*.strings.bank");
+
+    // honestly we have no idea what the strings bank name should be
+    // and if there are multiple, which one is the correct one
+    // so we just load everything that we can find
+    ezFileSystemIterator fsIt;
+    for (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles); fsIt.IsValid(); fsIt.Next())
+    {
+      sStringsBank = fsIt.GetCurrentPath();
+      sStringsBank.AppendPath(fsIt.GetStats().m_sName);
+
+      FMOD::Studio::Bank* pStringsBank = nullptr;
+      if (pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank) == FMOD_OK && pStringsBank != nullptr)
+      {
+        loadedBanks.PushBack(pStringsBank);
+      }
+    }
+
+    int iEvents = 0;
+    EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
+
+    if (iEvents > 0)
+    {
+      ezDynamicArray<FMOD::Studio::EventDescription*> events;
+      events.SetCountUninitialized(iEvents);
+
+      pBank->getEventList(events.GetData(), iEvents, &iEvents);
+
+      char szPath[256];
+      int iLen;
+
+      FMOD_GUID guid;
+
+      ezStringBuilder sGuid, sGuidNoSpace, sEventName;
+
+      for (ezUInt32 i = 0; i < events.GetCount(); ++i)
+      {
+        iLen = 0;
+        EZ_FMOD_ASSERT(events[i]->getPath(szPath, 255, &iLen));
+        szPath[iLen] = '\0';
+
+        sEventName = szPath;
+
+        if (sEventName.StartsWith_NoCase("snapshot:/"))
+          continue;
+
+        if (sEventName.StartsWith_NoCase("event:/"))
+          sEventName.Shrink(7, 0);
+        else
+        {
+          ezLog::Warning("Skipping unknown FMOD event type: '{0}", sEventName);
+          continue;
+        }
+
+        events[i]->getID(&guid);
+
+        ezUuid* ezGuid = reinterpret_cast<ezUuid*>(&guid);
+        ezConversionUtils::ToString(*ezGuid, sGuid);
+        sGuidNoSpace = sGuid;
+        sGuidNoSpace.ReplaceAll(" ", "");
+
+        auto& sub = cache.m_CachedSubAssets.ExpandAndGetRef();
+        sub.m_Guid = *ezGuid;
+        sub.m_sName = sEventName;
+        sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
+      }
+    }
+
+    for (FMOD::Studio::Bank* pBank : loadedBanks)
+    {
+      EZ_FMOD_ASSERT(pBank->unload());
+    }
+
+    loadedBanks.Clear();
+  }
+
+  EZ_ASSERT_DEV(loadedBanks.IsEmpty(), "A soundbank wasn't unloaded.");
+
+  out_subAssets = cache.m_CachedSubAssets;
 }
 
 ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const

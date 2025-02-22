@@ -10,13 +10,28 @@
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
+#include <Core/World/SpatialData.h>
 
 // Avoid conflicts with windows.h
 #ifdef SendMessage
 #  undef SendMessage
 #endif
 
-enum class ezVisibilityState : ezUInt8;
+/// \brief Defines during re-parenting what transform is going to be preserved.
+struct ezTransformPreservation
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
+  {
+    PreserveLocal,
+    PreserveGlobal,
+
+    Default = PreserveLocal
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezTransformPreservation);
 
 /// \brief This class represents an object inside the world.
 ///
@@ -161,15 +176,8 @@ public:
   void EnableParentChangesNotifications();
   void DisableParentChangesNotifications();
 
-  /// \brief Defines during re-parenting what transform is going to be preserved.
-  enum class TransformPreservation
-  {
-    PreserveLocal,
-    PreserveGlobal
-  };
-
   /// \brief Sets the parent of this object to the given.
-  void SetParent(const ezGameObjectHandle& hParent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void SetParent(const ezGameObjectHandle& hParent, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent();
@@ -178,16 +186,16 @@ public:
   const ezGameObject* GetParent() const;
 
   /// \brief Adds the given object as a child object.
-  void AddChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
-  void DetachChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -500,7 +508,7 @@ public:
   /// An invisible object may stop updating entirely. An indirectly visible object may reduce its update rate.
   ///
   /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
-  ezVisibilityState GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
+  ezVisibilityState::Enum GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
 
 private:
   friend class ezComponentManagerBase;

@@ -304,7 +304,7 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (m_uiSleepCounter > 10)
     return;
 
-  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
   if (visType == ezVisibilityState::Invisible)
     return;

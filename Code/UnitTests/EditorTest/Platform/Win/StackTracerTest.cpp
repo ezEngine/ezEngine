@@ -80,7 +80,6 @@ EZ_CREATE_SIMPLE_TEST(Platform, StackTracer)
       ezStringView sLogMessage = "*** Assertion ***: File: \"C:\\dev\\ez engine\\Game\\GamePlugin\\Components\\TestComponent.cpp\", Line: \"12";
       EZ_TEST_BOOL(ezStackTraceLogParser::ParseAssertFileNameAndLineNumber(sLogMessage, sFileName, lineNumber) == false);
     }
-
   }
 }
 

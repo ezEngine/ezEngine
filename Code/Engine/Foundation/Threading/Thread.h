@@ -23,10 +23,11 @@ struct ezThreadEvent
 {
   enum class Type
   {
-    ThreadCreated,     ///< Called on the thread that creates the ezThread instance
-    ThreadDestroyed,   ///< Called on the thread that destroys the ezThread instance
-    StartingExecution, ///< Called on the thread that executes the ezThread instance
-    FinishedExecution, ///< Called on the thread that executes the ezThread instance
+    ThreadCreated,     ///< Called on the thread that creates the ezThread instance (not the ezThread itself).
+    ThreadDestroyed,   ///< Called on the thread that destroys the ezThread instance (not the ezThread itself).
+    StartingExecution, ///< Called on the ezThread before the Run() method is executed.
+    FinishedExecution, ///< Called on the ezThread after the Run() method was executed.
+    ClearThreadLocals, ///< Potentially called on the ezThread (currently only for task system threads) at a time when plugins should clean up thread-local storage.
   };
 
   Type m_Type;

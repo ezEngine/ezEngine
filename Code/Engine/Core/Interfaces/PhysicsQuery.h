@@ -14,7 +14,7 @@ enum class ezPhysicsHitType : int8_t
   TriangleBackFace = 1,  ///< The raycast hit the back face of a triangle
 };
 
-/// \brief Used for raycast and seep tests
+/// \brief Used for raycast and sweep tests
 struct ezPhysicsCastResult
 {
   ezVec3 m_vPosition;

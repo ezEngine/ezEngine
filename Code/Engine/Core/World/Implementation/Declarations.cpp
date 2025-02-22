@@ -17,6 +17,14 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMode, 1)
   EZ_ENUM_CONSTANTS(ezObjectMode::Automatic, ezObjectMode::ForceDynamic)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComponentMode, 1)
+  EZ_ENUM_CONSTANTS(ezComponentMode::Static, ezComponentMode::Dynamic)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMsgQueueType, 1)
+  EZ_ENUM_CONSTANTS(ezObjectMsgQueueType::PostAsync, ezObjectMsgQueueType::PostTransform, ezObjectMsgQueueType::NextFrame, ezObjectMsgQueueType::AfterInitialized)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction, 1)
   EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction::None, ezOnComponentFinishedAction::DeleteComponent, ezOnComponentFinishedAction::DeleteGameObject)
 EZ_END_STATIC_REFLECTED_ENUM;

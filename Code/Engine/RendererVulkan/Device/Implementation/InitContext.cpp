@@ -4,10 +4,10 @@
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
+#include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
-
 
 ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
@@ -144,7 +144,10 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
         subresourceLayers.baseArrayLayer = uiLayer;
         subresourceLayers.layerCount = 1;
 
-        m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, subResourceData);
+        const vk::Offset3D imageOffset = {0, 0, 0};
+        const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(uiMipLevel);
+
+        m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, subResourceData);
       }
     }
   }
@@ -162,7 +165,7 @@ void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
   m_pPipelineBarrier->TextureDestroyed(pTexture);
 }
 
-void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData)
+void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstByteArrayPtr pInitialData)
 {
   EZ_LOCK(m_Lock);
 
@@ -182,7 +185,26 @@ void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPt
   }
 }
 
-void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezArrayPtr<const ezUInt8> pSourceData)
+void ezInitContextVulkan::UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& subresource, const ezBoundingBoxu32& box, const ezGALSystemMemoryDescription& sourceData)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  const ezVec3U32 boxExtents = box.GetExtents();
+  const vk::Offset3D imageOffset = {(ezInt32)box.m_vMin.x, (ezInt32)box.m_vMin.y, (ezInt32)box.m_vMin.z};
+  const vk::Extent3D imageExtent = {boxExtents.x, boxExtents.y, boxExtents.z};
+
+  vk::ImageSubresourceLayers subresourceLayers;
+  subresourceLayers.aspectMask = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  subresourceLayers.mipLevel = subresource.m_uiMipLevel;
+  subresourceLayers.baseArrayLayer = subresource.m_uiArraySlice;
+  subresourceLayers.layerCount = 1;
+
+  m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, sourceData);
+}
+
+void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezConstByteArrayPtr pSourceData)
 {
   EZ_LOCK(m_Lock);
 

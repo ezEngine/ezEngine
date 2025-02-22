@@ -1,9 +1,11 @@
 #pragma once
 
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/Components/RenderComponent.h>
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
+
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <RendererCore/Components/RenderComponent.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
@@ -12,7 +14,7 @@ class ezBlackboard;
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
-using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact, ezWorldUpdatePhase::PostTransform>;
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRenderComponent
 {
@@ -51,6 +53,9 @@ public:
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                          // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }           // [ property ]
+
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
 
@@ -69,6 +74,7 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgReload(ezMsgRmlUiReload& msg);
+  bool UpdateSizeOffsetAndTexture(ezVec2& out_viewSize);
   void UpdateCachedValues();
   void UpdateAutobinding();
 
@@ -81,6 +87,10 @@ protected:
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bPassInput = true;
   bool m_bAutobindBlackboards = true;
+  bool m_bOnDemandUpdate = true;
+
+  ezGALTextureHandle m_hTexture;
+  ezVec2 m_vFinalOffset = ezVec2::MakeZero();
 
   ezRmlUiContext* m_pContext = nullptr;
 

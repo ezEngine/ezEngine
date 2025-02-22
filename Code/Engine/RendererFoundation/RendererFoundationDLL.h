@@ -50,6 +50,7 @@ class ezGALResourceBase;
 class ezGALTexture;
 class ezGALSharedTexture;
 class ezGALBuffer;
+class ezGALDynamicBuffer;
 class ezGALReadbackBuffer;
 class ezGALReadbackTexture;
 class ezGALDepthStencilState;
@@ -73,14 +74,24 @@ struct ezGALPrimitiveTopology
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
-    Points,    // 1 index per primitive
-    Lines,     // 2 indices per primitive
-    Triangles, // 3 indices per primitive
+    Points,        // 1 index per primitive
+    Lines,         // 2 indices per primitive
+    Triangles,     // 3 indices per primitive
+    TriangleStrip, // 3 indices per primitive, but the first two indices are shared with the previous primitive
+
     ENUM_COUNT,
+
     Default = Triangles
   };
 
-  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e) { return (ezUInt32)e + 1; }
+  static ezUInt32 GetIndexCount(Enum e, ezUInt32 uiPrimitiveCount)
+  {
+    if (e <= Triangles)
+      return uiPrimitiveCount * ((ezUInt32)e + 1);
+
+    // TriangleStrip
+    return uiPrimitiveCount > 0 ? uiPrimitiveCount + 2 : 0;
+  }
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
@@ -341,7 +352,6 @@ struct ezGALUpdateMode
   {
     TransientConstantBuffer, ///< Can be executed at any time in a command encoder. Buffer must be completely overwritten. Data will not persist across frames. Only allowed on transient constant buffers.
     AheadOfTime,             ///< Can be executed at any time in a command encoder. Copy is ensured to happen before the next command in the command encoder. The same memory location can't be updated twice in one frame. Note that no GPU access must have happened to the modified memory range in the current command encoder before this call or undefined behavior will occur.
-    CopyToTempStorage        ///< Only allowed outside a render pass. Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
   };
 };
 
@@ -429,6 +439,13 @@ class ezGALReadbackTextureHandle
 class ezGALBufferHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALDynamicBufferHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALDynamicBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };

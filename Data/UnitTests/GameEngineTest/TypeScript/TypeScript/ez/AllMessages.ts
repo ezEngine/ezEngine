@@ -280,6 +280,10 @@ export class MsgSetCustomData extends Message
 {
   public static GetTypeNameHash(): number { return 3715064801; }
   constructor() { super(); this.TypeNameHash = 3715064801; }
+  Data0: number = 0;
+  Data1: number = 0;
+  Data2: number = 0;
+  Data3: number = 0;
 }
 
 export class MsgSetFloatParameter extends Message

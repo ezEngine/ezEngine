@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,8 +27,8 @@
  */
 
 #include "FontEffectBlur.h"
-#include "Memory.h"
 #include "../../Include/RmlUi/Core/PropertyDefinition.h"
+#include "Memory.h"
 
 namespace Rml {
 
@@ -38,9 +38,7 @@ FontEffectBlur::FontEffectBlur()
 	SetLayer(Layer::Back);
 }
 
-FontEffectBlur::~FontEffectBlur()
-{
-}
+FontEffectBlur::~FontEffectBlur() {}
 
 bool FontEffectBlur::HasUniqueTexture() const
 {
@@ -83,10 +81,8 @@ bool FontEffectBlur::Initialise(int _width)
 	return true;
 }
 
-bool FontEffectBlur::GetGlyphMetrics(Vector2i& origin, Vector2i& dimensions, const FontGlyph& RMLUI_UNUSED_PARAMETER(glyph)) const
+bool FontEffectBlur::GetGlyphMetrics(Vector2i& origin, Vector2i& dimensions, const FontGlyph& /*glyph*/) const
 {
-	RMLUI_UNUSED(glyph);
-
 	if (dimensions.x * dimensions.y > 0)
 	{
 		origin.x -= width;
@@ -101,21 +97,22 @@ bool FontEffectBlur::GetGlyphMetrics(Vector2i& origin, Vector2i& dimensions, con
 	return false;
 }
 
-void FontEffectBlur::GenerateGlyphTexture(byte* destination_data, const Vector2i destination_dimensions, int destination_stride, const FontGlyph& glyph) const
+void FontEffectBlur::GenerateGlyphTexture(byte* destination_data, const Vector2i destination_dimensions, int destination_stride,
+	const FontGlyph& glyph) const
 {
 	const Vector2i buf_dimensions = destination_dimensions;
 	const int buf_stride = buf_dimensions.x;
 	const int buf_size = buf_dimensions.x * buf_dimensions.y;
 	DynamicArray<byte, GlobalStackAllocator<byte>> x_output(buf_size);
 
-	filter_x.Run(x_output.data(), buf_dimensions, buf_stride, ColorFormat::A8, glyph.bitmap_data, glyph.bitmap_dimensions, Vector2i(width));
+	filter_x.Run(x_output.data(), buf_dimensions, buf_stride, ColorFormat::A8, glyph.bitmap_data, glyph.bitmap_dimensions, Vector2i(width),
+		glyph.color_format);
 
-	filter_y.Run(destination_data, destination_dimensions, destination_stride, ColorFormat::RGBA8, x_output.data(), buf_dimensions, Vector2i(0));
+	filter_y.Run(destination_data, destination_dimensions, destination_stride, ColorFormat::RGBA8, x_output.data(), buf_dimensions, Vector2i(0),
+		ColorFormat::A8);
+
+	FillColorValuesFromAlpha(destination_data, destination_dimensions, destination_stride);
 }
-
-
-
-
 
 FontEffectBlurInstancer::FontEffectBlurInstancer() : id_width(PropertyId::Invalid), id_color(PropertyId::Invalid)
 {
@@ -124,19 +121,15 @@ FontEffectBlurInstancer::FontEffectBlurInstancer() : id_width(PropertyId::Invali
 	RegisterShorthand("font-effect", "width, color", ShorthandType::FallThrough);
 }
 
-FontEffectBlurInstancer::~FontEffectBlurInstancer()
-{
-}
+FontEffectBlurInstancer::~FontEffectBlurInstancer() {}
 
-SharedPtr<FontEffect> FontEffectBlurInstancer::InstanceFontEffect(const String& RMLUI_UNUSED_PARAMETER(name), const PropertyDictionary& properties)
+SharedPtr<FontEffect> FontEffectBlurInstancer::InstanceFontEffect(const String& /*name*/, const PropertyDictionary& properties)
 {
-	RMLUI_UNUSED(name);
-
-	float width = properties.GetProperty(id_width)->Get< float >();
-	Colourb color = properties.GetProperty(id_color)->Get< Colourb >();
+	float width = properties.GetProperty(id_width)->Get<float>();
+	Colourb color = properties.GetProperty(id_color)->Get<Colourb>();
 
 	auto font_effect = MakeShared<FontEffectBlur>();
-	if (font_effect->Initialise(Math::RealToInteger(width)))
+	if (font_effect->Initialise(int(width)))
 	{
 		font_effect->SetColour(color);
 		return font_effect;

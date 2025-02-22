@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15005843891432020620,4803701267875656960}}
-		u4 %Hash{1625199691344401707}
+		u4 %Hash{2571984320662553766}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9512092322397286256,2078912507272247961}}
@@ -29,14 +29,15 @@ o
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 021eebb9-3c61-4aab-847c-ca9c283b7f31 }"}
 			s{"{ 42bfb6dd-0896-41f0-9ce2-cc9dde7b3a0c }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+			s{"{ 6b2c2a94-7f53-4fee-9669-d105ce5949fc }"}
 		}
 		VarArray %References
 		{
 			s{"{ 42bfb6dd-0896-41f0-9ce2-cc9dde7b3a0c }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+			s{"{ 6b2c2a94-7f53-4fee-9669-d105ce5949fc }"}
 		}
 		s %Tags{""}
 	}
@@ -69,6 +70,21 @@ o
 }
 o
 {
+	Uuid %id{u4{573333203309092762,4650226887472510022}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ 6b2c2a94-7f53-4fee-9669-d105ce5949fc }"}
+		Time %UpdateInterval{d{0}}
+	}
+}
+o
+{
 	Uuid %id{u4{2151763372730730626,4932960021847802981}}
 	s %t{"ezJoltHitboxComponent"}
 	u3 %v{2}
@@ -93,9 +109,9 @@ o
 			Uuid{u4{7866628651591254077,5617479321211143590}}
 			Uuid{u4{10365178101646708331,5551010631603340110}}
 			Uuid{u4{2151763372730730626,4932960021847802981}}
-			Uuid{u4{3670086557483209742,13875581353722707927}}
 			Uuid{u4{10506568787699518770,46810808549842588}}
 			Uuid{u4{341975342597492367,5640515255387352488}}
+			Uuid{u4{573333203309092762,4650226887472510022}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -114,12 +130,13 @@ o
 {
 	Uuid %id{u4{10365178101646708331,5551010631603340110}}
 	s %t{"ezSimpleAnimationComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		s %AnimationClip{"{ 42bfb6dd-0896-41f0-9ce2-cc9dde7b3a0c }"}
 		s %AnimationMode{"ezPropertyAnimMode::Loop"}
+		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 		f %Speed{0x0000803F}
@@ -134,6 +151,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 	}
@@ -172,20 +190,6 @@ o
 		Uuid %Settings{u4{11852013374117301127,4620697388763598454}}
 	}
 }
-o
-{
-	Uuid %id{u4{3670086557483209742,13875581353722707927}}
-	s %t{"ezTypeScriptComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 021eebb9-3c61-4aab-847c-ca9c283b7f31 }"}
-	}
-}
 }
 Types
 {
@@ -203,7 +207,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -442,6 +446,23 @@ o
 }
 o
 {
+	Uuid %id{u4{13180226495177211365,3486873224131216715}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezScriptComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17523044089822028024,3521005166208929094}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -673,7 +694,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -896,23 +917,6 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
-	}
-}
-o
-{
-	Uuid %id{u4{11568452837770943362,10420668725217181016}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEventMessageHandlerComponent"}
-		s %PluginName{"ezEditorPluginTypeScript"}
-		VarArray %Properties{}
-		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeVersion{4}
 	}
 }
 o

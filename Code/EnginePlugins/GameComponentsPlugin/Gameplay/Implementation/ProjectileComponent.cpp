@@ -230,7 +230,7 @@ void ezProjectileComponent::Update()
           ezGameObject* pObject;
           if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
           {
-            pObject->AddChild(GetOwner()->GetHandle(), ezGameObject::TransformPreservation::PreserveGlobal);
+            pObject->AddChild(GetOwner()->GetHandle(), ezTransformPreservation::Enum::PreserveGlobal);
           }
         }
         else if (interaction.m_Reaction == ezProjectileReaction::PassThrough)

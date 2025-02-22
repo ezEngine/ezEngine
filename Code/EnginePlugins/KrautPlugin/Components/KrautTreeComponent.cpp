@@ -105,7 +105,7 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
       // even when not looking at the tree, thus resulting in decent shadows
 
       bounds.m_fSphereRadius *= s_iLocalBoundsScale;
-      bounds.m_vBoxHalfExtends *= (float)s_iLocalBoundsScale;
+      bounds.m_vBoxHalfExtents *= (float)s_iLocalBoundsScale;
     }
 
     return EZ_SUCCESS;
@@ -205,8 +205,6 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
-    const auto materials = pMesh->GetMaterials();
-
     const ezGameObject* pOwner = GetOwner();
 
     float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
@@ -218,25 +216,10 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
     {
-      const auto& subMesh = subMeshes[subMeshIdx];
-
-      const ezUInt32 uiMaterialIndex = subMesh.m_uiMaterialIndex;
-
-      if (uiMaterialIndex >= materials.GetCount())
-        continue;
-
-      const ezMaterialResourceHandle& hMaterial = materials[uiMaterialIndex];
-      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(hMaterial.GetResourceIDHash()) : 0;
-
-      // Generate batch id from mesh, material and part index.
-      const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
-      const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
       ezKrautRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner());
 
       {
-        pRenderData->m_uiBatchId = uiBatchId;
-        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + subMeshIdx) & 0xFFFF);
+        pRenderData->m_uiSortingKey = uiMeshIDHash + subMeshIdx;
 
         pRenderData->m_uiThisLodIndex = uiCurLod;
 
@@ -244,7 +227,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
         pRenderData->m_GlobalBounds = bounds;
         pRenderData->m_hMesh = lodData.m_hMesh;
         pRenderData->m_uiSubMeshIndex = static_cast<ezUInt8>(subMeshIdx);
-        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(0);
         pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
 
         pRenderData->m_vLeafCenter = pTree->GetDetails().m_vLeafCenter;
@@ -290,7 +273,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     if (details.m_fStaticColliderRadius * fMaxScale <= 0.0f)
       return EZ_FAILURE;
 
-    const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtends.z) * 0.9f;
+    const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtents.z) * 0.9f;
 
     if (fHeightScale * fTreeHeight <= 0.0f)
       return EZ_FAILURE;
@@ -393,7 +376,7 @@ void ezKrautTreeComponent::ComputeWind() const
   {
     const ezVec3 offset = GetOwner()->GetGlobalPosition() + ezVec3(2, 0, 1);
 
-    ezHybridArray<ezDebugRenderer::Line, 2> lines;
+    ezHybridArray<ezDebugRendererLine, 2> lines;
 
     // actual wind
     {

@@ -77,7 +77,7 @@ void GhostComponent::Update()
         ezVec3(0, -1, 0),
       };
 
-    ezHybridArray<ezDebugRenderer::Line, 4> lines;
+    ezHybridArray<ezDebugRendererLine, 4> lines;
 
     for (ezUInt32 i = 0; i < 4; ++i)
     {

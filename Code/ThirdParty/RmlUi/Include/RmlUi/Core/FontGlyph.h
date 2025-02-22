@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,16 +34,14 @@
 namespace Rml {
 
 /**
-	Metrics and bitmap data for a single glyph within a font face.
+    Metrics and bitmap data for a single glyph within a font face.
 
-	@author Peter Curry
+    @author Peter Curry
  */
 
-class RMLUICORE_API FontGlyph
-{
+class RMLUICORE_API FontGlyph {
 public:
-	FontGlyph() : dimensions(0,0), bearing(0,0), advance(0), bitmap_data(nullptr), bitmap_dimensions(0,0)
-	{}
+	FontGlyph() : dimensions(0, 0), bearing(0, 0), advance(0), bitmap_data(nullptr), bitmap_dimensions(0, 0), color_format(ColorFormat::A8) {}
 
 	/// The glyph's bounding box. Not to be confused with the dimensions of the glyph's bitmap!
 	Vector2i dimensions;
@@ -54,17 +52,17 @@ public:
 	/// character.
 	int advance;
 
-	/// 8-bit opacity information for the glyph's bitmap. The size of the data is given by the
-	/// dimensions, below. This will be nullptr if the glyph has no bitmap data.
+	/// Bitmap data defining this glyph. The dimensions and format of the data is given below. This will be nullptr if the glyph has no bitmap data.
 	const byte* bitmap_data;
-	/// The dimensions of the glyph's bitmap.
-	Vector2i bitmap_dimensions;
 
-	// Bitmap_data may point to this member or another font glyph data.
+	Vector2i bitmap_dimensions;
+	ColorFormat color_format;
+
+	// bitmap_data may point to this member or another font glyph data.
 	UniquePtr<byte[]> bitmap_owned_data;
 
 	// Create a copy with its bitmap data owned by another glyph.
-	FontGlyph WeakCopy() const 
+	FontGlyph WeakCopy() const
 	{
 		FontGlyph glyph;
 		glyph.dimensions = dimensions;
@@ -72,6 +70,7 @@ public:
 		glyph.advance = advance;
 		glyph.bitmap_data = bitmap_data;
 		glyph.bitmap_dimensions = bitmap_dimensions;
+		glyph.color_format = color_format;
 		return glyph;
 	}
 };

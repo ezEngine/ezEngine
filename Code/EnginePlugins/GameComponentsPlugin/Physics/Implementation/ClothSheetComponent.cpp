@@ -263,8 +263,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
   pRenderData->m_Color = m_Color;
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash());
-  pRenderData->m_uiSortingKey = pRenderData->m_uiBatchId;
+  pRenderData->m_uiSortingKey = ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash());
   pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
   pRenderData->m_hMaterial = m_hMaterial;
 
@@ -332,7 +331,6 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     }
   }
 
-  // TODO: render pass category (plus cache this)
   ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
 
   if (m_hMaterial.IsValid())
@@ -431,6 +429,8 @@ void ezClothSheetComponent::Update()
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////
 
 ezClothSheetRenderer::ezClothSheetRenderer()
 {

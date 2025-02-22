@@ -65,6 +65,16 @@ inline const ezGALBuffer* ezGALDevice::GetBuffer(ezGALBufferHandle hBuffer) cons
   return Get<BufferTable, ezGALBuffer>(hBuffer, m_Buffers);
 }
 
+inline const ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer) const
+{
+  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+}
+
+inline ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer)
+{
+  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+}
+
 inline const ezGALReadbackBuffer* ezGALDevice::GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const
 {
   return Get<ReadbackBufferTable, ezGALReadbackBuffer>(hBuffer, m_ReadbackBuffers);

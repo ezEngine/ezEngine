@@ -65,14 +65,14 @@ public:
 
   using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&)>;
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded, ezVisibilityState visType) const = 0;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded, ezVisibilityState::Enum visType) const = 0;
 
   /// \brief Retrieves a state describing how visible the object is.
   ///
   /// An object may be invisible, fully visible, or indirectly visible (through shadows or reflections).
   ///
   /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
-  virtual ezVisibilityState GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const = 0;
+  virtual ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const = 0;
 
   ///@}
 

@@ -203,7 +203,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
     }
 
     chunk << m_Bounds.m_vCenter;
-    chunk << m_Bounds.m_vBoxHalfExtends;
+    chunk << m_Bounds.m_vBoxHalfExtents;
     chunk << m_Bounds.m_fSphereRadius;
     // Version 4
     chunk << m_fMaxBoneVertexOffset;
@@ -451,7 +451,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       if (ci.m_uiChunkVersion >= 2)
       {
         chunk >> m_Bounds.m_vCenter;
-        chunk >> m_Bounds.m_vBoxHalfExtends;
+        chunk >> m_Bounds.m_vBoxHalfExtents;
         chunk >> m_Bounds.m_fSphereRadius;
         bCalculateBounds = !m_Bounds.IsValid();
       }
@@ -514,7 +514,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
     ComputeBounds();
 
     auto b = m_Bounds;
-    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtends.x, 2), ezArgF(b.m_vBoxHalfExtends.y, 2), ezArgF(b.m_vBoxHalfExtends.z, 2));
+    ezLog::Info("Calculated Bounds: {0} | {1} | {2} - {3} | {4} | {5}", ezArgF(b.m_vCenter.x, 2), ezArgF(b.m_vCenter.y, 2), ezArgF(b.m_vCenter.z, 2), ezArgF(b.m_vBoxHalfExtents.x, 2), ezArgF(b.m_vBoxHalfExtents.y, 2), ezArgF(b.m_vBoxHalfExtents.z, 2));
   }
 
   return EZ_SUCCESS;

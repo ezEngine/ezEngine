@@ -255,7 +255,7 @@ public:
   /// Originally inspired from https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
   /// But with heavy modification to better fit the mapping shown out in https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
   /// Physically accurate clipping points are 6580K for Red and 6560K for G and B. but approximated to 6570k for all to give a better mapping.
-  static ezColor MakeFromKelvin(ezUInt32 uiKelvin);
+  [[nodiscard]] static ezColor MakeFromKelvin(ezUInt32 uiKelvin);
 
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///

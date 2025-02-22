@@ -31,7 +31,7 @@ ezParticleType::ezParticleType()
   m_fPriority = +1000.0f;
 }
 
-ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt32 uiTextureHash)
+ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt64 uiTextureHash)
 {
   ezUInt32 key = 0;
 
@@ -69,7 +69,7 @@ ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, 
   }
 
   key <<= 32 - 3; // require 3 bits for the values above
-  key |= uiTextureHash & 0x1FFFFFFFu;
+  key |= ezHashingUtils::StringHashTo32(uiTextureHash) & 0x1FFFFFFFu;
 
   return key;
 }

@@ -10,7 +10,8 @@ body
 {
   font-family: Roboto;
   font-size: 13dp;
-  
+ 
+  width: 100%;
   background-color: rgba(0, 0, 0, 160);
   color: white;
 }
@@ -47,8 +48,9 @@ input.radio
 {
   width: 16dp;
   height: 16dp;
-  margin-bottom: 4dp;
+  margin: 3dp 0 3dp 0;
   border: 1px white;
+  vertical-align: center;
 }
 
 input.radio:checked
@@ -82,10 +84,14 @@ button:active
   transition: none;
 }
 
+select
+{
+	vertical-align: center;
+	width: 70%;
+}
+
 select selectvalue
 {
-	width: auto;
-	
 	height: 16dp;
 	padding: 2dp;
   

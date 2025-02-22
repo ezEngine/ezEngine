@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTemporaryAttribute, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezDependencyFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezDependencyFlags::Package, ezDependencyFlags::Thumbnail, ezDependencyFlags::Transform)
+EZ_BITFLAGS_CONSTANTS(ezDependencyFlags::Package, ezDependencyFlags::Thumbnail, ezDependencyFlags::Transform)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>)
@@ -635,7 +635,7 @@ ezBoneManipulatorAttribute::ezBoneManipulatorAttribute(const char* szTransformPr
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezVisualizerAnchor, 1)
-  EZ_BITFLAGS_CONSTANTS(ezVisualizerAnchor::Center, ezVisualizerAnchor::PosX, ezVisualizerAnchor::NegX, ezVisualizerAnchor::PosY, ezVisualizerAnchor::NegY, ezVisualizerAnchor::PosZ, ezVisualizerAnchor::NegZ)
+EZ_BITFLAGS_CONSTANTS(ezVisualizerAnchor::Center, ezVisualizerAnchor::PosX, ezVisualizerAnchor::NegX, ezVisualizerAnchor::PosY, ezVisualizerAnchor::NegY, ezVisualizerAnchor::PosZ, ezVisualizerAnchor::NegZ)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
@@ -1005,10 +1005,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptableFunctionAttribute, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*= In*/, const char* szArg1 /*= nullptr*/, ArgType argType2 /*= In*/,
-  const char* szArg2 /*= nullptr*/, ArgType argType3 /*= In*/, const char* szArg3 /*= nullptr*/, ArgType argType4 /*= In*/,
-  const char* szArg4 /*= nullptr*/, ArgType argType5 /*= In*/, const char* szArg5 /*= nullptr*/, ArgType argType6 /*= In*/,
-  const char* szArg6 /*= nullptr*/)
+ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*= In*/, const char* szArg1 /*= nullptr*/,
+  ArgType argType2 /*= In*/, const char* szArg2 /*= nullptr*/,
+  ArgType argType3 /*= In*/, const char* szArg3 /*= nullptr*/,
+  ArgType argType4 /*= In*/, const char* szArg4 /*= nullptr*/,
+  ArgType argType5 /*= In*/, const char* szArg5 /*= nullptr*/,
+  ArgType argType6 /*= In*/, const char* szArg6 /*= nullptr*/,
+  ArgType argType7 /*= In*/, const char* szArg7 /*= nullptr*/,
+  ArgType argType8 /*= In*/, const char* szArg8 /*= nullptr*/,
+  ArgType argType9 /*= In*/, const char* szArg9 /*= nullptr*/,
+  ArgType argType10 /*= In*/, const char* szArg10 /*= nullptr*/,
+  ArgType argType11 /*= In*/, const char* szArg11 /*= nullptr*/,
+  ArgType argType12 /*= In*/, const char* szArg12 /*= nullptr*/)
 {
   {
     if (ezStringUtils::IsNullOrEmpty(szArg1))
@@ -1051,6 +1059,48 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
 
     m_ArgNames.PushBack(szArg6);
     m_ArgTypes.PushBack(argType6);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg7))
+      return;
+
+    m_ArgNames.PushBack(szArg7);
+    m_ArgTypes.PushBack(argType7);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg8))
+      return;
+
+    m_ArgNames.PushBack(szArg8);
+    m_ArgTypes.PushBack(argType8);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg9))
+      return;
+
+    m_ArgNames.PushBack(szArg9);
+    m_ArgTypes.PushBack(argType9);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg10))
+      return;
+
+    m_ArgNames.PushBack(szArg10);
+    m_ArgTypes.PushBack(argType10);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg11))
+      return;
+
+    m_ArgNames.PushBack(szArg11);
+    m_ArgTypes.PushBack(argType11);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg12))
+      return;
+
+    m_ArgNames.PushBack(szArg12);
+    m_ArgTypes.PushBack(argType12);
   }
 }
 

@@ -215,8 +215,6 @@ struct sodComparer
 
 void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
-  EZ_PROFILE_SCOPE("PFX: Quad");
-
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
   if (!m_hTexture.IsValid() || numParticles == 0)
     return;
@@ -432,8 +430,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
 {
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
 
-  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hTexture.GetResourceIDHash());
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, pRenderData->m_uiBatchId);
+  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;

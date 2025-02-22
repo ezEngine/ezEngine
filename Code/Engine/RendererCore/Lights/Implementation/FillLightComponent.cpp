@@ -142,6 +142,8 @@ ezColorGammaUB ezFillLightComponent::GetEffectiveColor() const
 void ezFillLightComponent::SetIntensity(float fIntensity)
 {
   m_fIntensity = fIntensity;
+
+  InvalidateCachedRenderData();
 }
 
 void ezFillLightComponent::SetRange(float fRange)

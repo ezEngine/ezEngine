@@ -144,7 +144,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       pRenderData->m_uiSubMeshIndex = 0;
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
       ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
     }
   }

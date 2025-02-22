@@ -87,14 +87,7 @@ public:
   const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
   ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
 
-  /// \brief Returns a uint32 that can be queried for completion with IsBodyStillQueuedToAdd().
-  ezUInt32 QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
-
-  /// \brief Checks whether the last QueueBodyToAdd() has been processed already, or not.
-  ///
-  /// Bodies that aren't added to Jolt yet, may not get locked (they are not in the broadphase).
-  /// If this is still the case, skip operations that wouldn't have an effect anyway.
-  bool IsBodyStillQueuedToAdd(ezUInt32 uiBodiesAddCounter) const { return uiBodiesAddCounter == m_uiBodiesAddCounter; }
+  void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
@@ -213,7 +206,6 @@ private:
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
-  ezUInt32 m_uiBodiesAddCounter = 1; // increased every time bodies get added, can be used to check whether a queued body is still queued
   ezDeque<ezUInt32> m_BodiesToAdd;
   ezDeque<ezUInt32> m_BodiesToAddAndActivate;
 

@@ -1,0 +1,15 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"AngelScript"}
+	string %Description{"Adds support for scripting via AngelScript."}
+	string %EditorPlugins{"ezEditorPluginAngelScript"}
+	string %EditorEnginePlugins{"ezEnginePluginAngelScript"}
+	string %RuntimePlugins{"ezAngelScriptPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+}

@@ -6,9 +6,9 @@
 /// If an empty __VA_ARGS__ is passed in, this will still return 1.
 /// There is no perfect way to detect parameter lists with zero elements.
 #ifndef EZ_VA_NUM_ARGS
-#  define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER(__VA_ARGS__, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+#  define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER(__VA_ARGS__, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 
-#  define EZ_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, N, ...) N
+#  define EZ_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, N, ...) N
 #endif
 
 
@@ -111,6 +111,12 @@
   op(a0, a1), op(a2, a3), op(a4, a5), op(a6, a7), op(a8, a9), op(a10, a11), op(a12, a13), op(a14, a15), op(a16, a17)
 #define EZ_EXPAND_ARGS_PAIR_COMMA_20(op, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19) \
   op(a0, a1), op(a2, a3), op(a4, a5), op(a6, a7), op(a8, a9), op(a10, a11), op(a12, a13), op(a14, a15), op(a16, a17), op(a18, a19)
+#define EZ_EXPAND_ARGS_PAIR_COMMA_22(op, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21) \
+  op(a0, a1), op(a2, a3), op(a4, a5), op(a6, a7), op(a8, a9), op(a10, a11), op(a12, a13), op(a14, a15), op(a16, a17), op(a18, a19), op(a20, a21)
+#define EZ_EXPAND_ARGS_PAIR_COMMA_24(op, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23) \
+  op(a0, a1), op(a2, a3), op(a4, a5), op(a6, a7), op(a8, a9), op(a10, a11), op(a12, a13), op(a14, a15), op(a16, a17), op(a18, a19), op(a20, a21), op(a22, a23)
+#define EZ_EXPAND_ARGS_PAIR_COMMA_26(op, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21, a22, a23, a24, a25) \
+  op(a0, a1), op(a2, a3), op(a4, a5), op(a6, a7), op(a8, a9), op(a10, a11), op(a12, a13), op(a14, a15), op(a16, a17), op(a18, a19), op(a20, a21), op(a22, a23), op(a24, a25)
 
 #define EZ_EXPAND_ARGS_PAIR_COMMA(op, ...) EZ_CALL_MACRO(EZ_PP_CONCAT(EZ_EXPAND_ARGS_PAIR_COMMA_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (op, __VA_ARGS__))
 

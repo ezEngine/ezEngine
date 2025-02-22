@@ -70,7 +70,7 @@ static int __CPP_Debug_DrawLines(duk_context* pDuk)
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 1);
 
   ezUInt32 uiNumLines = (ezUInt32)duk_get_length(pDuk, 0);
-  ezHybridArray<ezDebugRenderer::Line, 32> lines;
+  ezHybridArray<ezDebugRendererLine, 32> lines;
   lines.SetCount(uiNumLines);
 
   for (ezUInt32 i = 0; i < uiNumLines; ++i)
@@ -204,6 +204,7 @@ static int __CPP_Debug_GetResolution(duk_context* pDuk)
     {
       resolution.x = pView->GetViewport().width;
       resolution.y = pView->GetViewport().height;
+      break;
     }
   }
 

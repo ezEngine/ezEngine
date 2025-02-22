@@ -324,6 +324,8 @@ export class DebugTextComponent extends Component
   set Value3(value: number) { __CPP_ComponentProperty_set(this, 1816166542, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 1881354469); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 1881354469, value); }
+  get MaxDistance(): number { return __CPP_ComponentProperty_get(this, 1272349630); }
+  set MaxDistance(value: number) { __CPP_ComponentProperty_set(this, 1272349630, value); }
 }
 
 export class DecalComponent extends RenderComponent
@@ -949,6 +951,7 @@ export class ScriptComponent extends EventMessageHandlerComponent
   public static GetTypeNameHash(): number { return 1614462437; }
   SetScriptVariable(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 1554318557, Name, Value); }
   GetScriptVariable(Name: string): any { return __CPP_ComponentFunction_Call(this, 4178349120, Name); }
+  SetUpdateInterval(interval: number): void { __CPP_ComponentFunction_Call(this, 2103510945, interval); }
   get UpdateInterval(): number { return __CPP_ComponentProperty_get(this, 3597189607); }
   set UpdateInterval(value: number) { __CPP_ComponentProperty_set(this, 3597189607, value); }
   get ScriptClass(): string { return __CPP_ComponentProperty_get(this, 1184048898); }

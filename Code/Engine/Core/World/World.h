@@ -228,20 +228,17 @@ public:
   void SendMessageRecursive(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay,
-    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay,
-    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessageRecursive(const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& hReceiverComponent, ezMessage& ref_msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay,
-    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezComponentHandle& hReceiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezComponent that handles the given message and returns all
   /// matching components owned by that object. If a ezEventMessageHandlerComponent is found the search is stopped even if it doesn't handle the given message.
@@ -385,7 +382,7 @@ private:
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
-    ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+    ezTransformPreservation::Enum preserve = ezTransformPreservation::Enum::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
@@ -419,7 +416,7 @@ private:
   void DeleteDeadObjects();
   void DeleteDeadComponents();
 
-  void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
+  void PatchHierarchyData(ezGameObject* pObject, ezTransformPreservation::Enum preserve);
   void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
 
   void ProcessResourceReloadFunctions();

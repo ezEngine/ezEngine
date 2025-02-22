@@ -609,6 +609,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   m_pQueryPool->Initialize(queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
   m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, this);
   m_pInitContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
+  m_pUpdateForNextFrameContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
 
   ezSemaphorePoolVulkan::Initialize(m_device);
   ezFencePoolVulkan::Initialize(m_device);
@@ -666,11 +667,8 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
 }
 
-void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data)
+void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
 {
-  const vk::Offset3D imageOffset = {0, 0, 0};
-  const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
-
   auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
   {
     vk::ImageSubresourceRange range;
@@ -740,7 +738,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
     return EZ_SUCCESS;
   }
 
-  WaitIdlePlatform();
+  WaitIdleInternal(true);
 
   m_pStagingBufferPool->DeInitialize();
   m_pStagingBufferPool = nullptr;
@@ -754,6 +752,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_pQueryPool = nullptr;
   m_pFenceQueue = nullptr;
   m_pInitContext = nullptr;
+  m_pUpdateForNextFrameContext = nullptr;
 
   ezSemaphorePoolVulkan::DeInitialize();
   ezFencePoolVulkan::DeInitialize();
@@ -851,14 +850,19 @@ ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreat
   return FinalizeBufferInternal(Description, pBuffer);
 }
 
-vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
+vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateForNextFrameCommands)
 {
   m_pCommandEncoderImpl->BeforeCommandBufferSubmit();
   m_pStagingBufferPool->BeforeCommandBufferSubmit();
   vk::CommandBuffer initCommandBuffer = m_pInitContext->GetFinishedCommandBuffer();
-  bool bHasCmdBuffer = initCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
+  vk::CommandBuffer updateForNextFrameCommandBuffer;
+  if (bAddUpdateForNextFrameCommands)
+  {
+    updateForNextFrameCommandBuffer = m_pUpdateForNextFrameContext->GetFinishedCommandBuffer();
+  }
+  bool bHasCmdBuffer = initCommandBuffer || updateForNextFrameCommandBuffer || m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
 
-  ezHybridArray<vk::CommandBuffer, 2> buffers;
+  ezHybridArray<vk::CommandBuffer, 3> buffers;
   vk::SubmitInfo submitInfo = {};
   if (bHasCmdBuffer)
   {
@@ -868,6 +872,11 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore)
       // Any background loading that happened up to this point needs to be submitted first.
       // The main render command buffer assumes that all new resources are in their default state which is made sure by submitting this command buffer.
       buffers.PushBack(initCommandBuffer);
+    }
+    if (updateForNextFrameCommandBuffer)
+    {
+      // Update for next frame needs to be submitted after the resource init but before the main command buffer.
+      buffers.PushBack(updateForNextFrameCommandBuffer);
     }
     if (mainCommandBuffer)
     {
@@ -1147,6 +1156,7 @@ void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
   GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
   m_pInitContext->TextureDestroyed(pVulkanTexture);
+  m_pUpdateForNextFrameContext->TextureDestroyed(pVulkanTexture);
 
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
@@ -1170,6 +1180,7 @@ void ezGALDeviceVulkan::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   ezGALSharedTextureVulkan* pVulkanTexture = static_cast<ezGALSharedTextureVulkan*>(pTexture);
   GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
   m_pInitContext->TextureDestroyed(pVulkanTexture);
+  m_pUpdateForNextFrameContext->TextureDestroyed(pVulkanTexture);
 
   pVulkanTexture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanTexture);
@@ -1344,6 +1355,20 @@ void ezGALDeviceVulkan::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration*
   EZ_DELETE(&m_Allocator, pVertexDeclarationVulkan);
 }
 
+void ezGALDeviceVulkan::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset)
+{
+  const ezGALBufferVulkan* pBufferVulkan = static_cast<const ezGALBufferVulkan*>(pBuffer);
+
+  m_pUpdateForNextFrameContext->UpdateBuffer(pBufferVulkan, uiDestOffset, sourceData);
+}
+
+void ezGALDeviceVulkan::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
+{
+  const ezGALTextureVulkan* pTextureVulkan = static_cast<const ezGALTextureVulkan*>(pTexture);
+
+  m_pUpdateForNextFrameContext->UpdateTexture(pTextureVulkan, destinationSubResource, destinationBox, sourceData);
+}
+
 ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
 {
   return m_pQueryPool->GetTimestampResult(hTimestamp, result);
@@ -1491,6 +1516,7 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
 
   m_pStagingBufferPool->AfterBeginFrame();
   m_pInitContext->AfterBeginFrame();
+  m_pUpdateForNextFrameContext->AfterBeginFrame();
   {
     EZ_PROFILE_SCOPE("QueryPool");
     m_pQueryPool->AfterBeginFrame(GetCurrentCommandBuffer());
@@ -1502,6 +1528,8 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
   sb.SetFormat("RENDER FRAME {}", uiAppFrame);
   m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
 #endif
+
+  Submit(false, true);
 
   EZ_PROFILE_SCOPE("AcquireNextRenderTargets");
   for (ezGALSwapChain* pSwapChain : swapchains)
@@ -1660,8 +1688,13 @@ void ezGALDeviceVulkan::FlushPlatform()
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
 {
+  WaitIdleInternal(false);
+}
+
+void ezGALDeviceVulkan::WaitIdleInternal(bool bAddUpdateForNextFrameCommands)
+{
   // Make sure command buffers get flushed. Also, no need to add a wait semaphore if we flush anyway, all commands will be done.
-  Submit(false);
+  Submit(false, bAddUpdateForNextFrameCommands);
   m_device.waitIdle();
   DestroyDeadObjects();
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)

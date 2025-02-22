@@ -5,8 +5,7 @@
 
 namespace lunasvg {
 
-class UseElement : public GraphicsElement
-{
+class UseElement final : public GraphicsElement {
 public:
     UseElement();
 
@@ -17,8 +16,9 @@ public:
     std::string href() const;
     void transferWidthAndHeight(Element* element) const;
 
-    void layout(LayoutContext* context, LayoutContainer* current) const;
-    std::unique_ptr<Node> clone() const;
+    void layout(LayoutContext* context, LayoutContainer* current) final;
+    std::unique_ptr<Element> cloneTargetElement(const Element* targetElement) const;
+    void build(const Document* document) final;
 };
 
 } // namespace lunasvg

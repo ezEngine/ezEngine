@@ -14,7 +14,7 @@ namespace ezStackTraceLogParser
 
     if (!ParseStackTraceFileNameAndLineNumber(sLogText, sFileName, lineNumber))
     {
-      if(!ParseAssertFileNameAndLineNumber(sLogText, sFileName, lineNumber))
+      if (!ParseAssertFileNameAndLineNumber(sLogText, sFileName, lineNumber))
       {
         return;
       }
@@ -49,19 +49,19 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    const char* szFileEnd = ezStringUtils::FindSubString(szFile + fileMarkerLength + 1,"\"",sLine.GetEndPointer());
-    if(szFileEnd == nullptr)
+    const char* szFileEnd = ezStringUtils::FindSubString(szFile + fileMarkerLength + 1, "\"", sLine.GetEndPointer());
+    if (szFileEnd == nullptr)
     {
       return false;
     }
 
-    const char* szLineEnd = ezStringUtils::FindSubString(szLine + lineMarkerLength + 1,"\"",sLine.GetEndPointer());
-    if(szLineEnd == nullptr)
+    const char* szLineEnd = ezStringUtils::FindSubString(szLine + lineMarkerLength + 1, "\"", sLine.GetEndPointer());
+    if (szLineEnd == nullptr)
     {
       return false;
     }
 
-    ref_sFileName = ezStringView(szFile + fileMarkerLength + 1,szFileEnd);
+    ref_sFileName = ezStringView(szFile + fileMarkerLength + 1, szFileEnd);
     ref_sFileName.Trim(" ");
 
     if (!ref_sFileName.IsAbsolutePath())

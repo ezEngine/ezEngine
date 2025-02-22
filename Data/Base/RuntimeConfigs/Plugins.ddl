@@ -30,11 +30,6 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezRecastPlugin"}
-	bool %LoadCopy{false}
-}
-Plugin
-{
 	string %Path{"ezRmlUiPlugin"}
 	bool %LoadCopy{false}
 }

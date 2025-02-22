@@ -70,7 +70,7 @@ protected:
   void BuildJointVisualization(ezMsgAnimationPoseUpdated& msg);
 
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
-  ezDebugRenderer::Line& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+  ezDebugRendererLine& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezTransform m_RootTransform = ezTransform::MakeIdentity();
@@ -78,7 +78,7 @@ protected:
   ezString m_sBonesToHighlight;
 
   ezBoundingBox m_MaxBounds;
-  ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
+  ezDynamicArray<ezDebugRendererLine> m_LinesSkeleton;
 
   struct SphereShape
   {

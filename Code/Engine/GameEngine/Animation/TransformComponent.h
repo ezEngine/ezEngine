@@ -13,9 +13,10 @@ struct ezTransformComponentFlags
   enum Enum
   {
     None = 0,
-    Running = EZ_BIT(0),           ///< The component is currently modifying the transform
+    Running = EZ_BIT(0),           ///< Start state for the CurrentlyRunning flag
     AutoReturnStart = EZ_BIT(1),   ///< When reaching the start point, the transform should automatically turn around
     AutoReturnEnd = EZ_BIT(2),     ///< When reaching the end point, the transform should automatically turn around
+    CurrentlyRunning = EZ_BIT(3),  ///< The component is currently modifying the transform
     AnimationReversed = EZ_BIT(5), ///< The animation playback is currently in reverse
     Default = Running | AutoReturnStart | AutoReturnEnd
   };
@@ -25,7 +26,7 @@ struct ezTransformComponentFlags
     StorageType Running : 1;
     StorageType AutoReturnStart : 1;
     StorageType AutoReturnEnd : 1;
-    StorageType Unused1 : 1;
+    StorageType CurrentlyRunning : 1;
     StorageType Unused2 : 1;
     StorageType AnimationReversed : 1;
   };

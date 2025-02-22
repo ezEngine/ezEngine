@@ -57,6 +57,9 @@ public:
   ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>());
   void DestroyBuffer(ezGALBufferHandle hBuffer);
 
+  ezGALDynamicBufferHandle CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName);
+  void DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer);
+
   // Helper functions for buffers (for common, simple use cases)
 
   ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>(), bool bDataIsMutable = false);
@@ -78,6 +81,14 @@ public:
 
   ezGALReadbackTextureHandle CreateReadbackTexture(const ezGALTextureCreationDescription& description);
   void DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture);
+
+  // Resource update functions
+
+  /// \brief Ensures that the given buffer is updated at the beginning of the next frame.
+  void UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset = 0);
+
+  /// \brief Ensures that the given texture is updated at the beginning of the next frame.
+  void UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource = {}, const ezBoundingBoxu32& destinationBox = ezBoundingBoxu32::MakeZero());
 
   // Resource views
   ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
@@ -194,6 +205,8 @@ public:
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
   virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const = 0;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
+  const ezGALDynamicBuffer* GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer) const;
+  ezGALDynamicBuffer* GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer);
   const ezGALReadbackBuffer* GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const;
   const ezGALReadbackTexture* GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const;
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
@@ -267,6 +280,7 @@ protected:
   using DepthStencilStateTable = ezIdTable<ezGALDepthStencilStateHandle::IdType, ezGALDepthStencilState*, ezLocalAllocatorWrapper>;
   using RasterizerStateTable = ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper>;
   using BufferTable = ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper>;
+  using DynamicBufferTable = ezIdTable<ezGALDynamicBufferHandle::IdType, ezGALDynamicBuffer*, ezLocalAllocatorWrapper>;
   using TextureTable = ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper>;
   using ReadbackBufferTable = ezIdTable<ezGALReadbackBufferHandle::IdType, ezGALReadbackBuffer*, ezLocalAllocatorWrapper>;
   using ReadbackTextureTable = ezIdTable<ezGALReadbackTextureHandle::IdType, ezGALReadbackTexture*, ezLocalAllocatorWrapper>;
@@ -284,6 +298,7 @@ protected:
   DepthStencilStateTable m_DepthStencilStates;
   RasterizerStateTable m_RasterizerStates;
   BufferTable m_Buffers;
+  DynamicBufferTable m_DynamicBuffers;
   TextureTable m_Textures;
   ReadbackBufferTable m_ReadbackBuffers;
   ReadbackTextureTable m_ReadbackTextures;
@@ -395,6 +410,11 @@ protected:
 
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) = 0;
+
+  // Resource update functions
+
+  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) = 0;
+  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) = 0;
 
   // GPU -> CPU query functions
 

@@ -311,7 +311,7 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipe
 
 void ezEngineProcessViewContext::DrawSimpleGrid() const
 {
-  ezDynamicArray<ezDebugRenderer::Line> lines;
+  ezDynamicArray<ezDebugRendererLine> lines;
   lines.Reserve(2 * (10 + 1 + 10) + 4);
 
   const ezColor xAxisColor = ezColorScheme::LightUI(ezColorScheme::Red) * 0.7f;

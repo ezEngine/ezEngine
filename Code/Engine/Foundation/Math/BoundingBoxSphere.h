@@ -81,7 +81,7 @@ public:
 public:
   ezVec3Template<Type> m_vCenter;
   Type m_fSphereRadius;
-  ezVec3Template<Type> m_vBoxHalfExtends;
+  ezVec3Template<Type> m_vBoxHalfExtents;
 };
 
 /// \brief Checks whether this bounds and the other are identical.

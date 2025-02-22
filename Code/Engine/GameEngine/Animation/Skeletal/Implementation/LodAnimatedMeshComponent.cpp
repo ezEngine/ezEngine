@@ -191,7 +191,7 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     // Determine render data category.
@@ -324,7 +324,7 @@ ezMeshRenderData* ezLodAnimatedMeshComponent::CreateRenderData() const
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
   pRenderData->m_GlobalTransform = m_RootTransform;
 
-  m_SkinningState.FillSkinnedMeshRenderData(*pRenderData);
+  pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
 
   return pRenderData;
 }

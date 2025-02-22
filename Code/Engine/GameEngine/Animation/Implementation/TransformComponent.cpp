@@ -62,18 +62,19 @@ void ezTransformComponent::OnSimulationStarted()
 
   // reset to start state
   m_AnimationTime = ezTime::MakeZero();
-  m_Flags.Add(ezTransformComponentFlags::Running);
+  m_Flags.AddOrRemove(ezTransformComponentFlags::CurrentlyRunning, m_Flags.IsSet(ezTransformComponentFlags::Running));
   m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
 }
 
 bool ezTransformComponent::IsRunning(void) const
 {
-  return m_Flags.IsAnySet(ezTransformComponentFlags::Running);
+  return m_Flags.IsAnySet(ezTransformComponentFlags::CurrentlyRunning);
 }
 
 void ezTransformComponent::SetRunning(bool b)
 {
   m_Flags.AddOrRemove(ezTransformComponentFlags::Running, b);
+  m_Flags.AddOrRemove(ezTransformComponentFlags::CurrentlyRunning, b);
 }
 
 bool ezTransformComponent::GetReverseAtStart(void) const

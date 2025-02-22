@@ -138,6 +138,11 @@ ezStatus ezObjectAccessorBase::ClearByName(const ezDocumentObject* pObject, ezSt
   return ezStatus(EZ_SUCCESS);
 }
 
+const ezAbstractProperty* ezObjectAccessorBase::FindPropertyByName(const ezDocumentObject* pObject, ezStringView sProp)
+{
+  return pObject->GetType()->FindPropertyByName(sProp);
+}
+
 ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)
   : m_pConstManager(pManager)
 {

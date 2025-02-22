@@ -140,8 +140,6 @@ struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
 
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Communication/Message.h>
-
 struct EZ_CORE_DLL ezSmcTriangle
 {
   EZ_DECLARE_POD_TYPE();

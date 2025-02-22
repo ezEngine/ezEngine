@@ -135,8 +135,8 @@ private: // Member data
     const ezRenderPipelineNodePin* m_pTextureProvider = nullptr; ///< If set, this node and parent pass provide an external texture to the pipeline. This could be a render target from an ezTargetPass or a history buffer that is preserved across frames. At the start of every frame the parent pass will be asked for the current value of the texture a this pin.
   };
   ezDynamicArray<TextureUsageData> m_TextureUsage;               ///< All unique textures used during the pipeline run.
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage;  ///< Indices map into m_TextureUsage
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage;  ///< Indices map into m_TextureUsage
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage;   ///< Indices map into m_TextureUsage
 
   ezHashTable<ezRenderPipelinePassConnection*, ezUInt32> m_ConnectionToTextureIndex;
 

@@ -22,6 +22,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderer, 1, ezRTTIDefaultAllocator<ezKra
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+bool ezKrautRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezKrautRenderData&>(other0);
+
+  return m_hMesh == other.m_hMesh && m_uiSubMeshIndex == other.m_uiSubMeshIndex;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezKrautRenderer::ezKrautRenderer() = default;
 ezKrautRenderer::~ezKrautRenderer() = default;
 

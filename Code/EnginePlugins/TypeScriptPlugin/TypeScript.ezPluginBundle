@@ -11,5 +11,5 @@ PluginInfo
 	string %PackageDependencies{}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
-	string %EnabledInTemplates{"General2D", "General3D"}
+	string %EnabledInTemplates{}
 }

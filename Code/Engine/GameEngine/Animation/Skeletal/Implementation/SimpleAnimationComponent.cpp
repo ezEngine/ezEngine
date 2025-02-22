@@ -104,7 +104,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   ezTime tMinStep = ezTime::MakeFromSeconds(0);
-  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
   if (visType != ezVisibilityState::Direct)
   {

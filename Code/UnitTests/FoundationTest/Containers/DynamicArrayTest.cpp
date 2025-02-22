@@ -470,7 +470,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(intRange3, 0);
+      a1.InsertRangeAt(0, intRange3);
 
       EZ_TEST_INT(a1.GetCount(), 5);
 
@@ -483,7 +483,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       intTestRange.PushBackRange(intRange1);
       intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(intRange1, 0);
+      a1.InsertRangeAt(0, intRange1);
 
       EZ_TEST_INT(a1.GetCount(), 10);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -496,7 +496,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       intTestRange.PushBackRange(intRange2);
       intTestRange.PushBackRange(intRange3);
 
-      a1.InsertRange(intRange2, 5);
+      a1.InsertRangeAt(5, intRange2);
 
       EZ_TEST_INT(a1.GetCount(), 15);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -535,7 +535,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       classTestRange.PushBackRange(classRange3);
 
-      a2.InsertRange(classRange3, 0);
+      a2.InsertRangeAt(0, classRange3);
 
       EZ_TEST_INT(a2.GetCount(), 3);
 
@@ -548,7 +548,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       classTestRange.PushBackRange(classRange1);
       classTestRange.PushBackRange(classRange3);
 
-      a2.InsertRange(classRange1, 0);
+      a2.InsertRangeAt(0, classRange1);
 
       EZ_TEST_INT(a2.GetCount(), 7);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
@@ -561,7 +561,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       classTestRange.PushBackRange(classRange2);
       classTestRange.PushBackRange(classRange3);
 
-      a2.InsertRange(classRange2, 4);
+      a2.InsertRangeAt(4, classRange2);
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)

@@ -801,7 +801,7 @@ void ezQtAssetBrowserWidget::OnImportAsClicked()
         {
           if (pGen->SupportsFileType(file))
           {
-            pGen->Import(file, sMode, true).LogFailure();
+            pGen->Import(file, sMode, false).LogFailure();
           }
         }
 

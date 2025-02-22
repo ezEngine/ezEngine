@@ -68,6 +68,12 @@ namespace
       propDesc.m_sType = pRtti->GetTypeName();
       propDesc.m_Flags = ezPropertyFlags::IsEnum;
     }
+    else if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Bitflags))
+    {
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sType = pRtti->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::Bitflags;
+    }
     else
     {
       if (scriptDataType == ezVisualScriptDataType::Color)
@@ -165,7 +171,7 @@ static_assert(EZ_ARRAY_SIZE(s_scriptDataTypeToPinColor) == ezVisualScriptDataTyp
 // static
 ezColor ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Enum dataType)
 {
-  if (dataType == ezVisualScriptDataType::EnumValue)
+  if (dataType == ezVisualScriptDataType::EnumValue || dataType == ezVisualScriptDataType::BitflagValue)
   {
     return ezColorScheme::DarkUI(ezColorScheme::Teal);
   }
@@ -186,7 +192,7 @@ ezColor ezVisualScriptNodeRegistry::PinDesc::GetColor() const
     return GetColorForScriptDataType(m_ScriptDataType);
   }
 
-  if (m_ScriptDataType == ezVisualScriptDataType::EnumValue)
+  if (m_ScriptDataType == ezVisualScriptDataType::EnumValue || m_ScriptDataType == ezVisualScriptDataType::BitflagValue)
   {
     return ezColorScheme::DarkUI(ezColorScheme::Teal);
   }
@@ -313,7 +319,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
     { UpdateNodeType(pRtti); });
 }
 
-void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
+void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose /*= false*/)
 {
   static ezHashedString sType = ezMakeHashedString("Type");
   static ezHashedString sProperty = ezMakeHashedString("Property");
@@ -335,7 +341,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     // expose reflected functions and properties to visual scripts
     {
       // All components should be exposed to visual scripts, furthermore all classes that have script-able functions are also exposed
-      bool bExposeToVisualScript = pRtti->IsDerivedFrom<ezComponent>();
+      bool bExposeToVisualScript = pRtti->IsDerivedFrom<ezComponent>() || bForceExpose;
       bool bHasBaseClassFunctions = false;
 
       ezStringBuilder sCategory;
@@ -1549,6 +1555,9 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
           return;
         }
 
+        if (m_ExposedTypes.Insert(pReturnRtti) == false)
+          UpdateNodeType(pReturnRtti, true);
+
         nodeDesc.AddOutputDataPin("Result", pReturnRtti, scriptDataType);
       }
     }
@@ -1589,6 +1598,9 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
         pinScriptDataType = ezVisualScriptDataType::Variant;
       }
 
+      if (m_ExposedTypes.Insert(pArgRtti) == false)
+        UpdateNodeType(pArgRtti, true);
+
       if (bIsEntryFunction)
       {
         nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType);
@@ -1618,7 +1630,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
         }
         else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
-          ezLog::Error("Script function out parameter are not yet supported");
+          // ezLog::Error("Script function out parameter are not yet supported");
           return;
 
 #if 0
@@ -1716,7 +1728,7 @@ void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
     auto argType = pScriptableFuncAttribute->GetArgumentType(argIdx);
     if (argType != ezScriptableFunctionAttribute::In)
     {
-      ezLog::Error("Script function out parameter are not yet supported");
+      // ezLog::Error("Script function out parameter are not yet supported");
       return;
     }
 
@@ -1840,7 +1852,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 
 void ezVisualScriptNodeRegistry::CreateEnumNodeTypes(const ezRTTI* pRtti)
 {
-  if (m_EnumTypes.Insert(pRtti))
+  if (m_ExposedTypes.Insert(pRtti))
     return;
 
   ezStringView sTypeName = GetTypeName(pRtti);

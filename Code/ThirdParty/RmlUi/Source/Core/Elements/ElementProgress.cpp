@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,7 +15,7 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,19 +27,21 @@
  */
 
 #include "../../../Include/RmlUi/Core/Elements/ElementProgress.h"
-#include "../../../Include/RmlUi/Core/Math.h"
-#include "../../../Include/RmlUi/Core/GeometryUtilities.h"
-#include "../../../Include/RmlUi/Core/PropertyIdSet.h"
-#include "../../../Include/RmlUi/Core/Factory.h"
+#include "../../../Include/RmlUi/Core/ComputedValues.h"
 #include "../../../Include/RmlUi/Core/ElementDocument.h"
-#include "../../../Include/RmlUi/Core/StyleSheet.h"
 #include "../../../Include/RmlUi/Core/ElementUtilities.h"
+#include "../../../Include/RmlUi/Core/Factory.h"
+#include "../../../Include/RmlUi/Core/Math.h"
+#include "../../../Include/RmlUi/Core/MeshUtilities.h"
+#include "../../../Include/RmlUi/Core/PropertyIdSet.h"
+#include "../../../Include/RmlUi/Core/StyleSheet.h"
 #include "../../../Include/RmlUi/Core/URL.h"
 #include <algorithm>
 
 namespace Rml {
 
-ElementProgress::ElementProgress(const String& tag) : Element(tag), direction(DefaultDirection), start_edge(DefaultStartEdge), fill(nullptr), rect_set(false), geometry(this)
+ElementProgress::ElementProgress(const String& tag) :
+	Element(tag), direction(DefaultDirection), start_edge(DefaultStartEdge), fill(nullptr), rect_set(false)
 {
 	if (tag == "progressbar")
 		Log::Message(Log::LT_WARNING, "Deprecation notice: Element '<progressbar>' renamed to '<progress>', please adjust RML tags accordingly.");
@@ -52,19 +54,17 @@ ElementProgress::ElementProgress(const String& tag) : Element(tag), direction(De
 	fill = AppendChild(std::move(fill_element), false);
 }
 
-ElementProgress::~ElementProgress()
-{
-}
+ElementProgress::~ElementProgress() {}
 
 float ElementProgress::GetValue() const
 {
 	const float max_value = GetMax();
-	return Math::Clamp(GetAttribute< float >("value", 0.0f), 0.0f, max_value);
+	return Math::Clamp(GetAttribute<float>("value", 0.0f), 0.0f, max_value);
 }
 
 float ElementProgress::GetMax() const
 {
-	const float max_value = GetAttribute< float >("max", 1.0f);
+	const float max_value = GetAttribute<float>("max", 1.0f);
 	return max_value <= 0.0f ? 1.0f : max_value;
 }
 
@@ -92,15 +92,14 @@ void ElementProgress::OnRender()
 		GenerateGeometry();
 
 	// Render the geometry at the fill element's content region.
-	geometry.Render(fill->GetAbsoluteOffset());
+	geometry.Render(fill->GetAbsoluteOffset(), texture);
 }
 
 void ElementProgress::OnAttributeChange(const ElementAttributes& changed_attributes)
 {
 	Element::OnAttributeChange(changed_attributes);
 
-	if (changed_attributes.find("value") != changed_attributes.end()
-		|| changed_attributes.find("max") != changed_attributes.end())
+	if (changed_attributes.find("value") != changed_attributes.end() || changed_attributes.find("max") != changed_attributes.end())
 	{
 		geometry_dirty = true;
 	}
@@ -108,11 +107,11 @@ void ElementProgress::OnAttributeChange(const ElementAttributes& changed_attribu
 	if (changed_attributes.find("direction") != changed_attributes.end())
 	{
 		using DirectionNameList = Array<String, size_t(Direction::Count)>;
-		static const DirectionNameList names = { "top", "right", "bottom", "left", "clockwise", "counter-clockwise" };
+		static const DirectionNameList names = {"top", "right", "bottom", "left", "clockwise", "counter-clockwise"};
 
 		direction = DefaultDirection;
 
-		String name = StringUtilities::ToLower( GetAttribute< String >("direction", "") );
+		String name = StringUtilities::ToLower(GetAttribute<String>("direction", ""));
 		auto it = std::find(names.begin(), names.end(), name);
 
 		size_t index = size_t(it - names.begin());
@@ -125,11 +124,11 @@ void ElementProgress::OnAttributeChange(const ElementAttributes& changed_attribu
 	if (changed_attributes.find("start-edge") != changed_attributes.end())
 	{
 		using StartEdgeNameList = Array<String, size_t(StartEdge::Count)>;
-		static const StartEdgeNameList names = { "top", "right", "bottom", "left" };
+		static const StartEdgeNameList names = {"top", "right", "bottom", "left"};
 
 		start_edge = DefaultStartEdge;
 
-		String name = StringUtilities::ToLower(GetAttribute< String >("start-edge", ""));
+		String name = StringUtilities::ToLower(GetAttribute<String>("start-edge", ""));
 		auto it = std::find(names.begin(), names.end(), name);
 
 		size_t index = size_t(it - names.begin());
@@ -142,14 +141,15 @@ void ElementProgress::OnAttributeChange(const ElementAttributes& changed_attribu
 
 void ElementProgress::OnPropertyChange(const PropertyIdSet& changed_properties)
 {
-    Element::OnPropertyChange(changed_properties);
+	Element::OnPropertyChange(changed_properties);
 
-    if (changed_properties.Contains(PropertyId::ImageColor) ||
-        changed_properties.Contains(PropertyId::Opacity)) {
+	if (changed_properties.Contains(PropertyId::ImageColor) || changed_properties.Contains(PropertyId::Opacity))
+	{
 		geometry_dirty = true;
-    }
+	}
 
-	if (changed_properties.Contains(PropertyId::FillImage)) {
+	if (changed_properties.Contains(PropertyId::FillImage))
+	{
 		LoadTexture();
 	}
 }
@@ -164,12 +164,9 @@ void ElementProgress::OnResize()
 	Box fill_box;
 
 	ElementUtilities::BuildBox(fill_box, element_size, fill);
-	
-	const Vector2f margin_top_left(
-		fill_box.GetEdge(Box::MARGIN, Box::LEFT),
-		fill_box.GetEdge(Box::MARGIN, Box::TOP)
-	);
-	const Vector2f edge_size = fill_box.GetSize(Box::MARGIN) - fill_box.GetSize(Box::CONTENT);
+
+	const Vector2f margin_top_left(fill_box.GetEdge(BoxArea::Margin, BoxEdge::Left), fill_box.GetEdge(BoxArea::Margin, BoxEdge::Top));
+	const Vector2f edge_size = fill_box.GetSize(BoxArea::Margin) - fill_box.GetSize(BoxArea::Content);
 
 	fill_offset = GetBox().GetPosition() + margin_top_left;
 	fill_size = element_size - edge_size;
@@ -182,9 +179,13 @@ void ElementProgress::OnResize()
 
 void ElementProgress::GenerateGeometry()
 {
+	geometry_dirty = false;
+
 	// Warn the user when using the old approach of adding the 'fill-image' property to the 'fill' element.
 	if (fill->GetLocalProperty(PropertyId::FillImage))
-		Log::Message(Log::LT_WARNING, "Breaking change: The 'fill-image' property now needs to be set on the <progress> element, instead of its inner <fill> element. Please update your RCSS source to fix progress bars in this document.");
+		Log::Message(Log::LT_WARNING,
+			"Breaking change: The 'fill-image' property now needs to be set on the <progress> element, instead of its inner <fill> element. Please "
+			"update your RCSS source to fix progress bars in this document.");
 
 	const float normalized_value = GetValue() / GetMax();
 	Vector2f render_size = fill_size;
@@ -193,28 +194,24 @@ void ElementProgress::GenerateGeometry()
 		// Size and offset the fill element depending on the progress value.
 		Vector2f offset = fill_offset;
 
-		switch (direction) {
+		switch (direction)
+		{
 		case Direction::Top:
 			render_size.y = fill_size.y * normalized_value;
 			offset.y = fill_offset.y + fill_size.y - render_size.y;
 			break;
-		case Direction::Right:
-			render_size.x = fill_size.x * normalized_value;
-			break;
-		case Direction::Bottom:
-			render_size.y = fill_size.y * normalized_value;
-			break;
+		case Direction::Right: render_size.x = fill_size.x * normalized_value; break;
+		case Direction::Bottom: render_size.y = fill_size.y * normalized_value; break;
 		case Direction::Left:
 			render_size.x = fill_size.x * normalized_value;
 			offset.x = fill_offset.x + fill_size.x - render_size.x;
 			break;
 		case Direction::Clockwise:
 		case Direction::CounterClockwise:
-			// Circular progress bars cannot use a box to shape the fill element, instead we need to manually create the geometry from the image texture.
-			// Thus, we leave the size and offset untouched as a canvas for the manual geometry.
+			// Circular progress bars cannot use a box to shape the fill element, instead we need to manually create the geometry from the image
+			// texture. Thus, we leave the size and offset untouched as a canvas for the manual geometry.
 			break;
-
-			RMLUI_UNUSED_SWITCH_ENUM(Direction::Count);
+		case Direction::Count: break;
 		}
 
 		Box fill_box = fill->GetBox();
@@ -223,8 +220,7 @@ void ElementProgress::GenerateGeometry()
 		fill->SetOffset(offset, this);
 	}
 
-	geometry.Release(true);
-	geometry_dirty = false;
+	Mesh mesh = geometry.Release(Geometry::ReleaseMode::ClearMesh);
 
 	// If we don't have a fill texture, then there is no need to generate manual geometry, and we are done here.
 	// Instead, users can style the fill element eg. by decorators.
@@ -232,23 +228,15 @@ void ElementProgress::GenerateGeometry()
 		return;
 
 	// Otherwise, the 'fill-image' property is set, let's generate its geometry.
-	auto& vertices = geometry.GetVertices();
-	auto& indices = geometry.GetIndices();
+	Vector<Vertex>& vertices = mesh.vertices;
+	Vector<int>& indices = mesh.indices;
 
 	Vector2f texcoords[2];
 	if (rect_set)
 	{
-		Vector2f texture_dimensions((float)texture.GetDimensions(GetRenderInterface()).x, (float)texture.GetDimensions(GetRenderInterface()).y);
-		if (texture_dimensions.x == 0)
-			texture_dimensions.x = 1;
-		if (texture_dimensions.y == 0)
-			texture_dimensions.y = 1;
-
-		texcoords[0].x = rect.x / texture_dimensions.x;
-		texcoords[0].y = rect.y / texture_dimensions.y;
-
-		texcoords[1].x = (rect.x + rect.width) / texture_dimensions.x;
-		texcoords[1].y = (rect.y + rect.height) / texture_dimensions.y;
+		Vector2f texture_dimensions = Vector2f(Math::Max(texture.GetDimensions(), Vector2i(1)));
+		texcoords[0] = rect.TopLeft() / texture_dimensions;
+		texcoords[1] = rect.BottomRight() / texture_dimensions;
 	}
 	else
 	{
@@ -256,23 +244,17 @@ void ElementProgress::GenerateGeometry()
 		texcoords[1] = Vector2f(1, 1);
 	}
 
-	Colourb quad_colour;
-	{
-		const ComputedValues& computed = GetComputedValues();
-		const float opacity = computed.opacity;
-		quad_colour = computed.image_color;
-		quad_colour.alpha = (byte)(opacity * (float)quad_colour.alpha);
-	}
+	const ComputedValues& computed = GetComputedValues();
+	const ColourbPremultiplied quad_colour = computed.image_color().ToPremultiplied(computed.opacity());
 
-
-	switch (direction) 
+	switch (direction)
 	{
 		// For the top, right, bottom, left directions the fill element already describes where we should draw the fill,
 		// we only need to generate the final texture coordinates here.
-	case Direction::Top:    texcoords[0].y = texcoords[0].y + (1.0f - normalized_value) * (texcoords[1].y - texcoords[0].y); break;
-	case Direction::Right:  texcoords[1].x = texcoords[0].x + normalized_value * (texcoords[1].x - texcoords[0].x);          break;
-	case Direction::Bottom: texcoords[1].y = texcoords[0].y + normalized_value * (texcoords[1].y - texcoords[0].y);          break;
-	case Direction::Left:   texcoords[0].x = texcoords[0].x + (1.0f - normalized_value) * (texcoords[1].x - texcoords[0].x); break;
+	case Direction::Top: texcoords[0].y = texcoords[0].y + (1.0f - normalized_value) * (texcoords[1].y - texcoords[0].y); break;
+	case Direction::Right: texcoords[1].x = texcoords[0].x + normalized_value * (texcoords[1].x - texcoords[0].x); break;
+	case Direction::Bottom: texcoords[1].y = texcoords[0].y + normalized_value * (texcoords[1].y - texcoords[0].y); break;
+	case Direction::Left: texcoords[0].x = texcoords[0].x + (1.0f - normalized_value) * (texcoords[1].x - texcoords[0].x); break;
 
 	case Direction::Clockwise:
 	case Direction::CounterClockwise:
@@ -297,8 +279,8 @@ void ElementProgress::GenerateGeometry()
 		const int start_octant = 2 * int(start_edge);
 
 		// Positions along the unit square (clockwise, index 0 on top)
-		const float x[8] = {  0,  1, 1, 1, 0, -1, -1, -1 };
-		const float y[8] = { -1, -1, 0, 1, 1,  1,  0, -1 };
+		const float x[8] = {0, 1, 1, 1, 0, -1, -1, -1};
+		const float y[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
 		// Set the position of the octant vertices to be rendered.
 		for (int i = 0; i <= num_octants; i++)
@@ -316,7 +298,7 @@ void ElementProgress::GenerateGeometry()
 			const float angle = angle_offset + (cw ? 1.f : -1.f) * normalized_value * 2.f * RMLUI_PI;
 			Vector2f pos(Sin(angle), -Cos(angle));
 			// Project it from the circle towards the surrounding unit square.
-			pos = pos / Max(AbsoluteValue(pos.x), AbsoluteValue(pos.y));
+			pos = pos / Max(Absolute(pos.x), Absolute(pos.y));
 			vertices[num_octants].position = pos;
 		}
 
@@ -339,18 +321,19 @@ void ElementProgress::GenerateGeometry()
 			vertices[i].colour = quad_colour;
 		}
 	}
-		break;
-		RMLUI_UNUSED_SWITCH_ENUM(Direction::Count);
+	break;
+
+	case Direction::Count: break;
 	}
 
 	const bool is_circular = (direction == Direction::Clockwise || direction == Direction::CounterClockwise);
 
-	if(!is_circular)
+	if (!is_circular)
 	{
-		vertices.resize(4);
-		indices.resize(6);
-		GeometryUtilities::GenerateQuad(&vertices[0], &indices[0], Vector2f(0), render_size, quad_colour, texcoords[0], texcoords[1]);
+		MeshUtilities::GenerateQuad(mesh, Vector2f(0), render_size, quad_colour, texcoords[0], texcoords[1]);
 	}
+
+	geometry = GetRenderManager()->MakeGeometry(std::move(mesh));
 }
 
 bool ElementProgress::LoadTexture()
@@ -363,11 +346,15 @@ bool ElementProgress::LoadTexture()
 	if (const Property* property = GetLocalProperty(PropertyId::FillImage))
 		name = property->Get<String>();
 
+	RenderManager* render_manager = GetRenderManager();
+	if (!render_manager)
+		return false;
+
 	ElementDocument* document = GetOwnerDocument();
 
 	bool texture_set = false;
 
-	if(!name.empty() && document)
+	if (!name.empty() && document)
 	{
 		// Check for a sprite first, this takes precedence.
 		if (const StyleSheet* style_sheet = document->GetStyleSheet())
@@ -376,7 +363,7 @@ bool ElementProgress::LoadTexture()
 			{
 				rect = sprite->rectangle;
 				rect_set = true;
-				texture = sprite->sprite_sheet->texture;
+				texture = sprite->sprite_sheet->texture_source.GetTexture(*render_manager);
 				texture_set = true;
 			}
 		}
@@ -386,7 +373,7 @@ bool ElementProgress::LoadTexture()
 		{
 			URL source_url;
 			source_url.SetURL(document->GetSourceURL());
-			texture.Set(name, source_url.GetPath());
+			texture = render_manager->LoadTexture(name, source_url.GetPath());
 			texture_set = true;
 		}
 	}
@@ -396,9 +383,6 @@ bool ElementProgress::LoadTexture()
 		texture = {};
 		rect = {};
 	}
-
-	// Set the texture onto our geometry object.
-	geometry.SetTexture(&texture);
 
 	return true;
 }

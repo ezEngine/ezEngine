@@ -309,7 +309,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBounding
 {
   inout_stream << value.m_vCenter;
   inout_stream << value.m_fSphereRadius;
-  inout_stream << value.m_vBoxHalfExtends;
+  inout_stream << value.m_vBoxHalfExtents;
   return inout_stream;
 }
 
@@ -318,7 +318,7 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingBoxSph
 {
   inout_stream >> out_value.m_vCenter;
   inout_stream >> out_value.m_fSphereRadius;
-  inout_stream >> out_value.m_vBoxHalfExtends;
+  inout_stream >> out_value.m_vBoxHalfExtents;
   return inout_stream;
 }
 

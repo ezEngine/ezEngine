@@ -82,7 +82,7 @@ public:
 private:
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
   void UpdateNodeTypes();
-  void UpdateNodeType(const ezRTTI* pRtti);
+  void UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose = false);
 
   ezResult GetScriptDataType(const ezRTTI* pRtti, ezVisualScriptDataType::Enum& out_scriptDataType, ezStringView sFunctionName = ezStringView(), ezStringView sArgName = ezStringView());
   ezVisualScriptDataType::Enum GetScriptDataType(const ezAbstractProperty* pProp);
@@ -113,7 +113,7 @@ private:
   const ezRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
   ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
-  ezHashSet<const ezRTTI*> m_EnumTypes;
+  ezHashSet<const ezRTTI*> m_ExposedTypes;
 
   ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
   ezDynamicArray<ezNodePropertyValue> m_PropertyValues;

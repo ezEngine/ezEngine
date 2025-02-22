@@ -87,7 +87,7 @@ void ezAnimationControllerComponent::OnSimulationStarted()
 void ezAnimationControllerComponent::Update()
 {
   ezTime tMinStep = ezTime::MakeFromSeconds(0);
-  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
   if (visType != ezVisibilityState::Direct)
   {

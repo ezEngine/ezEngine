@@ -34,7 +34,7 @@ ezSliderComponent::~ezSliderComponent() = default;
 
 void ezSliderComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running))
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::CurrentlyRunning))
   {
     ezVec3 vAxis;
 
@@ -79,7 +79,7 @@ void ezSliderComponent::Update()
       {
         if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnEnd))
         {
-          m_Flags.Remove(ezTransformComponentFlags::Running);
+          m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
         }
 
         m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
@@ -94,7 +94,7 @@ void ezSliderComponent::Update()
       {
         if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnStart))
         {
-          m_Flags.Remove(ezTransformComponentFlags::Running);
+          m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
         }
 
         m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);

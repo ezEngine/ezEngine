@@ -4,7 +4,7 @@
  * For the latest information, see http://github.com/mikke89/RmlUi
  *
  * Copyright (c) 2018 Michael R. P. Ragazzon
- * Copyright (c) 2019 The RmlUi Team, and contributors
+ * Copyright (c) 2019-2023 The RmlUi Team, and contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,9 +37,9 @@ namespace Rml {
 
 struct AnimationKey {
 	AnimationKey(float time, const Property& property, Tween tween) : time(time), property(property), tween(tween) {}
-	float time;   // Local animation time (Zero means the time when the animation iteration starts)
+	float time;  // Local animation time (Zero means the time when the animation iteration starts)
 	Property property;
-	Tween tween;  // Tweening between the previous and this key. Ignored for the first animation key.
+	Tween tween; // Tweening between the previous and this key. Ignored for the first animation key.
 };
 
 // The origin is tracked for determining its behavior when adding and removing animations.
@@ -48,14 +48,13 @@ struct AnimationKey {
 // Transition: Animation started by the 'transition' property
 enum class ElementAnimationOrigin : uint8_t { User, Animation, Transition };
 
-class ElementAnimation
-{
+class ElementAnimation {
 private:
 	PropertyId property_id = PropertyId::Invalid;
 
-	float duration = 0;           // for a single iteration
-	int num_iterations = 0;       // -1 for infinity
-	bool alternate_direction = 0; // between iterations
+	float duration = 0;               // for a single iteration
+	int num_iterations = 0;           // -1 for infinity
+	bool alternate_direction = false; // between iterations
 
 	Vector<AnimationKey> keys;
 
@@ -64,7 +63,7 @@ private:
 	int current_iteration = 0;
 	bool reverse_direction = false;
 
-	bool animation_complete = true;
+	bool animation_complete = false;
 	ElementAnimationOrigin origin = ElementAnimationOrigin::User;
 
 	bool InternalAddKey(float time, const Property& property, Element& element, Tween tween);
@@ -73,10 +72,10 @@ private:
 
 public:
 	ElementAnimation() {}
-	ElementAnimation(PropertyId property_id, ElementAnimationOrigin origin, const Property& current_value, Element& element,
-		double start_world_time, float duration, int num_iterations, bool alternate_direction);
+	ElementAnimation(PropertyId property_id, ElementAnimationOrigin origin, const Property& current_value, Element& element, double start_world_time,
+		float duration, int num_iterations, bool alternate_direction);
 
-	bool AddKey(float target_time, const Property & property, Element & element, Tween tween, bool extend_duration);
+	bool AddKey(float target_time, const Property& property, Element& element, Tween tween, bool extend_duration);
 
 	Property UpdateAndGetProperty(double time, Element& element);
 
@@ -88,7 +87,6 @@ public:
 	float GetInterpolationFactor() const { return GetInterpolationFactorAndKeys(nullptr, nullptr); }
 	ElementAnimationOrigin GetOrigin() const { return origin; }
 };
-
 
 } // namespace Rml
 #endif

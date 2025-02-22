@@ -29,7 +29,7 @@ ezRotorComponent::~ezRotorComponent() = default;
 
 void ezRotorComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running) && m_fAnimationSpeed > 0.0f)
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::CurrentlyRunning) && m_fAnimationSpeed > 0.0f)
   {
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
       m_AnimationTime -= GetWorld()->GetClock().GetTimeDiff();
@@ -53,7 +53,7 @@ void ezRotorComponent::Update()
         {
           if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnEnd))
           {
-            m_Flags.Remove(ezTransformComponentFlags::Running);
+            m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
           }
 
           m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
@@ -69,7 +69,7 @@ void ezRotorComponent::Update()
         {
           if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnStart))
           {
-            m_Flags.Remove(ezTransformComponentFlags::Running);
+            m_Flags.Remove(ezTransformComponentFlags::CurrentlyRunning);
           }
 
           m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);

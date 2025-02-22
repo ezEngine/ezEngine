@@ -52,8 +52,6 @@ public:
 
 protected:
   void Deinitialize() override;
-
-  void OnActivated() override;
   void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -63,30 +61,25 @@ public:
   ezRaycastComponent();
   ~ezRaycastComponent();
 
-  void SetTriggerMessage(const char* szSz);          // [ property ]
-  const char* GetTriggerMessage() const;             // [ property ]
+  float GetCurrentDistance() const { return m_fCurrentDistance; }     // [ scriptable ]
+  ezVec3 GetCurrentEndPosition() const;                               // [ scriptable ]
+  bool HasHit() const { return m_fCurrentDistance < m_fMaxDistance; } // [ scriptable ]
 
-  void SetRaycastEndObject(const char* szReference); // [ property ]
+  void SetRaycastEndObject(const char* szReference);                  // [ property ]
 
-  ezGameObjectHandle m_hRaycastEndObject;            // [ property ]
-  float m_fMaxDistance = 100.0f;                     // [ property ]
-  bool m_bForceTargetParentless = false;             // [ property ]
-  bool m_bDisableTargetObjectOnNoHit = false;        // [ property ]
-  ezUInt8 m_uiCollisionLayerEndPoint = 0;            // [ property ]
-  ezUInt8 m_uiCollisionLayerTrigger = 0;             // [ property ]
-  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit;  // [ property ]
+  ezGameObjectHandle m_hRaycastEndObject;                             // [ property ]
+  float m_fMaxDistance = 100.0f;                                      // [ property ]
+  bool m_bForceTargetParentless = false;                              // [ property ]
+  bool m_bDisableTargetObjectOnNoHit = false;                         // [ property ]
+  ezUInt8 m_uiCollisionLayerEndPoint = 0;                             // [ property ]
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit;                   // [ property ]
+  ezHashedString m_sChangeNotificationMsg;                            // [ property ]
 
 private:
   void Update();
 
-  ezHashedString m_sTriggerMessage;                                 // [ property ]
-  ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
-
-private:
-  void PostTriggerMessage(ezTriggerState::Enum state, ezGameObjectHandle hObject);
-
   const char* DummyGetter() const { return nullptr; }
 
+  float m_fCurrentDistance = 0.0f;
   ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
-  ezGameObjectHandle m_hLastTriggerObjectInRay;
 };

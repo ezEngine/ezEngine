@@ -334,8 +334,8 @@ ezString ezToolsProject::GetProjectDirectory() const
 
 ezString ezToolsProject::GetProjectDataFolder() const
 {
-  ezStringBuilder s = GetProjectFile();
-  s.Append("_data");
+  ezStringBuilder s = GetProjectDirectory();
+  s.AppendPath("Editor");
 
   return s;
 }

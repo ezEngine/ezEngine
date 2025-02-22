@@ -36,17 +36,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSpriteRenderData::FillBatchIdAndSortingKey()
+void ezSpriteRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
   const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
 
-  // Generate batch id from mode and texture
-  ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};
-  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
   // Sort by mode and then by texture
   m_uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
+}
+
+bool ezSpriteRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezSpriteRenderData&>(other0);
+
+  return m_BlendMode == other.m_BlendMode && m_hTexture == other.m_hTexture;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,7 +114,7 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     pRenderData->m_texCoordOffset = ezVec2(0.0f);
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   // Determine render data category.

@@ -8,6 +8,7 @@
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/DynamicBuffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -28,6 +29,7 @@ namespace
       SamplerState,
       Shader,
       Buffer,
+      DynamicBuffer,
       Texture,
       ReadbackTexture,
       ReadbackBuffer,
@@ -540,20 +542,17 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     return ezGALBufferHandle();
   }
 
-  if (desc.m_ResourceAccess.IsImmutable())
+  if (desc.m_ResourceAccess.IsImmutable() && initialData.IsEmpty())
   {
-    if (initialData.IsEmpty())
-    {
-      ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
-      return ezGALBufferHandle();
-    }
+    ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
+    return ezGALBufferHandle();
+  }
 
-    ezUInt32 uiBufferSize = desc.m_uiTotalSize;
-    if (uiBufferSize != initialData.GetCount())
-    {
-      ezLog::Error("Trying to create a buffer with invalid initial data!");
-      return ezGALBufferHandle();
-    }
+  ezUInt32 uiBufferSize = desc.m_uiTotalSize;
+  if (initialData.GetCount() > 0 && uiBufferSize != initialData.GetCount())
+  {
+    ezLog::Error("Trying to create a buffer with invalid initial data!");
+    return ezGALBufferHandle();
   }
 
   if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
@@ -570,6 +569,8 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
 
 ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer)
 {
+  EZ_ASSERT_DEBUG(m_Mutex.IsLocked(), "");
+
   if (pBuffer != nullptr)
   {
     ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
@@ -607,6 +608,28 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
   else
   {
     ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
+  }
+}
+
+ezGALDynamicBufferHandle ezGALDevice::CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  auto pBuffer = EZ_NEW(&m_Allocator, ezGALDynamicBuffer);
+  pBuffer->Initialize(description, sDebugName);
+
+  return ezGALDynamicBufferHandle(m_DynamicBuffers.Insert(pBuffer));
+}
+
+void ezGALDevice::DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALDynamicBuffer* pBuffer = nullptr;
+  if (m_DynamicBuffers.TryGetValue(inout_hBuffer, pBuffer))
+  {
+    AddDeadObject(GALObjectType::DynamicBuffer, inout_hBuffer);
+    inout_hBuffer.Invalidate();
   }
 }
 
@@ -928,6 +951,90 @@ void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer)
   else
   {
     ezLog::Warning("DestroyReadbackBuffer called on invalid handle (double free?)");
+  }
+}
+
+void ezGALDevice::UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset /*= 0*/)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (const ezGALBuffer* pBuffer = GetBuffer(hBuffer))
+  {
+    if (uiDestOffset + sourceData.GetCount() > pBuffer->GetDescription().m_uiTotalSize)
+    {
+      ezLog::Error("Trying to update buffer outside of its bounds!");
+      return;
+    }
+
+    UpdateBufferForNextFramePlatform(pBuffer, sourceData, uiDestOffset);
+  }
+  else
+  {
+    ezLog::Error("No valid buffer handle given to update!");
+  }
+}
+
+void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource /*= {}*/, const ezBoundingBoxu32& destinationBox /*= ezBoundingBoxu32::MakeInvalid()*/)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (const ezGALTexture* pTexture = GetTexture(hTexture))
+  {
+    auto& desc = pTexture->GetDescription();
+
+    const bool bDestBoxIsValid = destinationBox.IsValid() && destinationBox.GetExtents().IsZero() == false;
+    if (bDestBoxIsValid && (destinationBox.m_vMax.x > desc.m_uiWidth || destinationBox.m_vMax.y > desc.m_uiHeight || destinationBox.m_vMax.z > desc.m_uiDepth))
+    {
+      ezLog::Error("Trying to update texture outside of its bounds!");
+      return;
+    }
+
+    const ezUInt32 uiWidth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u) : desc.m_uiWidth;
+    const ezUInt32 uiHeight = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u) : desc.m_uiHeight;
+    const ezUInt32 uiDepth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u) : desc.m_uiDepth;
+
+    const ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
+    const ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
+    if (sourceData.m_uiRowPitch != uiRowPitch)
+    {
+      ezLog::Error("Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
+      return;
+    }
+
+    if (sourceData.m_uiSlicePitch != 0 && sourceData.m_uiSlicePitch != uiSlicePitch)
+    {
+      ezLog::Error("Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
+      return;
+    }
+
+    if (sourceData.m_pData.GetCount() < uiSlicePitch * uiDepth)
+    {
+      ezLog::Error("Not enough data provided to update texture");
+      return;
+    }
+
+    ezGALSystemMemoryDescription finalSourceData = sourceData;
+    if (finalSourceData.m_uiSlicePitch == 0)
+    {
+      finalSourceData.m_uiSlicePitch = uiSlicePitch;
+    }
+
+    ezBoundingBoxu32 finalDestBox = destinationBox;
+    if (bDestBoxIsValid)
+    {
+      finalDestBox.m_vMax = finalDestBox.m_vMin + ezVec3U32(uiWidth, uiHeight, uiDepth);
+    }
+    else
+    {
+      finalDestBox.m_vMin = ezVec3U32(0, 0, 0);
+      finalDestBox.m_vMax = ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+    }
+
+    UpdateTextureForNextFramePlatform(pTexture, finalSourceData, destinationSubResource, finalDestBox);
+  }
+  else
+  {
+    ezLog::Error("No valid texture handle given to update!");
   }
 }
 
@@ -1504,6 +1611,11 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)
     BeginFramePlatform(m_FrameSwapChains, uiAppFrame);
   }
 
+  for (auto it = m_DynamicBuffers.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value()->SwapBuffers();
+  }
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;
@@ -1733,6 +1845,17 @@ void ezGALDevice::DestroyDeadObjects()
 
         DestroyViews(pBuffer);
         DestroyBufferPlatform(pBuffer);
+
+        break;
+      }
+      case GALObjectType::DynamicBuffer:
+      {
+        ezGALDynamicBufferHandle hDynamicBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALDynamicBuffer* pDynamicBuffer = nullptr;
+
+        EZ_VERIFY(m_DynamicBuffers.Remove(hDynamicBuffer, &pDynamicBuffer), "");
+
+        EZ_DELETE(&m_Allocator, pDynamicBuffer);
 
         break;
       }

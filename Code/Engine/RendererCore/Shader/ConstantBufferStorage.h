@@ -5,7 +5,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 /// \brief Wrapper around ezGALBufferHandle that automates buffer updates.
-/// Created via ezRenderContext::CreateConstantBufferStorage. Retried via ezRenderContext::TryGetConstantBufferStorage, updated lazily via ezRenderContext::UploadConstants.
+/// Created via ezRenderContext::CreateConstantBufferStorage. Retrived via ezRenderContext::TryGetConstantBufferStorage, updated lazily via ezRenderContext::UploadConstants.
 ///
 class EZ_RENDERERCORE_DLL ezConstantBufferStorageBase
 {

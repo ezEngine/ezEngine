@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2653273945935889549,5408382608569466657}}
-		u4 %Hash{14681973659675770183}
+		u4 %Hash{2574250565651433523}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11971242699897598154,12838358576299228189}}
@@ -64,7 +64,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"<Prefab-Root>"}
+		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -113,6 +113,32 @@ o
 			Uuid{u4{11598514399489397409,5665196584855518603}}
 			Uuid{u4{14229167397029895573,5501943711183693288}}
 			Uuid{u4{16472688989518818689,5139949315865586510}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13649823252473592255,4903810989839864045}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{143156849503205236,2093444061070724279}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"<Prefab-Root>"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
 		}
 	}
 }
@@ -204,7 +230,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{143156849503205236,2093444061070724279}}
+			Uuid{u4{13649823252473592255,4903810989839864045}}
 		}
 		Uuid %Settings{u4{11853713035801069701,5675254121492968510}}
 	}

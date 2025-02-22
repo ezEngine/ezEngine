@@ -6,6 +6,7 @@
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -396,6 +397,8 @@ void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDe
   ezUInt32 uiSwapChainImages = m_swapChainTextures.GetCount();
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
+    pVulkanDevice->GetInitContext().TextureDestroyed(static_cast<const ezGALTextureVulkan*>(pVulkanDevice->GetTexture(m_swapChainTextures[i])));
+
     pVulkanDevice->DestroyTexture(m_swapChainTextures[i]);
   }
   m_swapChainTextures.Clear();

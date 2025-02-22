@@ -59,4 +59,3 @@
 
 /// Whether game objects compute and store their velocity since the last frame (increases object size)
 #define EZ_GAMEOBJECT_VELOCITY EZ_ON
-

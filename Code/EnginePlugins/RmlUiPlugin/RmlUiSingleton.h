@@ -4,6 +4,7 @@
 
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezRmlUiContext;
 struct ezMsgExtractRenderData;
@@ -35,7 +36,7 @@ public:
 
   bool AnyContextWantsInput();
 
-  void ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData& ref_msg);
+  void ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture);
 
 private:
   struct Data;

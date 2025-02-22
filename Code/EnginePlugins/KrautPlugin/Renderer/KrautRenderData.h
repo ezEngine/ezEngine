@@ -13,6 +13,8 @@ class EZ_KRAUTPLUGIN_DLL ezKrautRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezKrautRenderData, ezRenderData);
 
 public:
+  virtual bool CanBatch(const ezRenderData& other) const override;
+
   ezMeshResourceHandle m_hMesh;
   ezUInt32 m_uiUniqueID = 0;
   float m_fLodDistanceMinSQR;

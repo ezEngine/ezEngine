@@ -5,10 +5,9 @@
 
 namespace lunasvg {
 
-class StyledElement : public Element
-{
+class StyledElement : public Element {
 public:
-    StyledElement(ElementId id);
+    StyledElement(ElementID id);
 
     Paint fill() const;
     Paint stroke() const;
@@ -36,6 +35,7 @@ public:
 
     Display display() const;
     Visibility visibility() const;
+    Overflow overflow() const;
 
     std::string clip_path() const;
     std::string mask() const;
@@ -44,6 +44,7 @@ public:
     std::string marker_end() const;
 
     bool isDisplayNone() const;
+    bool isOverflowHidden() const;
 };
 
 } // namespace lunasvg

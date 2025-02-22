@@ -18,6 +18,10 @@ namespace
 } // namespace
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTransformPreservation, 1)
+  EZ_ENUM_CONSTANTS(ezTransformPreservation::PreserveLocal, ezTransformPreservation::PreserveGlobal)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -106,7 +110,7 @@ void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
     pChild->MakeDynamic();
   }
 
-  AddChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
+  AddChild(pChild->GetHandle(), ezTransformPreservation::PreserveLocal);
 
   // Check whether the child object was only dynamic because of its old parent
   // If that's the case make it static now.
@@ -115,7 +119,7 @@ void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 
 void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
 {
-  DetachChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
+  DetachChild(pChild->GetHandle(), ezTransformPreservation::PreserveLocal);
 
   // The child object is now a top level object, check whether it should be static now.
   pChild->ConditionalMakeStatic();
@@ -426,7 +430,7 @@ const char* ezGameObject::GetGlobalKeyInternal() const
   return GetWorld()->GetObjectGlobalKey(this).GetStartPointer(); // we know that it's zero terminated
 }
 
-void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezGameObject::TransformPreservation preserve)
+void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezTransformPreservation::Enum preserve)
 {
   ezWorld* pWorld = GetWorld();
 
@@ -446,7 +450,7 @@ const ezGameObject* ezGameObject::GetParent() const
   return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
 }
 
-void ezGameObject::AddChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve)
+void ezGameObject::AddChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve)
 {
   ezWorld* pWorld = GetWorld();
 
@@ -457,7 +461,7 @@ void ezGameObject::AddChild(const ezGameObjectHandle& hChild, ezGameObject::Tran
   }
 }
 
-void ezGameObject::DetachChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve)
+void ezGameObject::DetachChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve)
 {
   ezWorld* pWorld = GetWorld();
 
@@ -840,7 +844,7 @@ void ezGameObject::SetTeamID(ezUInt16 uiId)
   }
 }
 
-ezVisibilityState ezGameObject::GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible) const
+ezVisibilityState::Enum ezGameObject::GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible) const
 {
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {

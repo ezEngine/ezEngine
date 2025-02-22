@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
       EZ_TEST_BOOL(pObject->IsDynamic());
 
-      ezVisibilityState visType = pObject->GetVisibilityState();
+      ezVisibilityState::Enum visType = pObject->GetVisibilityState();
       EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
 
@@ -249,7 +249,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
       {
-        ezVisibilityState visType = pObject->GetVisibilityState();
+        ezVisibilityState::Enum visType = pObject->GetVisibilityState();
         EZ_TEST_BOOL(visType == ezVisibilityState::Invisible);
       }
     }
@@ -276,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     // Check that last frame visible doesn't reset entirely after moving
     for (const ezGameObject* pObject : visibleObjects)
     {
-      ezVisibilityState visType = pObject->GetVisibilityState();
+      ezVisibilityState::Enum visType = pObject->GetVisibilityState();
       EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
   }

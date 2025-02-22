@@ -6,8 +6,8 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <RmlUiPlugin/Implementation/EventListener.h>
-#include <RmlUiPlugin/Implementation/Extractor.h>
 #include <RmlUiPlugin/Implementation/FileInterface.h>
+#include <RmlUiPlugin/Implementation/RenderInterface.h>
 #include <RmlUiPlugin/Implementation/SystemInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
@@ -80,7 +80,7 @@ EZ_IMPLEMENT_SINGLETON(ezRmlUi);
 struct ezRmlUi::Data
 {
   ezMutex m_ExtractionMutex;
-  ezRmlUiInternal::Extractor m_Extractor;
+  ezRmlUiInternal::RenderInterface m_RenderInterface;
 
   ezRmlUiInternal::FileInterface m_FileInterface;
   ezRmlUiInternal::SystemInterface m_SystemInterface;
@@ -98,7 +98,7 @@ ezRmlUi::ezRmlUi()
 {
   m_pData = EZ_DEFAULT_NEW(Data);
 
-  Rml::SetRenderInterface(&m_pData->m_Extractor);
+  Rml::SetRenderInterface(&m_pData->m_RenderInterface);
   Rml::SetFileInterface(&m_pData->m_FileInterface);
   Rml::SetSystemInterface(&m_pData->m_SystemInterface);
 
@@ -115,7 +115,10 @@ ezRmlUi::ezRmlUi()
 
   for (auto& font : m_pData->m_Config.m_Fonts)
   {
-    if (Rml::LoadFontFace(font.GetData()) == false)
+    // Treat last font as fall back
+    bool bIsFallbackFont = (font == m_pData->m_Config.m_Fonts.PeekBack());
+
+    if (Rml::LoadFontFace(font.GetData(), bIsFallbackFont) == false)
     {
       ezLog::Warning("Failed to load font face '{0}'.", font);
     }
@@ -154,7 +157,7 @@ bool ezRmlUi::AnyContextWantsInput()
   return false;
 }
 
-void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData& ref_msg)
+void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture)
 {
   if (ref_context.HasDocument() == false)
     return;
@@ -162,10 +165,5 @@ void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData
   // Unfortunately we need to hold a lock for the whole extraction of a context since RmlUi is not thread safe.
   EZ_LOCK(m_pData->m_ExtractionMutex);
 
-  ref_context.ExtractRenderData(m_pData->m_Extractor);
-
-  if (ref_context.m_pRenderData != nullptr)
-  {
-    ref_msg.AddRenderData(ref_context.m_pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
-  }
+  ref_context.ExtractRenderData(m_pData->m_RenderInterface, hTexture);
 }

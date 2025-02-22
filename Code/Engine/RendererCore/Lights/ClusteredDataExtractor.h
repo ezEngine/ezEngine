@@ -75,4 +75,5 @@ private:
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
+  ezMat4 m_mProjection = ezMat4::MakeZero();
 };

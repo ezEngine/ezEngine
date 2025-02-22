@@ -36,7 +36,7 @@ void ezRasterizerView::BeginScene()
 {
   EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
 
-  EZ_PROFILE_SCOPE("Occlusion::Clear");
+  EZ_PROFILE_SCOPE("Clear");
 
   m_pRasterizer->clear();
   m_bAnyOccludersRasterized = false;
@@ -57,7 +57,7 @@ void ezRasterizerView::EndScene()
   if (m_Instances.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("Occlusion::RasterizeScene");
+  EZ_PROFILE_SCOPE("RasterizeScene");
 
   SortObjectsFrontToBack();
 
@@ -75,7 +75,7 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 {
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
-  EZ_PROFILE_SCOPE("Occlusion::RasterizeObjects");
+  EZ_PROFILE_SCOPE("RasterizeObjects");
 
   for (const Instance& inst : m_Instances)
   {
@@ -123,7 +123,7 @@ void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTr
 void ezRasterizerView::SortObjectsFrontToBack()
 {
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  EZ_PROFILE_SCOPE("Occlusion::SortObjects");
+  EZ_PROFILE_SCOPE("SortObjects");
 
   const ezVec3 camPos = m_pCamera->GetCenterPosition();
 
@@ -141,8 +141,6 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
-
-  EZ_PROFILE_SCOPE("Occlusion::IsVisible");
 
   ezSimdVec4f vmin = aabb.m_Min;
   ezSimdVec4f vmax = aabb.m_Max;

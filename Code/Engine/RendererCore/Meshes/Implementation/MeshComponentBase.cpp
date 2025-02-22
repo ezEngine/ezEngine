@@ -46,9 +46,24 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMe
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMeshRenderData::FillBatchIdAndSortingKey()
+void ezMeshRenderData::FillSortingKey()
 {
-  FillBatchIdAndSortingKeyInternal(0);
+  m_uiFlipWinding = m_GlobalTransform.HasMirrorScaling() ? 1 : 0;
+  m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
+
+  const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());
+  const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
+
+  // Sort by material and then by mesh
+  m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + m_uiSubMeshIndex) & 0xFFFE) | m_uiFlipWinding;
+}
+
+bool ezMeshRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezMeshRenderData&>(other0);
+
+  return m_hMesh == other.m_hMesh && m_uiSubMeshIndex == other.m_uiSubMeshIndex &&
+         m_hMaterial == other.m_hMaterial && m_uiFlipWinding == other.m_uiFlipWinding;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -176,7 +191,7 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
       pRenderData->m_uiSubMeshIndex = uiPartIndex;
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     bool bDontCacheYet = false;
@@ -210,6 +225,12 @@ void ezMeshComponentBase::SetMesh(const ezMeshResourceHandle& hMesh)
 
 void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
+  if (uiIndex >= 1024)
+  {
+    ezLog::Error("Invalid material slot index used to change mesh component material.");
+    return;
+  }
+
   m_Materials.EnsureCount(uiIndex + 1);
 
   if (m_Materials[uiIndex] != hMaterial)
@@ -230,9 +251,12 @@ ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) cons
 
 void ezMeshComponentBase::SetColor(const ezColor& color)
 {
-  m_Color = color;
+  if (m_Color != color)
+  {
+    m_Color = color;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 const ezColor& ezMeshComponentBase::GetColor() const
@@ -271,9 +295,15 @@ void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 
 void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  ref_msg.ModifyColor(m_Color);
+  ezColor newColor = m_Color;
+  ref_msg.ModifyColor(newColor);
 
-  InvalidateCachedRenderData();
+  if (m_Color != newColor)
+  {
+    m_Color = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)

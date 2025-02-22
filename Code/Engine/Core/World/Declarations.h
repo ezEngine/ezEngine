@@ -286,12 +286,18 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMode);
 /// \sa ezObjectFlags
 struct ezComponentMode
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Static,
-    Dynamic
+    Dynamic,
+
+    Default = Static
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentMode);
 
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType
@@ -304,9 +310,13 @@ struct ezObjectMsgQueueType
     PostTransform,    ///< Process the message in the PostTransform phase.
     NextFrame,        ///< Process the message in the PreAsync phase of the next frame.
     AfterInitialized, ///< Process the message after new components have been initialized.
-    COUNT
+    COUNT,
+
+    Default = NextFrame
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMsgQueueType);
 
 /// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
 struct EZ_CORE_DLL ezOnComponentFinishedAction

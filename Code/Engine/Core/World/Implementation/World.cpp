@@ -672,7 +672,7 @@ ezClock* ezWorld::Reflection_GetClock()
   return &m_Data.m_Clock;
 }
 
-void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
+void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezTransformPreservation::Enum preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
   EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
@@ -1436,7 +1436,7 @@ void ezWorld::DeleteDeadComponents()
   }
 }
 
-void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve)
+void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezTransformPreservation::Enum preserve)
 {
   ezGameObject* pParent = pObject->GetParent();
 
@@ -1444,7 +1444,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
 
-  if (preserve == ezGameObject::TransformPreservation::PreserveGlobal)
+  if (preserve == ezTransformPreservation::Enum::PreserveGlobal)
   {
     // SetGlobalTransform will internally trigger bounds update for static objects
     pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);

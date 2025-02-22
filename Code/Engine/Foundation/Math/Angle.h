@@ -111,13 +111,13 @@ private:
 // Mathematical operators with float
 
 /// \brief Returns f times angle a.
-constexpr ezAngle operator*(ezAngle a, float f); // [tested]
+constexpr ezAngle operator*(const ezAngle& a, float f); // [tested]
 /// \brief Returns f times angle a.
-constexpr ezAngle operator*(float f, ezAngle a); // [tested]
+constexpr ezAngle operator*(float f, const ezAngle& a); // [tested]
 
 /// \brief Returns the angle a divided by f.
-constexpr ezAngle operator/(ezAngle a, float f); // [tested]
+constexpr ezAngle operator/(const ezAngle& a, float f); // [tested]
 /// \brief Returns the fraction of angle a divided by angle b.
-constexpr float operator/(ezAngle a, ezAngle b); // [tested]
+constexpr float operator/(const ezAngle& a, const ezAngle& b); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>

@@ -1,0 +1,356 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{7447499058730732682,4985325309862458727}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"StateMachine"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{7447499058730732682,4985325309862458727}}
+		u4 %Hash{7836703345442696130}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{13206956299881133702,4894326749222393309}}
+	s %t{"ezStateMachineConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{7303715651890390205,5206048200766788606}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{2282275965228126843,10204648903554907213}}
+		s %TargetPin{"Enter"}
+		Uuid %Type{u4{4989083905719518344,5661650583069383201}}
+	}
+}
+o
+{
+	Uuid %id{u4{4638708852535928466,5053359034319728861}}
+	s %t{"ezStateMachineTransition_Timeout"}
+	u3 %v{1}
+	p
+	{
+		Time %Timeout{d{0x9A9999999999B93F}}
+	}
+}
+o
+{
+	Uuid %id{u4{11982616679671493000,5082516918392241338}}
+	s %t{"ezStateMachineConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{2282275965228126843,10204648903554907213}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{12912753119653605148,15590135587410222193}}
+		s %TargetPin{"Enter"}
+		Uuid %Type{u4{4638708852535928466,5053359034319728861}}
+	}
+}
+o
+{
+	Uuid %id{u4{7303715651890390205,5206048200766788606}}
+	s %t{"ezStateMachineNode"}
+	u3 %v{1}
+	p
+	{
+		b %IsInitialState{1}
+		s %Name{"DemoUi1"}
+		Vec2 %Node::Pos{f{0x32254A43,0x8191BC43}}
+		Uuid %Type{u4{10879187001907084970,5376311506702305267}}
+	}
+}
+o
+{
+	Uuid %id{u4{10879187001907084970,5376311506702305267}}
+	s %t{"ezStateMachineState_SwitchObject"}
+	u3 %v{1}
+	p
+	{
+		b %DeactivateOthers{1}
+		s %ObjectToEnable{"DemoUi1"}
+		s %PathToGroup{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4989083905719518344,5661650583069383201}}
+	s %t{"ezStateMachineTransition_Timeout"}
+	u3 %v{1}
+	p
+	{
+		Time %Timeout{d{0x9A9999999999B93F}}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7303715651890390205,5206048200766788606}}
+			Uuid{u4{2282275965228126843,10204648903554907213}}
+			Uuid{u4{13206956299881133702,4894326749222393309}}
+			Uuid{u4{12912753119653605148,15590135587410222193}}
+			Uuid{u4{11982616679671493000,5082516918392241338}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2282275965228126843,10204648903554907213}}
+	s %t{"ezStateMachineNode"}
+	u3 %v{1}
+	p
+	{
+		b %IsInitialState{0}
+		s %Name{"DemoUi2"}
+		Vec2 %Node::Pos{f{0x7AC7E143,0x8191BC43}}
+		Uuid %Type{u4{5857747315244821608,10374912209490423874}}
+	}
+}
+o
+{
+	Uuid %id{u4{5857747315244821608,10374912209490423874}}
+	s %t{"ezStateMachineState_SwitchObject"}
+	u3 %v{1}
+	p
+	{
+		b %DeactivateOthers{1}
+		s %ObjectToEnable{"DemoUi2"}
+		s %PathToGroup{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12912753119653605148,15590135587410222193}}
+	s %t{"ezStateMachineNode"}
+	u3 %v{1}
+	p
+	{
+		b %IsInitialState{0}
+		s %Name{"DemoUi3"}
+		Vec2 %Node::Pos{f{0xBBA11B44,0x8191BC43}}
+		Uuid %Type{u4{16488224469670299913,15760398893345738854}}
+	}
+}
+o
+{
+	Uuid %id{u4{16488224469670299913,15760398893345738854}}
+	s %t{"ezStateMachineState_SwitchObject"}
+	u3 %v{1}
+	p
+	{
+		b %DeactivateOthers{1}
+		s %ObjectToEnable{"DemoUi3"}
+		s %PathToGroup{""}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{10888972232478699776,1955047099748154733}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineInstance"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17002059552588153903,2200493120366670264}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineTransition"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{219779765415136218,3256450268205370147}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezStateMachineTransition"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineTransition_Timeout"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17086856891275395679,4821075556122048195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezStateMachineNodeBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineNode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17969937305014396101,7868470234589635939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezStateMachineState"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineState_SwitchObject"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1272814175510547916,7899237949773246016}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineState"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10847420876450425172,9973933036859540926}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDocumentObject_ConnectionBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineConnection"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13343460939675617904,14220125077447103969}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezStateMachineNodeBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13983305718315019434,17572363554072221229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentObject_ConnectionBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

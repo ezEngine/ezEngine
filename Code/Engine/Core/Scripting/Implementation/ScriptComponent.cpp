@@ -11,7 +11,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
   EZ_END_PROPERTIES;
@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetScriptVariable, In, "Name", In, "Value"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetScriptVariable, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetUpdateInterval, In, "interval"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -163,6 +164,24 @@ void ezScriptComponent::SetUpdateInterval(ezTime interval)
 ezTime ezScriptComponent::GetUpdateInterval() const
 {
   return m_UpdateInterval;
+}
+
+void ezScriptComponent::BroadcastEventMsg(ezEventMessage& ref_msg)
+{
+  const ezRTTI* pType = ref_msg.GetDynamicRTTI();
+
+  for (auto& sender : m_EventSenders)
+  {
+    if (sender.m_pMsgType == pType)
+    {
+      sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
+      return;
+    }
+  }
+
+  auto& sender = m_EventSenders.ExpandAndGetRef();
+  sender.m_pMsgType = pType;
+  sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
 }
 
 const ezRangeView<const char*, ezUInt32> ezScriptComponent::GetParameters() const

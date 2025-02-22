@@ -489,7 +489,7 @@ namespace ezInternal
     };
 
     template <typename T, bool UseTagsFilter>
-    static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState visType)
+    static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState::Enum visType)
     {
       EZ_IGNORE_UNUSED(visType);
 
@@ -539,7 +539,7 @@ namespace ezInternal
     };
 
     template <bool UseTagsFilter, bool UseOcclusionCallback>
-    static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState visType)
+    static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState::Enum visType)
     {
       auto pQueryData = static_cast<FrustumQueryData*>(pUserData);
       PlaneData planeData = pQueryData->m_PlaneData;
@@ -891,7 +891,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData, ezVisibilityState::Indirect);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState visType) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const
 {
   EZ_PROFILE_SCOPE("FindVisibleObjects");
 
@@ -964,7 +964,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 #endif
 }
 
-ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const
+ezVisibilityState::Enum ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const
 {
   Data* pData = nullptr;
   EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
@@ -987,7 +987,7 @@ ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatia
   if (m_uiFrameCounter > uiLastVisibleFrameIdx + uiNumFramesBeforeInvisible)
     return ezVisibilityState::Invisible;
 
-  return static_cast<ezVisibilityState>(uiLastVisibilityType);
+  return static_cast<ezVisibilityState::Enum>(uiLastVisibilityType);
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -1111,7 +1111,7 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachGrid(const Data& data, 
   }
 }
 
-void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState visType) const
+void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (queryParams.m_pStats != nullptr)

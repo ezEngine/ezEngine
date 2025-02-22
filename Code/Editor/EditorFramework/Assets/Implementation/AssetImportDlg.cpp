@@ -82,7 +82,7 @@ void ezQtAssetImportDlg::on_ButtonImport_clicked()
 
     const auto& option = data.m_ImportOptions[data.m_iSelectedOption];
 
-    option.m_pGenerator->Import(data.m_sInputFileAbsolute, option.m_sName, true).LogFailure();
+    option.m_pGenerator->Import(data.m_sInputFileAbsolute, option.m_sName, false).LogFailure();
   }
 
   accept();

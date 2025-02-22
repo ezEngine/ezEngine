@@ -180,7 +180,7 @@ public:
 
   ezInt32 GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const;
 
-  vk::Fence Submit(bool bAddSignalSemaphore = true);
+  vk::Fence Submit(bool bAddSignalSemaphore = true, bool bAddUpdateForNextFrameCommands = false);
 
   void DeleteLaterImpl(const PendingDeletion& deletion);
 
@@ -259,7 +259,7 @@ public:
   void ReportLiveGpuObjects();
 
   static void UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
-  static void UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const ezGALSystemMemoryDescription& data);
+  static void UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
 
   struct OnBeforeImageDestroyedData
   {
@@ -362,6 +362,11 @@ protected:
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
+  // Resource update functions
+
+  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) override;
+  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) override;
+
   // GPU -> CPU query functions
 
   virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
@@ -386,6 +391,8 @@ protected:
   /// \endcond
 
 private:
+  void WaitIdleInternal(bool bAddUpdateForNextFrameCommands);
+
   struct PerFrameData
   {
     /// \brief These are all fences passed into submit calls. For some reason waiting for the fence of the last submit is not enough. At least I can't get it to work (neither semaphores nor barriers make it past the validation layer).
@@ -435,6 +442,7 @@ private:
   ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
   ezUniquePtr<ezFenceQueueVulkan> m_pFenceQueue;
   ezUniquePtr<ezInitContextVulkan> m_pInitContext;
+  ezUniquePtr<ezInitContextVulkan> m_pUpdateForNextFrameContext;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;

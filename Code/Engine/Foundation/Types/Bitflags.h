@@ -90,7 +90,7 @@ public:
 
   /// \brief Constructor. Initializes the flags to the default value.
   EZ_ALWAYS_INLINE ezBitflags()
-    : m_Value(T::Default) // [tested]
+    : m_Value((StorageType)T::Default) // [tested]
   {
   }
 

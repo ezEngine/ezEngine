@@ -19,9 +19,6 @@ ezPreprocessor::ezPreprocessor()
   SetCustomFileCache();
   m_pLog = nullptr;
 
-  m_bPassThroughPragma = false;
-  m_bPassThroughLine = false;
-
   m_FileLocatorCallback = DefaultFileLocator;
   m_FileOpenCallback = DefaultFileOpen;
 
@@ -62,12 +59,19 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezString
   return &pToken->m_Token;
 }
 
-ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput)
+ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput, const ezToken* pCurParentToken)
 {
   const ezTokenizer* pTokenizer = nullptr;
 
   if (OpenFile(sFile, &pTokenizer).Failed())
+  {
+    if (pCurParentToken)
+    {
+      PP_LOG(Error, "Invalid #include '{}'", pCurParentToken, sFile);
+    }
+
     return EZ_FAILURE;
+  }
 
   FileData fd;
   fd.m_sFileName.Assign(sFile);
@@ -168,7 +172,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     return EZ_FAILURE;
   }
 
-  if (ProcessFile(sFileToOpen, ref_tokenOutput).Failed())
+  if (ProcessFile(sFileToOpen, ref_tokenOutput, nullptr).Failed())
     return EZ_FAILURE;
 
   m_IfdefActiveStack.PopBack();

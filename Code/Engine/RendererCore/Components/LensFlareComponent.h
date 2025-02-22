@@ -14,7 +14,8 @@ class EZ_RENDERERCORE_DLL ezLensFlareRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezLensFlareRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey();
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
   ezFloat16Vec4 m_Color;

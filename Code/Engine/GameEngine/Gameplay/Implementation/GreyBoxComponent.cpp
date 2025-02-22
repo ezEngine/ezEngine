@@ -214,7 +214,7 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
 
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     bool bDontCacheYet = false;

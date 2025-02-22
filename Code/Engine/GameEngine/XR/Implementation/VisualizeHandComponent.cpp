@@ -38,7 +38,7 @@ void ezVisualizeHandComponent::Update()
       ezXRHandPart::Enum part = static_cast<ezXRHandPart::Enum>(uiPart);
       if (pXRHand->TryGetBoneTransforms(hand, part, ezXRTransformSpace::Global, bones) == ezXRHandTrackingInterface::HandPartTrackingState::Tracked)
       {
-        ezHybridArray<ezDebugRenderer::Line, 6> m_Lines;
+        ezHybridArray<ezDebugRendererLine, 6> m_Lines;
         for (ezUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
         {
           const ezXRHandBone& bone = bones[uiBone];
@@ -48,7 +48,7 @@ void ezVisualizeHandComponent::Update()
           if (uiBone + 1 < bones.GetCount())
           {
             const ezXRHandBone& nextBone = bones[uiBone + 1];
-            m_Lines.PushBack(ezDebugRenderer::Line(bone.m_Transform.m_vPosition, nextBone.m_Transform.m_vPosition));
+            m_Lines.PushBack(ezDebugRendererLine(bone.m_Transform.m_vPosition, nextBone.m_Transform.m_vPosition));
           }
         }
         ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::IndianRed);

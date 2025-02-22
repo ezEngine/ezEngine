@@ -512,7 +512,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   constexpr ezUInt32 CIRCLE_SEGMENTS = MAX_SEGMENTS * 2;
   constexpr ezUInt32 NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4;
 
-  ezDebugRenderer::Line lines[NUM_LINES];
+  ezDebugRendererLine lines[NUM_LINES];
   ezUInt32 curLine = 0;
 
   const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180) * MAX_SEGMENTS), MIN_SEGMENTS, MAX_SEGMENTS);
@@ -682,7 +682,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)
 {
-  ezHybridArray<ezDebugRenderer::Line, 256> lines;
+  ezHybridArray<ezDebugRendererLine, 256> lines;
   const ezWorld* pWorld = GetWorld();
 
   for (ezComponentHandle hComponent : m_DebugComponents)

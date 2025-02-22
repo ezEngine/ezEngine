@@ -14,6 +14,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderData, ezRenderData);
 
 public:
+  virtual bool CanBatch(const ezRenderData& other) const override;
+
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;

@@ -5,8 +5,7 @@ plutovg_surface_t* plutovg_surface_create(int width, int height)
     plutovg_surface_t* surface = malloc(sizeof(plutovg_surface_t));
     surface->ref = 1;
     surface->owndata = 1;
-    surface->data = malloc((size_t)(width * height * 4));
-    memset(surface->data, 0, (size_t)(width * height * 4));
+    surface->data = calloc(1, (size_t)(width * height * 4));
     surface->width = width;
     surface->height = height;
     surface->stride = width * 4;
@@ -73,7 +72,7 @@ plutovg_state_t* plutovg_state_create(void)
 {
     plutovg_state_t* state = malloc(sizeof(plutovg_state_t));
     state->clippath = NULL;
-    state->source = plutovg_paint_create_rgb(0, 0, 0);
+    plutovg_paint_init(&state->paint);
     plutovg_matrix_init_identity(&state->matrix);
     state->winding = plutovg_fill_rule_non_zero;
     state->stroke.width = 1.0;
@@ -89,9 +88,9 @@ plutovg_state_t* plutovg_state_create(void)
 
 plutovg_state_t* plutovg_state_clone(const plutovg_state_t* state)
 {
-    plutovg_state_t* newstate = malloc(sizeof(plutovg_state_t));
+    plutovg_state_t* newstate = plutovg_state_create();
     newstate->clippath = plutovg_rle_clone(state->clippath);
-    newstate->source = plutovg_paint_reference(state->source); /** FIXME: **/
+    plutovg_paint_copy(&newstate->paint, &state->paint);
     newstate->matrix = state->matrix;
     newstate->winding = state->winding;
     newstate->stroke.width = state->stroke.width;
@@ -108,7 +107,7 @@ plutovg_state_t* plutovg_state_clone(const plutovg_state_t* state)
 void plutovg_state_destroy(plutovg_state_t* state)
 {
     plutovg_rle_destroy(state->clippath);
-    plutovg_paint_destroy(state->source);
+    plutovg_paint_destroy(&state->paint);
     plutovg_dash_destroy(state->stroke.dash);
     free(state);
 }
@@ -126,6 +125,8 @@ plutovg_t* plutovg_create(plutovg_surface_t* surface)
     pluto->clip.y = 0.0;
     pluto->clip.w = surface->width;
     pluto->clip.h = surface->height;
+    pluto->outline_data = NULL;
+    pluto->outline_size = 0;
     return pluto;
 }
 
@@ -153,6 +154,7 @@ void plutovg_destroy(plutovg_t* pluto)
         plutovg_path_destroy(pluto->path);
         plutovg_rle_destroy(pluto->rle);
         plutovg_rle_destroy(pluto->clippath);
+        free(pluto->outline_data);
         free(pluto);
     }
 }
@@ -176,58 +178,53 @@ void plutovg_restore(plutovg_t* pluto)
     plutovg_state_destroy(oldstate);
 }
 
-void plutovg_set_source_rgb(plutovg_t* pluto, double r, double g, double b)
+plutovg_color_t* plutovg_set_rgb(plutovg_t* pluto, double r, double g, double b)
 {
-    plutovg_set_source_rgba(pluto, r, g, b, 1.0);
+    return plutovg_set_rgba(pluto, r, g, b, 1.0);
 }
 
-void plutovg_set_source_rgba(plutovg_t* pluto, double r, double g, double b, double a)
+plutovg_color_t* plutovg_set_rgba(plutovg_t* pluto, double r, double g, double b, double a)
 {
-    plutovg_paint_t* source = plutovg_paint_create_rgba(r, g, b, a);
-    plutovg_set_source(pluto, source);
-    plutovg_paint_destroy(source);
+    plutovg_paint_t* paint = &pluto->state->paint;
+    paint->type = plutovg_paint_type_color;
+    plutovg_color_init_rgba(&paint->color, r, g, b, a);
+    return &paint->color;
 }
 
-void plutovg_set_source_surface(plutovg_t* pluto, plutovg_surface_t* surface, double x, double y)
+plutovg_color_t* plutovg_set_color(plutovg_t* pluto, const plutovg_color_t* color)
 {
-    plutovg_paint_t* source = plutovg_paint_create_for_surface(surface);
-    plutovg_texture_t* texture = plutovg_paint_get_texture(source);
-    plutovg_matrix_t matrix;
-    plutovg_matrix_init_translate(&matrix, x, y);
-    plutovg_texture_set_matrix(texture, &matrix);
-    plutovg_set_source(pluto, source);
-    plutovg_paint_destroy(source);
+    return plutovg_set_rgba(pluto, color->r, color->g, color->b, color->a);
 }
 
-void plutovg_set_source_color(plutovg_t* pluto, const plutovg_color_t* color)
+plutovg_gradient_t* plutovg_set_linear_gradient(plutovg_t* pluto, double x1, double y1, double x2, double y2)
 {
-    plutovg_set_source_rgba(pluto, color->r, color->g, color->b, color->a);
+    plutovg_paint_t* paint = &pluto->state->paint;
+    paint->type = plutovg_paint_type_gradient;
+    plutovg_gradient_init_linear(&paint->gradient, x1, y1, x2, y2);
+    return &paint->gradient;
 }
 
-void plutovg_set_source_gradient(plutovg_t* pluto, plutovg_gradient_t* gradient)
+plutovg_gradient_t* plutovg_set_radial_gradient(plutovg_t* pluto, double cx, double cy, double cr, double fx, double fy, double fr)
 {
-    plutovg_paint_t* source = plutovg_paint_create_gradient(gradient);
-    plutovg_set_source(pluto, source);
-    plutovg_paint_destroy(source);
+    plutovg_paint_t* paint = &pluto->state->paint;
+    paint->type = plutovg_paint_type_gradient;
+    plutovg_gradient_init_radial(&paint->gradient, cx, cy, cr, fx, fy, fr);
+    return &paint->gradient;
 }
 
-void plutovg_set_source_texture(plutovg_t* pluto, plutovg_texture_t* texture)
+plutovg_texture_t* plutovg_set_texture_surface(plutovg_t* pluto, plutovg_surface_t* surface, double x, double y)
 {
-    plutovg_paint_t* source = plutovg_paint_create_texture(texture);
-    plutovg_set_source(pluto, source);
-    plutovg_paint_destroy(source);
+    plutovg_texture_t* texture = plutovg_set_texture(pluto, surface, plutovg_texture_type_plain);
+    plutovg_matrix_init_translate(&texture->matrix, x, y);
+    return texture;
 }
 
-void plutovg_set_source(plutovg_t* pluto, plutovg_paint_t* source)
+plutovg_texture_t* plutovg_set_texture(plutovg_t* pluto, plutovg_surface_t* surface, plutovg_texture_type_t type)
 {
-    source = plutovg_paint_reference(source);
-    plutovg_paint_destroy(pluto->state->source);
-    pluto->state->source = source;
-}
-
-plutovg_paint_t* plutovg_get_source(const plutovg_t* pluto)
-{
-    return pluto->state->source;
+    plutovg_paint_t* paint = &pluto->state->paint;
+    paint->type = plutovg_paint_type_texture;
+    plutovg_texture_init(&paint->texture, surface, type);
+    return &paint->texture;
 }
 
 void plutovg_set_operator(plutovg_t* pluto, plutovg_operator_t op)
@@ -328,7 +325,7 @@ void plutovg_transform(plutovg_t* pluto, const plutovg_matrix_t* matrix)
 
 void plutovg_set_matrix(plutovg_t* pluto, const plutovg_matrix_t* matrix)
 {
-    memcpy(&pluto->state->matrix, matrix, sizeof(plutovg_matrix_t));
+    pluto->state->matrix = *matrix;
 }
 
 void plutovg_identity_matrix(plutovg_t* pluto)
@@ -338,7 +335,7 @@ void plutovg_identity_matrix(plutovg_t* pluto)
 
 void plutovg_get_matrix(const plutovg_t* pluto, plutovg_matrix_t* matrix)
 {
-    memcpy(matrix, &pluto->state->matrix, sizeof(plutovg_matrix_t));
+    *matrix = pluto->state->matrix;
 }
 
 void plutovg_move_to(plutovg_t* pluto, double x, double y)
@@ -449,7 +446,7 @@ void plutovg_paint(plutovg_t* pluto)
         plutovg_matrix_t matrix;
         plutovg_matrix_init_identity(&matrix);
         pluto->clippath = plutovg_rle_create();
-        plutovg_rle_rasterize(pluto->clippath, path, &matrix, &pluto->clip, NULL, plutovg_fill_rule_non_zero);
+        plutovg_rle_rasterize(pluto, pluto->clippath, path, &matrix, &pluto->clip, NULL, plutovg_fill_rule_non_zero);
         plutovg_path_destroy(path);
     }
 
@@ -461,7 +458,7 @@ void plutovg_fill_preserve(plutovg_t* pluto)
 {
     plutovg_state_t* state = pluto->state;
     plutovg_rle_clear(pluto->rle);
-    plutovg_rle_rasterize(pluto->rle, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
+    plutovg_rle_rasterize(pluto, pluto->rle, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
     plutovg_rle_clip_path(pluto->rle, state->clippath);
     plutovg_blend(pluto, pluto->rle);
 }
@@ -470,7 +467,7 @@ void plutovg_stroke_preserve(plutovg_t* pluto)
 {
     plutovg_state_t* state = pluto->state;
     plutovg_rle_clear(pluto->rle);
-    plutovg_rle_rasterize(pluto->rle, pluto->path, &state->matrix, &pluto->clip, &state->stroke, plutovg_fill_rule_non_zero);
+    plutovg_rle_rasterize(pluto, pluto->rle, pluto->path, &state->matrix, &pluto->clip, &state->stroke, plutovg_fill_rule_non_zero);
     plutovg_rle_clip_path(pluto->rle, state->clippath);
     plutovg_blend(pluto, pluto->rle);
 }
@@ -481,12 +478,18 @@ void plutovg_clip_preserve(plutovg_t* pluto)
     if(state->clippath)
     {
         plutovg_rle_clear(pluto->rle);
-        plutovg_rle_rasterize(pluto->rle, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
+        plutovg_rle_rasterize(pluto, pluto->rle, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
         plutovg_rle_clip_path(state->clippath, pluto->rle);
     }
     else
     {
         state->clippath = plutovg_rle_create();
-        plutovg_rle_rasterize(state->clippath, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
+        plutovg_rle_rasterize(pluto, state->clippath, pluto->path, &state->matrix, &pluto->clip, NULL, state->winding);
     }
+}
+
+void plutovg_reset_clip(plutovg_t* pluto)
+{
+    plutovg_rle_destroy(pluto->state->clippath);
+    pluto->state->clippath = NULL;
 }

@@ -998,7 +998,7 @@ void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezD
 
   ref_entries.Clear();
 
-  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>() || pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
     {

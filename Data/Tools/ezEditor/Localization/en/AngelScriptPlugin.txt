@@ -1,0 +1,2 @@
+AngelScript.OpenInVSC;Open in External Code Editor
+AngelScript.SyncExposedParams;Sync Parameter List

@@ -35,13 +35,16 @@ public:
   /// \brief Initializes a buffer with the given data.
   /// \param pBuffer The buffer to initialize.
   /// \param pInitialData The initial data that the buffer should be filled with.
-  void InitBuffer(const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData);
+  void InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstByteArrayPtr pInitialData);
+
+  /// \brief Updates a texture region
+  void UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& subresource, const ezBoundingBoxu32& box, const ezGALSystemMemoryDescription& sourceData);
 
   /// \brief Updates a buffer range
   /// \param pBuffer The buffer to update.
   /// \param uiOffset The offset inside the buffer where the new data should be placed.
   /// \param pSourceData The new data to update the buffer with.
-  void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezArrayPtr<const ezUInt8> pSourceData);
+  void UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezConstByteArrayPtr pSourceData);
 
   /// \brief Used by ezUniformBufferPoolVulkan to write the entire uniform scratch pool to the GPU
   /// \param gpuBuffer The device local buffer to update.

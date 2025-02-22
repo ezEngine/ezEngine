@@ -77,7 +77,7 @@ ezFrustum ezFrustum::MakeFromPlanes(const ezPlane* pPlanes)
   return frustum;
 }
 
-ezResult ezFrustum::TryMakeFromPlanes(ezFrustum& out_frustum , const ezPlane* pPlanes)
+ezResult ezFrustum::TryMakeFromPlanes(ezFrustum& out_frustum, const ezPlane* pPlanes)
 {
   ezFrustum f;
 
@@ -86,7 +86,7 @@ ezResult ezFrustum::TryMakeFromPlanes(ezFrustum& out_frustum , const ezPlane* pP
 
   if (f.IsValid())
   {
-    out_frustum  = std::move(f);
+    out_frustum = std::move(f);
     return EZ_SUCCESS;
   }
 
@@ -274,7 +274,7 @@ ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpac
   return frustum;
 }
 
-ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum , const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
+ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum, const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
 {
   ezMat4 ModelViewProjection = mModelViewProjection0;
   ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, depthRange, ezClipSpaceDepthRange::MinusOneToOne);
@@ -330,7 +330,7 @@ ezResult ezFrustum::TryMakeFromMVP(ezFrustum& out_frustum , const ezMat4& mModel
   if (reinterpret_cast<ezFrustum*>(planes)->IsValid())
   {
     static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
-    ezMemoryUtils::Copy(out_frustum .m_Planes, (ezPlane*)planes, 6);
+    ezMemoryUtils::Copy(out_frustum.m_Planes, (ezPlane*)planes, 6);
     return EZ_SUCCESS;
   }
 
@@ -429,7 +429,7 @@ ezFrustum ezFrustum::MakeFromCorners(const ezVec3 pCorners[FrustumCorner::CORNER
   return frustum;
 }
 
-ezResult ezFrustum::TryMakeFromCorners(ezFrustum& out_frustum , const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
+ezResult ezFrustum::TryMakeFromCorners(ezFrustum& out_frustum, const ezVec3 pCorners[FrustumCorner::CORNER_COUNT])
 {
   ezFrustum res;
 
@@ -447,8 +447,8 @@ ezResult ezFrustum::TryMakeFromCorners(ezFrustum& out_frustum , const ezVec3 pCo
 
   if (res.IsValid())
   {
-    out_frustum  = std::move(res);
-    return EZ_SUCCESS; 
+    out_frustum = std::move(res);
+    return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;

@@ -24,7 +24,7 @@ namespace
   ezVisualScriptDataType::Enum FinalizeDataType(ezVisualScriptDataType::Enum dataType)
   {
     ezVisualScriptDataType::Enum result = dataType;
-    if (result == ezVisualScriptDataType::EnumValue)
+    if (result == ezVisualScriptDataType::EnumValue || result == ezVisualScriptDataType::BitflagValue)
       result = ezVisualScriptDataType::Int64;
 
     return result;
