@@ -1,6 +1,7 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
 #include <Jolt/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h>
+#include <Jolt/Math/Vec3.h>
 #include <Jolt/Physics/Collision/CollisionDispatch.h>
 #include <JoltPlugin/Shapes/Implementation/JoltCustomShapeInfo.h>
 
@@ -109,6 +110,11 @@ int ezJoltCustomShapeInfo::GetTrianglesNext(GetTrianglesContext& ref_context, in
 float ezJoltCustomShapeInfo::GetVolume() const
 {
   return mInnerShape->GetVolume();
+}
+
+Shape::Stats ezJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ioVisitedShapes) const
+{
+  return mInnerShape->GetStatsRecursive(ioVisitedShapes);
 }
 
 void ezJoltCustomShapeInfo::sRegister()

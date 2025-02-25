@@ -16,9 +16,9 @@ class OrientedBox;
 /// Base class settings to construct a compound shape
 class JPH_EXPORT CompoundShapeSettings : public ShapeSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_ABSTRACT(JPH_EXPORT, CompoundShapeSettings)
 
+public:
 	/// Constructor. Use AddShape to add the parts.
 									CompoundShapeSettings() = default;
 
@@ -36,7 +36,11 @@ public:
 		RefConst<Shape>				mShapePtr;												///< Sub shape (either this or mShape needs to be filled up)
 		Vec3						mPosition;												///< Position of the sub shape
 		Quat						mRotation;												///< Rotation of the sub shape
-		uint32						mUserData = 0;											///< User data value (can be used by the application for any purpose)
+
+		/// User data value (can be used by the application for any purpose).
+		/// Note this value can be retrieved through GetSubShape(...).mUserData, not through GetSubShapeUserData(...) as that returns Shape::GetUserData() of the leaf shape.
+		/// Use GetSubShapeIndexFromID get a shape index from a SubShapeID to pass to GetSubShape.
+		uint32						mUserData = 0;
 	};
 
 	using SubShapes = Array<SubShapeSettings>;
@@ -338,7 +342,7 @@ protected:
 	}
 
 	Vec3							mCenterOfMass { Vec3::sZero() };						///< Center of mass of the compound
-	AABox							mLocalBounds;
+	AABox							mLocalBounds { Vec3::sZero(), Vec3::sZero() };
 	SubShapes						mSubShapes;
 	float							mInnerRadius = FLT_MAX;									///< Smallest radius of GetInnerRadius() of child shapes
 

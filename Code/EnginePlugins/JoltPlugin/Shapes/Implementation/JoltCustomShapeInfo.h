@@ -43,6 +43,8 @@ public:
   virtual Stats GetStats() const override { return Stats(sizeof(*this), 0); }
   virtual float GetVolume() const override;
 
+  virtual Stats GetStatsRecursive(VisitedShapes& ioVisitedShapes) const override;
+
   // Register shape functions with the registry
   static void sRegister();
 

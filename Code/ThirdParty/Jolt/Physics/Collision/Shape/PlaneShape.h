@@ -15,9 +15,9 @@ class CollideShapeSettings;
 /// Class that constructs a PlaneShape
 class JPH_EXPORT PlaneShapeSettings final : public ShapeSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, PlaneShapeSettings)
 
+public:
 	/// Default constructor for deserialization
 									PlaneShapeSettings() = default;
 
@@ -71,7 +71,7 @@ public:
 	virtual MassProperties			GetMassProperties() const override;
 
 	// See Shape::GetMaterial
-	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override	{ JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return mMaterial != nullptr? mMaterial : PhysicsMaterial::sDefault; }
+	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override	{ JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
 
 	// See Shape::GetSurfaceNormal
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override { JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return mPlane.GetNormal(); }
@@ -113,6 +113,10 @@ public:
 
 	// See Shape::GetVolume
 	virtual float					GetVolume() const override									{ return 0; }
+
+	/// Material of the shape
+	void							SetMaterial(const PhysicsMaterial *inMaterial)				{ mMaterial = inMaterial; }
+	const PhysicsMaterial *			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::sDefault; }
 
 	// Register shape functions with the registry
 	static void						sRegister();

@@ -10,7 +10,7 @@ JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <random>
 JPH_SUPPRESS_WARNINGS_STD_END
 
-// Create a std::hash for Vec3
+// Create a std::hash/JPH::Hash for Vec3
 JPH_MAKE_HASHABLE(JPH::Vec3, t.GetX(), t.GetY(), t.GetZ())
 
 JPH_NAMESPACE_BEGIN
@@ -64,9 +64,7 @@ Vec3::Vec3(const Float3 &inV)
 	mF32[0] = inV[0];
 	mF32[1] = inV[1];
 	mF32[2] = inV[2];
-	#ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
-		mF32[3] = inV[2];
-	#endif
+	mF32[3] = inV[2]; // Not strictly needed when JPH_FLOATING_POINT_EXCEPTIONS_ENABLED is off but prevents warnings about uninitialized variables
 #endif
 }
 
@@ -82,9 +80,7 @@ Vec3::Vec3(float inX, float inY, float inZ)
 	mF32[0] = inX;
 	mF32[1] = inY;
 	mF32[2] = inZ;
-	#ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
-		mF32[3] = inZ;
-	#endif
+	mF32[3] = inZ; // Not strictly needed when JPH_FLOATING_POINT_EXCEPTIONS_ENABLED is off but prevents warnings about uninitialized variables
 #endif
 }
 
@@ -124,6 +120,11 @@ Vec3 Vec3::sReplicate(float inV)
 #else
 	return Vec3(inV, inV, inV);
 #endif
+}
+
+Vec3 Vec3::sOne()
+{
+	return sReplicate(1.0f);
 }
 
 Vec3 Vec3::sNaN()
@@ -266,18 +267,22 @@ Vec3 Vec3::sFusedMultiplyAdd(Vec3Arg inMul1, Vec3Arg inMul2, Vec3Arg inAdd)
 #endif
 }
 
-Vec3 Vec3::sSelect(Vec3Arg inV1, Vec3Arg inV2, UVec4Arg inControl)
+Vec3 Vec3::sSelect(Vec3Arg inNotSet, Vec3Arg inSet, UVec4Arg inControl)
 {
-#if defined(JPH_USE_SSE4_1)
-	Type v = _mm_blendv_ps(inV1.mValue, inV2.mValue, _mm_castsi128_ps(inControl.mValue));
+#if defined(JPH_USE_SSE4_1) && !defined(JPH_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
+	Type v = _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
+	return sFixW(v);
+#elif defined(JPH_USE_SSE)
+	__m128 is_set = _mm_castsi128_ps(_mm_srai_epi32(inControl.mValue, 31));
+	Type v = _mm_or_ps(_mm_and_ps(is_set, inSet.mValue), _mm_andnot_ps(is_set, inNotSet.mValue));
 	return sFixW(v);
 #elif defined(JPH_USE_NEON)
-	Type v = vbslq_f32(vreinterpretq_u32_s32(vshrq_n_s32(vreinterpretq_s32_u32(inControl.mValue), 31)), inV2.mValue, inV1.mValue);
+	Type v = vbslq_f32(vreinterpretq_u32_s32(vshrq_n_s32(vreinterpretq_s32_u32(inControl.mValue), 31)), inSet.mValue, inNotSet.mValue);
 	return sFixW(v);
 #else
 	Vec3 result;
 	for (int i = 0; i < 3; i++)
-		result.mF32[i] = inControl.mU32[i] ? inV2.mF32[i] : inV1.mF32[i];
+		result.mF32[i] = (inControl.mU32[i] & 0x80000000u) ? inSet.mF32[i] : inNotSet.mF32[i];
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
 	result.mF32[3] = result.mF32[2];
 #endif // JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
@@ -584,7 +589,7 @@ Vec3 Vec3::Abs() const
 
 Vec3 Vec3::Reciprocal() const
 {
-	return sReplicate(1.0f) / mValue;
+	return sOne() / mValue;
 }
 
 Vec3 Vec3::Cross(Vec3Arg inV2) const
@@ -715,9 +720,12 @@ Vec3 Vec3::Normalized() const
 
 Vec3 Vec3::NormalizedOr(Vec3Arg inZeroValue) const
 {
-#if defined(JPH_USE_SSE4_1)
+#if defined(JPH_USE_SSE4_1) && !defined(JPH_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	Type len_sq = _mm_dp_ps(mValue, mValue, 0x7f);
-	Type is_zero = _mm_cmpeq_ps(len_sq, _mm_setzero_ps());
+	// clang with '-ffast-math' (which you should not use!) can generate _mm_rsqrt_ps
+	// instructions which produce INFs/NaNs when they get a denormal float as input.
+	// We therefore treat denormals as zero here.
+	Type is_zero = _mm_cmple_ps(len_sq, _mm_set1_ps(FLT_MIN));
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
 	if (_mm_movemask_ps(is_zero) == 0xf)
 		return inZeroValue;
@@ -729,13 +737,12 @@ Vec3 Vec3::NormalizedOr(Vec3Arg inZeroValue) const
 #elif defined(JPH_USE_NEON)
 	float32x4_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
-	float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
-	float32x4_t len = vsqrtq_f32(sum);
-	uint32x4_t is_zero = vceqq_f32(len, vdupq_n_f32(0));
-	return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, len));
+	float32x4_t len_sq = vdupq_n_f32(vaddvq_f32(mul));
+	uint32x4_t is_zero = vcleq_f32(len_sq, vdupq_n_f32(FLT_MIN));
+	return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, vsqrtq_f32(len_sq)));
 #else
 	float len_sq = LengthSq();
-	if (len_sq == 0.0f)
+	if (len_sq <= FLT_MIN)
 		return inZeroValue;
 	else
 		return *this / sqrt(len_sq);
