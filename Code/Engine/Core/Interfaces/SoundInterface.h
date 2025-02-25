@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 #include <Foundation/Basics.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class EZ_CORE_DLL ezSoundInterface
 {
@@ -68,3 +69,11 @@ public:
   /// if the sound should play at the same speed.
   static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };
+
+class EZ_CORE_DLL ezScriptExtensionClass_Sound
+{
+public:
+  static void PlaySound(ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Sound);

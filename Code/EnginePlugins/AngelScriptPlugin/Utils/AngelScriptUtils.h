@@ -26,6 +26,9 @@ struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
 class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptUtils
 {
 public:
+  static void SetThreadLocalWorld(ezWorld* pWorld);
+  static ezWorld* GetThreadLocalWorld();
+
   static void SaveByteCode(asIScriptModule* pModule, ezDynamicArray<ezUInt8>& out_byteCode);
 
   static const char* GetAsTypeName(asIScriptEngine* pEngine, int iAsTypeID);
@@ -43,7 +46,7 @@ public:
 
   static ezString DefaultValueToString(const ezVariant& value);
 
-  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 
   static void RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 

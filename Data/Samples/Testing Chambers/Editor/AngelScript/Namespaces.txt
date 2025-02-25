@@ -9,6 +9,7 @@ ezPhysics
 ezPrefabs
 ezQuat
 ezRTTI
+ezSound
 ezSpatial
 ezTime
 ezTransform

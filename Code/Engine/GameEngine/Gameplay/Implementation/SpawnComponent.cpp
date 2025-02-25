@@ -118,6 +118,7 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
   {
     ezTransform tGlobalSpawn;
     tGlobalSpawn = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
+    tGlobalSpawn.m_vScale.Set(1);
 
     pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, options, &m_Parameters);
   }

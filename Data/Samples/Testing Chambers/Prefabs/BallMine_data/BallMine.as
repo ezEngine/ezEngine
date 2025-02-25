@@ -43,7 +43,7 @@ class ScriptObject : ezAngelScriptClass
 
         if (_player.IsInvalidated())
         {
-            ezSpatial::FindObjectsInSphere(GetWorld(), "Player", owner.GetGlobalPosition(), AlertDistance, ReportObjectCB(QueryForNPC));
+            ezSpatial::FindObjectsInSphere("Player", owner.GetGlobalPosition(), AlertDistance, ReportObjectCB(QueryForNPC));
             return;
         }
 

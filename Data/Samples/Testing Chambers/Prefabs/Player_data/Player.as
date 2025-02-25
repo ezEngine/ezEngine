@@ -115,7 +115,7 @@ class Player : ezAngelScriptClass
         {
             ezStringBuilder text;
             text.SetFormat("Health: {}", ezMath::Ceil(iPlayerHealth));
-            ezDebug::DrawInfoText(GetWorld(), text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+            ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
             
             if (eActiveWeapon != WeaponType::None)
             {
@@ -124,13 +124,13 @@ class Player : ezAngelScriptClass
                 if (weaponInfo.eAmmoType == ConsumableType::Ammo_None)
                 {
                     text.SetFormat("Ammo: {}", weaponInfo.iAmmoInClip);
-                    ezDebug::DrawInfoText(GetWorld(), text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+                    ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
                 }
                 else
                 {
                     const int ammoOfType = ammoPouch.getAmmoType(weaponInfo.eAmmoType);
                     text.SetFormat("Ammo: {} / {}", weaponInfo.iAmmoInClip, ammoOfType);
-                    ezDebug::DrawInfoText(GetWorld(), text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
+                    ezDebug::DrawInfoText(text, ezDebugTextPlacement::TopLeft, "Player", ezColor::White);
                 }
     
                 MsgWeaponInteraction msgInteract;
@@ -262,7 +262,7 @@ class Player : ezAngelScriptClass
                     ezVec3 vHitNormal;
                     ezGameObjectHandle hHitObject;
 
-                    if (ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, GetWorld(), cameraObj.GetGlobalPosition(), cameraObj.GetGlobalDirForwards(), 2.0, ezPhysics::GetCollisionLayerByName(GetWorld(), "Interaction Raycast")))
+                    if (ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, cameraObj.GetGlobalPosition(), cameraObj.GetGlobalDirForwards() * 2.0, ezPhysics::GetCollisionLayerByName("Interaction Raycast"), ezPhysicsShapeType(ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic)))
                     {
                         ezMsgGenericEvent msgUse;
                         msgUse.Message = "Use";
@@ -395,7 +395,7 @@ class Player : ezAngelScriptClass
             rbCamActor.Mass = 30;
             rbCamActor.LinearDamping = 0.7;
             rbCamActor.AngularDamping = 0.9;
-            rbCamActor.CollisionLayer = ezPhysics::GetCollisionLayerByName(GetWorld(), "Default");
+            rbCamActor.CollisionLayer = ezPhysics::GetCollisionLayerByName("Default");
             rbCamActor.AddAngularForce(10 * ezVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator()));
 
             cameraObj.SetParent(rbCam.GetHandle());

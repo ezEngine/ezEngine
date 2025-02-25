@@ -338,6 +338,7 @@ StartsWith
 StartsWith_NoCase
 StopEffect
 StopSound
+StopWalking
 TeleportCharacter
 ThrowGrabbedObject
 ToLinearFloat
@@ -353,6 +354,7 @@ TryGetComponent
 TryGetComponentOfBaseType
 TryGetObject
 TryGetObjectWithGlobalKey
+TurnTowards
 UInt
 UInt16Index
 UInt32Index

@@ -3,6 +3,7 @@
 #include <Core/World/SpatialData.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/Types/TagSet.h>
 
@@ -85,3 +86,11 @@ protected:
 
   ezUInt64 m_uiFrameCounter = 0;
 };
+
+class EZ_CORE_DLL ezScriptExtensionClass_Spatial
+{
+public:
+  static ezGameObject* FindClosestObjectInSphere(ezWorld* pWorld, ezStringView sCategory, const ezVec3& vCenter, float fRadius);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Spatial);

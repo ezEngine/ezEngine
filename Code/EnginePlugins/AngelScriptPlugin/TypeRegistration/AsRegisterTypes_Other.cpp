@@ -2,6 +2,7 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
+#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/World/SpatialData.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Clock.h>
@@ -435,9 +436,11 @@ void ezAngelScriptEngineSingleton::Register_ColorGammaUB()
 // ezSpatial
 //////////////////////////////////////////////////////////////////////////
 
-void ezSpatial_FindObjectsInSphere(ezWorld* pWorld, ezStringView sType, const ezVec3& vCenter, float fRadius, asIScriptFunction* pCallback)
+void ezSpatial_FindObjectsInSphere(ezStringView sCategory, const ezVec3& vCenter, float fRadius, asIScriptFunction* pCallback)
 {
-  auto category = ezSpatialData::FindCategory(sType);
+  ezWorld* pWorld = ezAngelScriptUtils::GetThreadLocalWorld();
+
+  auto category = ezSpatialData::FindCategory(sCategory);
   if (category != ezInvalidSpatialDataCategory)
   {
     ezSpatialSystem::QueryParams params;
@@ -471,7 +474,7 @@ void ezAngelScriptEngineSingleton::Register_Spatial()
 
   m_pEngine->SetDefaultNamespace("ezSpatial");
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("void FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3& in vCenter, float fRadius, ReportObjectCB@ callback)", asFUNCTION(ezSpatial_FindObjectsInSphere), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("void FindObjectsInSphere(ezStringView sCategory, const ezVec3& in vCenter, float fRadius, ReportObjectCB@ callback)", asFUNCTION(ezSpatial_FindObjectsInSphere), asCALL_CDECL));
 
   m_pEngine->SetDefaultNamespace("");
 }

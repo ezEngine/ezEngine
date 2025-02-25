@@ -145,10 +145,10 @@ abstract class WeaponBaseClass : ezAngelScriptClass
         float w = 10.0f;
         ezVec3 start = ezVec3(screenCenter.x, screenCenter.y - w, 0);
         ezVec3 end = ezVec3(screenCenter.x, screenCenter.y + w, 0);
-        ezDebug::Draw2DLine(GetWorld(), start, end, col, col);
+        ezDebug::Draw2DLine(start, end, col, col);
         
         start = ezVec3(screenCenter.x - w, screenCenter.y, 0);
         end = ezVec3(screenCenter.x + w, screenCenter.y, 0);
-        ezDebug::Draw2DLine(GetWorld(), start, end, col, col);
+        ezDebug::Draw2DLine(start, end, col, col);
     }
 }

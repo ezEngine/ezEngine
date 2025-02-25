@@ -18,6 +18,7 @@ struct ezAiNavigationComponentState
   {
     Idle,    ///< Currently not navigating.
     Moving,  ///< Moving or waiting for a path to be computed.
+    Turning,
     Falling, ///< High up above the ground, falling downwards.
     Fallen,  ///< Was high up, now reached the ground. May happen if spawned in air, otherwise should never happen, so this is a kind of error state.
     Failed,  ///< Path could not be found, either because start position is invalid (off mesh) or destination is not reachable.
@@ -73,6 +74,10 @@ public:
   /// \brief Can be called at any time to stop moving.
   void CancelNavigation();                           ///< [ scriptable ]
 
+  void StopWalking(float fWithinDistance);           ///< [ scriptable ]
+
+  void TurnTowards(const ezVec2& vGlobalPos);        ///< [ scriptable ]
+
   ezHashedString m_sNavmeshConfig;                   ///< [ property ] Which navmesh to walk on.
   ezHashedString m_sPathSearchConfig;                ///< [ property ] What constraints there are for walking on the navmesh.
 
@@ -92,6 +97,7 @@ public:
 protected:
   void Update();
   void Steer(ezTransform& transform, float tDiff);
+  void Turn(ezTransform& transform, float tDiff);
   void PlaceOnGround(ezTransform& transform, float tDiff);
 
   ezEnum<ezAiNavigationComponentState> m_State;
@@ -100,6 +106,8 @@ protected:
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
   ezUInt8 m_uiSkipNextFrames = 0;
+  float m_fStopWalkDistance = ezMath::HighValue<float>();
+  ezVec2 m_vTurnTowardsPos = ezVec2::MakeZero();
 
 private:
   const char* DummyGetter() const { return nullptr; }

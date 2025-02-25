@@ -57,6 +57,12 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
       inout_VarArgs = true;
       return true;
     }
+
+    if (pRtti->GetTypeName() == "ezWorld")
+    {
+      // skip
+      return true;
+    }
   }
 
   if (pRtti->GetTypeName() == "ezGameObjectHandle" || pRtti->GetTypeName() == "ezComponentHandle")
@@ -92,7 +98,7 @@ bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const e
 
   EZ_ASSERT_DEBUG(!inout_VarArgs, "VarArgs have to be the last argument");
 
-  if (uiArg > 0)
+  if (uiArg > 0 && !decl.EndsWith("("))
   {
     decl.Append(", ");
   }
@@ -441,6 +447,12 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
     }
     else
     {
+      if (decl.EndsWith("(") || decl.EndsWith(", "))
+      {
+        decl.TrimRight(" ,");
+        continue;
+      }
+
       const ezRTTI* pArgType = pFunc->GetArgumentType(uiArg);
 
       if (const char* szName = pFuncAttr->GetArgumentName(uiArg))

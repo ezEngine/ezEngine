@@ -38,9 +38,9 @@ class ScriptObject : ezAngelScriptTestClass
             ezVec3 vHitPosition, vHitNormal;
             ezGameObjectHandle hHitObject;
 
-            EZ_TEST_BOOL(!ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, GetWorld(), ezVec3(1, 2, 3), ezVec3(0, 0, -1), 10.0f, 0, ezPhysicsShapeType::Dynamic));
+            EZ_TEST_BOOL(!ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, ezVec3(1, 2, 3), ezVec3(0, 0, -1) * 10.0f, 0, ezPhysicsShapeType::Dynamic));
 
-            EZ_TEST_BOOL(ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, GetWorld(), ezVec3(1, 2, 3), ezVec3(0, 0, -1), 10.0f, 0, ezPhysicsShapeType::Static));
+            EZ_TEST_BOOL(ezPhysics::Raycast(vHitPosition, vHitNormal, hHitObject, ezVec3(1, 2, 3), ezVec3(0, 0, -1) * 10.0f, 0, ezPhysicsShapeType::Static));
 
             EZ_TEST_VEC3(vHitPosition, ezVec3(1, 2, 0));
             EZ_TEST_VEC3(vHitNormal, ezVec3(0, 0, 1));
@@ -49,7 +49,7 @@ class ScriptObject : ezAngelScriptTestClass
         }
         else if (m_Phase == Phase::Spatial)
         {
-            ezSpatial::FindObjectsInSphere(GetWorld(), "Marker", ezVec3(5.5f, 5.5f, 5.0f), 1.0f, ReportObjectCB(FoundObject));
+            ezSpatial::FindObjectsInSphere("Marker", ezVec3(5.5f, 5.5f, 5.0f), 1.0f, ReportObjectCB(FoundObject));
 
             EZ_TEST_INT(m_iFoundInside, 4);
             EZ_TEST_INT(m_iFoundOther, 0);

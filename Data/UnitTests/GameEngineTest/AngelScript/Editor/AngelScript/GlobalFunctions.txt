@@ -23,6 +23,7 @@ DrawLineSphere
 DrawSolidBox
 Error
 Exp
+FindClosestObjectInSphere
 FindObjectsInSphere
 Floor
 FloorToInt
@@ -105,11 +106,14 @@ Minutes
 Nanoseconds
 Now
 OverlapTestCapsule
+OverlapTestLine
 OverlapTestSphere
+PlaySound
 Pow
 Pow2
 RadToDeg
 Raycast
+RaycastSurfaceInteraction
 Seconds
 SetBoolValue
 SetFloatValue

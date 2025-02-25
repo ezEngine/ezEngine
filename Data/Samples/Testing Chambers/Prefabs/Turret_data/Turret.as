@@ -34,7 +34,7 @@ class ScriptObject : ezAngelScriptClass
     {
         SetUpdateInterval(ezTime::Milliseconds(500));
 
-        CollisionLayer = ezPhysics::GetCollisionLayerByName(GetWorld(), "Visibility Raycast");
+        CollisionLayer = ezPhysics::GetCollisionLayerByName("Visibility Raycast");
 
         auto gunObj = GetOwner().FindChildByName("Gun", true);
 
@@ -64,7 +64,7 @@ class ScriptObject : ezAngelScriptClass
         ezGameObject@ owner = GetOwner();
 
         target.Invalidate();
-        ezSpatial::FindObjectsInSphere(GetWorld(), "Player", owner.GetGlobalPosition(), 15, ReportObjectCB(FoundObjectCallback));
+        ezSpatial::FindObjectsInSphere("Player", owner.GetGlobalPosition(), 15, ReportObjectCB(FoundObjectCallback));
 
         ezGameObject@ targetObj;
         if (!GetWorld().TryGetObject(target, @targetObj))
@@ -81,7 +81,7 @@ class ScriptObject : ezAngelScriptClass
         ezVec3 vHitNormal;
         ezGameObjectHandle HitObject;
 
-        if (ezPhysics::Raycast(vHitPosition, vHitNormal, HitObject, GetWorld(), owner.GetGlobalPosition(), dirToTarget, distance, CollisionLayer, ezPhysicsShapeType::Static))
+        if (ezPhysics::Raycast(vHitPosition, vHitNormal, HitObject, owner.GetGlobalPosition(), dirToTarget * distance, CollisionLayer, ezPhysicsShapeType::Static))
         {
             // obstacle in the way
             return;

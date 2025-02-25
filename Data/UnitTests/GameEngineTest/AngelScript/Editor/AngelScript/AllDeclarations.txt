@@ -129,11 +129,13 @@ bool ezMsgMoveCharacterController::get_Run() const
 bool ezMsgObjectGrabbed::get_GotGrabbed() const
 bool ezMsgSetPlaying::get_Play() const
 bool ezPathComponent::get_Closed() const
-bool ezPhysics::OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPhysics::OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
-bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
+bool ezPhysics::OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
+bool ezPhysics::OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
+bool ezPhysics::OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
+bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, uint IgnoreObjectID = 3)
+bool ezPhysics::RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295)
+bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
+bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPropertyAnimComponent::get_Playing() const
 bool ezQuat::IsEqualRotation(const ezQuat&in, float fEpsilon = 0.00001) const
 bool ezQuat::IsNaN() const
@@ -773,6 +775,7 @@ ezGameObject@ ezGameObject::FindChildByName(const ezTempHashedString&in sName, b
 ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
+ezGameObject@ ezSpatial::FindClosestObjectInSphere(ezStringView Category, ezVec3 Center, float Radius)
 ezGameObjectHandle ezBlackboardComponent::GetEntryValue_asGameObjectHandle(ezString Name) const
 ezGameObjectHandle ezCVar::GetValue_asGameObjectHandle(ezStringView Name)
 ezGameObjectHandle ezGameObject::GetHandle() const
@@ -1490,7 +1493,7 @@ ezVec3 ezMsgPhysicsAddForce::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_Impulse() const
 ezVec3 ezOccluderComponent::get_Extents() const
-ezVec3 ezPhysics::GetGravity(ezWorld@ World)
+ezVec3 ezPhysics::GetGravity()
 ezVec3 ezQuat::GetVectorPart() const
 ezVec3 ezQuat::Rotate(const ezVec3&in) const
 ezVec3 ezQuat::opMul(const ezVec3&in) const
@@ -1946,7 +1949,7 @@ uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
-uint8 ezPhysics::GetCollisionLayerByName(ezWorld@ World, ezStringView Name)
+uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
 uint8 ezSensorComponent::get_CollisionLayer() const
 void T[]::Clear()
 void T[]::InsertAt(uint index, const T&in value)
@@ -2054,18 +2057,18 @@ void ezComponentHandle::Invalidate()
 void ezCustomMeshComponent::set_Color(ezColor)
 void ezCustomMeshComponent::set_CustomData(ezVec4)
 void ezCustomMeshComponent::set_Material(ezStringView)
-void ezDebug::AddPersistentCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
-void ezDebug::AddPersistentLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
-void ezDebug::AddPersistentLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
-void ezDebug::Draw2DLine(ezWorld@ World, ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor)
-void ezDebug::Draw2DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0))
-void ezDebug::Draw3DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16)
-void ezDebug::DrawCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
-void ezDebug::DrawInfoText(ezWorld@ World, ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color)
-void ezDebug::DrawLine(ezWorld@ World, ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor)
-void ezDebug::DrawLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
-void ezDebug::DrawLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
-void ezDebug::DrawSolidBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
+void ezDebug::AddPersistentCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
+void ezDebug::AddPersistentLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
+void ezDebug::AddPersistentLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1))
+void ezDebug::Draw2DLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor)
+void ezDebug::Draw2DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0))
+void ezDebug::Draw3DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16)
+void ezDebug::DrawCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
+void ezDebug::DrawInfoText(ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color)
+void ezDebug::DrawLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor)
+void ezDebug::DrawLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
+void ezDebug::DrawLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
+void ezDebug::DrawSolidBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity())
 void ezDebugTextComponent::set_Color(ezColorGammaUB)
 void ezDebugTextComponent::set_MaxDistance(float)
 void ezDebugTextComponent::set_Text(ezString)
@@ -2446,8 +2449,8 @@ void ezPlayerStartPointComponent::set_PlayerPrefab(ezStringView)
 void ezPointLightComponent::set_Range(float)
 void ezPointLightComponent::set_ShadowFadeOutRange(float)
 void ezPrefabReferenceComponent::set_Prefab(ezStringView)
-void ezPrefabs::SpawnPrefab(ezWorld@ World, ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation)
-void ezPrefabs::SpawnPrefabAsChild(ezWorld@ World, ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation)
+void ezPrefabs::SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation)
+void ezPrefabs::SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation)
 void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh)
 void ezPropertyAnimComponent::set_Animation(ezStringView)
 void ezPropertyAnimComponent::set_Mode(ezPropertyAnimMode)
@@ -2551,7 +2554,8 @@ void ezSliderComponent::set_Axis(ezBasisAxis)
 void ezSliderComponent::set_Deceleration(float)
 void ezSliderComponent::set_Distance(float)
 void ezSliderComponent::set_RandomStart(ezTime)
-void ezSpatial::FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback)
+void ezSound::PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1)
+void ezSpatial::FindObjectsInSphere(ezStringView sCategory, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback)
 void ezSpawnBoxComponent::StartSpawning()
 void ezSpawnBoxComponent::set_Duration(ezTime)
 void ezSpawnBoxComponent::set_HalfExtents(ezVec3)

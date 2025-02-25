@@ -42,6 +42,8 @@ void ezAngelScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVarian
       AS_CHECK(pContext->PushState());
     }
 
+    ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
+
     ezTime tDiff;
 
     if (pContext->Prepare(m_pAsFunction) >= 0)
@@ -99,6 +101,8 @@ void ezAngelScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void
     bPush = true;
     AS_CHECK(pContext->PushState());
   }
+
+  ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
 
   if (pContext->Prepare(pThis->m_pAsFunction) >= 0)
   {
@@ -166,6 +170,8 @@ void ezAngelScriptCustomAsMessageHandler::Dispatch(ezAbstractMessageHandler* pSe
       bPush = true;
       AS_CHECK(pContext->PushState());
     }
+
+    ezAngelScriptUtils::SetThreadLocalWorld(pScriptInstance->GetWorld());
 
     if (pContext->Prepare(r.m_pAsFunction) >= 0)
     {

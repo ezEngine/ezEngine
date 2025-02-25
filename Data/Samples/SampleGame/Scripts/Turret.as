@@ -24,7 +24,7 @@ class Turret : ezAngelScriptClass
 
         // find all objects with the 'TurretTarget' marker that are close by
         allTargets.Clear();
-        ezSpatial::FindObjectsInSphere(GetWorld(), "TurretTarget", owner.GetGlobalPosition(), Range, ReportObjectCB(FoundTargetCallback));
+        ezSpatial::FindObjectsInSphere("TurretTarget", owner.GetGlobalPosition(), Range, ReportObjectCB(FoundTargetCallback));
 
         DrawLinesToTargets();
 
@@ -47,7 +47,7 @@ class Turret : ezAngelScriptClass
             if (GetWorld().TryGetObject(allTargets[i], obj))
             {
                 ezVec3 endPos = obj.GetGlobalPosition();
-                ezDebug::DrawLine(GetWorld(), startPos, endPos, ezColor::OrangeRed, ezColor::OrangeRed);
+                ezDebug::DrawLine(startPos, endPos, ezColor::OrangeRed, ezColor::OrangeRed);
             }
         }
 

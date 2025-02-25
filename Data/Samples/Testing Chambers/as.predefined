@@ -263,9 +263,10 @@ enum ezAiNavigationComponentState
 {
   Idle = 0,
   Moving = 1,
-  Falling = 2,
-  Fallen = 3,
-  Failed = 4,
+  Turning = 2,
+  Falling = 3,
+  Fallen = 4,
+  Failed = 5,
 }
 
 enum ezAiNavigationDebugFlags
@@ -2282,6 +2283,8 @@ class ezAiNavigationComponent : ezComponent
   void SetDestination(ezVec3 Destination, bool AllowPartialPaths);
   void CancelNavigation();
   ezAiNavigationComponentState GetState() const;
+  void StopWalking(float WithinDistance);
+  void TurnTowards(ezVec2 TargetPosition);
   ezHashedString NavmeshConfig;
   ezHashedString PathSearchConfig;
   float Speed;
@@ -3258,13 +3261,18 @@ namespace ezMath
 
 namespace ezSpatial
 {
-  void FindObjectsInSphere(ezWorld@ world, ezStringView sType, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback);
+  void FindObjectsInSphere(ezStringView sCategory, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback);
 }
 
 void throw(ezStringView);
 namespace ezClock
 {
   ezClock@ GetGlobalClock();
+}
+
+namespace ezSound
+{
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1);
 }
 
 namespace ezCVar
@@ -3326,36 +3334,43 @@ namespace ezLog
 
 namespace ezPhysics
 {
-  ezVec3 GetGravity(ezWorld@ World);
-  uint8 GetCollisionLayerByName(ezWorld@ World, ezStringView Name);
-  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
-  bool OverlapTestSphere(ezWorld@ World, float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
-  bool OverlapTestCapsule(ezWorld@ World, float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
-  bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
-  bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezWorld@ World, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  ezVec3 GetGravity();
+  uint8 GetCollisionLayerByName(ezStringView Name);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, uint IgnoreObjectID = 3);
+  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
+  bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295);
 }
 
 namespace ezPrefabs
 {
-  void SpawnPrefab(ezWorld@ World, ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
-  void SpawnPrefabAsChild(ezWorld@ World, ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+}
+
+namespace ezSpatial
+{
+  ezGameObject@ FindClosestObjectInSphere(ezStringView Category, ezVec3 Center, float Radius);
 }
 
 namespace ezDebug
 {
   ezVec2 GetResolution();
-  void DrawCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
-  void DrawLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
-  void DrawLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
-  void DrawSolidBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
-  void Draw2DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0));
-  void Draw3DText(ezWorld@ World, ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16);
-  void DrawInfoText(ezWorld@ World, ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color);
-  void AddPersistentCross(ezWorld@ World, ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
-  void AddPersistentLineBox(ezWorld@ World, ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
-  void AddPersistentLineSphere(ezWorld@ World, ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
-  void DrawLine(ezWorld@ World, ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
-  void Draw2DLine(ezWorld@ World, ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
+  void DrawCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawSolidBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void Draw2DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0));
+  void Draw3DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16);
+  void DrawInfoText(ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color);
+  void AddPersistentCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void DrawLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
+  void Draw2DLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
 }
 
 ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self);

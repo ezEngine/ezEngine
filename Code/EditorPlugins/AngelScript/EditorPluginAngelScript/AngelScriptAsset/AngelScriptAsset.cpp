@@ -42,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetProperties, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetDocument, 2, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAngelScriptAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

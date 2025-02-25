@@ -14,7 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezAiNavigationDebugFlags, 1)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAiNavigationComponentState, 1)
-  EZ_ENUM_CONSTANTS(ezAiNavigationComponentState::Idle, ezAiNavigationComponentState::Moving, ezAiNavigationComponentState::Falling, ezAiNavigationComponentState::Fallen, ezAiNavigationComponentState::Failed)
+  EZ_ENUM_CONSTANTS(ezAiNavigationComponentState::Idle, ezAiNavigationComponentState::Moving, ezAiNavigationComponentState::Turning, ezAiNavigationComponentState::Falling, ezAiNavigationComponentState::Fallen, ezAiNavigationComponentState::Failed)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
@@ -43,6 +43,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
     EZ_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination", In, "AllowPartialPaths"),
     EZ_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetState),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StopWalking, In, "WithinDistance"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TurnTowards, In, "TargetPosition"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -63,6 +65,7 @@ void ezAiNavigationComponent::OnSimulationStarted()
 
 void ezAiNavigationComponent::SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath)
 {
+  m_fStopWalkDistance = ezMath::HighValue<float>();
   m_bAllowPartialPath = bAllowPartialPath;
   m_Navigation.SetTargetPosition(vGlobalPos);
   m_State = ezAiNavigationComponentState::Moving;
@@ -76,6 +79,21 @@ void ezAiNavigationComponent::CancelNavigation()
   {
     // if it is still falling, don't reset the state
     m_State = ezAiNavigationComponentState::Idle;
+  }
+}
+
+void ezAiNavigationComponent::StopWalking(float fWithinDistance)
+{
+  m_fStopWalkDistance = ezMath::Min(m_fStopWalkDistance, fWithinDistance);
+}
+
+void ezAiNavigationComponent::TurnTowards(const ezVec2& vGlobalPos)
+{
+  if (m_State == ezAiNavigationComponentState::Idle)
+  {
+    m_State = ezAiNavigationComponentState::Turning;
+
+    m_vTurnTowardsPos = vGlobalPos;
   }
 }
 
@@ -128,6 +146,7 @@ void ezAiNavigationComponent::Update()
   const float tDiff = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
   Steer(transform, tDiff);
+  Turn(transform, tDiff);
   PlaceOnGround(transform, tDiff);
 
   GetOwner()->SetGlobalPosition(transform.m_vPosition);
@@ -157,6 +176,9 @@ void ezAiNavigationComponent::Update()
         case ezAiNavigationComponentState::Moving:
           ezDebugRenderer::Draw3DText(GetWorld(), "Moving", vPosition, ezColor::Yellow);
           m_Navigation.DebugDrawState(GetWorld(), vPosition - ezVec3(0, 0, 0.5f));
+          break;
+        case ezAiNavigationComponentState::Turning:
+          ezDebugRenderer::Draw3DText(GetWorld(), "Turning", vPosition, ezColor::Orange);
           break;
         case ezAiNavigationComponentState::Falling:
           ezDebugRenderer::Draw3DText(GetWorld(), "Falling...", vPosition, ezColor::IndianRed);
@@ -239,21 +261,73 @@ void ezAiNavigationComponent::Steer(ezTransform& transform, float tDiff)
   const float fBrakingDistance = 1.2f * (ezMath::Square(m_Steering.m_fMaxSpeed) / (2.0f * m_Steering.m_fDecceleration));
 
   m_Navigation.ComputeSteeringInfo(m_Steering.m_Info, vForwardDir, fBrakingDistance);
+  // m_Steering.m_Info.m_vDirectionTowardsWaypoint.Set(1, 0);
+
+  if (m_fStopWalkDistance < ezMath::HighValue<float>())
+  {
+    m_Steering.m_Info.m_fArrivalDistance = ezMath::Min(m_fStopWalkDistance, m_Steering.m_Info.m_fArrivalDistance);
+    m_Steering.m_Info.m_fDistanceToWaypoint = ezMath::Min(m_fStopWalkDistance, m_Steering.m_Info.m_fDistanceToWaypoint);
+  }
+
   m_Steering.Calculate(tDiff, GetWorld());
 
   const ezVec2 vMove = m_Steering.m_vPosition.GetAsVec2() - transform.m_vPosition.GetAsVec2();
-  const float fSpeed = vMove.GetLength() / tDiff;
+  const float fMoveDist = vMove.GetLength();
+
+  if (m_fStopWalkDistance < ezMath::HighValue<float>())
+  {
+    m_fStopWalkDistance = ezMath::Max(0.0f, m_fStopWalkDistance - fMoveDist);
+  }
+
+  const float fSpeed = fMoveDist / tDiff;
 
   transform.m_vPosition = m_Steering.m_vPosition;
   transform.m_qRotation = m_Steering.m_qRotation;
 
-  if (fSpeed < 0.2f && (m_Navigation.GetTargetPosition().GetAsVec2() - m_Steering.m_vPosition.GetAsVec2()).GetLengthSquared() < ezMath::Square(m_fReachedDistance))
+  if (fSpeed < 0.2f && (m_fStopWalkDistance <= 0.1f || ((m_Navigation.GetTargetPosition().GetAsVec2() - m_Steering.m_vPosition.GetAsVec2()).GetLengthSquared() < ezMath::Square(m_fReachedDistance))))
   {
     // reached the goal
     CancelNavigation();
     m_State = ezAiNavigationComponentState::Idle;
     return;
   }
+}
+
+void ezAiNavigationComponent::Turn(ezTransform& transform, float tDiff)
+{
+  if (m_State != ezAiNavigationComponentState::Turning)
+    return;
+
+  m_vTurnTowardsPos;
+
+  ezAngle turnSpeed = ezAngle::MakeFromDegree(360);
+
+  const ezVec3 vTargetDir = (m_vTurnTowardsPos.GetAsVec3(0) - GetOwner()->GetGlobalPosition()).GetNormalized();
+  const ezVec3 vLookDir = GetOwner()->GetGlobalDirForwards();
+
+  ezVec3 vRotAxis = vLookDir.CrossRH(vTargetDir);
+  vRotAxis.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+
+  const ezAngle remainingAngle = vLookDir.GetAngleBetween(vTargetDir);
+  const ezAngle rotateNow = tDiff * turnSpeed;
+
+  ezAngle toRotate;
+
+  if (rotateNow >= remainingAngle)
+  {
+    toRotate = remainingAngle;
+    m_State = ezAiNavigationComponentState::Idle;
+  }
+  else
+  {
+    toRotate = rotateNow;
+  }
+
+  const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(vRotAxis, toRotate);
+
+  const ezVec3 vNewLookDir = qRot * vLookDir;
+
+  transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vNewLookDir);
 }
 
 void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform, float tDiff)

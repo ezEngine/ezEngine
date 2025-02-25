@@ -175,6 +175,7 @@ TopLeft
 TopRight
 Transparent
 Trigger
+Turning
 Variable
 VisCasts
 VisContacts
