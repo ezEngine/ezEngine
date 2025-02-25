@@ -4,7 +4,14 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 
-ezCollisionFilterConfig::ezCollisionFilterConfig() = default;
+ezCollisionFilterConfig::ezCollisionFilterConfig()
+{
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_GroupMasks); ++i)
+  {
+    m_GroupMasks[i] = 0;
+  }
+}
+
 ezCollisionFilterConfig::~ezCollisionFilterConfig() = default;
 
 void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, ezStringView sName)
@@ -133,6 +140,22 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
   EZ_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
 
   inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
+
+  for (ezUInt32 i1 = 0; i1 < 32; ++i1)
+  {
+    for (ezUInt32 i2 = 0; i2 < 32; ++i2)
+    {
+      const bool b1 = (m_GroupMasks[i1] & EZ_BIT(i2)) != 0;
+      const bool b2 = (m_GroupMasks[i2] & EZ_BIT(i1)) != 0;
+
+      if (b1 != b2)
+      {
+        // reset group masks that differ due to previously uninitialized memory
+        m_GroupMasks[i1] &= ~EZ_BIT(i2);
+        m_GroupMasks[i2] &= ~EZ_BIT(i1);
+      }
+    }
+  }
 
   if (uiVersion == 1)
   {
