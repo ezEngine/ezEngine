@@ -3,6 +3,7 @@
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/SpatialSystem.h>
+#include <Core/World/World.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator)
