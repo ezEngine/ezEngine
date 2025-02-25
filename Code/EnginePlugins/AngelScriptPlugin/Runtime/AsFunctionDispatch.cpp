@@ -3,6 +3,7 @@
 #include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/Runtime/AsFunctionDispatch.h>
 #include <AngelScriptPlugin/Runtime/AsInstance.h>
+#include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 
