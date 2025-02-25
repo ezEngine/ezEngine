@@ -720,7 +720,7 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	}
 #else
 	setWindowFlags(
-	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+	    Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
 	QBoxLayout *l = new QBoxLayout(QBoxLayout::TopToBottom);
 	l->setContentsMargins(0, 0, 0, 0);
 	l->setSpacing(0);
