@@ -12,10 +12,12 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
   if (eventData.m_EventType == ezLogMsgType::Flush)
     return;
 
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (eventData.m_sTag.IsEqual_NoCase("beep"))
   {
     MessageBeep(0xFFFFFFFF);
   }
+#  endif
 
   static ezMutex WriterLock; // will only be created if this writer is used at all
   EZ_LOCK(WriterLock);

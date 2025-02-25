@@ -1,5 +1,7 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Scripting/ScriptAttributes.h>
+#include <Core/World/GameObject.h>
 #include <Core/World/SpatialSystem.h>
 
 // clang-format off
