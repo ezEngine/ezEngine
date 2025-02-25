@@ -555,13 +555,13 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
   return "";
 }
 
-void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
+void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& ref_iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg)
 {
   const ezRTTI* pArgRtti = pAbstractFuncProp->GetArgumentType(uiRealArg);
 
   if (pArgRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
   {
-    out_arg = (ezInt32)pGen->GetArgDWord(iSkippedArg);
+    out_arg = (ezInt32)pGen->GetArgDWord(ref_iSkippedArg);
     return;
   }
 
@@ -569,87 +569,87 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg,
   switch (type)
   {
     case ezVariantType::Bool:
-      out_arg = pGen->GetArgByte(iSkippedArg) != 0;
+      out_arg = pGen->GetArgByte(ref_iSkippedArg) != 0;
       return;
     case ezVariantType::Double:
-      out_arg = pGen->GetArgDouble(iSkippedArg);
+      out_arg = pGen->GetArgDouble(ref_iSkippedArg);
       return;
     case ezVariantType::Float:
-      out_arg = pGen->GetArgFloat(iSkippedArg);
+      out_arg = pGen->GetArgFloat(ref_iSkippedArg);
       return;
     case ezVariantType::Int8:
-      out_arg = (ezInt8)pGen->GetArgByte(iSkippedArg);
+      out_arg = (ezInt8)pGen->GetArgByte(ref_iSkippedArg);
       return;
     case ezVariantType::Int16:
-      out_arg = (ezInt16)pGen->GetArgWord(iSkippedArg);
+      out_arg = (ezInt16)pGen->GetArgWord(ref_iSkippedArg);
       return;
     case ezVariantType::Int32:
-      out_arg = (ezInt32)pGen->GetArgDWord(iSkippedArg);
+      out_arg = (ezInt32)pGen->GetArgDWord(ref_iSkippedArg);
       return;
     case ezVariantType::Int64:
-      out_arg = (ezInt64)pGen->GetArgQWord(iSkippedArg);
+      out_arg = (ezInt64)pGen->GetArgQWord(ref_iSkippedArg);
       return;
     case ezVariantType::UInt8:
-      out_arg = (ezUInt8)pGen->GetArgByte(iSkippedArg);
+      out_arg = (ezUInt8)pGen->GetArgByte(ref_iSkippedArg);
       return;
     case ezVariantType::UInt16:
-      out_arg = (ezUInt16)pGen->GetArgWord(iSkippedArg);
+      out_arg = (ezUInt16)pGen->GetArgWord(ref_iSkippedArg);
       return;
     case ezVariantType::UInt32:
-      out_arg = (ezUInt32)pGen->GetArgDWord(iSkippedArg);
+      out_arg = (ezUInt32)pGen->GetArgDWord(ref_iSkippedArg);
       return;
     case ezVariantType::UInt64:
-      out_arg = (ezUInt64)pGen->GetArgQWord(iSkippedArg);
+      out_arg = (ezUInt64)pGen->GetArgQWord(ref_iSkippedArg);
       return;
 
     case ezVariantType::Vector2:
-      out_arg = *((const ezVec2*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezVec2*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Vector3:
-      out_arg = *((const ezVec3*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezVec3*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Vector4:
-      out_arg = *((const ezVec4*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezVec4*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Quaternion:
-      out_arg = *((const ezQuat*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezQuat*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Matrix3:
-      out_arg = *((const ezMat3*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezMat3*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Matrix4:
-      out_arg = *((const ezMat4*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezMat4*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Transform:
-      out_arg = *((const ezTransform*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezTransform*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Time:
-      out_arg = *((const ezTime*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezTime*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Angle:
-      out_arg = *((const ezAngle*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezAngle*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::Color:
-      out_arg = *((const ezColor*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezColor*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::ColorGamma:
-      out_arg = *((const ezColorGammaUB*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezColorGammaUB*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::String:
-      out_arg = *((const ezString*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezString*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::HashedString:
-      out_arg = *((const ezHashedString*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezHashedString*)pGen->GetArgObject(ref_iSkippedArg));
       return;
     case ezVariantType::StringView:
-      out_arg = ezVariant(*(const ezStringView*)pGen->GetArgObject(iSkippedArg), false);
+      out_arg = ezVariant(*(const ezStringView*)pGen->GetArgObject(ref_iSkippedArg), false);
       return;
     case ezVariantType::TempHashedString:
-      out_arg = *((const ezTempHashedString*)pGen->GetArgObject(iSkippedArg));
+      out_arg = *((const ezTempHashedString*)pGen->GetArgObject(ref_iSkippedArg));
       return;
 
     case ezVariantType::VariantArray:
-      RetrieveVarArgs(pGen, iSkippedArg, pAbstractFuncProp, out_arg);
+      RetrieveVarArgs(pGen, ref_iSkippedArg, pAbstractFuncProp, out_arg);
       return;
 
     case ezVariantType::Invalid:
@@ -664,39 +664,39 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg,
   {
     out_arg = ezAngelScriptUtils::GetThreadLocalWorld();
     // out_arg = (ezWorld*)pGen->GetArgObject(uiArg);
-    --iSkippedArg;
+    --ref_iSkippedArg;
     return;
   }
 
   if (pArgRtti == ezGetStaticRTTI<ezGameObjectHandle>())
   {
-    out_arg = (ezGameObjectHandle*)pGen->GetArgObject(iSkippedArg);
+    out_arg = (ezGameObjectHandle*)pGen->GetArgObject(ref_iSkippedArg);
     return;
   }
 
   if (pArgRtti == ezGetStaticRTTI<ezComponentHandle>())
   {
-    out_arg = (ezComponentHandle*)pGen->GetArgObject(iSkippedArg);
+    out_arg = (ezComponentHandle*)pGen->GetArgObject(ref_iSkippedArg);
     return;
   }
 
   if (pArgRtti == ezGetStaticRTTI<ezGameObject>())
   {
-    out_arg = (ezGameObject*)pGen->GetArgObject(iSkippedArg);
+    out_arg = (ezGameObject*)pGen->GetArgObject(ref_iSkippedArg);
     return;
   }
 
   if (pArgRtti->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
   {
-    out_arg = (ezComponent*)pGen->GetArgObject(iSkippedArg);
+    out_arg = (ezComponent*)pGen->GetArgObject(ref_iSkippedArg);
     return;
   }
 
   if (pArgRtti->GetTypeName().StartsWith("ezVariant"))
   {
-    auto argTypeId = pGen->GetArgTypeId(iSkippedArg);
+    auto argTypeId = pGen->GetArgTypeId(ref_iSkippedArg);
 
-    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(iSkippedArg), out_arg).Succeeded())
+    if (ezAngelScriptUtils::ReadFromAsTypeAtLocation(pGen->GetEngine(), argTypeId, pGen->GetArgAddress(ref_iSkippedArg), out_arg).Succeeded())
       return;
 
     const char* typeName = "null";
@@ -705,7 +705,7 @@ void ezAngelScriptUtils::RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg,
       typeName = pInfo->GetName();
     }
 
-    ezLog::Error("Call to '{}': Argument {} got an unsupported type '{}' ({})", pAbstractFuncProp->GetPropertyName(), iSkippedArg, typeName, argTypeId);
+    ezLog::Error("Call to '{}': Argument {} got an unsupported type '{}' ({})", pAbstractFuncProp->GetPropertyName(), ref_iSkippedArg, typeName, argTypeId);
     return;
   }
 

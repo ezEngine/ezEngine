@@ -46,7 +46,7 @@ public:
 
   static ezString DefaultValueToString(const ezVariant& value);
 
-  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
+  static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& ref_iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 
   static void RetrieveVarArgs(asIScriptGeneric* pGen, ezUInt32 uiStartArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 
