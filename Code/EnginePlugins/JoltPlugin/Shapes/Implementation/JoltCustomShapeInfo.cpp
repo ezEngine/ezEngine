@@ -112,9 +112,9 @@ float ezJoltCustomShapeInfo::GetVolume() const
   return mInnerShape->GetVolume();
 }
 
-Shape::Stats ezJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ioVisitedShapes) const
+Shape::Stats ezJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ref_ioVisitedShapes) const
 {
-  return mInnerShape->GetStatsRecursive(ioVisitedShapes);
+  return mInnerShape->GetStatsRecursive(ref_ioVisitedShapes);
 }
 
 void ezJoltCustomShapeInfo::sRegister()
