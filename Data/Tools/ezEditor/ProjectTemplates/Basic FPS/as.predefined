@@ -1,0 +1,3462 @@
+// *** TYPEDEFS *** 
+
+typedef int8 ezInt8;
+typedef int16 ezInt16;
+typedef int32 ezInt32;
+typedef int64 ezInt64;
+typedef uint8 ezUInt8;
+typedef uint16 ezUInt16;
+typedef uint32 ezUInt32;
+typedef uint64 ezUInt64;
+
+// *** ENUMS *** 
+
+enum ezObjectMsgQueueType
+{
+  PostAsync = 0,
+  PostTransform = 1,
+  NextFrame = 2,
+  AfterInitialized = 3,
+}
+
+enum ezTransformPreservation
+{
+  PreserveLocal = 0,
+  PreserveGlobal = 1,
+}
+
+enum ezSkeletonPoseMode
+{
+  CustomPose = 0,
+  RestPose = 1,
+  Disabled = 2,
+}
+
+enum ezCameraUsageHint
+{
+  None = 0,
+  MainView = 1,
+  EditorView = 2,
+  RenderTarget = 3,
+  Culling = 4,
+  Thumbnail = 7,
+}
+
+enum ezCameraMode
+{
+  PerspectiveFixedFovX = 1,
+  PerspectiveFixedFovY = 2,
+  OrthoFixedWidth = 3,
+  OrthoFixedHeight = 4,
+}
+
+enum ezOccluderType
+{
+  Box = 0,
+  QuadPosX = 1,
+}
+
+enum ezSpriteBlendMode
+{
+  Masked = 0,
+  Transparent = 1,
+  Additive = 2,
+}
+
+enum ezBasisAxis
+{
+  PositiveX = 0,
+  PositiveY = 1,
+  PositiveZ = 2,
+  NegativeX = 3,
+  NegativeY = 4,
+  NegativeZ = 5,
+}
+
+enum ezOnComponentFinishedAction
+{
+  None = 0,
+  DeleteComponent = 1,
+  DeleteGameObject = 2,
+}
+
+enum ezReflectionProbeMode
+{
+  Static = 0,
+  Dynamic = 1,
+}
+
+enum ezFillLightMode
+{
+  Additive = 0,
+  Subtractive = 1,
+  ModulateIndirect = 2,
+}
+
+enum ezUpdateRate
+{
+  EveryFrame = 0,
+  Max30fps = 1,
+  Max20fps = 2,
+  Max10fps = 3,
+  Max5fps = 4,
+  Max2fps = 5,
+  Max1fps = 6,
+  Never = 7,
+}
+
+enum ezSetColorMode
+{
+  SetRGBA = 0,
+  SetRGB = 1,
+  SetAlpha = 2,
+  AlphaBlend = 3,
+  Additive = 4,
+  Modulate = 5,
+}
+
+enum ezPropertyAnimMode
+{
+  Once = 0,
+  Loop = 1,
+  BackAndForth = 2,
+}
+
+enum ezFollowPathMode
+{
+  OnlyPosition = 0,
+  AlignUpZ = 1,
+  FullRotation = 2,
+}
+
+enum ezPathComponentFlags
+{
+  VisualizePath = 1,
+  VisualizeUpDir = 2,
+}
+
+enum ezPathNodeTangentMode
+{
+  Auto = 0,
+  Linear = 1,
+}
+
+enum ezRootMotionMode
+{
+  Ignore = 0,
+  ApplyToOwner = 1,
+  SendMoveCharacterMsg = 2,
+}
+
+enum ezAnimationInvisibleUpdateRate
+{
+  FullUpdate = 0,
+  Max60FPS = 1,
+  Max30FPS = 2,
+  Max15FPS = 3,
+  Max10FPS = 4,
+  Max5FPS = 5,
+  Pause = 6,
+}
+
+enum ezWindStrength
+{
+  Calm = 0,
+  LightBreeze = 1,
+  GentleBreeze = 2,
+  ModerateBreeze = 3,
+  StrongBreeze = 4,
+  Storm = 5,
+  WeakShockwave = 6,
+  MediumShockwave = 7,
+  StrongShockwave = 8,
+  ExtremeShockwave = 9,
+}
+
+enum ezWindVolumeCylinderMode
+{
+  Directional = 0,
+  Vortex = 1,
+}
+
+enum ezGlobalBlackboardInitMode
+{
+  EnsureEntriesExist = 0,
+  ResetEntryValues = 1,
+  ClearEntireBlackboard = 2,
+}
+
+enum ezGreyBoxShape
+{
+  Box = 0,
+  RampPosX = 1,
+  RampNegX = 2,
+  RampPosY = 3,
+  RampNegY = 4,
+  Column = 5,
+  StairsPosX = 6,
+  StairsNegX = 7,
+  StairsPosY = 8,
+  StairsNegY = 9,
+  ArchX = 10,
+  ArchY = 11,
+  SpiralStairs = 12,
+}
+
+enum ezInputMessageGranularity
+{
+  PressOnly = 0,
+  PressAndRelease = 1,
+  PressReleaseAndDown = 2,
+}
+
+enum ezSceneLoadMode
+{
+  None = 0,
+  LoadAndSwitch = 1,
+  Preload = 2,
+  CancelPreload = 3,
+}
+
+enum ezXRDeviceType
+{
+  HMD = 0,
+  LeftController = 1,
+  RightController = 2,
+  DeviceID0 = 3,
+  DeviceID1 = 4,
+  DeviceID2 = 5,
+  DeviceID3 = 6,
+  DeviceID4 = 7,
+  DeviceID5 = 8,
+  DeviceID6 = 9,
+  DeviceID7 = 10,
+  DeviceID8 = 11,
+  DeviceID9 = 12,
+  DeviceID10 = 13,
+  DeviceID11 = 14,
+  DeviceID12 = 15,
+  DeviceID13 = 16,
+  DeviceID14 = 17,
+  DeviceID15 = 18,
+}
+
+enum ezXRPoseLocation
+{
+  Grip = 0,
+  Aim = 1,
+}
+
+enum ezXRTransformSpace
+{
+  Local = 0,
+  Global = 1,
+}
+
+enum ezXRStageSpace
+{
+  Seated = 0,
+  Standing = 1,
+}
+
+enum ezAiNavigationComponentState
+{
+  Idle = 0,
+  Moving = 1,
+  Turning = 2,
+  Falling = 3,
+  Fallen = 4,
+  Failed = 5,
+}
+
+enum ezAiNavigationDebugFlags
+{
+  PrintState = 1,
+  VisPathCorridor = 2,
+  VisPathLine = 4,
+  VisTarget = 8,
+}
+
+enum ezPhysicsShapeType
+{
+  Static = 1,
+  Dynamic = 2,
+  Query = 4,
+  Trigger = 8,
+  Character = 16,
+  Ragdoll = 32,
+  Rope = 64,
+}
+
+enum ezClothSheetFlags
+{
+  FixedCornerTopLeft = 1,
+  FixedCornerTopRight = 2,
+  FixedCornerBottomRight = 4,
+  FixedCornerBottomLeft = 8,
+  FixedEdgeTop = 16,
+  FixedEdgeRight = 32,
+  FixedEdgeBottom = 64,
+  FixedEdgeLeft = 128,
+}
+
+enum ezOnJoltContact
+{
+  ImpactReactions = 2,
+  SlideReactions = 4,
+  RollXReactions = 8,
+  RollYReactions = 16,
+  RollZReactions = 32,
+}
+
+enum ezJoltCharacterDebugFlags
+{
+  PrintState = 1,
+  VisShape = 2,
+  VisContacts = 4,
+  VisCasts = 8,
+  VisGroundContact = 16,
+  VisFootCheck = 32,
+}
+
+enum ezJoltClothSheetFlags
+{
+  FixedCornerTopLeft = 1,
+  FixedCornerTopRight = 2,
+  FixedCornerBottomRight = 4,
+  FixedCornerBottomLeft = 8,
+  FixedEdgeTop = 16,
+  FixedEdgeRight = 32,
+  FixedEdgeBottom = 64,
+  FixedEdgeLeft = 128,
+}
+
+enum ezSkeletonJointType
+{
+  None = 0,
+  Fixed = 1,
+  SwingTwist = 2,
+}
+
+enum ezJoltRagdollStartMode
+{
+  WithBindPose = 0,
+  WithNextAnimPose = 1,
+  WithCurrentMeshPose = 2,
+}
+
+enum ezJoltRopeAnchorConstraintMode
+{
+  None = 0,
+  Point = 1,
+  Fixed = 2,
+  Cone = 3,
+}
+
+enum ezJoltSteppingMode
+{
+  Variable = 0,
+  Fixed = 1,
+  SemiFixed = 2,
+}
+
+enum ezJoltConstraintLimitMode
+{
+  NoLimit = 0,
+  HardLimit = 1,
+}
+
+enum ezJoltConstraintDriveMode
+{
+  NoDrive = 0,
+  DriveVelocity = 1,
+  DrivePosition = 2,
+}
+
+enum ezOnComponentFinishedAction2
+{
+  None = 0,
+  DeleteComponent = 1,
+  DeleteGameObject = 2,
+  Restart = 3,
+}
+
+enum ezTriggerState
+{
+  Activated = 0,
+  Continuing = 1,
+  Deactivated = 2,
+}
+
+enum ezDebugTextHAlign
+{
+  Left = 0,
+  Center = 1,
+  Right = 2,
+}
+
+enum ezDebugTextPlacement
+{
+  TopLeft = 0,
+  TopCenter = 1,
+  TopRight = 2,
+  BottomLeft = 3,
+  BottomCenter = 4,
+  BottomRight = 5,
+}
+
+
+// *** CALLBACKS *** 
+
+funcdef bool ReportObjectCB(ezGameObject@);
+
+// *** TYPES *** 
+
+class ezAngelScriptMessage
+{
+}
+
+class array<T>
+{
+  funcdef bool Less(const T&in a, const T&in b);
+
+  T& opIndex(uint index);
+  const T& opIndex(uint index) const;
+  T& PeekBack();
+  const T& PeekBack() const;
+  T& ExpandAndGetRef();
+  array<T>& opAssign(const array<T>&in);
+  void InsertAt(uint index, const T&in value);
+  void InsertRangeAt(uint index, const array<T>&inout arr);
+  void PushBack(const T&in value);
+  void RemoveAtAndCopy(uint index);
+  void PopBack();
+  void RemoveAtAndCopy(uint start, uint count);
+  uint GetCount() const;
+  void Reserve(uint length);
+  void SetCount(uint length);
+  void Clear();
+  void Sort();
+  void Reverse();
+  int IndexOf(const T&in value) const;
+  bool Contains(const T&in value) const;
+  int IndexOf(uint startAt, const T&in value) const;
+  int IndexOfByRef(const T&in value) const;
+  int IndexOfByRef(uint startAt, const T&in value) const;
+  bool opEquals(const array<T>&in) const;
+  bool IsEmpty() const;
+  void Sort(array<T>::Less&in, uint startAt = 0, uint count = uint(- 1));
+}
+
+class ezRTTI
+{
+}
+
+class ezVec2
+{
+  float x;
+  float y;
+
+  ezVec2(float x, float y);
+  ezVec2(float xyz);
+
+  ezVec3 GetAsVec3(float z) const;
+  ezVec4 GetAsVec4(float z, float w) const;
+  void Set(float xyz);
+  void Set(float x, float y);
+  void SetZero();
+  float GetLength() const;
+  float GetDistanceTo(const ezVec2&in rhs) const;
+  float GetSquaredDistanceTo(const ezVec2&in rhs) const;
+  float GetLengthSquared() const;
+  float GetLengthAndNormalize();
+  ezVec2 GetNormalized() const;
+  void Normalize();
+  bool IsZero() const;
+  bool IsZero(float fEpsilon) const;
+  bool IsNormalized(float fEpsilon = 0.001f) const;
+  bool IsNaN() const;
+  bool IsValid() const;
+  void opAddAssign(const ezVec2&in);
+  void opSubAssign(const ezVec2&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec2&in) const;
+  bool IsEqual(const ezVec2&in, float fEpsilon) const;
+  float Dot(const ezVec2&in) const;
+  ezVec2 CompMin(const ezVec2&in rhs) const;
+  ezVec2 CompMax(const ezVec2&in rhs) const;
+  ezVec2 CompClamp(const ezVec2&in rhs) const;
+  ezVec2 CompMul(const ezVec2&in rhs) const;
+  ezVec2 CompDiv(const ezVec2&in rhs) const;
+  ezVec2 Abs() const;
+  void MakeOrthogonalTo(const ezVec2&in);
+  ezVec2 GetOrthogonalVector() const;
+  ezVec2 GetReflectedVector(const ezVec2&in) const;
+  ezVec2 opNeg() const;
+  ezVec2 opAdd(const ezVec2&in) const;
+  ezVec2 opSub(const ezVec2&in) const;
+  ezVec2 opMul(float) const;
+  ezVec2 opMul_r(float) const;
+  ezVec2 opDiv(float) const;
+  bool opEquals(const ezVec2&in) const;
+  int opCmp(const ezVec2&in) const;
+}
+
+class ezVec3
+{
+  float x;
+  float y;
+  float z;
+
+  ezVec3(float x, float y, float z);
+  ezVec3(float xyz);
+
+  ezVec2 GetAsVec2() const;
+  ezVec4 GetAsVec4(float w) const;
+  ezVec4 GetAsPositionVec4() const;
+  ezVec4 GetAsDirectionVec4() const;
+  void Set(float xyz);
+  void Set(float x, float y, float z);
+  void SetZero();
+  float GetLength() const;
+  float GetDistanceTo(const ezVec3&in rhs) const;
+  float GetSquaredDistanceTo(const ezVec3&in rhs) const;
+  float GetLengthSquared() const;
+  float GetLengthAndNormalize();
+  ezVec3 GetNormalized() const;
+  void Normalize();
+  bool IsZero() const;
+  bool IsZero(float fEpsilon) const;
+  bool IsNormalized(float fEpsilon = 0.001f) const;
+  bool IsNaN() const;
+  bool IsValid() const;
+  void opAddAssign(const ezVec3&in);
+  void opSubAssign(const ezVec3&in);
+  void opMulAssign(const ezVec3&in);
+  void opDivAssign(const ezVec3&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec3&in) const;
+  bool IsEqual(const ezVec3&in, float fEpsilon) const;
+  float Dot(const ezVec3&in) const;
+  ezVec3 CrossRH(const ezVec3&in) const;
+  ezVec3 CompMin(const ezVec3&in) const;
+  ezVec3 CompMax(const ezVec3&in) const;
+  ezVec3 CompClamp(const ezVec3&in) const;
+  ezVec3 CompMul(const ezVec3&in) const;
+  ezVec3 CompDiv(const ezVec3&in) const;
+  ezVec3 Abs() const;
+  void MakeOrthogonalTo(const ezVec3&in);
+  ezVec3 GetOrthogonalVector() const;
+  ezVec3 GetReflectedVector(const ezVec3&in) const;
+  ezVec3 opNeg() const;
+  ezVec3 opAdd(const ezVec3&in) const;
+  ezVec3 opSub(const ezVec3&in) const;
+  ezVec3 opMul(float) const;
+  ezVec3 opMul_r(float) const;
+  ezVec3 opDiv(float) const;
+  bool opEquals(const ezVec3&in) const;
+  int opCmp(const ezVec3&in) const;
+}
+
+class ezVec4
+{
+  float x;
+  float y;
+  float z;
+  float w;
+
+  ezVec4(float x, float y, float z, float w);
+  ezVec4(float xyzw);
+
+  ezVec2 GetAsVec2() const;
+  ezVec3 GetAsVec3() const;
+  void Set(float xyzw);
+  void Set(float x, float y, float z, float w);
+  void SetZero();
+  float GetLength() const;
+  float GetLengthSquared() const;
+  float GetLengthAndNormalize();
+  ezVec4 GetNormalized() const;
+  void Normalize();
+  bool IsZero() const;
+  bool IsZero(float fEpsilon) const;
+  bool IsNormalized(float fEpsilon = 0.001f) const;
+  bool IsNaN() const;
+  bool IsValid() const;
+  void opAddAssign(const ezVec4&in);
+  void opSubAssign(const ezVec4&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  bool IsIdentical(const ezVec4&in) const;
+  bool IsEqual(const ezVec4&in, float) const;
+  float Dot(const ezVec4&in) const;
+  ezVec4 CompMin(const ezVec4&in) const;
+  ezVec4 CompMax(const ezVec4&in) const;
+  ezVec4 CompClamp(const ezVec4&in) const;
+  ezVec4 CompMul(const ezVec4&in) const;
+  ezVec4 CompDiv(const ezVec4&in) const;
+  ezVec4 Abs() const;
+  ezVec4 opNeg() const;
+  ezVec4 opAdd(const ezVec4&in) const;
+  ezVec4 opSub(const ezVec4&in) const;
+  ezVec4 opMul(float) const;
+  ezVec4 opMul_r(float) const;
+  ezVec4 opDiv(float) const;
+  bool opEquals(const ezVec4&in) const;
+  int opCmp(const ezVec4&in) const;
+}
+
+class ezAngle
+{
+  float GetDegree() const;
+  float GetRadian() const;
+  void SetRadian(float fRadians);
+  void NormalizeRange();
+  ezAngle GetNormalizedRange() const;
+  bool IsEqualSimple(ezAngle rhs, ezAngle epsilon) const;
+  bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const;
+  ezAngle opNeg() const;
+  ezAngle opAdd(ezAngle) const;
+  ezAngle opSub(ezAngle) const;
+  void opAddAssign(ezAngle);
+  void opSubAssign(ezAngle);
+  bool opEquals(const ezAngle&in) const;
+  int opCmp(const ezAngle&in) const;
+  ezAngle opMul(float) const;
+  ezAngle opMul_r(float) const;
+  ezAngle opDiv(float) const;
+  float opDiv(const ezAngle&in) const;
+}
+
+class ezQuat
+{
+  float x;
+  float y;
+  float z;
+  float w;
+
+  void SetIdentity();
+  void ReconstructFromMat3(const ezMat3&in);
+  void ReconstructFromMat4(const ezMat3&in);
+  void Normalize();
+  void GetRotationAxisAndAngle(ezVec3&out, ezAngle&out, float fEpsilon = 0.00001) const;
+  ezVec3 GetVectorPart() const;
+  ezMat3 GetAsMat3() const;
+  ezMat3 GetAsMat4() const;
+  bool IsValid(float fEpsilon = 0.00001) const;
+  bool IsNaN() const;
+  bool IsEqualRotation(const ezQuat&in, float fEpsilon = 0.00001) const;
+  void Invert();
+  ezQuat GetInverse() const;
+  ezQuat GetNegated() const;
+  float Dot(const ezQuat&in) const;
+  ezVec3 Rotate(const ezVec3&in) const;
+  void GetAsEulerAngles(float&out, float&out, float&out) const;
+  ezQuat opMul(const ezQuat&in) const;
+  ezVec3 opMul(const ezVec3&in) const;
+  bool opEquals(const ezQuat&in) const;
+}
+
+class ezMat3
+{
+}
+
+class ezMat4
+{
+}
+
+class ezTransform
+{
+  ezVec3 m_vPosition;
+  ezQuat m_qRotation;
+  ezVec3 m_vScale;
+
+  ezTransform(const ezVec3&in vPosition, const ezQuat&in qRotation = ezQuat::MakeIdentity(), const ezVec3&in vScale = ezVec3(1));
+
+  void SetIdentity();
+  float GetMaxScale() const;
+  bool HasMirrorScaling() const;
+  bool ContainsUniformScale() const;
+  bool IsValid() const;
+  bool IsIdentical(const ezTransform&in) const;
+  bool IsEqual(const ezTransform&in, float fEpsilon) const;
+  void Invert();
+  ezTransform GetInverse() const;
+  ezVec3 TransformPosition(const ezVec3&in vPosition) const;
+  ezVec3 TransformDirection(const ezVec3&in vDirection) const;
+  void opAddAssign(const ezVec3&in);
+  void opSubAssign(const ezVec3&in);
+  ezMat4 GetAsMat4() const;
+  ezVec3 opMul(const ezVec3&in) const;
+  ezTransform opMul_r(const ezQuat&in qRotation) const;
+  ezTransform opMul(const ezQuat&in qRotation) const;
+  ezTransform opAdd(const ezVec3&in) const;
+  ezTransform opSub(const ezVec3&in) const;
+  ezTransform opMul(const ezTransform&in) const;
+  bool opEquals(const ezTransform&in) const;
+}
+
+class ezTime
+{
+  bool IsZero() const;
+  bool IsNegative() const;
+  bool IsPositive() const;
+  bool IsZeroOrNegative() const;
+  bool IsZeroOrPositive() const;
+  float AsFloatInSeconds() const;
+  double GetNanoseconds() const;
+  double GetMicroseconds() const;
+  double GetMilliseconds() const;
+  double GetSeconds() const;
+  double GetMinutes() const;
+  double GetHours() const;
+  void opSubAssign(const ezTime&in);
+  void opAddAssign(const ezTime&in);
+  void opMulAssign(double);
+  void opDivAssign(double);
+  ezTime opSub(const ezTime&in) const;
+  ezTime opAdd(const ezTime&in) const;
+  ezTime opNeg() const;
+  int opCmp(const ezTime&in) const;
+  bool opEquals(const ezTime&in) const;
+  ezTime opMul(double) const;
+  ezTime opMul_r(double) const;
+  ezTime opMul(const ezTime&in) const;
+  ezTime opDiv(double) const;
+  ezTime opDiv_r(double) const;
+  ezTime opDiv(const ezTime&in) const;
+}
+
+class ezColor
+{
+  float r;
+  float g;
+  float b;
+  float a;
+
+  ezColor(float r, float g, float b, float a = 1.0f);
+  ezColor(const ezColorGammaUB&in);
+
+  void opAssign(const ezColorGammaUB&in);
+  void opAddAssign(const ezColor&in);
+  void opSubAssign(const ezColor&in);
+  void opMulAssign(const ezColor&in);
+  void opMulAssign(float);
+  void opDivAssign(float);
+  void opMulAssign(const ezMat4&in);
+  ezColor opAdd(const ezColor&in) const;
+  ezColor opSub(const ezColor&in) const;
+  ezColor opMul(const ezColor&in) const;
+  ezColor opMul(float) const;
+  ezColor opMul_r(float) const;
+  ezColor opDiv(float) const;
+  ezColor opMul_r(const ezMat4&in) const;
+  bool opEquals(const ezColor&in) const;
+  void SetRGB(float r, float g, float b);
+  void SetRGBA(float r, float g, float b, float a = 1.0f);
+  void GetHSV(float&out fHue, float&out fSaturation, float&out fValue) const;
+  ezVec4 GetAsVec4() const;
+  bool IsNormalized() const;
+  float CalcAverageRGB() const;
+  float GetSaturation() const;
+  float GetLuminance() const;
+  ezColor GetInvertedColor() const;
+  ezColor GetComplementaryColor() const;
+  void ScaleRGB(float);
+  void ScaleRGBA(float);
+  float ComputeHdrMultiplier() const;
+  float ComputeHdrExposureValue() const;
+  void ApplyHdrExposureValue(float fExposure);
+  void NormalizeToLdrRange();
+  ezColor GetDarker(float fFactor = 2.0f) const;
+  bool IsNaN() const;
+  bool IsValid() const;
+  bool IsIdenticalRGB(const ezColor&in) const;
+  bool IsIdenticalRGBA(const ezColor&in) const;
+  bool IsEqualRGB(const ezColor&in, float fEpsilon) const;
+  bool IsEqualRGBA(const ezColor&in, float fEpsilon) const;
+  ezColor WithAlpha(float fAlpha) const;
+}
+
+class ezColorGammaUB
+{
+  uint8 r;
+  uint8 g;
+  uint8 b;
+  uint8 a;
+
+  ezColorGammaUB(uint8 r, uint8 g, uint8 b, uint8 a = 255);
+  ezColorGammaUB(const ezColor&in);
+
+  void opAssign(const ezColor&in);
+  ezColor ToLinearFloat() const;
+}
+
+[BuiltinString]
+class ezStringView
+{
+  ezStringView();
+  ezStringView(const ezStringView);
+  ezStringView(const ezString&in);
+  ezStringView(const ezHashedString&in);
+  ezStringView(const ezStringBuilder&in);
+
+  bool StartsWith(ezStringView) const;
+  bool StartsWith_NoCase(ezStringView) const;
+  bool EndsWith(ezStringView) const;
+  bool EndsWith_NoCase(ezStringView) const;
+  int Compare(ezStringView) const;
+  int Compare_NoCase(ezStringView) const;
+  int CompareN(ezStringView, uint) const;
+  int CompareN_NoCase(ezStringView, uint) const;
+  uint GetElementCount() const;
+  bool IsEmpty() const;
+  bool IsEqual(ezStringView) const;
+  bool IsEqual_NoCase(ezStringView) const;
+  bool IsEqualN(ezStringView, uint) const;
+  bool IsEqualN_NoCase(ezStringView, uint) const;
+  bool HasAnyExtension() const;
+  bool HasExtension(ezStringView) const;
+  ezStringView GetFileExtension(bool full = false) const;
+  ezStringView GetFileName() const;
+  ezStringView GetFileNameAndExtension() const;
+  ezStringView GetFileDirectory() const;
+  bool IsAbsolutePath() const;
+  bool IsRelativePath() const;
+  bool IsRootedPath() const;
+  bool GetRootedPathRootName() const;
+  void Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack);
+  ezStringView GetShrunk(uint uiShrinkCharsFront, uint uiShrinkCharsBack = 0) const;
+  ezStringView GetSubString(uint uiFirstCharacter, uint uiNumCharacters) const;
+  void ChopAwayFirstCharacterUtf8();
+  void ChopAwayFirstCharacterAscii();
+  bool TrimWordStart(ezStringView sWord);
+  bool TrimWordEnd(ezStringView sWord);
+  bool opEquals(ezStringView) const;
+  int opCmp(ezStringView) const;
+  void opAssign(const ezString&in);
+  void opAssign(const ezHashedString&in);
+  void opAssign(const ezStringBuilder&in);
+}
+
+class ezGameObjectHandle
+{
+  ezGameObjectHandle();
+
+  void Invalidate();
+  bool IsInvalidated() const;
+  bool opEquals(ezGameObjectHandle) const;
+}
+
+class ezComponentHandle
+{
+  ezComponentHandle();
+
+  void Invalidate();
+  bool IsInvalidated() const;
+  bool opEquals(ezComponentHandle) const;
+}
+
+[BuiltinString]
+class ezTempHashedString
+{
+  ezTempHashedString();
+  ezTempHashedString(const ezTempHashedString&in);
+  ezTempHashedString(const ezStringView);
+  ezTempHashedString(const ezHashedString&in);
+
+  void opAssign(ezStringView);
+  void opAssign(const ezHashedString&in);
+  bool opEquals(ezTempHashedString) const;
+  bool IsEmpty() const;
+  void Clear();
+}
+
+[BuiltinString]
+class ezHashedString
+{
+  ezHashedString();
+  ezHashedString(const ezStringView);
+  ezHashedString(const ezHashedString&in);
+
+  void opAssign(const ezStringView);
+  bool IsEmpty() const;
+  void Clear();
+  void Assign(const ezStringView);
+  bool opEquals(const ezHashedString&in) const;
+  bool opEquals(const ezTempHashedString&in) const;
+  bool opEquals(const ezStringView) const;
+  ezStringView GetView() const;
+}
+
+[BuiltinString]
+class ezString
+{
+  ezString();
+  ezString(const ezStringView);
+  ezString(const ezString&in);
+  ezString(const ezStringBuilder&in);
+  ezString(const ezHashedString&in);
+
+  bool StartsWith(ezStringView) const;
+  bool StartsWith_NoCase(ezStringView) const;
+  bool EndsWith(ezStringView) const;
+  bool EndsWith_NoCase(ezStringView) const;
+  int Compare(ezStringView) const;
+  int Compare_NoCase(ezStringView) const;
+  int CompareN(ezStringView, uint) const;
+  int CompareN_NoCase(ezStringView, uint) const;
+  uint GetElementCount() const;
+  bool IsEmpty() const;
+  bool IsEqual(ezStringView) const;
+  bool IsEqual_NoCase(ezStringView) const;
+  bool IsEqualN(ezStringView, uint) const;
+  bool IsEqualN_NoCase(ezStringView, uint) const;
+  bool HasAnyExtension() const;
+  bool HasExtension(ezStringView) const;
+  ezStringView GetFileExtension(bool full = false) const;
+  ezStringView GetFileName() const;
+  ezStringView GetFileNameAndExtension() const;
+  ezStringView GetFileDirectory() const;
+  bool IsAbsolutePath() const;
+  bool IsRelativePath() const;
+  bool IsRootedPath() const;
+  bool GetRootedPathRootName() const;
+  ezStringView GetView() const;
+  int opCmp(const ezString&in) const;
+  void opAssign(const ezStringView);
+  void opAssign(const ezString&in);
+  void opAssign(const ezStringBuilder&in);
+  void opAssign(const ezHashedString&in);
+  void Clear();
+}
+
+[BuiltinString]
+class ezStringBuilder
+{
+  ezStringBuilder();
+  ezStringBuilder(const ezStringView s1);
+  ezStringBuilder(const ezStringView s1, const ezStringView s2, const ezStringView s3 = "", const ezStringView s4 = "");
+
+  bool StartsWith(ezStringView) const;
+  bool StartsWith_NoCase(ezStringView) const;
+  bool EndsWith(ezStringView) const;
+  bool EndsWith_NoCase(ezStringView) const;
+  int Compare(ezStringView) const;
+  int Compare_NoCase(ezStringView) const;
+  int CompareN(ezStringView, uint) const;
+  int CompareN_NoCase(ezStringView, uint) const;
+  uint GetElementCount() const;
+  bool IsEmpty() const;
+  bool IsEqual(ezStringView) const;
+  bool IsEqual_NoCase(ezStringView) const;
+  bool IsEqualN(ezStringView, uint) const;
+  bool IsEqualN_NoCase(ezStringView, uint) const;
+  bool HasAnyExtension() const;
+  bool HasExtension(ezStringView) const;
+  ezStringView GetFileExtension(bool full = false) const;
+  ezStringView GetFileName() const;
+  ezStringView GetFileNameAndExtension() const;
+  ezStringView GetFileDirectory() const;
+  bool IsAbsolutePath() const;
+  bool IsRelativePath() const;
+  bool IsRootedPath() const;
+  bool GetRootedPathRootName() const;
+  void opAssign(const ezStringBuilder&in rhs);
+  void opAssign(ezStringView rhs);
+  void opAssign(const ezString&in rhs);
+  ezStringView GetView() const;
+  void Clear();
+  uint GetCharacterCount() const;
+  void ToUpper();
+  void ToLower();
+  void Set(ezStringView sData1);
+  void Set(ezStringView sData1, ezStringView sData2);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4);
+  void Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "");
+  void SetPath(ezStringView sData1, ezStringView sData2, ezStringView sData3 = "", ezStringView sData4 = "");
+  void Append(ezStringView sData1);
+  void Append(ezStringView sData1, ezStringView sData2);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4);
+  void Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6 = "");
+  void Prepend(ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "");
+  void SetFormat(ezStringView sText, ?&in VarArg1);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void SetFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void AppendFormat(ezStringView sText, ?&in VarArg1);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void AppendFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void PrependFormat(ezStringView sText, ?&in VarArg1);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void PrependFormat(ezStringView sText, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Shrink(uint uiShrinkCharsFront, uint uiShrinkCharsBack);
+  void Reserve(uint uiNumElements);
+  uint ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement);
+  uint ReplaceAll_NoCase(ezStringView sSearchFor, ezStringView sReplacement);
+  void MakeCleanPath();
+  void PathParentDirectory(uint uiLevelsUp = 1);
+  void AppendPath(ezStringView sPath1, ezStringView sPath2 = "", ezStringView sPath3 = "", ezStringView sPath4 = "");
+  void AppendWithSeparator(ezStringView sSeparator, ezStringView sData1, ezStringView sData2 = "", ezStringView sData3 = "", ezStringView sData4 = "", ezStringView sData5 = "", ezStringView sData6 = "");
+  void ChangeFileName(ezStringView sNewFileName);
+  void ChangeFileNameAndExtension(ezStringView sNewFileNameWithExtension);
+  void ChangeFileExtension(ezStringView sNewExtension, bool bFullExtension = false);
+  void RemoveFileExtension(bool bFullExtension = false);
+  bool TrimWordStart(ezStringView sWord);
+  bool TrimWordEnd(ezStringView sWord);
+}
+
+class ezGameObject
+{
+  ezGameObjectHandle GetHandle() const;
+  void MakeDynamic();
+  void MakeStatic();
+  bool IsDynamic() const;
+  bool IsStatic() const;
+  void SetActiveFlag(bool bActive);
+  bool GetActiveFlag() const;
+  bool IsActive() const;
+  void SetName(ezStringView sName);
+  void SetName(const ezHashedString&in sName);
+  ezStringView GetName() const;
+  bool HasName(const ezTempHashedString&in sName) const;
+  void SetGlobalKey(ezStringView sKey);
+  void SetGlobalKey(const ezHashedString&in sKey);
+  ezStringView GetGlobalKey() const;
+  void SetParent(const ezGameObjectHandle&in hParent, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  ezGameObject@ GetParent() const;
+  ezGameObject@ GetParent();
+  void AddChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  void DetachChild(const ezGameObjectHandle&in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal);
+  uint GetChildCount();
+  ezGameObject@ FindChildByName(const ezTempHashedString&in sName, bool bRecursive = true);
+  ezGameObject@ FindChildByPath(ezStringView sPath);
+  ezWorld@ GetWorld();
+  const ezWorld@ GetWorld() const;
+  void SetLocalPosition(const ezVec3&in);
+  ezVec3 GetLocalPosition() const;
+  void SetLocalRotation(const ezQuat&in);
+  ezQuat GetLocalRotation() const;
+  void SetLocalScaling(const ezVec3&in);
+  ezVec3 GetLocalScaling() const;
+  void SetLocalUniformScaling(float fScale);
+  float GetLocalUniformScaling() const;
+  ezTransform GetLocalTransform() const;
+  void SetGlobalPosition(const ezVec3&in);
+  ezVec3 GetGlobalPosition() const;
+  void SetGlobalRotation(const ezQuat&in);
+  ezQuat GetGlobalRotation() const;
+  void SetGlobalScaling(const ezVec3&in);
+  ezVec3 GetGlobalScaling() const;
+  void SetGlobalTransform(const ezTransform&in);
+  ezTransform GetGlobalTransform() const;
+  ezTransform GetLastGlobalTransform() const;
+  ezVec3 GetGlobalDirForwards() const;
+  ezVec3 GetGlobalDirRight() const;
+  ezVec3 GetGlobalDirUp() const;
+  ezVec3 GetLinearVelocity() const;
+  ezVec3 GetAngularVelocity() const;
+  void UpdateGlobalTransform();
+  void UpdateLocalBounds();
+  void UpdateGlobalBounds();
+  void UpdateGlobalTransformAndBounds();
+  bool TryGetComponentOfBaseType(const ezRTTI@ pType, ezComponent@&out pComponent);
+  bool TryGetComponentOfBaseType(?&out pTypedComponent);
+  bool CreateComponent(?&out pTypedComponent);
+  uint16 GetComponentVersion();
+  bool SendMessage(ezMessage&inout);
+  bool SendMessage(ezMessage&inout) const;
+  bool SendMessageRecursive(ezMessage&inout);
+  bool SendMessageRecursive(ezMessage&inout) const;
+  void PostMessage(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessageRecursive(const ezMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const;
+  bool SendEventMessage(ezMessage&inout, const ezComponent@ pSender);
+  bool SendEventMessage(ezMessage&inout, const ezComponent@ pSender) const;
+  void PostEventMessage(const ezMessage&in msg, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame) const;
+  bool HasTag(const ezTempHashedString&in sTagName) const;
+  uint16 GetTeamID();
+  void SetTeamID(uint16 id);
+  uint GetStableRandomSeed();
+  void SetStableRandomSeed(uint seed);
+  bool SendMessage(ezAngelScriptMessage&inout);
+  bool SendMessage(ezAngelScriptMessage&inout) const;
+  bool SendMessageRecursive(ezAngelScriptMessage&inout);
+  bool SendMessageRecursive(ezAngelScriptMessage&inout) const;
+  void PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+  void PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+}
+
+class ezComponent
+{
+  bool IsActive() const;
+  bool IsActiveAndInitialized() const;
+  bool IsActiveAndSimulating() const;
+  ezGameObject@ GetOwner() const;
+  ezWorld@ GetWorld() const;
+  uint GetUniqueID() const;
+  void Initialize();
+  void Deinitialize();
+  void OnActivated();
+  void OnDeactivated();
+  void OnSimulationStarted();
+  void Update(ezTime DeltaTime);
+  bool Active;
+  ezCollectionComponent@ opCast();
+  ezForwardEventsToGameStateComponent@ opCast();
+  ezPrefabReferenceComponent@ opCast();
+  ezScriptComponent@ opCast();
+  ezEventMessageHandlerComponent@ opCast();
+  ezSettingsComponent@ opCast();
+  ezSkeletonComponent@ opCast();
+  ezSkeletonPoseComponent@ opCast();
+  ezBakedProbesComponent@ opCast();
+  ezBakedProbesVolumeComponent@ opCast();
+  ezAlwaysVisibleComponent@ opCast();
+  ezBeamComponent@ opCast();
+  ezCameraComponent@ opCast();
+  ezFogComponent@ opCast();
+  ezLensFlareComponent@ opCast();
+  ezLodComponent@ opCast();
+  ezOccluderComponent@ opCast();
+  ezRenderComponent@ opCast();
+  ezRenderTargetActivatorComponent@ opCast();
+  ezRopeRenderComponent@ opCast();
+  ezSkyBoxComponent@ opCast();
+  ezSpriteComponent@ opCast();
+  ezDebugTextComponent@ opCast();
+  ezDecalComponent@ opCast();
+  ezAmbientLightComponent@ opCast();
+  ezBoxReflectionProbeComponent@ opCast();
+  ezDirectionalLightComponent@ opCast();
+  ezFillLightComponent@ opCast();
+  ezLightComponent@ opCast();
+  ezPointLightComponent@ opCast();
+  ezReflectionProbeComponentBase@ opCast();
+  ezSkyLightComponent@ opCast();
+  ezSphereReflectionProbeComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+  ezCustomMeshComponent@ opCast();
+  ezInstancedMeshComponent@ opCast();
+  ezLodMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezMeshComponentBase@ opCast();
+  ezSensorComponent@ opCast();
+  ezSensorSphereComponent@ opCast();
+  ezSensorCylinderComponent@ opCast();
+  ezSensorConeComponent@ opCast();
+  ezColorAnimationComponent@ opCast();
+  ezFollowPathComponent@ opCast();
+  ezPathComponent@ opCast();
+  ezPathNodeComponent@ opCast();
+  ezPropertyAnimComponent@ opCast();
+  ezResetTransformComponent@ opCast();
+  ezRotorComponent@ opCast();
+  ezSliderComponent@ opCast();
+  ezTransformComponent@ opCast();
+  ezAimIKComponent@ opCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezAnimationControllerComponent@ opCast();
+  ezJointAttachmentComponent@ opCast();
+  ezJointOverrideComponent@ opCast();
+  ezLodAnimatedMeshComponent@ opCast();
+  ezSimpleAnimationComponent@ opCast();
+  ezTwoBoneIKComponent@ opCast();
+  ezPostProcessingComponent@ opCast();
+  ezSimpleWindComponent@ opCast();
+  ezWindVolumeComponent@ opCast();
+  ezWindVolumeSphereComponent@ opCast();
+  ezWindVolumeCylinderComponent@ opCast();
+  ezWindVolumeConeComponent@ opCast();
+  ezBlackboardComponent@ opCast();
+  ezLocalBlackboardComponent@ opCast();
+  ezGlobalBlackboardComponent@ opCast();
+  ezGrabbableItemComponent@ opCast();
+  ezGreyBoxComponent@ opCast();
+  ezInputComponent@ opCast();
+  ezMarkerComponent@ opCast();
+  ezPlayerStartPointComponent@ opCast();
+  ezSceneTransitionComponent@ opCast();
+  ezSpawnBoxComponent@ opCast();
+  ezSpawnComponent@ opCast();
+  ezTimedDeathComponent@ opCast();
+  ezTriggerDelayModifierComponent@ opCast();
+  ezCharacterControllerComponent@ opCast();
+  ezStateMachineComponent@ opCast();
+  ezVolumeComponent@ opCast();
+  ezVolumeSphereComponent@ opCast();
+  ezVolumeBoxComponent@ opCast();
+  ezDeviceTrackingComponent@ opCast();
+  ezSpatialAnchorComponent@ opCast();
+  ezStageSpaceComponent@ opCast();
+  ezVisualizeHandComponent@ opCast();
+  ezGizmoComponent@ opCast();
+  ezNavMeshObstacleComponent@ opCast();
+  ezAiNavMeshPathTestComponent@ opCast();
+  ezAiNavigationComponent@ opCast();
+  ezFmodComponent@ opCast();
+  ezFmodEventComponent@ opCast();
+  ezFmodListenerComponent@ opCast();
+  ezCreatureCrawlComponent@ opCast();
+  ezMoveToComponent@ opCast();
+  ezLineToComponent@ opCast();
+  ezCameraShakeComponent@ opCast();
+  ezCameraShakeVolumeComponent@ opCast();
+  ezCameraShakeVolumeSphereComponent@ opCast();
+  ezAreaDamageComponent@ opCast();
+  ezHeadBoneComponent@ opCast();
+  ezPowerConnectorComponent@ opCast();
+  ezProjectileComponent@ opCast();
+  ezRaycastComponent@ opCast();
+  ezClothSheetComponent@ opCast();
+  ezFakeRopeComponent@ opCast();
+  ezRandomPrefabComponent@ opCast();
+  ezHeightfieldComponent@ opCast();
+  ezJoltActorComponent@ opCast();
+  ezJoltDynamicActorComponent@ opCast();
+  ezJoltQueryShapeActorComponent@ opCast();
+  ezJoltStaticActorComponent@ opCast();
+  ezJoltTriggerComponent@ opCast();
+  ezJoltCharacterControllerComponent@ opCast();
+  ezJoltDefaultCharacterComponent@ opCast();
+  ezJoltClothSheetComponent@ opCast();
+  ezJoltHitboxComponent@ opCast();
+  ezJoltRagdollComponent@ opCast();
+  ezJoltRopeComponent@ opCast();
+  ezJoltSettingsComponent@ opCast();
+  ezJoltVisColMeshComponent@ opCast();
+  ezJoltConeConstraintComponent@ opCast();
+  ezJoltConstraintComponent@ opCast();
+  ezJoltDistanceConstraintComponent@ opCast();
+  ezJoltFixedConstraintComponent@ opCast();
+  ezJoltGrabObjectComponent@ opCast();
+  ezJoltHingeConstraintComponent@ opCast();
+  ezJoltPointConstraintComponent@ opCast();
+  ezJoltSliderConstraintComponent@ opCast();
+  ezJoltSwingTwistConstraintComponent@ opCast();
+  ezJoltShapeBoxComponent@ opCast();
+  ezJoltShapeCapsuleComponent@ opCast();
+  ezJoltShapeComponent@ opCast();
+  ezJoltShapeConvexHullComponent@ opCast();
+  ezJoltShapeCylinderComponent@ opCast();
+  ezJoltShapeSphereComponent@ opCast();
+  ezParticleComponent@ opCast();
+  ezParticleFinisherComponent@ opCast();
+  ezRmlUiCanvas2DComponent@ opCast();
+  ezCommentComponent@ opCast();
+  ezShapeIconComponent@ opCast();
+  bool SendMessage(ezMessage&inout ref_msg);
+  bool SendMessage(ezMessage&inout ref_msg) const;
+  void PostMessage(const ezMessage&in msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
+  ezComponentHandle GetHandle() const;
+}
+
+class ezWorld
+{
+  ezStringView GetName();
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc&in desc);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object);
+  void DeleteObjectDelayed(const ezGameObjectHandle&in hObject, bool bAlsoDeleteEmptyParents = true);
+  bool IsValidObject(const ezGameObjectHandle&in hObject);
+  bool TryGetObject(const ezGameObjectHandle&in, ezGameObject@&out pObject);
+  bool TryGetObject(const ezGameObjectHandle&in, const ezGameObject@&out pObject) const;
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, ezGameObject@&out pObject);
+  bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, const ezGameObject@&out pObject);
+  bool IsValidComponent(ezComponentHandle&in);
+  bool TryGetComponent(const ezComponentHandle&in hComponent, ?&out component);
+  void SendMessage(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg);
+  void SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg);
+  void PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
+  void SendMessage(const ezComponentHandle&in hReceiverObject, ezMessage&inout msg);
+  void PostMessage(const ezComponentHandle&in hReceiverObject, const ezMessage&in msg, ezTime delay, ezObjectMsgQueueType queueType = ezObjectMsgQueueType::NextFrame) const;
+  ezClock@ GetClock();
+  const ezClock@ GetClock() const;
+  ezRandom@ GetRandomNumberGenerator();
+  void SendMessage(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout);
+  void SendMessageRecursive(const ezGameObjectHandle&in hReceiverObject, ezAngelScriptMessage&inout);
+  void PostMessage(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+  void PostMessageRecursive(const ezGameObjectHandle&in hReceiverObject, const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+}
+
+class ezMessage
+{
+  ezMsgPhysicsAddImpulse@ opCast();
+  ezMsgPhysicsAddForce@ opCast();
+  ezMsgPhysicsJointBroke@ opCast();
+  ezMsgObjectGrabbed@ opCast();
+  ezMsgReleaseObjectGrab@ opCast();
+  ezMsgBuildStaticMesh@ opCast();
+  ezMsgOnlyApplyToObject@ opCast();
+  ezEventMessage@ opCast();
+  ezMsgCollision@ opCast();
+  ezMsgDeleteGameObject@ opCast();
+  ezMsgComponentInternalTrigger@ opCast();
+  ezMsgUpdateLocalBounds@ opCast();
+  ezMsgSetPlaying@ opCast();
+  ezMsgInterruptPlaying@ opCast();
+  ezMsgParentChanged@ opCast();
+  ezMsgChildrenChanged@ opCast();
+  ezMsgComponentsChanged@ opCast();
+  ezMsgTransformChanged@ opCast();
+  ezMsgSetFloatParameter@ opCast();
+  ezMsgGenericEvent@ opCast();
+  ezMsgAnimationReachedEnd@ opCast();
+  ezMsgTriggerTriggered@ opCast();
+  ezMsgSetColor@ opCast();
+  ezMsgSetCustomData@ opCast();
+  ezMsgAnimationPosePreparing@ opCast();
+  ezMsgAnimationPoseGeneration@ opCast();
+  ezMsgAnimationPoseUpdated@ opCast();
+  ezMsgRopePoseUpdated@ opCast();
+  ezMsgQueryAnimationSkeleton@ opCast();
+  ezMsgApplyRootMotion@ opCast();
+  ezMsgRetrieveBoneState@ opCast();
+  ezMsgSetMeshMaterial@ opCast();
+  ezMsgExtractRenderData@ opCast();
+  ezMsgExtractOccluderData@ opCast();
+  ezMsgExtractGeometry@ opCast();
+  ezMsgSensorDetectedObjectsChanged@ opCast();
+  ezMsgPathChanged@ opCast();
+  ezMsgBlackboardEntryChanged@ opCast();
+  ezMsgInputActionTriggered@ opCast();
+  ezMsgDamage@ opCast();
+  ezMsgMoveCharacterController@ opCast();
+  ezMsgStateMachineStateChanged@ opCast();
+  ezMsgDeliverAngelScriptMsg@ opCast();
+  ezMsgFmodSoundFinished@ opCast();
+  ezEventMsgSetPowerInput@ opCast();
+  ezJoltMsgDisconnectConstraints@ opCast();
+  ezMsgRmlUiReload@ opCast();
+}
+
+class ezClock
+{
+  void SetPaused(bool);
+  bool GetPaused() const;
+  ezTime GetTimeDiff() const;
+  void SetSpeed(double);
+  double GetSpeed() const;
+  ezTime GetAccumulatedTime() const;
+}
+
+class ezRandom
+{
+  uint UInt();
+  uint UIntInRange(uint uiRange);
+  uint UInt32Index(uint uiArraySize, uint uiFallbackValue = 0xFFFFFFFF);
+  uint16 UInt16Index(uint16 uiArraySize, uint16 uiFallbackValue = 0xFFFF);
+  int IntMinMax(int iMinValue, int iMaxValue);
+  bool Bool();
+  double DoubleZeroToOneExclusive();
+  double DoubleZeroToOneInclusive();
+  double DoubleMinMax(double fMinValue, double fMaxValue);
+  double DoubleVariance(double fValue, double fVariance);
+  double DoubleVarianceAroundZero(double fAbsMaxValue);
+  float FloatZeroToOneExclusive();
+  float FloatZeroToOneInclusive();
+  float FloatMinMax(float fMinValue, float fMaxValue);
+  float FloatVariance(float fValue, float fVariance);
+  float FloatVarianceAroundZero(float fAbsMaxValue);
+}
+
+class ezGameObjectDesc
+{
+  bool m_bActiveFlag;
+  bool m_bDynamic;
+  uint16 m_uiTeamID;
+  ezHashedString m_sName;
+  ezGameObjectHandle m_hParent;
+  ezVec3 m_LocalPosition;
+  ezQuat m_LocalRotation;
+  ezVec3 m_LocalScaling;
+  float m_LocalUniformScaling;
+  uint m_uiStableRandomSeed;
+
+  ezGameObjectDesc();
+
+}
+
+class ezCollectionComponent : ezComponent
+{
+  ezStringView Collection;
+  bool RegisterNames;
+}
+
+class ezEventMessageHandlerComponent : ezComponent
+{
+  bool HandleGlobalEvents;
+  bool PassThroughUnhandledEvents;
+  ezForwardEventsToGameStateComponent@ opCast();
+  ezScriptComponent@ opCast();
+}
+
+class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
+{
+}
+
+class ezPrefabReferenceComponent : ezComponent
+{
+  ezStringView Prefab;
+}
+
+class ezScriptComponent : ezEventMessageHandlerComponent
+{
+  void SetScriptVariable(ezHashedString Name, ?&in Value);
+  bool GetScriptVariable_asBool(ezHashedString Name) const;
+  int GetScriptVariable_asInt32(ezHashedString Name) const;
+  float GetScriptVariable_asFloat(ezHashedString Name) const;
+  ezTime GetScriptVariable_asTime(ezHashedString Name) const;
+  ezAngle GetScriptVariable_asAngle(ezHashedString Name) const;
+  ezVec2 GetScriptVariable_asVec2(ezHashedString Name) const;
+  ezVec3 GetScriptVariable_asVec3(ezHashedString Name) const;
+  ezVec4 GetScriptVariable_asVec4(ezHashedString Name) const;
+  ezQuat GetScriptVariable_asQuat(ezHashedString Name) const;
+  ezColor GetScriptVariable_asColor(ezHashedString Name) const;
+  ezString GetScriptVariable_asString(ezHashedString Name) const;
+  ezGameObjectHandle GetScriptVariable_asGameObjectHandle(ezHashedString Name) const;
+  ezComponentHandle GetScriptVariable_asComponentHandle(ezHashedString Name) const;
+  void SetUpdateInterval(ezTime interval);
+  ezTime UpdateInterval;
+  ezStringView ScriptClass;
+  void BroadcastEventMsg(const ezEventMessage&in msg);
+}
+
+class ezSettingsComponent : ezComponent
+{
+  ezBakedProbesComponent@ opCast();
+  ezFogComponent@ opCast();
+  ezAmbientLightComponent@ opCast();
+  ezSkyLightComponent@ opCast();
+  ezJoltSettingsComponent@ opCast();
+}
+
+class ezRenderComponent : ezComponent
+{
+  ezSkeletonComponent@ opCast();
+  ezAlwaysVisibleComponent@ opCast();
+  ezBeamComponent@ opCast();
+  ezLensFlareComponent@ opCast();
+  ezLodComponent@ opCast();
+  ezRenderTargetActivatorComponent@ opCast();
+  ezRopeRenderComponent@ opCast();
+  ezSkyBoxComponent@ opCast();
+  ezSpriteComponent@ opCast();
+  ezDecalComponent@ opCast();
+  ezDirectionalLightComponent@ opCast();
+  ezFillLightComponent@ opCast();
+  ezLightComponent@ opCast();
+  ezPointLightComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+  ezCustomMeshComponent@ opCast();
+  ezInstancedMeshComponent@ opCast();
+  ezLodMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezMeshComponentBase@ opCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezLodAnimatedMeshComponent@ opCast();
+  ezGreyBoxComponent@ opCast();
+  ezGizmoComponent@ opCast();
+  ezClothSheetComponent@ opCast();
+  ezHeightfieldComponent@ opCast();
+  ezJoltClothSheetComponent@ opCast();
+  ezJoltVisColMeshComponent@ opCast();
+  ezParticleComponent@ opCast();
+  ezParticleFinisherComponent@ opCast();
+  ezRmlUiCanvas2DComponent@ opCast();
+}
+
+class ezSkeletonComponent : ezRenderComponent
+{
+  ezStringView Skeleton;
+  bool VisualizeSkeleton;
+  bool VisualizeColliders;
+  bool VisualizeJoints;
+  bool VisualizeSwingLimits;
+  bool VisualizeTwistLimits;
+  ezString BonesToHighlight;
+}
+
+class ezSkeletonPoseComponent : ezComponent
+{
+  ezStringView Skeleton;
+  ezSkeletonPoseMode Mode;
+  float EditBones;
+}
+
+class ezBakedProbesComponent : ezSettingsComponent
+{
+  bool ShowDebugOverlay;
+  bool ShowDebugProbes;
+  bool UseTestPosition;
+  ezVec3 TestPosition;
+}
+
+class ezBakedProbesVolumeComponent : ezComponent
+{
+  ezVec3 Extents;
+}
+
+class ezAlwaysVisibleComponent : ezRenderComponent
+{
+}
+
+class ezBeamComponent : ezRenderComponent
+{
+  ezString TargetObject;
+  ezStringView Material;
+  ezColor Color;
+  float Width;
+  float UVUnitsPerWorldUnit;
+}
+
+class ezCameraComponent : ezComponent
+{
+  int8 EditorShortcut;
+  ezCameraUsageHint UsageHint;
+  ezCameraMode Mode;
+  ezStringView RenderTarget;
+  ezVec2 RenderTargetOffset;
+  ezVec2 RenderTargetSize;
+  float NearPlane;
+  float FarPlane;
+  float FOV;
+  float Dimensions;
+  ezString CameraRenderPipeline;
+  float Aperture;
+  ezTime ShutterTime;
+  float ISO;
+  float ExposureCompensation;
+  bool ShowStats;
+}
+
+class ezFogComponent : ezSettingsComponent
+{
+  ezColor Color;
+  float Density;
+  float HeightFalloff;
+  bool ModulateWithSkyColor;
+  float SkyDistance;
+}
+
+class ezLensFlareComponent : ezRenderComponent
+{
+  bool LinkToLightShape;
+  float Intensity;
+  float OcclusionSampleRadius;
+  float OcclusionSampleSpread;
+  float OcclusionDepthOffset;
+  bool ApplyFog;
+}
+
+class ezLodComponent : ezRenderComponent
+{
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+}
+
+class ezOccluderComponent : ezComponent
+{
+  ezOccluderType Type;
+  ezVec3 Extents;
+}
+
+class ezRenderTargetActivatorComponent : ezRenderComponent
+{
+  ezStringView RenderTarget;
+}
+
+class ezRopeRenderComponent : ezRenderComponent
+{
+  ezStringView Material;
+  ezColor Color;
+  float Thickness;
+  uint32 Detail;
+  bool Subdivide;
+  float UScale;
+}
+
+class ezSkyBoxComponent : ezRenderComponent
+{
+  ezStringView CubeMap;
+  float ExposureBias;
+  bool InverseTonemap;
+  bool UseFog;
+  float VirtualDistance;
+}
+
+class ezSpriteComponent : ezRenderComponent
+{
+  ezStringView Texture;
+  ezSpriteBlendMode BlendMode;
+  ezColor Color;
+  float Size;
+  float MaxScreenSize;
+  float AspectRatio;
+}
+
+class ezDebugTextComponent : ezComponent
+{
+  ezString Text;
+  float Value0;
+  float Value1;
+  float Value2;
+  float Value3;
+  ezColorGammaUB Color;
+  float MaxDistance;
+}
+
+class ezDecalComponent : ezRenderComponent
+{
+  ezBasisAxis ProjectionAxis;
+  ezVec3 Extents;
+  float SizeVariance;
+  ezColorGammaUB Color;
+  ezColor EmissiveColor;
+  float SortOrder;
+  bool WrapAround;
+  bool MapNormalToGeometry;
+  ezAngle InnerFadeAngle;
+  ezAngle OuterFadeAngle;
+  ezTime FadeOutDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezString ApplyToDynamic;
+}
+
+class ezAmbientLightComponent : ezSettingsComponent
+{
+  ezColorGammaUB TopColor;
+  ezColorGammaUB BottomColor;
+  float Intensity;
+}
+
+class ezReflectionProbeComponentBase : ezComponent
+{
+  ezReflectionProbeMode ReflectionProbeMode;
+  float NearPlane;
+  float FarPlane;
+  ezVec3 CaptureOffset;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+  ezBoxReflectionProbeComponent@ opCast();
+  ezSphereReflectionProbeComponent@ opCast();
+}
+
+class ezBoxReflectionProbeComponent : ezReflectionProbeComponentBase
+{
+  ezVec3 Extents;
+  ezVec3 InfluenceScale;
+  ezVec3 InfluenceShift;
+  ezVec3 PositiveFalloff;
+  ezVec3 NegativeFalloff;
+  bool BoxProjection;
+}
+
+class ezLightComponent : ezRenderComponent
+{
+  ezColorGammaUB EffectiveColor;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  uint32 Temperature;
+  float Intensity;
+  float SpecularMultiplier;
+  bool CastShadows;
+  bool TransparentShadows;
+  float PenumbraSize;
+  float SlopeBias;
+  float ConstantBias;
+  ezDirectionalLightComponent@ opCast();
+  ezPointLightComponent@ opCast();
+  ezSpotLightComponent@ opCast();
+}
+
+class ezDirectionalLightComponent : ezLightComponent
+{
+  uint32 NumCascades;
+  float MinShadowRange;
+  float FadeOutStart;
+  float SplitModeWeight;
+  float NearPlaneOffset;
+}
+
+class ezFillLightComponent : ezRenderComponent
+{
+  ezColorGammaUB EffectiveColor;
+  ezFillLightMode LightMode;
+  bool UseColorTemperature;
+  ezColorGammaUB LightColor;
+  uint32 Temperature;
+  float Intensity;
+  float Range;
+  float FalloffExponent;
+  float Directionality;
+}
+
+class ezPointLightComponent : ezLightComponent
+{
+  float Range;
+  float ShadowFadeOutRange;
+}
+
+class ezSkyLightComponent : ezSettingsComponent
+{
+  ezReflectionProbeMode ReflectionProbeMode;
+  ezStringView CubeMap;
+  float Intensity;
+  float Saturation;
+  float NearPlane;
+  float FarPlane;
+  bool ShowDebugInfo;
+  bool ShowMipMaps;
+}
+
+class ezSphereReflectionProbeComponent : ezReflectionProbeComponentBase
+{
+  float Radius;
+  float Falloff;
+  bool SphereProjection;
+}
+
+class ezSpotLightComponent : ezLightComponent
+{
+  float Range;
+  ezAngle InnerSpotAngle;
+  ezAngle OuterSpotAngle;
+  float ShadowFadeOutRange;
+}
+
+class ezCustomMeshComponent : ezRenderComponent
+{
+  ezColor Color;
+  ezVec4 CustomData;
+  ezStringView Material;
+}
+
+class ezMeshComponentBase : ezRenderComponent
+{
+  ezInstancedMeshComponent@ opCast();
+  ezMeshComponent@ opCast();
+  ezAnimatedMeshComponent@ opCast();
+  ezGizmoComponent@ opCast();
+}
+
+class ezInstancedMeshComponent : ezMeshComponentBase
+{
+  ezStringView Mesh;
+  ezColor MainColor;
+}
+
+class ezLodMeshComponent : ezRenderComponent
+{
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+}
+
+class ezMeshComponent : ezMeshComponentBase
+{
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezGizmoComponent@ opCast();
+}
+
+class ezSensorComponent : ezComponent
+{
+  ezUpdateRate UpdateRate;
+  ezString SpatialCategory;
+  bool TestVisibility;
+  uint8 CollisionLayer;
+  bool ShowDebugInfo;
+  ezColorGammaUB Color;
+  ezSensorSphereComponent@ opCast();
+  ezSensorCylinderComponent@ opCast();
+  ezSensorConeComponent@ opCast();
+}
+
+class ezSensorSphereComponent : ezSensorComponent
+{
+  float Radius;
+}
+
+class ezSensorCylinderComponent : ezSensorComponent
+{
+  float Radius;
+  float Height;
+}
+
+class ezSensorConeComponent : ezSensorComponent
+{
+  float NearDistance;
+  float FarDistance;
+  ezAngle Angle;
+}
+
+class ezColorAnimationComponent : ezComponent
+{
+  ezStringView Gradient;
+  ezTime Duration;
+  ezSetColorMode SetColorMode;
+  ezPropertyAnimMode AnimationMode;
+  bool RandomStartOffset;
+  bool ApplyToChildren;
+}
+
+class ezFollowPathComponent : ezComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards() const;
+  void ToggleDirection();
+  ezString Path;
+  float StartDistance;
+  bool Running;
+  ezPropertyAnimMode Mode;
+  float Speed;
+  float LookAhead;
+  float Smoothing;
+  ezFollowPathMode FollowMode;
+  float TiltAmount;
+  ezAngle MaxTilt;
+}
+
+class ezPathComponent : ezComponent
+{
+  ezPathComponentFlags Flags;
+  bool Closed;
+  float Detail;
+}
+
+class ezPathNodeComponent : ezComponent
+{
+  ezAngle Roll;
+  ezPathNodeTangentMode Tangent1;
+  ezPathNodeTangentMode Tangent2;
+}
+
+class ezPropertyAnimComponent : ezComponent
+{
+  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh);
+  ezStringView Animation;
+  bool Playing;
+  ezPropertyAnimMode Mode;
+  ezTime RandomOffset;
+  float Speed;
+  ezTime RangeLow;
+  ezTime RangeHigh;
+}
+
+class ezResetTransformComponent : ezComponent
+{
+  bool ResetPositionX;
+  bool ResetPositionY;
+  bool ResetPositionZ;
+  ezVec3 LocalPosition;
+  bool ResetRotation;
+  ezQuat LocalRotation;
+  bool ResetScaling;
+  ezVec3 LocalScaling;
+  float LocalUniformScaling;
+}
+
+class ezTransformComponent : ezComponent
+{
+  void SetDirectionForwards(bool Forwards);
+  bool IsDirectionForwards() const;
+  void ToggleDirection();
+  float Speed;
+  bool Running;
+  bool ReverseAtEnd;
+  bool ReverseAtStart;
+  ezRotorComponent@ opCast();
+  ezSliderComponent@ opCast();
+}
+
+class ezRotorComponent : ezTransformComponent
+{
+  ezBasisAxis Axis;
+  ezAngle AxisDeviation;
+  int32 DegreesToRotate;
+  float Acceleration;
+  float Deceleration;
+}
+
+class ezSliderComponent : ezTransformComponent
+{
+  ezBasisAxis Axis;
+  float Distance;
+  float Acceleration;
+  float Deceleration;
+  ezTime RandomStart;
+}
+
+class ezAimIKComponent : ezComponent
+{
+  ezBasisAxis ForwardVector;
+  ezBasisAxis UpVector;
+  ezString PoleVector;
+  float Weight;
+}
+
+class ezAnimatedMeshComponent : ezMeshComponentBase
+{
+  ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+}
+
+class ezAnimationControllerComponent : ezComponent
+{
+  ezStringView AnimGraph;
+  ezRootMotionMode RootMotionMode;
+  ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
+  bool EnableIK;
+}
+
+class ezJointAttachmentComponent : ezComponent
+{
+  ezString JointName;
+  ezVec3 PositionOffset;
+  ezQuat RotationOffset;
+}
+
+class ezJointOverrideComponent : ezComponent
+{
+  ezString JointName;
+  bool OverridePosition;
+  bool OverrideRotation;
+  bool OverrideScale;
+}
+
+class ezLodAnimatedMeshComponent : ezRenderComponent
+{
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+  ezVec3 BoundsOffset;
+  float BoundsRadius;
+  bool ShowDebugInfo;
+  bool OverlapRanges;
+}
+
+class ezSimpleAnimationComponent : ezComponent
+{
+  ezStringView AnimationClip;
+  ezPropertyAnimMode AnimationMode;
+  float Speed;
+  ezRootMotionMode RootMotionMode;
+  ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
+  bool EnableIK;
+}
+
+class ezTwoBoneIKComponent : ezComponent
+{
+  ezHashedString JointStart;
+  ezHashedString JointMiddle;
+  ezHashedString JointEnd;
+  ezBasisAxis MidAxis;
+  ezString PoleVector;
+  float Weight;
+}
+
+class ezPostProcessingComponent : ezComponent
+{
+  ezString VolumeType;
+}
+
+class ezSimpleWindComponent : ezComponent
+{
+  ezWindStrength MinWindStrength;
+  ezWindStrength MaxWindStrength;
+  ezAngle MaxDeviation;
+}
+
+class ezWindVolumeComponent : ezComponent
+{
+  ezWindStrength Strength;
+  float StrengthFactor;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezWindVolumeSphereComponent@ opCast();
+  ezWindVolumeCylinderComponent@ opCast();
+  ezWindVolumeConeComponent@ opCast();
+}
+
+class ezWindVolumeSphereComponent : ezWindVolumeComponent
+{
+  float Radius;
+}
+
+class ezWindVolumeCylinderComponent : ezWindVolumeComponent
+{
+  float Radius;
+  float RadiusFalloff;
+  float Length;
+  float PositiveFalloff;
+  float NegativeFalloff;
+  ezWindVolumeCylinderMode Mode;
+}
+
+class ezWindVolumeConeComponent : ezWindVolumeComponent
+{
+  ezAngle Angle;
+  float Length;
+}
+
+class ezBlackboardComponent : ezComponent
+{
+  void SetEntryValue(ezString Name, ?&in Value);
+  bool GetEntryValue_asBool(ezString Name) const;
+  int GetEntryValue_asInt32(ezString Name) const;
+  float GetEntryValue_asFloat(ezString Name) const;
+  ezTime GetEntryValue_asTime(ezString Name) const;
+  ezAngle GetEntryValue_asAngle(ezString Name) const;
+  ezVec2 GetEntryValue_asVec2(ezString Name) const;
+  ezVec3 GetEntryValue_asVec3(ezString Name) const;
+  ezVec4 GetEntryValue_asVec4(ezString Name) const;
+  ezQuat GetEntryValue_asQuat(ezString Name) const;
+  ezColor GetEntryValue_asColor(ezString Name) const;
+  ezString GetEntryValue_asString(ezString Name) const;
+  ezGameObjectHandle GetEntryValue_asGameObjectHandle(ezString Name) const;
+  ezComponentHandle GetEntryValue_asComponentHandle(ezString Name) const;
+  ezStringView Template;
+  bool ShowDebugInfo;
+  ezLocalBlackboardComponent@ opCast();
+  ezGlobalBlackboardComponent@ opCast();
+}
+
+class ezLocalBlackboardComponent : ezBlackboardComponent
+{
+  ezString BlackboardName;
+  bool SendEntryChangedMessage;
+}
+
+class ezGlobalBlackboardComponent : ezBlackboardComponent
+{
+  ezString BlackboardName;
+  ezGlobalBlackboardInitMode InitMode;
+}
+
+class ezGrabbableItemComponent : ezComponent
+{
+  bool DebugShowPoints;
+}
+
+class ezGreyBoxComponent : ezRenderComponent
+{
+  ezGreyBoxShape Shape;
+  ezStringView Material;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SizeNegX;
+  float SizePosX;
+  float SizeNegY;
+  float SizePosY;
+  float SizeNegZ;
+  float SizePosZ;
+  uint32 Detail;
+  ezAngle Curvature;
+  float Thickness;
+  bool SlopedTop;
+  bool SlopedBottom;
+  bool GenerateCollision;
+  bool IncludeInNavmesh;
+  bool UseAsOccluder;
+}
+
+class ezInputComponent : ezComponent
+{
+  float GetCurrentInputState(ezString InputAction, bool OnlyKeyPressed) const;
+  ezString InputSet;
+  ezInputMessageGranularity Granularity;
+  bool ForwardToBlackboard;
+}
+
+class ezMarkerComponent : ezComponent
+{
+  ezString Marker;
+  float Radius;
+}
+
+class ezPlayerStartPointComponent : ezComponent
+{
+  ezStringView PlayerPrefab;
+}
+
+class ezSceneTransitionComponent : ezComponent
+{
+  void StartTransition(ezVec3 PositionOffset, ezQuat RotationOffset);
+  void StartTransitionWithOffsetTo(ezVec3 GlobalPosition, ezQuat GlobalRotation);
+  void StartPreload();
+  void CancelPreload();
+  ezSceneLoadMode Mode;
+  ezHashedString TargetScene;
+  ezHashedString PreloadCollection;
+  ezHashedString SpawnPoint;
+  bool RelativeSpawnPosition;
+}
+
+class ezSpawnBoxComponent : ezComponent
+{
+  void StartSpawning();
+  ezVec3 HalfExtents;
+  ezStringView Prefab;
+  bool SpawnAtStart;
+  bool SpawnContinuously;
+  uint16 MinSpawnCount;
+  uint16 SpawnCountRange;
+  ezTime Duration;
+  ezAngle MaxRotationZ;
+  ezAngle MaxTiltZ;
+}
+
+class ezSpawnComponent : ezComponent
+{
+  bool CanTriggerManualSpawn() const;
+  bool TriggerManualSpawn(bool IgnoreSpawnDelay, ezVec3 LocalOffset);
+  void ScheduleSpawn();
+  ezStringView Prefab;
+  bool AttachAsChild;
+  bool SpawnAtStart;
+  bool SpawnContinuously;
+  ezTime MinDelay;
+  ezTime DelayRange;
+  ezAngle Deviation;
+}
+
+class ezTimedDeathComponent : ezComponent
+{
+  ezTime MinDelay;
+  ezTime DelayRange;
+  ezStringView TimeoutPrefab;
+}
+
+class ezTriggerDelayModifierComponent : ezComponent
+{
+  ezTime ActivationDelay;
+  ezTime DeactivationDelay;
+}
+
+class ezCharacterControllerComponent : ezComponent
+{
+  void RawMove(ezVec3 moveDeltaGlobal);
+  void TeleportCharacter(ezVec3 globalFootPosition);
+  bool IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight);
+  bool IsTouchingGround();
+  bool IsCrouching();
+}
+
+class ezStateMachineComponent : ezComponent
+{
+  bool SetState(ezStringView Name);
+  ezStringView GetCurrentState() const;
+  void FireTransitionEvent(ezStringView Name);
+  ezStringView Resource;
+  ezString InitialState;
+  ezString BlackboardName;
+}
+
+class ezVolumeComponent : ezComponent
+{
+  void SetValue(ezHashedString Name, ?&in Value);
+  bool GetValue_asBool(ezTempHashedString Name) const;
+  int GetValue_asInt32(ezTempHashedString Name) const;
+  float GetValue_asFloat(ezTempHashedString Name) const;
+  ezTime GetValue_asTime(ezTempHashedString Name) const;
+  ezAngle GetValue_asAngle(ezTempHashedString Name) const;
+  ezVec2 GetValue_asVec2(ezTempHashedString Name) const;
+  ezVec3 GetValue_asVec3(ezTempHashedString Name) const;
+  ezVec4 GetValue_asVec4(ezTempHashedString Name) const;
+  ezQuat GetValue_asQuat(ezTempHashedString Name) const;
+  ezColor GetValue_asColor(ezTempHashedString Name) const;
+  ezString GetValue_asString(ezTempHashedString Name) const;
+  ezGameObjectHandle GetValue_asGameObjectHandle(ezTempHashedString Name) const;
+  ezComponentHandle GetValue_asComponentHandle(ezTempHashedString Name) const;
+  ezString Type;
+  float SortOrder;
+  ezStringView Template;
+  ezVolumeSphereComponent@ opCast();
+  ezVolumeBoxComponent@ opCast();
+}
+
+class ezVolumeSphereComponent : ezVolumeComponent
+{
+  float Radius;
+  float Falloff;
+}
+
+class ezVolumeBoxComponent : ezVolumeComponent
+{
+  ezVec3 Extents;
+  ezVec3 Falloff;
+}
+
+class ezDeviceTrackingComponent : ezComponent
+{
+  ezXRDeviceType DeviceType;
+  ezXRPoseLocation PoseLocation;
+  ezXRTransformSpace TransformSpace;
+  bool Rotation;
+  bool Scale;
+}
+
+class ezSpatialAnchorComponent : ezComponent
+{
+}
+
+class ezStageSpaceComponent : ezComponent
+{
+  ezXRStageSpace StageSpace;
+}
+
+class ezVisualizeHandComponent : ezComponent
+{
+}
+
+class ezGizmoComponent : ezMeshComponent
+{
+}
+
+class ezNavMeshObstacleComponent : ezComponent
+{
+  void InvalidateSectors();
+}
+
+class ezAiNavMeshPathTestComponent : ezComponent
+{
+  bool VisualizePathCorridor;
+  bool VisualizePathLine;
+  bool VisualizePathState;
+  ezString PathEnd;
+  ezHashedString NavmeshConfig;
+  ezHashedString PathSearchConfig;
+}
+
+class ezAiNavigationComponent : ezComponent
+{
+  void SetDestination(ezVec3 Destination, bool AllowPartialPaths);
+  void CancelNavigation();
+  ezAiNavigationComponentState GetState() const;
+  void StopWalking(float WithinDistance);
+  void TurnTowards(ezVec2 TargetPosition);
+  ezHashedString NavmeshConfig;
+  ezHashedString PathSearchConfig;
+  float Speed;
+  float Acceleration;
+  float Deceleration;
+  float FootRadius;
+  float ReachedDistance;
+  uint32 CollisionLayer;
+  float FallHeight;
+  ezAiNavigationDebugFlags DebugFlags;
+}
+
+class ezFmodComponent : ezComponent
+{
+  ezFmodEventComponent@ opCast();
+  ezFmodListenerComponent@ opCast();
+}
+
+class ezFmodEventComponent : ezFmodComponent
+{
+  void Restart();
+  void StartOneShot();
+  void StopSound(bool Immediate);
+  void SoundCue();
+  void SetEventParameter(ezString ParamName, float Value);
+  bool Paused;
+  float Volume;
+  float Pitch;
+  bool NoGlobalPitch;
+  ezStringView SoundEvent;
+  bool UseOcclusion;
+  float OcclusionThreshold;
+  uint8 OcclusionCollisionLayer;
+  ezOnComponentFinishedAction OnFinishedAction;
+  bool ShowDebugInfo;
+}
+
+class ezFmodListenerComponent : ezFmodComponent
+{
+  uint8 ListenerIndex;
+}
+
+class ezCreatureCrawlComponent : ezComponent
+{
+  ezString Body;
+  float CastUp;
+  float CastDown;
+  float StepDistance;
+  float MinLegDistance;
+}
+
+class ezMoveToComponent : ezComponent
+{
+  void SetTargetPosition(ezVec3 position);
+  bool Running;
+  float TranslationSpeed;
+  float TranslationAcceleration;
+  float TranslationDeceleration;
+}
+
+class ezLineToComponent : ezComponent
+{
+  ezString Target;
+  ezColor Color;
+}
+
+class ezCameraShakeComponent : ezComponent
+{
+  ezAngle MinShake;
+  ezAngle MaxShake;
+}
+
+class ezCameraShakeVolumeComponent : ezComponent
+{
+  float Strength;
+  ezTime BurstDuration;
+  ezOnComponentFinishedAction OnFinishedAction;
+  ezCameraShakeVolumeSphereComponent@ opCast();
+}
+
+class ezCameraShakeVolumeSphereComponent : ezCameraShakeVolumeComponent
+{
+  float Radius;
+}
+
+class ezAreaDamageComponent : ezComponent
+{
+  void ApplyAreaDamage();
+  bool OnCreation;
+  float Radius;
+  uint8 CollisionLayer;
+  float Damage;
+  float Impulse;
+}
+
+class ezHeadBoneComponent : ezComponent
+{
+  void SetVerticalRotation(float Radians);
+  void ChangeVerticalRotation(float Radians);
+  ezAngle VerticalRotation;
+}
+
+class ezPowerConnectorComponent : ezComponent
+{
+  bool IsConnected() const;
+  bool IsAttached() const;
+  void Detach();
+  uint16 Output;
+  ezString Buddy;
+  ezString ConnectedTo;
+}
+
+class ezProjectileComponent : ezComponent
+{
+  float Speed;
+  float GravityMultiplier;
+  ezTime MaxLifetime;
+  bool SpawnPrefabOnStatic;
+  ezStringView OnDeathPrefab;
+  uint8 CollisionLayer;
+  ezPhysicsShapeType ShapeTypesToHit;
+  ezStringView FallbackSurface;
+}
+
+class ezRaycastComponent : ezComponent
+{
+  float GetCurrentDistance() const;
+  ezVec3 GetCurrentEndPosition() const;
+  bool HasHit() const;
+  float MaxDistance;
+  bool DisableTargetObjectOnNoHit;
+  ezString RaycastEndObject;
+  bool ForceTargetParentless;
+  ezPhysicsShapeType ShapeTypesToHit;
+  uint8 CollisionLayerEndPoint;
+  ezHashedString ChangeNotificationMsg;
+}
+
+class ezClothSheetComponent : ezRenderComponent
+{
+  ezVec2 Size;
+  ezVec2 Slack;
+  float Damping;
+  float WindInfluence;
+  ezClothSheetFlags Flags;
+  ezStringView Material;
+  ezColor Color;
+}
+
+class ezFakeRopeComponent : ezComponent
+{
+  ezString Anchor1;
+  ezString Anchor2;
+  bool AttachToAnchor1;
+  bool AttachToAnchor2;
+  uint16 Pieces;
+  float Slack;
+  float Damping;
+  float WindInfluence;
+}
+
+class ezRandomPrefabComponent : ezComponent
+{
+  bool Preview;
+  uint16 Count;
+  bool InstantiateAsChildren;
+  ezVec3 Position;
+  ezVec3 Rotation;
+  float MinScale;
+  float MaxScale;
+  ezColor Color1;
+  ezColor Color2;
+}
+
+class ezHeightfieldComponent : ezRenderComponent
+{
+  ezStringView HeightfieldImage;
+  ezStringView Material;
+  ezVec2 HalfExtents;
+  float Height;
+  ezVec2 TexCoordOffset;
+  ezVec2 TexCoordScale;
+  bool GenerateCollision;
+  bool IncludeInNavmesh;
+}
+
+class ezJoltActorComponent : ezComponent
+{
+  uint GetObjectFilterID() const;
+  uint8 CollisionLayer;
+  ezJoltDynamicActorComponent@ opCast();
+  ezJoltQueryShapeActorComponent@ opCast();
+  ezJoltStaticActorComponent@ opCast();
+  ezJoltTriggerComponent@ opCast();
+}
+
+class ezJoltDynamicActorComponent : ezJoltActorComponent
+{
+  void AddLinearForce(ezVec3 vForce);
+  void AddLinearImpulse(ezVec3 vImpulse);
+  void AddAngularForce(ezVec3 vForce);
+  void AddAngularImpulse(ezVec3 vImpulse);
+  bool Kinematic;
+  bool StartAsleep;
+  bool AllowSleeping;
+  float Mass;
+  float Density;
+  ezStringView Surface;
+  float GravityFactor;
+  float LinearDamping;
+  float AngularDamping;
+  bool ContinuousCollisionDetection;
+  ezOnJoltContact OnContact;
+  bool CustomCenterOfMass;
+  ezVec3 CenterOfMass;
+}
+
+class ezJoltQueryShapeActorComponent : ezJoltActorComponent
+{
+  ezStringView Surface;
+}
+
+class ezJoltStaticActorComponent : ezJoltActorComponent
+{
+  ezStringView CollisionMesh;
+  bool IncludeInNavmesh;
+  bool PullSurfacesFromGraphicsMesh;
+  ezStringView Surface;
+}
+
+class ezJoltTriggerComponent : ezJoltActorComponent
+{
+  ezString TriggerMessage;
+}
+
+class ezJoltCharacterControllerComponent : ezComponent
+{
+  uint8 CollisionLayer;
+  uint8 PresenceCollisionLayer;
+  float Mass;
+  float Strength;
+  ezAngle MaxClimbingSlope;
+  ezJoltCharacterDebugFlags DebugFlags;
+  ezJoltDefaultCharacterComponent@ opCast();
+}
+
+class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
+{
+  void TeleportCharacter(ezVec3 globalFootPosition);
+  bool IsStandingOnGround() const;
+  bool IsSlidingOnGround() const;
+  bool IsInAir() const;
+  bool IsCrouching() const;
+  float ShapeRadius;
+  float CrouchHeight;
+  float StandHeight;
+  float FootRadius;
+  float WalkSpeedCrouching;
+  float WalkSpeedStanding;
+  float WalkSpeedRunning;
+  float AirSpeed;
+  float AirFriction;
+  float MaxStepUp;
+  float MaxStepDown;
+  float JumpImpulse;
+  ezAngle RotateSpeed;
+  ezString WalkSurfaceInteraction;
+  float WalkInteractionDistance;
+  float RunInteractionDistance;
+  ezStringView FallbackWalkSurface;
+  ezString HeadObject;
+}
+
+class ezJoltClothSheetComponent : ezRenderComponent
+{
+  ezVec2 Size;
+  uint8 CollisionLayer;
+  float WindInfluence;
+  float GravityFactor;
+  float Damping;
+  float Thickness;
+  ezJoltClothSheetFlags Flags;
+  ezStringView Material;
+  ezVec2 TextureScale;
+  ezColor Color;
+}
+
+class ezJoltHitboxComponent : ezComponent
+{
+  uint GetObjectFilterID() const;
+  void RecreatePhysicsShapes();
+  bool QueryShapeOnly;
+  ezTime UpdateThreshold;
+}
+
+class ezJoltRagdollComponent : ezComponent
+{
+  uint GetObjectFilterID() const;
+  void SetInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
+  void AddInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
+  void SetJointTypeOverride(ezStringView JointName, ezSkeletonJointType OverrideType);
+  bool SelfCollision;
+  ezJoltRagdollStartMode StartMode;
+  float GravityFactor;
+  float Mass;
+  float StiffnessFactor;
+  float OwnerVelocityScale;
+  ezVec3 CenterPosition;
+  float CenterVelocity;
+  float CenterAngularVelocity;
+}
+
+class ezJoltRopeComponent : ezComponent
+{
+  ezString Anchor1;
+  ezString Anchor2;
+  ezJoltRopeAnchorConstraintMode Anchor1Constraint;
+  ezJoltRopeAnchorConstraintMode Anchor2Constraint;
+  uint16 Pieces;
+  float Slack;
+  float Mass;
+  float Thickness;
+  float BendStiffness;
+  ezAngle MaxBend;
+  ezAngle MaxTwist;
+  uint8 CollisionLayer;
+  ezStringView Surface;
+  float GravityFactor;
+  bool SelfCollision;
+  bool ContinuousCollisionDetection;
+}
+
+class ezJoltSettingsComponent : ezSettingsComponent
+{
+  ezVec3 ObjectGravity;
+  ezVec3 CharacterGravity;
+  ezJoltSteppingMode SteppingMode;
+  float FixedFrameRate;
+  uint32 MaxSubSteps;
+  uint32 MaxBodies;
+  float SleepVelocityThreshold;
+}
+
+class ezJoltVisColMeshComponent : ezRenderComponent
+{
+  ezStringView CollisionMesh;
+}
+
+class ezJoltConstraintComponent : ezComponent
+{
+  bool PairCollision;
+  ezString ParentActor;
+  ezString ChildActor;
+  ezString ChildActorAnchor;
+  float BreakForce;
+  float BreakTorque;
+  ezJoltConeConstraintComponent@ opCast();
+  ezJoltDistanceConstraintComponent@ opCast();
+  ezJoltFixedConstraintComponent@ opCast();
+  ezJoltHingeConstraintComponent@ opCast();
+  ezJoltPointConstraintComponent@ opCast();
+  ezJoltSliderConstraintComponent@ opCast();
+  ezJoltSwingTwistConstraintComponent@ opCast();
+}
+
+class ezJoltConeConstraintComponent : ezJoltConstraintComponent
+{
+  ezAngle ConeAngle;
+}
+
+class ezJoltDistanceConstraintComponent : ezJoltConstraintComponent
+{
+  float MinDistance;
+  float MaxDistance;
+  float Frequency;
+  float Damping;
+}
+
+class ezJoltFixedConstraintComponent : ezJoltConstraintComponent
+{
+}
+
+class ezJoltGrabObjectComponent : ezComponent
+{
+  bool GrabNearbyObject();
+  bool HasObjectGrabbed() const;
+  void DropGrabbedObject();
+  void ThrowGrabbedObject(ezVec3 Direction);
+  void BreakObjectGrab();
+  float MaxGrabPointDistance;
+  float CastRadius;
+  uint8 CollisionLayer;
+  float SpringStiffness;
+  float SpringDamping;
+  float BreakDistance;
+  ezString AttachTo;
+  float GrabAnyObjectWithSize;
+}
+
+class ezJoltHingeConstraintComponent : ezJoltConstraintComponent
+{
+  ezJoltConstraintLimitMode LimitMode;
+  ezAngle LowerLimit;
+  ezAngle UpperLimit;
+  float Friction;
+  ezJoltConstraintDriveMode DriveMode;
+  ezAngle DriveTargetValue;
+  float DriveStrength;
+}
+
+class ezJoltPointConstraintComponent : ezJoltConstraintComponent
+{
+}
+
+class ezJoltSliderConstraintComponent : ezJoltConstraintComponent
+{
+  ezJoltConstraintLimitMode LimitMode;
+  float LowerLimit;
+  float UpperLimit;
+  float Friction;
+  ezJoltConstraintDriveMode DriveMode;
+  float DriveTargetValue;
+  float DriveStrength;
+}
+
+class ezJoltSwingTwistConstraintComponent : ezJoltConstraintComponent
+{
+  ezAngle SwingLimitY;
+  ezAngle SwingLimitZ;
+  float Friction;
+  ezAngle LowerTwistLimit;
+  ezAngle UpperTwistLimit;
+}
+
+class ezJoltShapeComponent : ezComponent
+{
+  ezJoltShapeBoxComponent@ opCast();
+  ezJoltShapeCapsuleComponent@ opCast();
+  ezJoltShapeConvexHullComponent@ opCast();
+  ezJoltShapeCylinderComponent@ opCast();
+  ezJoltShapeSphereComponent@ opCast();
+}
+
+class ezJoltShapeBoxComponent : ezJoltShapeComponent
+{
+  ezVec3 HalfExtents;
+}
+
+class ezJoltShapeCapsuleComponent : ezJoltShapeComponent
+{
+  float Height;
+  float Radius;
+}
+
+class ezJoltShapeConvexHullComponent : ezJoltShapeComponent
+{
+  ezStringView CollisionMesh;
+}
+
+class ezJoltShapeCylinderComponent : ezJoltShapeComponent
+{
+  float Height;
+  float Radius;
+}
+
+class ezJoltShapeSphereComponent : ezJoltShapeComponent
+{
+  float Radius;
+}
+
+class ezParticleComponent : ezRenderComponent
+{
+  bool StartEffect();
+  void StopEffect();
+  void InterruptEffect();
+  bool IsEffectActive() const;
+  ezStringView Effect;
+  bool SpawnAtStart;
+  ezOnComponentFinishedAction2 OnFinishedAction;
+  ezTime MinRestartDelay;
+  ezTime RestartDelayRange;
+  uint64 RandomSeed;
+  ezBasisAxis SpawnDirection;
+  bool IgnoreOwnerRotation;
+  ezString SharedInstanceName;
+}
+
+class ezParticleFinisherComponent : ezRenderComponent
+{
+}
+
+class ezRmlUiCanvas2DComponent : ezRenderComponent
+{
+  ezStringView RmlFile;
+  ezVec2 AnchorPoint;
+  bool PassInput;
+  bool AutobindBlackboards;
+  bool OnDemandUpdate;
+}
+
+class ezCommentComponent : ezComponent
+{
+  ezString Comment;
+}
+
+class ezShapeIconComponent : ezComponent
+{
+}
+
+class ezMsgPhysicsAddImpulse : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Impulse;
+  uint32 ObjectFilterID;
+}
+
+class ezMsgPhysicsAddForce : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Force;
+}
+
+class ezEventMessage : ezMessage
+{
+  ezMsgPhysicsJointBroke@ opCast();
+  ezMsgGenericEvent@ opCast();
+  ezMsgAnimationReachedEnd@ opCast();
+  ezMsgTriggerTriggered@ opCast();
+  ezMsgSensorDetectedObjectsChanged@ opCast();
+  ezMsgPathChanged@ opCast();
+  ezMsgBlackboardEntryChanged@ opCast();
+  ezMsgInputActionTriggered@ opCast();
+  ezMsgDamage@ opCast();
+  ezMsgStateMachineStateChanged@ opCast();
+  ezMsgFmodSoundFinished@ opCast();
+  ezEventMsgSetPowerInput@ opCast();
+}
+
+class ezMsgPhysicsJointBroke : ezEventMessage
+{
+  ezGameObjectHandle JointObject;
+}
+
+class ezMsgObjectGrabbed : ezMessage
+{
+  ezGameObjectHandle GrabbedBy;
+  bool GotGrabbed;
+}
+
+class ezMsgReleaseObjectGrab : ezMessage
+{
+  ezGameObjectHandle GrabbedObjectToRelease;
+}
+
+class ezMsgBuildStaticMesh : ezMessage
+{
+}
+
+class ezMsgOnlyApplyToObject : ezMessage
+{
+  ezGameObjectHandle Object;
+}
+
+class ezMsgCollision : ezMessage
+{
+}
+
+class ezMsgDeleteGameObject : ezMessage
+{
+}
+
+class ezMsgComponentInternalTrigger : ezMessage
+{
+  ezHashedString Message;
+  int32 Payload;
+}
+
+class ezMsgUpdateLocalBounds : ezMessage
+{
+}
+
+class ezMsgSetPlaying : ezMessage
+{
+  bool Play;
+}
+
+class ezMsgInterruptPlaying : ezMessage
+{
+}
+
+class ezMsgParentChanged : ezMessage
+{
+}
+
+class ezMsgChildrenChanged : ezMessage
+{
+}
+
+class ezMsgComponentsChanged : ezMessage
+{
+}
+
+class ezMsgTransformChanged : ezMessage
+{
+}
+
+class ezMsgSetFloatParameter : ezMessage
+{
+  ezString Name;
+  float Value;
+}
+
+class ezMsgGenericEvent : ezEventMessage
+{
+  ezHashedString Message;
+}
+
+class ezMsgAnimationReachedEnd : ezEventMessage
+{
+}
+
+class ezMsgTriggerTriggered : ezEventMessage
+{
+  ezHashedString Message;
+  ezTriggerState TriggerState;
+  ezGameObjectHandle GameObject;
+}
+
+class ezMsgSetColor : ezMessage
+{
+  ezColor Color;
+  ezSetColorMode Mode;
+}
+
+class ezMsgSetCustomData : ezMessage
+{
+  float Data0;
+  float Data1;
+  float Data2;
+  float Data3;
+}
+
+class ezMsgAnimationPosePreparing : ezMessage
+{
+}
+
+class ezMsgAnimationPoseGeneration : ezMessage
+{
+}
+
+class ezMsgAnimationPoseUpdated : ezMessage
+{
+}
+
+class ezMsgRopePoseUpdated : ezMessage
+{
+}
+
+class ezMsgQueryAnimationSkeleton : ezMessage
+{
+}
+
+class ezMsgApplyRootMotion : ezMessage
+{
+  ezVec3 Translation;
+  ezAngle RotationX;
+  ezAngle RotationY;
+  ezAngle RotationZ;
+}
+
+class ezMsgRetrieveBoneState : ezMessage
+{
+}
+
+class ezMsgSetMeshMaterial : ezMessage
+{
+  ezStringView Material;
+  uint32 MaterialSlot;
+}
+
+class ezMsgExtractRenderData : ezMessage
+{
+}
+
+class ezMsgExtractOccluderData : ezMessage
+{
+}
+
+class ezMsgExtractGeometry : ezMessage
+{
+}
+
+class ezMsgSensorDetectedObjectsChanged : ezEventMessage
+{
+}
+
+class ezMsgPathChanged : ezEventMessage
+{
+}
+
+class ezMsgBlackboardEntryChanged : ezEventMessage
+{
+  ezString Name;
+}
+
+class ezMsgInputActionTriggered : ezEventMessage
+{
+  ezString InputAction;
+  float KeyPressValue;
+  ezTriggerState TriggerState;
+}
+
+class ezMsgDamage : ezEventMessage
+{
+  double Damage;
+  ezString HitObjectName;
+  ezVec3 GlobalPosition;
+  ezVec3 ImpactDirection;
+}
+
+class ezMsgMoveCharacterController : ezMessage
+{
+  double MoveForwards;
+  double MoveBackwards;
+  double StrafeLeft;
+  double StrafeRight;
+  double RotateLeft;
+  double RotateRight;
+  bool Run;
+  bool Jump;
+  bool Crouch;
+}
+
+class ezMsgStateMachineStateChanged : ezEventMessage
+{
+  ezString OldStateName;
+  ezString NewStateName;
+}
+
+class ezMsgDeliverAngelScriptMsg : ezMessage
+{
+}
+
+class ezMsgFmodSoundFinished : ezEventMessage
+{
+}
+
+class ezEventMsgSetPowerInput : ezEventMessage
+{
+  uint16 PrevValue;
+  uint16 NewValue;
+}
+
+class ezJoltMsgDisconnectConstraints : ezMessage
+{
+}
+
+class ezMsgRmlUiReload : ezMessage
+{
+}
+
+class ezIAngelScriptClass
+{
+}
+
+
+// *** EXTRA *** 
+
+
+// Base class for objects that one shall be able to instantiate through the ezScriptComponent.
+class ezAngelScriptClass : ezIAngelScriptClass
+{
+    ezScriptComponent@ GetOwnerComponent();
+    ezGameObject@ GetOwner();
+    ezWorld@ GetWorld();
+    void SetUpdateInterval(ezTime interval);
+
+    // Functions to override:
+    // void OnActivated();
+    // void OnDeactivated();
+    // void OnSimulationStarted();
+    // void Update();
+}
+    
+// *** GLOBAL FUNCTIONS *** 
+
+namespace ezRTTI
+{
+  const ezRTTI@ GetType(ezStringView);
+}
+
+namespace ezVec2
+{
+  ezVec2 MakeNaN();
+  ezVec2 MakeZero();
+}
+
+namespace ezVec3
+{
+  ezVec3 MakeNaN();
+  ezVec3 MakeZero();
+  ezVec3 MakeAxisX();
+  ezVec3 MakeAxisY();
+  ezVec3 MakeAxisZ();
+  ezVec3 Make(float x, float y, float z);
+  ezVec3 MakeRandomDirection(ezRandom&inout rng);
+  ezVec3 MakeRandomPointInSphere(ezRandom&inout rng);
+  ezVec3 MakeRandomDeviationX(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviationY(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviationZ(ezRandom&inout rng, const ezAngle&in maxDeviation);
+  ezVec3 MakeRandomDeviation(ezRandom&inout rng, const ezAngle&in maxDeviation, const ezVec3&in normal);
+}
+
+namespace ezVec4
+{
+  ezVec4 MakeNaN();
+  ezVec4 MakeZero();
+}
+
+namespace ezAngle
+{
+  float DegToRad(float fDegree);
+  float RadToDeg(float fRadians);
+  ezAngle MakeZero();
+  ezAngle MakeFromDegree(float fDegree);
+  ezAngle MakeFromRadian(float fRadians);
+  ezAngle AngleBetween(ezAngle a1, ezAngle a2);
+}
+
+namespace ezQuat
+{
+  ezQuat MakeIdentity();
+  ezQuat MakeFromElements(float x, float y, float z, float w);
+  ezQuat MakeFromAxisAndAngle(const ezVec3&in vAxis, ezAngle angle);
+  ezQuat MakeShortestRotation(const ezVec3&in vFrom, const ezVec3&in vTo);
+  ezQuat MakeFromMat3(const ezMat3&in);
+  ezQuat MakeSlerp(const ezQuat&in qFrom, const ezQuat&in qTo, float fFactor);
+  ezQuat MakeFromEulerAngles(ezAngle x, ezAngle y, ezAngle z);
+}
+
+namespace ezTransform
+{
+  ezTransform Make(const ezVec3&in vPosition, const ezQuat&in qRotation = ezQuat::MakeIdentity(), const ezVec3&in vScale = ezVec3(1));
+  ezTransform MakeIdentity();
+  ezTransform MakeFromMat4(const ezMat4&in);
+  ezTransform MakeLocalTransform(const ezTransform&in, const ezTransform&in);
+  ezTransform MakeGlobalTransform(const ezTransform&in, const ezTransform&in);
+}
+
+namespace ezTime
+{
+  ezTime Now();
+  ezTime MakeFromNanoseconds(double fNanoSeconds);
+  ezTime Nanoseconds(double fNanoSeconds);
+  ezTime MakeFromMicroseconds(double fMicroSeconds);
+  ezTime Microseconds(double fMicroSeconds);
+  ezTime MakeFromMilliseconds(double fMilliSeconds);
+  ezTime Milliseconds(double fMilliSeconds);
+  ezTime MakeFromSeconds(double fSeconds);
+  ezTime Seconds(double fSeconds);
+  ezTime MakeFromMinutes(double fMinutes);
+  ezTime Minutes(double fMinutes);
+  ezTime MakeFromHours(double fHours);
+  ezTime Hours(double fHours);
+  ezTime MakeZero();
+}
+
+namespace ezColor
+{
+  ezColor MakeNaN();
+  ezColor MakeZero();
+  ezColor MakeRGBA(float r, float g, float b, float a);
+  ezColor MakeFromKelvin(uint uiKelvin);
+  ezColor MakeHSV(float fHue, float fSat, float fVal);
+}
+
+namespace ezMath
+{
+  bool IsNaN(float value);
+  bool IsNaN(double value);
+  bool IsFinite(float value);
+  bool IsFinite(double value);
+  float Sin(ezAngle a);
+  float Cos(ezAngle a);
+  float Tan(ezAngle a);
+  ezAngle ASin(float f);
+  ezAngle ACos(float f);
+  ezAngle ATan(float f);
+  ezAngle ATan2(float x, float y);
+  float Exp(float f);
+  float Ln(float f);
+  float Log2(float f);
+  uint Log2i(uint uiVal);
+  float Log10(float f);
+  float Log(float fBase, float f);
+  float Pow2(float f);
+  float Pow(float fBase, float fExp);
+  int Pow2(int i);
+  int Pow(int iBase, int iExp);
+  float Sqrt(float f);
+  double Sqrt(double f);
+  float Sign(float f);
+  int Sign(int f);
+  float Abs(float f);
+  int Abs(int f);
+  int Min(int f1, int f2);
+  float Min(float f1, float f2);
+  int Max(int f1, int f2);
+  float Max(float f1, float f2);
+  int Clamp(int val, int min, int max);
+  float Clamp(float val, float min, float max);
+  float Floor(float f);
+  float Ceil(float f);
+  int FloorToInt(float f);
+  int CeilToInt(float f);
+  float Lerp(float from, float to, float factor);
+  ezVec2 Lerp(ezVec2 from, ezVec2 to, float factor);
+  ezVec3 Lerp(ezVec3 from, ezVec3 to, float factor);
+  ezVec4 Lerp(ezVec4 from, ezVec4 to, float factor);
+  ezColor Lerp(ezColor from, ezColor to, float factor);
+  float Unlerp(float from, float to, float value);
+  bool IsEqual(float lhs, float rhs, float fEpsilon);
+  bool IsZero(float value, float fEpsilon);
+  bool IsInRange(float value, float min, float max);
+}
+
+namespace ezSpatial
+{
+  void FindObjectsInSphere(ezStringView sCategory, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback);
+}
+
+void throw(ezStringView);
+namespace ezClock
+{
+  ezClock@ GetGlobalClock();
+}
+
+namespace ezSound
+{
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1);
+}
+
+namespace ezCVar
+{
+  bool GetValue_asBool(ezStringView Name);
+  int GetValue_asInt32(ezStringView Name);
+  float GetValue_asFloat(ezStringView Name);
+  ezTime GetValue_asTime(ezStringView Name);
+  ezAngle GetValue_asAngle(ezStringView Name);
+  ezVec2 GetValue_asVec2(ezStringView Name);
+  ezVec3 GetValue_asVec3(ezStringView Name);
+  ezVec4 GetValue_asVec4(ezStringView Name);
+  ezQuat GetValue_asQuat(ezStringView Name);
+  ezColor GetValue_asColor(ezStringView Name);
+  ezString GetValue_asString(ezStringView Name);
+  ezGameObjectHandle GetValue_asGameObjectHandle(ezStringView Name);
+  ezComponentHandle GetValue_asComponentHandle(ezStringView Name);
+  bool GetBoolValue(ezStringView Name);
+  int GetIntValue(ezStringView Name);
+  float GetFloatValue(ezStringView Name);
+  ezString GetStringValue(ezStringView Name);
+  void SetValue(ezStringView Name, ?&in Value);
+  void SetBoolValue(ezStringView Name, bool Value);
+  void SetIntValue(ezStringView Name, int Value);
+  void SetFloatValue(ezStringView Name, float Value);
+  void SetStringValue(ezStringView Name, ezString Value);
+}
+
+namespace ezLog
+{
+  void Info(ezStringView Text);
+  void Info(ezStringView Text, ?&in VarArg1);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Warning(ezStringView Text);
+  void Warning(ezStringView Text, ?&in VarArg1);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Error(ezStringView Text);
+  void Error(ezStringView Text, ?&in VarArg1);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+}
+
+namespace ezPhysics
+{
+  ezVec3 GetGravity();
+  uint8 GetCollisionLayerByName(ezStringView Name);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, uint IgnoreObjectID = 3);
+  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
+  bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
+  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295);
+}
+
+namespace ezPrefabs
+{
+  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+}
+
+namespace ezSpatial
+{
+  ezGameObject@ FindClosestObjectInSphere(ezStringView Category, ezVec3 Center, float Radius);
+}
+
+namespace ezDebug
+{
+  ezVec2 GetResolution();
+  void DrawCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void DrawSolidBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity());
+  void Draw2DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16, ezDebugTextHAlign HAlign = ezDebugTextHAlign(0));
+  void Draw3DText(ezStringView Text, ezVec3 Position, ezColor Color, uint SizeInPixel = 16);
+  void DrawInfoText(ezStringView Text, ezDebugTextPlacement Placement, ezStringView Group, ezColor Color);
+  void AddPersistentCross(ezVec3 Position, float Size = 0.1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineBox(ezVec3 Position, ezVec3 HalfExtents = ezVec3(1, 1, 1), ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void AddPersistentLineSphere(ezVec3 Position, float Radius = 1, ezColor Color = ezColor(1, 1, 1, 1), ezTransform Transform = ezTransform::MakeIdentity(), ezTime Duration = ezTime::Seconds(1));
+  void DrawLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
+  void Draw2DLine(ezVec3 Start, ezVec3 End, ezColor StartColor, ezColor EndColor);
+}
+
+ezGameObject@ GetScriptOwnerObject(ezIAngelScriptClass@ self);
+ezScriptComponent@ GetScriptOwnerComponent(ezIAngelScriptClass@ self);
+ezWorld@ GetScriptOwnerWorld(ezIAngelScriptClass@ self);
+
+// *** GLOBAL PROPERTIES *** 
+
+namespace ezColor
+{
+  ezColor AliceBlue;
+  ezColor AntiqueWhite;
+  ezColor Aqua;
+  ezColor Aquamarine;
+  ezColor Azure;
+  ezColor Beige;
+  ezColor Bisque;
+  ezColor Black;
+  ezColor BlanchedAlmond;
+  ezColor Blue;
+  ezColor BlueViolet;
+  ezColor Brown;
+  ezColor BurlyWood;
+  ezColor CadetBlue;
+  ezColor Chartreuse;
+  ezColor Chocolate;
+  ezColor Coral;
+  ezColor CornflowerBlue;
+  ezColor Cornsilk;
+  ezColor Crimson;
+  ezColor Cyan;
+  ezColor DarkBlue;
+  ezColor DarkCyan;
+  ezColor DarkGoldenRod;
+  ezColor DarkGray;
+  ezColor DarkGrey;
+  ezColor DarkGreen;
+  ezColor DarkKhaki;
+  ezColor DarkMagenta;
+  ezColor DarkOliveGreen;
+  ezColor DarkOrange;
+  ezColor DarkOrchid;
+  ezColor DarkRed;
+  ezColor DarkSalmon;
+  ezColor DarkSeaGreen;
+  ezColor DarkSlateBlue;
+  ezColor DarkSlateGray;
+  ezColor DarkSlateGrey;
+  ezColor DarkTurquoise;
+  ezColor DarkViolet;
+  ezColor DeepPink;
+  ezColor DeepSkyBlue;
+  ezColor DimGray;
+  ezColor DimGrey;
+  ezColor DodgerBlue;
+  ezColor FireBrick;
+  ezColor FloralWhite;
+  ezColor ForestGreen;
+  ezColor Fuchsia;
+  ezColor Gainsboro;
+  ezColor GhostWhite;
+  ezColor Gold;
+  ezColor GoldenRod;
+  ezColor Gray;
+  ezColor Grey;
+  ezColor Green;
+  ezColor GreenYellow;
+  ezColor HoneyDew;
+  ezColor HotPink;
+  ezColor IndianRed;
+  ezColor Indigo;
+  ezColor Ivory;
+  ezColor Khaki;
+  ezColor Lavender;
+  ezColor LavenderBlush;
+  ezColor LawnGreen;
+  ezColor LemonChiffon;
+  ezColor LightBlue;
+  ezColor LightCoral;
+  ezColor LightCyan;
+  ezColor LightGoldenRodYellow;
+  ezColor LightGray;
+  ezColor LightGrey;
+  ezColor LightGreen;
+  ezColor LightPink;
+  ezColor LightSalmon;
+  ezColor LightSeaGreen;
+  ezColor LightSkyBlue;
+  ezColor LightSlateGray;
+  ezColor LightSlateGrey;
+  ezColor LightSteelBlue;
+  ezColor LightYellow;
+  ezColor Lime;
+  ezColor LimeGreen;
+  ezColor Linen;
+  ezColor Magenta;
+  ezColor Maroon;
+  ezColor MediumAquaMarine;
+  ezColor MediumBlue;
+  ezColor MediumOrchid;
+  ezColor MediumPurple;
+  ezColor MediumSeaGreen;
+  ezColor MediumSlateBlue;
+  ezColor MediumSpringGreen;
+  ezColor MediumTurquoise;
+  ezColor MediumVioletRed;
+  ezColor MidnightBlue;
+  ezColor MintCream;
+  ezColor MistyRose;
+  ezColor Moccasin;
+  ezColor NavajoWhite;
+  ezColor Navy;
+  ezColor OldLace;
+  ezColor Olive;
+  ezColor OliveDrab;
+  ezColor Orange;
+  ezColor OrangeRed;
+  ezColor Orchid;
+  ezColor PaleGoldenRod;
+  ezColor PaleGreen;
+  ezColor PaleTurquoise;
+  ezColor PaleVioletRed;
+  ezColor PapayaWhip;
+  ezColor PeachPuff;
+  ezColor Peru;
+  ezColor Pink;
+  ezColor Plum;
+  ezColor PowderBlue;
+  ezColor Purple;
+  ezColor RebeccaPurple;
+  ezColor Red;
+  ezColor RosyBrown;
+  ezColor RoyalBlue;
+  ezColor SaddleBrown;
+  ezColor Salmon;
+  ezColor SandyBrown;
+  ezColor SeaGreen;
+  ezColor SeaShell;
+  ezColor Sienna;
+  ezColor Silver;
+  ezColor SkyBlue;
+  ezColor SlateBlue;
+  ezColor SlateGray;
+  ezColor SlateGrey;
+  ezColor Snow;
+  ezColor SpringGreen;
+  ezColor SteelBlue;
+  ezColor Tan;
+  ezColor Teal;
+  ezColor Thistle;
+  ezColor Tomato;
+  ezColor Turquoise;
+  ezColor Violet;
+  ezColor Wheat;
+  ezColor White;
+  ezColor WhiteSmoke;
+  ezColor Yellow;
+  ezColor YellowGreen;
+}
+

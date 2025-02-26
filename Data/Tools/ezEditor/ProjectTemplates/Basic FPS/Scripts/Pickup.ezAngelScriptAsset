@@ -1,0 +1,238 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{1741191760525315406,1280851677329448731}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		i3 %DefaultValue{0}
+		s %Name{"PickupType"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3554474544593968310,5452601622014071450}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies
+		{
+			s{"Scripts/Shared.as"}
+		}
+		Uuid %DocumentID{u4{3554474544593968310,5452601622014071450}}
+		u4 %Hash{6084029160670192417}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{8647406635121677309,6760446331301271882}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6704993171290264430,6253106898382438576}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		i3 %DefaultValue{10}
+		s %Name{"PickupAmount"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8647406635121677309,6760446331301271882}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{1741191760525315406,1280851677329448731}}
+			Uuid{u4{6704993171290264430,6253106898382438576}}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{7808784348727608978,5084408377201797670}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"ScriptObject"}
+		s %Code{"#include <Scripts/Shared.as>\n\nclass ScriptObject : ezAngelScriptClass\n{\n\tint PickupType = 0;\n\tint PickupAmount = 10;\n\n\tvoid OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg)\n\t{\n\t\tif (PickupAmount == 0)\n\t\t\treturn;\n\n\t\tMsgPickup pick;\n\t\tpick.m_iType = PickupType;\n\t\tpick.m_iAmount = PickupAmount;\n\n\t\tGetWorld().SendMessage(msg.GameObject, pick);\n\n\t\tif (pick.m_bConsumed)\n\t\t{\n\t\t\tezMsgDeleteGameObject del;\n\t\t\tGetWorld().PostMessage(GetOwner().GetHandle(), del, ezTime::Milliseconds(5));\n\n\t\t\tezFmodEventComponent@ comp;\n\t\t\tif (GetOwner().TryGetComponentOfBaseType(@comp))\n\t\t\t{\n\t\t\t\tcomp.Paused = false;\n\t\t\t}\n\n\t\t\tPickupAmount = 0;\n\t\t}\n\t}\n}"}
+		VarArray %Dependencies
+		{
+			s{"Scripts/Shared.as"}
+		}
+		VarArray %Parameters
+		{
+			Uuid{u4{4755020147140191673,5412373451119894110}}
+			Uuid{u4{8990506235442346428,5674406886349954942}}
+		}
+		s %Source{"ezAngelScriptCodeMode::Inline"}
+		s %SourceFile{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4755020147140191673,5412373451119894110}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 PickupType = 0"}
+		i3 %DefaultValue{0}
+		b %Expose{1}
+		s %Name{"PickupType"}
+	}
+}
+o
+{
+	Uuid %id{u4{8990506235442346428,5674406886349954942}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 PickupAmount = 10"}
+		i3 %DefaultValue{10}
+		b %Expose{1}
+		s %Name{"PickupAmount"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7808784348727608978,5084408377201797670}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

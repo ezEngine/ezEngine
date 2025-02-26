@@ -161,3 +161,30 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Default"}
+	string %Action{"shoot"}
+	bool %TimeScale{false}
+	Slot
+	{
+		string %Key{"mouse_button_0"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"keyboard_right_ctrl"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Default"}
+	string %Action{"use"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_e"}
+		float %Scale{1}
+	}
+}

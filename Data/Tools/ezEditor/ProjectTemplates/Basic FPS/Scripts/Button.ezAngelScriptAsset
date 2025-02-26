@@ -1,0 +1,204 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{9802559758680817375,368654209392245806}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		HashedString %DefaultValue{s{"button"}}
+		s %Name{"ButtonName"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{1661616328889315726,4787509409258167820}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{1661616328889315726,4787509409258167820}}
+		u4 %Hash{11005517562791313844}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{3032508835187416422,9359457324231832586}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3032508835187416422,9359457324231832586}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{9802559758680817375,368654209392245806}}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{9215123393714837658,5162209052441819023}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"ezHashedString ButtonName = button"}
+		HashedString %DefaultValue{s{"button"}}
+		b %Expose{1}
+		s %Name{"ButtonName"}
+	}
+}
+o
+{
+	Uuid %id{u4{8554106765932363405,5462119927599841701}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"ScriptObject"}
+		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\tezHashedString ButtonName = \"button\";\n\n\tvoid OnMsgGenericEvent(ezMsgGenericEvent@ msg)\n\t{\n\t\tif (msg.Message == \"use\")\n\t\t{\n\t\t\tezGameObject@ sliderObj = GetOwner().FindChildByName(\"Slider\");\n\t\t\tif (@sliderObj != null)\n\t\t\t{\n\t\t\t\tezSliderComponent@ sliderComp;\n\n\t\t\t\tif (sliderObj.TryGetComponentOfBaseType(@sliderComp))\n\t\t\t\t{\n\t\t\t\t\tif (sliderComp.Running)\n\t\t\t\t\t\treturn; // currently busy\n\n\t\t\t\t\tsliderComp.Running = true;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tezSound::PlaySound(\"{ 5ad0e42e-52e1-473c-a508-aad4342c1e26 }\", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1, 1, false);\n\n\t\t\tezMsgTriggerTriggered trig;\n\t\t\ttrig.Message = ButtonName;\n\t\t\ttrig.TriggerState = ezTriggerState::Activated;\n\t\t\ttrig.GameObject = GetOwner().GetHandle();\n\n\t\t\tGetOwnerComponent().BroadcastEventMsg(trig);\n\t\t}\n\t}\n}"}
+		VarArray %Dependencies{}
+		VarArray %Parameters
+		{
+			Uuid{u4{9215123393714837658,5162209052441819023}}
+		}
+		s %Source{"ezAngelScriptCodeMode::Inline"}
+		s %SourceFile{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8554106765932363405,5462119927599841701}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

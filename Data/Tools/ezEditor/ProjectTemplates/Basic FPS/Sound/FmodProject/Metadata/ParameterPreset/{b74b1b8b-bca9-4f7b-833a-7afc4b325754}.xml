@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.00.00">
+	<object class="ParameterPreset" id="{b74b1b8b-bca9-4f7b-833a-7afc4b325754}">
+		<property name="name">
+			<value>Impulse</value>
+		</property>
+		<relationship name="folder">
+			<destination>{670324cf-34cb-03a6-0735-176078c87507}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{6a84e66d-4cc2-4e23-ad51-7486b36447d2}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{6a84e66d-4cc2-4e23-ad51-7486b36447d2}">
+		<property name="maximum">
+			<value>10</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

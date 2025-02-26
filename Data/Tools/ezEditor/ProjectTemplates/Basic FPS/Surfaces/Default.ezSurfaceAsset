@@ -1,0 +1,202 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{17677410356570188463,5266697341932619590}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Surface"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{17677410356570188463,5266697341932619590}}
+		u4 %Hash{4827520535400413836}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ b6ad2952-e7fa-4356-bf8f-71ba9821f3a4 }"}
+			s{"{ f06071c5-9cc7-8b6d-3b4a-897e9e29080d }"}
+		}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{10665419379598379915,4692621521861166299}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
+		Angle %Deviation{f{0}}
+		f %ImpulseScale{0x0000803F}
+		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
+		s %Prefab{"{ f06071c5-9cc7-8b6d-3b4a-897e9e29080d }"}
+		s %Type{"Footstep"}
+	}
+}
+o
+{
+	Uuid %id{u4{2818204647464086169,4756192947935726350}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
+		Angle %Deviation{f{0}}
+		f %ImpulseScale{0x0000803F}
+		f %ImpulseThreshold{0}
+		VarDict %Parameters{}
+		s %Prefab{"{ b6ad2952-e7fa-4356-bf8f-71ba9821f3a4 }"}
+		s %Type{"Bullet_Hit"}
+	}
+}
+o
+{
+	Uuid %id{u4{13375984838890490522,4942347936347482914}}
+	s %t{"ezSurfaceResourceDescriptor"}
+	u3 %v{2}
+	p
+	{
+		s %BaseSurface{""}
+		f %DynamicFriction{0xCDCCCC3E}
+		i1 %GroundType{-1}
+		VarArray %Interactions
+		{
+			Uuid{u4{10665419379598379915,4692621521861166299}}
+			Uuid{u4{2818204647464086169,4756192947935726350}}
+		}
+		s %OnCollideInteraction{""}
+		f %Restitution{0x0000803E}
+		s %RollReaction{""}
+		s %SlideReaction{""}
+		f %StaticFriction{0x9A99193F}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13375984838890490522,4942347936347482914}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{7592906110150947185,2202778047974526134}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceResourceDescriptor"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6857712172019910339,8941382314076304129}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceInteractionAlignment"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12823836157803586197,16251170174194673526}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceInteraction"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}
