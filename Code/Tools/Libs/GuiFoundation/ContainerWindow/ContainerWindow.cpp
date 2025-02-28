@@ -278,7 +278,7 @@ void ezQtContainerWindow::RestoreWindowLayout()
   }
 
   for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
-    m_DocumentWindows[i]->RestoreWindowLayout();
+    m_DocumentWindows[i]->RestoreWindowLayout(true);
 
   m_bWindowLayoutRestored = true;
 }

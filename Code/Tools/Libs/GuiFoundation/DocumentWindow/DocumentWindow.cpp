@@ -347,7 +347,7 @@ void ezQtDocumentWindow::ScheduleRestoreWindowLayout()
 
 void ezQtDocumentWindow::SlotRestoreLayout()
 {
-  RestoreWindowLayout();
+  RestoreWindowLayout(false);
 }
 
 void ezQtDocumentWindow::SaveWindowLayout()
@@ -376,12 +376,12 @@ void ezQtDocumentWindow::SaveWindowLayout()
   Settings.endGroup();
 }
 
-void ezQtDocumentWindow::RestoreWindowLayout()
+void ezQtDocumentWindow::RestoreWindowLayout(bool bForce)
 {
   if (!s_bAllowRestoreWindowLayout)
     return;
 
-  if (m_bWindowRestored)
+  if (!bForce && m_bWindowRestored)
     return;
 
   m_bWindowRestored = true;
