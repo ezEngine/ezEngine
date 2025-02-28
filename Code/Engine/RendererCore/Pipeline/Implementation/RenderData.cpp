@@ -84,6 +84,17 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
 }
 
 // static
+ezRenderData::Category ezRenderData::RegisterDerivedCategory(const char* szCategoryName, Category baseCategory)
+{
+  auto& baseCategoryData = s_CategoryData[baseCategory.m_uiValue];
+
+  Category derivedCategory = RegisterCategory(szCategoryName, baseCategoryData.m_sortingKeyFunc);
+  s_CategoryData[derivedCategory.m_uiValue].m_baseCategory = baseCategory;
+
+  return derivedCategory;
+}
+
+// static
 ezRenderData::Category ezRenderData::FindCategory(ezTempHashedString sCategoryName)
 {
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
@@ -157,11 +168,20 @@ void ezRenderData::CreateRendererInstances()
     {
       auto& categoryData = s_CategoryData[category.m_uiValue];
 
-      for (ezUInt32 i = 0; i < supportedTypes.GetCount(); ++i)
+      for (auto pType : supportedTypes)
       {
-        categoryData.m_TypeToRendererIndex.Insert(supportedTypes[i], uiIndex);
+        categoryData.m_TypeToRendererIndex.Insert(pType, uiIndex);
       }
     }
+  }
+
+  // Copy the renderer types to derived categories
+  for (auto& categoryData : s_CategoryData)
+  {
+    if (categoryData.m_baseCategory == ezInvalidRenderDataCategory)
+      continue;
+
+    categoryData.m_TypeToRendererIndex = s_CategoryData[categoryData.m_baseCategory.m_uiValue].m_TypeToRendererIndex;
   }
 
   s_bRendererInstancesDirty = false;

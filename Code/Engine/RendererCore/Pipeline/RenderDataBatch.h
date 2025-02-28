@@ -14,10 +14,7 @@ private:
   };
 
 public:
-  // EZ_DECLARE_POD_TYPE(); // ezDelegate has a destructor and therefore ezRenderDataBatch can't be POD
-
-  /// \brief This function should return true if the given render data should be filtered and not rendered.
-  using Filter = ezDelegate<bool(const ezRenderData*)>;
+  EZ_DECLARE_POD_TYPE();
 
   template <typename T>
   class Iterator
@@ -37,9 +34,8 @@ public:
   private:
     friend class ezRenderDataBatch;
 
-    Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd, Filter filter);
+    Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd);
 
-    Filter m_Filter;
     const SortableRenderData* m_pCurrent;
     const SortableRenderData* m_pEnd;
   };
@@ -56,7 +52,6 @@ private:
   friend class ezExtractedRenderData;
   friend class ezRenderDataBatchList;
 
-  Filter m_Filter;
   ezArrayPtr<SortableRenderData> m_Data;
 };
 
@@ -65,12 +60,11 @@ class ezRenderDataBatchList
 public:
   ezUInt32 GetBatchCount() const;
 
-  ezRenderDataBatch GetBatch(ezUInt32 uiIndex) const;
+  const ezRenderDataBatch& GetBatch(ezUInt32 uiIndex) const;
 
 private:
   friend class ezExtractedRenderData;
 
-  ezRenderDataBatch::Filter m_Filter;
   ezArrayPtr<const ezRenderDataBatch> m_Batches;
 };
 

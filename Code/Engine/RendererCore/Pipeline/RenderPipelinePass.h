@@ -70,7 +70,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
-  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
+  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
 
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
   EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }

@@ -44,6 +44,8 @@ private:
   void ReadBackPropertiesSinglePick(ezView* pView);
   void ReadBackPropertiesMarqueePick(ezView* pView);
 
+  void ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData);
+
 private:
   ezRectFloat m_TargetRect;
   const ezRTTI* m_pGridRenderDataType = nullptr;
@@ -75,4 +77,6 @@ private:
   ezDynamicArray<float> m_PickingResultsDepth;
   /// Stores the 32 Bit picking ID values of each pixel. This can lead back to the ezComponent, etc. that rendered to that pixel
   ezDynamicArray<ezUInt32> m_PickingResultsID;
+
+  ezUInt32 m_uiProcessorId = ezInvalidIndex;
 };

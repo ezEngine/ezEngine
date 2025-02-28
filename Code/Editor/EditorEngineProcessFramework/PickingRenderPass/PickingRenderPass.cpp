@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
+#include <RendererCore/Pipeline/SortingFunctions.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
@@ -28,6 +29,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+static ezRenderData::Category s_LitOpaqueWithoutSelection = ezRenderData::RegisterDerivedCategory("LitOpaqueWithoutSelection", ezDefaultRenderDataCategories::LitOpaque);
+static ezRenderData::Category s_LitMaskedWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedWithoutSelection", ezDefaultRenderDataCategories::LitMasked);
+static ezRenderData::Category s_LitTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("LitTransparentWithoutSelection", ezDefaultRenderDataCategories::LitTransparent);
+static ezRenderData::Category s_SimpleTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("SimpleTransparentWithoutSelection", ezDefaultRenderDataCategories::SimpleTransparent);
 
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
@@ -62,6 +68,11 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
 {
   DestroyTarget();
   CreateTarget();
+
+  if (m_uiProcessorId == ezInvalidIndex)
+  {
+    m_uiProcessorId = GetPipeline()->AddRenderDataProcessor(ezMakeDelegate(&ezPickingRenderPass::ProcessPickingRenderData, this));
+  }
 }
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -93,30 +104,12 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
     pClusteredData->BindResources(renderViewContext.m_pRenderContext);
 
-    // copy selection to set for faster checks
-    m_SelectionSet.Clear();
-
-    auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Selection);
-    const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-    for (ezUInt32 i = 0; i < uiBatchCount; ++i)
-    {
-      const ezRenderDataBatch& batch = batchList.GetBatch(i);
-      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
-      {
-        m_SelectionSet.Insert(it->m_hOwner);
-      }
-    }
-
-    // filter out all selected objects
-    ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
-      { return m_SelectionSet.Contains(pRenderData->m_hOwner) || pRenderData->IsInstanceOf(m_pGridRenderDataType); });
-
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
+    RenderDataWithCategory(renderViewContext, s_LitOpaqueWithoutSelection);
+    RenderDataWithCategory(renderViewContext, s_LitMaskedWithoutSelection);
 
     if (m_bPickTransparent)
     {
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent, filter);
+      RenderDataWithCategory(renderViewContext, s_LitTransparentWithoutSelection);
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
       RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
@@ -134,7 +127,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
     if (m_bPickTransparent)
     {
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent, filter);
+      RenderDataWithCategory(renderViewContext, s_SimpleTransparentWithoutSelection);
     }
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
@@ -401,4 +394,39 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   }
 
   pView->SetRenderPassReadBackProperty(GetName(), "MarqueeResult", resArray);
+}
+
+void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData)
+{
+  // copy selection to set for faster checks
+  m_SelectionSet.Clear();
+  {
+    auto renderDataList = extractedRenderData.GetRawRenderDataWithCategory(ezDefaultRenderDataCategories::Selection);
+    for (auto& sortableRenderData : renderDataList)
+    {
+      m_SelectionSet.Insert(sortableRenderData.m_pRenderData->m_hOwner);
+    }
+  }
+
+  auto Filter = [&](ezRenderData::Category originalCategory, ezRenderData::Category filteredCategory)
+  {
+    auto renderDataList = extractedRenderData.GetRawRenderDataWithCategory(originalCategory);
+    for (auto& sortableRenderData : renderDataList)
+    {
+      auto pRenderData = sortableRenderData.m_pRenderData;
+      if (m_SelectionSet.Contains(pRenderData->m_hOwner) || pRenderData->IsInstanceOf(m_pGridRenderDataType))
+        continue;
+
+      extractedRenderData.AddRenderData(pRenderData, filteredCategory);
+    }
+  };
+
+  Filter(ezDefaultRenderDataCategories::LitOpaque, s_LitOpaqueWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitMasked, s_LitMaskedWithoutSelection);
+
+  if (m_bPickTransparent)
+  {
+    Filter(ezDefaultRenderDataCategories::LitTransparent, s_LitTransparentWithoutSelection);
+    Filter(ezDefaultRenderDataCategories::SimpleTransparent, s_SimpleTransparentWithoutSelection);
+  }
 }

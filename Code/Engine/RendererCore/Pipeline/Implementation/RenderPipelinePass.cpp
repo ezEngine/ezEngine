@@ -72,11 +72,11 @@ ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
+void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), ezRenderData::GetCategoryName(category));
 
-  auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
+  auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category);
   const ezUInt32 uiBatchCount = batchList.GetBatchCount();
   for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {

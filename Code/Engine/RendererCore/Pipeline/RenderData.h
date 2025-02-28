@@ -31,6 +31,7 @@ public:
   using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
+  static Category RegisterDerivedCategory(const char* szCategoryName, Category baseCategory);
   static Category FindCategory(ezTempHashedString sCategoryName);
 
   static ezHashedString GetCategoryName(Category category);
@@ -78,6 +79,8 @@ private:
 
   struct CategoryData
   {
+    Category m_baseCategory;
+
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
 

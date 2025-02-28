@@ -36,8 +36,9 @@ public:
 
   void Clear();
 
-  ezRenderDataBatchList GetRenderDataBatchesWithCategory(
-    ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
+  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+
+  ezArrayPtr<const ezRenderDataBatch::SortableRenderData> GetRawRenderDataWithCategory(ezRenderData::Category category) const;
 
   template <typename T>
   EZ_ALWAYS_INLINE const T* GetFrameData() const
@@ -62,6 +63,6 @@ private:
   ezDebugRendererContext m_WorldDebugContext;
   ezDebugRendererContext m_ViewDebugContext;
 
-  ezHybridArray<DataPerCategory, 16> m_DataPerCategory;
+  ezHybridArray<DataPerCategory, 32> m_DataPerCategory;
   ezHybridArray<const ezRenderData*, 16> m_FrameData;
 };

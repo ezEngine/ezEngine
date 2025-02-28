@@ -80,18 +80,27 @@ void ezExtractedRenderData::Clear()
   m_FrameData.Clear();
 }
 
-ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
+ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
     ezRenderDataBatchList list;
     list.m_Batches = m_DataPerCategory[category.m_uiValue].m_Batches;
-    list.m_Filter = filter;
 
     return list;
   }
 
   return ezRenderDataBatchList();
+}
+
+ezArrayPtr<const ezRenderDataBatch::SortableRenderData> ezExtractedRenderData::GetRawRenderDataWithCategory(ezRenderData::Category category) const
+{
+  if (category.m_uiValue < m_DataPerCategory.GetCount())
+  {
+    return m_DataPerCategory[category.m_uiValue].m_SortableRenderData;
+  }
+
+  return {};
 }
 
 const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) const

@@ -56,8 +56,10 @@ public:
   }
 
   const ezExtractedRenderData& GetRenderData() const;
-  ezRenderDataBatchList GetRenderDataBatchesWithCategory(
-    ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
+  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+
+  using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
+  ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
 
   /// \brief Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
   void CreateDgmlGraph(ezDGMLGraph& ref_graph);
@@ -147,6 +149,8 @@ private: // Member data
   // Data Providers
   mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+
+  ezDynamicArray<RenderDataProcessor> m_RenderDataProcessors;
 
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
 

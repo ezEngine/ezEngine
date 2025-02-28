@@ -955,6 +955,11 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     }
   }
 
+  for (auto& processor : m_RenderDataProcessors)
+  {
+    processor(data);
+  }
+
   data.SortAndBatch();
 
   for (auto& pExtractor : m_Extractors)
@@ -1296,10 +1301,17 @@ const ezExtractedRenderData& ezRenderPipeline::GetRenderData() const
   return m_Data[ezRenderWorld::GetDataIndexForRendering()];
 }
 
-ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
+ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
-  return data.GetRenderDataBatchesWithCategory(category, filter);
+  return data.GetRenderDataBatchesWithCategory(category);
+}
+
+ezUInt32 ezRenderPipeline::AddRenderDataProcessor(RenderDataProcessor processor)
+{
+  ezUInt32 uiIndex = m_RenderDataProcessors.GetCount();
+  m_RenderDataProcessors.PushBack(processor);
+  return uiIndex;
 }
 
 void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
