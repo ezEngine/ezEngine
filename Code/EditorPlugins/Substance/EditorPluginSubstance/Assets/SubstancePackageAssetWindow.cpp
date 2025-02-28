@@ -61,7 +61,7 @@ ezQtSubstancePackageAssetWindow::ezQtSubstancePackageAssetWindow(ezSubstancePack
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SubstanceAssetDockWidget");
     pPropertyPanel->setWindowTitle("Substance Package Properties");
     pPropertyPanel->show();

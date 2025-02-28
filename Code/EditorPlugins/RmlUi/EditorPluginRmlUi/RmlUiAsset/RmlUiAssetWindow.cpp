@@ -6,6 +6,7 @@
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLayout>
@@ -51,7 +52,7 @@ ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDoc
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("RmlUiAssetDockWidget");
     pPropertyPanel->setWindowTitle("RmlUi Properties");
     pPropertyPanel->show();

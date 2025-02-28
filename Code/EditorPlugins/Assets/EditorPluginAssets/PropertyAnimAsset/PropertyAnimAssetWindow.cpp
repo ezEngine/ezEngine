@@ -37,7 +37,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
   {
-    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pViewPanel->setObjectName("ezQtDocumentPanel");
     pViewPanel->setWindowTitle("3D View");
     pViewPanel->setWidget(m_pQuadViewWidget);
@@ -75,13 +75,13 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
     pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
 
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(GetContainerWindow()->GetDockManager(), this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pGameObjectPanel);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPanel->setWindowTitle("Object Properties");
     pPanel->show();
@@ -104,7 +104,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Property Tree View
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
     pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
@@ -149,7 +149,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Float Curve Panel
   {
-    m_pCurvePanel = new ezQtDocumentPanel(this, pDocument);
+    m_pCurvePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
     m_pCurvePanel->setWindowTitle("Curves");
     m_pCurvePanel->show();
@@ -162,7 +162,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Color Gradient Panel
   {
-    m_pColorGradientPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pColorGradientPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
     m_pColorGradientPanel->setWindowTitle("Color Gradient");
     m_pColorGradientPanel->show();
@@ -175,7 +175,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pEventTrackPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();

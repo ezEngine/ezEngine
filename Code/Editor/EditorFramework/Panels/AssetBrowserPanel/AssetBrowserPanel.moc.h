@@ -18,7 +18,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel
   EZ_DECLARE_SINGLETON(ezQtAssetBrowserPanel);
 
 public:
-  ezQtAssetBrowserPanel();
+  ezQtAssetBrowserPanel(ads::CDockManager* pDockManager);
   ~ezQtAssetBrowserPanel();
 
   const ezUuid& GetLastSelectedAsset() const { return m_LastSelected; }

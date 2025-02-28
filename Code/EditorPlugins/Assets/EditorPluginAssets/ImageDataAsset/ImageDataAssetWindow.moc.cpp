@@ -41,7 +41,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
   {
     m_pImageWidget = new ezQtImageWidget(this);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ImageDataView");
     pCentral->setWindowTitle("Image");
     pCentral->setWidget(m_pImageWidget);
@@ -50,7 +50,7 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ImageDataProperties");
     pPropertyPanel->setWindowTitle("Image Properties");
 

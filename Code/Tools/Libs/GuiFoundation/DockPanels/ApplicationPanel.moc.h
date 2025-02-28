@@ -7,6 +7,10 @@
 #include <ads/DockWidget.h>
 
 class ezQtContainerWindow;
+namespace ads
+{
+  class CDockManager;
+}
 
 /// \brief Base class for all panels that are supposed to be application wide (not tied to some document).
 class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public ads::CDockWidget
@@ -15,7 +19,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtApplicationPanel(const char* szPanelName);
+  ezQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName);
   ~ezQtApplicationPanel();
 
   void EnsureVisible();
@@ -31,6 +35,7 @@ private:
 
   static ezDynamicArray<ezQtApplicationPanel*> s_AllApplicationPanels;
 
-  ezQtContainerWindow* m_pContainerWindow;
+  ezQtContainerWindow* m_pContainerWindow = nullptr;
 };
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezQtApplicationPanel);

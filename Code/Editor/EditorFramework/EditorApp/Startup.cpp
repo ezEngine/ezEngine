@@ -545,14 +545,16 @@ void ezQtEditorApp::ShutdownEditor()
 void ezQtEditorApp::CreatePanels()
 {
   EZ_PROFILE_SCOPE("CreatePanels");
-  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
-  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
-  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
-  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
-  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
 
   ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
   ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
+
+  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel(pDockManager);
+  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel(pDockManager);
+  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel(pDockManager);
+  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel(pDockManager);
+  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel(pDockManager);
+
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);

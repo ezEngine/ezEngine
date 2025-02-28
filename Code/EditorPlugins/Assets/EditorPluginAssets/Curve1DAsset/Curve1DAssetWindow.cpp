@@ -52,7 +52,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
     pWidget->layout()->addWidget(m_pCurveEditor);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ezQtDocumentPanel");
     pCentral->setWindowTitle("Curve");
     pCentral->setWidget(pWidget);
@@ -74,7 +74,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();

@@ -8,8 +8,8 @@
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QVBoxLayout>
 
-ezQtLayerPanel::ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtLayerPanel::ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("LayerPanel");
   setWindowTitle("Layers");

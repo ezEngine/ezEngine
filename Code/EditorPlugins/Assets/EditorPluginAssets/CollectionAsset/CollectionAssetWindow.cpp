@@ -33,7 +33,7 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("CollectionAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collection Properties");
     pPropertyPanel->show();

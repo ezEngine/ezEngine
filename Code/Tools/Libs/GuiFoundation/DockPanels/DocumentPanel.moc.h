@@ -12,7 +12,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtDocumentPanel(QWidget* pParent, ezDocument* pDocument);
+  ezQtDocumentPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezDocument* pDocument);
   ~ezQtDocumentPanel();
 
   virtual bool event(QEvent* pEvent) override;

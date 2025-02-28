@@ -30,7 +30,7 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
     { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   {
-    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pViewPanel->setObjectName("ezQtDocumentPanel");
     pViewPanel->setWindowTitle("3D View");
     pViewPanel->setWidget(m_pQuadViewWidget);
@@ -65,16 +65,16 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
 
   {
     // Panels
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
     pPropertyPanel->layout()->setObjectName("PropertyPanelLayout");
 
-    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(this, pDocument);
+    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanelTree->show();
 
-    ezQtLayerPanel* pLayers = new ezQtLayerPanel(this, pDocument);
+    ezQtLayerPanel* pLayers = new ezQtLayerPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pLayers->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);

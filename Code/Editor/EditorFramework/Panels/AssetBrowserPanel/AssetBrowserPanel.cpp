@@ -6,8 +6,8 @@
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
 
-ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
-  : ezQtApplicationPanel("Panel.AssetBrowser")
+ezQtAssetBrowserPanel::ezQtAssetBrowserPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.AssetBrowser")
   , m_SingletonRegistrar(this)
 {
   setFeature(ads::CDockWidget::DockWidgetClosable, false);

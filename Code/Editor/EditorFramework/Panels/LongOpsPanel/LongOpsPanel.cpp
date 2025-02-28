@@ -14,8 +14,8 @@ constexpr int COL_PROGRESS = 2;
 constexpr int COL_DURATION = 3;
 constexpr int COL_BUTTON = 4;
 
-ezQtLongOpsPanel ::ezQtLongOpsPanel()
-  : ezQtApplicationPanel("Panel.LongOps")
+ezQtLongOpsPanel ::ezQtLongOpsPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.LongOps")
   , m_SingletonRegistrar(this)
 {
   QWidget* pDummy = new QWidget();

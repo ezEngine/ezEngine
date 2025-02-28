@@ -54,7 +54,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SkeletonAssetDockWidget");
     pPropertyPanel->setWindowTitle("Skeleton Properties");
     pPropertyPanel->show();
@@ -79,7 +79,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
 
   // Tree View
   {
-    ezQtDocumentPanel* pPanelTree = new ezQtSkeletonPanel(this, static_cast<ezSkeletonAssetDocument*>(pDocument));
+    ezQtDocumentPanel* pPanelTree = new ezQtSkeletonPanel(GetContainerWindow()->GetDockManager(), this, static_cast<ezSkeletonAssetDocument*>(pDocument));
     pPanelTree->show();
 
     m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);

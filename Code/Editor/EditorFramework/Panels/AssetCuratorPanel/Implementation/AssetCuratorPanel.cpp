@@ -63,8 +63,8 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
 
-ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
-  : ezQtApplicationPanel("Panel.AssetCurator")
+ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.AssetCurator")
   , m_SingletonRegistrar(this)
 {
   QWidget* pDummy = new QWidget();

@@ -71,7 +71,7 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
 
     m_pHighlighter = new ASHighlighter(m_pSourceLabel->document());
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("AngelScriptView");
     pCentral->setWindowTitle("Script");
     pCentral->setWidget(m_pSourceLabel);
@@ -83,7 +83,7 @@ ezQtAngelScriptAssetDocumentWindow::ezQtAngelScriptAssetDocumentWindow(ezAngelSc
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AngelScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("Angel Script Properties");
     pPropertyPanel->show();

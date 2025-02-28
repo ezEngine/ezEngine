@@ -30,7 +30,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorPanel : public ezQtApplicationPanel
   EZ_DECLARE_SINGLETON(ezQtAssetCuratorPanel);
 
 public:
-  ezQtAssetCuratorPanel();
+  ezQtAssetCuratorPanel(ads::CDockManager* pDockManager);
   ~ezQtAssetCuratorPanel();
 
 public Q_SLOTS:

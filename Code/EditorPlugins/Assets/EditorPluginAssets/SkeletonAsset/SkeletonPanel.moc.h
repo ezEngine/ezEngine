@@ -13,7 +13,7 @@ class ezQtSkeletonPanel : public ezQtDocumentPanel
   Q_OBJECT
 
 public:
-  ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument);
+  ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSkeletonAssetDocument* pDocument);
   ~ezQtSkeletonPanel();
 
 private:

@@ -88,9 +88,8 @@ void ezQtGameObjectWidget::OnFilterTextChanged(const QString& text)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(
-  QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtGameObjectPanel::ezQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("ezQtGameObjectPanel");

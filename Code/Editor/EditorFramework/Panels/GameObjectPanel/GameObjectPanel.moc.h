@@ -40,7 +40,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectPanel : public ezQtDocumentPanel
   Q_OBJECT
 
 public:
-  ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
+  ezQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
   ~ezQtGameObjectPanel();
 
 

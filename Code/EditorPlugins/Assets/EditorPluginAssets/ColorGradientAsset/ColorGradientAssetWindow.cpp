@@ -51,7 +51,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
     pContainer->layout()->addWidget(m_pGradientEditor);
     pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ezQtDocumentPanel");
     pCentral->setWindowTitle("Gradient");
     pCentral->setWidget(pContainer);
@@ -82,7 +82,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   // property grid, if needed
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
     pPropertyPanel->setWindowTitle("ColorGradient Properties");
     pPropertyPanel->show();

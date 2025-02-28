@@ -46,7 +46,7 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
     m_pView = new ezQtNodeView(this);
     m_pView->SetScene(m_pScene);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ezQtDocumentPanel");
     pCentral->setWindowTitle("Anim Graph");
     pCentral->setWidget(m_pView);
@@ -55,7 +55,7 @@ ezQtAnimationGraphAssetDocumentWindow::ezQtAnimationGraphAssetDocumentWindow(ezD
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AnimationGraphAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();

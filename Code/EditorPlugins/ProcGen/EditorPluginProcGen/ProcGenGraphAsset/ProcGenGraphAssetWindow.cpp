@@ -49,7 +49,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
     m_pView = new ezQtNodeView(this);
     m_pView->SetScene(m_pScene);
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("ProcGenGraphView");
     pCentral->setWindowTitle("Graph");
     pCentral->setWidget(m_pView);
@@ -58,7 +58,7 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();

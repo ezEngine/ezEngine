@@ -54,13 +54,13 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // ezQtDocumentPanel* pMainPropertyPanel = new ezQtDocumentPanel(this);
-  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(this, pDocument);
-  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(this, pDocument);
+  ezQtDocumentPanel* pEffectPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pReactionsPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pSystemsPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pEmitterPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pInitializerPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pBehaviorPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+  ezQtDocumentPanel* pTypePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
 
 
   // 3D View

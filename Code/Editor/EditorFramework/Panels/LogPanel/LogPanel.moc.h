@@ -20,7 +20,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtLogPanel : public ezQtApplicationPanel, public 
   EZ_DECLARE_SINGLETON(ezQtLogPanel);
 
 public:
-  ezQtLogPanel();
+  ezQtLogPanel(ads::CDockManager* pDockManager);
   ~ezQtLogPanel();
 
 protected:

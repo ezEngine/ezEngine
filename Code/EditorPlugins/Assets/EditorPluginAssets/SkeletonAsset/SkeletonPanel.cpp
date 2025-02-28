@@ -7,8 +7,8 @@
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
-ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtSkeletonPanel::ezQtSkeletonPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSkeletonAssetDocument* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   m_pSkeletonDocument = pDocument;
 

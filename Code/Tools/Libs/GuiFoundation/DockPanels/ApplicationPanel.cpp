@@ -14,8 +14,8 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
-ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
-  : ads::CDockWidget(szPanelName, ezQtContainerWindow::GetContainerWindow())
+ezQtApplicationPanel::ezQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName)
+  : ads::CDockWidget(pDockManager, szPanelName, ezQtContainerWindow::GetContainerWindow())
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 

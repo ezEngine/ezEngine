@@ -7,8 +7,8 @@
 
 EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 
-ezQtLogPanel::ezQtLogPanel()
-  : ezQtApplicationPanel("Panel.Log")
+ezQtLogPanel::ezQtLogPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.Log")
   , m_SingletonRegistrar(this)
 {
   QWidget* pDummy = new QWidget();

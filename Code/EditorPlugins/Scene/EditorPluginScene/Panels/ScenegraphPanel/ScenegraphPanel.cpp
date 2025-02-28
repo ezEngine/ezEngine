@@ -26,8 +26,8 @@ namespace
   }
 } // namespace
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSceneDocument* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");
@@ -44,8 +44,8 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
   m_pStack->addWidget(m_pMainGameObjectWidget);
 }
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");

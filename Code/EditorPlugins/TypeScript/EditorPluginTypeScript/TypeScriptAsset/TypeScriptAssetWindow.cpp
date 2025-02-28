@@ -52,7 +52,7 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
 
     m_pHighlighter = new JSHighlighter(m_pSourceLabel->document());
 
-    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pCentral->setObjectName("TypeScriptView");
     pCentral->setWindowTitle("Script");
     pCentral->setWidget(m_pSourceLabel);
@@ -64,7 +64,7 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("TypeScriptAssetDockWidget");
     pPropertyPanel->setWindowTitle("TypeScript Properties");
     pPropertyPanel->show();

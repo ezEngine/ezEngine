@@ -38,7 +38,7 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("BlackboardTemplateAssetDockWidget");
     pPropertyPanel->setWindowTitle("BlackboardTemplate Properties");
     pPropertyPanel->show();
