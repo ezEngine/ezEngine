@@ -46,11 +46,11 @@ ezQtMainWindow::ezQtMainWindow()
   // The dock manager will set ownership to null on add so there is no reason to provide an owner here.
   // Setting one will actually cause memory corruptions on shutdown for unknown reasons.
   ezQtMainWidget* pMainWidget = new ezQtMainWidget();
-  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget();
+  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget(m_DockManager);
   ezQtMemoryWidget* pMemoryWidget = new ezQtMemoryWidget();
   ezQtTimeWidget* pTimeWidget = new ezQtTimeWidget();
   ezQtInputWidget* pInputWidget = new ezQtInputWidget();
-  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget();
+  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget(m_DockManager);
   ezQtSubsystemsWidget* pSubsystemsWidget = new ezQtSubsystemsWidget();
   ezQtFileWidget* pFileWidget = new ezQtFileWidget();
   ezQtPluginsWidget* pPluginsWidget = new ezQtPluginsWidget();

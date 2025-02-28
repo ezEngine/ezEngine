@@ -88,6 +88,7 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::RetainTabSizeWhenCloseButtonHidden |
     ads::CDockManager::DockAreaHideDisabledButtons |
     ads::CDockManager::DockAreaHasUndockButton |
+    // ads::CDockManager::DoubleClickUndocksWidget | // don't want this
     ads::CDockManager::OpaqueSplitterResize;
   ads::CDockManager::setConfigFlags(flags);
 
@@ -403,7 +404,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   m_DocumentWindows.PushBack(pDocWindow);
   ezString displayName = pDocWindow->GetDisplayNameShort();
-  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
+  ads::CDockWidget* dock = new ads::CDockWidget(m_pDockManager, QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
   dock->installEventFilter(pDocWindow);
   dock->setFeature(ads::CDockWidget::CustomCloseHandling, true);
 

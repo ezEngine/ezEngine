@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtLogDockWidget(QWidget* pParent = 0);
+  ezQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   void Log(const ezFormatString& text);
 

@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtCVarsWidget(QWidget* pParent = 0);
+  ezQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtCVarsWidget* s_pWidget;
 

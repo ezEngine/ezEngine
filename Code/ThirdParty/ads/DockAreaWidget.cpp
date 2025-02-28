@@ -34,7 +34,6 @@
 
 #include <QStackedLayout>
 #include <QScrollBar>
-#include <QWheelEvent>
 #include <QStyle>
 #include <QPushButton>
 #include <QDebug>
@@ -183,7 +182,7 @@ public:
 		auto LayoutItem = m_ParentLayout->takeAt(1);
 		if (LayoutItem)
 		{
-      m_ParentLayout->removeWidget(LayoutItem->widget());
+			LayoutItem->widget()->setParent(nullptr);
 		}
 		delete LayoutItem;
 
@@ -269,6 +268,14 @@ struct DockAreaWidgetPrivate
 	 * Private data constructor
 	 */
 	DockAreaWidgetPrivate(CDockAreaWidget* _public);
+
+	/**
+	 * Convenience function to ease components factory access
+	 */
+	QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const
+	{
+        return DockManager->componentsFactory();
+    }
 
 	/**
 	 * Creates the layout for top area with tabs and close button
