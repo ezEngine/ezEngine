@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtFileWidget(QWidget* pParent = 0);
+  ezQtFileWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
   ~ezQtFileWidget();
   static ezQtFileWidget* s_pWidget;
 

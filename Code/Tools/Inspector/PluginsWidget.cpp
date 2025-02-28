@@ -8,8 +8,8 @@
 
 ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
-ezQtPluginsWidget::ezQtPluginsWidget(QWidget* pParent)
-  : ads::CDockWidget("Plugins Widget", pParent)
+ezQtPluginsWidget::ezQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Plugins Widget", pParent)
 {
   s_pWidget = this;
 

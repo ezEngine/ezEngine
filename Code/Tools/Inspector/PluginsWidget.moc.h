@@ -12,7 +12,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtPluginsWidget(QWidget* pParent = 0);
+  ezQtPluginsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtPluginsWidget* s_pWidget;
 

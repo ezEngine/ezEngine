@@ -27,8 +27,8 @@ namespace StatVisWidgetDetail
   };
 }
 
-ezQtStatVisWidget::ezQtStatVisWidget(QWidget* pParent, ezInt32 iWindowNumber)
-  : ads::CDockWidget(QString("StatVisWidget") + QString::number(iWindowNumber), pParent)
+ezQtStatVisWidget::ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, ezInt32 iWindowNumber)
+  : ads::CDockWidget(pDockManager, QString("StatVisWidget") + QString::number(iWindowNumber), pParent)
   , m_ShowWindowAction(pParent)
 {
   m_iWindowNumber = iWindowNumber;

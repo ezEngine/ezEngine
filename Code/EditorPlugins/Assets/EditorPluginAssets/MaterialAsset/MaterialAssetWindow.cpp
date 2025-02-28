@@ -115,7 +115,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(+0.23f, -0.04f, 0.02f));
 
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
     m_pDockManager->setCentralWidget(pContainer);
   }

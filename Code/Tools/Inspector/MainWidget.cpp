@@ -11,8 +11,8 @@
 
 ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
 
-ezQtMainWidget::ezQtMainWidget(QWidget* pParent)
-  : ads::CDockWidget("Main", pParent)
+ezQtMainWidget::ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Main", pParent)
 {
   s_pWidget = this;
 

@@ -7,8 +7,8 @@
 
 ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
 
-ezQtReflectionWidget::ezQtReflectionWidget(QWidget* pParent)
-  : ads::CDockWidget("Reflection Widget", pParent)
+ezQtReflectionWidget::ezQtReflectionWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Reflection Widget", pParent)
 {
   s_pWidget = this;
 

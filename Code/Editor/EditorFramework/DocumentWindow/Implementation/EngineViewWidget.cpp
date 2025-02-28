@@ -691,8 +691,8 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 // ezQtViewWidgetContainer
 ////////////////////////////////////////////////////////////////////////
 
-ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
-  : ads::CDockWidget("3D View", pParent)
+ezQtViewWidgetContainer::ezQtViewWidgetContainer(ads::CDockManager* pDockManager, QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
+  : ads::CDockWidget(pDockManager, "3D View", pParent)
 {
   setObjectName("ezQtViewWidgetContainer");
 

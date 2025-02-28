@@ -169,7 +169,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public ads::CDockWidget
   Q_OBJECT
 
 public:
-  ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
+  ezQtViewWidgetContainer(ads::CDockManager* pDockManager, QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
   ~ezQtViewWidgetContainer();
 
   ezQtEngineViewWidget* GetViewWidget() const { return m_pViewWidget; }

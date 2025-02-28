@@ -50,7 +50,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(2, 0, 0));
     AddViewWidget(m_pViewWidget);
 
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "DecalAssetViewToolBar");
 
     m_pDockManager->setCentralWidget(pContainer);
   }
