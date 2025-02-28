@@ -10,6 +10,7 @@
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QInputDialog>
 #include <QLayout>
