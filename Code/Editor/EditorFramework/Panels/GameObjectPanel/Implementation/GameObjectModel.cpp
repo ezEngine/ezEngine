@@ -125,15 +125,24 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, 
       const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();
       m_pObjectMetaData->EndReadMetaData();
 
+      bool bActive = pObject->GetTypeAccessor().GetValue("Active").ConvertTo<bool>();
+
+      const QPalette palette = QApplication::palette();
+      const QColor qtDefaultColor = palette.color(QPalette::Text);
+
+      ezColor color = qtToEzColor(qtDefaultColor);
+
       if (bPrefab)
       {
-        return ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue));
+        color = ezColorScheme::LightUI(ezColorScheme::Blue);
       }
 
-      if (sName.IsEmpty())
+      if (!bActive)
       {
-        return QVariant();
+        return ezToQtColor(color.GetDarker(1.85f));
       }
+
+      return ezToQtColor(color);
     }
     break;
 
