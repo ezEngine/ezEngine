@@ -23,7 +23,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_MEMBER_PROPERTY("CollisionMesh", m_hCollisionMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
   }
@@ -50,6 +49,7 @@ void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream)
   auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
+  bool m_bIncludeInNavmesh = true; // dummy
   s << m_bIncludeInNavmesh;
   s << m_bPullSurfacesFromGraphicsMesh;
   s << m_hSurface;
@@ -64,6 +64,7 @@ void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& inout_strea
   auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
+  bool m_bIncludeInNavmesh = true; // dummy
   s >> m_bIncludeInNavmesh;
   s >> m_bPullSurfacesFromGraphicsMesh;
   s >> m_hSurface;
@@ -221,7 +222,7 @@ void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<con
 
 void ezJoltStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh || (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && m_bIncludeInNavmesh))
+  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh)
   {
     if (m_hCollisionMesh.IsValid())
     {

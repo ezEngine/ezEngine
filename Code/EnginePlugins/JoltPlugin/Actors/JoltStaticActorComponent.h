@@ -49,7 +49,6 @@ public:
   void SetSurfaceFile(ezStringView sFile);      // [ property ]
   ezStringView GetSurfaceFile() const;          // [ property ]
 
-  bool m_bIncludeInNavmesh = true;              // [ property ]
   bool m_bPullSurfacesFromGraphicsMesh = false; // [ property ]
   ezSurfaceResourceHandle m_hSurface;           // [ property ]
 

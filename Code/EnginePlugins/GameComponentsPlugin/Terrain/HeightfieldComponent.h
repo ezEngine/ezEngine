@@ -95,9 +95,6 @@ public:
   ezVec2U32 GetColMeshTesselation() const { return m_vColMeshTesselation; }          // [ property ]
   void SetColMeshTesselation(ezVec2U32 value);                                       // [ property ]
 
-  void SetIncludeInNavmesh(bool b);                                                  // [ property ]
-  bool GetIncludeInNavmesh() const { return m_bIncludeInNavmesh; }                   // [ property ]
-
 protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;                           // [ msg handler ]
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;                        // [ msg handler ]
@@ -123,7 +120,6 @@ protected:
   ezVec2U32 m_vColMeshTesselation = ezVec2U32(64);
 
   bool m_bGenerateCollision = true;
-  bool m_bIncludeInNavmesh = true;
 
   ezMeshResourceHandle m_hMesh;
 };

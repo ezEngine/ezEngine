@@ -45,7 +45,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 7, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("UseAsOccluder", m_bUseAsOccluder)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -99,6 +98,7 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 4
   s << m_bGenerateCollision;
+  bool m_bIncludeInNavmesh = true; // dummy
   s << m_bIncludeInNavmesh;
 
   // Version 5
@@ -140,6 +140,7 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 4)
   {
     s >> m_bGenerateCollision;
+    bool m_bIncludeInNavmesh = true; // dummy
     s >> m_bIncludeInNavmesh;
   }
 
@@ -337,11 +338,6 @@ void ezGreyBoxComponent::SetGenerateCollision(bool b)
   m_bGenerateCollision = b;
 }
 
-void ezGreyBoxComponent::SetIncludeInNavmesh(bool b)
-{
-  m_bIncludeInNavmesh = b;
-}
-
 void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
   if (!m_bGenerateCollision)
@@ -407,9 +403,6 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
-    return;
-
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
     return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());

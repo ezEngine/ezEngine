@@ -139,12 +139,6 @@ public:
   void SetGenerateCollision(bool b);                                 // [ property ]
   bool GetGenerateCollision() const { return m_bGenerateCollision; } // [ property ]
 
-  /// \brief Whether the mesh should be an obstacle in the navmesh.
-  /// \note This may or may not work, depending on how the navmesh generation works.
-  /// Dynamic navmesh generation at runtime usually uses the physics colliders and thus this flag would have no effect there.
-  void SetIncludeInNavmesh(bool b);                                // [ property ]
-  bool GetIncludeInNavmesh() const { return m_bIncludeInNavmesh; } // [ property ]
-
   /// \brief Sets the ezMaterialResource to use for rendering.
   void SetMaterial(const ezMaterialResourceHandle& hMaterial) { m_hMaterial = hMaterial; }
   ezMaterialResourceHandle GetMaterial() const { return m_hMaterial; }
@@ -174,7 +168,6 @@ protected:
   bool m_bSlopedTop = false;
   bool m_bSlopedBottom = false;
   bool m_bGenerateCollision = true;
-  bool m_bIncludeInNavmesh = true;
   bool m_bUseAsOccluder = true;
 
   void InvalidateMesh();

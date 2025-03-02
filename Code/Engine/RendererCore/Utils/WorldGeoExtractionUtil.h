@@ -31,7 +31,6 @@ public:
   {
     RenderMesh,        ///< The render geometry is desired. Typically for exporting it to file.
     CollisionMesh,     ///< The collision geometry is desired. Typically for exporting it to file.
-    NavMeshGeneration, ///< The geometry that participates in navmesh generation is desired.
   };
 
   /// \brief Extracts the desired geometry from all objects in a world

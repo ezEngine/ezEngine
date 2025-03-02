@@ -87,7 +87,7 @@ void ezJoltShapeConvexHullComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>
 
 void ezJoltShapeConvexHullComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh)
     return;
 
   if (m_hCollisionMesh.IsValid())
