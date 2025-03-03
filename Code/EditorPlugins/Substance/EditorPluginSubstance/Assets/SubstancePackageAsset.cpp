@@ -715,8 +715,7 @@ void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInf
 
 ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezSubstancePackageAssetProperties* pProp = GetProperties();
-  ezStringBuilder sAbsolutePackagePath = pProp->m_sSubstancePackage;
+  ezStringBuilder sAbsolutePackagePath = GetProperties()->m_sSubstancePackage;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePackagePath))
   {
     return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsolutePackagePath));
@@ -761,7 +760,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
 
   ezHybridArray<ezString, 8> pngPaths;
 
-  for (auto& graph : pProp->m_Graphs)
+  for (auto& graph : GetProperties()->m_Graphs)
   {
     if (graph.m_bEnabled == false)
       continue;
