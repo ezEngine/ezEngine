@@ -52,7 +52,7 @@ struct VS_IN
   uint VertexID : SV_VertexID;
 };
 
-#if defined(VERTEX_SHADER)
+#if defined(VERTEX_SHADER) || defined(HULL_SHADER) || defined(DOMAIN_SHADER)
 #  if defined(CAMERA_MODE)
 #    if CAMERA_MODE == CAMERA_MODE_STEREO
 #      if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE

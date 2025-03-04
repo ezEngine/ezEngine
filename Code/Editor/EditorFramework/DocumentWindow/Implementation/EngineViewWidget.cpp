@@ -34,20 +34,11 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
 {
-  m_pRestartButtonLayout = nullptr;
-  m_pRestartButton = nullptr;
+  m_pMainLayout = new QHBoxLayout(this);
+  m_pMainLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pMainLayout);
 
-  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  // setAttribute(Qt::WA_OpaquePaintEvent);
-  setAutoFillBackground(false);
-  setMouseTracking(true);
-  setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
-
-  setAttribute(Qt::WA_PaintOnScreen, true);
-  setAttribute(Qt::WA_NativeWindow, true);
-  setAttribute(Qt::WA_NoSystemBackground);
-
-  installEventFilter(this);
+  RecreateEngineViewport();
 
   m_bUpdatePickingData = false;
   m_bInDragAndDropOperation = false;
@@ -119,7 +110,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
-  cam.m_uiHWND = (ezUInt64)(winId());
+  cam.m_uiHWND = (ezUInt64)(m_pViewportWidget->winId());
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
@@ -628,6 +619,7 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
 
     case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
+      RecreateEngineViewport();
       ShowRestartButton(false);
     }
     break;
@@ -651,20 +643,15 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 {
   ezQtScopedUpdatesDisabled _(this);
 
-  if (m_pRestartButtonLayout == nullptr && bShow == true)
+  if (m_pRestartButton == nullptr && bShow == true)
   {
-    m_pRestartButtonLayout = new QHBoxLayout(this);
-    m_pRestartButtonLayout->setContentsMargins(0, 0, 0, 0);
-
-    setLayout(m_pRestartButtonLayout);
-
     m_pRestartButton = new QPushButton(this);
     m_pRestartButton->setText("Restart Engine View Process");
     m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
     m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezQtEngineViewWidget::SlotRestartEngineProcess);
 
-    m_pRestartButtonLayout->addWidget(m_pRestartButton);
+    m_pMainLayout->addWidget(m_pRestartButton);
   }
 
   if (m_pRestartButton)
@@ -674,6 +661,32 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
     if (bShow)
       m_pRestartButton->update();
   }
+
+  m_pViewportWidget->setVisible(!bShow);
+}
+
+void ezQtEngineViewWidget::RecreateEngineViewport()
+{
+  if (m_pViewportWidget)
+  {
+    m_pViewportWidget->hide();
+    m_pViewportWidget->setParent(nullptr);
+    m_pViewportWidget->deleteLater();
+  }
+
+  m_pViewportWidget = new QWidget(this);
+  m_pMainLayout->addWidget(m_pViewportWidget);
+  m_pViewportWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  // setAttribute(Qt::WA_OpaquePaintEvent);
+  m_pViewportWidget->setAutoFillBackground(false);
+  m_pViewportWidget->setMouseTracking(true);
+  m_pViewportWidget->setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
+
+  m_pViewportWidget->setAttribute(Qt::WA_PaintOnScreen, true);
+  m_pViewportWidget->setAttribute(Qt::WA_NativeWindow, true);
+  m_pViewportWidget->setAttribute(Qt::WA_NoSystemBackground);
+
+  m_pViewportWidget->installEventFilter(this);
 }
 
 

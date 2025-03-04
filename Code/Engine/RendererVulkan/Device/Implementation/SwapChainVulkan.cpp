@@ -359,7 +359,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   swapChainCreateInfo.oldSwapchain = m_vulkanSwapChain;
   DestroySwapChainInternal(m_pVulkanDevice);
 
-  m_vulkanSwapChain = m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(swapChainCreateInfo);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(&swapChainCreateInfo, nullptr, &m_vulkanSwapChain));
 
   if (!m_vulkanSwapChain)
   {

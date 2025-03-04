@@ -129,6 +129,7 @@ protected:
 protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
+  void RecreateEngineViewport();
   virtual void OnOpenContextMenu(QPoint globalPos) {}
   virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
 
@@ -140,7 +141,7 @@ protected:
   bool m_bPickTransparent = true;
   bool m_bInDragAndDropOperation;
   ezUInt32 m_uiViewID;
-  ezQtEngineDocumentWindow* m_pDocumentWindow;
+  ezQtEngineDocumentWindow* m_pDocumentWindow = nullptr;
 
   static ezUInt32 s_uiNextViewID;
 
@@ -155,8 +156,9 @@ protected:
   ezVec3 m_vCameraUp;
   ezTime m_LastCameraUpdate;
 
-  QHBoxLayout* m_pRestartButtonLayout;
-  QPushButton* m_pRestartButton;
+  QHBoxLayout* m_pMainLayout = nullptr;
+  QPushButton* m_pRestartButton = nullptr;
+  QWidget* m_pViewportWidget = nullptr;
 
   mutable ezObjectPickingResult m_LastPickingResult;
 
