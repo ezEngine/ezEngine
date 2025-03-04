@@ -89,7 +89,7 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   if (m_bRenderDynamicObjects)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
-  }  
+  }
 
   // Transparent
   if (m_bRenderTransparentObjects)

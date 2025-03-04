@@ -36,7 +36,7 @@ EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::operator++()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd)  
+EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd)
 {
   m_pCurrent = pStart;
   m_pEnd = pEnd;
