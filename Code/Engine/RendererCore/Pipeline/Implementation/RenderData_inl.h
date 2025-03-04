@@ -67,6 +67,7 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
 
   if (pOwner != nullptr)
   {
+    pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::Dynamic, pOwner->IsDynamic());
     pRenderData->m_hOwner = pOwner->GetHandle();
   }
 

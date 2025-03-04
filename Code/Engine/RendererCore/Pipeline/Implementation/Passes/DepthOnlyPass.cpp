@@ -11,11 +11,13 @@
 #include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 2, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 3, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    EZ_MEMBER_PROPERTY("RenderStaticObjects", m_bRenderStaticObjects),
+    EZ_MEMBER_PROPERTY("RenderDynamicObjects", m_bRenderDynamicObjects),
     EZ_MEMBER_PROPERTY("RenderTransparentObjects", m_bRenderTransparentObjects),
   }
   EZ_END_PROPERTIES;
@@ -69,10 +71,27 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
 
-  // Render
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+  // Opaque
+  if (m_bRenderStaticObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+  }
+  if (m_bRenderDynamicObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+  }
 
+  // Masked
+  if (m_bRenderStaticObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+  }
+  if (m_bRenderDynamicObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
+  }  
+
+  // Transparent
   if (m_bRenderTransparentObjects)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
@@ -82,6 +101,8 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
 ezResult ezDepthOnlyPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_bRenderStaticObjects;
+  inout_stream << m_bRenderDynamicObjects;
   inout_stream << m_bRenderTransparentObjects;
   return EZ_SUCCESS;
 }
@@ -90,10 +111,18 @@ ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_bRenderStaticObjects;
+    inout_stream >> m_bRenderDynamicObjects;
+  }
+
   if (uiVersion >= 2)
   {
     inout_stream >> m_bRenderTransparentObjects;
   }
+
   return EZ_SUCCESS;
 }
 

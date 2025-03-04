@@ -30,8 +30,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezRenderData::Category s_LitOpaqueWithoutSelection = ezRenderData::RegisterDerivedCategory("LitOpaqueWithoutSelection", ezDefaultRenderDataCategories::LitOpaque);
-static ezRenderData::Category s_LitMaskedWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedWithoutSelection", ezDefaultRenderDataCategories::LitMasked);
+static ezRenderData::Category s_LitOpaqueWithoutSelection = ezRenderData::RegisterDerivedCategory("LitOpaqueWithoutSelection", ezDefaultRenderDataCategories::LitOpaqueStatic);
+static ezRenderData::Category s_LitMaskedWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedWithoutSelection", ezDefaultRenderDataCategories::LitMaskedStatic);
+static ezRenderData::Category s_LitMaskedDynamicWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedDynamicWithoutSelection", ezDefaultRenderDataCategories::LitMaskedDynamic);
+
 static ezRenderData::Category s_LitTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("LitTransparentWithoutSelection", ezDefaultRenderDataCategories::LitTransparent);
 static ezRenderData::Category s_SimpleTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("SimpleTransparentWithoutSelection", ezDefaultRenderDataCategories::SimpleTransparent);
 
@@ -421,8 +423,11 @@ void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extrac
     }
   };
 
-  Filter(ezDefaultRenderDataCategories::LitOpaque, s_LitOpaqueWithoutSelection);
-  Filter(ezDefaultRenderDataCategories::LitMasked, s_LitMaskedWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitOpaqueStatic, s_LitOpaqueWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitOpaqueDynamic, s_LitOpaqueWithoutSelection);
+
+  Filter(ezDefaultRenderDataCategories::LitMaskedStatic, s_LitMaskedWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitMaskedDynamic, s_LitOpaqueWithoutSelection);
 
   if (m_bPickTransparent)
   {

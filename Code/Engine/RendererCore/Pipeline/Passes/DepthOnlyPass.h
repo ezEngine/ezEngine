@@ -20,5 +20,7 @@ public:
 protected:
   ezRenderPipelineNodePassThroughPin m_PinDepthStencil;
 
+  bool m_bRenderStaticObjects = true;
+  bool m_bRenderDynamicObjects = true;
   bool m_bRenderTransparentObjects = false;
 };

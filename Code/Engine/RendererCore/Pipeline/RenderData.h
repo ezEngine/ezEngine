@@ -32,7 +32,9 @@ public:
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category RegisterDerivedCategory(const char* szCategoryName, Category baseCategory);
+  static Category RegisterRedirectedCategory(const char* szCategoryName, Category staticCategory, Category dynamicCategory);
   static Category FindCategory(ezTempHashedString sCategoryName);
+  static Category ResolveCategory(Category category, bool bDynamic);
 
   static ezHashedString GetCategoryName(Category category);
   static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
@@ -49,12 +51,31 @@ public:
     };
   };
 
+  struct Flags
+  {
+    using StorageType = ezUInt32;
+
+    enum Enum
+    {
+      Dynamic = EZ_BIT(0),
+
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType Dynamic : 1;
+    };
+  };
+
   /// \brief Returns the final sorting for this render data with the given category and camera.
   ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
 
   /// \brief Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
   /// An implementation can assume that the other render data is of the same type as this render data.
   virtual bool CanBatch(const ezRenderData& other) const { return false; }
+
+  ezBitflags<Flags> m_Flags;
 
   ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
   ezBoundingBoxSphere m_GlobalBounds;
@@ -80,6 +101,8 @@ private:
   struct CategoryData
   {
     Category m_baseCategory;
+    Category m_staticCategory;
+    Category m_dynamicCategory;
 
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
@@ -105,7 +128,11 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category ReflectionProbe;
   static ezRenderData::Category Sky;
   static ezRenderData::Category LitOpaque;
+  static ezRenderData::Category LitOpaqueStatic;
+  static ezRenderData::Category LitOpaqueDynamic;
   static ezRenderData::Category LitMasked;
+  static ezRenderData::Category LitMaskedStatic;
+  static ezRenderData::Category LitMaskedDynamic;
   static ezRenderData::Category LitTransparent;
   static ezRenderData::Category LitForeground;
   static ezRenderData::Category LitScreenFX;
@@ -136,7 +163,7 @@ private:
   struct Data
   {
     const ezRenderData* m_pRenderData = nullptr;
-    ezUInt16 m_uiCategory = 0;
+    ezRenderData::Category m_Category;
   };
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;

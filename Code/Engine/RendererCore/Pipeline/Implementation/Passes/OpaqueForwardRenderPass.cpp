@@ -101,8 +101,10 @@ void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& 
 
 void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
 {
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
 }
 
 
