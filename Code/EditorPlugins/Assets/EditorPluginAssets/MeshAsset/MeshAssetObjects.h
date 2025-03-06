@@ -55,9 +55,9 @@ public:
   bool m_bCap2 = true;
 
   ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
-  bool m_bFlipForwardDir = true;
+  bool m_bFlipForwardDir = false;
 
   ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 

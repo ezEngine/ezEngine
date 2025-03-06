@@ -62,9 +62,9 @@ public:
   ezString m_sConvexMeshSurface;
 
   ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
-  bool m_bFlipForwardDir = true;
+  bool m_bFlipForwardDir = false;
   bool m_bIsConvexMesh = false;
   ezEnum<ezJoltConvexCollisionMeshType> m_ConvexMeshType;
   ezUInt16 m_uiMaxConvexPieces = 2;

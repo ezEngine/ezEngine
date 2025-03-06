@@ -63,9 +63,9 @@ ezBasisAxis::Enum ezMeshImportTransform::GetRightDir(ezMeshImportTransform::Enum
   switch (transform)
   {
     case ezMeshImportTransform::Blender_YUp:
-      return ezBasisAxis::PositiveX;
+      return ezBasisAxis::NegativeX;
     case ezMeshImportTransform::Blender_ZUp:
-      return ezBasisAxis::PositiveX;
+      return ezBasisAxis::NegativeX;
     case ezMeshImportTransform::Custom:
       return dir;
 
@@ -97,9 +97,9 @@ bool ezMeshImportTransform::GetFlipForward(ezMeshImportTransform::Enum transform
   switch (transform)
   {
     case ezMeshImportTransform::Blender_YUp:
-      return true;
+      return false;
     case ezMeshImportTransform::Blender_ZUp:
-      return true;
+      return false;
     case ezMeshImportTransform::Custom:
       return bFlip;
 

@@ -114,9 +114,9 @@ public:
   float m_fMaxImpulse = 100.0f;
 
   ezEnum<ezMeshImportTransform> m_ImportTransform;
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
-  bool m_bFlipForwardDir = true;
+  bool m_bFlipForwardDir = false;
   ezEnum<ezBasisAxis> m_BoneDirection;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
