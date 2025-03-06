@@ -27,6 +27,7 @@ public:
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
+  ezUInt8 m_uiMaxAssetProcessors = 8;
   bool m_bHighlightUntranslatedUI = false;
   bool m_bAssetBrowserShowItemsInSubFolders = true;
 
