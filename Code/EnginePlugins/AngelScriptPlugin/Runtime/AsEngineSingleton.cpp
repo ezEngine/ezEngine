@@ -165,22 +165,22 @@ void ezAngelScriptEngineSingleton::RegisterStandardTypes()
 
   // TODO AngelScript: ezResult ?
 
-  RegisterPodValueType<ezVec2>();
-  RegisterPodValueType<ezVec3>();
-  RegisterPodValueType<ezVec4>();
-  RegisterPodValueType<ezAngle>();
-  RegisterPodValueType<ezQuat>();
-  RegisterPodValueType<ezMat3>();
-  RegisterPodValueType<ezMat4>();
-  RegisterPodValueType<ezTransform>();
-  RegisterPodValueType<ezTime>();
-  RegisterPodValueType<ezColor>();
-  RegisterPodValueType<ezColorGammaUB>();
-  RegisterPodValueType<ezStringView>();
-  RegisterPodValueType<ezGameObjectHandle>();
-  RegisterPodValueType<ezComponentHandle>();
-  RegisterPodValueType<ezTempHashedString>();
-  RegisterPodValueType<ezHashedString>();
+  RegisterPodValueType<ezVec2>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezVec3>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezVec4>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezAngle>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezQuat>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezMat3>(asOBJ_APP_CLASS_ALLFLOATS);
+  RegisterPodValueType<ezMat4>(asOBJ_APP_CLASS_ALLFLOATS);
+  RegisterPodValueType<ezTransform>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezTime>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_ALIGN8);
+  RegisterPodValueType<ezColor>(asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezColorGammaUB>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezStringView>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezGameObjectHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezComponentHandle>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezTempHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
+  RegisterPodValueType<ezHashedString>(asOBJ_APP_CLASS_ALLINTS | asOBJ_APP_CLASS_MORE_CONSTRUCTORS);
 
   RegisterNonPodValueType<ezString>();
   RegisterNonPodValueType<ezStringBuilder>();

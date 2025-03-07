@@ -28,6 +28,7 @@ jobs:
       targetType: inline
       script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Ubuntu-22.04"
 - job: Job_1
+  timeoutInMinutes: 120
   displayName: Linux-x64
   pool:
     name: Default
@@ -51,15 +52,33 @@ jobs:
             git clean -dfx
             Copy-Item -Path $pathA -Destination $pathB
         }
+  
   - task: Bash@3
     displayName: Apt-Get
     inputs:
       targetType: inline
-      script: |
+      script: | 
         sudo apt-get update
-        sudo apt-get install -y cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential libomp-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev xvfb lightdm libtinfo5 vulkan-tools
+        sudo apt-get install -y systemd-coredump cmake uuid-dev gcc-12 g++-12 libx11-dev build-essential libomp-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev xvfb lightdm libtinfo5 vulkan-tools
         # sudo add-apt-repository ppa:kisak/kisak-mesa -y 
         # sudo apt-get install -y mesa-vulkan-drivers libgl1-mesa-dev
+  
+  - task: Bash@3
+    displayName: Configure Dumps
+    inputs:
+      targetType: inline
+      script: |
+        ulimit -c unlimited
+        sudo systemctl stop apport.service
+        sudo systemctl disable apport.service
+        cat /proc/sys/kernel/core_pattern
+        sudo sysctl -w kernel.core_pattern="$(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/core_%e.%p_%t.dmp"
+        cat /proc/sys/kernel/core_pattern
+        coredumpctl list
+        rm $(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/core_*
+        rm $(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64/*.dmp
+        echo --End--
+  
   - task: Bash@3
     displayName: Info
     inputs:
@@ -70,10 +89,12 @@ jobs:
         git config --list
 
         dpkg --list | grep compiler
+  
   - task: CMake@1
     displayName: CMake
     inputs:
       cmakeArgs: -DCMAKE_BUILD_TYPE=Dev -DCMAKE_CXX_COMPILER=g++-12 -DCMAKE_C_COMPILER=gcc-12 -DEZ_QT_DIR=/opt/qt/6.4.3/gcc_64 -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -G "Unix Makefiles" ../
+  
   - task: Bash@3
     displayName: Make
     inputs:
@@ -89,7 +110,9 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
+      script: |
+        ulimit -c unlimited
+        ./Output/Bin/LinuxMakeGccDev64/FoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/FoundationTest
   - task: Bash@3
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
@@ -103,24 +126,48 @@ jobs:
         sleep 1
         exec lightdm-session &
         sleep 2
+        ulimit -c unlimited
         ./Output/Bin/LinuxMakeGccDev64/CoreTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/CoreTest
   - task: Bash@3
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: ./Output/Bin/LinuxMakeGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
+      script: |
+        ulimit -c unlimited
+        ./Output/Bin/LinuxMakeGccDev64/ToolsFoundationTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/ToolsFoundationTest
   - task: Bash@3
     displayName: RendererTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
       script: |
+        ulimit -c unlimited
         export DISPLAY=:1
         export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
         vulkaninfo --summary
         ./Output/Bin/LinuxMakeGccDev64/RendererTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/RendererTest
+#  - task: Bash@3
+#    displayName: GameEngineTest
+#    timeoutInMinutes: 60
+#    condition: eq(variables['task.MSBuild.status'], 'success')
+#    inputs:
+#      targetType: inline
+#      script: |
+#        ulimit -c unlimited
+#        export DISPLAY=:1
+#        export VK_ICD_FILENAMES=/usr/local/share/vulkan/icd.d/lvp_icd.x86_64.json
+#        vulkaninfo --summary
+#        ./Output/Bin/LinuxMakeGccDev64/GameEngineTest -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)/GameEngineTest
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Bin'
+    condition: failed()
+    inputs:
+      PathtoPublish: $(System.DefaultWorkingDirectory)/Output/Bin/LinuxMakeGccDev64
+      ArtifactName: Bin
 ...

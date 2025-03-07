@@ -72,6 +72,37 @@ private:
   ezPreprocessor m_Processor;
 };
 
+void ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(const ezDynamicArray<ezStringView>& lines, ezInt32& ref_iLine, ezStringView& ref_sSection)
+{
+  if (ref_iLine - 1 < (ezInt32)lines.GetCount())
+  {
+    --ref_iLine;
+
+    int iStepsBack = 0;
+
+    while (ref_iLine >= 0)
+    {
+      if (lines[ref_iLine].StartsWith("//#ln"))
+      {
+        ezStringView line = lines[ref_iLine];
+        line.TrimWordStart("//#ln ");
+
+        const char* szParsePos;
+        ezConversionUtils::StringToInt(line, ref_iLine, &szParsePos).AssertSuccess();
+
+        line.SetStartPosition(szParsePos + 1);
+        line.Trim("\"");
+
+        ref_sSection = line;
+        ref_iLine += iStepsBack - 1;
+        break;
+      }
+
+      --ref_iLine;
+      ++iStepsBack;
+    }
+  }
+}
 void ezAngelScriptEngineSingleton::CompilerMessageCallback(const asSMessageInfo* msg)
 {
   ezDynamicArray<ezStringView> lines;
@@ -80,34 +111,7 @@ void ezAngelScriptEngineSingleton::CompilerMessageCallback(const asSMessageInfo*
   ezInt32 iLine = msg->row;
   ezStringView sSection = msg->section;
 
-  if (iLine - 1 < (ezInt32)lines.GetCount())
-  {
-    --iLine;
-
-    int iStepsBack = 0;
-
-    while (iLine >= 0)
-    {
-      if (lines[iLine].StartsWith("//#ln"))
-      {
-        ezStringView line = lines[iLine];
-        line.TrimWordStart("//#ln ");
-
-        const char* szParsePos;
-        ezConversionUtils::StringToInt(line, iLine, &szParsePos).AssertSuccess();
-
-        line.SetStartPosition(szParsePos + 1);
-        line.Trim("\"");
-
-        sSection = line;
-        iLine += iStepsBack - 1;
-        break;
-      }
-
-      --iLine;
-      ++iStepsBack;
-    }
-  }
+  FindCorrectSectionAndLine(lines, iLine, sSection);
 
   switch (msg->type)
   {
@@ -180,7 +184,7 @@ external shared class ezAngelScriptClass;
   return pModule;
 }
 
-asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
+ezResult ezAngelScriptEngineSingleton::PreprocessCode(ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
 {
   ezAsPreprocessor asPP;
   asPP.m_sRefFilePath = sRefFilePath;
@@ -191,8 +195,21 @@ asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModul
   if (asPP.Process(fullCode).Failed())
   {
     ezLog::Error("Failed to pre-process AngelScript");
-    return nullptr;
+    return EZ_FAILURE;
   }
+
+  if (out_pProcessedCode)
+  {
+    *out_pProcessedCode = fullCode;
+  }
+  return EZ_SUCCESS;
+}
+
+asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModuleName, ezStringView sMainClass, ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies)
+{
+  ezStringBuilder fullCode;
+  if (PreprocessCode(sRefFilePath, sCode, &fullCode, out_pDependencies).Failed())
+    return nullptr;
 
   if (out_pProcessedCode)
   {

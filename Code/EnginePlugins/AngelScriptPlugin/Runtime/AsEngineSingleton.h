@@ -23,6 +23,10 @@ class EZ_ANGELSCRIPTPLUGIN_DLL ezAngelScriptEngineSingleton
   EZ_DECLARE_SINGLETON(ezAngelScriptEngineSingleton);
 
 public:
+  static ezResult PreprocessCode(ezStringView sRefFilePath, ezStringView sCode, ezStringBuilder* out_pProcessedCode, ezSet<ezString>* out_pDependencies);
+  static void FindCorrectSectionAndLine(const ezDynamicArray<ezStringView>& lines, ezInt32& ref_iLine, ezStringView& ref_sSection);
+
+public:
   ezAngelScriptEngineSingleton();
   ~ezAngelScriptEngineSingleton();
 
@@ -37,6 +41,7 @@ public:
 private:
   void AddForbiddenType(const char* szTypeName);
   bool IsTypeForbidden(const asITypeInfo* pType) const;
+
   void CompilerMessageCallback(const asSMessageInfo* msg);
   void ExceptionCallback(asIScriptContext* pContext);
 
@@ -78,10 +83,10 @@ private:
 
 
   template <typename T>
-  void RegisterPodValueType()
+  void RegisterPodValueType(asUINT additonalFlags = 0)
   {
     const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-    int typeId = m_pEngine->RegisterObjectType(pRtti->GetTypeName().GetStartPointer(), sizeof(T), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<T>());
+    int typeId = m_pEngine->RegisterObjectType(pRtti->GetTypeName().GetStartPointer(), sizeof(T), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<T>() | additonalFlags);
     AS_CHECK(typeId);
 
     m_pEngine->GetTypeInfoById(typeId)->SetUserData((void*)pRtti, ezAsUserData::RttiPtr);

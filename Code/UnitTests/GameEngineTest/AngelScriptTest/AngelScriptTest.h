@@ -11,6 +11,13 @@ public:
 
   void SubTestBasicsSetup();
   ezTestAppRun SubTestBasisExec(const char* szSubTestName);
+  /// \brief Creates a module out of the given code and calls the function `void ExecuteTests()` in it.
+  void RunTestScript(ezStringView sScriptPath);
+  void TestScriptExceptionCallback(asIScriptContext* pContext);
+
+private:
+  ezStringBuilder m_sCode;
+  ezDynamicArray<ezStringView> m_Lines;
 };
 
 class ezGameEngineTestAngelScript : public ezGameEngineTest
@@ -24,9 +31,9 @@ public:
   enum SubTests
   {
     Types,
+    Strings,
     EntryPoints,
     World,
-    Strings,
     Messaging,
     GameObject,
     Physics,

@@ -3,18 +3,12 @@
 #include <RendererFoundation/Utils/RingBufferTracker.h>
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 
-#include <vulkan/vulkan.hpp>
 
 class ezGALDeviceVulkan;
 
-struct ezStagingBufferVulkan
-{
-  vk::Buffer m_buffer;
-  vk::DeviceSize m_uiOffset = 0;
-  ezVulkanAllocation m_alloc;
-  ezByteArrayPtr m_Data;
-};
+
 
 /// \brief Allocates temporary staging buffers from a large pool. Allocations will automatically be freed at the end of the frame.
 /// New (larger) pools will be created if the existing ones run out of space. Pools will be deleted after a certain time of no usage.

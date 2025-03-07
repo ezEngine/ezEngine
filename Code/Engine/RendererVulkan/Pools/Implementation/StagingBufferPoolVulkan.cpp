@@ -33,10 +33,14 @@ void ezStagingBufferPoolVulkan::AfterBeginFrame()
 {
   ezUInt64 m_uiTotalAllocatedSize = 0;
   const ezUInt64 uiSafeFrame = m_pDevice->GetSafeFrame();
-  for (StagingBufferPool* pPool : m_Pools)
+  if (uiSafeFrame >= 1)
   {
-    m_uiTotalAllocatedSize += pPool->m_Tracker.GetUsedMemory();
-    pPool->Free(uiSafeFrame);
+    for (StagingBufferPool* pPool : m_Pools)
+    {
+      m_uiTotalAllocatedSize += pPool->m_Tracker.GetUsedMemory();
+      // The -1 is necessary because we use some staging buffers for two frames, see comments in ezGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform.
+      pPool->Free(uiSafeFrame - 1);
+    }
   }
   m_uiHighWatermark = ezMath::Max<ezUInt64>(m_uiTotalAllocatedSize, m_uiHighWatermark);
 

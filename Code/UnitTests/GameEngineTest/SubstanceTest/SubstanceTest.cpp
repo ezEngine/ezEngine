@@ -22,6 +22,7 @@ ezGameEngineTestApplication* ezGameEngineTestSubstance::CreateApplication()
 // static
 bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   static std::optional<bool> s_Cache;
   if (s_Cache.has_value())
   {
@@ -48,6 +49,9 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 
   s_Cache = false;
   return false;
+#else
+  return false;
+#endif
 }
 
 void ezGameEngineTestSubstance::SetupSubTests()

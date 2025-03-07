@@ -239,3 +239,57 @@ void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::B
     m_pPipelineBarrier->AddBufferBarrierInternal(gpuBuffer, uiOffset, uiSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
   }
 }
+
+void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVulkan> buffers, ezArrayPtr<ezPendingTextureCopyVulkan> textures)
+{
+  if (buffers.IsEmpty() && textures.IsEmpty())
+    return;
+
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
+  {
+    vk::ImageSubresourceRange range;
+    range.aspectMask = layers.aspectMask;
+    range.baseMipLevel = layers.mipLevel;
+    range.levelCount = 1;
+    range.baseArrayLayer = layers.baseArrayLayer;
+    range.layerCount = layers.layerCount;
+    return range;
+  };
+
+  EZ_LOCK(m_Lock);
+  EnsureCommandBufferExists();
+  // First: Add barriers for all buffers and textures and flush:
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_pPipelineBarrier->AddBufferBarrierInternal(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_SrcBuffer.m_uiOffset, bufferCopy.m_Region.size, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    m_pPipelineBarrier->AccessBuffer(bufferCopy.m_pDstBuffer, bufferCopy.m_Region.dstOffset, bufferCopy.m_Region.size, bufferCopy.m_pDstBuffer->GetUsedByPipelineStage(), bufferCopy.m_pDstBuffer->GetAccessMask(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_pPipelineBarrier->EnsureImageLayout(textureCopy.m_pDstTexture, getRange(textureCopy.m_Region.imageSubresource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+
+    m_pPipelineBarrier->AddBufferBarrierInternal(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_SrcBuffer.m_uiOffset, textureCopy.m_uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+  }
+  m_pPipelineBarrier->Flush();
+
+  // Next: Execute the actual copies
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_currentCommandBuffer.copyBuffer(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_pDstBuffer->GetVkBuffer(), 1, &bufferCopy.m_Region);
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_currentCommandBuffer.copyBufferToImage(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_pDstTexture->GetImage(), textureCopy.m_pDstTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &textureCopy.m_Region);
+  }
+
+  // Finally: Add barriers to revert resources to their default state
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_pPipelineBarrier->AccessBuffer(bufferCopy.m_pDstBuffer, bufferCopy.m_Region.dstOffset, bufferCopy.m_Region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, bufferCopy.m_pDstBuffer->GetUsedByPipelineStage(), bufferCopy.m_pDstBuffer->GetAccessMask());
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_pPipelineBarrier->EnsureImageLayout(textureCopy.m_pDstTexture, getRange(textureCopy.m_Region.imageSubresource), textureCopy.m_pDstTexture->GetPreferredLayout(), textureCopy.m_pDstTexture->GetUsedByPipelineStage(), textureCopy.m_pDstTexture->GetAccessMask());
+  }
+}

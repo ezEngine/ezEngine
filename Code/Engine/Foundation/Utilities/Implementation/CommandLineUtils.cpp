@@ -205,7 +205,7 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
 const ezString ezCommandLineUtils::GetAbsolutePathOption(ezStringView sOption, ezUInt32 uiArgument /*= 0*/, ezStringView sDefault /*= {} */, bool bCaseSensitive /*= false*/) const
 {
   ezStringView sPath = GetStringOption(sOption, uiArgument, sDefault, bCaseSensitive);
-
+  sPath.Trim("\"");
   if (sPath.IsEmpty())
     return sPath;
 

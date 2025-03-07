@@ -79,7 +79,14 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     }
   }
 
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   sBinPath.AppendPath("ezEditorProcessor.exe");
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  sBinPath.AppendPath("ezEditorProcessor");
+#else
+#error "Not implemented!"
+#endif
   sBinPath.MakeCleanPath();
 
   ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
@@ -169,7 +176,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 }
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
 EZ_CREATE_SIMPLE_TEST(00_Init, 00_TransformBase) // prefix with 00_ to ensure base data is transformed first

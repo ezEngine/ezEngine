@@ -220,7 +220,7 @@ bool ezStringView::StartsWith(ezStringView) const
 bool ezStringView::StartsWith_NoCase(ezStringView) const
 bool ezStringView::TrimWordEnd(ezStringView sWord)
 bool ezStringView::TrimWordStart(ezStringView sWord)
-bool ezStringView::opEquals(ezStringView) const
+bool ezStringView::opEquals(const ezStringView&in)
 bool ezTempHashedString::IsEmpty() const
 bool ezTempHashedString::opEquals(ezTempHashedString) const
 bool ezTime::IsNegative() const
@@ -1903,7 +1903,7 @@ int ezStringView::Compare(ezStringView) const
 int ezStringView::CompareN(ezStringView, uint) const
 int ezStringView::CompareN_NoCase(ezStringView, uint) const
 int ezStringView::Compare_NoCase(ezStringView) const
-int ezStringView::opCmp(ezStringView) const
+int ezStringView::opCmp(const ezStringView&in) const
 int ezTime::opCmp(const ezTime&in) const
 int ezVec2::opCmp(const ezVec2&in) const
 int ezVec3::opCmp(const ezVec3&in) const

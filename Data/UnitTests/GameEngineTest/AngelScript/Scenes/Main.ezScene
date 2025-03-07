@@ -11,19 +11,17 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16348106921313263414,10902979114354214783}}
-		u4 %Hash{7064737831024705806}
+		u4 %Hash{9892315360397226323}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 00dd1d08-946c-4940-96c9-fc453db842da }"}
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 2fc19d7c-eeb3-4184-8791-0ed4b1a15448 }"}
 			s{"{ 6d39194a-0a45-4973-8c3f-5f187891b330 }"}
 			s{"{ 9b078c4a-087f-450f-8dc7-0a12a6a7a019 }"}
 			s{"{ b41af583-d953-41c2-bf44-a0873c96bd24 }"}
 			s{"{ c0df70c0-ff9d-4c1f-bfb2-bbc1fed666e2 }"}
-			s{"{ ce839236-2f91-44a2-bf82-60129daf3584 }"}
 			s{"{ efa90343-4e03-4579-ac16-1dd0788f5dd1 }"}
 		}
 		VarArray %References
@@ -145,36 +143,6 @@ o
 		}
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ c0df70c0-ff9d-4c1f-bfb2-bbc1fed666e2 }"}
-		Time %UpdateInterval{d{0}}
-	}
-}
-o
-{
-	Uuid %id{u4{6867500627223685816,4660408115394880974}}
-	s %t{"ezScriptComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %ScriptClass{"{ 2fc19d7c-eeb3-4184-8791-0ed4b1a15448 }"}
-		Time %UpdateInterval{d{0}}
-	}
-}
-o
-{
-	Uuid %id{u4{11315859554951038611,4676850063761793489}}
-	s %t{"ezScriptComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %ScriptClass{"{ ce839236-2f91-44a2-bf82-60129daf3584 }"}
 		Time %UpdateInterval{d{0}}
 	}
 }
@@ -375,32 +343,6 @@ o
 }
 o
 {
-	Uuid %id{u4{321973739873444226,5299930484653034442}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{11315859554951038611,4676850063761793489}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Strings Test"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{1475888773517486525,5318858428117218314}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -467,32 +409,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6175004320731027101,5419953367047868729}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{6867500627223685816,4660408115394880974}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Types Test"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{7222699179037282223,5427582751070991553}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -533,8 +449,6 @@ o
 		{
 			Uuid{u4{14287622112145102474,5203617921101824706}}
 			Uuid{u4{88687478452351372,5146581535595005329}}
-			Uuid{u4{6175004320731027101,5419953367047868729}}
-			Uuid{u4{321973739873444226,5299930484653034442}}
 			Uuid{u4{1475888773517486525,5318858428117218314}}
 			Uuid{u4{7222699179037282223,5427582751070991553}}
 			Uuid{u4{13007559868041846958,5672418089521580604}}

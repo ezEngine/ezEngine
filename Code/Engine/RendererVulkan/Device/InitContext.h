@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 
 class ezGALDeviceVulkan;
 class ezPipelineBarrierVulkan;
@@ -52,6 +53,11 @@ public:
   /// \param uiOffset Offset in the buffer.
   /// \param uiSize The size of the data to be copied from stagingBuffer to gpuBuffer.
   void UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiOffset, ezUInt32 uiSize);
+
+  /// \brief Executes work generates by ezGALDeviceVulkan::UpdateBufferForNextFramePlatform and UpdateTextureForNextFramePlatform
+  /// \param buffers The pending buffer copies.
+  /// \param textures The pending texture copies.
+  void ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVulkan> buffers, ezArrayPtr<ezPendingTextureCopyVulkan> textures);
 
 private:
   void EnsureCommandBufferExists();

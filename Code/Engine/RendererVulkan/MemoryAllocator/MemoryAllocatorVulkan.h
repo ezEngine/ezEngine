@@ -2,8 +2,7 @@
 
 #include <Foundation/Types/Bitflags.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-
-#include <vulkan/vulkan.hpp>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 
 /// \brief Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateFlags
@@ -86,9 +85,6 @@ struct ezVulkanAllocationInfo
   void* m_pUserData;
   const char* m_pName;
 };
-
-
-VK_DEFINE_HANDLE(ezVulkanAllocation)
 
 /// \brief Thin abstraction layer over VulkanMemoryAllocator to allow for abstraction and prevent pulling in its massive header into other files.
 /// Functions are a subset of VMA's. To be extended once a use-case comes up.

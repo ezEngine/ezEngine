@@ -796,8 +796,8 @@ class ezStringView
   void ChopAwayFirstCharacterAscii();
   bool TrimWordStart(ezStringView sWord);
   bool TrimWordEnd(ezStringView sWord);
-  bool opEquals(ezStringView) const;
-  int opCmp(ezStringView) const;
+  bool opEquals(const ezStringView&in);
+  int opCmp(const ezStringView&in) const;
   void opAssign(const ezString&in);
   void opAssign(const ezHashedString&in);
   void opAssign(const ezStringBuilder&in);
@@ -900,7 +900,9 @@ class ezStringBuilder
 {
   ezStringBuilder();
   ezStringBuilder(const ezStringView s1);
-  ezStringBuilder(const ezStringView s1, const ezStringView s2, const ezStringView s3 = "", const ezStringView s4 = "");
+  ezStringBuilder(const ezStringView&in, const ezStringView&in);
+  ezStringBuilder(const ezStringView&in, const ezStringView&in, const ezStringView&in);
+  ezStringBuilder(const ezStringView&in, const ezStringView&in, const ezStringView&in, const ezStringView&in);
 
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;

@@ -2,13 +2,14 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ANGELSCRIPT_SUPPORT
 
-#  include "AngelScriptTest.h"
+#  include <AngelScript/include/angelscript.h>
+#  include <AngelScriptPlugin/Runtime/AsEngineSingleton.h>
 #  include <Core/Messages/CommonMessages.h>
-#  include <Core/Messages/EventMessage.h>
-#  include <Core/Scripting/DuktapeFunction.h>
-#  include <Core/Scripting/DuktapeHelper.h>
 #  include <Core/WorldSerializer/WorldReader.h>
+#  include <Foundation/CodeUtils/Preprocessor.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
+
+#  include "AngelScriptTest.h"
 
 static ezGameEngineTestAngelScript s_GameEngineTestAngelScript;
 
@@ -43,7 +44,17 @@ ezResult ezGameEngineTestAngelScript::InitializeSubTest(ezInt32 iIdentifier)
 
 ezTestAppRun ezGameEngineTestAngelScript::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  return m_pOwnApplication->SubTestBasisExec(GetSubTestName(iIdentifier));
+  switch (iIdentifier)
+  {
+    case SubTests::Types:
+      m_pOwnApplication->RunTestScript("Tests/Types/TypesTest.as");
+      return ezTestAppRun::Quit;
+    case SubTests::Strings:
+      m_pOwnApplication->RunTestScript("Tests/Types/StringsTest.as");
+      return ezTestAppRun::Quit;
+    default:
+      return m_pOwnApplication->SubTestBasisExec(GetSubTestName(iIdentifier));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,6 +96,88 @@ ezTestAppRun ezGameEngineTestApplication_AngelScript::SubTestBasisExec(const cha
   EZ_TEST_STRING(msg.m_sMessage, "done");
 
   return ezTestAppRun::Quit;
+}
+
+void ezGameEngineTestApplication_AngelScript::RunTestScript(ezStringView sScriptPath)
+{
+  // Load and process test script
+  {
+    ezStringBuilder sTestCode;
+    ezStringBuilder sProcessedCode;
+    {
+      ezFileReader read;
+      if (read.Open(sScriptPath).Failed())
+      {
+        ezLog::Error("Failed to open file '{}'.", sScriptPath);
+        return;
+      }
+      sTestCode.Clear();
+      sTestCode.ReadAll(read);
+    }
+    if (ezAngelScriptEngineSingleton::PreprocessCode(sScriptPath, sTestCode, &sProcessedCode, nullptr).Failed())
+    {
+      ezLog::Error("Failed to preprocess code '{}'.", sScriptPath);
+      return;
+    }
+    m_sCode = sProcessedCode;
+    m_sCode.Split(true, m_Lines, "\n");
+  }
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  auto pAsEngine = ezAngelScriptEngineSingleton::GetSingleton();
+  asIScriptModule* pModule = pAsEngine->SetModuleCode("ScriptTest", m_sCode, true);
+  if (pModule == nullptr)
+  {
+    ezLog::Error("Failed to create AngelScript module.");
+    return;
+  }
+  asIScriptContext* m_pContext = pAsEngine->GetEngine()->CreateContext();
+  EZ_SCOPE_EXIT(m_pContext->Release(););
+  AS_CHECK(m_pContext->SetExceptionCallback(asMETHOD(ezGameEngineTestApplication_AngelScript, TestScriptExceptionCallback), this, asCALL_THISCALL));
+
+  asIScriptFunction* func = pModule->GetFunctionByName("ExecuteTests");
+  m_pContext->Prepare(func);
+
+  EZ_TEST_INT(m_pContext->Execute(), asEXECUTION_FINISHED);
+}
+
+void ezGameEngineTestApplication_AngelScript::TestScriptExceptionCallback(asIScriptContext* pContext)
+{
+  ezLog::Error("AS Exception '{}'", pContext->GetExceptionString());
+
+  const ezUInt32 uiNumLevels = pContext->GetCallstackSize();
+  for (ezUInt32 i = 0; i < uiNumLevels; ++i)
+  {
+    const char* szSection = nullptr;
+    const ezInt32 iOriginalLine = pContext->GetLineNumber(i, nullptr, &szSection);
+
+    ezInt32 iLine = iOriginalLine;
+    ezStringView sSection = szSection;
+    ezAngelScriptEngineSingleton::FindCorrectSectionAndLine(m_Lines, iLine, sSection);
+
+    ezStringBuilder line("  ");
+    if (asIScriptFunction* pFunc = pContext->GetFunction(i))
+    {
+      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetNamespace()))
+      {
+        line.Append(pFunc->GetNamespace(), "::");
+      }
+
+      if (!ezStringUtils::IsNullOrEmpty(pFunc->GetObjectName()))
+      {
+        line.Append(pFunc->GetObjectName(), "::");
+      }
+
+      line.AppendFormat("{}() [{}: {}] -> {}", pFunc->GetName(), sSection, iLine, m_Lines[iOriginalLine - 1]);
+
+      ezLog::Error(line);
+    }
+    else
+    {
+      line.AppendFormat("<nested call> [{}: {}] -> {}", sSection, iLine, m_Lines[iOriginalLine - 1]);
+    }
+  }
 }
 
 #endif

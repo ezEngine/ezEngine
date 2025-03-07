@@ -5,10 +5,9 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererVulkan/Device/DispatchContext.h>
-#include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
+//#include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-
-#include <vulkan/vulkan.hpp>
 
 EZ_DEFINE_AS_POD_TYPE(vk::Format);
 
@@ -46,7 +45,6 @@ using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEnt
 
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
-class ezGALPassVulkan;
 class ezPipelineBarrierVulkan;
 class ezCommandBufferPoolVulkan;
 class ezStagingBufferPoolVulkan;
@@ -442,7 +440,9 @@ private:
   ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;
   ezUniquePtr<ezFenceQueueVulkan> m_pFenceQueue;
   ezUniquePtr<ezInitContextVulkan> m_pInitContext;
-  ezUniquePtr<ezInitContextVulkan> m_pUpdateForNextFrameContext;
+
+  ezDynamicArray<ezPendingBufferCopyVulkan, ezLocalAllocatorWrapper> m_PendingBufferCopies;
+  ezDynamicArray<ezPendingTextureCopyVulkan, ezLocalAllocatorWrapper> m_PendingTextureCopies;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
   vk::Semaphore m_lastCommandBufferFinished;
