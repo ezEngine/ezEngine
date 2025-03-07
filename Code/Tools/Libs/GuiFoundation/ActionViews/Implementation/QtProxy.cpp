@@ -258,16 +258,26 @@ ezQtMenuProxy::ezQtMenuProxy()
 
 ezQtMenuProxy::~ezQtMenuProxy()
 {
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtMenuProxy::StatusUpdateEventHandler, this));
+
   m_pMenu->deleteLater();
   delete m_pMenu;
+}
+
+void ezQtMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
+{
+  Update();
 }
 
 void ezQtMenuProxy::Update()
 {
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
+  // note that setting the icon on the menu is pretty pointless, because you'd need to set the icon on something like a QToolButton.
+  // therefore there is another event handler in ezQtToolBarActionMapView::CreateView()
   m_pMenu->setIcon(ezQtUiServices::GetCachedIconResource(pMenu->GetIconPath()));
   m_pMenu->setTitle(ezMakeQString(ezTranslate(pMenu->GetName())));
+  m_pMenu->setToolTip(ezMakeQString(ezTranslateTooltip(pMenu->GetName())));
 }
 
 void ezQtMenuProxy::SetAction(ezAction* pAction)
@@ -277,6 +287,8 @@ void ezQtMenuProxy::SetAction(ezAction* pAction)
   m_pMenu = new QMenu();
   m_pMenu->setToolTipsVisible(true);
   Update();
+
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtMenuProxy::StatusUpdateEventHandler, this));
 }
 
 QMenu* ezQtMenuProxy::GetQMenu()
@@ -447,7 +459,7 @@ void ezQtDynamicMenuProxy::SlotMenuAboutToShow()
       }
       else
       {
-        auto pAction = m_pMenu->addAction(QString::fromUtf8(p.m_sDisplay.GetData()));
+        auto pAction = m_pMenu->addAction(ezMakeQString(ezTranslate(p.m_sDisplay)));
         pAction->setData(i);
         pAction->setIcon(p.m_Icon);
         pAction->setCheckable(p.m_CheckState != ezDynamicMenuAction::Item::CheckMark::NotCheckable);
@@ -488,8 +500,6 @@ ezQtDynamicActionAndMenuProxy::ezQtDynamicActionAndMenuProxy()
 
 ezQtDynamicActionAndMenuProxy::~ezQtDynamicActionAndMenuProxy()
 {
-  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler, this));
-
   if (m_pQtAction != nullptr)
   {
     m_pQtAction->deleteLater();
@@ -543,8 +553,6 @@ void ezQtDynamicActionAndMenuProxy::SetAction(ezAction* pAction)
 {
   ezQtDynamicMenuProxy::SetAction(pAction);
 
-  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler, this));
-
   SetupQAction(m_pAction, m_pQtAction, this);
 
   Update();
@@ -567,12 +575,6 @@ void ezQtDynamicActionAndMenuProxy::OnTriggered()
   if (pFocusWidget)
     pFocusWidget->setFocus();
 }
-
-void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
-{
-  Update();
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////// ezQtSliderProxy /////////////////////

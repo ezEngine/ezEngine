@@ -3,6 +3,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -72,6 +73,380 @@ void ezToggleWorldSpaceGizmo::Execute(const ezVariant& value)
 
 //////////////////////////////////////////////////////////////////////////
 
+class ezSnapTranslationMenuAction : public ezDynamicMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSnapTranslationMenuAction, ezDynamicMenuAction);
+
+public:
+  ezSnapTranslationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+    UpdateIcon();
+
+    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapTranslationMenuAction::SnapEvent, this));
+  }
+
+  ~ezSnapTranslationMenuAction()
+  {
+    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapTranslationMenuAction::SnapEvent, this));
+  }
+
+  void SnapEvent(const ezSnapProviderEvent& e)
+  {
+    UpdateIcon();
+  }
+
+  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  {
+    out_entries.Clear();
+
+    const float fValue = ezSnapProvider::GetTranslationSnapValue();
+
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0";
+      e.m_UserValue = 0.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.01f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_01";
+      e.m_UserValue = 0.01f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.05f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_05";
+      e.m_UserValue = 0.05f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_1";
+      e.m_UserValue = 0.1f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.2f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_2";
+      e.m_UserValue = 0.2f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.25f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_25";
+      e.m_UserValue = 0.25f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 0.5f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.0_5";
+      e.m_UserValue = 0.5f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 1.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.1";
+      e.m_UserValue = 1.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 2.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.2";
+      e.m_UserValue = 2.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 4.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.4";
+      e.m_UserValue = 4.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 5.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.5";
+      e.m_UserValue = 5.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 8.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.8";
+      e.m_UserValue = 8.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = (fValue == 10.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Translate.Snap.10";
+      e.m_UserValue = 10.0f;
+    }
+  }
+
+  virtual void Execute(const ezVariant& value) override
+  {
+    ezSnapProvider::SetTranslationSnapValue(value.Get<float>());
+  };
+
+  void UpdateIcon()
+  {
+    const float fValue = ezSnapProvider::GetTranslationSnapValue();
+
+    if (fValue == 0.0f)
+      SetIconPath(":EditorFramework/Icons/Snap0cm.svg");
+    else if (fValue == 0.01f)
+      SetIconPath(":EditorFramework/Icons/Snap1cm.svg");
+    else if (fValue == 0.05f)
+      SetIconPath(":EditorFramework/Icons/Snap5cm.svg");
+    else if (fValue == 0.1f)
+      SetIconPath(":EditorFramework/Icons/Snap10cm.svg");
+    else if (fValue == 0.2f)
+      SetIconPath(":EditorFramework/Icons/Snap20cm.svg");
+    else if (fValue == 0.25f)
+      SetIconPath(":EditorFramework/Icons/Snap25cm.svg");
+    else if (fValue == 0.5f)
+      SetIconPath(":EditorFramework/Icons/Snap50cm.svg");
+    else if (fValue == 1.0f)
+      SetIconPath(":EditorFramework/Icons/Snap100cm.svg");
+    else if (fValue == 2.0f)
+      SetIconPath(":EditorFramework/Icons/Snap200cm.svg");
+    else if (fValue == 4.0f)
+      SetIconPath(":EditorFramework/Icons/Snap400cm.svg");
+    else if (fValue == 5.0f)
+      SetIconPath(":EditorFramework/Icons/Snap500cm.svg");
+    else if (fValue == 8.0f)
+      SetIconPath(":EditorFramework/Icons/Snap800cm.svg");
+    else if (fValue == 10.0f)
+      SetIconPath(":EditorFramework/Icons/Snap1000cm.svg");
+
+    TriggerUpdate();
+  }
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapTranslationMenuAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezSnapRotationMenuAction : public ezDynamicMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSnapRotationMenuAction, ezDynamicMenuAction);
+
+public:
+  ezSnapRotationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+    UpdateIcon();
+
+    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapRotationMenuAction::SnapEvent, this));
+  }
+
+  ~ezSnapRotationMenuAction()
+  {
+    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapRotationMenuAction::SnapEvent, this));
+  }
+
+  void SnapEvent(const ezSnapProviderEvent& e)
+  {
+    UpdateIcon();
+  }
+
+  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  {
+    out_entries.Clear();
+
+    const float fValue = ezSnapProvider::GetRotationSnapValue().GetDegree();
+
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.0_Degree";
+      e.m_UserValue = 0.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.1_Degree";
+      e.m_UserValue = 1.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 5.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.5_Degree";
+      e.m_UserValue = 5.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 10.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.10_Degree";
+      e.m_UserValue = 10.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 15.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.15_Degree";
+      e.m_UserValue = 15.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 22.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.22_5_Degree";
+      e.m_UserValue = 22.5f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 30.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.30_Degree";
+      e.m_UserValue = 30.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 45.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Rotation.Snap.45_Degree";
+      e.m_UserValue = 45.0f;
+    }
+  }
+
+  virtual void Execute(const ezVariant& value) override
+  {
+    ezSnapProvider::SetRotationSnapValue(ezAngle::MakeFromDegree(value.Get<float>()));
+  };
+
+  void UpdateIcon()
+  {
+    const float fValue = ezSnapProvider::GetRotationSnapValue().GetDegree();
+
+    if (ezMath::IsEqual(fValue, 0.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap0deg.svg");
+    else if (ezMath::IsEqual(fValue, 1.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap1deg.svg");
+    else if (ezMath::IsEqual(fValue, 5.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap5deg.svg");
+    else if (ezMath::IsEqual(fValue, 10.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap10deg.svg");
+    else if (ezMath::IsEqual(fValue, 15.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap15deg.svg");
+    else if (ezMath::IsEqual(fValue, 22.5f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap22deg.svg");
+    else if (ezMath::IsEqual(fValue, 30.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap30deg.svg");
+    else if (ezMath::IsEqual(fValue, 45.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap45deg.svg");
+
+    TriggerUpdate();
+  }
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapRotationMenuAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezSnapScaleMenuAction : public ezDynamicMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSnapScaleMenuAction, ezDynamicMenuAction);
+
+public:
+  ezSnapScaleMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+    UpdateIcon();
+
+    ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezSnapScaleMenuAction::SnapEvent, this));
+  }
+
+  ~ezSnapScaleMenuAction()
+  {
+    ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSnapScaleMenuAction::SnapEvent, this));
+  }
+
+  void SnapEvent(const ezSnapProviderEvent& e)
+  {
+    UpdateIcon();
+  }
+
+  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override
+  {
+    out_entries.Clear();
+
+    const float fValue = ezSnapProvider::GetScaleSnapValue();
+
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.0";
+      e.m_UserValue = 0.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 0.125f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.0_125";
+      e.m_UserValue = 0.125f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 0.25f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.0_25";
+      e.m_UserValue = 0.25f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 0.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.0_5";
+      e.m_UserValue = 0.5f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.1";
+      e.m_UserValue = 1.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 2.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.2";
+      e.m_UserValue = 2.0f;
+    }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 4.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = "Gizmo.Scale.Snap.4";
+      e.m_UserValue = 4.0f;
+    }
+  }
+
+  virtual void Execute(const ezVariant& value) override
+  {
+    ezSnapProvider::SetScaleSnapValue(value.Get<float>());
+  };
+
+  void UpdateIcon()
+  {
+    const float fValue = ezSnapProvider::GetScaleSnapValue();
+
+    if (ezMath::IsEqual(fValue, 0.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap0x.svg");
+    else if (ezMath::IsEqual(fValue, 0.125f, 0.05f))
+      SetIconPath(":EditorFramework/Icons/Snap0125x.svg");
+    else if (ezMath::IsEqual(fValue, 0.25f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap025x.svg");
+    else if (ezMath::IsEqual(fValue, 0.5f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap05x.svg");
+    else if (ezMath::IsEqual(fValue, 1.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap1x.svg");
+    else if (ezMath::IsEqual(fValue, 2.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap2x.svg");
+    else if (ezMath::IsEqual(fValue, 4.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap4x.svg");
+
+    TriggerUpdate();
+  }
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSnapScaleMenuAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
 ezActionDescriptorHandle ezTransformGizmoActions::s_hGizmoCategory;
 ezActionDescriptorHandle ezTransformGizmoActions::s_hGizmoMenu;
 ezActionDescriptorHandle ezTransformGizmoActions::s_hNoGizmo;
@@ -82,6 +457,9 @@ ezActionDescriptorHandle ezTransformGizmoActions::s_hDragToPositionGizmo;
 ezActionDescriptorHandle ezTransformGizmoActions::s_hWorldSpace;
 ezActionDescriptorHandle ezTransformGizmoActions::s_hMoveParentOnly;
 ezActionDescriptorHandle ezTransformGizmoActions::s_SnapSettings;
+ezActionDescriptorHandle ezTransformGizmoActions::s_SnapTranslationMenu;
+ezActionDescriptorHandle ezTransformGizmoActions::s_SnapRotationMenu;
+ezActionDescriptorHandle ezTransformGizmoActions::s_SnapScaleMenu;
 
 void ezTransformGizmoActions::RegisterActions()
 {
@@ -102,6 +480,10 @@ void ezTransformGizmoActions::RegisterActions()
     ezTransformGizmoAction::ActionType::GizmoToggleMoveParentOnly);
   s_SnapSettings = EZ_REGISTER_ACTION_1(
     "Gizmo.SnapSettings", ezActionScope::Document, "Gizmo", "End", ezTransformGizmoAction, ezTransformGizmoAction::ActionType::GizmoSnapSettings);
+
+  s_SnapTranslationMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Translation.Snap.Dropdown", ezSnapTranslationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
+  s_SnapRotationMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Rotation.Snap.Dropdown", ezSnapRotationMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
+  s_SnapScaleMenu = EZ_REGISTER_DYNAMIC_MENU("Gizmo.Scale.Snap.Dropdown", ezSnapScaleMenuAction, ":/EditorFramework/Icons/SnapSettings.svg");
 }
 
 void ezTransformGizmoActions::UnregisterActions()
@@ -116,6 +498,9 @@ void ezTransformGizmoActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hWorldSpace);
   ezActionManager::UnregisterAction(s_hMoveParentOnly);
   ezActionManager::UnregisterAction(s_SnapSettings);
+  ezActionManager::UnregisterAction(s_SnapTranslationMenu);
+  ezActionManager::UnregisterAction(s_SnapRotationMenu);
+  ezActionManager::UnregisterAction(s_SnapScaleMenu);
 }
 
 void ezTransformGizmoActions::MapMenuActions(ezStringView sMapping)
@@ -150,7 +535,9 @@ void ezTransformGizmoActions::MapToolbarActions(ezStringView sMapping)
   pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
   pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
   pMap->MapAction(s_hWorldSpace, sSubPath, 6.0f);
-  pMap->MapAction(s_SnapSettings, sSubPath, 7.0f);
+  pMap->MapAction(s_SnapTranslationMenu, sSubPath, 7.0f);
+  pMap->MapAction(s_SnapRotationMenu, sSubPath, 8.0f);
+  pMap->MapAction(s_SnapScaleMenu, sSubPath, 9.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////

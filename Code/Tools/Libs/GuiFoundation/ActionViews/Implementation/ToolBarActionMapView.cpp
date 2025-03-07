@@ -102,7 +102,10 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
         pButton->setIcon(ezQtUiServices::GetCachedIconResource(pNamed->GetIconPath()));
-        pButton->setToolTip(pQtMenu->title().toUtf8().data());
+        pButton->setToolTip(pQtMenu->toolTip());
+
+        pNamed->m_StatusUpdateEvent.AddEventHandler([=](ezAction* pAction)
+          { pButton->setIcon(ezQtUiServices::GetCachedIconResource(pNamed->GetIconPath())); });
 
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);

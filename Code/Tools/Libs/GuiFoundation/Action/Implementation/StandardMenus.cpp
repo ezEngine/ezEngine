@@ -11,6 +11,7 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuAsset;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuTools;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
@@ -24,6 +25,7 @@ void ezStandardMenus::RegisterActions()
   s_hMenuEdit = EZ_REGISTER_MENU("G.Edit");
   s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("G.Panels", ezApplicationPanelsMenuAction, "");
   s_hMenuScene = EZ_REGISTER_MENU("G.Scene");
+  s_hMenuAsset = EZ_REGISTER_MENU("G.Asset");
   s_hMenuView = EZ_REGISTER_MENU("G.View");
   s_hMenuTools = EZ_REGISTER_MENU("G.Tools");
   s_hMenuHelp = EZ_REGISTER_MENU("G.Help");
@@ -38,6 +40,7 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuEdit);
   ezActionManager::UnregisterAction(s_hMenuPanels);
   ezActionManager::UnregisterAction(s_hMenuScene);
+  ezActionManager::UnregisterAction(s_hMenuAsset);
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuTools);
   ezActionManager::UnregisterAction(s_hMenuHelp);
@@ -64,18 +67,21 @@ void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStand
   if (menus.IsAnySet(ezStandardMenuTypes::Scene))
     pMap->MapAction(s_hMenuScene, "", 3.0f);
 
+  if (menus.IsAnySet(ezStandardMenuTypes::Asset))
+    pMap->MapAction(s_hMenuAsset, "", 4.0f);
+
   if (menus.IsAnySet(ezStandardMenuTypes::View))
-    pMap->MapAction(s_hMenuView, "", 4.0f);
+    pMap->MapAction(s_hMenuView, "", 5.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Tools))
-    pMap->MapAction(s_hMenuTools, "", 5.0f);
+    pMap->MapAction(s_hMenuTools, "", 6.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Panels))
-    pMap->MapAction(s_hMenuPanels, "", 6.0f);
+    pMap->MapAction(s_hMenuPanels, "", 7.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Help))
   {
-    pMap->MapAction(s_hMenuHelp, "", 7.0f);
+    pMap->MapAction(s_hMenuHelp, "", 8.0f);
     pMap->MapAction(s_hReportProblem, "G.Help", 3.0f);
     pMap->MapAction(s_hCheckForUpdates, "G.Help", 10.0f);
   }

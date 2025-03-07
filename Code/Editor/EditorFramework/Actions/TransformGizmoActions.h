@@ -29,6 +29,9 @@ public:
   static ezActionDescriptorHandle s_hWorldSpace;
   static ezActionDescriptorHandle s_hMoveParentOnly;
   static ezActionDescriptorHandle s_SnapSettings;
+  static ezActionDescriptorHandle s_SnapTranslationMenu;
+  static ezActionDescriptorHandle s_SnapRotationMenu;
+  static ezActionDescriptorHandle s_SnapScaleMenu;
 };
 
 ///

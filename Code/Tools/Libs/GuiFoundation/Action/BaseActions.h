@@ -50,7 +50,10 @@ public:
   virtual void Execute(const ezVariant& value) override {};
 };
 
+/// An action that represents a sub-menu. Can be within a menu bar, or the menu of a tool button).
 ///
+/// This class can be used directly, but then every menu entry has to be mapped individually into the menu.
+/// It is often more convenient to use derived types which already set up the content of the menu.
 class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction, ezNamedAction);
@@ -64,7 +67,14 @@ public:
   virtual void Execute(const ezVariant& value) override {};
 };
 
+/// A menu action whose content is determined when opening the menu.
 ///
+/// Every time this menu gets opened, GetEntries() is executed,
+/// with the state of the previous menu items.
+/// It can then return the same result, or adjust the entries (update check marks or show entirely different entries).
+///
+/// Derive from this, to create your own dynamic menu.
+/// Or use something like ezEnumerationMenuAction to get a menu for an enum type.
 class EZ_GUIFOUNDATION_DLL ezDynamicMenuAction : public ezMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicMenuAction, ezMenuAction);
@@ -110,7 +120,7 @@ public:
   virtual void GetEntries(ezDynamicArray<Item>& out_entries) = 0;
 };
 
-///
+/// An action that is displayed as a tool button that is clickable but also has a sub-menu that can be opened for selecting a different action.
 class EZ_GUIFOUNDATION_DLL ezDynamicActionAndMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicActionAndMenuAction, ezDynamicMenuAction);
@@ -139,7 +149,7 @@ protected:
   bool m_bVisible;
 };
 
-///
+/// A menu that lists all values of an enum type.
 class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezDynamicMenuAction);
@@ -154,7 +164,7 @@ protected:
   const ezRTTI* m_pEnumerationType;
 };
 
-///
+/// The standard button action.
 class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction, ezNamedAction);
@@ -201,7 +211,7 @@ protected:
   bool m_bVisible;
 };
 
-
+/// An action that represents an integer value within a fixed range, and gets displayed as a slider.
 class EZ_GUIFOUNDATION_DLL ezSliderAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSliderAction, ezNamedAction);

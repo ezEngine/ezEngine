@@ -29,6 +29,7 @@ G.File;&File
 G.Edit;E&dit
 G.Panels;P&anels
 G.Scene;&Scene
+G.Asset;&Asset
 G.Tools;&Tools
 G.View;&View
 G.Help;&Help
@@ -182,6 +183,9 @@ ezCoreRenderProfileConfig;Rendering Options
 # Gizmo
 
 G.Gizmos;Edit Mode
+Gizmo.Translation.Snap.Dropdown;Position Snapping;Position Snapping: Hold SHIFT while dragging gizmo for no snapping.
+Gizmo.Rotation.Snap.Dropdown;Rotation Snapping;Rotation Snapping: Hold SHIFT while dragging gizmo for no snapping.
+Gizmo.Scale.Snap.Dropdown;Scale Snapping;Scale Snapping: Hold SHIFT while dragging gizmo for no snapping.
 Gizmo.Mode.Select;Select
 Gizmo.Mode.Translate;Translate
 Gizmo.Mode.Rotate;Rotate
@@ -190,21 +194,15 @@ Gizmo.Mode.DragToPosition;Drag To Position
 Gizmo.Mode.GreyBoxing;Grey-Boxing
 Gizmo.TransformSpace;Transform in World Space
 Gizmo.MoveParentOnly;Transform Parent Only
-Gizmo.Rotation.Snap.Menu;Rotation Snap
 Gizmo.Rotation.Snap.0_Degree;No Rotation Snap
 Gizmo.Rotation.Snap.1_Degree;1 Degree
 Gizmo.Rotation.Snap.5_Degree;5 Degree
 Gizmo.Rotation.Snap.10_Degree;10 Degree
 Gizmo.Rotation.Snap.15_Degree;15 Degree
 Gizmo.Rotation.Snap.30_Degree;30 Degree
-Gizmo.Rotation.Snap.2_8125_Degree;2.8125 Degree (1/128)
-Gizmo.Rotation.Snap.5_625_Degree;5.625 Degree (1/64)
-Gizmo.Rotation.Snap.11_25_Degree;11.25 Degree (1/32)
-Gizmo.Rotation.Snap.22_5_Degree;22.5 Degree (1/16)
-Gizmo.Rotation.Snap.45_Degree;45 Degree (1/8)
-Gizmo.Scale.Snap.Menu;Scaling Snap
+Gizmo.Rotation.Snap.22_5_Degree;22.5 Degree
+Gizmo.Rotation.Snap.45_Degree;45 Degree
 Gizmo.Scale.Snap.0;No Scale Snap
-Gizmo.Scale.Snap.8;8
 Gizmo.Scale.Snap.4;4
 Gizmo.Scale.Snap.2;2
 Gizmo.Scale.Snap.1;1
@@ -215,7 +213,6 @@ Gizmo.Translate.Snap.Menu;Position Snap
 Gizmo.Translate.Snap.PivotToGrid;Snap Pivot To Grid
 Gizmo.Translate.Snap.ObjectsToGrid;Snap Each Object To Grid
 Gizmo.Translate.Snap.0;No Position Snap
-Gizmo.Translate.Snap.16;16m
 Gizmo.Translate.Snap.10;10m
 Gizmo.Translate.Snap.8;8 m
 Gizmo.Translate.Snap.5;5 m
@@ -228,6 +225,7 @@ Gizmo.Translate.Snap.0_2;20 cm
 Gizmo.Translate.Snap.0_125;12.5 cm
 Gizmo.Translate.Snap.0_1;10 cm
 Gizmo.Translate.Snap.0_05;5 cm
+Gizmo.Translate.Snap.0_01;1 cm
 Gizmo.SnapSettings;Snap Settings
 
 # GameObjectContext

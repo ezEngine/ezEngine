@@ -20,13 +20,18 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("AngelScriptAssetMenuBar", "AssetMenuBar");
+
+      ezStandardMenus::MapActions("AngelScriptAssetMenuBar", ezStandardMenuTypes::Asset);
+
       ezEditActions::MapActions("AngelScriptAssetMenuBar", false, false);
+      ezAngelScriptActions::MapActionsMenu("AngelScriptAssetMenuBar");
+
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("AngelScriptAssetToolBar", "AssetToolbar");
-      ezAngelScriptActions::MapActions("AngelScriptAssetToolBar");
+      ezAngelScriptActions::MapActionsToolbar("AngelScriptAssetToolBar");
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAngelScriptAssetDocument::PropertyMetaStateEventHandler);

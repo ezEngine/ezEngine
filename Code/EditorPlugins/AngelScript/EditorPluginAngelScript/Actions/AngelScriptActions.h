@@ -14,7 +14,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(ezStringView sMapping);
+  static void MapActionsMenu(ezStringView sMapping);
+  static void MapActionsToolbar(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hCategory;
   static ezActionDescriptorHandle s_hOpenInVSC;
