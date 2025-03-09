@@ -82,10 +82,8 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   sBinPath.AppendPath("ezEditorProcessor.exe");
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  sBinPath.AppendPath("ezEditorProcessor");
 #else
-#error "Not implemented!"
+  sBinPath.AppendPath("ezEditorProcessor");
 #endif
   sBinPath.MakeCleanPath();
 
