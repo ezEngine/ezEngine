@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 /// \brief Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateFlags

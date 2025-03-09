@@ -80,11 +80,11 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   }
 
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   sBinPath.AppendPath("ezEditorProcessor.exe");
-#else
+#  else
   sBinPath.AppendPath("ezEditorProcessor");
-#endif
+#  endif
   sBinPath.MakeCleanPath();
 
   ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();

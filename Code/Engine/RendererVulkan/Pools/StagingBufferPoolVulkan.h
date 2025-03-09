@@ -1,9 +1,9 @@
 #pragma once
 
 #include <RendererFoundation/Utils/RingBufferTracker.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/MemoryAllocator/MemoryAllocatorVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-#include <RendererVulkan/Device/DeclarationsVulkan.h>
 
 
 class ezGALDeviceVulkan;
