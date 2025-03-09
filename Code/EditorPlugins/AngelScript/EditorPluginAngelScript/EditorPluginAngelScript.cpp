@@ -25,7 +25,6 @@ void OnLoadPlugin()
 
       ezEditActions::MapActions("AngelScriptAssetMenuBar", false, false);
       ezAngelScriptActions::MapActionsMenu("AngelScriptAssetMenuBar");
-
     }
 
     // Tool Bar
