@@ -199,18 +199,18 @@ namespace
   EZ_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
   // clang-format on
 
-  ezGameObject* CreateObj(ezWorld* pWorld, ezStringView name, ezGameObject* pParent = nullptr, ezStringView globalkey = {})
+  ezGameObject* CreateObj(ezWorld* pWorld, ezStringView sName, ezGameObject* pParent = nullptr, ezStringView sGlobalkey = {})
   {
     ezGameObjectDesc gd;
-    gd.m_sName.Assign(name);
+    gd.m_sName.Assign(sName);
     gd.m_hParent = pParent ? pParent->GetHandle() : ezGameObjectHandle();
 
     ezGameObject* go;
     pWorld->CreateObject(gd, go);
 
-    if (!globalkey.IsEmpty())
+    if (!sGlobalkey.IsEmpty())
     {
-      go->SetGlobalKey(globalkey);
+      go->SetGlobalKey(sGlobalkey);
     }
 
     return go;
