@@ -271,6 +271,7 @@ Rotate
 ScaleRGB
 ScaleRGBA
 ScheduleSpawn
+SearchForObject
 SendEventMessage
 SendMessage
 SendMessageRecursive

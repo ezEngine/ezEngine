@@ -38,10 +38,10 @@ public:
   ///@{
 
   /// \brief Create a new game object from the given description and returns a handle to it.
-  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc); // [tested]
 
   /// \brief Create a new game object from the given description, writes a pointer to it to out_pObject and returns a handle to it.
-  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject); // [tested]
 
   /// \brief Deletes the given object, its children and all components.
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
@@ -49,42 +49,72 @@ public:
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectNow(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true);
+  void DeleteObjectNow(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
   /// valid until then.
   ///
   /// If bAlsoDeleteEmptyParents is set, any ancestor object that has no other children and no components, will also get deleted.
-  void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true);
+  void DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoDeleteEmptyParents = true); // [tested]
 
   /// \brief Returns the event that is triggered before an object is deleted. This can be used for external systems to cleanup data
   /// which is associated with the deleted object.
   const ezEvent<const ezGameObject*>& GetObjectDeletionEvent() const;
 
   /// \brief Returns whether the given handle corresponds to a valid object.
-  bool IsValidObject(const ezGameObjectHandle& hObject) const;
+  bool IsValidObject(const ezGameObjectHandle& hObject) const; // [tested]
 
   /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject);
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject); // [tested]
 
   /// \brief Returns whether an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const;
+  [[nodiscard]] bool TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const; // [tested]
 
   /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject);
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject); // [tested]
 
   /// \brief Returns whether an object with the given global key exists and if so writes out the corresponding pointer to out_pObject.
-  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const;
+  [[nodiscard]] bool TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const; // [tested]
 
+  /// \brief Searches for an object by path. Can find objects through a global key and/or relative to an object. May also search for an object that has a certain component.
+  ///
+  /// The syntax for \a sSearchPath is as follows:
+  /// * All pieces of the path must be separated by slashes (/)
+  /// * If it starts with "G:" then it will search for an object via global key.
+  ///   Ie "G:keyname" will search for an object with the global key "keyname".
+  ///   If no such object exists, the search fails. Otherwise this object becomes the reference object for the remainder.
+  ///   If pReferenceObject was nullptr to begin with, sSearchPath MUST start with a global key search.
+  /// * If it starts (or continues) with "P:" it will search "upwards" from the reference object to find the closest parent object that has the requested name.
+  ///   Ie "P:parentname" will check the reference object's name for "parentname", if it doesn't match, it checks the parent object, and so on, until it either fails, because no such named parent exists, or it finds an object.
+  /// * If the path starts (or continues) with "../" it will go to the parent object of the current object.
+  ///   This is repeated for every occurrance of "../".
+  ///   The search fails, if there are not enough parent objects.
+  /// * If the path starts (or continues) with a relative path (e.g. "a/b") it then searches for any direct or indirect child called "a" and below that a direct or indirect object with name "b".
+  ///   If that is found, and pExpectedComponent is not nullptr, it is checked whether the found object has that component type attached. If so, the search terminates successfully. Otherwise the search continues for all other combinations of objects called "a" with decendants called "b" until it finds an object with that component type, or runs out of objects.
+  ///
+  /// Example paths:
+  /// * "G:player" -> search for the object with the global key "player"
+  /// * "P:root" -> starting at the reference object searches for the parent object called "root"
+  /// * "../.." -> starting at the reference object, goes two levels up
+  /// * "head/camera" -> starting at the reference object searches for a child object called "head" and from there searches for a child object called "camera"
+  /// * "G:door1/P:frame" -> uses a global key to find the "door1" object and from there gets the parent object called "frame"
+  /// * "G:door1/.." -> uses a global key to find the "door1" object and returns its parent object
+  /// * "P:root/obj2" -> starting at the reference object searches for a parent called "root" and from there searches for a child object called "obj2"
+  ///
+  /// Invalid paths:
+  /// * "P:name/G:key" -> "G:" must be the first part of the string.
+  /// * "obj/../" -> ".." can only appear at the beginning of the relative path
+  /// * "obj/P:name" -> "P:" must be at the very beginning or directly after "G:"
+  [[nodiscard]] ezGameObject* SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr); // [tested]
 
   /// \brief Returns the total number of objects in this world.
-  ezUInt32 GetObjectCount() const;
+  ezUInt32 GetObjectCount() const; // [tested]
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ObjectIterator GetObjects();
+  ezInternal::WorldData::ObjectIterator GetObjects(); // [tested]
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ConstObjectIterator GetObjects() const;
+  ezInternal::WorldData::ConstObjectIterator GetObjects() const; // [tested]
 
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
@@ -99,7 +129,7 @@ public:
 
   /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function
   /// is called for every object.
-  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
+  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst); // [tested]
 
   ///@}
   /// \name Module Functions
@@ -107,10 +137,10 @@ public:
 
   /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
   template <typename ModuleType>
-  ModuleType* GetOrCreateModule();
+  ModuleType* GetOrCreateModule(); // [tested]
 
   /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
-  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti);
+  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti); // [tested]
 
   /// \brief Deletes the module of the given type or derived types.
   template <typename ModuleType>
@@ -255,7 +285,7 @@ public:
 
   /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of
   /// the game objects. See ezWorld for a detailed description of the update phases.
-  void Update();
+  void Update(); // [tested]
 
   /// \brief Returns a task implementation that calls Update on this world.
   const ezSharedPtr<ezTask>& GetUpdateTask();
@@ -273,23 +303,23 @@ public:
   /// \brief Returns the coordinate system for the given position.
   /// By default this always returns a coordinate system with forward = +X, right = +Y and up = +Z.
   /// This can be customized by setting a different coordinate system provider.
-  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const;
+  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const; // [tested]
 
   /// \brief Sets the coordinate system provider that should be used in this world.
-  void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider);
+  void SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider); // [tested]
 
   /// \brief Returns the coordinate system provider that is associated with this world.
-  ezCoordinateSystemProvider& GetCoordinateSystemProvider();
+  ezCoordinateSystemProvider& GetCoordinateSystemProvider(); // [tested]
 
   /// \brief Returns the coordinate system provider that is associated with this world.
-  const ezCoordinateSystemProvider& GetCoordinateSystemProvider() const;
+  const ezCoordinateSystemProvider& GetCoordinateSystemProvider() const; // [tested]
 
 
   /// \brief Returns the clock that is used for all updates in this game world
-  ezClock& GetClock();
+  ezClock& GetClock(); // [tested]
 
   /// \brief Returns the clock that is used for all updates in this game world
-  const ezClock& GetClock() const;
+  const ezClock& GetClock() const; // [tested]
 
   /// \brief Accesses the default random number generator.
   /// If more control is desired, individual components should use their own RNG.
@@ -307,10 +337,10 @@ public:
 
   /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
   /// writing.
-  ezInternal::WorldData::ReadMarker& GetReadMarker() const;
+  ezInternal::WorldData::ReadMarker& GetReadMarker() const; // [tested]
 
   /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
-  ezInternal::WorldData::WriteMarker& GetWriteMarker();
+  ezInternal::WorldData::WriteMarker& GetWriteMarker(); // [tested]
 
   /// \brief Allows re-setting the maximum time that is spent on component initialization per frame, which is first configured on construction.
   void SetMaxInitializationTimePerFrame(ezTime maxInitTime);

@@ -223,7 +223,6 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByName(const ezTempHashedString& in sName, bool bRecursive = true)", asMETHOD(ezGameObject, FindChildByName), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByPath(ezStringView sPath)", asMETHOD(ezGameObject, FindChildByPath), asCALL_THISCALL));
   // AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ SearchForChildByNameSequence(string)", asMETHOD(ezGameObject, SearchForChildByNameSequence), asCALL_THISCALL));
-  // AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ SearchForChildrenByNameSequence(string)", asMETHOD(ezGameObject, SearchForChildrenByNameSequence), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezWorld@ GetWorld()", asMETHODPR(ezGameObject, GetWorld, (), ezWorld*), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "const ezWorld@ GetWorld() const", asMETHODPR(ezGameObject, GetWorld, () const, const ezWorld*), asCALL_THISCALL));
 
@@ -431,6 +430,8 @@ void ezAngelScriptEngineSingleton::Register_World()
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject), bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, const ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const, bool), asCALL_THISCALL));
+
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObject@ SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null)", asMETHOD(ezWorld, SearchForObject), asCALL_THISCALL));
 
   // GetOrCreateModule
 

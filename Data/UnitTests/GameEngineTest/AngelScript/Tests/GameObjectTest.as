@@ -111,6 +111,9 @@ class ScriptObject : ezAngelScriptTestClass
             ezGameObject@ skybox;
             EZ_TEST_BOOL(GetWorld().TryGetObjectWithGlobalKey("Skybox", skybox));
 
+            ezGameObject@ skybox2 = GetWorld().SearchForObject("G:Skybox");
+            EZ_TEST_BOOL(@skybox == @skybox2);
+
             ezSkyBoxComponent@ skyboxComp;
             EZ_TEST_BOOL(skybox.TryGetComponentOfBaseType(@skyboxComp));
 

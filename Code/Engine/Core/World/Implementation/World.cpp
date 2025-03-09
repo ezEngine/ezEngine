@@ -1562,4 +1562,84 @@ void ezWorld::RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, e
   }
 }
 
+ezGameObject* ezWorld::SearchForObject(ezStringView sSearchPath, ezGameObject* pRefObj, const ezRTTI* pExpectedComponent)
+{
+  // Possible paths:
+  //
+  // rel/path
+  // ../rel/path
+  // ..
+  // G:key/rel/path
+  // P:parent/rel/path
+  // G:key/P:parent/rel/path
+  // G:key/../rel/path
+  // G:key/..
+  // P:parent/../rel/path
+
+  // if the search string starts with "G:", the next part of the path is the global key of an object
+  // in this case, this object is not the reference object anymore, instead the object with that global key is the reference object
+  if (sSearchPath.TrimWordStart("G:"))
+  {
+    ezStringView sGlobalKey;
+
+    if (const char* szSep = sSearchPath.FindSubString("/"))
+    {
+      sGlobalKey = ezStringView(sSearchPath.GetStartPointer(), szSep);
+      sSearchPath.SetStartPosition(szSep + 1);
+    }
+    else
+    {
+      sGlobalKey = sSearchPath;
+      sSearchPath = {};
+    }
+
+    if (!TryGetObjectWithGlobalKey(ezTempHashedString(sGlobalKey), pRefObj))
+    {
+      return nullptr;
+    }
+  }
+
+  if (pRefObj == nullptr)
+    return nullptr;
+
+  // if the search string starts with "P:", the next part of the path is an object name of a parent object
+  // of the reference object, so we search upwards until we find the object with that name
+  if (sSearchPath.TrimWordStart("P:"))
+  {
+    ezStringView sParentName;
+
+    if (const char* szSep = sSearchPath.FindSubString("/"))
+    {
+      sParentName = ezStringView(sSearchPath.GetStartPointer(), szSep);
+      sSearchPath.SetStartPosition(szSep + 1);
+    }
+    else
+    {
+      sParentName = sSearchPath;
+      sSearchPath = {};
+    }
+
+    const ezTempHashedString sStartName(sParentName);
+    while (!pRefObj->HasName(sStartName))
+    {
+      pRefObj = pRefObj->GetParent();
+
+      if (pRefObj == nullptr)
+        return nullptr;
+    }
+  }
+
+  // if the path contains "..", we go up one parent
+  // this is only allowed at the start of the relative path section
+  while (sSearchPath.TrimWordStart("../") || sSearchPath.TrimWordStart(".."))
+  {
+    pRefObj = pRefObj->GetParent();
+
+    if (pRefObj == nullptr)
+      return nullptr;
+  }
+
+  return pRefObj->SearchForChildByNameSequence(sSearchPath, pExpectedComponent);
+}
+
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

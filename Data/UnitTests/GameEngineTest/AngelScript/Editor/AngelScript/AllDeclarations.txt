@@ -74,7 +74,6 @@ bool ezGameObjectHandle::IsInvalidated() const
 bool ezGameObjectHandle::opEquals(ezGameObjectHandle) const
 bool ezGrabbableItemComponent::get_DebugShowPoints() const
 bool ezGreyBoxComponent::get_GenerateCollision() const
-bool ezGreyBoxComponent::get_IncludeInNavmesh() const
 bool ezGreyBoxComponent::get_SlopedBottom() const
 bool ezGreyBoxComponent::get_SlopedTop() const
 bool ezGreyBoxComponent::get_UseAsOccluder() const
@@ -102,7 +101,6 @@ bool ezJoltHitboxComponent::get_QueryShapeOnly() const
 bool ezJoltRagdollComponent::get_SelfCollision() const
 bool ezJoltRopeComponent::get_ContinuousCollisionDetection() const
 bool ezJoltRopeComponent::get_SelfCollision() const
-bool ezJoltStaticActorComponent::get_IncludeInNavmesh() const
 bool ezJoltStaticActorComponent::get_PullSurfacesFromGraphicsMesh() const
 bool ezLensFlareComponent::get_ApplyFog() const
 bool ezLensFlareComponent::get_LinkToLightShape() const
@@ -132,7 +130,7 @@ bool ezPathComponent::get_Closed() const
 bool ezPhysics::OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
 bool ezPhysics::OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
-bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, uint IgnoreObjectID = 3)
+bool ezPhysics::Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295)
 bool ezPhysics::RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295)
 bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
@@ -776,6 +774,7 @@ ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
 ezGameObject@ ezSpatial::FindClosestObjectInSphere(ezStringView Category, ezVec3 Center, float Radius)
+ezGameObject@ ezWorld::SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null)
 ezGameObjectHandle ezBlackboardComponent::GetEntryValue_asGameObjectHandle(ezString Name) const
 ezGameObjectHandle ezCVar::GetValue_asGameObjectHandle(ezStringView Name)
 ezGameObjectHandle ezGameObject::GetHandle() const
@@ -2161,7 +2160,6 @@ void ezGreyBoxComponent::set_Curvature(ezAngle)
 void ezGreyBoxComponent::set_CustomData(ezVec4)
 void ezGreyBoxComponent::set_Detail(uint)
 void ezGreyBoxComponent::set_GenerateCollision(bool)
-void ezGreyBoxComponent::set_IncludeInNavmesh(bool)
 void ezGreyBoxComponent::set_Material(ezStringView)
 void ezGreyBoxComponent::set_Shape(ezGreyBoxShape)
 void ezGreyBoxComponent::set_SizeNegX(float)
@@ -2315,7 +2313,6 @@ void ezJoltSliderConstraintComponent::set_LimitMode(ezJoltConstraintLimitMode)
 void ezJoltSliderConstraintComponent::set_LowerLimit(float)
 void ezJoltSliderConstraintComponent::set_UpperLimit(float)
 void ezJoltStaticActorComponent::set_CollisionMesh(ezStringView)
-void ezJoltStaticActorComponent::set_IncludeInNavmesh(bool)
 void ezJoltStaticActorComponent::set_PullSurfacesFromGraphicsMesh(bool)
 void ezJoltStaticActorComponent::set_Surface(ezStringView)
 void ezJoltSwingTwistConstraintComponent::set_Friction(float)

@@ -1297,6 +1297,7 @@ class ezWorld
   bool TryGetObject(const ezGameObjectHandle&in, const ezGameObject@&out pObject) const;
   bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, ezGameObject@&out pObject);
   bool TryGetObjectWithGlobalKey(const ezTempHashedString&in sGlobalKey, const ezGameObject@&out pObject);
+  ezGameObject@ SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null);
   bool IsValidComponent(ezComponentHandle&in);
   bool TryGetComponent(const ezComponentHandle&in hComponent, ?&out component);
   void SendMessage(const ezGameObjectHandle&in hReceiverObject, ezMessage&inout msg);

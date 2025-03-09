@@ -884,6 +884,7 @@ ezGameObject@ ezGameObject::FindChildByPath(ezStringView sPath)
 ezGameObject@ ezGameObject::GetParent()
 ezGameObject@ ezGameObject::GetParent() const
 ezGameObject@ ezSpatial::FindClosestObjectInSphere(ezStringView Category, ezVec3 Center, float Radius)
+ezGameObject@ ezWorld::SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null)
 ezGameObjectHandle ezBlackboardComponent::GetEntryValue_asGameObjectHandle(ezString Name) const
 ezGameObjectHandle ezCVar::GetValue_asGameObjectHandle(ezStringView Name)
 ezGameObjectHandle ezGameObject::GetHandle() const
