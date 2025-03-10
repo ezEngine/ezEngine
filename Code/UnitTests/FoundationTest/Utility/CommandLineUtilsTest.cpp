@@ -57,7 +57,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_STRING(CmdLn.GetStringOption("-opt1", 1), "false");
     EZ_TEST_STRING(CmdLn.GetStringOption("-opt1", 2, "end"), "end");
 
-    EZ_TEST_STRING(CmdLn.GetStringOption("-opt2", 0), "\"test2\"");
+    // GetStringOption will trim " at the start and end to match the windows command line parsing behaviour on all platforms.
+    EZ_TEST_STRING(CmdLn.GetStringOption("-opt2", 0), "test2");
     EZ_TEST_STRING(CmdLn.GetStringOption("-opt2", 1, "end"), "end");
 
     EZ_TEST_STRING(CmdLn.GetStringOption("-opt3", 0, "end"), "end");

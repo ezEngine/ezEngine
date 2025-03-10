@@ -195,6 +195,7 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
     // found the right one, return it
     if (uiParamCount == uiArgument)
     {
+      // We trim " as this is automatically done on Windows when parsing command line arguments and this will make it behave the same on Linux.
       ezStringView sData = m_Commands[uiParam].GetView();
       sData.Trim("\"");
       return sData;
