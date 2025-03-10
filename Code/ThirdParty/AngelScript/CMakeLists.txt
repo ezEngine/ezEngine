@@ -94,7 +94,7 @@ if(MSVC AND CMAKE_CL_64)
     endif()
 endif()
 
-if(${ARCHFLAGS} MATCHES "^arm")
+if(EZ_CMAKE_ARCHITECTURE_ARM AND (NOT EZ_CMAKE_ARCHITECTURE_64BIT))
     message(STATUS "AngelScript using ARM ASM")
 
     enable_language(ASM)
@@ -106,7 +106,7 @@ if(${ARCHFLAGS} MATCHES "^arm")
     endif()
 endif()
 
-if(${ARCHFLAGS} MATCHES "^aarch64")
+if(EZ_CMAKE_ARCHITECTURE_ARM AND EZ_CMAKE_ARCHITECTURE_64BIT)
     message(STATUS "AngelScript using AARCH64 ASM")
 
     enable_language(ASM)

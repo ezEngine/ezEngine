@@ -1129,10 +1129,16 @@ ezGALBuffer* ezGALDeviceVulkan::CreateBufferPlatform(
 void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 {
   ezGALBufferVulkan* pVulkanBuffer = static_cast<ezGALBufferVulkan*>(pBuffer);
-  for (ezInt32 i = (ezInt32)m_PendingBufferCopies.GetCount() - 1; i >= 0; --i)
+  for (ezUInt32 i = 0; i < m_PendingBufferCopies.GetCount();)
   {
     if (m_PendingBufferCopies[i].m_pDstBuffer == pVulkanBuffer)
+    {
       m_PendingBufferCopies.RemoveAtAndSwap(i);
+    }
+    else
+    {
+      ++i;
+    }
   }
   GetCurrentPipelineBarrier().BufferDestroyed(pVulkanBuffer);
   pVulkanBuffer->DeInitPlatform(this).IgnoreResult();

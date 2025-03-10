@@ -135,7 +135,7 @@ void ezAngelScriptEngineSingleton::Register_StringView()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool TrimWordStart(ezStringView sWord)", asMETHOD(ezStringView, TrimWordStart), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool TrimWordEnd(ezStringView sWord)", asMETHOD(ezStringView, TrimWordEnd), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool opEquals(const ezStringView& in)", asFUNCTIONPR(ezStringView_opEqual, (ezStringView*, const ezStringView&), bool), asCALL_CDECL_OBJFIRST));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "bool opEquals(const ezStringView& in) const", asFUNCTIONPR(ezStringView_opEqual, (ezStringView*, const ezStringView&), bool), asCALL_CDECL_OBJFIRST));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezStringView", "int opCmp(const ezStringView& in) const", asFUNCTIONPR(ezStringView_opCmp, (ezStringView*, const ezStringView&), int), asCALL_CDECL_OBJFIRST));
 
   AS_CHECK(m_pEngine->RegisterObjectBehaviour("ezStringView", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ezStringView_Construct), asCALL_CDECL_OBJFIRST));

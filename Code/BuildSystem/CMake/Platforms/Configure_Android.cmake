@@ -52,7 +52,8 @@ macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 
 	if("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
 		if(NOT("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
-			if(MOLD_PATH)
+			# TODO_ANDROID: Mold does not support `--undefined-glob` so we can't use it for Android right now. Either we need to prevent via some other means that the linger drops plugins or figure out which version of mold if any supports `--undefined-glob`.
+			if(false) #if(MOLD_PATH)
 				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
 			else()
 				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")

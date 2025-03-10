@@ -111,7 +111,6 @@ void ezGameEngineTestApplication_AngelScript::RunTestScript(ezStringView sScript
         ezLog::Error("Failed to open file '{}'.", sScriptPath);
         return;
       }
-      sTestCode.Clear();
       sTestCode.ReadAll(read);
     }
     if (ezAngelScriptEngineSingleton::PreprocessCode(sScriptPath, sTestCode, &sProcessedCode, nullptr).Failed())

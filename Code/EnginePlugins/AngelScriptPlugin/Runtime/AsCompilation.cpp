@@ -193,10 +193,7 @@ ezResult ezAngelScriptEngineSingleton::PreprocessCode(ezStringView sRefFilePath,
 
   ezStringBuilder fullCode;
   if (asPP.Process(fullCode).Failed())
-  {
-    ezLog::Error("Failed to pre-process AngelScript");
     return EZ_FAILURE;
-  }
 
   if (out_pProcessedCode)
   {
@@ -209,7 +206,10 @@ asIScriptModule* ezAngelScriptEngineSingleton::CompileModule(ezStringView sModul
 {
   ezStringBuilder fullCode;
   if (PreprocessCode(sRefFilePath, sCode, &fullCode, out_pDependencies).Failed())
+  {
+    ezLog::Error("Failed to pre-process AngelScript");
     return nullptr;
+  }
 
   if (out_pProcessedCode)
   {
