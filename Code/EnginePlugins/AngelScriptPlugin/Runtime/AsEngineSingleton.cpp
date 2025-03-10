@@ -242,6 +242,9 @@ void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
 {
   ezRTTI::ForEachDerivedType(ezGetStaticRTTI<ezComponent>(), [&](const ezRTTI* pRtti)
     {
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
+        return;
+
       intptr_t flags = 0;
 
       if (pRtti != ezGetStaticRTTI<ezComponent>())

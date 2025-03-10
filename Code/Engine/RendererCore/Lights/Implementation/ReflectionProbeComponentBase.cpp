@@ -181,7 +181,7 @@ float ezReflectionProbeComponentBase::ComputePriority(ezMsgExtractRenderData& ms
   {
     if (auto pCamera = msg.m_pView->GetLodCamera())
     {
-      float fDistance = (pCamera->GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
+      float fDistance = (pCamera->GetPosition() - pRenderData->m_vGlobalPosition).GetLength();
       float fRadius = (ezMath::Abs(vScale.x) + ezMath::Abs(vScale.y) + ezMath::Abs(vScale.z)) / 3.0f;
       fPriority = fRadius / fDistance;
     }

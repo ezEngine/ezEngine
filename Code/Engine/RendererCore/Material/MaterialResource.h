@@ -107,6 +107,7 @@ public:
   ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
 
   ezRenderData::Category GetRenderDataCategory();
+  static ezRenderData::Category GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, ezRenderData::Category fallbackCategory = ezDefaultRenderDataCategories::LitOpaque);
 
   /// \brief Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc();

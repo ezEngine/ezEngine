@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Device/Device.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezMsgSetMeshMaterial::Serialize(ezStreamWriter& inout_stream) const
 {
-  // has to be stringyfied for transfer
+  // has to be stringified for transfer
   inout_stream << GetMaterialFile();
   inout_stream << m_uiMaterialSlot;
 }
@@ -46,24 +46,30 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMe
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+static_assert(sizeof(ezMeshRenderData) == 120);
+#else
+static_assert(sizeof(ezMeshRenderData) == 96);
+#endif
+
 void ezMeshRenderData::FillSortingKey()
 {
-  m_uiFlipWinding = m_GlobalTransform.HasMirrorScaling() ? 1 : 0;
-  m_uiUniformScale = m_GlobalTransform.ContainsUniformScale() ? 1 : 0;
-
   const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(m_hMesh.GetResourceIDHash());
   const ezUInt32 uiMaterialIDHash = m_hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash()) : 0;
+  const ezUInt32 uiFlipWinding = m_Flags.IsSet(Flags::FlipWinding) ? 1 : 0;
 
   // Sort by material and then by mesh
-  m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + m_uiSubMeshIndex) & 0xFFFE) | m_uiFlipWinding;
+  m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + m_uiSubMeshIndex) & 0xFFFE) | uiFlipWinding;
 }
 
 bool ezMeshRenderData::CanBatch(const ezRenderData& other0) const
 {
   const auto& other = ezStaticCast<const ezMeshRenderData&>(other0);
 
-  return m_hMesh == other.m_hMesh && m_uiSubMeshIndex == other.m_uiSubMeshIndex &&
-         m_hMaterial == other.m_hMaterial && m_uiFlipWinding == other.m_uiFlipWinding;
+  return m_hCustomInstanceDataBuffer == other.m_hCustomInstanceDataBuffer &&
+         m_hMesh == other.m_hMesh && m_uiSubMeshIndex == other.m_uiSubMeshIndex &&
+         m_hMaterial == other.m_hMaterial &&
+         CanBatchByBaseValues(other);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -89,6 +95,13 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 
 ezMeshComponentBase::ezMeshComponentBase() = default;
 ezMeshComponentBase::~ezMeshComponentBase() = default;
+
+void ezMeshComponentBase::OnDeactivated()
+{
+  DeleteInstanceData();
+
+  SUPER::OnDeactivated();
+}
 
 void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 {
@@ -165,6 +178,10 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
   if (!m_hMesh.IsValid())
     return;
 
+  const bool bDynamic = GetOwner()->IsDynamic();
+  const ezTransform finalTransform = GetFinalGlobalTransform();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, finalTransform, m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
+
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
@@ -179,36 +196,35 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = CreateRenderData();
+    ezMeshRenderData* pRenderData = CreateRenderData(msg.m_pRenderDataManager);
     {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = m_Color;
-      pRenderData->m_vCustomData = m_vCustomData;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+      // Already done in CreateRenderDataForThisFrame but only with the owner's transform. We need to use the final transform here.
+      pRenderData->m_vGlobalPosition = finalTransform.m_vPosition;
+      pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::FlipWinding, finalTransform.HasMirrorScaling());
 
-      pRenderData->FillSortingKey();
+      pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
+      pRenderData->m_DataOffsets.m_uiCustomInstance = m_CustomInstanceDataOffset.m_uiOffset;
+      pRenderData->m_hCustomInstanceDataBuffer = m_hCustomInstanceDataBuffer;
+
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
     }
 
     bool bDontCacheYet = false;
-
-    // Determine render data category.
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
-        bDontCacheYet = true;
-
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
+  }
+}
+
+void ezMeshComponentBase::DeleteInstanceData()
+{
+  if (ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>())
+  {
+    pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(m_InstanceDataOffset.IsInvalidated(), "Implementation error");
   }
 }
 
@@ -259,11 +275,6 @@ void ezMeshComponentBase::SetColor(const ezColor& color)
   }
 }
 
-const ezColor& ezMeshComponentBase::GetColor() const
-{
-  return m_Color;
-}
-
 void ezMeshComponentBase::SetCustomData(const ezVec4& vData)
 {
   m_vCustomData = vData;
@@ -271,21 +282,11 @@ void ezMeshComponentBase::SetCustomData(const ezVec4& vData)
   InvalidateCachedRenderData();
 }
 
-const ezVec4& ezMeshComponentBase::GetCustomData() const
-{
-  return m_vCustomData;
-}
-
 void ezMeshComponentBase::SetSortingDepthOffset(float fOffset)
 {
   m_fSortingDepthOffset = fOffset;
 
   InvalidateCachedRenderData();
-}
-
-float ezMeshComponentBase::GetSortingDepthOffset() const
-{
-  return m_fSortingDepthOffset;
 }
 
 void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
@@ -312,9 +313,25 @@ void ezMeshComponentBase::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
   InvalidateCachedRenderData();
 }
 
-ezMeshRenderData* ezMeshComponentBase::CreateRenderData() const
+void ezMeshComponentBase::SetCustomInstanceData(ezCustomInstanceDataOffset offset, ezGALDynamicBufferHandle hBuffer)
 {
-  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  if (m_CustomInstanceDataOffset.m_uiOffset != offset.m_uiOffset || m_hCustomInstanceDataBuffer != hBuffer)
+  {
+    m_CustomInstanceDataOffset = offset;
+    m_hCustomInstanceDataBuffer = hBuffer;
+
+    InvalidateCachedRenderData();
+  }
+}
+
+ezTransform ezMeshComponentBase::GetFinalGlobalTransform() const
+{
+  return GetOwner()->GetGlobalTransform();
+}
+
+ezMeshRenderData* ezMeshComponentBase::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
+{
+  return pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
 }
 
 ezUInt32 ezMeshComponentBase::Materials_GetCount() const

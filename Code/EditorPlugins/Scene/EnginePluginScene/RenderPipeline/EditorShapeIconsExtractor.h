@@ -23,7 +23,7 @@ public:
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
+  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, const ezRenderDataManager* pRenderDataManager, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
   const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
   const ezTypedMemberProperty<ezColorGammaUB>* FindColorGammaProperty(const ezRTTI* pRtti) const;
   void FillShapeIconInfo();

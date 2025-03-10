@@ -1,7 +1,26 @@
 #pragma once
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Pipeline/Renderer.h>
+
+/// \brief Render data used to feed the ezMeshRenderer.
+class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezInstanceableRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezInstanceableRenderData);
+
+public:
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
+
+  ezMaterialResourceHandle m_hMaterial;
+  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
+
+  ezUInt32 m_uiFirstPrimitive = 0;
+  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezBoundingBox m_GlobalBoundingBox;
+#endif
+};
 
 using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
 using ezCustomMeshComponentManager = ezComponentManager<class ezCustomMeshComponent, ezBlockStorageType::Compact>;
@@ -20,6 +39,9 @@ class EZ_RENDERERCORE_DLL ezCustomMeshComponent : public ezRenderComponent
   // ezComponent
 
 public:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -88,26 +110,11 @@ protected:
   ezMaterialResourceHandle m_hMaterial; // [ property ]
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  ezBoundingBoxSphere m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
+
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
-  ezBoundingBoxSphere m_Bounds;
-
   ezDynamicMeshBufferResourceHandle m_hDynamicMesh;
-
-  virtual void OnActivated() override;
-};
-
-/// \brief Temporary data used to feed the ezCustomMeshRenderer.
-class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezMeshRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezMeshRenderData);
-
-public:
-  void FillSortingKey();
-  virtual bool CanBatch(const ezRenderData& other) const override;
-
-  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
-
-  ezUInt32 m_uiFirstPrimitive = 0;
-  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
 };

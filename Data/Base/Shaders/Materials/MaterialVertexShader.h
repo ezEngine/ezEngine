@@ -4,6 +4,10 @@
 #  define USE_WORLDPOS
 #endif
 
+#ifndef USE_DATAOFFSETS
+#  define USE_DATAOFFSETS
+#endif
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
@@ -69,7 +73,7 @@ VS_OUT FillVertexData(VS_IN Input)
 #endif
 
 #if defined(USE_SKINNING)
-  objectPosition = SkinPosition(objectPosition, Input.BoneWeights, Input.BoneIndices);
+  objectPosition = SkinPosition(objectPosition, Input.BoneWeights, Input.BoneIndices + Input.DataOffsets.w);
 #endif
 
   VS_OUT Output;
@@ -91,7 +95,7 @@ VS_OUT FillVertexData(VS_IN Input)
   float3 normal = Input.Normal * 2.0 - 1.0;
 
 #  if defined(USE_SKINNING)
-  normal = SkinDirection(normal, Input.BoneWeights, Input.BoneIndices);
+  normal = SkinDirection(normal, Input.BoneWeights, Input.BoneIndices + Input.DataOffsets.w);
 #  endif
 
   Output.Normal = normalize(mul(objectToWorldNormal, normal));
@@ -101,7 +105,7 @@ VS_OUT FillVertexData(VS_IN Input)
   float3 tangent = Input.Tangent.xyz * 2.0 - 1.0;
 
 #  if defined(USE_SKINNING)
-  tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
+  tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices + Input.DataOffsets.w);
 #  endif
 
   float handednessCorrection = Input.Tangent.w * 2.0 - 1.0;
@@ -124,6 +128,8 @@ VS_OUT FillVertexData(VS_IN Input)
   Output.Color1 = Input.Color1;
 #  endif
 #endif
+
+  Output.DataOffsets = Input.DataOffsets.xyz;
 
 #if defined(USE_DEBUG_INTERPOLATOR)
   Output.DebugInterpolator = float4(0.1, 0.1, 0.1, 1.0);

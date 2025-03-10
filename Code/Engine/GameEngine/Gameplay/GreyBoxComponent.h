@@ -65,6 +65,7 @@ public:
 
 protected:
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -182,4 +183,5 @@ protected:
   ezMeshResourceHandle m_hMesh;
 
   mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

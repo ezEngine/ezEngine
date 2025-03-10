@@ -6,7 +6,7 @@
 #include <JoltPlugin/Components/JoltVisColMeshComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeConvexHullComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltVisColMeshComponent, 1, ezComponentMode::Static)
@@ -144,20 +144,21 @@ void ezJoltVisColMeshComponent::Initialize()
   GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
+void ezJoltVisColMeshComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+}
+
 void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
 
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering());
+
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-
-  ezRenderData::Caching::Enum caching = ezRenderData::Caching::IfStatic;
-
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
-  {
-    caching = ezRenderData::Caching::Never;
-  }
-
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
@@ -165,19 +166,10 @@ void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
     ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-
-      pRenderData->FillSortingKey();
-    }
-
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, caching);
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
+    
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
   }
 }
 

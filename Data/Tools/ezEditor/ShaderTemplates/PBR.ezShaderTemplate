@@ -157,6 +157,9 @@ Texture2D OrmTexture;
 // Note that code from the [SHADER] section is prepended, as well.
 
 #include <Shaders/Materials/MaterialVertexShader.h>
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+#include <ProcGen/ProcGenVertexColor.h>
+%endif
 
 VS_OUT main(VS_IN Input)
 {
@@ -173,6 +176,7 @@ VS_OUT main(VS_IN Input)
 
   return Output;
 }
+
 
 [PIXELSHADER]
 // This section contains the pixel shader code.

@@ -22,16 +22,17 @@ public:
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezTrailParticleShaderData> m_TrailParticleData;
   ezArrayPtr<ezVec4> m_TrailPointsShared;
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
-  bool m_bApplyObjectTransform = true;
+  ezTransform m_GlobalTransform;
   ezTime m_TotalEffectLifeTime;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
-  ezTexture2DResourceHandle m_hDistortionTexture;
-  float m_fDistortionStrength = 0;
 
+  float m_fDistortionStrength = 0;
+  ezTexture2DResourceHandle m_hDistortionTexture;
+
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;

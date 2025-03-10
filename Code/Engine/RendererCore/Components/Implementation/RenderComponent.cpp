@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
@@ -32,6 +33,9 @@ void ezRenderComponent::Deinitialize()
 
 void ezRenderComponent::OnActivated()
 {
+  // Ensure that the render data manager exists.
+  GetWorld()->GetOrCreateModule<ezRenderDataManager>();
+
   TriggerLocalBoundsUpdate();
 }
 

@@ -8,6 +8,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
@@ -428,12 +429,12 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
 
 void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
 
   pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
+  pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
-  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
-  pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
@@ -564,7 +565,7 @@ void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const
   m_TangentParticleData = nullptr;
   if (bNeedsTangentData)
   {
-    m_TangentParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_TangentParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData, numParticles);
   }
 }
 

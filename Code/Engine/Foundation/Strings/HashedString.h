@@ -180,7 +180,7 @@ public:
 
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
-  ezTempHashedString(const char (&string)[N]); // [tested]
+  constexpr ezTempHashedString(const char (&string)[N]); // [tested]
 
   template <size_t N>
   ezTempHashedString(char (&string)[N]) = delete;

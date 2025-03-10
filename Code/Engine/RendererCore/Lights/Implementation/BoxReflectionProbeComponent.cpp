@@ -2,14 +2,16 @@
 
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 
-#include <../../Data/Base/Shaders/Common/LightData.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
+
+#include <../../Data/Base/Shaders/Common/LightData.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezBoxReflectionProbeComponent, 2, ezComponentMode::Static)
@@ -152,9 +154,11 @@ void ezBoxReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRenderDat
     ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_vProbePosition = pRenderData->m_GlobalTransform * m_Desc.m_vCaptureOffset;
+  auto globalTransform = GetOwner()->GetGlobalTransform();
+
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
+  pRenderData->m_vGlobalPosition = globalTransform * m_Desc.m_vCaptureOffset;
+  pRenderData->m_GlobalTransform = globalTransform;
   pRenderData->m_vHalfExtents = m_vExtents / 2.0f;
   pRenderData->m_vInfluenceScale = m_vInfluenceScale;
   pRenderData->m_vInfluenceShift = m_vInfluenceShift;

@@ -22,10 +22,9 @@ public:
 
   enum
   {
-    MAX_LIGHT_DATA = 1024,
-    MAX_DECAL_DATA = 1024,
-    MAX_REFLECTION_PROBE_DATA = 1024,
-    MAX_ITEMS_PER_CLUSTER = 256
+    MAX_NUM_LIGHTS = EZ_BIT(10),
+    MAX_NUM_DECALS = EZ_BIT(10),
+    MAX_NUM_REFLECTION_PROBES = EZ_BIT(8),
   };
 
   ezArrayPtr<ezPerLightData> m_LightData;
@@ -80,9 +79,9 @@ private:
   ezDynamicArray<ezPerLightData, ezAlignedAllocatorWrapper> m_TempLightData;
   ezDynamicArray<ezPerDecalData, ezAlignedAllocatorWrapper> m_TempDecalData;
   ezDynamicArray<ezPerReflectionProbeData, ezAlignedAllocatorWrapper> m_TempReflectionProbeData;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_LIGHT_DATA>> m_TempLightsClusters;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_DECAL_DATA>> m_TempDecalsClusters;
-  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA>> m_TempReflectionProbeClusters;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_LIGHTS>> m_TempLightsClusters;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_DECALS>> m_TempDecalsClusters;
+  ezDynamicArray<TempCluster<ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES>> m_TempReflectionProbeClusters;
   ezDynamicArray<ezUInt32> m_TempClusterItemList;
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;

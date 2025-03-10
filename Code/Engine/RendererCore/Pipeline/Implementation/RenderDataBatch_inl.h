@@ -42,8 +42,9 @@ EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderDa
   m_pEnd = pEnd;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetDataCount() const
 {
   return m_Data.GetCount();
 }
@@ -59,6 +60,21 @@ EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(e
 {
   ezUInt32 uiEndIndex = ezMath::Min(uiStartIndex + uiCount, m_Data.GetCount());
   return Iterator<T>(m_Data.GetPtr() + uiStartIndex, m_Data.GetPtr() + uiEndIndex);
+}
+
+EZ_ALWAYS_INLINE ezGALBufferHandle ezRenderDataBatch::GetDataOffsetsBuffer() const
+{
+  return m_hDataOffsetsBuffer;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetFirstDataOffsetIndex() const
+{
+  return m_uiFirstDataOffsetIndex;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetInstanceCount() const
+{
+  return m_uiInstanceCount;
 }
 
 //////////////////////////////////////////////////////////////////////////

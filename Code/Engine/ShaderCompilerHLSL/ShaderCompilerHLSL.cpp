@@ -694,11 +694,12 @@ void ezShaderCompilerHLSL::Initialize()
     m_VertexInputMapping["POSITION"] = ezGALVertexAttributeSemantic::Position;
     m_VertexInputMapping["NORMAL"] = ezGALVertexAttributeSemantic::Normal;
     m_VertexInputMapping["TANGENT"] = ezGALVertexAttributeSemantic::Tangent;
+    m_VertexInputMapping["BITANGENT"] = ezGALVertexAttributeSemantic::BiTangent;
     m_VertexInputMapping["COLOR"] = ezGALVertexAttributeSemantic::Color0;
     m_VertexInputMapping["TEXCOORD"] = ezGALVertexAttributeSemantic::TexCoord0;
-    m_VertexInputMapping["BITANGENT"] = ezGALVertexAttributeSemantic::BiTangent;
     m_VertexInputMapping["BONEINDICES"] = ezGALVertexAttributeSemantic::BoneIndices0;
     m_VertexInputMapping["BONEWEIGHTS"] = ezGALVertexAttributeSemantic::BoneWeights0;
+    m_VertexInputMapping["DATAOFFSETS"] = ezGALVertexAttributeSemantic::DataOffsets;
   }
 }
 

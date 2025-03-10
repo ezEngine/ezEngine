@@ -12,7 +12,7 @@
 #include <RendererCore/Lights/Implementation/ReflectionPoolData.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
@@ -102,7 +102,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezUInt32 uiMipLevels = GetMipLevels();
-  if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.GetCount() == uiMipLevels * s_uiNumReflectionProbeCubeMaps)
+  if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.IsValid())
   {
     if (ref_msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {
@@ -124,29 +124,31 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       return;
 
     const ezGameObject* pOwner = pComponent->GetOwner();
-    const ezTransform ownerTransform = pOwner->GetGlobalTransform();
+    const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
+
+    // This is debug rendering code so we don't want to trash the static instance data buffer every frame.
+    const bool bDynamic = true;
+    ezGALDynamicBufferHandle hInstanceDataBuffer;
+    auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(pComponent, bDynamic, hInstanceDataBuffer, probeData.m_DebugInstanceDataOffset, uiMipLevels);
 
     ezUInt32 uiMipLevelsToRender = probeData.m_desc.m_bShowMipMaps ? uiMipLevels : 1;
     for (ezUInt32 i = 0; i < uiMipLevelsToRender; i++)
     {
-      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-      pRenderData->m_GlobalTransform.m_vPosition = ownerTransform * probeData.m_desc.m_vCaptureOffset;
-      pRenderData->m_GlobalTransform.m_vScale = ezVec3(1.0f);
-      if (!probeData.m_Flags.IsSet(ezProbeFlags::SkyLight))
-      {
-        pRenderData->m_GlobalTransform.m_qRotation = ownerTransform.m_qRotation;
-      }
-      pRenderData->m_GlobalTransform.m_vPosition.z += s_fDebugSphereRadius * i * 2;
-      pRenderData->m_GlobalBounds = pOwner->GetGlobalBounds();
-      pRenderData->m_hMesh = s_pData->m_hDebugSphere;
-      pRenderData->m_hMaterial = s_pData->m_hDebugMaterial[iMappedIndex * uiMipLevels + i];
-      pRenderData->m_Color = ezColor::White;
-      pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
+      ezTransform t;
+      t.m_vPosition = probeData.m_GlobalTransform * probeData.m_desc.m_vCaptureOffset;
+      t.m_vPosition.z += s_fDebugSphereRadius * i * 2;
+      t.m_qRotation = probeData.m_Flags.IsSet(ezProbeFlags::SkyLight) ? ezQuat::MakeIdentity() : probeData.m_GlobalTransform.m_qRotation;
+      t.m_vScale = ezVec3(1.0f);
 
-      pRenderData->FillSortingKey();
-      ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+      ezVec4 customData = ezVec4(static_cast<float>(iMappedIndex), static_cast<float>(i), 0, 0);
+
+      ezRenderDataManager::FillPerInstanceData(instanceData[i], pOwner, t, uiUniqueID, ezColor::White, customData);
     }
+
+    ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+    pRenderData->Fill(probeData.m_DebugInstanceDataOffset, hInstanceDataBuffer, s_pData->m_hDebugMaterial, s_pData->m_hDebugSphere, 0, uiMipLevelsToRender);
+
+    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
   }
 #endif
 }

@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
@@ -113,12 +114,13 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   if (m_fIntensity <= 0.0f)
     return;
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner());
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
+
+  pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
 
   if (m_bCastShadows)
   {

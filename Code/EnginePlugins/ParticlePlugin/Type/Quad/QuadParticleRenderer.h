@@ -16,22 +16,22 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData
 public:
   virtual bool CanBatch(const ezRenderData& other) const override;
 
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
+  ezTransform m_GlobalTransform;
   ezTime m_TotalEffectLifeTime;
-  bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
 
-  ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
+  ezTexture2DResourceHandle m_hDistortionTexture;
   ezTempHashedString m_QuadModePermutation;
 
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;

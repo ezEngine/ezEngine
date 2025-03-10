@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/World/World.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -8,26 +7,41 @@
 
 struct ezMsgSetColor;
 struct ezMsgSetCustomData;
-struct ezInstanceData;
 
-class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
+class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezInstanceableRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezInstanceableRenderData);
 
 public:
+  EZ_FORCE_INLINE void Fill(ezInstanceDataOffset instanceDataOffset, ezGALDynamicBufferHandle hInstanceDataBuffer, ezMaterialResourceHandle hMaterial, ezMeshResourceHandle hMesh, ezUInt32 uiSubMeshIndex = 0, ezUInt32 uiNumInstances = 1, const ezBoundingBox& globalBoundingBox = ezBoundingBox::MakeInvalid())
+  {
+    m_uiNumInstances = uiNumInstances;
+    m_DataOffsets.m_uiInstance = instanceDataOffset.m_uiOffset;
+    m_hInstanceDataBuffer = hInstanceDataBuffer;
+
+    m_hMaterial = hMaterial;
+    m_hMesh = hMesh;
+    m_uiSubMeshIndex = uiSubMeshIndex;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    m_GlobalBoundingBox = globalBoundingBox;
+#endif
+
+    FillSortingKey();
+  }
+
   void FillSortingKey();
   virtual bool CanBatch(const ezRenderData& other) const override;
 
-  ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  ezMeshResourceHandle m_hMesh;
+  ezUInt32 m_uiSubMeshIndex = 0;
 
-  ezUInt32 m_uiSubMeshIndex : 30;
-  ezUInt32 m_uiFlipWinding : 1;
-  ezUInt32 m_uiUniformScale : 1;
+  ezGALDynamicBufferHandle m_hCustomInstanceDataBuffer;
 
-  ezUInt32 m_uiUniqueID = 0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezBoundingBox m_GlobalBoundingBox = ezBoundingBox::MakeInvalid();
+#endif
 };
 
 /// \brief This message is used to replace the material on a mesh.
@@ -57,6 +71,8 @@ class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
   // ezComponent
 
 public:
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -85,25 +101,35 @@ public:
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;                  // [ property ]
 
   /// \brief An additional tint color passed to the renderer to modify the mesh.
-  void SetColor(const ezColor& color); // [ property ]
-  const ezColor& GetColor() const;     // [ property ]
+  void SetColor(const ezColor& color);                // [ property ]
+  const ezColor& GetColor() const { return m_Color; } // [ property ]
 
   /// \brief An additional vec4 passed to the renderer that can be used by custom material shaders for effects.
-  void SetCustomData(const ezVec4& vData); // [ property ]
-  const ezVec4& GetCustomData() const;     // [ property ]
+  void SetCustomData(const ezVec4& vData);                      // [ property ]
+  const ezVec4& GetCustomData() const { return m_vCustomData; } // [ property ]
 
   /// \brief The sorting depth offset allows to tweak the order in which this mesh is rendered relative to other meshes.
   ///
   /// This is mainly useful for transparent objects to render them before or after other meshes.
-  void SetSortingDepthOffset(float fOffset);                // [ property ]
-  float GetSortingDepthOffset() const;                      // [ property ]
+  void SetSortingDepthOffset(float fOffset);                            // [ property ]
+  float GetSortingDepthOffset() const { return m_fSortingDepthOffset; } // [ property ]
 
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
-  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);     // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg);             // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);                           // [ msg handler ]
+  void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg);                 // [ msg handler ]
+
+  /// \brief Set custom instance data for this mesh component which can be used by custom material shaders when
+  /// the simple custom data vector is not sufficient.
+  ///
+  /// Typically another component besides this mesh component would create and manage the buffer that holds the custom instance data.
+  /// See ezRenderDataManager how to create and fill such a buffer.
+  void SetCustomInstanceData(ezCustomInstanceDataOffset offset, ezGALDynamicBufferHandle hBuffer);
+  ezCustomInstanceDataOffset GetCustomInstanceDataOffset() const { return m_CustomInstanceDataOffset; }
+  ezGALDynamicBufferHandle GetCustomInstanceDataBuffer() const { return m_hCustomInstanceDataBuffer; }
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const;
+  virtual ezTransform GetFinalGlobalTransform() const;
+  virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const;
 
   // TODO: Using ezStringView for the array accessors doesn't work (currently)
 
@@ -114,10 +140,16 @@ protected:
   void Materials_Remove(ezUInt32 uiIndex);                    // [ property ]
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void DeleteInstanceData();
 
   ezMeshResourceHandle m_hMesh;
-  ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+  ezSmallArray<ezMaterialResourceHandle, 2> m_Materials;
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
+
+  ezCustomInstanceDataOffset m_CustomInstanceDataOffset;
+  ezGALDynamicBufferHandle m_hCustomInstanceDataBuffer;
 };

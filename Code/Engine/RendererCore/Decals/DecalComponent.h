@@ -18,6 +18,9 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalRenderData, ezRenderData);
 
 public:
+  ezQuat m_qGlobalRotation;
+  ezVec3 m_vGlobalScale;
+
   ezUInt32 m_uiApplyOnlyToId;
   ezUInt32 m_uiFlags;
   ezUInt32 m_uiAngleFadeParams;

@@ -99,6 +99,8 @@ void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHead
 template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename ResourceHeadMap::ConstIterator resourceHead, Item* pItem)
 {
+  EZ_IGNORE_UNUSED(resourceHead); // TODO: why don't we do anything with this parameter?
+
   if (pItem->m_pNextResource != nullptr)
   {
     Item* pNextItem = pItem->m_pNextResource;
@@ -133,6 +135,8 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename Reso
 template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::RemoveDependencyItem(typename DependencyHeadMap::ConstIterator dependencyHead, Item* pItem)
 {
+  EZ_IGNORE_UNUSED(dependencyHead); // TODO: why don't we do anything with this parameter?
+
   if (pItem->m_pNextDependency != nullptr)
   {
     Item* pNextItem = pItem->m_pNextDependency;

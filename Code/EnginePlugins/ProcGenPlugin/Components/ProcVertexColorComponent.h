@@ -2,23 +2,11 @@
 
 #include <Core/World/World.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererFoundation/Resources/DynamicBuffer.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderData : public ezMeshRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderData, ezMeshRenderData);
-
-public:
-  ezGALDynamicBufferHandle m_hVertexColorBuffer;
-  ezUInt32 m_uiBufferAccessData = 0;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-struct ezRenderWorldExtractionEvent;
+class ezMeshComponentBase;
 class ezProcVertexColorComponent;
-class ezCpuMeshResource;
+using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
 {
@@ -34,25 +22,32 @@ public:
 private:
   friend class ezProcVertexColorComponent;
 
-  void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
-  bool UpdateComponentOutputs(ezProcVertexColorComponent* pComponent);
-  void UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent, ezGALDynamicBuffer* pBuffer);
-  void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
+  struct UpdateContext
+  {
+    ezProcVertexColorComponent* m_pComponent = nullptr;
+    ezCpuMeshResourceHandle m_hCpuMesh;
+    ezUInt32 m_uiVertexColorOffset = 0;
+  };
 
-  void EnqueueUpdate(ezProcVertexColorComponent* pComponent);
-  void RemoveComponent(ezProcVertexColorComponent* pComponent);
+  void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
+  bool UpdateComponentOutputs(ezProcVertexColorComponent& component);
+  void UpdateComponentVertexColors(const UpdateContext& context, ezGALDynamicBuffer& buffer);
+
+  void EnqueueUpdate(ezProcVertexColorComponent& component);
+  void RemoveComponent(ezProcVertexColorComponent& component);
 
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
   void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
+  ezDynamicArray<UpdateContext> m_UpdateContexts;
 
   ezDynamicArray<ezSharedPtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
   ezTaskGroupID m_UpdateTaskGroupID;
   ezUInt32 m_uiNextTaskIndex = 0;
 
-  ezGALDynamicBufferHandle m_hVertexColorBuffer;
+  ezUInt32 m_uiCustomDataIndex = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,9 +67,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorOutputDesc);
 
 struct ezMsgTransformChanged;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezMeshComponent
+class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezMeshComponent, ezProcVertexColorComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezProcVertexColorComponent, ezComponent, ezProcVertexColorComponentManager);
 
 public:
   ezProcVertexColorComponent();
@@ -97,9 +92,6 @@ public:
 
   void OnTransformChanged(ezMsgTransformChanged& ref_msg);
 
-protected:
-  virtual ezMeshRenderData* CreateRenderData() const override;
-
 private:
   ezUInt32 OutputDescs_GetCount() const;
   void OutputDescs_Insert(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
@@ -107,22 +99,12 @@ private:
 
   bool HasValidOutputs() const;
 
-  const ezCpuMeshResource* GetCpuMeshResource() const;
-
-  enum
-  {
-    BUFFER_ACCESS_OFFSET_BITS = 28,
-    BUFFER_ACCESS_OFFSET_MASK = (1 << BUFFER_ACCESS_OFFSET_BITS) - 1,
-  };
-
-  void SetBufferOffset(ezUInt32 uiOffset);
-  ezUInt32 GetBufferOffset() const { return m_uiBufferAccessData & BUFFER_ACCESS_OFFSET_MASK; }
+  ezMeshComponentBase* GetMeshComponent();
 
   ezProcGenGraphResourceHandle m_hResource;
-  ezHybridArray<ezProcVertexColorOutputDesc, 2> m_OutputDescs;
+  ezSmallArray<ezProcVertexColorOutputDesc, 1> m_OutputDescs;
 
-  ezHybridArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>, 2> m_Outputs;
+  ezSmallArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>, 1> m_Outputs;
 
-  ezGALDynamicBufferHandle m_hVertexColorBuffer;
-  ezUInt32 m_uiBufferAccessData = 0;
+  ezCustomInstanceDataOffset m_CustomInstanceDataOffset;
 };

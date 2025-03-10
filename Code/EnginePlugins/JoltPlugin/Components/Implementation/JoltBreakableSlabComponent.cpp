@@ -14,6 +14,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,7 @@ void ezJoltBreakableSlabComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::Update, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::PostAsyncUpdate, this);
     desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
@@ -93,7 +94,7 @@ void ezJoltBreakableSlabComponentManager::ReinitSlabs(const ezWorldModule::Updat
   }
 }
 
-void ezJoltBreakableSlabComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::UpdateContext& context)
 {
   EZ_PROFILE_SCOPE("UpdateBreakableSlabs");
 
@@ -216,6 +217,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltBreakableSlabComponent, 1, ezComponentMode::Dynami
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
     EZ_MESSAGE_HANDLER(ezMsgPhysicContact, OnMsgPhysicContactMsg),
     EZ_MESSAGE_HANDLER(ezMsgPhysicCharacterContact, OnMsgPhysicCharacterContact),
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -328,8 +330,7 @@ void ezJoltBreakableSlabComponent::OnSimulationStarted()
     PrepareShardColliders(0, shapes);
   }
 
-  m_hSwitchToMesh = m_hMeshToRender;
-  m_iSwitchToSkinningState = CreateShardColliders(0, shapes);
+  CreateShardColliders(0, shapes);
   m_uiShardsSleeping = 190;
 
   InvalidateCachedRenderData();
@@ -344,6 +345,9 @@ void ezJoltBreakableSlabComponent::OnSimulationStarted()
 void ezJoltBreakableSlabComponent::OnDeactivated()
 {
   Cleanup();
+
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
   {
@@ -439,8 +443,7 @@ void ezJoltBreakableSlabComponent::Restore()
   ezHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
   PrepareShardColliders(0, shapes);
 
-  m_hSwitchToMesh = m_hMeshToRender;
-  m_iSwitchToSkinningState = CreateShardColliders(0, shapes);
+  CreateShardColliders(0, shapes);
   m_uiShardsSleeping = 190;
 
   InvalidateCachedRenderData();
@@ -607,8 +610,8 @@ void ezJoltBreakableSlabComponent::ApplyBreak(ezArrayPtr<JPH::Ref<JPH::ConvexSha
 
   const ezUInt32 uiFirstShard = m_ShardBodyIDs.GetCount();
 
-  m_hSwitchToMesh = hMesh;
-  m_iSwitchToSkinningState = CreateShardColliders(uiFirstShard, shapes);
+  m_hMesh = hMesh;
+  CreateShardColliders(uiFirstShard, shapes);
 
   ApplyImpulse(vImpulse, uiFirstShard);
 
@@ -629,16 +632,9 @@ void ezJoltBreakableSlabComponent::Cleanup()
   m_Breakable.Clear();
   m_ShatterPoints.Clear();
 
-  m_SkinningState[0].Clear();
-  m_SkinningState[1].Clear();
-  m_bSkinningUpdated[0] = false;
-  m_bSkinningUpdated[1] = false;
+  m_hMesh.Invalidate();
 
-  m_hMeshToRender.Invalidate();
-  m_hSwitchToMesh.Invalidate();
-
-  m_iSkinningStateToUse = -1;
-  m_iSwitchToSkinningState = -1;
+  m_SkinningState.Clear();
 }
 
 void ezJoltBreakableSlabComponent::ReinitMeshes()
@@ -715,7 +711,7 @@ void ezJoltBreakableSlabComponent::ReinitMeshes()
     }
   }
 
-  m_hMeshToRender = CreateShardsMesh();
+  m_hMesh = CreateShardsMesh();
 
   InvalidateCachedRenderData();
 
@@ -1006,7 +1002,7 @@ void ezJoltBreakableSlabComponent::WakeUpBodies()
   jphBodies.ActivateBodiesInAABox(box, broadphaseFilter, objectFilter);
 }
 
-ezUInt8 ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes)
+void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes)
 {
   EZ_PROFILE_SCOPE("CreateShardColliders");
 
@@ -1017,26 +1013,23 @@ ezUInt8 ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard
   const ezJoltUserData* pUserDataDynamic = &pModule->GetUserData(m_uiUserDataIndexDynamic);
   const ezJoltMaterial* pMaterial = GetPhysicsMaterial();
 
-  const ezInt8 iOldSkinningState = m_iSkinningStateToUse;
-  const ezInt8 iNewSkinningState = m_iSkinningStateToUse == 0 ? 1 : 0;
-  m_SkinningState[iNewSkinningState].Clear();
+  // GetOrCreateBoneTransformsForWriting will resize as necessary but will lose existing data so we need to make a copy here
+  ezDynamicArray<ezShaderTransform> oldTransforms(ezFrameAllocator::GetCurrentAllocator());
+  oldTransforms = m_SkinningState.GetBoneTransformsForReading();
+  
+  auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_Breakable.m_Shards.GetCount());
+  ezMemoryUtils::Copy(transforms.GetPtr(), oldTransforms.GetData(), oldTransforms.GetCount());
 
-  if (iOldSkinningState != -1)
-  {
-    m_SkinningState[iNewSkinningState].m_Transforms = m_SkinningState[iOldSkinningState].m_Transforms;
-  }
-
-  m_SkinningState[iNewSkinningState].m_Transforms.SetCount(m_Breakable.m_Shards.GetCount());
   m_ShardBodyIDs.SetCount(m_Breakable.m_Shards.GetCount(), ezInvalidIndex);
 
   for (ezUInt32 uiShardIdx = uiFirstShard; uiShardIdx < m_Breakable.m_Shards.GetCount(); ++uiShardIdx)
   {
+    transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0));
+
     const auto& shard = m_Breakable.m_Shards[uiShardIdx];
 
     if (shard.m_bShattered)
-      continue;
-
-    m_SkinningState[iNewSkinningState].m_Transforms[uiShardIdx] = ezTransform::MakeIdentity();
+      continue;    
 
     JPH::ConvexShape* pShape = shapes[uiShardIdx - uiFirstShard];
     if (pShape == nullptr)
@@ -1076,7 +1069,7 @@ ezUInt8 ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard
     bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_vPosition);
     bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_qRotation).Normalized();
 
-    m_SkinningState[iNewSkinningState].m_Transforms[uiShardIdx] = trans;
+    transforms[uiShardIdx] = trans;
 
     // Create and add body
     JPH::Body* pBody = jphBodies.CreateBody(bodyCfg);
@@ -1084,11 +1077,6 @@ ezUInt8 ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard
 
     m_ShardBodyIDs[uiShardIdx] = pBody->GetID().GetIndexAndSequenceNumber();
   }
-
-  m_bSkinningUpdated[iNewSkinningState] = true;
-  m_SkinningState[iNewSkinningState].TransformsChanged();
-
-  return iNewSkinningState;
 }
 
 void ezJoltBreakableSlabComponent::DestroyAllShardColliders()
@@ -1116,15 +1104,8 @@ void ezJoltBreakableSlabComponent::DestroyShardCollider(ezUInt32 uiShardIdx, JPH
 
   if (bUpdateVis)
   {
-    ezInt32 iSkinningState = m_iSkinningStateToUse;
-    if (m_iSwitchToSkinningState != -1)
-      iSkinningState = m_iSwitchToSkinningState;
-
-    EZ_ASSERT_DEBUG(iSkinningState != -1, "");
-    m_SkinningState[iSkinningState].m_Transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0)); // make it disappear by scaling to zero
-
-    // not needed here
-    // m_SkinningState[m_uiSkinningStateToUse].TransformsChanged();
+    auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_SkinningState.m_uiNumBones);
+    transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0)); // make it disappear by scaling to zero
   }
 
   if (bodyId.IsInvalid())
@@ -1148,20 +1129,14 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
 
   m_uiShardsSleeping = 0;
 
-  ezInt32 iSkinningState = m_iSkinningStateToUse;
-
-  if (m_iSwitchToSkinningState != -1)
-    iSkinningState = m_iSwitchToSkinningState;
-
-  if (iSkinningState == -1)
-    return;
-
   ezBoundingBox bbox = ezBoundingBox::MakeInvalid();
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
   auto& jphBodies = pModule->GetBodyInterface();
 
   const ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
+
+  auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_SkinningState.m_uiNumBones);
 
   for (ezUInt32 idx = 0; idx < m_ShardBodyIDs.GetCount(); ++idx)
   {
@@ -1174,7 +1149,7 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
     JPH::Quat rot;
     jphBodies.GetPositionAndRotation(bodyId, pos, rot);
 
-    m_SkinningState[iSkinningState].m_Transforms[idx] = ezJoltConversionUtils::ToTransform(pos, rot);
+    transforms[idx] = ezJoltConversionUtils::ToTransform(pos, rot);
 
     const ezVec3 vPos = ezJoltConversionUtils::ToVec3(pos);
 
@@ -1199,12 +1174,6 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
 
     m_Bounds = bbox;
     TriggerLocalBoundsUpdate();
-  }
-
-  if (!m_bSkinningUpdated[iSkinningState])
-  {
-    m_bSkinningUpdated[iSkinningState] = true;
-    m_SkinningState[iSkinningState].TransformsChanged();
   }
 }
 
@@ -1283,56 +1252,44 @@ void ezJoltBreakableSlabComponent::OnMsgPhysicCharacterContact(ezMsgPhysicCharac
   GetOwner()->PostEventMessage(ref_msg, this, ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
 }
 
+void ezJoltBreakableSlabComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg)
+{
+  m_SkinningState.m_DataOffset = ref_msg.m_NewOffset;
+}
+
 void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  m_bSkinningUpdated[0] = false;
-  m_bSkinningUpdated[1] = false;
-
-  if (m_hSwitchToMesh.IsValid())
-  {
-    m_hMeshToRender = m_hSwitchToMesh;
-    m_iSkinningStateToUse = m_iSwitchToSkinningState;
-    m_hSwitchToMesh.Invalidate();
-  }
-
-  if (m_hMeshToRender.IsValid())
+  if (m_hMesh.IsValid())
   {
     ezMeshRenderData* pRenderData = nullptr;
+    ezTransform globalTransform;
 
-    if (m_iSkinningStateToUse == -1)
+    const bool bHasSkinning = m_SkinningState.HasBoneTransforms();
+    if (bHasSkinning)
     {
-      pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalTransform.m_vPosition += pRenderData->m_GlobalTransform.m_qRotation * ezVec3(m_fWidth * 0.5f, m_fHeight * 0.5f, 0);
+      auto pSkinnedRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+      pSkinnedRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+      pSkinnedRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
+      pRenderData = pSkinnedRenderData;
+
+      globalTransform = ezTransform::MakeIdentity();
     }
     else
     {
-      auto pSkinnedRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-      pSkinnedRenderData->m_hSkinningTransforms = m_SkinningState[m_iSkinningStateToUse].m_hGpuBuffer;
+      pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
 
-      pRenderData = pSkinnedRenderData;
-      pRenderData->m_GlobalTransform = ezTransform::MakeIdentity();
+      globalTransform = GetOwner()->GetGlobalTransform();
+      globalTransform.m_vPosition += globalTransform.m_qRotation * ezVec3(m_fWidth * 0.5f, m_fHeight * 0.5f, 0);
     }
 
-    {
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMeshToRender;
-      pRenderData->m_hMaterial = m_hMaterial;
-      pRenderData->m_Color = ezColor::White;
-      pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+    const bool bDynamic = GetOwner()->IsDynamic();
+    auto hInstanceBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-      pRenderData->FillSortingKey();
-    }
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceBuffer, m_hMaterial, m_hMesh, 0, 1, GetOwner()->GetGlobalBounds().GetBox());
 
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-    if (m_hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
 
-    if (m_iSkinningStateToUse != -1)
+    if (bHasSkinning)
     {
       if (m_uiShardsSleeping >= 200)
       {

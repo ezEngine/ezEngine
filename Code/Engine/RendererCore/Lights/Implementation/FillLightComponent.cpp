@@ -6,6 +6,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/FillLightComponent.h>
 #include <RendererCore/Lights/LightComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -197,9 +198,8 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   }
 #endif
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezFillLightRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFillLightRenderData>(GetOwner());
 
-  pRenderData->m_GlobalTransform = t;
   pRenderData->m_LightColor = GetEffectiveColor();
   pRenderData->m_LightMode = m_LightMode;
   pRenderData->m_fIntensity = m_fIntensity;

@@ -2,7 +2,6 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <KrautPlugin/KrautDeclarations.h>
-#include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
@@ -29,6 +28,7 @@ public:
   }
 
   void Update(const ezWorldModule::UpdateContext& context);
+  void UpdateWind(const ezWorldModule::UpdateContext& context);
   void EnqueueUpdate(ezComponentHandle hComponent);
 
 private:
@@ -110,9 +110,10 @@ private:
   ezKrautTreeResourceHandle m_hKrautTree;
   ezKrautGeneratorResourceHandle m_hKrautGenerator;
 
-  void ComputeWind() const;
+  void ComputeWind();
 
-  mutable ezUInt64 m_uiLastWindUpdate = (ezUInt64)-1;
-  mutable ezVec3 m_vWindSpringPos;
-  mutable ezVec3 m_vWindSpringVel;
+  ezVec3 m_vWindSpringPos;
+  ezVec3 m_vWindSpringVel;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

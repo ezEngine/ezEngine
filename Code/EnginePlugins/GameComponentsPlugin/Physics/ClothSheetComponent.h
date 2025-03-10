@@ -140,6 +140,8 @@ private:
 
   ezUInt8 m_uiSleepCounter = 0;
   ezUInt8 m_uiCheckEquilibriumCounter = 0;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
+
   ezClothSimulator m_Simulator;
 
   ezBoundingBox m_Bbox;

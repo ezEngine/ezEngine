@@ -33,7 +33,7 @@ struct EZ_RENDERERCORE_DLL ezDynamicMeshVertexNTT
     m_vEncodedNormal.x = ezMath::ColorFloatToShort(vNormal.x * 0.5f + 0.5f);
     m_vEncodedNormal.y = ezMath::ColorFloatToShort(vNormal.y * 0.5f + 0.5f);
     m_vEncodedNormal.z = ezMath::ColorFloatToShort(vNormal.z * 0.5f + 0.5f);
-    m_vEncodedNormal.w = 0.0f;
+    m_vEncodedNormal.w = 0;
 
     // this is the same but slower
     // ezMeshBufferUtils::EncodeNormal(vNormal, ezByteArrayPtr(reinterpret_cast<ezUInt8*>(&m_vEncodedNormal), sizeof(ezVec4U16)), ezGALResourceFormat::RGBAUShortNormalized).IgnoreResult();

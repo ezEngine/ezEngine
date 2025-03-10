@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Components/SpriteComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
@@ -38,6 +39,7 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
   view.ComputeCullingFrustum(frustum);
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+  auto pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
 
   /// \todo Once we have a solution for objects that only have a shape icon we can switch this loop to use visibleObjects instead.
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
@@ -50,7 +52,7 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
     if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
       continue;
 
-    ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
+    ExtractShapeIcon(pObject, view, pRenderDataManager, ref_extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
   }
 
   if (m_pSceneContext != nullptr)
@@ -69,7 +71,7 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
         if (frustum.GetObjectPosition(sphere) == ezVolumePosition::Outside)
           continue;
 
-        ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::Selection);
+        ExtractShapeIcon(pObject, view, pRenderDataManager, ref_extractedRenderData, ezDefaultRenderDataCategories::Selection);
       }
     }
   }
@@ -93,7 +95,7 @@ ezResult ezEditorShapeIconsExtractor::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, const ezRenderDataManager* pRenderDataManager, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
@@ -125,10 +127,8 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
   ShapeIconInfo* pShapeIconInfo = nullptr;
   if (m_ShapeIconInfos.TryGetValue(pRtti, pShapeIconInfo))
   {
-    ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject);
+    ezSpriteRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSpriteRenderData>(pObject);
     {
-      pRenderData->m_GlobalTransform = pObject->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = pObject->GetGlobalBounds();
       pRenderData->m_hTexture = pShapeIconInfo->m_hTexture;
       pRenderData->m_fSize = m_fSize;
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;

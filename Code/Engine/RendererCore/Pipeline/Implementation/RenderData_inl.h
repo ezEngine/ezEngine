@@ -51,6 +51,21 @@ EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category cat
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE bool ezRenderData::IsDynamic() const
+{
+  return m_Flags.IsSet(Flags::Dynamic);
+}
+
+EZ_ALWAYS_INLINE bool ezRenderData::IsStatic() const
+{
+  return !m_Flags.IsSet(Flags::Dynamic);
+}
+
+EZ_ALWAYS_INLINE bool ezRenderData::FlipWinding() const
+{
+  return m_Flags.IsSet(Flags::FlipWinding);
+}
+
 EZ_FORCE_INLINE ezUInt64 ezRenderData::GetFinalSortingKey(Category category, const ezCamera& camera) const
 {
   return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, camera);
@@ -58,22 +73,7 @@ EZ_FORCE_INLINE ezUInt64 ezRenderData::GetFinalSortingKey(Category category, con
 
 //////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
+EZ_FORCE_INLINE bool ezInstanceableRenderData::CanBatchByBaseValues(const ezInstanceableRenderData& other) const
 {
-  static_assert(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
-
-  T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
-
-  if (pOwner != nullptr)
-  {
-    pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::Dynamic, pOwner->IsDynamic());
-    pRenderData->m_hOwner = pOwner->GetHandle();
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  pRenderData->m_pOwner = pOwner;
-#endif
-
-  return pRenderData;
+  return FlipWinding() == other.FlipWinding() && m_hInstanceDataBuffer == other.m_hInstanceDataBuffer;
 }

@@ -15,7 +15,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData final : public ezRenderDat
 public:
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
-  bool m_bApplyObjectTransform = true;
+  ezTransform m_GlobalTransform;
   ezTime m_TotalEffectLifeTime;
 };
 

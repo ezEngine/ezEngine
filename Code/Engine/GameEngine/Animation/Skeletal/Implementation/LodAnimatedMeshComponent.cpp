@@ -6,8 +6,7 @@
 #include <GameEngine/Animation/Skeletal/LodAnimatedMeshComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/containers/vector.h>
@@ -169,6 +168,11 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
   if (!hMesh.IsValid())
     return;
 
+  // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
+  const bool bDynamic = true;
+  const ezTransform finalTransform = GetOwner()->GetGlobalTransform() * m_RootTransform;
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, finalTransform, m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
+
   ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
@@ -179,29 +183,20 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
 
     hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = CreateRenderData();
+    ezSkinnedMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
     {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+      // Already done in CreateRenderDataForThisFrame but only with the owner's transform. We need to use the final transform here.
+      pRenderData->m_vGlobalPosition = finalTransform.m_vPosition;
+      pRenderData->m_Flags.AddOrRemove(ezRenderData::Flags::FlipWinding, finalTransform.HasMirrorScaling());
+
       pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
-      pRenderData->m_hMesh = hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = m_Color;
-      pRenderData->m_vCustomData = m_vCustomData;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+      pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+      pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
 
-      pRenderData->FillSortingKey();
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
     }
 
-    // Determine render data category.
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
 
     msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
   }
@@ -209,7 +204,7 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
 
 void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
 {
-  m_SkinningState.m_Transforms.SetCountUninitialized(bones.GetCount());
+  auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, bones.GetCount());
 
   if (bounds)
   {
@@ -221,7 +216,7 @@ void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTa
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
   else
@@ -233,7 +228,7 @@ void ezLodAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTa
       if (uiJointIdx == ezInvalidJointIndex)
         continue;
 
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
 }
@@ -305,6 +300,7 @@ void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelT
   ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+  auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
   out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
@@ -315,18 +311,8 @@ void ezLodAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelT
     if (uiJointIdx == ezInvalidJointIndex)
       continue;
 
-    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
+    out_modelTransforms[uiJointIdx] = boneTransforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
   }
-}
-
-ezMeshRenderData* ezLodAnimatedMeshComponent::CreateRenderData() const
-{
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-  pRenderData->m_GlobalTransform = m_RootTransform;
-
-  pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
-
-  return pRenderData;
 }
 
 static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)
@@ -426,8 +412,6 @@ void ezLodAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
     m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
   }
-
-  m_SkinningState.TransformsChanged();
 }
 
 void ezLodAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
@@ -457,6 +441,9 @@ void ezLodAnimatedMeshComponent::OnActivated()
 void ezLodAnimatedMeshComponent::OnDeactivated()
 {
   m_SkinningState.Clear();
+
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
 
   SUPER::OnDeactivated();
 }

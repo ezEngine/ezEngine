@@ -11,6 +11,7 @@
 // USE_COLOR0
 // USE_COLOR1
 // USE_SKINNING
+// USE_DATAOFFSETS
 // USE_DEBUG_INTERPOLATOR
 // CUSTOM_INTERPOLATOR
 
@@ -47,6 +48,10 @@ struct VS_IN
   uint4 BoneIndices : BONEINDICES0;
 #endif
 
+#if defined(USE_DATAOFFSETS)
+  uint4 DataOffsets : DATAOFFSETS; // x: instance data, y: custom instance data, z: material data, w: skinning data
+#endif
+
   uint InstanceID : SV_InstanceID;
   uint VertexID : SV_VertexID;
 };
@@ -54,7 +59,7 @@ struct VS_IN
 #if defined(VERTEX_SHADER) || defined(HULL_SHADER) || defined(DOMAIN_SHADER)
 #  if defined(CAMERA_MODE)
 #    if CAMERA_MODE == CAMERA_MODE_STEREO
-#        define RENDER_TARGET_ARRAY_INDEX
+#      define RENDER_TARGET_ARRAY_INDEX
 #    endif
 #  endif
 #  define STAGE_TEMPLATE VS_OUT
@@ -71,5 +76,3 @@ struct VS_IN
 #  include <Shaders/Materials/MaterialInterpolatorTemplate.h>
 #  undef STAGE_TEMPLATE
 #endif
-
-// typedef VS_OUT PS_IN;

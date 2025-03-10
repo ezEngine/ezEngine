@@ -41,10 +41,16 @@ public:
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
 protected:
+  friend class ezParticleTypeMeshFactory;
+
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override {}
 
   bool QueryMeshAndMaterialInfo() const;
+
+  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+
+  ezRenderDataManager* m_pRenderDataManager = nullptr;
 
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamSize = nullptr;
@@ -54,6 +60,6 @@ protected:
   ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable bool m_bRenderDataCached = false;
-  mutable ezBoundingBoxSphere m_Bounds;
   mutable ezRenderData::Category m_RenderCategory;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

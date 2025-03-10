@@ -36,7 +36,7 @@ WireFrame = false
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Materials/SpriteData.h>
 
-StructuredBuffer<ezPerSpriteData> spriteData BIND_GROUP(BG_RENDER_PASS);
+StructuredBuffer<ezPerSpriteData> spriteData BIND_GROUP(BG_DRAW_CALL);
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -120,8 +120,8 @@ struct PS_OUT
   #endif
 };
 
-Texture2D SpriteTexture BIND_GROUP(BG_RENDER_PASS);
-SamplerState SpriteTexture_AutoSampler BIND_GROUP(BG_RENDER_PASS);
+Texture2D SpriteTexture BIND_GROUP(BG_DRAW_CALL);
+SamplerState SpriteTexture_AutoSampler BIND_GROUP(BG_DRAW_CALL);
 
 float GetOpacity()
 {

@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -100,10 +100,8 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
   if (!m_hTexture.IsValid())
     return;
 
-  ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
+  ezSpriteRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_fSize = m_fSize;
     pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;

@@ -69,7 +69,6 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
 [VERTEXSHADER]
 
 #include <Shaders/Materials/MaterialVertexShader.h>
-#include "TreeShaderData.h"
 
 float3 BendPosition(float3 position, float positionBend, float3 anchorPre, float3 anchorPost, float3 wind, float flutter)
 {
@@ -158,7 +157,7 @@ VS_OUT main(VS_IN Input)
     result.Tangent = GetCameraDirRight();
     result.BiTangent = float3(0, 0, 1);
 
-    float3 camDir = mul(-GetCameraDirForwards(), objectToWorld);
+    float3 camDir = mul(-GetCameraDirForwards(), TransformToRotation(data.ObjectToWorld));
     float3 mainDirs[8] =
     {
       float3(0, +1, 0),
@@ -218,10 +217,11 @@ VS_OUT main(VS_IN Input)
     worldPosition.xyz += span.x * GetCameraDirRight() * size;
     worldPosition.xyz += span.y * GetCameraDirUp() * size;
 
-    result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
+    float3 leafCenter = mul(objectToWorld, float4(data.CustomData.xyz, 1)).xyz;
+    result.LeafNormal = worldPosition.xyz - leafCenter;
 
     [branch]
-    if (LeafShadowOffset > 0.0)
+    if (IsShadowPass)
     {
       float3 camDir = normalize(worldPosition.xyz - GetCameraPosition());
 

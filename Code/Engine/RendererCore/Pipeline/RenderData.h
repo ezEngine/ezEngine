@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Foundation/Communication/Message.h>
-#include <Foundation/Math/BoundingBoxSphere.h>
-#include <Foundation/Math/Transform.h>
+#include <Foundation/Math/Vec3.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -58,6 +57,7 @@ public:
     enum Enum
     {
       Dynamic = EZ_BIT(0),
+      FlipWinding = EZ_BIT(1),
 
       Default = 0
     };
@@ -65,8 +65,13 @@ public:
     struct Bits
     {
       StorageType Dynamic : 1;
+      StorageType FlipWinding : 1;
     };
   };
+
+  bool IsDynamic() const;
+  bool IsStatic() const;
+  bool FlipWinding() const;
 
   /// \brief Returns the final sorting for this render data with the given category and camera.
   ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
@@ -77,11 +82,10 @@ public:
 
   ezBitflags<Flags> m_Flags;
 
-  ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
-  ezBoundingBoxSphere m_GlobalBounds;
+  ezVec3 m_vGlobalPosition = ezVec3::MakeZero();
+  float m_fSortingDepthOffset = 0.0f;
 
   ezUInt32 m_uiSortingKey = 0;
-  float m_fSortingDepthOffset = 0.0f;
 
   ezGameObjectHandle m_hOwner;
 
@@ -117,9 +121,28 @@ private:
   static bool s_bRendererInstancesDirty;
 };
 
-/// \brief Creates render data that is only valid for this frame. The data is automatically deleted after the frame has been rendered.
-template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner);
+/// \brief Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.
+class EZ_RENDERERCORE_DLL ezInstanceableRenderData : public ezRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInstanceableRenderData, ezRenderData);
+
+public:
+  struct DataOffsets
+  {
+    ezUInt32 m_uiInstance = 0;
+    ezUInt32 m_uiCustomInstance = 0;
+    ezUInt32 m_uiMaterial = 0;
+    ezUInt32 m_uiSkinning = 0; // TODO: this could be removed if we switch to compute shader skinning
+  };
+
+  DataOffsets m_DataOffsets;
+
+  ezUInt32 m_uiNumInstances = 1;
+  ezGALDynamicBufferHandle m_hInstanceDataBuffer;
+
+protected:
+  bool CanBatchByBaseValues(const ezInstanceableRenderData& other) const;
+};
 
 struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
@@ -150,6 +173,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractRenderData, ezMessage);
 
   const ezView* m_pView = nullptr;
+  const ezRenderDataManager* m_pRenderDataManager = nullptr;
   ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
 
   /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
@@ -191,6 +215,38 @@ private:
   };
 
   ezHybridArray<Data, 16> m_ExtractedOccluderData;
+};
+
+struct ezInstanceDataOffset
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezInstanceDataOffset()
+    : m_uiOffset(ezInvalidIndex)
+    , m_uiIsDynamic(0)
+  {
+  }
+
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezMath::Bitmask_LowN<ezUInt32>(31); }
+
+  ezUInt32 m_uiOffset : 31;
+  ezUInt32 m_uiIsDynamic : 1;
+};
+
+struct ezCustomInstanceDataOffset
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezInvalidIndex; }
+
+  ezUInt32 m_uiOffset = ezInvalidIndex;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgCustomInstanceDataOffsetChanged : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgCustomInstanceDataOffsetChanged, ezMessage);
+
+  ezCustomInstanceDataOffset m_NewOffset;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

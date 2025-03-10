@@ -35,6 +35,7 @@ struct ezReflectionPool::Data
     ezReflectionProbeDesc m_desc;
     ezTransform m_GlobalTransform;
     ezBitflags<ezProbeFlags> m_Flags;
+    ezInstanceDataOffset m_DebugInstanceDataOffset;
     ezTextureCubeResourceHandle m_hCubeMap; // static data or empty for dynamic.
   };
 
@@ -85,5 +86,5 @@ struct ezReflectionPool::Data
 
   // Debug data
   ezMeshResourceHandle m_hDebugSphere;
-  ezHybridArray<ezMaterialResourceHandle, 6 * s_uiNumReflectionProbeCubeMaps> m_hDebugMaterial;
+  ezMaterialResourceHandle m_hDebugMaterial;
 };

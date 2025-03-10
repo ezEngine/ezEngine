@@ -8,10 +8,8 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Components/RopeRenderComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Shader/Types.h>
 
 ezCVarBool cvar_FeatureRopesVisBones("Feature.Ropes.VisBones", false, ezCVarFlags::Default, "Enables debug visualization of rope bones");
@@ -34,7 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgRopePoseUpdated, OnRopePoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
-    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),      
+    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -87,6 +86,9 @@ void ezRopeRenderComponent::OnDeactivated()
 {
   m_SkinningState.Clear();
 
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
   SUPER::OnDeactivated();
 }
 
@@ -101,54 +103,38 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().HasMirrorScaling() ? 1 : 0;
-  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
+  // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
+  const bool bDynamic = true;
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezMaterialResourceHandle hMaterial = m_hMaterial.IsValid() ? m_hMaterial : pMesh->GetMaterials()[0];
 
-  ezSkinnedMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+  ezSkinnedMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = hMaterial;
-    pRenderData->m_Color = m_Color;
-
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiFlipWinding = uiFlipWinding;
-    pRenderData->m_uiUniformScale = uiUniformScale;
-
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
-
-    pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
-
-    pRenderData->FillSortingKey();
+    pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+    pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, 0, 1, GetOwner()->GetGlobalBounds().GetBox());
   }
 
-  // Determine render data category.
-  ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-
-  if (hMaterial.IsValid())
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-    category = pMaterial->GetRenderDataCategory();
-  }
+  ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 
   if (cvar_FeatureRopesVisBones)
   {
+    auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
+
     ezHybridArray<ezDebugRendererLine, 128> lines(ezFrameAllocator::GetCurrentAllocator());
-    lines.Reserve(m_SkinningState.m_Transforms.GetCount() * 3);
+    lines.Reserve(boneTransforms.GetCount() * 3);
 
     ezMat4 offsetMat;
     offsetMat.SetIdentity();
 
-    for (ezUInt32 i = 0; i < m_SkinningState.m_Transforms.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < boneTransforms.GetCount(); ++i)
     {
       offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
-      ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
+      ezMat4 skinningMat = boneTransforms[i].GetAsMat4() * offsetMat;
 
       ezVec3 pos = skinningMat.GetTranslationVector();
 
@@ -181,18 +167,20 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
   {
     m_fThickness = fThickness;
 
-    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
+    if (IsActiveAndInitialized() && m_SkinningState.HasBoneTransforms())
     {
+      auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
+
       ezHybridArray<ezTransform, 128> transforms;
-      transforms.SetCountUninitialized(m_SkinningState.m_Transforms.GetCount());
+      transforms.SetCountUninitialized(boneTransforms.GetCount());
 
       ezMat4 offsetMat;
       offsetMat.SetIdentity();
 
-      for (ezUInt32 i = 0; i < m_SkinningState.m_Transforms.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < boneTransforms.GetCount(); ++i)
       {
         offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
-        ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
+        ezMat4 skinningMat = boneTransforms[i].GetAsMat4() * offsetMat;
 
         transforms[i] = ezTransform::MakeFromMat4(skinningMat);
       }
@@ -208,9 +196,9 @@ void ezRopeRenderComponent::SetDetail(ezUInt32 uiDetail)
   {
     m_uiDetail = uiDetail;
 
-    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
+    if (IsActiveAndInitialized() && m_SkinningState.HasBoneTransforms())
     {
-      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_uiNumBones);
     }
   }
 }
@@ -221,9 +209,9 @@ void ezRopeRenderComponent::SetSubdivide(bool bSubdivide)
   {
     m_bSubdivide = bSubdivide;
 
-    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
+    if (IsActiveAndInitialized() && m_SkinningState.HasBoneTransforms())
     {
-      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_uiNumBones);
     }
   }
 }
@@ -234,9 +222,9 @@ void ezRopeRenderComponent::SetUScale(float fUScale)
   {
     m_fUScale = fUScale;
 
-    if (IsActiveAndInitialized() && !m_SkinningState.m_Transforms.IsEmpty())
+    if (IsActiveAndInitialized() && m_SkinningState.HasBoneTransforms())
     {
-      GenerateRenderMesh(m_SkinningState.m_Transforms.GetCount());
+      GenerateRenderMesh(m_SkinningState.m_uiNumBones);
     }
   }
 }
@@ -256,7 +244,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
   if (msg.m_LinkTransforms.IsEmpty())
     return;
 
-  if (m_SkinningState.m_Transforms.GetCount() != msg.m_LinkTransforms.GetCount())
+  if (m_SkinningState.m_uiNumBones != msg.m_LinkTransforms.GetCount())
   {
     m_SkinningState.Clear();
 
@@ -274,6 +262,11 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
 
     TriggerLocalBoundsUpdate();
   }
+}
+
+void ezRopeRenderComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
+{
+  m_SkinningState.m_DataOffset = msg.m_NewOffset;
 }
 
 void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
@@ -426,9 +419,10 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
 void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms)
 {
+  auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, skinningTransforms.GetCount());
+
   ezMat4 bindPoseMat;
   bindPoseMat.SetIdentity();
-  m_SkinningState.m_Transforms.SetCountUninitialized(skinningTransforms.GetCount());
 
   const ezVec3 newScale = ezVec3(1.0f, m_fThickness * 0.5f, m_fThickness * 0.5f);
   for (ezUInt32 i = 0; i < skinningTransforms.GetCount(); ++i)
@@ -444,10 +438,8 @@ void ezRopeRenderComponent::UpdateSkinningTransformBuffer(ezArrayPtr<const ezTra
 
     bindPoseMat.SetTranslationVector(ezVec3(-static_cast<float>(i), 0, 0));
 
-    m_SkinningState.m_Transforms[i] = t.GetAsMat4() * bindPoseMat;
+    boneTransforms[i] = t.GetAsMat4() * bindPoseMat;
   }
-
-  m_SkinningState.TransformsChanged();
 }
 
 

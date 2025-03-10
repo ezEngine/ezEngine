@@ -1,12 +1,12 @@
 #pragma once
 
+#include <JoltPlugin/JoltPluginDLL.h>
+
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <GameEngine/Physics/Breakable2D.h>
-#include <JoltPlugin/JoltPluginDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
@@ -82,7 +82,7 @@ private:
 
   void PreAsyncUpdate(const ezWorldModule::UpdateContext& context);
   void ReinitSlabs(const ezWorldModule::UpdateContext& context);
-  void Update(const ezWorldModule::UpdateContext& context);
+  void PostAsyncUpdate(const ezWorldModule::UpdateContext& context);
 
   ezSet<ezComponentHandle> m_RequireBreakage;
   ezSet<ezComponentHandle> m_RequireBreakUpdate;
@@ -211,7 +211,7 @@ private:
   void ReinitMeshes();
   ezMeshResourceHandle CreateShardsMesh() const;
   void PrepareShardColliders(ezUInt32 uiFirstShard, ezDynamicArray<JPH::Ref<JPH::ConvexShape>>& out_Shapes) const;
-  ezUInt8 CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes);
+  void CreateShardColliders(ezUInt32 uiFirstShard, ezArrayPtr<JPH::Ref<JPH::ConvexShape>> shapes);
   void DestroyAllShardColliders();
   void DestroyShardCollider(ezUInt32 uiShardIdx, JPH::BodyInterface& jphBodies, bool bUpdateVis);
   void RetrieveShardTransforms();
@@ -221,9 +221,10 @@ private:
   bool IsPointOnSlab(const ezVec3& vGlobalPosition) const;
   ezUInt32 FindClosestShard(const ezVec3& vGlobalPosition) const;
 
-  void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg);           // [ msg handler ]
-  void OnMsgPhysicContactMsg(ezMsgPhysicContact& ref_msg);                // [ msg handler ]
-  void OnMsgPhysicCharacterContact(ezMsgPhysicCharacterContact& ref_msg); // [ msg handler ]
+  void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg);                             // [ msg handler ]
+  void OnMsgPhysicContactMsg(ezMsgPhysicContact& ref_msg);                                  // [ msg handler ]
+  void OnMsgPhysicCharacterContact(ezMsgPhysicCharacterContact& ref_msg);                   // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const;
@@ -238,16 +239,13 @@ private:
 
   ezBreakable2D m_Breakable;
 
+  ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezSurfaceResourceHandle m_hSurface;
 
   bool m_bReinitMeshes = true;
-  ezInt8 m_iSwitchToSkinningState = -1;
-  mutable ezInt8 m_iSkinningStateToUse = -1;
-  mutable ezMeshResourceHandle m_hSwitchToMesh;
-  mutable ezMeshResourceHandle m_hMeshToRender;
-  mutable bool m_bSkinningUpdated[2] = {false, false};
   mutable ezUInt8 m_uiShardsSleeping = 200;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 
   static ezAtomicInteger32 s_iShardMeshCounter;
 
@@ -260,7 +258,7 @@ private:
 
   ezDynamicArray<ezUInt32> m_ShardBodyIDs;
 
-  ezSkinningState m_SkinningState[2];
+  ezSkinningState m_SkinningState;
   ezBoundingBoxSphere m_Bounds;
 
   ezEnum<ezJoltBreakableShape> m_Shape;

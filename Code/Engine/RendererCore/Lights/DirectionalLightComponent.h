@@ -11,6 +11,7 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
   EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
+  ezVec3 m_vDirection;
 };
 
 /// \brief A directional lightsource shines light into one fixed direction and has infinite size. It is usually used for sunlight.

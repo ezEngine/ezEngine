@@ -32,11 +32,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceableRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocator<ezMsgExtractRenderData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -47,7 +50,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractOccluderData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAllocator<ezMsgExtractOccluderData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -56,7 +59,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAlloca
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCustomInstanceDataOffsetChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCustomInstanceDataOffsetChanged, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 // clang-format on
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+static_assert(sizeof(ezRenderData) == 48);
+static_assert(sizeof(ezInstanceableRenderData) == 72);
+#else
+static_assert(sizeof(ezRenderData) == 40);
+static_assert(sizeof(ezInstanceableRenderData) == 64);
+#endif
 
 ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 

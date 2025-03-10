@@ -109,11 +109,13 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
     if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
     {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       // draw bounding box instead
-      if (pRenderData->m_GlobalBounds.IsValid())
+      if (pRenderData->m_GlobalBoundingBox.IsValid())
       {
-        ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+        ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pRenderData->m_GlobalBoundingBox, ezColor::Magenta);
       }
+#endif
     }
   }
 }

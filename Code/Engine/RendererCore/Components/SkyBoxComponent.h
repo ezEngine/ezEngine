@@ -27,6 +27,7 @@ public:
 protected:
   virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -76,4 +77,6 @@ private:
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hCubeMapMaterial;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

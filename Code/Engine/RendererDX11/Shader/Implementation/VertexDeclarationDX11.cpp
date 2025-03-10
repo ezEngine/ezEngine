@@ -14,11 +14,47 @@ ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarat
 
 ezGALVertexDeclarationDX11::~ezGALVertexDeclarationDX11() = default;
 
-static const char* GALSemanticToDX11[] = {"POSITION", "NORMAL", "TANGENT", "COLOR", "COLOR", "COLOR", "COLOR", "COLOR", "COLOR", "COLOR", "COLOR",
-  "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "TEXCOORD", "BITANGENT", "BONEINDICES",
-  "BONEINDICES", "BONEWEIGHTS", "BONEWEIGHTS"};
+static const char* GALSemanticToDX11[] = {
+  "POSITION",
+  "NORMAL",
+  "TANGENT",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "COLOR",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "TEXCOORD",
+  "BITANGENT",
+  "BONEINDICES",
+  "BONEINDICES",
+  "BONEWEIGHTS",
+  "BONEWEIGHTS",
+  "DATAOFFSETS",
+};
 
-static UINT GALSemanticToIndexDX11[] = {0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
+static UINT GALSemanticToIndexDX11[] = {
+  0,                            // Position
+  0,                            // Normal
+  0,                            // Tangent
+  0, 1, 2, 3, 4, 5, 6, 7,       // Color
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, // TexCoord
+  0,                            // BiTangent
+  0, 1,                         // BoneIndices
+  0, 1,                         // BoneWeights
+  0,                            // DataOffsets
+};
 
 static D3D11_INPUT_CLASSIFICATION GalInputRateToDX11[] = {D3D11_INPUT_PER_VERTEX_DATA, D3D11_INPUT_PER_INSTANCE_DATA};
 

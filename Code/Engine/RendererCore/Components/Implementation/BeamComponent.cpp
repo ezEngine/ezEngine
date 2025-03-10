@@ -8,6 +8,7 @@
 #include <RendererCore/Components/BeamComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Device/Device.h>
 
 
@@ -136,6 +137,9 @@ void ezBeamComponent::OnActivated()
 
 void ezBeamComponent::OnDeactivated()
 {
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
   SUPER::OnDeactivated();
 
   Cleanup();
@@ -146,22 +150,14 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (!m_hMesh.IsValid() || !m_hMaterial.IsValid())
     return;
 
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-  {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = m_hMaterial;
-    pRenderData->m_Color = m_Color;
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+  // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
+  const bool bDynamic = true;
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
-    pRenderData->FillSortingKey();
-  }
-
-  // Determine render data category.
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-  ezRenderData::Category category = pMaterial->GetRenderDataCategory();
+  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, 1, GetOwner()->GetGlobalBounds().GetBox());
+  
+  ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 }

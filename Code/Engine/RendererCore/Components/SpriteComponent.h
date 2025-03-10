@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <Foundation/Math/Color16f.h>
 
 struct ezMsgSetColor;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
@@ -36,16 +37,16 @@ public:
   virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
 
   float m_fSize;
   float m_fMaxScreenSize;
   float m_fAspectRatio;
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
+  
+  ezColorLinear16f m_color;
 
-  ezColor m_color;
-
-  ezVec2 m_texCoordScale;
-  ezVec2 m_texCoordOffset;
+  ezFloat16Vec2 m_texCoordScale;
+  ezFloat16Vec2 m_texCoordOffset;
 
   ezUInt32 m_uiUniqueID;
 };

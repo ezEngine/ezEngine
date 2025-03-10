@@ -38,7 +38,7 @@ public:
   bool GetRenderSelectionBoxes() const { return m_bRenderSelectionBoxes; }
   float GetGridDensity() const { return ezMath::Abs(m_fGridDensity); }
   bool IsGridInGlobalSpace() const { return m_fGridDensity >= 0.0f; }
-  ezTransform GetGridTransform() const { return m_GridTransform; }
+  const ezTransform& GetGridTransform() const { return m_GridTransform; }
 
   ezGameStateBase* GetGameState() const;
   bool IsPlayTheGameActive() const { return GetGameState() != nullptr; }

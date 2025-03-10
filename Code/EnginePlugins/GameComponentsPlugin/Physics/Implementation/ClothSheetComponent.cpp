@@ -8,6 +8,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/CustomMeshComponent.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezClothSheetFlags, 1)
@@ -117,6 +118,9 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::OnDeactivated()
 {
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
   m_Simulator.m_Nodes.Clear();
 
   SUPER::OnDeactivated();
@@ -147,17 +151,24 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (!m_hDynamicMeshBuffer.IsValid())
     return;
 
-  ezCustomMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
+
+  ezCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+    pRenderData->m_uiNumInstances = 1;
+    pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
+    pRenderData->m_hInstanceDataBuffer = hInstanceDataBuffer;
+    pRenderData->m_fSortingDepthOffset = 0.0f;
+
     pRenderData->m_hMaterial = m_hMaterial;
-    pRenderData->m_Color = m_Color;
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
     pRenderData->m_hDynamicMeshBuffer = m_hDynamicMeshBuffer;
     pRenderData->m_uiFirstPrimitive = 0;
     pRenderData->m_uiNumPrimitives = m_vSegments.x * m_vSegments.y * 2;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    pRenderData->m_GlobalBoundingBox = GetOwner()->GetGlobalBounds().GetBox();
+#endif
 
     pRenderData->FillSortingKey();
   }

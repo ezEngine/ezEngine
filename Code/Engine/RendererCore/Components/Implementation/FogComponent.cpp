@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/FogComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
@@ -157,11 +157,11 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_Color = m_Color;
   pRenderData->m_fDensity = m_fDensity / 100.0f;
+  pRenderData->m_fBaseHeight = GetOwner()->GetGlobalTransform().m_vPosition.z;
   pRenderData->m_fHeightFalloff = m_fHeightFalloff;
   pRenderData->m_fInvSkyDistance = m_bModulateWithSkyColor ? 1.0f / m_fSkyDistance : 0.0f;
   pRenderData->m_fFogStartDistance = m_fStartDistance;

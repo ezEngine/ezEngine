@@ -50,7 +50,7 @@ protected:
 
   virtual ~ezGALSamplerState();
 
-  virtual void SetDebugNamePlatform(const char* szName) const override {};
+  virtual void SetDebugNamePlatform(const char* szName) const override { EZ_IGNORE_UNUSED(szName); };
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };

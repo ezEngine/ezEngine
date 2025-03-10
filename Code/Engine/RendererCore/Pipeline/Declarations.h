@@ -11,6 +11,7 @@ class ezExtractor;
 class ezView;
 class ezRenderer;
 class ezRenderData;
+class ezRenderDataManager;
 class ezRenderDataBatch;
 class ezRenderPipeline;
 class ezRenderPipelinePass;

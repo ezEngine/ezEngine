@@ -61,6 +61,25 @@ public:
     return ezArrayPtr<T>(reinterpret_cast<T*>(byteData.GetPtr()), uiCount);
   }
 
+  /// \brief Maps a range of bytes for writing.
+  ezByteArrayPtr MapBytesForWriting(ezUInt32 uiOffset)
+  {
+    ezUInt32 uiCount = 0;
+    ezByteArrayPtr byteData = MapForWriting(uiOffset, uiCount);
+    EZ_ASSERT_DEBUG(byteData.GetCount() == uiCount * m_Desc.m_uiStructSize, "Implementation error");
+    return byteData;
+  }
+
+  /// \brief Maps a range of elements for reading.
+  template <typename T>
+  ezArrayPtr<const T> MapForReading(ezUInt32 uiOffset) const
+  {
+    ezUInt32 uiCount = 0;
+    ezConstByteArrayPtr byteData = MapForReading(uiOffset, uiCount);
+    EZ_ASSERT_DEBUG(sizeof(T) == m_Desc.m_uiStructSize, "Invalid Type");
+    return ezArrayPtr<const T>(reinterpret_cast<const T*>(byteData.GetPtr()), uiCount);
+  }
+
   /// \brief Upload all changed data to the GPU buffer for the next rendering frame, aka the next time BeginFrame is called on the GALDevice.
   void UploadChangesForNextFrame();
 
@@ -80,10 +99,13 @@ public:
   ///
   /// It is ensured that it will always return the same buffer until the next time BeginFrame is called on the GALDevice even if the buffer
   /// has been resized due to more allocations on the game play or extraction side.
-  const ezGALBufferHandle& GetBufferForRendering() const
-  {
-    return m_hBufferForRendering;
-  }
+  const ezGALBufferHandle& GetBufferForRendering() const { return m_hBufferForRendering; }
+
+  /// \brief Returns the description that was used to create this dynamic buffer.
+  const ezGALBufferCreationDescription& GetDescription() const { return m_Desc; }
+
+  /// \brief Returns the debug name that was used to create this dynamic buffer.
+  ezStringView GetDebugName() const { return m_sDebugName; }
 
 private:
   friend class ezMemoryUtils;
@@ -97,18 +119,20 @@ private:
 
   ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags);
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
+  ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
 
-  void Resize(ezUInt32 uiNewSize);
+  void Resize(ezUInt32 uiNewCount);
 
   void SwapBuffers()
   {
     m_hBufferForRendering = m_hBufferForUpload;
   }
 
-  ezMutex m_Mutex;
+  mutable ezMutex m_Mutex;
 
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
-  ezUInt32 m_uiNextOffset = 0;
+  ezUInt32 m_uiCapacity = 0;   ///< in number of elements
+  ezUInt32 m_uiNextOffset = 0; ///< in number of elements
 
   struct Allocation
   {
@@ -126,8 +150,10 @@ private:
   ezGALBufferHandle m_hBufferForUpload;
   ezGALBufferHandle m_hBufferForRendering;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezString m_sDebugName;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  void CheckSelf() const;
 #endif
 };
 

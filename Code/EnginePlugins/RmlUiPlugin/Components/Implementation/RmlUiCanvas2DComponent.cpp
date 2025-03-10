@@ -10,7 +10,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
@@ -171,7 +171,7 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   {
     ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, m_hTexture);
 
-    auto pRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(GetOwner());
+    auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezRmlUiRenderData>(GetOwner());
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_vOffset = m_vFinalOffset;
 

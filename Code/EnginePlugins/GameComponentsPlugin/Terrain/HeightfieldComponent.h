@@ -54,6 +54,7 @@ class EZ_GAMECOMPONENTS_DLL ezHeightfieldComponent : public ezRenderComponent
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -122,4 +123,6 @@ protected:
   bool m_bGenerateCollision = true;
 
   ezMeshResourceHandle m_hMesh;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

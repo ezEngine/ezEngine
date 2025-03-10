@@ -168,7 +168,7 @@ ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezU
     {
       ezUInt32 uiPixelIndex = uiStartPixel + i;
       ezUInt32 x = uiPixelIndex % uiWidth;
-      ezUInt32 y = uiHeight - (uiPixelIndex / uiWidth) - 1;
+      ezUInt32 y = uiPixelIndex / uiWidth;
 
       auto& ray = rays[i];
       ezGraphicsUtils::ConvertScreenPosToWorldPos(InverseViewProjection, 0, 0, uiWidth, uiHeight, ezVec3(float(x), float(y), 0), ray.m_vStartPos, &ray.m_vDir).IgnoreResult();

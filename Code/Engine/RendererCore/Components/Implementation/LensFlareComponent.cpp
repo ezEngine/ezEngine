@@ -6,7 +6,7 @@
 #include <RendererCore/Components/LensFlareComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -311,10 +311,10 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (color.GetLuminance() <= 0.0f || color.a <= 0.0f)
       continue;
 
-    ezLensFlareRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezLensFlareRenderData>(GetOwner());
+    ezLensFlareRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezLensFlareRenderData>(GetOwner());
     {
-      pRenderData->m_GlobalTransform = globalTransform;
-      pRenderData->m_GlobalBounds = globalBounds;
+      pRenderData->m_vGlobalPosition = globalTransform.m_vPosition;
+
       pRenderData->m_hTexture = element.m_hTexture;
       pRenderData->m_Color = color.GetAsVec4();
       pRenderData->m_fSize = element.m_fSize * fScale;

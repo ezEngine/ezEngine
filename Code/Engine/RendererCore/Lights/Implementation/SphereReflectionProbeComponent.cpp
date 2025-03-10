@@ -9,6 +9,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
@@ -112,9 +113,11 @@ void ezSphereReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRender
     ezReflectionPool::UpdateReflectionProbe(GetWorld(), m_Id, m_Desc, this);
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_vProbePosition = pRenderData->m_GlobalTransform * m_Desc.m_vCaptureOffset;
+  auto globalTransform = GetOwner()->GetGlobalTransform();
+
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezReflectionProbeRenderData>(GetOwner());
+  pRenderData->m_vGlobalPosition = globalTransform * m_Desc.m_vCaptureOffset;
+  pRenderData->m_GlobalTransform = globalTransform;
   pRenderData->m_vHalfExtents = ezVec3(m_fRadius);
   pRenderData->m_vInfluenceScale = ezVec3(1.0f);
   pRenderData->m_vInfluenceShift = ezVec3(0.0f);
@@ -125,7 +128,7 @@ void ezSphereReflectionProbeComponent::OnMsgExtractRenderData(ezMsgExtractRender
   if (m_bSphereProjection)
     pRenderData->m_uiIndex |= REFLECTION_PROBE_IS_PROJECTED;
 
-  const ezVec3 vScale = pRenderData->m_GlobalTransform.m_vScale * m_fRadius;
+  const ezVec3 vScale = globalTransform.m_vScale * m_fRadius;
   constexpr float fSphereConstant = (4.0f / 3.0f) * ezMath::Pi<float>();
   const float fEllipsoidVolume = fSphereConstant * ezMath::Abs(vScale.x * vScale.y * vScale.z);
 

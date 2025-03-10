@@ -210,6 +210,9 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
   // first register the type
   ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
     {
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
+        return;
+
       ezStringBuilder typeName = pRtti->GetTypeName();
       auto pTypeInfo = m_pEngine->GetTypeInfoByName(typeName);
 
@@ -256,6 +259,9 @@ void ezAngelScriptEngineSingleton::Register_ReflectedType(const ezRTTI* pBaseTyp
   ezRTTI::ForEachDerivedType(pBaseType, [&](const ezRTTI* pRtti)
     {
       if (pRtti == pBaseType)
+        return;
+
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
         return;
 
       const ezStringBuilder typeName = pRtti->GetTypeName();

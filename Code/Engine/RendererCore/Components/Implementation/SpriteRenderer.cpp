@@ -44,12 +44,12 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
 
   const ezSpriteRenderData* pRenderData = batch.GetFirstData<ezSpriteRenderData>();
 
-  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetCount(), 128u);
+  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetDataCount(), 128u);
   ezGALBufferHandle hSpriteData = CreateSpriteDataBuffer(uiBufferSize);
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));
 
   pContext->BindShader(m_hShader);
-  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
   bindGroupRenderPass.BindBuffer("spriteData", hSpriteData);
   bindGroupRenderPass.BindTexture("SpriteTexture", pRenderData->m_hTexture);
 
@@ -86,7 +86,7 @@ void ezSpriteRenderer::DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const
 void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch) const
 {
   m_SpriteData.Clear();
-  m_SpriteData.Reserve(batch.GetCount());
+  m_SpriteData.Reserve(batch.GetDataCount());
 
   for (auto it = batch.GetIterator<ezSpriteRenderData>(); it.IsValid(); ++it)
   {
@@ -94,14 +94,14 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch) const
 
     auto& spriteData = m_SpriteData.ExpandAndGetRef();
 
-    spriteData.WorldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
+    spriteData.WorldSpacePosition = pRenderData->m_vGlobalPosition;
     spriteData.Size = pRenderData->m_fSize;
     spriteData.MaxScreenSize = pRenderData->m_fMaxScreenSize;
     spriteData.AspectRatio = pRenderData->m_fAspectRatio;
-    spriteData.ColorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
-    spriteData.ColorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
-    spriteData.TexCoordScale = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordScale);
-    spriteData.TexCoordOffset = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordOffset);
+    spriteData.ColorRG = ezShaderUtils::PackFloat16intoUint(pRenderData->m_color.r, pRenderData->m_color.g);
+    spriteData.ColorBA = ezShaderUtils::PackFloat16intoUint(pRenderData->m_color.b, pRenderData->m_color.a);
+    spriteData.TexCoordScale = ezShaderUtils::PackFloat16intoUint(pRenderData->m_texCoordScale.x, pRenderData->m_texCoordScale.y);
+    spriteData.TexCoordOffset = ezShaderUtils::PackFloat16intoUint(pRenderData->m_texCoordOffset.x, pRenderData->m_texCoordOffset.y);
     spriteData.GameObjectID = pRenderData->m_uiUniqueID;
     spriteData.Reserved = 0;
   }

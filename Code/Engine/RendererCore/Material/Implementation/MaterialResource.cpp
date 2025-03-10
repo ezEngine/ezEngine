@@ -232,6 +232,23 @@ ezRenderData::Category ezMaterialResource::GetRenderDataCategory()
   return m_mDesc.m_RenderDataCategory;
 }
 
+// static
+ezRenderData::Category ezMaterialResource::GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback /*= nullptr*/, ezRenderData::Category fallbackCategory /*= ezDefaultRenderDataCategories::LitOpaque*/)
+{
+  if (hMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    if (out_pWasFallback != nullptr)
+    {
+      *out_pWasFallback = (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback);
+    }
+
+    return pMaterial->GetRenderDataCategory();
+  }
+
+  return fallbackCategory;
+}
+
 void ezMaterialResource::PreserveCurrentDesc()
 {
   m_mOriginalDesc = m_mDesc;

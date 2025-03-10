@@ -2,8 +2,7 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Meshes/SkinnedMeshComponent.h>
-#include <memory>
+#include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
 struct ezMsgExtractRenderData;
 struct ezMsgSetColor;
@@ -66,14 +65,16 @@ public:
   bool GetSubdivide() const { return m_bSubdivide; } // [ property ]
 
   /// \brief How often to repeat the U texture coordinate along the rope's length.
-  void SetUScale(float fUScale);                            // [ property ]
-  float GetUScale() const { return m_fUScale; }             // [ property ]
+  void SetUScale(float fUScale);                                                        // [ property ]
+  float GetUScale() const { return m_fUScale; }                                         // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
-  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);                                           // [ msg handler ]
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg);                             // [ msg handler ]
 
 private:
-  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg);        // [ msg handler ]
+  void OnRopePoseUpdated(ezMsgRopePoseUpdated& msg);                                    // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
+
   void GenerateRenderMesh(ezUInt32 uiNumRopePieces);
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezTransform> skinningTransforms);
 
@@ -89,4 +90,6 @@ private:
   bool m_bSubdivide = false;
 
   float m_fUScale = 1.0f;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

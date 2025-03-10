@@ -157,5 +157,7 @@ private:
   ezBoundingSphere m_BSphere;
   ezTransform m_BodyGlobalTransform = ezTransform::MakeIdentity();
 
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
+
   ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };

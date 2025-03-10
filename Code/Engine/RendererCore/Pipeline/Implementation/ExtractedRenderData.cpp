@@ -2,8 +2,20 @@
 
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 ezExtractedRenderData::ezExtractedRenderData() = default;
+
+ezExtractedRenderData::~ezExtractedRenderData()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  for (auto& dataPerCategory : m_DataPerCategory)
+  {
+    pDevice->DestroyBuffer(dataPerCategory.m_hDataOffsetsBuffer);
+  }
+}
 
 void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category)
 {
@@ -23,51 +35,13 @@ void ezExtractedRenderData::SortAndBatch()
 {
   EZ_PROFILE_SCOPE("ezExtractedRenderData::SortAndBatch");
 
-  struct RenderDataComparer
+  for (ezUInt32 i = 0; i < m_DataPerCategory.GetCount(); ++i)
   {
-    EZ_FORCE_INLINE bool Less(const ezRenderDataBatch::SortableRenderData& a, const ezRenderDataBatch::SortableRenderData& b) const
-    {
-      if (a.m_uiSortingKey != b.m_uiSortingKey)
-      {
-        return a.m_uiSortingKey < b.m_uiSortingKey;
-      }
-
-      return a.m_pRenderData->m_hOwner < b.m_pRenderData->m_hOwner;
-    }
-  };
-
-  for (auto& dataPerCategory : m_DataPerCategory)
-  {
+    auto& dataPerCategory = m_DataPerCategory[i];
     if (dataPerCategory.m_SortableRenderData.IsEmpty())
       continue;
 
-    EZ_PROFILE_SCOPE("SortCategory");
-
-    auto& data = dataPerCategory.m_SortableRenderData;
-
-    // Sort
-    data.Sort(RenderDataComparer());
-
-    // Find batches
-    const ezRenderData* pCurrentBatchRenderData = data[0].m_pRenderData;
-    const ezRTTI* pCurrentBatchType = pCurrentBatchRenderData->GetDynamicRTTI();
-    ezUInt32 uiCurrentBatchStartIndex = 0;
-
-    for (ezUInt32 i = 1; i < data.GetCount(); ++i)
-    {
-      auto pRenderData = data[i].m_pRenderData;
-
-      if (pRenderData->GetDynamicRTTI() != pCurrentBatchType || pRenderData->CanBatch(*pCurrentBatchRenderData) == false)
-      {
-        dataPerCategory.m_Batches.ExpandAndGetRef().m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], i - uiCurrentBatchStartIndex);
-
-        pCurrentBatchRenderData = pRenderData;
-        pCurrentBatchType = pRenderData->GetDynamicRTTI();
-        uiCurrentBatchStartIndex = i;
-      }
-    }
-
-    dataPerCategory.m_Batches.ExpandAndGetRef().m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
+    SortAndBatchCategory(dataPerCategory, ezRenderData::Category(i));
   }
 }
 
@@ -77,6 +51,7 @@ void ezExtractedRenderData::Clear()
   {
     dataPerCategory.m_Batches.Clear();
     dataPerCategory.m_SortableRenderData.Clear();
+    dataPerCategory.m_DataOffsets.Clear();
   }
 
   m_FrameData.Clear();
@@ -116,4 +91,127 @@ const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) con
   }
 
   return nullptr;
+}
+
+void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategory, ezRenderData::Category category)
+{
+  struct RenderDataComparer
+  {
+    EZ_FORCE_INLINE bool Less(const ezRenderDataBatch::SortableRenderData& a, const ezRenderDataBatch::SortableRenderData& b) const
+    {
+      if (a.m_uiSortingKey != b.m_uiSortingKey)
+      {
+        return a.m_uiSortingKey < b.m_uiSortingKey;
+      }
+
+      return a.m_pRenderData->m_hOwner < b.m_pRenderData->m_hOwner;
+    }
+  };
+
+  EZ_PROFILE_SCOPE("SortCategory");
+
+  auto& data = dataPerCategory.m_SortableRenderData;
+
+  // Sort
+  data.Sort(RenderDataComparer());
+
+  auto FillDataOffsets = [&](const ezRenderData* pRenderData, const ezRTTI* pType)
+  {
+    if (!pType->IsDerivedFrom<ezInstanceableRenderData>())
+      return;
+
+    auto pInstanceableRenderData = static_cast<const ezInstanceableRenderData*>(pRenderData);
+    if (pInstanceableRenderData->m_uiNumInstances > 0)
+    {
+      auto& dataOffsets = pInstanceableRenderData->m_DataOffsets;
+      for (ezUInt32 uiInstanceIndex = 0; uiInstanceIndex < pInstanceableRenderData->m_uiNumInstances; ++uiInstanceIndex)
+      {
+        auto& instanceDataOffset = dataPerCategory.m_DataOffsets.ExpandAndGetRef();
+        instanceDataOffset.m_uiInstance = dataOffsets.m_uiInstance + uiInstanceIndex;
+        instanceDataOffset.m_uiCustomInstance = dataOffsets.m_uiCustomInstance + uiInstanceIndex;
+        instanceDataOffset.m_uiMaterial = dataOffsets.m_uiMaterial;
+        instanceDataOffset.m_uiSkinning = dataOffsets.m_uiSkinning;
+      }
+    }
+  };
+
+  // Find batches
+  const ezRenderData* pCurrentBatchRenderData = data[0].m_pRenderData;
+  const ezRTTI* pCurrentBatchType = pCurrentBatchRenderData->GetDynamicRTTI();
+  ezUInt32 uiCurrentBatchStartIndex = 0;
+  ezUInt32 uiCurrentDataOffsetIndex = 0;
+  FillDataOffsets(pCurrentBatchRenderData, pCurrentBatchType);
+
+  for (ezUInt32 uiRenderDataIndex = 1; uiRenderDataIndex < data.GetCount(); ++uiRenderDataIndex)
+  {
+    const ezRenderData* pRenderData = data[uiRenderDataIndex].m_pRenderData;
+    const ezRTTI* pRenderDataType = pRenderData->GetDynamicRTTI();
+
+    if (pRenderDataType != pCurrentBatchType || pRenderData->CanBatch(*pCurrentBatchRenderData) == false)
+    {
+      auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
+      batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], uiRenderDataIndex - uiCurrentBatchStartIndex);
+      batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
+      batch.m_uiInstanceCount = dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex;
+
+      pCurrentBatchRenderData = pRenderData;
+      pCurrentBatchType = pRenderDataType;
+      uiCurrentBatchStartIndex = uiRenderDataIndex;
+      uiCurrentDataOffsetIndex = dataPerCategory.m_DataOffsets.GetCount();
+    }
+
+    FillDataOffsets(pRenderData, pRenderDataType);
+  }
+
+  auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
+  batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
+  batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
+  batch.m_uiInstanceCount = dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex;
+
+  // Create or update data offsets buffer
+  if (dataPerCategory.m_DataOffsets.IsEmpty() == false)
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+    if (!dataPerCategory.m_hDataOffsetsBuffer.IsInvalidated())
+    {
+      auto& bufferDesc = pDevice->GetBuffer(dataPerCategory.m_hDataOffsetsBuffer)->GetDescription();
+      if (bufferDesc.m_uiTotalSize < dataPerCategory.m_DataOffsets.GetCount() * sizeof(ezInstanceableRenderData::DataOffsets))
+      {
+        pDevice->DestroyBuffer(dataPerCategory.m_hDataOffsetsBuffer);
+      }
+    }
+
+    const ezUInt32 uiNumDataOffsets = ezMemoryUtils::AlignSize(dataPerCategory.m_DataOffsets.GetCount(), 64u);
+
+    if (dataPerCategory.m_hDataOffsetsBuffer.IsInvalidated())
+    {
+      dataPerCategory.m_DataOffsets.SetCount(uiNumDataOffsets); // make sure the buffer is large enough
+
+      ezGALBufferCreationDescription bufferDesc;
+      bufferDesc.m_uiStructSize = sizeof(ezInstanceableRenderData::DataOffsets);
+      bufferDesc.m_uiTotalSize = uiNumDataOffsets * bufferDesc.m_uiStructSize;
+      bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+      bufferDesc.m_ResourceAccess.m_bImmutable = false;
+
+      dataPerCategory.m_hDataOffsetsBuffer = pDevice->CreateBuffer(bufferDesc, dataPerCategory.m_DataOffsets.GetByteArrayPtr());
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      ezStringBuilder sb = ezRenderData::GetCategoryName(category).GetView();
+      sb.Append(" - Data Offsets");
+
+      pDevice->GetBuffer(dataPerCategory.m_hDataOffsetsBuffer)->SetDebugName(sb);
+#endif
+    }
+    else
+    {
+      pDevice->UpdateBufferForNextFrame(dataPerCategory.m_hDataOffsetsBuffer, dataPerCategory.m_DataOffsets.GetByteArrayPtr(), 0);
+    }
+
+    // Set buffer handle on batches
+    for (auto& batch : dataPerCategory.m_Batches)
+    {
+      batch.m_hDataOffsetsBuffer = dataPerCategory.m_hDataOffsetsBuffer;
+    }
+  }
 }

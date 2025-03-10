@@ -5,6 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
@@ -263,14 +264,14 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     }
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
+  auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
 
   pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
+  pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
-  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
+  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
-  pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_BaseParticleData = m_BaseParticleData;

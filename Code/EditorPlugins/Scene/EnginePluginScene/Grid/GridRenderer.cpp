@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
 #include <Foundation/IO/TypeVersionContext.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -88,9 +89,9 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd) const
   m_Vertices.Clear();
   m_Vertices.Reserve(100);
 
-  const ezVec3 vCenter = rd.m_GlobalTransform.m_vPosition;
-  const ezVec3 vTangent1 = rd.m_GlobalTransform.m_qRotation * ezVec3(1, 0, 0);
-  const ezVec3 vTangent2 = rd.m_GlobalTransform.m_qRotation * ezVec3(0, 1, 0);
+  const ezVec3 vCenter = rd.m_vGlobalPosition;
+  const ezVec3 vTangent1 = rd.m_qGlobalRotation * ezVec3(1, 0, 0);
+  const ezVec3 vTangent2 = rd.m_qGlobalRotation * ezVec3(0, 1, 0);
   const ezInt32 iNumLines1 = rd.m_iLastLine1 - rd.m_iFirstLine1;
   const ezInt32 iNumLines2 = rd.m_iLastLine2 - rd.m_iFirstLine2;
   const float maxExtent1 = iNumLines1 * rd.m_fDensity;
@@ -229,8 +230,10 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   const ezCamera* cam = view.GetCamera();
   float fDensity = m_pSceneContext->GetGridDensity();
 
-  ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
-  pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
+  EZ_LOCK(view.GetWorld()->GetReadMarker());
+  auto pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
+
+  ezGridRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 
@@ -243,14 +246,13 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     fDensity = AdjustGridDensity(fDensity, (ezUInt32)view.GetViewport().width, fDimX, 10);
     pRenderData->m_fDensity = fDensity;
 
-    pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
+    pRenderData->m_vGlobalPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
 
     ezMat3 mRot;
     mRot.SetColumn(0, cam->GetCenterDirRight());
     mRot.SetColumn(1, cam->GetCenterDirUp());
     mRot.SetColumn(2, cam->GetCenterDirForwards());
-    pRenderData->m_GlobalTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
+    pRenderData->m_qGlobalRotation = ezQuat::MakeFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
@@ -266,7 +268,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     const float fLastDist2 = plane2.GetDistanceTo(vTopRight) + fDensity;
 
 
-    ezVec3& val = pRenderData->m_GlobalTransform.m_vPosition;
+    ezVec3& val = pRenderData->m_vGlobalPosition;
     val.x = ezMath::RoundToMultiple(val.x, pRenderData->m_fDensity);
     val.y = ezMath::RoundToMultiple(val.y, pRenderData->m_fDensity);
     val.z = ezMath::RoundToMultiple(val.z, pRenderData->m_fDensity);
@@ -278,11 +280,14 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   }
   else
   {
-    pRenderData->m_GlobalTransform = m_pSceneContext->GetGridTransform();
+    auto& globalTransform = m_pSceneContext->GetGridTransform();
 
     // grid is disabled
-    if (pRenderData->m_GlobalTransform.m_vScale.IsZero(0.001f))
+    if (globalTransform.m_vScale.IsZero(0.001f))
       return;
+
+    pRenderData->m_vGlobalPosition = globalTransform.m_vPosition;
+    pRenderData->m_qGlobalRotation = globalTransform.m_qRotation;
 
     pRenderData->m_fDensity = fDensity;
 

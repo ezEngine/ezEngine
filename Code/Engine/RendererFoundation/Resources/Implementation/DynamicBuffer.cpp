@@ -44,11 +44,11 @@ void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, 
   EZ_IGNORE_UNUSED(sDebugName);
 
   m_Desc = desc;
-  m_Data.SetCountUninitialized(desc.m_uiTotalSize);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_Data.SetCountUninitialized(desc.m_uiTotalSize);
+  m_uiCapacity = desc.m_uiTotalSize / desc.m_uiStructSize;
+
   m_sDebugName = sDebugName;
-#endif
 }
 
 void ezGALDynamicBuffer::Deinitialize()
@@ -106,10 +106,9 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
     uiOffset = m_uiNextOffset;
     m_uiNextOffset += uiCount;
 
-    const ezUInt32 uiTotalByteSize = m_uiNextOffset * m_Desc.m_uiStructSize;
-    if (uiTotalByteSize > m_Desc.m_uiTotalSize)
+    if (m_uiNextOffset > m_uiCapacity)
     {
-      Resize(uiTotalByteSize);
+      Resize(m_uiNextOffset);
     }
   }
 
@@ -121,6 +120,10 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezB
     auto data = MapForWriting(uiOffset, uiDummyCount);
     ezMemoryUtils::ZeroFill(data.GetPtr(), data.GetCount());
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  CheckSelf();
+#endif
 
   return uiOffset;
 }
@@ -174,6 +177,10 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
   }
 
   m_Allocations.Remove(it);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  CheckSelf();
+#endif
 }
 
 ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount)
@@ -184,7 +191,23 @@ ezByteArrayPtr ezGALDynamicBuffer::MapForWriting(ezUInt32 uiOffset, ezUInt32& ou
   EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
 
   out_uiCount = it.Value().m_uiCount;
+
+  // Mark dirty
   m_DirtyRange.SetToIncludeRange(uiOffset, uiOffset + out_uiCount - 1);
+
+  const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
+  const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
+  return m_Data.GetByteArrayPtr().GetSubArray(uiByteOffset, uiByteSize);
+}
+
+ezConstByteArrayPtr ezGALDynamicBuffer::MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const
+{
+  EZ_LOCK(m_Mutex);
+
+  auto it = m_Allocations.Find(uiOffset);
+  EZ_ASSERT_DEV(it.IsValid(), "Invalid offset");
+
+  out_uiCount = it.Value().m_uiCount;
 
   const ezUInt32 uiByteOffset = uiOffset * m_Desc.m_uiStructSize;
   const ezUInt32 uiByteSize = out_uiCount * m_Desc.m_uiStructSize;
@@ -270,6 +293,7 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
       {
         m_FreeRanges.PopBack();
 
+        m_uiNextOffset = revIt.Key();
         MoveAllocation(revIt.Value(), revIt.Key(), uiNewOffset);
         continue;
       }
@@ -308,24 +332,60 @@ void ezGALDynamicBuffer::RunCompactionSteps(ezDynamicArray<ChangedAllocation>& o
       MoveAllocation(it.Value(), it.Key(), uiNewOffset);
     }
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  CheckSelf();
+#endif
 }
 
-void ezGALDynamicBuffer::Resize(ezUInt32 uiNewSize)
+void ezGALDynamicBuffer::Resize(ezUInt32 uiNewCount)
 {
   constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
 
-  ezUInt32 uiSize = ezMath::Max(uiNewSize, 256U);
-  if (uiSize < uiExpGrowthLimit)
+  uiNewCount = ezMath::Max(uiNewCount, 256U);
+  if (uiNewCount < uiExpGrowthLimit)
   {
-    uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
+    uiNewCount = ezMath::PowerOfTwo_Ceil(uiNewCount);
   }
   else
   {
-    uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
+    uiNewCount = ezMemoryUtils::AlignSize(uiNewCount, uiExpGrowthLimit);
   }
 
-  m_Desc.m_uiTotalSize = uiSize;
-  m_Data.SetCountUninitialized(uiSize);
+  m_Desc.m_uiTotalSize = uiNewCount * m_Desc.m_uiStructSize;
+  m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
+  m_uiCapacity = uiNewCount;
 
-  m_DirtyRange.SetToIncludeRange(0, (uiSize / m_Desc.m_uiStructSize) - 1);
+  m_DirtyRange.SetToIncludeRange(0, (uiNewCount - 1));
 }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+void ezGALDynamicBuffer::CheckSelf() const
+{
+#  if 0
+  if (m_uiNextOffset == 0 && m_Allocations.IsEmpty() && m_FreeRanges.IsEmpty())
+    return;
+
+  ezDynamicBitfield check;
+  check.SetCount(m_uiNextOffset, false);
+
+  for (auto it : m_Allocations)
+  {
+    const ezUInt32 uiStart = it.Key();
+    const ezUInt32 uiCount = it.Value().m_uiCount;
+    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping allocation detected");
+    check.SetBitRange(uiStart, uiCount);
+  }
+
+  for (auto range : m_FreeRanges)
+  {
+    const ezUInt32 uiStart = range.m_uiMin;
+    const ezUInt32 uiCount = range.GetCount();
+    EZ_ASSERT_DEBUG(!check.IsAnyBitSet(uiStart, uiCount), "Overlapping free range detected");
+    check.SetBitRange(uiStart, uiCount);
+  }
+
+  EZ_ASSERT_DEBUG(check.AreAllBitsSet(), "Some memory is neither allocated nor free");
+#  endif
+}
+#endif

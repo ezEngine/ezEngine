@@ -587,6 +587,19 @@ ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDesc
 void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 {
   ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pBuffer);
+
+  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  {
+    auto& copy = m_PendingCopies[i];
+
+    if (copy.m_pDestResource == pDX11Buffer->GetDXBuffer())
+    {
+      UnmapTempResource(copy.m_SourceResource);
+      m_PendingCopies.RemoveAtAndSwap(i);
+      --i;
+    }
+  }
+  
   pDX11Buffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }
@@ -607,6 +620,19 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
 void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureDX11* pDX11Texture = static_cast<ezGALTextureDX11*>(pTexture);
+
+  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  {
+    auto& copy = m_PendingCopies[i];
+
+    if (copy.m_pDestResource == pDX11Texture->GetDXTexture())
+    {
+      UnmapTempResource(copy.m_SourceResource);
+      m_PendingCopies.RemoveAtAndSwap(i);
+      --i;
+    }
+  }
+
   pDX11Texture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }

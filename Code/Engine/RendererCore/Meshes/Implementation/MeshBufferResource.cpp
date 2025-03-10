@@ -15,6 +15,7 @@ namespace
     "Color0",
     "Color1",
     "SkinningData",
+    "DataOffsets"
   };
 
   static_assert(EZ_ARRAY_SIZE(s_szMeshVertexStreamTypeNames) == ezMeshVertexStreamType::Count);
@@ -51,6 +52,8 @@ constexpr ezGALResourceFormat::Enum s_BoneIndicesFormat = ezGALResourceFormat::R
 constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_lp = ezGALResourceFormat::RGBAUByteNormalized;
 constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
 
+constexpr ezGALResourceFormat::Enum s_DataOffsetsFormat = ezGALResourceFormat::RGBAUInt;
+
 static ezGALVertexAttribute s_VertexAttributes_lp[] = {
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, s_PositionFormat, 0, 0),
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, s_NormalFormat_lp, 0, 1),
@@ -61,6 +64,7 @@ static ezGALVertexAttribute s_VertexAttributes_lp[] = {
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color1, s_ColorFormat_lp, 0, 4),
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneIndices0, s_BoneIndicesFormat, 0, 5),
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneWeights0, s_BoneWeightsFormat_lp, GetElementSize(s_BoneIndicesFormat), 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::DataOffsets, s_DataOffsetsFormat, 0, 6),
 };
 
 static ezGALVertexAttribute s_VertexAttributes_hp[] = {
@@ -73,6 +77,7 @@ static ezGALVertexAttribute s_VertexAttributes_hp[] = {
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color1, s_ColorFormat_hp, 0, 4),
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneIndices0, s_BoneIndicesFormat, 0, 5),
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneWeights0, s_BoneWeightsFormat_hp, GetElementSize(s_BoneIndicesFormat), 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::DataOffsets, s_DataOffsetsFormat, 0, 6),
 };
 
 static ezUInt32 s_StreamSizes_lp[] = {
@@ -82,6 +87,7 @@ static ezUInt32 s_StreamSizes_lp[] = {
   GetElementSize(s_ColorFormat_lp),
   GetElementSize(s_ColorFormat_lp),
   GetElementSize(s_BoneIndicesFormat) + GetElementSize(s_BoneWeightsFormat_lp),
+  GetElementSize(s_DataOffsetsFormat),
 };
 
 static_assert(EZ_ARRAY_SIZE(s_StreamSizes_lp) == ezMeshVertexStreamType::Count);
@@ -93,6 +99,7 @@ static ezUInt32 s_StreamSizes_hp[] = {
   GetElementSize(s_ColorFormat_hp),
   GetElementSize(s_ColorFormat_hp),
   GetElementSize(s_BoneIndicesFormat) + GetElementSize(s_BoneWeightsFormat_hp),
+  GetElementSize(s_DataOffsetsFormat),
 };
 
 static_assert(EZ_ARRAY_SIZE(s_StreamSizes_hp) == ezMeshVertexStreamType::Count);
@@ -167,6 +174,13 @@ ezUInt32 ezMeshVertexStreamConfig::GetStreamElementSize(ezMeshVertexStreamType::
   return m_bUseHighPrecision ? s_StreamSizes_hp[type] : s_StreamSizes_lp[type];
 }
 
+// static
+ezGALVertexAttribute ezMeshVertexStreamConfig::GetDataOffsetsVertexAttribute()
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[9].m_eSemantic == ezGALVertexAttributeSemantic::DataOffsets, "");
+  return s_VertexAttributes_lp[9];
+}
+
 ezArrayPtr<ezGALVertexAttribute> ezMeshVertexStreamConfig::GetAllVertexAttributes()
 {
   return ezMakeArrayPtr(m_bUseHighPrecision ? s_VertexAttributes_hp : s_VertexAttributes_lp);
@@ -217,6 +231,8 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   m_uiVertexSize = 0;
 
   const ezUInt32 uiHighestStreamIndex = m_VertexStreamConfig.GetHighestStreamIndex();
+  EZ_ASSERT_DEV(uiHighestStreamIndex < ezMeshVertexStreamType::DataOffsets, "Data Offsets stream is reserved for internal use only");
+
   m_VertexStreamsData.SetCount(uiHighestStreamIndex + 1);
 
   for (ezUInt32 uiIndex = ezMeshVertexStreamType::Position; uiIndex < ezMeshVertexStreamType::Count; ++uiIndex)

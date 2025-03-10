@@ -57,6 +57,7 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
   FLOAT1(Exposure);
 
   INT1(RenderPass);
+  BOOL1(IsShadowPass);
   UINT1(NumMsaaSamples);
 };
 

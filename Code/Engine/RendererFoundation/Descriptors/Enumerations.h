@@ -161,11 +161,14 @@ struct ezGALVertexAttributeSemantic
     TexCoord8,
     TexCoord9,
 
-    BiTangent,
+    BiTangent, // Not commonly used
+
     BoneIndices0,
     BoneIndices1,
     BoneWeights0,
     BoneWeights1,
+
+    DataOffsets,
 
     ENUM_COUNT,
     Default = Position

@@ -1,0 +1,232 @@
+#include <RendererCore/RendererCorePCH.h>
+
+#include <Core/World/World.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/DynamicBuffer.h>
+
+constexpr ezUInt32 s_uiSkinningBufferIndex = 2;
+
+// clang-format off
+EZ_IMPLEMENT_WORLD_MODULE(ezRenderDataManager);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderDataManager, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezRenderDataManager::ezRenderDataManager(ezWorld* pWorld)
+  : ezWorldModule(pWorld)
+{
+  ezRenderWorld::GetExtractionEvent().AddEventHandler(ezMakeDelegate(&ezRenderDataManager::OnExtractionEvent, this));
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  ezGALBufferCreationDescription desc;
+  desc.m_uiStructSize = sizeof(ezPerInstanceData);
+  desc.m_uiTotalSize = 1024 * desc.m_uiStructSize; // TODO: make initial size configurable
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  desc.m_ResourceAccess.m_bImmutable = false;
+  
+  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Static Instance Data"));
+  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Dynamic Instance Data"));
+
+  // Skinning buffer
+  desc.m_uiStructSize = sizeof(ezShaderTransform);
+  desc.m_uiTotalSize = 1024 * desc.m_uiStructSize; // TODO: make initial size configurable
+
+  EZ_ASSERT_DEBUG(m_hBuffers.GetCount() == s_uiSkinningBufferIndex, "Unexpected buffer index");
+  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Skinning Data"));
+}
+
+ezRenderDataManager::~ezRenderDataManager()
+{
+  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezRenderDataManager::OnExtractionEvent, this));
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  for (auto& hBuffer : m_hBuffers)
+  {
+    pDevice->DestroyDynamicBuffer(hBuffer);
+  }
+}
+
+ezArrayPtr<ezPerInstanceData> ezRenderDataManager::GetOrCreateInstanceData(const ezComponent* pOwnerComponent, bool bDynamic, ezGALDynamicBufferHandle& out_hBuffer, ezInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiCount /*= 1*/) const
+{
+  EZ_LOCK(m_Mutex);
+
+  const ezUInt32 uiBufferIndex = bDynamic ? 1 : 0;
+  out_hBuffer = m_hBuffers[uiBufferIndex];
+
+  auto pInstanceDataBuffer = m_ExtractionData.m_pBuffers.GetCount() > uiBufferIndex ? m_ExtractionData.m_pBuffers[uiBufferIndex] : nullptr;
+  if (pInstanceDataBuffer == nullptr)
+  {
+    pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(out_hBuffer);
+  }
+
+  if (inout_instanceDataOffset.IsInvalidated())
+  {
+    ezComponentHandle hOwnerComponent = pOwnerComponent != nullptr ? pOwnerComponent->GetHandle() : ezComponentHandle();
+    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(hOwnerComponent, uiCount);
+    inout_instanceDataOffset.m_uiIsDynamic = uiBufferIndex;
+  }
+
+  return pInstanceDataBuffer->MapForWriting<ezPerInstanceData>(inout_instanceDataOffset.m_uiOffset);
+}
+
+void ezRenderDataManager::DeleteInstanceData(ezInstanceDataOffset& inout_instanceDataOffset) const
+{
+  EZ_LOCK(m_Mutex);
+
+  if (inout_instanceDataOffset.IsInvalidated() == false)
+  {
+    const ezUInt32 uiBufferIndex = inout_instanceDataOffset.m_uiIsDynamic;
+
+    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiBufferIndex]);
+
+    pInstanceDataBuffer->Deallocate(inout_instanceDataOffset.m_uiOffset);
+    inout_instanceDataOffset = {};
+  }
+}
+
+ezUInt32 ezRenderDataManager::RegisterCustomInstanceData(const ezGALBufferCreationDescription& desc, ezStringView sDebugName, ezDelegate<void()> beforeUploadCallback /*= {}*/)
+{
+  EZ_LOCK(m_Mutex);
+
+  for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+  {
+    auto pBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[i]);
+    if (pBuffer->GetDescription() == desc && pBuffer->GetDebugName() == sDebugName)
+    {
+      return i;
+    }
+  }
+
+  ezUInt32 uiBufferIndex = m_hBuffers.GetCount();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, sDebugName));
+
+  if (beforeUploadCallback.IsValid())
+  {
+    m_BeforeUploadCallbacks.EnsureCount(uiBufferIndex + 1);
+    m_BeforeUploadCallbacks[uiBufferIndex] = beforeUploadCallback;
+  }
+  
+  return uiBufferIndex;
+}
+
+ezByteArrayPtr ezRenderDataManager::GetOrCreateCustomInstanceData(ezUInt32 uiCustomDataIndex, ezUInt32 uiStructByteSize, const ezComponent* pOwnerComponent, ezGALDynamicBufferHandle& out_hBuffer, ezCustomInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiCount) const
+{
+  EZ_LOCK(m_Mutex);
+
+  out_hBuffer = m_hBuffers[uiCustomDataIndex];
+
+  auto pInstanceDataBuffer = m_ExtractionData.m_pBuffers.GetCount() > uiCustomDataIndex ? m_ExtractionData.m_pBuffers[uiCustomDataIndex] : nullptr;
+  if (pInstanceDataBuffer == nullptr)
+  {
+    pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(out_hBuffer);
+  }
+
+  EZ_ASSERT_DEV(pInstanceDataBuffer->GetDescription().m_uiStructSize == uiStructByteSize, "Requested struct size {} does not match the registered size {}.", uiStructByteSize, pInstanceDataBuffer->GetDescription().m_uiStructSize);
+
+  if (inout_instanceDataOffset.IsInvalidated())
+  {
+    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(pOwnerComponent->GetHandle(), uiCount);
+  }
+
+  return pInstanceDataBuffer->MapBytesForWriting(inout_instanceDataOffset.m_uiOffset);
+}
+
+void ezRenderDataManager::DeleteCustomInstanceData(ezUInt32 uiCustomDataIndex, ezCustomInstanceDataOffset& inout_instanceDataOffset) const
+{
+  EZ_LOCK(m_Mutex);
+
+  if (inout_instanceDataOffset.IsInvalidated() == false)
+  {
+    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiCustomDataIndex]);
+
+    pInstanceDataBuffer->Deallocate(inout_instanceDataOffset.m_uiOffset);
+    inout_instanceDataOffset = {};
+  }
+}
+
+void ezRenderDataManager::CompactCustomInstanceDataBuffer(ezUInt32 uiCustomDataIndex, ezUInt32 uiMaxSteps)
+{
+  EZ_LOCK(m_Mutex);
+
+  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiCustomDataIndex]);
+
+  ezHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
+  pInstanceDataBuffer->RunCompactionSteps(changedAllocations, uiMaxSteps);
+
+  for (const auto& changedAllocation : changedAllocations)
+  {
+    ezComponentHandle hComponent(ezComponentId(changedAllocation.m_uiUserData));
+    ezComponent* pComponent = nullptr;
+    EZ_VERIFY(GetWorld()->TryGetComponent(hComponent, pComponent), "Invalid component handle");
+
+    ezMsgCustomInstanceDataOffsetChanged msg;
+    msg.m_NewOffset.m_uiOffset = changedAllocation.m_uiNewOffset;
+    EZ_VERIFY(pComponent->SendMessage(msg), "Component of type '{}' did not handle ezMsgCustomInstanceDataOffsetChanged.", pComponent->GetDynamicRTTI()->GetTypeName());
+  }
+}
+
+ezArrayPtr<ezShaderTransform> ezRenderDataManager::GetOrCreateSkinningData(const ezComponent* pOwnerComponent, ezCustomInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiNumTransforms) const
+{
+  ezGALDynamicBufferHandle hDummy;
+  return GetOrCreateCustomInstanceData<ezShaderTransform>(s_uiSkinningBufferIndex, pOwnerComponent, hDummy, inout_instanceDataOffset, uiNumTransforms);
+}
+
+ezArrayPtr<const ezShaderTransform> ezRenderDataManager::GetSkinningData(const ezCustomInstanceDataOffset& instanceDataOffset) const
+{
+  EZ_LOCK(m_Mutex);
+
+  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[s_uiSkinningBufferIndex]);
+
+  return pInstanceDataBuffer->MapForReading<ezShaderTransform>(instanceDataOffset.m_uiOffset);
+}
+
+void ezRenderDataManager::DeleteSkinningData(ezCustomInstanceDataOffset& inout_instanceDataOffset) const
+{
+  DeleteCustomInstanceData(s_uiSkinningBufferIndex, inout_instanceDataOffset);
+}
+
+ezGALDynamicBufferHandle ezRenderDataManager::GetSkinningDataBuffer() const
+{
+  return GetCustomInstanceDataBuffer(s_uiSkinningBufferIndex);
+}
+
+void ezRenderDataManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  if (e.m_Type == ezRenderWorldExtractionEvent::Type::BeginExtraction)
+  {
+    m_ExtractionData.m_pBuffers.SetCount(m_hBuffers.GetCount());
+
+    for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+    {
+      m_ExtractionData.m_pBuffers[i] = pDevice->GetDynamicBuffer(m_hBuffers[i]);
+    }
+
+    // Compact skinning buffer
+    {
+      EZ_LOCK(GetWorld()->GetWriteMarker());
+
+      CompactCustomInstanceDataBuffer(s_uiSkinningBufferIndex);
+    }
+  }
+  else if (e.m_Type == ezRenderWorldExtractionEvent::Type::EndExtraction)
+  {
+    for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+    {
+      if (m_BeforeUploadCallbacks.GetCount() > i && m_BeforeUploadCallbacks[i].IsValid())
+      {
+        m_BeforeUploadCallbacks[i]();
+      }
+
+      m_ExtractionData.m_pBuffers[i]->UploadChangesForNextFrame();
+    }
+
+    m_ExtractionData.m_pBuffers.Clear();
+  }
+}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3226945670279355712,10942718405346696582}}
-		u4 %Hash{5255862671939846500}
+		u4 %Hash{14337624803717828925}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -64,15 +64,25 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ 0ce998c7-2bca-4654-8af8-c3a1347ed83f }"}
 		VarArray %OutputDescs
 		{
 			Uuid{u4{14898582624225617312,5510519304948985162}}
 		}
 		s %Resource{"{ 11fe0278-f21e-4e05-9262-c836adeeef10 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{2185608595970314151,5048986595516446882}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 0ce998c7-2bca-4654-8af8-c3a1347ed83f }"}
 		f %SortingDepthOffset{0}
 	}
 }
@@ -110,6 +120,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
+			Uuid{u4{2185608595970314151,5048986595516446882}}
 			Uuid{u4{9858374215979802035,4824463448544606002}}
 		}
 		s %GlobalKey{""}
@@ -436,7 +447,7 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezMeshComponent"}
+		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcVertexColorComponent"}

@@ -8,7 +8,9 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderData : public ezMeshRende
   EZ_ADD_DYNAMIC_REFLECTION(ezGizmoRenderData, ezMeshRenderData);
 
 public:
+  ezTransform m_GlobalTransform;
   ezColor m_GizmoColor;
+  ezUInt32 m_uiUniqueID;
   bool m_bIsPickable;
 };
 
@@ -33,7 +35,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshCompon
   // ezMeshComponentBase
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const override;
+  virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const override;
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////

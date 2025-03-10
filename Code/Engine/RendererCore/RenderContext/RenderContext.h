@@ -165,9 +165,9 @@ public:
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
   void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
   void BindMeshBuffer(ezArrayPtr<const ezGALBufferHandle> vertexBuffers, ezGALBufferHandle hIndexBuffer, ezArrayPtr<const ezGALVertexAttribute> vertexAttributes, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
-  void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0)
   {
-    BindMeshBuffer({}, {}, {}, topology, uiPrimitiveCount);
+    BindMeshBuffer({}, {}, {}, topology, uiPrimitiveCount, hDataOffsetsBuffer, uiFirstDataOffset);
   }
 
   void BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32 uiSlot, ezEnum<ezGALVertexBindingRate> rate = ezGALVertexBindingRate::Vertex, ezUInt32 uiOffset = 0);

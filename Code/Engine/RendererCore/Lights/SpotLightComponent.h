@@ -13,6 +13,7 @@ class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezLightRenderData);
 
 public:
+  ezQuat m_qGlobalRotation;
   float m_fRange;
   ezAngle m_InnerSpotAngle;
   ezAngle m_OuterSpotAngle;

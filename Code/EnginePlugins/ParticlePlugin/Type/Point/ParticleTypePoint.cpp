@@ -4,7 +4,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
@@ -89,10 +89,10 @@ void ezParticleTypePoint::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     }
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr);
+  auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr);
 
-  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
-  pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
+  pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
   pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;

@@ -139,9 +139,9 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString()
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&string)[N])
+constexpr EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&string)[N])
+  : m_uiHash(ezHashingUtils::StringHash<N>(string))
 {
-  m_uiHash = ezHashingUtils::StringHash<N>(string);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView sString)

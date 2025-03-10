@@ -51,6 +51,7 @@ public:
 
 protected:
   virtual void Initialize() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -74,5 +75,7 @@ protected:
   void CreateCollisionRenderMesh();
 
   ezJoltMeshResourceHandle m_hCollisionMesh;
-  mutable ezMeshResourceHandle m_hMesh;
+  ezMeshResourceHandle m_hMesh;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

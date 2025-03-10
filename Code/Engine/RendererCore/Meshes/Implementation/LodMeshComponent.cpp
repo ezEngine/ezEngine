@@ -5,9 +5,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/LodMeshComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLodMeshLod, ezNoBase, 2, ezRTTIDefaultAllocator<ezLodMeshLod>)
@@ -83,6 +82,14 @@ void ezLodMeshComponent::SetOverlapRanges(bool bShow)
 bool ezLodMeshComponent::GetOverlapRanges() const
 {
   return GetUserFlag(LodMeshCompFlags::OverlapRanges);
+}
+
+void ezLodMeshComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
 }
 
 void ezLodMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -161,6 +168,10 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
   if (!hMesh.IsValid())
     return;
 
+  // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
+  const bool bDynamic = true;
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
+
   ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
@@ -171,29 +182,11 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
 
     hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = CreateRenderData();
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
-      pRenderData->m_hMesh = hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = m_Color;
-      pRenderData->m_vCustomData = m_vCustomData;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
 
-      pRenderData->FillSortingKey();
-    }
-
-    // Determine render data category.
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
 
     msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
   }
@@ -247,11 +240,6 @@ void ezLodMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
   m_vCustomData.Set(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
 
   InvalidateCachedRenderData();
-}
-
-ezMeshRenderData* ezLodMeshComponent::CreateRenderData() const
-{
-  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
 }
 
 static float CalculateSphereScreenSpaceCoverage(const ezBoundingSphere& sphere, const ezCamera& camera)

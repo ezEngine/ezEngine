@@ -8,7 +8,7 @@ struct ezMsgUpdateLocalBounds;
 
 using ezFogComponentManager = ezSettingsComponentManager<class ezFogComponent>;
 
-/// \brief The render data object for ambient light.
+/// \brief The render data object for height fog.
 class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFogRenderData, ezRenderData);
@@ -16,6 +16,7 @@ class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData
 public:
   ezColor m_Color;
   float m_fDensity;
+  float m_fBaseHeight;
   float m_fHeightFalloff;
   float m_fInvSkyDistance;
   float m_fFogStartDistance;

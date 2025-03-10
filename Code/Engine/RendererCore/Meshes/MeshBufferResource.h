@@ -23,6 +23,8 @@ struct ezMeshVertexStreamType
     Color1,
     SkinningData,
 
+    DataOffsets,
+
     Count,
 
     Default = Position
@@ -87,6 +89,8 @@ struct EZ_RENDERERCORE_DLL ezMeshVertexStreamConfig
   EZ_ALWAYS_INLINE ezUInt32 GetColor0ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::Color0); }
   EZ_ALWAYS_INLINE ezUInt32 GetColor1ElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::Color1); }
   EZ_ALWAYS_INLINE ezUInt32 GetSkinningDataElementSize() const { return GetStreamElementSize(ezMeshVertexStreamType::SkinningData); }
+
+  static ezGALVertexAttribute GetDataOffsetsVertexAttribute();
 
 private:
   ezArrayPtr<ezGALVertexAttribute> GetAllVertexAttributes();

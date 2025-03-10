@@ -42,6 +42,7 @@ struct GS_IN
 {
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
   uint InstanceID : SV_InstanceID;
 };
 
@@ -50,6 +51,7 @@ struct GS_OUT
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
   uint InstanceID : SV_InstanceID;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
@@ -70,6 +72,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.Position = input[i].Position;
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
+    output.DataOffsets = input[i].DataOffsets;
     output.InstanceID = input[i].InstanceID;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;

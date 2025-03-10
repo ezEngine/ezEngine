@@ -12,6 +12,7 @@
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
@@ -256,9 +257,15 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     return;
 
   const ezGameObject* pOwner = GetOwner();
-  auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
+  const bool bDynamic = true;
+  const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
+  const ezUInt32 uiMaxNumProbes = 1024;
 
-  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching)
+  ezGALDynamicBufferHandle hInstanceDataBuffer;
+  auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(this, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, uiMaxNumProbes);
+  ezUInt32 uiNumProbes = 0;
+
+  auto addProbeRenderData = [&](ezPerInstanceData& out_instanceData, const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility)
   {
     ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
@@ -266,20 +273,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     ezColor encodedSkyVisibility = ezColor::Black;
     encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility);
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-    {
-      pRenderData->m_GlobalTransform = transform;
-      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
-      pRenderData->m_hMesh = pManager->m_hDebugSphere;
-      pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
-      pRenderData->m_Color = encodedSkyVisibility;
-      pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
-
-      pRenderData->FillSortingKey();
-    }
-
-    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);
+    ezRenderDataManager::FillPerInstanceData(out_instanceData, pOwner, ezTransform::Make(vPosition), uiUniqueID, encodedSkyVisibility);
   };
 
   if (m_bUseTestPosition)
@@ -306,7 +300,8 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
 
     ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
 
-    addProbeRenderData(m_vTestPosition, skyVisibility, ezRenderData::Caching::Never);
+    addProbeRenderData(instanceData[0], m_vTestPosition, skyVisibility);
+    uiNumProbes = 1;
   }
   else
   {
@@ -317,11 +312,19 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     auto probePositions = pProbeTree->GetProbePositions();
     auto skyVisibility = pProbeTree->GetSkyVisibility();
 
-    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
+    uiNumProbes = ezMath::Min(probePositions.GetCount(), uiMaxNumProbes);
+    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < uiNumProbes; ++uiProbeIndex)
     {
-      addProbeRenderData(probePositions[uiProbeIndex], skyVisibility[uiProbeIndex], ezRenderData::Caching::IfStatic);
+      addProbeRenderData(instanceData[uiProbeIndex], probePositions[uiProbeIndex], skyVisibility[uiProbeIndex]);
     }
   }
+
+  auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
+
+  ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, pManager->m_hDebugMaterial, pManager->m_hDebugSphere, 0, uiNumProbes);
+
+  ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, m_bUseTestPosition ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }
 
 void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& inout_stream) const

@@ -2,16 +2,19 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
+#  include <Core/World/World.h>
 #  include <Foundation/IO/TypeVersionContext.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/DearImgui/DearImguiRenderer.h>
-#  include <Imgui/imgui_internal.h>
 #  include <RendererCore/Pipeline/ExtractedRenderData.h>
+#  include <RendererCore/Pipeline/RenderDataManager.h>
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderContext/RenderContext.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererCore/Shader/ShaderResource.h>
 #  include <RendererFoundation/Device/Device.h>
+
+#  include <Imgui/imgui_internal.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
@@ -65,12 +68,13 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
 
   if (pDrawData && pDrawData->Valid)
   {
+    EZ_LOCK(view.GetWorld()->GetReadMarker());
+    auto pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
+
     for (int draw = 0; draw < pDrawData->CmdListsCount; ++draw)
     {
-      ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
+      ezImguiRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
       pRenderData->m_uiSortingKey = draw;
-      pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
 
       // copy the vertex data
       // uses the frame allocator to prevent unnecessary deallocations

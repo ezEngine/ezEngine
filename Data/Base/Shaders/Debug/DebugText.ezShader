@@ -71,6 +71,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     RetVal.RenderTargetArrayIndex = InstanceID % 2;
 #  endif
 #endif
+
 	return RetVal;
 }
 
@@ -90,5 +91,5 @@ float4 main(PS_IN Input) : SV_Target
   float c = saturate(glyph * 2.0 - 1.0); // 0.5 - 1 is color content
   float a = saturate(glyph * 2.0); // 0 - 0.5 is alpha content
 
-	return float4(c, c, c, a) * Input.Color0;
+  return float4(c, c, c, a) * Input.Color0;
 }

@@ -12,7 +12,7 @@
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Decals/Implementation/DecalManager.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
@@ -426,26 +426,26 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     }
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner());
 
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   pRenderData->m_uiSortingKey = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
 
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
+  const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * (pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
-  pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
+  pRenderData->m_vGlobalScale = (axisRotation * (globalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
+  pRenderData->m_qGlobalRotation = globalTransform.m_qRotation * axisRotation;
 
   if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
   {
     if (fAspectRatio > 1.0f)
     {
-      pRenderData->m_GlobalTransform.m_vScale.z /= fAspectRatio;
+      pRenderData->m_vGlobalScale.z /= fAspectRatio;
     }
     else
     {
-      pRenderData->m_GlobalTransform.m_vScale.y *= fAspectRatio;
+      pRenderData->m_vGlobalScale.y *= fAspectRatio;
     }
   }
 

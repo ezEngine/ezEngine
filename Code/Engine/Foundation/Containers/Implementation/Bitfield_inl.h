@@ -62,7 +62,7 @@ bool ezBitfield<Container>::IsAnyBitSet(ezUInt32 uiFirstBit /*= 0*/, ezUInt32 ui
 
   EZ_ASSERT_DEBUG(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
 
-  const ezUInt32 uiLastBit = ezMath::Min<ezUInt32>(uiFirstBit + uiNumBits, m_uiCount - 1);
+  const ezUInt32 uiLastBit = ezMath::Min<ezUInt32>(uiFirstBit + uiNumBits, m_uiCount) - 1;
 
   const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
   const ezUInt32 uiLastInt = GetBitInt(uiLastBit);

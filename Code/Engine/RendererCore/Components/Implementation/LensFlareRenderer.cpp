@@ -40,7 +40,7 @@ void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewConte
 
   const ezLensFlareRenderData* pRenderData = batch.GetFirstData<ezLensFlareRenderData>();
 
-  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetCount(), 128u);
+  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetDataCount(), 128u);
   ezGALBufferHandle hLensFlareData = CreateLensFlareDataBuffer(uiBufferSize);
   EZ_SCOPE_EXIT(DeleteLensFlareDataBuffer(hLensFlareData));
 
@@ -79,14 +79,14 @@ void ezLensFlareRenderer::DeleteLensFlareDataBuffer(ezGALBufferHandle hBuffer) c
 void ezLensFlareRenderer::FillLensFlareData(const ezRenderDataBatch& batch) const
 {
   m_LensFlareData.Clear();
-  m_LensFlareData.Reserve(batch.GetCount());
+  m_LensFlareData.Reserve(batch.GetDataCount());
 
   for (auto it = batch.GetIterator<ezLensFlareRenderData>(); it.IsValid(); ++it)
   {
     const ezLensFlareRenderData* pRenderData = it;
 
     auto& LensFlareData = m_LensFlareData.ExpandAndGetRef();
-    LensFlareData.WorldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
+    LensFlareData.WorldSpacePosition = pRenderData->m_vGlobalPosition;
     LensFlareData.Size = pRenderData->m_fSize;
     LensFlareData.MaxScreenSize = pRenderData->m_fMaxScreenSize;
     LensFlareData.OcclusionRadius = pRenderData->m_fOcclusionSampleRadius;

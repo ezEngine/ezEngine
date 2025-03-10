@@ -24,11 +24,6 @@ int ReflectionProbeIndex @Default(0);
 
 #define USE_NORMAL
 
-[MATERIALCONSTANTS]
-
-  INT1(MipLevel);
-  INT1(ReflectionProbeIndex);
-
 [VERTEXSHADER]
 
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -59,8 +54,10 @@ float3 GetDiffuseColor()
   ReflDirectionWS = mul(ReflDirectionWS, objectToWorld).xyz;
 
   float3 reflectionDir = CubeMapDirection(ReflDirectionWS);
+  float probeIndex = data.CustomData.x;
+  float mipLevel = data.CustomData.y;
 
-  return ReflectionSpecularTexture.SampleLevel(LinearSampler, float4(reflectionDir, GetMaterialData(ReflectionProbeIndex)), GetMaterialData(MipLevel)).rgb;
+  return ReflectionSpecularTexture.SampleLevel(LinearSampler, float4(reflectionDir, probeIndex), mipLevel).rgb;
 }
 
 float3 GetSpecularColor()

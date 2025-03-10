@@ -6,10 +6,8 @@
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/containers/vector.h>
@@ -18,7 +16,8 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
+// Dynamic because root motion can be applied to owner position
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -39,6 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); 
   {
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -130,7 +130,7 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
 void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
 {
-  m_SkinningState.m_Transforms.SetCountUninitialized(bones.GetCount());
+  auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, bones.GetCount());
 
   if (bounds)
   {
@@ -142,7 +142,7 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
   else
@@ -154,17 +154,22 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
       if (uiJointIdx == ezInvalidJointIndex)
         continue;
 
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
 }
 
-ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
+ezTransform ezAnimatedMeshComponent::GetFinalGlobalTransform() const
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-  pRenderData->m_GlobalTransform = m_RootTransform;
+  return GetOwner()->GetGlobalTransform() * m_RootTransform;
+}
 
-  pRenderData->m_hSkinningTransforms = m_SkinningState.m_hGpuBuffer;
+ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
+{
+  auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+  
+  pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+  pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
 
   return pRenderData;
 }
@@ -181,6 +186,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+  auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
   out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
@@ -191,7 +197,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
     if (uiJointIdx == ezInvalidJointIndex)
       continue;
 
-    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
+    out_modelTransforms[uiJointIdx] = boneTransforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
   }
 }
 
@@ -218,8 +224,6 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
     m_MaxBounds = poseBounds;
     TriggerLocalBoundsUpdate();
   }
-
-  m_SkinningState.TransformsChanged();
 }
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
@@ -234,6 +238,11 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
       msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
     }
   }
+}
+
+void ezAnimatedMeshComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
+{
+  m_SkinningState.m_DataOffset = msg.m_NewOffset;
 }
 
 ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)

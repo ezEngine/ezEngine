@@ -17,6 +17,7 @@ class ezGridRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezGridRenderData, ezRenderData);
 
 public:
+  ezQuat m_qGlobalRotation;
   float m_fDensity;
   ezInt32 m_iFirstLine1;
   ezInt32 m_iLastLine1;

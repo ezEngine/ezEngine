@@ -91,4 +91,6 @@ protected:
   void Cleanup();
 
   const char* DummyGetter() const { return nullptr; }
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

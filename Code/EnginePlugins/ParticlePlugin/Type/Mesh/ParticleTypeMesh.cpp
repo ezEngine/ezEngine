@@ -6,10 +6,10 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Mesh/ParticleTypeMesh.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
@@ -48,6 +48,8 @@ void ezParticleTypeMeshFactory::CopyTypeProperties(ezParticleType* pObject, bool
 
   if (!m_sMaterial.IsEmpty())
     pType->m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sMaterial);
+
+  pType->m_pRenderDataManager = (ezRenderDataManager*)pType->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezRenderDataManager>());
 }
 
 enum class TypeMeshVersion
@@ -90,7 +92,18 @@ void ezParticleTypeMeshFactory::Load(ezStreamReader& inout_stream)
 }
 
 ezParticleTypeMesh::ezParticleTypeMesh() = default;
-ezParticleTypeMesh::~ezParticleTypeMesh() = default;
+
+ezParticleTypeMesh::~ezParticleTypeMesh()
+{
+  if (m_pRenderDataManager != nullptr)
+  {
+    m_pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(m_InstanceDataOffset.IsInvalidated(), "Implementation error");
+  }
+}
 
 void ezParticleTypeMesh::CreateRequiredStreams()
 {
@@ -143,11 +156,15 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
   if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
     return false;
 
-  m_Bounds = pMesh->GetBounds();
   m_RenderCategory = pMaterial->GetRenderDataCategory();
 
   m_bRenderDataCached = true;
   return true;
+}
+
+void ezParticleTypeMesh::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+{
+  pParticleModule->CacheWorldModule<ezRenderDataManager>();
 }
 
 void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
@@ -185,8 +202,15 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
   const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
   const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
 
+  const bool bIsOpaque = m_RenderCategory == ezDefaultRenderDataCategories::LitOpaque ||
+                         m_RenderCategory == ezDefaultRenderDataCategories::LitMasked ||
+                         m_RenderCategory == ezDefaultRenderDataCategories::SimpleOpaque;
+
   {
-    const ezUInt32 uiFlipWinding = 0;
+    const bool bDynamic = true;
+    ezGALDynamicBufferHandle hInstanceDataBuffer;
+    const ezUInt32 uiMaxNumParticles = (ezUInt32)GetOwnerSystem()->GetMaxParticles();
+    auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(nullptr, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, uiMaxNumParticles);
 
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
@@ -197,19 +221,28 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
       trans.m_vPosition = pPosition[idx].GetAsVec3();
       trans.m_vScale.Set(pSize[idx]);
 
-      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
+      ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
+
+      // If not rendered as opaque we need one render data per particle to allow for proper sorting
+      if (!bIsOpaque)
       {
-        pRenderData->m_GlobalTransform = trans;
-        pRenderData->m_GlobalBounds = m_Bounds;
-        pRenderData->m_hMesh = m_hMesh;
-        pRenderData->m_hMaterial = m_hMaterial;
-        pRenderData->m_Color = pColor[idx].ToLinearFloat() * tintColor;
+        ezInstanceDataOffset perParticleOffset = m_InstanceDataOffset;
+        perParticleOffset.m_uiOffset += p;
 
-        pRenderData->m_uiSubMeshIndex = 0;
-        pRenderData->m_uiUniqueID = 0xFFFFFFFF;
+        ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
+        pRenderData->m_vGlobalPosition = trans.m_vPosition;
+        pRenderData->Fill(perParticleOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
-        pRenderData->FillSortingKey();
+        ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
       }
+    }
+
+    // If rendered as opaque we can pack everything into one render data
+    if (bIsOpaque)
+    {
+      ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
+      pRenderData->m_vGlobalPosition = GetOwnerSystem()->GetTransform().m_vPosition;
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, numParticles);
 
       ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
     }

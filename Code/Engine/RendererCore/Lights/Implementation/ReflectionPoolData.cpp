@@ -7,6 +7,7 @@
 #include <RendererCore/Lights/SkyLightComponent.h>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -72,7 +73,7 @@ ezReflectionPool::Data::WorldReflectionData& ezReflectionPool::Data::GetWorldDat
 void ezReflectionPool::Data::RemoveProbe(const ezWorld* pWorld, ezReflectionProbeId id)
 {
   const ezUInt32 uiWorldIndex = pWorld->GetIndex();
-  ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
+  WorldReflectionData& data = *s_pData->m_WorldReflectionData[uiWorldIndex];
 
   data.m_mapping.RemoveProbe(id);
 
@@ -81,7 +82,11 @@ void ezReflectionPool::Data::RemoveProbe(const ezWorld* pWorld, ezReflectionProb
     data.m_SkyLight.Invalidate();
   }
 
-  data.m_Probes.Remove(id);
+  ProbeData probeData;
+  data.m_Probes.Remove(id, &probeData);
+
+  const ezRenderDataManager* pRenderDataManager = pWorld->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(probeData.m_DebugInstanceDataOffset);
 
   if (data.m_Probes.IsEmpty())
   {
@@ -338,50 +343,9 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     }
   }
 
-  if (m_hDebugMaterial.IsEmpty())
+  if (!m_hDebugMaterial.IsValid())
   {
-    const ezUInt32 uiMipLevelCount = GetMipLevels();
-
-    ezMaterialResourceHandle hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
-      "{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
-    ezResourceLock<ezMaterialResource> pMaterial(hDebugMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    if (pMaterial->GetLoadingState() != ezResourceState::Loaded)
-      return;
-
-    ezMaterialResourceDescriptor desc = pMaterial->GetCurrentDesc();
-    ezUInt32 uiMipLevel = desc.m_Parameters.GetCount();
-    ezUInt32 uiReflectionProbeIndex = desc.m_Parameters.GetCount();
-    ezTempHashedString sMipLevelParam = "MipLevel";
-    ezTempHashedString sReflectionProbeIndexParam = "ReflectionProbeIndex";
-    for (ezUInt32 i = 0; i < desc.m_Parameters.GetCount(); ++i)
-    {
-      if (desc.m_Parameters[i].m_Name == sMipLevelParam)
-      {
-        uiMipLevel = i;
-      }
-      if (desc.m_Parameters[i].m_Name == sReflectionProbeIndexParam)
-      {
-        uiReflectionProbeIndex = i;
-      }
-    }
-
-    if (uiMipLevel >= desc.m_Parameters.GetCount() || uiReflectionProbeIndex >= desc.m_Parameters.GetCount())
-      return;
-
-    m_hDebugMaterial.SetCount(uiMipLevelCount * s_uiNumReflectionProbeCubeMaps);
-    for (ezUInt32 iReflectionProbeIndex = 0; iReflectionProbeIndex < s_uiNumReflectionProbeCubeMaps; iReflectionProbeIndex++)
-    {
-      for (ezUInt32 iMipLevel = 0; iMipLevel < uiMipLevelCount; iMipLevel++)
-      {
-        desc.m_Parameters[uiMipLevel].m_Value = iMipLevel;
-        desc.m_Parameters[uiReflectionProbeIndex].m_Value = iReflectionProbeIndex;
-        ezStringBuilder sMaterialName;
-        sMaterialName.SetFormat("ReflectionProbeVisualization - MipLevel {}, Index {}", iMipLevel, iReflectionProbeIndex);
-
-        ezMaterialResourceDescriptor desc2 = desc;
-        m_hDebugMaterial[iReflectionProbeIndex * uiMipLevelCount + iMipLevel] = ezResourceManager::GetOrCreateResource<ezMaterialResource>(sMaterialName, std::move(desc2));
-      }
-    }
+    m_hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 6f8067d0-ece8-44e1-af46-79b49266de41 }"); // ReflectionProbeVisualization.ezMaterialAsset
   }
 #endif
 }

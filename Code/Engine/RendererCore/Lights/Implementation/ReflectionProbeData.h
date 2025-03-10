@@ -62,9 +62,9 @@ public:
     m_vHalfExtents.SetZero();
   }
 
+  ezTransform m_GlobalTransform;
   ezReflectionProbeId m_Id;
   ezUInt32 m_uiIndex = 0;
-  ezVec3 m_vProbePosition; ///< Probe position in world space.
   ezVec3 m_vHalfExtents;
   ezVec3 m_vPositiveFalloff;
   ezVec3 m_vNegativeFalloff;

@@ -11,6 +11,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 ezClusteredDataGPU::ezClusteredDataGPU()
 {
@@ -21,7 +22,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 
     {
       desc.m_uiStructSize = sizeof(ezPerLightData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_LIGHT_DATA;
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_LIGHTS;
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -30,7 +31,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 
     {
       desc.m_uiStructSize = sizeof(ezPerDecalData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_DECAL_DATA;
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_DECALS;
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -39,7 +40,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 
     {
       desc.m_uiStructSize = sizeof(ezPerReflectionProbeData);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_REFLECTION_PROBE_DATA;
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES;
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
 
@@ -51,13 +52,6 @@ ezClusteredDataGPU::ezClusteredDataGPU()
       desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
 
       m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
-    }
-
-    {
-      desc.m_uiStructSize = sizeof(ezUInt32);
-      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_ITEMS_PER_CLUSTER * NUM_CLUSTERS;
-
-      m_hClusterItemBuffer = pDevice->CreateBuffer(desc);
     }
   }
 
@@ -170,6 +164,27 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
       if (!pData->m_ReflectionProbeData.IsEmpty())
       {
         pGALCommandEncoder->UpdateBuffer(m_Data.m_hReflectionProbeDataBuffer, 0, pData->m_ReflectionProbeData.ToByteArray(), ezGALUpdateMode::AheadOfTime);
+      }
+
+      if (m_Data.m_hClusterItemBuffer.IsInvalidated() == false)
+      {
+        auto& bufferDesc = pGALCommandEncoder->GetDevice().GetBuffer(m_Data.m_hClusterItemBuffer)->GetDescription();
+        if (bufferDesc.m_uiTotalSize < pData->m_ClusterItemList.ToByteArray().GetCount())
+        {
+          pGALCommandEncoder->GetDevice().DestroyBuffer(m_Data.m_hClusterItemBuffer);
+        }
+      }
+
+      if (m_Data.m_hClusterItemBuffer.IsInvalidated())
+      {
+        const ezUInt32 uiNumItems = ezMemoryUtils::AlignSize(pData->m_ClusterItemList.GetCount(), ezMath::PowerOfTwo_Ceil(ezUInt32(NUM_CLUSTERS)));
+
+        ezGALBufferCreationDescription desc;
+        desc.m_uiStructSize = sizeof(ezUInt32);
+        desc.m_uiTotalSize = uiNumItems * desc.m_uiStructSize;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+        desc.m_ResourceAccess.m_bImmutable = false;
+        m_Data.m_hClusterItemBuffer = pGALCommandEncoder->GetDevice().CreateBuffer(desc);
       }
 
       pGALCommandEncoder->UpdateBuffer(m_Data.m_hClusterItemBuffer, 0, pData->m_ClusterItemList.ToByteArray(), ezGALUpdateMode::AheadOfTime);

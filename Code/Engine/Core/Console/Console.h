@@ -109,7 +109,7 @@ public:
   virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default);
 
   /// \brief Display the console state.
-  virtual void RenderConsole(bool bIsOpen) {}
+  virtual void RenderConsole(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
 
   /// @}
 
@@ -118,7 +118,7 @@ public:
 
 public:
   /// \brief Update the console with the latest input.
-  virtual void HandleInput(bool bIsOpen) {}
+  virtual void HandleInput(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
 
   /// \brief Adds an item to the input history.
   void AddToInputHistory(ezStringView sText);

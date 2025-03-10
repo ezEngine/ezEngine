@@ -7,8 +7,8 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
@@ -293,8 +293,9 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
-
+  
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+  msg.m_pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeSpatialData(view);
@@ -379,6 +380,7 @@ void ezSelectedObjectsExtractorBase::Extract(
   msg.m_OverrideCategory = m_OverrideCategory;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+  msg.m_pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
 
   for (const auto& hObj : *pSelection)
   {

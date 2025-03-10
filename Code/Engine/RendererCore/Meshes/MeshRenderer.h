@@ -28,10 +28,4 @@ protected:
   ///
   /// Can be overridden to bind custom per-object data.
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const;
-
-  /// Fills the instance data buffer from the render data batch.
-  ///
-  /// Filters out instances and returns the actual count written. Can be overridden to customize instance data layout.
-  virtual void FillPerInstanceData(
-    ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
 };
