@@ -207,10 +207,10 @@ public:
   ConstChildIterator GetChildren() const;
 
   /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
-  ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true);
+  ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true); // [tested]
 
   /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
-  const ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true) const;
+  const ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true) const; // [tested]
 
   /// \brief Searches for a child using a path. Every path segment represents a child with a given name.
   ///
@@ -219,10 +219,10 @@ public:
   /// When on any part of the path the next child cannot be found, nullptr is returned.
   /// This function expects an exact path to the destination. It does not search the full hierarchy for
   /// the next child, as SearchChildByNameSequence() does.
-  ezGameObject* FindChildByPath(ezStringView sPath);
+  ezGameObject* FindChildByPath(ezStringView sPath); // [tested]
 
   /// \brief Const overload of FindChildByPath()
-  const ezGameObject* FindChildByPath(ezStringView sPath) const;
+  const ezGameObject* FindChildByPath(ezStringView sPath) const; // [tested]
 
   /// \brief Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
   ///
@@ -231,10 +231,10 @@ public:
   /// named "a". If that is found, the search continues from there for a child called "b".
   /// If such a child is found and pExpectedComponent != nullptr, it is verified that the object
   /// contains a component of that type. If it doesn't the search continues (including back-tracking).
-  ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
+  ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr); // [tested]
 
   /// \brief Const overload of SearchForChildByNameSequence()
-  const ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr) const;
+  const ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
   void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects);

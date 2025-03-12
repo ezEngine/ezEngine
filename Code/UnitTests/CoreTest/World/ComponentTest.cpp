@@ -51,13 +51,10 @@ namespace
     EZ_DECLARE_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
 
   public:
-    TestComponent()
-
-      = default;
+    TestComponent() = default;
     ~TestComponent() = default;
 
     virtual void Initialize() override { ++s_iInitCounter; }
-
     virtual void Deinitialize() override { --s_iInitCounter; }
 
     virtual void OnActivated() override

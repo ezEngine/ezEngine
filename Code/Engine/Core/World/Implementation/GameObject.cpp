@@ -489,8 +489,6 @@ ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
 
 ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, bool bRecursive /*= true*/)
 {
-  /// \test Needs a unit test
-
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
     if (it->m_sName == sName)
@@ -521,10 +519,8 @@ const ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sNam
 
 ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath)
 {
-  /// \test Needs a unit test
-
   if (sPath.IsEmpty())
-    return nullptr;
+    return this;
 
   const char* szSep = sPath.FindSubString("/");
   ezUInt64 uiNameHash = 0;
@@ -550,8 +546,6 @@ const ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath) const
 
 ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
 {
-  /// \test Needs a unit test
-
   if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
@@ -617,8 +611,6 @@ const ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObj
 
 void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects)
 {
-  /// \test Needs a unit test
-
   if (sObjectSequence.IsEmpty())
   {
     // in case we are searching for a specific component type, verify that it exists on this object
