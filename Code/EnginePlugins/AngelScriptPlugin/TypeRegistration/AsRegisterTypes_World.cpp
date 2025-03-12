@@ -220,8 +220,8 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void DetachChild(const ezGameObjectHandle& in hChild, ezTransformPreservation preserve = ezTransformPreservation::PreserveGlobal)", asMETHOD(ezGameObject, DetachChild), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "uint32 GetChildCount()", asMETHOD(ezGameObject, GetChildCount), asCALL_THISCALL));
   // AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void GetChildren()", asMETHOD(ezGameObject, GetChildren), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByName(const ezTempHashedString& in sName, bool bRecursive = true)", asMETHOD(ezGameObject, FindChildByName), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByPath(ezStringView sPath)", asMETHOD(ezGameObject, FindChildByPath), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByName(const ezTempHashedString& in sName, bool bRecursive = true)", asMETHODPR(ezGameObject, FindChildByName, (const ezTempHashedString&, bool), ezGameObject*), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ FindChildByPath(ezStringView sPath)", asMETHODPR(ezGameObject, FindChildByPath, (ezStringView), ezGameObject*), asCALL_THISCALL));
   // AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezGameObject@ SearchForChildByNameSequence(string)", asMETHOD(ezGameObject, SearchForChildByNameSequence), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezWorld@ GetWorld()", asMETHODPR(ezGameObject, GetWorld, (), ezWorld*), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "const ezWorld@ GetWorld() const", asMETHODPR(ezGameObject, GetWorld, () const, const ezWorld*), asCALL_THISCALL));
@@ -431,7 +431,7 @@ void ezAngelScriptEngineSingleton::Register_World()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject), bool), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "bool TryGetObjectWithGlobalKey(const ezTempHashedString& in sGlobalKey, const ezGameObject@& out pObject)", asMETHODPR(ezWorld, TryGetObjectWithGlobalKey, (const ezTempHashedString& sGlobalKey, const ezGameObject*& out_pObject) const, bool), asCALL_THISCALL));
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObject@ SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null)", asMETHOD(ezWorld, SearchForObject), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezWorld", "ezGameObject@ SearchForObject(ezStringView sSearchPath, ezGameObject@ pStartSearchObj = null, const ezRTTI@ pExpectedComponent = null)", asMETHODPR(ezWorld, SearchForObject, (ezStringView, ezGameObject*, const ezRTTI*), ezGameObject*), asCALL_THISCALL));
 
   // GetOrCreateModule
 

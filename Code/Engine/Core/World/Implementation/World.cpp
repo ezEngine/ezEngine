@@ -44,10 +44,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(
-      new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SearchForObject, In, "SearchPath", In, "ReferenceObject")->AddFlags(ezPropertyFlags::PureFunction),
   }
   EZ_END_FUNCTIONS;
 }
@@ -1640,6 +1640,14 @@ ezGameObject* ezWorld::SearchForObject(ezStringView sSearchPath, ezGameObject* p
   }
 
   return pRefObj->SearchForChildByNameSequence(sSearchPath, pExpectedComponent);
+}
+
+
+const ezGameObject* ezWorld::SearchForObject(ezStringView sSearchPath, const ezGameObject* pReferenceObject /*= nullptr*/, const ezRTTI* pExpectedComponent /*= nullptr*/) const
+{
+  ezWorld* pThis = const_cast<ezWorld*>(this);
+  ezGameObject* pRef = const_cast<ezGameObject*>(pReferenceObject);
+  return pThis->SearchForObject(sSearchPath, pRef, pExpectedComponent);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

@@ -10,11 +10,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_CVar, ezNoBase, 1, ezRTTIN
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetBoolValue, In, "Name")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetIntValue, In, "Name")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetStringValue, In, "Name")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetBoolValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetIntValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetStringValue, In, "Name")->AddFlags(ezPropertyFlags::PureFunction),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetBoolValue, In, "Name", In, "Value"),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetIntValue, In, "Name", In, "Value"),

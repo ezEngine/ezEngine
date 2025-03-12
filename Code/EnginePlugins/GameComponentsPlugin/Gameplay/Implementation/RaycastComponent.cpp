@@ -60,9 +60,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 4, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance)->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentEndPosition)->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(HasHit)->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentDistance),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentEndPosition),
+    EZ_SCRIPT_FUNCTION_PROPERTY(HasHit),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES

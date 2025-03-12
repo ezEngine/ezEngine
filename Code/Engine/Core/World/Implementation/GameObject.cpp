@@ -49,8 +49,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(HasTag, In, "TagName"),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::PureFunction),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
@@ -513,12 +513,18 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, boo
   return nullptr;
 }
 
+const ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& sName, bool bRecursive /*= true*/) const
+{
+  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  return pThis->FindChildByName(sName, bRecursive);
+}
+
 ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath)
 {
   /// \test Needs a unit test
 
   if (sPath.IsEmpty())
-    return this;
+    return nullptr;
 
   const char* szSep = sPath.FindSubString("/");
   ezUInt64 uiNameHash = 0;
@@ -536,6 +542,11 @@ ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath)
   return pNextChild->FindChildByPath(ezStringView(szSep + 1, sPath.GetEndPointer()));
 }
 
+const ezGameObject* ezGameObject::FindChildByPath(ezStringView sPath) const
+{
+  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  return pThis->FindChildByPath(sPath);
+}
 
 ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
 {
@@ -546,7 +557,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
     // in case we are searching for a specific component type, verify that it exists on this object
     if (pExpectedComponent != nullptr)
     {
-      ezComponent* pComp = nullptr;
+      const ezComponent* pComp = nullptr;
       if (!TryGetComponentOfBaseType(pExpectedComponent, pComp))
         return nullptr;
     }
@@ -598,6 +609,11 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSeq
   return nullptr;
 }
 
+const ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/) const
+{
+  ezGameObject* pThis = const_cast<ezGameObject*>(this);
+  return pThis->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
+}
 
 void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects)
 {

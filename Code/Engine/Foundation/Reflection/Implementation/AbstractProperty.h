@@ -68,6 +68,8 @@ struct ezPropertyFlags
     VarOut = EZ_BIT(11),      ///< Tag for non-const-ref function parameters to indicate usage 'out'
     VarInOut = EZ_BIT(12),    ///< Tag for non-const-ref function parameters to indicate usage 'inout'
 
+    PureFunction = Const,     ///< The visual script function doesn't need an execution pin.
+
     Default = 0,
     Void = 0
   };

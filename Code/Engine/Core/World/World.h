@@ -107,6 +107,9 @@ public:
   /// * "obj/P:name" -> "P:" must be at the very beginning or directly after "G:"
   [[nodiscard]] ezGameObject* SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr); // [tested]
 
+  /// \brief const overload of SearchForObject()
+  [[nodiscard]] const ezGameObject* SearchForObject(ezStringView sSearchPath, const ezGameObject* pReferenceObject = nullptr, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
+
   /// \brief Returns the total number of objects in this world.
   ezUInt32 GetObjectCount() const; // [tested]
 
@@ -400,6 +403,7 @@ private:
 
   ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
   ezClock* Reflection_GetClock();
+  ezGameObject* Reflection_SearchForObject(ezStringView sSearchPath, ezGameObject* pReferenceObject) { return SearchForObject(sSearchPath, pReferenceObject, nullptr); }
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;

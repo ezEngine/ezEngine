@@ -176,7 +176,7 @@ void ezPathComponent::FindControlPoints(ezDynamicArray<ControlPoint>& out_Contro
 
   for (const ezString& sNode : m_Nodes)
   {
-    const ezGameObject* pNodeObj = pOwner->FindChildByName(ezTempHashedString(sNode), false);
+    const ezGameObject* pNodeObj = GetWorld()->SearchForObject(sNode, GetOwner(), ezGetStaticRTTI<ezPathNodeComponent>());
     if (pNodeObj == nullptr)
       continue;
 
