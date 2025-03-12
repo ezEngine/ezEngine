@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDef
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

@@ -221,7 +221,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
@@ -240,7 +240,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
 #  ifdef BUILDSYSTEM_ENABLE_RMLUI_SUPPORT
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 1).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 2).Succeeded());
 }
 #  endif
 
