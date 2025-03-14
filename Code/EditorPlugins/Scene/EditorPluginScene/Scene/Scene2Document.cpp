@@ -236,7 +236,7 @@ void ezScene2Document::SendGameWorldToEngine()
   }
 }
 
-ezTransformStatus ezScene2Document::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezScene2Document::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // We need to wait for layers to be fully loaded before we can transform, i.e. export, a scene.
   ezStatus sceneRes = WaitForEngineStatusLoaded();
@@ -252,7 +252,7 @@ ezTransformStatus ezScene2Document::InternalTransformAsset(const char* szTargetF
     if (layerRes.Failed())
       return layerRes;
   }
-  return SUPER::InternalTransformAsset(szTargetFile, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
+  return SUPER::InternalTransformAsset(szTargetFile, sOutputTag, pAssetProfile, assetHeader, transformFlags);
 }
 
 void ezScene2Document::PreventDoubleSelectionChange(bool b)
