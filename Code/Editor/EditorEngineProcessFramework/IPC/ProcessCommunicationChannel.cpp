@@ -114,9 +114,17 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
       if (tTimeLeft < ezTime::MakeZero())
       {
-        m_pWaitForMessageType = nullptr;
-        ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());
-        return EZ_FAILURE;
+        // Don't time out if a debugger is attached to make stepping easier.
+        if (ezSystemInformation::IsDebuggerAttached())
+        {
+          tTimeLeft = ezTime::MakeFromSeconds(1);
+        }
+        else
+        {
+          m_pWaitForMessageType = nullptr;
+          ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());
+          return EZ_FAILURE;
+        }
       }
 
       m_pProtocol->WaitForMessages(tTimeLeft).IgnoreResult();

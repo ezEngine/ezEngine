@@ -699,18 +699,9 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   ezLog::Info("Exporting {0} to \"{1}\"", GetDocumentTypeName(), szOutputTarget);
 
-  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
-  {
-    return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), szOutputTarget));
-  }
-  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
-  {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::MakeFromSeconds(10)).Failed())
-    {
-      return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), szOutputTarget));
-    }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
-  }
+  ezStatus loadResult = WaitForEngineStatusLoaded();
+  if (loadResult.Failed())
+    return loadResult;
 
   range.BeginNextStep(szOutputTarget);
 
@@ -824,6 +815,24 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
 ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
 {
   return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
+}
+
+
+ezStatus ezAssetDocument::WaitForEngineStatusLoaded() const
+{
+  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
+  {
+    return ezStatus(ezFmt("Loading {0} document '{1}' failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
+  }
+  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
+  {
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), {}).Failed())
+    {
+      return ezStatus(ezFmt("Loading {0} document '{1}' failed, document initialization timed out or engine crashed.", GetDocumentTypeName(), GetDocumentPath()));
+    }
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+  }
+  return ezStatus(EZ_SUCCESS);
 }
 
 bool ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const

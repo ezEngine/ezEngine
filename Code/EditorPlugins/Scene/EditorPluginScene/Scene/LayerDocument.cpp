@@ -22,11 +22,6 @@ void ezLayerDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 }
 
-void ezLayerDocument::InitializeAfterLoadingAndSaving()
-{
-  SUPER::InitializeAfterLoadingAndSaving();
-}
-
 ezVariant ezLayerDocument::GetCreateEngineMetaData() const
 {
   return m_pHostDocument->GetGuid();
