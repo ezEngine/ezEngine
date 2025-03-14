@@ -121,7 +121,7 @@ public:
   virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
   virtual void SendGameWorldToEngine() override;
   virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+    const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   ///@}
   /// \name Selection Specific Functions
