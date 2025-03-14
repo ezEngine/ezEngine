@@ -263,6 +263,22 @@ function(ez_detect_compiler_and_architecture)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 		endif()
 	endif()
+
+	# Enable assember language support. Needed for AngelScript.
+	if(EZ_CMAKE_COMPILER_MSVC AND EZ_CMAKE_ARCHITECTURE_64BIT)
+		enable_language(ASM_MASM)
+		if(NOT CMAKE_ASM_MASM_COMPILER_WORKS)
+			message(FATAL_ERROR "MSVC x86_64 target requires a working assembler")
+		endif()
+	endif()
+
+	if(EZ_CMAKE_ARCHITECTURE_ARM)
+		enable_language(ASM)
+		if(NOT CMAKE_ASM_COMPILER_WORKS)
+			message(FATAL_ERROR "ARM target requires a working assembler")
+		endif()
+	endif()
+
 endfunction()
 
 # #####################################
