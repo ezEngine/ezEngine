@@ -699,9 +699,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   ezLog::Info("Exporting {0} to \"{1}\"", GetDocumentTypeName(), szOutputTarget);
 
-  ezStatus loadResult = WaitForEngineStatusLoaded();
-  if (loadResult.Failed())
-    return loadResult;
+  EZ_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
 
   range.BeginNextStep(szOutputTarget);
 
