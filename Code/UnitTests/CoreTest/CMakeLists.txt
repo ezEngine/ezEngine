@@ -14,9 +14,6 @@ if(EZ_CMAKE_PLATFORM_ANDROID)
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   ${EZ_ROOT}/Data/UnitTests/CoreTest/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/UnitTests/CoreTest/)
-add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${EZ_ROOT}/Data/Tools/ezEditor/Typescript/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/Tools/ezEditor/Typescript/)
 endif()  
 
 target_link_libraries(${PROJECT_NAME}

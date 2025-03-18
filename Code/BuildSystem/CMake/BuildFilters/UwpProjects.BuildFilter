@@ -1,6 +1,5 @@
 set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_UwpProjects
 	Core
-	Duktape
 	enet
 	FileservePlugin
 	Foundation

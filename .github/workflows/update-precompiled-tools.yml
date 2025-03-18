@@ -32,7 +32,7 @@ jobs:
 
       - name: Run CMake
         run: |
-          cmake.exe -S repo -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_FILTER:STRING="PrecompiledTools" -DEZ_3RDPARTY_LUA_SUPPORT:BOOL=OFF -DEZ_3RDPARTY_DUKTAPE_SUPPORT:BOOL=OFF -DEZ_3RDPARTY_IMGUI_SUPPORT:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
+          cmake.exe -S repo -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_SYSTEM_VERSION:STRING="10.0.18362.0" -DEZ_ENABLE_QT_SUPPORT:BOOL=ON -DEZ_BUILD_FILTER:STRING="PrecompiledTools" -DEZ_3RDPARTY_LUA_SUPPORT:BOOL=OFF -DEZ_3RDPARTY_IMGUI_SUPPORT:BOOL=OFF -DEZ_SOLUTION_NAME:string="solution"
 
       # These commands should NOT use 'rebuild', as that wastes a lot of time
       # But MSVC on GitHub is currently broken and doesn't build without it at all

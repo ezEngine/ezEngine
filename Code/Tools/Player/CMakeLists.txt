@@ -21,7 +21,6 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     PUBLIC
     ParticlePlugin
     InspectorPlugin
-    TypeScriptPlugin
   )
 
   if (EZ_BUILD_PHYSX)

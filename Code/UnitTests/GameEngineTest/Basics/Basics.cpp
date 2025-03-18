@@ -192,13 +192,6 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 4).Succeeded());
 }
 
-#  ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
-EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
-{
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 5).Succeeded());
-}
-#  endif
-
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject", 4).Succeeded());

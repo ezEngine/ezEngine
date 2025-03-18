@@ -14,8 +14,7 @@
 */DataDirectories.ddl
 *.ezExportFilter
 */.gitignore
-*/TypeScript/*
-*.ts
+*.as
 
 // Fmod specific
 *.wav
