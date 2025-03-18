@@ -19,8 +19,9 @@ static ezFmod g_FmodSingleton;
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all FMOD output");
-ezCVarBool cvar_FmodMute("FMOD.Mute", false, ezCVarFlags::Default, "Whether FMOD sound output is muted");
+ezCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, ezCVarFlags::Save, "Overall volume for all FMOD output");
+ezCVarBool cvar_FmodMute("FMOD.Mute", false, ezCVarFlags::Default, "Whether FMOD output is muted");
+ezCVarBool cvar_FmodPause("FMOD.Pause", false, ezCVarFlags::Default, "Whether FMOD output is paused");
 
 ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
@@ -220,6 +221,14 @@ void ezFmod::UpdateSound()
     channel->setMute(cvar_FmodMute);
   }
 
+  // Pause
+  {
+    FMOD::ChannelGroup* channel;
+    m_pLowLevelSystem->getMasterChannelGroup(&channel);
+
+    channel->setPaused(cvar_FmodPause);
+  }
+
   m_pStudioSystem->update();
 
   ClearSoundBankDataDeletionQueue();
@@ -247,21 +256,12 @@ bool ezFmod::GetMasterChannelMute() const
 
 void ezFmod::SetMasterChannelPaused(bool bPaused)
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  channel->setPaused(bPaused);
+  cvar_FmodPause = bPaused;
 }
 
 bool ezFmod::GetMasterChannelPaused() const
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  bool paused = false;
-  channel->getPaused(&paused);
-
-  return paused;
+  return cvar_FmodPause;
 }
 
 void ezFmod::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)

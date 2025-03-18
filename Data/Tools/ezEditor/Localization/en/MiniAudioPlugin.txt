@@ -1,0 +1,15 @@
+# Asset Types
+
+MiniAudioSound;Sound
+
+# Component Types
+
+ezMiniAudioSoundComponent;MiniAudio Sound
+ezMiniAudioListenerComponent;MiniAudio Listener
+
+# UI
+
+MiniAudio.Mute;Mute Sounds
+MiniAudio.Volume;Volume
+
+# Properties

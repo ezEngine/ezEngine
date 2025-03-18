@@ -137,9 +137,23 @@ public:
   void SetNoGlobalPitch(bool bEnable); // [ property ]
   bool GetNoGlobalPitch() const;       // [ property ]
 
-  /// \brief Will start the sound, if it was not playing. Will restart the sound, if it was already playing.
-  /// If the sound was paused so far, this will change the paused state to playing.
-  void Restart(); // [ scriptable ]
+  /// \brief Makes the sound play.
+  ///
+  /// If it was not yet playing, it starts playing a new sound.
+  /// If it was already playing, but paused, playback is resumed.
+  /// If it was already playing, there is no change.
+  void Play(); // [ scriptable ]
+
+  /// \brief If a sound is playing, it pauses at the current play position.
+  ///
+  /// Call Play() to resume playing.
+  void Pause(); // [ scriptable ]
+
+  /// \brief Interrupts the sound playback abruptly.
+  void Stop(); // [ scriptable ]
+
+  /// \brief Stops the sound, by fading it out over a short period.
+  void FadeOut(); // [ scriptable ]
 
   /// \brief Plays a completely new sound at the location of this component and with all its current properties.
   ///
@@ -148,9 +162,6 @@ public:
   /// If the referenced FMOD sound event is not a "one shot" event, this function is ignored.
   /// The event that is controlled through this component is unaffected by this.
   void StartOneShot(); // [ scriptable ]
-
-  /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
-  void StopSound(bool bImmediate); // [ scriptable ]
 
   /// \brief Triggers an FMOD sound cue. Whatever that is useful for.
   void SoundCue(); // [ scriptable ]

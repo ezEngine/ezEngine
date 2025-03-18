@@ -1,11 +1,5 @@
 PluginState
 {
-	string %ID{"Fmod"}
-	bool %Selected{true}
-	bool %LoadCopy{false}
-}
-PluginState
-{
 	string %ID{"GameComponents"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
@@ -13,6 +7,12 @@ PluginState
 PluginState
 {
 	string %ID{"Jolt"}
+	bool %Selected{true}
+	bool %LoadCopy{false}
+}
+PluginState
+{
+	string %ID{"MiniAudio"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
 }

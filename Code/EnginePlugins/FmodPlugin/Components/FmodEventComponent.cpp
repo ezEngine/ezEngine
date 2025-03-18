@@ -220,7 +220,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
+    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
     EZ_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
     EZ_RESOURCE_ACCESSOR_PROPERTY("SoundEvent", GetSoundEvent, SetSoundEvent)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
@@ -244,9 +244,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   EZ_END_MESSAGESENDERS;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Restart),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Play),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Pause),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Stop),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FadeOut),
     EZ_SCRIPT_FUNCTION_PROPERTY(StartOneShot),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StopSound, In, "Immediate"),
     EZ_SCRIPT_FUNCTION_PROPERTY(SoundCue),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetEventParameter, In, "ParamName", In, "Value"),
   }
@@ -347,13 +349,13 @@ void ezFmodEventComponent::SetPaused(bool b)
 
   m_bPaused = b;
 
-  if (m_pEventInstance != nullptr)
+  if (m_bPaused)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
+    Pause();
   }
-  else if (!m_bPaused)
+  else
   {
-    Restart();
+    Play();
   }
 }
 
@@ -423,7 +425,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 {
   if (m_pEventInstance)
   {
-    StopSound(false);
+    Stop();
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
@@ -457,7 +459,7 @@ void ezFmodEventComponent::OnSimulationStarted()
 {
   if (!m_bPaused)
   {
-    Restart();
+    Play();
   }
 }
 
@@ -469,32 +471,11 @@ void ezFmodEventComponent::OnDeactivated()
     m_uiOcclusionStateIndex = ezInvalidIndex;
   }
 
-  if (m_pEventInstance != nullptr)
-  {
-    // we could expose this decision as a property 'AlwaysFinish' or so
-    bool bLetFinish = true;
-
-    FMOD::Studio::EventDescription* pDesc = nullptr;
-    m_pEventInstance->getDescription(&pDesc);
-    pDesc->isOneshot(&bLetFinish);
-
-    // if this is a looped sound, or the world is not simulating (usually because it is shutting down), stop the sound immediately
-    if (!bLetFinish || !GetWorld()->GetWorldSimulationEnabled())
-    {
-      EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
-    }
-
-    EZ_FMOD_ASSERT(m_pEventInstance->release());
-    m_pEventInstance = nullptr;
-    m_iTimelinePosition = -1;
-  }
+  FadeOut();
 }
 
-void ezFmodEventComponent::Restart()
+void ezFmodEventComponent::Play()
 {
-  // reset this, using the value is handled outside this function
-  m_iTimelinePosition = -1;
-
   if (!m_hSoundEvent.IsValid() || !IsActiveAndSimulating())
     return;
 
@@ -508,18 +489,54 @@ void ezFmodEventComponent::Restart()
     m_pEventInstance = pEvent->CreateInstance();
     if (m_pEventInstance == nullptr)
     {
-      ezLog::Debug("Cannot start sound event, instance could not be created.");
+      ezLog::Error("Failed to start sound event '{}'.", m_hSoundEvent.GetResourceIdOrDescription());
       return;
     }
   }
 
-  m_bPaused = false;
+  if (m_bPaused)
+  {
+    m_bPaused = false;
+    EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
+  }
 
   UpdateParameters(m_pEventInstance);
 
-  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
+  FMOD_STUDIO_PLAYBACK_STATE state;
+  EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
-  EZ_FMOD_ASSERT(m_pEventInstance->start());
+  if (state != FMOD_STUDIO_PLAYBACK_PLAYING && state != FMOD_STUDIO_PLAYBACK_SUSTAINING)
+  {
+    // reset this, using the value is handled outside this function
+    m_iTimelinePosition = -1;
+
+    EZ_FMOD_ASSERT(m_pEventInstance->start());
+  }
+}
+
+void ezFmodEventComponent::Pause()
+{
+  if (m_bPaused)
+    return;
+
+  m_bPaused = true;
+
+  if (m_pEventInstance == nullptr)
+    return;
+
+  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
+}
+
+void ezFmodEventComponent::FadeOut()
+{
+  if (m_pEventInstance == nullptr)
+    return;
+
+  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
+
+  EZ_FMOD_ASSERT(m_pEventInstance->release());
+  m_pEventInstance = nullptr;
+  m_iTimelinePosition = -1;
 }
 
 void ezFmodEventComponent::StartOneShot()
@@ -565,13 +582,13 @@ void ezFmodEventComponent::StartOneShot()
   EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::StopSound(bool bImmediate)
+void ezFmodEventComponent::Stop()
 {
-  if (m_pEventInstance != nullptr)
-  {
-    m_iTimelinePosition = -1;
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
-  }
+  if (m_pEventInstance == nullptr)
+    return;
+
+  m_iTimelinePosition = -1;
+  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
 }
 
 void ezFmodEventComponent::SoundCue()
@@ -677,7 +694,7 @@ void ezFmodEventComponent::Update()
     // Restore the event to the last playback position
     const ezInt32 iTimelinePos = m_iTimelinePosition;
 
-    Restart(); // will reset m_iTimelinePosition, that's why it is copied first
+    Play(); // will reset m_iTimelinePosition, that's why it is copied first
 
     if (m_pEventInstance)
     {
@@ -843,8 +860,6 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
 
     // pointer is no longer valid!
     m_pEventInstance = nullptr;
-
-    // ezLog::Debug("FMOD instance pointer has been invalidated.");
   }
 }
 

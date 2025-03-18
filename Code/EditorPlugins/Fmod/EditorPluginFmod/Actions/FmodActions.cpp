@@ -21,7 +21,7 @@ void ezFmodActions::RegisterActions()
   s_hCategoryFmod = EZ_REGISTER_CATEGORY("FMOD");
   s_hProjectSettings = EZ_REGISTER_ACTION_1("FMOD.Settings.Project", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
   s_hMuteSound = EZ_REGISTER_ACTION_1("FMOD.Mute", ezActionScope::Document, "FMOD", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
-  s_hMasterVolume = EZ_REGISTER_ACTION_1("FMOD.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
+  s_hMasterVolume = EZ_REGISTER_ACTION_1("FMOD.MasterVolume", ezActionScope::Document, "FMOD", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()

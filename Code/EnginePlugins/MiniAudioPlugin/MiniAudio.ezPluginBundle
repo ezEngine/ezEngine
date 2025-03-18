@@ -1,0 +1,15 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"MiniAudio"}
+	string %Description{"Adds support for sound via MiniAudio."}
+	string %EditorPlugins{"ezEditorPluginMiniAudio"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezMiniAudioPlugin"}
+	string %PackageDependencies{"MiniAudio.dll"}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"Sound"}
+	string %EnabledInTemplates{}
+}

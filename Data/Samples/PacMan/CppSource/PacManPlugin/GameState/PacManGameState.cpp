@@ -115,7 +115,8 @@ void PacManGameState::AfterWorldUpdate()
     pBlackboard->SetEntryValue(s_sPacManState, PacManState::WonGame);
 
     // play a sound, the GUID of the sound asset was copied from the editor
-    ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::MakeIdentity()).IgnoreResult();
+    // ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::MakeIdentity()).IgnoreResult(); // FMOD
+    ezSoundInterface::PlaySound("{ 2281d82a-cf87-4747-b664-a41ebc74c052 }", ezTransform::MakeIdentity()).IgnoreResult(); // MiniAudio
   }
 
   if (iPacManState == PacManState::EatenByGhost)
@@ -138,7 +139,7 @@ void PacManGameState::AfterWorldUpdate()
     }
     else
     {
-      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nSwipe top-right screen to play again.", ezColor::LightPink);
+      ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nnPress SPACE to play again", ezColor::LightPink);
     }
   }
 
