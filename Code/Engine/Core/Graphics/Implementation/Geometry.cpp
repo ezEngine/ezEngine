@@ -70,6 +70,8 @@ ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const 
   Vertex& v = m_Vertices.ExpandAndGetRef();
   v.m_vPosition = vPos;
   v.m_vNormal = vNormal;
+  v.m_vTangent.SetZero();
+  v.m_fBiTangentSign = 0;
   v.m_vTexCoord = vTexCoord;
   v.m_Color = color;
   v.m_BoneIndices = vBoneIndices;

@@ -195,13 +195,15 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexBinding
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 {
+  EZ_DECLARE_POD_TYPE();
+
   ezGALVertexAttribute() = default;
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot);
+  constexpr ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt8 uiOffset, ezUInt8 uiVertexBufferSlot);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
   ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
-  ezUInt16 m_uiOffset = 0;
+  ezUInt8 m_uiOffset = 0;
   ezUInt8 m_uiVertexBufferSlot = 0;
 };
 

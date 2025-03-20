@@ -1,10 +1,11 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezAnimatedMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezAnimatedMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -13,11 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 2, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new ezDefaultValueAttribute("$;UCX_")),
     EZ_MEMBER_PROPERTY("DefaultSkeleton", m_sDefaultSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
-    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
-    EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
+    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTangents)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("HighPrecision", m_bHighPrecision),
     EZ_ENUM_MEMBER_PROPERTY("VertexColorConversion", ezMeshVertexColorConversion, m_VertexColorConversion),
-    EZ_ENUM_MEMBER_PROPERTY("BoneWeightPrecision", ezMeshBoneWeigthPrecision, m_BoneWeightPrecision),
     EZ_MEMBER_PROPERTY("NormalizeWeights", m_bNormalizeWeights)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
@@ -47,3 +46,50 @@ void ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMeta
     props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezAnimatedMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezAnimatedMeshAssetPropertiesPatch_2_3()
+    : ezGraphPatch("ezMeshAssetProperties", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    bool bHighPrecision = false;
+
+    if (auto pProp = pNode->FindProperty("NormalPrecision"))
+    {
+      ezInt64 iVal = 0;
+      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshNormalPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      {
+        bHighPrecision |= iVal != ezMeshNormalPrecision::Default;
+      }
+    }
+
+    if (auto pProp = pNode->FindProperty("TexCoordPrecision"))
+    {
+      ezInt64 iVal = 0;
+      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshTexCoordPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      {
+        bHighPrecision |= iVal != ezMeshTexCoordPrecision::Default;
+      }
+    }
+
+    if (auto pProp = pNode->FindProperty("BoneWeightPrecision"))
+    {
+      ezInt64 iVal = 0;
+      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshBoneWeightPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      {
+        bHighPrecision |= iVal != ezMeshBoneWeightPrecision::Default;
+      }
+    }
+
+    pNode->AddProperty("HighPrecision", bHighPrecision);
+  }
+};
+
+ezAnimatedMeshAssetPropertiesPatch_2_3 g_ezAnimatedMeshAssetPropertiesPatch_2_3;

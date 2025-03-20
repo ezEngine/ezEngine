@@ -62,7 +62,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   {
     pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
 
-    pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_SpriteData.GetCount() * 2);
+    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, m_SpriteData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
   }
 }

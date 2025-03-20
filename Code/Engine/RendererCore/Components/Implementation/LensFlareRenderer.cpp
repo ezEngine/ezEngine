@@ -55,7 +55,7 @@ void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewConte
   {
     pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
 
-    pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
+    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
   }
 }

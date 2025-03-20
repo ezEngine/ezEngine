@@ -112,9 +112,9 @@ void ezMaterialContext::OnInitialize()
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -157,9 +157,9 @@ void ezMaterialContext::OnInitialize()
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -202,9 +202,9 @@ void ezMaterialContext::OnInitialize()
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);

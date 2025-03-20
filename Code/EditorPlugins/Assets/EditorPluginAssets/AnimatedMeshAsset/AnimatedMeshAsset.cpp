@@ -7,7 +7,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 8, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -70,13 +70,11 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bImportSkinningData = true;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
-  opt.m_bRecomputeTangents = pProp->m_bRecalculateTrangents;
-  opt.m_pMeshOutput = &desc;
-  opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
-  opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_bRecomputeTangents = pProp->m_bRecalculateTangents;
+  opt.m_bHighPrecision = pProp->m_bHighPrecision;
   opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
-  opt.m_MeshBoneWeightPrecision = pProp->m_BoneWeightPrecision;
   opt.m_bNormalizeWeights = pProp->m_bNormalizeWeights;
+  opt.m_pMeshOutput = &desc;
 
   // include tags
   {

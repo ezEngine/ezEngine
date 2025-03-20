@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
 #include <ModelImporter2/ModelImporterDLL.h>
+
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
 class ezLogInterface;
@@ -26,6 +27,8 @@ namespace ezModelImporter2
     bool m_bRecomputeNormals = false;
     bool m_bRecomputeTangents = false;
     bool m_bNormalizeWeights = false;
+    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
+    bool m_bHighPrecision = false;
     ezMat3 m_RootTransform = ezMat3::MakeIdentity();
 
     // if non-empty, only import meshes whose names start or end with any of these strings
@@ -34,10 +37,6 @@ namespace ezModelImporter2
     ezDynamicArray<ezString> m_MeshExcludeTags;
 
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
-    ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
-    ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
-    ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
-    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 

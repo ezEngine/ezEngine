@@ -52,7 +52,7 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth,
   m_pExisitingNativeObject = nullptr;
 }
 
-EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot)
+EZ_ALWAYS_INLINE constexpr ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt8 uiOffset, ezUInt8 uiVertexBufferSlot)
   : m_eSemantic(semantic)
   , m_eFormat(format)
   , m_uiOffset(uiOffset)

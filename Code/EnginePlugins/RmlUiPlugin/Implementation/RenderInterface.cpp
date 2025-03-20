@@ -134,27 +134,24 @@ namespace ezRmlUiInternal
 
     // Setup the vertex declaration
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYFloat;
-      si.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Position);
-      si.m_uiElementSize = sizeof(ezRmlUiInternal::Vertex::m_Position);
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYFloat;
+      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Position);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-      si.m_Format = ezGALResourceFormat::UVFloat;
-      si.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_TexCoord);
-      si.m_uiElementSize = sizeof(ezRmlUiInternal::Vertex::m_TexCoord);
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
+      va.m_eFormat = ezGALResourceFormat::UVFloat;
+      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_TexCoord);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Color);
-      si.m_uiElementSize = sizeof(ezRmlUiInternal::Vertex::m_Color);
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Color);
     }
   }
 
@@ -446,7 +443,7 @@ namespace ezRmlUiInternal
             pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
             pConstants->TextureNeedsAlphaMultiplication = cmd.m_bValue;
 
-            pRenderContext->BindMeshBuffer(cmd.m_CompiledGeometry.m_hVertexBuffer, cmd.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+            pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
             bindGroup.BindTexture("BaseTexture", cmd.m_hTexture);
 

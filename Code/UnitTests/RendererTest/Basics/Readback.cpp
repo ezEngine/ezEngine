@@ -222,7 +222,7 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       SetClipSpace();
 
       ezRenderContext::GetDefaultInstance()->BindShader(shader);
-      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+      ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
       ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
       ezRenderContext::GetDefaultInstance()->EndRendering();

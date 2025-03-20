@@ -42,10 +42,23 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
   }
 
+  auto usedVertexAttributes = pShader->GetVertexInputAttributes();
+  auto IsAttributeUsed = [&](ezGALVertexAttributeSemantic::Enum semantic)
+  {
+    for (auto attrib : usedVertexAttributes)
+    {
+      if (attrib.m_eSemantic == semantic)
+        return true;
+    }
+    return false;
+  };
+
   // Copy attribute descriptions
   for (ezUInt32 i = 0; i < m_Description.m_VertexAttributes.GetCount(); i++)
   {
     const ezGALVertexAttribute& Current = m_Description.m_VertexAttributes[i];
+    if (!IsAttributeUsed(Current.m_eSemantic))
+      continue;
 
     D3D11_INPUT_ELEMENT_DESC DXDesc;
     DXDesc.AlignedByteOffset = Current.m_uiOffset;
@@ -76,8 +89,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   const ezSharedPtr<const ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
 
-  if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(
-        &DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
+  if (FAILED(pDXDevice->GetDXDevice()->CreateInputLayout(&DXInputElementDescs[0], DXInputElementDescs.GetCount(), pByteCode->GetByteCode(), pByteCode->GetSize(), &m_pDXInputLayout)))
   {
     return EZ_FAILURE;
   }

@@ -51,14 +51,6 @@ namespace
     }
     return 0;
   }
-
-  void ConvertVertexStreamInfo(const ezVertexStreamInfo& stream, ezGALVertexAttribute& out_gal)
-  {
-    out_gal.m_eFormat = stream.m_Format;
-    out_gal.m_eSemantic = stream.m_Semantic;
-    out_gal.m_uiOffset = stream.m_uiOffset;
-    out_gal.m_uiVertexBufferSlot = stream.m_uiVertexBufferSlot;
-  }
 } // namespace
 
 // clang-format off
@@ -308,36 +300,52 @@ void ezRenderContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerS
   m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
 }
 
-void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
+void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
 {
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
-  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetTopology(),
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffers(), pMeshBuffer->GetIndexBuffer(), pMeshBuffer->GetVertexAttributes(), pMeshBuffer->GetTopology(),
     pMeshBuffer->GetPrimitiveCount());
 }
 
-void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer,
-  const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2, ezGALBufferHandle hVertexBuffer3, ezGALBufferHandle hVertexBuffer4)
+void ezRenderContext::BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
 {
-  if (m_hVertexBuffers[0] == hVertexBuffer && m_hVertexBuffers[1] == hVertexBuffer2 && m_hVertexBuffers[2] == hVertexBuffer3 && m_hVertexBuffers[3] == hVertexBuffer4 && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo && m_GraphicsPipeline.m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
+  ezResourceLock<ezDynamicMeshBufferResource> pMeshBuffer(hDynamicMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
+
+  ezGALBufferHandle hVertexBuffers[] = {pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetColorBuffer()};
+
+  BindMeshBuffer(ezMakeArrayPtr(hVertexBuffers), pMeshBuffer->GetIndexBuffer(), pMeshBuffer->GetVertexAttributes(), pMeshBuffer->GetDescriptor().m_Topology, pMeshBuffer->GetDescriptor().m_uiMaxPrimitives);
+}
+
+void ezRenderContext::BindMeshBuffer(ezArrayPtr<const ezGALBufferHandle> hVertexBuffers, ezGALBufferHandle hIndexBuffer, ezArrayPtr<const ezGALVertexAttribute> vertexAttributes, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
+{
+  if (hDataOffsetsBuffer.IsInvalidated() == false || uiFirstDataOffset != 0)
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  constexpr ezUInt32 uiMaxNumVertexBuffers = EZ_ARRAY_SIZE(m_hVertexBuffers);
+  ezGALBufferHandle hNewVertexBuffers[uiMaxNumVertexBuffers] = {};
+  ezMemoryUtils::Copy(hNewVertexBuffers, hVertexBuffers.GetPtr(), hVertexBuffers.GetCount());
+
+  if (ezMemoryUtils::IsEqual(m_hVertexBuffers, hNewVertexBuffers, uiMaxNumVertexBuffers) && m_hIndexBuffer == hIndexBuffer && m_VertexAttributes == vertexAttributes &&
+      m_GraphicsPipeline.m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
   {
     return;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (pVertexDeclarationInfo)
+  for (ezUInt32 i1 = 0; i1 < vertexAttributes.GetCount(); ++i1)
   {
-    for (ezUInt32 i1 = 0; i1 < pVertexDeclarationInfo->m_VertexStreams.GetCount(); ++i1)
+    for (ezUInt32 i2 = 0; i2 < vertexAttributes.GetCount(); ++i2)
     {
-      for (ezUInt32 i2 = 0; i2 < pVertexDeclarationInfo->m_VertexStreams.GetCount(); ++i2)
+      if (i1 != i2)
       {
-        if (i1 != i2)
-        {
-          EZ_ASSERT_DEBUG(pVertexDeclarationInfo->m_VertexStreams[i1].m_Semantic != pVertexDeclarationInfo->m_VertexStreams[i2].m_Semantic,
-            "Same semantic cannot be used twice in the same vertex declaration");
-        }
+        EZ_ASSERT_DEBUG(vertexAttributes[i1].m_eSemantic != vertexAttributes[i2].m_eSemantic, "Same semantic cannot be used twice in the same vertex declaration");
       }
     }
   }
+
+  EZ_ASSERT_DEBUG((hVertexBuffers.IsEmpty() && hDataOffsetsBuffer.IsInvalidated()) || !vertexAttributes.IsEmpty(), "Needs vertex attributes if vertex buffers are provided");
 #endif
 
   if (m_GraphicsPipeline.m_Topology != topology)
@@ -357,30 +365,21 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
     SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_GraphicsPipeline.m_Topology]);
   }
 
-  m_hVertexBuffers[0] = hVertexBuffer;
-  m_hVertexBuffers[1] = hVertexBuffer2;
-  m_hVertexBuffers[2] = hVertexBuffer3;
-  m_hVertexBuffers[3] = hVertexBuffer4;
+  ezMemoryUtils::Copy(m_hVertexBuffers, hNewVertexBuffers, uiMaxNumVertexBuffers);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  for (ezUInt32 i = 0; i < 4; ++i)
+  for (ezUInt32 i = 0; i < hVertexBuffers.GetCount(); ++i)
   {
-    m_VertexBufferStrides[i] = GetVertexBufferStride(pDevice, m_hVertexBuffers[i]);
-    m_VertexBufferBindingRates[i] = ezGALVertexBindingRate::Vertex;
+    m_VertexBufferStrides[i] = GetVertexBufferStride(pDevice, hVertexBuffers[i]);
     m_VertexBufferOffsets[i] = 0;
+    m_VertexBufferBindingRates[i] = ezGALVertexBindingRate::Vertex;
   }
 
   m_hIndexBuffer = hIndexBuffer;
-  m_pVertexDeclarationInfo = pVertexDeclarationInfo;
+  m_VertexAttributes = vertexAttributes;
   m_uiMeshBufferPrimitiveCount = uiPrimitiveCount;
 
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
-}
-
-void ezRenderContext::BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer)
-{
-  ezResourceLock<ezDynamicMeshBufferResource> pMeshBuffer(hDynamicMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
-  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetDescriptor().m_Topology, pMeshBuffer->GetDescriptor().m_uiMaxPrimitives, pMeshBuffer->GetColorBuffer());
 }
 
 void ezRenderContext::BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32 uiSlot, ezEnum<ezGALVertexBindingRate> rate, ezUInt32 uiOffset)
@@ -395,10 +394,13 @@ void ezRenderContext::BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
 }
 
-void ezRenderContext::SetCustomVertexStreams(ezArrayPtr<ezVertexStreamInfo> customStreams)
+void ezRenderContext::SetVertexAttributes(ezArrayPtr<ezGALVertexAttribute> vertexAttributes)
 {
-  m_CustomVertexStreams.m_VertexStreams = customStreams;
-  m_CustomVertexStreams.ComputeHash();
+  if (m_VertexAttributes == vertexAttributes)
+    return;
+
+  m_VertexAttributes = vertexAttributes;
+
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
 }
 
@@ -536,13 +538,21 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     }
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
-    const bool bHasVertexDeclarations = m_pVertexDeclarationInfo != nullptr || !m_CustomVertexStreams.m_VertexStreams.IsEmpty();
-    if (bHasVertexDeclarations && BuildVertexDeclaration(m_hActiveGALShader, m_VertexBufferStrides, m_VertexBufferBindingRates, *m_pVertexDeclarationInfo, m_CustomVertexStreams, hVertexDeclaration).Failed())
+    const bool bHasVertexDeclarations = m_VertexAttributes.GetCount() > 0;
+    if (bHasVertexDeclarations && BuildVertexDeclaration(m_hActiveGALShader, m_VertexBufferStrides, m_VertexBufferBindingRates, m_VertexAttributes, hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
-    // If there is a vertex buffer we need a valid vertex declaration as well.
-    if ((!m_hVertexBuffers[0].IsInvalidated() || !m_hVertexBuffers[1].IsInvalidated() || !m_hVertexBuffers[2].IsInvalidated() || !m_hVertexBuffers[3].IsInvalidated()) && hVertexDeclaration.IsInvalidated())
-      return EZ_FAILURE;
+     // If there is a vertex buffer we need a valid vertex declaration as well.
+    if (hVertexDeclaration.IsInvalidated())
+    {
+      for (auto hVertexBuffer : m_hVertexBuffers)
+      {
+        if (!hVertexBuffer.IsInvalidated())
+        {
+          return EZ_FAILURE;
+        }
+      }
+    }
 
     m_GraphicsPipeline.m_hVertexDeclaration = hVertexDeclaration;
     m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
@@ -592,10 +602,8 @@ void ezRenderContext::ResetContextState()
     m_VertexBufferBindingRates[i] = ezGALVertexBindingRate::Vertex;
     m_VertexBufferOffsets[i] = 0;
   }
-  m_CustomVertexStreams.m_VertexStreams.Clear();
-  m_CustomVertexStreams.m_uiHash = 0;
   m_hIndexBuffer.Invalidate();
-  m_pVertexDeclarationInfo = nullptr;
+  m_VertexAttributes.Clear();
   m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
 
@@ -890,16 +898,12 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
 }
 
 // static
-ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, const ezVertexDeclarationInfo& decl, const ezVertexDeclarationInfo& customVertexDecl, ezGALVertexDeclarationHandle& out_Declaration)
+ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, ezArrayPtr<ezGALVertexAttribute> vertexAttributes, ezGALVertexDeclarationHandle& out_Declaration)
 {
   ezInt32 iHighestUsedBinding = -1;
-  for (ezUInt32 slot = 0; slot < decl.m_VertexStreams.GetCount(); ++slot)
+  for (ezUInt32 i = 0; i < vertexAttributes.GetCount(); ++i)
   {
-    iHighestUsedBinding = ezMath::Max(iHighestUsedBinding, static_cast<ezInt32>(decl.m_VertexStreams[slot].m_uiVertexBufferSlot));
-  }
-  for (ezUInt32 slot = 0; slot < customVertexDecl.m_VertexStreams.GetCount(); ++slot)
-  {
-    iHighestUsedBinding = ezMath::Max(iHighestUsedBinding, static_cast<ezInt32>(customVertexDecl.m_VertexStreams[slot].m_uiVertexBufferSlot));
+    iHighestUsedBinding = ezMath::Max(iHighestUsedBinding, static_cast<ezInt32>(vertexAttributes[i].m_uiVertexBufferSlot));
   }
   EZ_ASSERT_DEBUG(iHighestUsedBinding < (ezInt32)vertexBufferStrides.GetCount(), "Not enough vertex buffer strides");
   EZ_ASSERT_DEBUG(iHighestUsedBinding < (ezInt32)vertexBufferBindingRates.GetCount(), "Not enough vertex buffer binding rates");
@@ -907,15 +911,12 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
   ShaderVertexDecl svd;
   {
     svd.m_hShader = hShader;
+
     ezHashStreamWriter32 writer;
-    writer << decl.m_uiHash;
-    writer << customVertexDecl.m_uiHash;
-    for (ezInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
-    {
-      writer << vertexBufferStrides[bufferIndex];
-      writer << vertexBufferBindingRates[bufferIndex];
-    }
-    svd.m_uiVertexDeclarationHash = writer.GetHashValue();
+    writer.WriteBytes(vertexAttributes.GetPtr(), vertexAttributes.ToByteArray().GetCount()).IgnoreResult();
+    writer.WriteBytes(vertexBufferStrides.GetPtr(), vertexBufferStrides.GetSubArray(0, iHighestUsedBinding + 1).ToByteArray().GetCount()).IgnoreResult();
+    writer.WriteBytes(vertexBufferBindingRates.GetPtr(), vertexBufferBindingRates.GetSubArray(0, iHighestUsedBinding + 1).ToByteArray().GetCount()).IgnoreResult();
+    svd.m_uiVertexAttributesHash = writer.GetHashValue();
   }
 
   bool bExisted = false;
@@ -925,15 +926,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
   {
     ezGALVertexDeclarationCreationDescription vd;
     vd.m_hShader = hShader;
-
-    for (ezUInt32 slot = 0; slot < decl.m_VertexStreams.GetCount(); ++slot)
-    {
-      ConvertVertexStreamInfo(decl.m_VertexStreams[slot], vd.m_VertexAttributes.ExpandAndGetRef());
-    }
-    for (ezUInt32 slot = 0; slot < customVertexDecl.m_VertexStreams.GetCount(); ++slot)
-    {
-      ConvertVertexStreamInfo(customVertexDecl.m_VertexStreams[slot], vd.m_VertexAttributes.ExpandAndGetRef());
-    }
+    vd.m_VertexAttributes = vertexAttributes;
 
     for (ezInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
     {

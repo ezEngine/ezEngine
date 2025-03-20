@@ -53,39 +53,37 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezResourceLock<ezMeshBufferResource> pMeshBuffer(pMesh->GetMeshBuffer(), ezResourceAcquireMode::AllowLoadingFallback);
 
-    auto& bufferDesc = ezGALDevice::GetDefaultDevice()->GetBuffer(pMeshBuffer->GetVertexBuffer())->GetDescription();
+    ezUInt32 uiNumVertices = 0;
+    ezUInt32 uiVertexByteSize = 0;
+    for (auto hBuffer : pMeshBuffer->GetVertexBuffers())
+    {
+      if (auto pBuffer = ezGALDevice::GetDefaultDevice()->GetBuffer(hBuffer))
+      {
+        auto& bufferDesc = pBuffer->GetDescription();
+        uiNumVertices = ezMath::Max(uiNumVertices, bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize);
+        uiVertexByteSize += bufferDesc.m_uiStructSize;
+      }
+    }
 
-    ezUInt32 uiNumVertices = bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize;
-    ezUInt32 uiNumTriangles = pMeshBuffer->GetPrimitiveCount();
-    ezBoundingBox bbox = ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1));
+    const ezUInt32 uiNumTriangles = pMeshBuffer->GetPrimitiveCount();
+    ezVec3 bboxExtents = ezVec3(2);
 
     if (pMeshBuffer->GetBounds().IsValid())
     {
-      bbox = pMeshBuffer->GetBounds().GetBox();
+      bboxExtents = pMeshBuffer->GetBounds().m_vBoxHalfExtents * 2.0f;
     }
 
-    ezUInt32 uiNumUVs = 0;
-    ezUInt32 uiNumColors = 0;
-    for (auto& vertexStream : pMeshBuffer->GetVertexDeclaration().m_VertexStreams)
-    {
-      if (vertexStream.m_Semantic >= ezGALVertexAttributeSemantic::TexCoord0 && vertexStream.m_Semantic <= ezGALVertexAttributeSemantic::TexCoord9)
-      {
-        ++uiNumUVs;
-      }
-      else if (vertexStream.m_Semantic >= ezGALVertexAttributeSemantic::Color0 && vertexStream.m_Semantic <= ezGALVertexAttributeSemantic::Color7)
-      {
-        ++uiNumColors;
-      }
-    }
-
+    auto& streamConfig = pMeshBuffer->GetVertexStreamConfig();
+    const ezUInt32 uiNumUVs = streamConfig.HasTexCoord0() + streamConfig.HasTexCoord1();
+    const ezUInt32 uiNumColors = streamConfig.HasColor0() + streamConfig.HasColor1();
+    
     ezStringBuilder sText;
     sText.AppendFormat("Triangles: \t{}\t\n", uiNumTriangles);
     sText.AppendFormat("Vertices: \t{}\t\n", uiNumVertices);
     sText.AppendFormat("UV Channels: \t{}\t\n", uiNumUVs);
     sText.AppendFormat("Color Channels: \t{}\t\n", uiNumColors);
-    sText.AppendFormat("Bytes Per Vertex: \t{}\t\n", bufferDesc.m_uiStructSize);
-    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}\t", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-      ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+    sText.AppendFormat("Bytes Per Vertex: \t{}\t\n", uiVertexByteSize);
+    sText.AppendFormat("Bounding Box: \twidth={0}, depth={1}, height={2}\t", ezArgF(bboxExtents.x, 2), ezArgF(bboxExtents.y, 2), ezArgF(bboxExtents.z, 2));
 
     ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }

@@ -73,9 +73,8 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(ezGeometry& inout_geo
   inout_geom.ComputeSmoothVertexNormals();
 
   ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-  desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  desc.AddCommonStreams();
+  desc.AddStream(ezMeshVertexStreamType::Color0);
   desc.AllocateStreamsFromGeometry(inout_geom, topology);
   desc.ComputeBounds();
 

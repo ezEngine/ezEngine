@@ -86,7 +86,8 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    
     ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("Input", inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle);
     bindGroup.BindBuffer("ezBlurConstants", m_hBlurCB);

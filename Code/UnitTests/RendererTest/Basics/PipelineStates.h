@@ -87,8 +87,8 @@ private:
   ezGALBufferHandle m_hInstancingDataTransient;
   ezGALBufferHandle m_hInstancingDataUAV;
 
-  ezGALBufferHandle m_hInstancingDataCustomVertexStream;
-  ezHybridArray<ezVertexStreamInfo, 4> m_CustomVertexStreams;
+  ezGALBufferHandle m_hInstancingDataVertexStream;
+  ezSmallArray<ezGALVertexAttribute, 8> m_VertexAttributes;
 
   ezGALTextureHandle m_hTexture2D;
   ezGALTextureHandle m_hTexture2DArray;

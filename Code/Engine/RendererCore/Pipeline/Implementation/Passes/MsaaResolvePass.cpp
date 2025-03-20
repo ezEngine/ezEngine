@@ -90,7 +90,7 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     globals.NumMsaaSamples = m_MsaaSampleCount;
 
     renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
     ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     if (!pDevice->GetCapabilities().m_bSupportsMultiSampledArrays)

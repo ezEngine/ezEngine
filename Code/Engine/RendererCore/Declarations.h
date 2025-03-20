@@ -5,7 +5,6 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 class ezShaderStageBinary;
-struct ezVertexDeclarationInfo;
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;

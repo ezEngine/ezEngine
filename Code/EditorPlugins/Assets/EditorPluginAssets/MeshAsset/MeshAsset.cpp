@@ -8,7 +8,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 13, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 14, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -197,10 +197,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   // the the procedurally generated geometry we can always use fixed, low precision data, because we know that the geometry isn't detailed enough to run into problems
   // and then we can unclutter the UI a little by not showing those options at all
   auto& mbd = desc.MeshBufferDesc();
-  mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_16Bit /*pProp->m_TexCoordPrecision*/));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
+  mbd.AddCommonStreams();
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
@@ -226,12 +223,11 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   ezModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
-  opt.m_bRecomputeTangents = pProp->m_bRecalculateTrangents;
-  opt.m_pMeshOutput = &desc;
-  opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
-  opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_bRecomputeTangents = pProp->m_bRecalculateTangents;
+  opt.m_bHighPrecision = pProp->m_bHighPrecision;
   opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_pMeshOutput = &desc;
 
   // include tags
   {

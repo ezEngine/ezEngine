@@ -79,42 +79,35 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   m_VertexData.SetCountUninitialized(m_Descriptor.m_uiMaxVertices);
 
   {
-    ezVertexStreamInfo si;
-    si.m_uiOffset = 0;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-    si.m_uiElementSize = sizeof(ezVec3);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
+    ezGALVertexAttribute va;
+    va.m_uiOffset = 0;
+    va.m_eFormat = ezGALResourceFormat::XYZFloat;
+    va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+    m_VertexAttributes.PushBack(va);
 
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-    si.m_uiElementSize = sizeof(ezVec2);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
+    va.m_uiOffset += ezGALResourceFormat::GetBitsPerElement(va.m_eFormat) / 8;
+    va.m_eFormat = ezGALResourceFormat::XYFloat;
+    va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
+    m_VertexAttributes.PushBack(va);
 
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Normal;
-    si.m_uiElementSize = sizeof(ezVec3);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
+    va.m_uiOffset += ezGALResourceFormat::GetBitsPerElement(va.m_eFormat) / 8;
+    va.m_eFormat = ezGALResourceFormat::XYZFloat;
+    va.m_eSemantic = ezGALVertexAttributeSemantic::Normal;
+    m_VertexAttributes.PushBack(va);
 
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYZWFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Tangent;
-    si.m_uiElementSize = sizeof(ezVec4);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
+    va.m_uiOffset += ezGALResourceFormat::GetBitsPerElement(va.m_eFormat) / 8;
+    va.m_eFormat = ezGALResourceFormat::XYZWFloat;
+    va.m_eSemantic = ezGALVertexAttributeSemantic::Tangent;
+    m_VertexAttributes.PushBack(va);
 
     if (m_Descriptor.m_bColorStream)
     {
-      si.m_uiVertexBufferSlot = 1; // separate buffer
-      si.m_uiOffset = 0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_uiElementSize = sizeof(ezColorLinearUB);
-      m_VertexDeclaration.m_VertexStreams.PushBack(si);
+      va.m_uiVertexBufferSlot = 1; // separate buffer
+      va.m_uiOffset = 0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      m_VertexAttributes.PushBack(va);
     }
-
-    m_VertexDeclaration.ComputeHash();
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

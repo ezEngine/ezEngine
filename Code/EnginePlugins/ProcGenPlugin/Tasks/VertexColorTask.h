@@ -15,9 +15,7 @@ namespace ezProcGenInternal
     VertexColorTask();
     ~VertexColorTask();
 
-    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform,
-      ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings,
-      ezArrayPtr<ezUInt32> outputVertexColors);
+    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, const ezBoundingBox& bbox, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezColorLinearUB> outputVertexColors);
 
   private:
     virtual void Execute() override;
@@ -38,7 +36,7 @@ namespace ezProcGenInternal
     ezDynamicArray<InputVertex> m_InputVertices;
 
     ezDynamicArray<ezColor> m_TempData;
-    ezArrayPtr<ezUInt32> m_OutputVertexColors;
+    ezArrayPtr<ezColorLinearUB> m_OutputVertexColors;
 
     ezDeque<ezVolumeCollection> m_VolumeCollections;
     ezExpression::GlobalData m_GlobalData;

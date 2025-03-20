@@ -181,8 +181,7 @@ ezResult ezGraphicsTest::SetupRenderer()
 
     ezGALPrimitiveTopology::Enum Topology = ezGALPrimitiveTopology::Triangles;
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::RGFloat);
+    desc.AddCommonStreams();
     desc.AllocateStreamsFromGeometry(geom, Topology);
 
     m_hCubeUV = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("Texture2DBox", std::move(desc), "Texture2DBox");
@@ -434,8 +433,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     Topology = ezGALPrimitiveTopology::Lines;
 
   ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+  desc.AddStream(ezMeshVertexStreamType::Position);
+  desc.AddStream(ezMeshVertexStreamType::Color0);
   desc.AllocateStreamsFromGeometry(geom, Topology);
 
   hMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szResourceName);

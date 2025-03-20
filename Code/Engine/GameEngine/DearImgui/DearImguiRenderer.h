@@ -15,7 +15,7 @@
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-struct alignas(16) ezImguiVertex
+struct ezImguiVertex
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -79,7 +79,7 @@ protected:
   ezShaderResourceHandle m_hShader;
   ezGALBufferPool m_VertexBuffer;
   ezGALBufferPool m_IndexBuffer;
-  ezVertexDeclarationInfo m_VertexDeclarationInfo;
+  ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
 };
 
 #endif

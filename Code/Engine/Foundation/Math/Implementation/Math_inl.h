@@ -410,18 +410,24 @@ namespace ezMath
     }
   }
 
-  constexpr inline float ColorByteToFloat(ezUInt8 value)
+  template <ezUInt32 NumBits>
+  constexpr float ColorUnsignedIntToFloat(ezUInt32 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    return value * (1.0f / 255.0f);
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    constexpr ezUInt32 uiMaxValue = ezMath::Bitmask_LowN<ezUInt32>(NumBits);
+    constexpr float fMaxValue = static_cast<float>(uiMaxValue);
+    return (value & uiMaxValue) * (1.0f / fMaxValue);
   }
 
-  constexpr inline float ColorShortToFloat(ezUInt16 value)
+  EZ_ALWAYS_INLINE constexpr inline float ColorByteToFloat(ezUInt8 value)
   {
-    // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    return value * (1.0f / 65535.0f);
+    return ColorUnsignedIntToFloat<8>(value);
+  }
+
+  EZ_ALWAYS_INLINE constexpr inline float ColorShortToFloat(ezUInt16 value)
+  {
+    return ColorUnsignedIntToFloat<16>(value);
   }
 
   constexpr inline float ColorSignedByteToFloat(ezInt8 value)

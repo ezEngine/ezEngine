@@ -388,8 +388,8 @@ namespace ezMath
   template <typename Type>
   [[nodiscard]] bool IsZero(Type f, Type fEpsilon); // [tested]
 
-  template <ezUInt32 NumBits>
   /// \brief Converts a color value from float [0;1] range to unsigned int with the given number of bits, with proper rounding
+  template <ezUInt32 NumBits>
   [[nodiscard]] ezUInt32 ColorFloatToUnsignedInt(float value);
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
@@ -403,6 +403,10 @@ namespace ezMath
 
   /// \brief Converts a color value from float [-1;1] range to signed short [-32767;32767] range, with proper rounding
   [[nodiscard]] ezInt16 ColorFloatToSignedShort(float value); // [tested]
+
+  /// \brief Converts a color value from unsigned int with the given numer of bits to float [0;1] range, with proper rounding
+  template <ezUInt32 NumBits>
+  [[nodiscard]] constexpr float ColorUnsignedIntToFloat(ezUInt32 value);
 
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
   [[nodiscard]] constexpr float ColorByteToFloat(ezUInt8 value); // [tested]

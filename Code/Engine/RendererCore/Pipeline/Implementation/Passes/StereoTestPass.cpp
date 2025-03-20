@@ -77,8 +77,8 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
   auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+  
   ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
   bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
 

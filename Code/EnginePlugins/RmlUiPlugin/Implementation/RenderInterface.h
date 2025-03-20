@@ -99,6 +99,6 @@ namespace ezRmlUiInternal
 
     ezShaderResourceHandle m_hShader;
     ezConstantBufferStorageHandle m_hConstantBuffer;
-    ezVertexDeclarationInfo m_VertexDeclarationInfo;
+    ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
   };
 } // namespace ezRmlUiInternal

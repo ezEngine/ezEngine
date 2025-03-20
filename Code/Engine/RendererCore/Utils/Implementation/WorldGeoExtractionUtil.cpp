@@ -95,9 +95,8 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
 
     const auto& meshBufferDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-    const ezVec3* pPositions = nullptr;
-    ezUInt32 uiElementStride = 0;
-    if (ezMeshBufferUtils::GetPositionStream(meshBufferDesc, pPositions, uiElementStride).Failed())
+    const ezVec3* pPositions = meshBufferDesc.GetPositionData().GetPtr();
+    if (pPositions == nullptr)
     {
       continue;
     }
@@ -112,7 +111,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
       line.SetFormat("v {0} {1} {2}\n", ezArgF(pos.x, 8), ezArgF(pos.y, 8), ezArgF(pos.z, 8));
       file.WriteBytes(line.GetData(), line.GetElementCount()).IgnoreResult();
 
-      pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
+      ++pPositions;
     }
 
     // collect all indices

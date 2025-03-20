@@ -209,7 +209,8 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   pUpdateTask->ConfigureTask(taskName, ezTaskNesting::Never);
 
   const auto& meshBufferDescriptor = pCpuMesh->GetDescriptor().MeshBufferDesc();
-  auto vertexColorData = pBuffer->MapForWriting<ezUInt32>(pComponent->GetBufferOffset());
+  const auto meshBBox = pCpuMesh->GetDescriptor().GetBounds().GetBox();
+  auto vertexColorData = pBuffer->MapForWriting<ezColorLinearUB>(pComponent->GetBufferOffset());
 
   ezHybridArray<ezProcVertexColorMapping, 2> outputMappings;
   for (auto& outputDesc : pComponent->m_OutputDescs)
@@ -217,7 +218,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
     outputMappings.PushBack(outputDesc.m_Mapping);
   }
 
-  pUpdateTask->Prepare(*GetWorld(), meshBufferDescriptor, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings, vertexColorData);
+  pUpdateTask->Prepare(*GetWorld(), meshBufferDescriptor, pComponent->GetOwner()->GetGlobalTransform(), meshBBox, pComponent->m_Outputs, outputMappings, vertexColorData);
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask);
 

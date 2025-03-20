@@ -308,8 +308,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       geom.AddStackedSphere(0.5f, 3, 2);
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
@@ -500,7 +499,7 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
     SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
@@ -544,7 +543,7 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
     SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
@@ -596,7 +595,7 @@ void ezRendererTestAdvancedFeatures::ProxyTexture()
     SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(i == 0 ? m_hShader2 : m_hShader3);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
@@ -665,7 +664,7 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     bindGroupTest.BindTexture("DiffuseTexture", m_hTexture2DArray);
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     EndRendering();

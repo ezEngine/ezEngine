@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Containers/IterateBits.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -165,36 +166,17 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   }
 
   {
-    chunk.BeginChunk("MeshInfo", 4);
+    chunk.BeginChunk("MeshInfo", 5);
 
-    // Number of vertices
     chunk << m_MeshBufferDescriptor.GetVertexCount();
-
-    // Number of triangles
     chunk << m_MeshBufferDescriptor.GetPrimitiveCount();
 
-    // Whether any index buffer is used
-    chunk << m_MeshBufferDescriptor.HasIndexBuffer();
-
-    // Whether the indices are 16 or 32 Bit, always false, if no index buffer is used
-    chunk << (m_MeshBufferDescriptor.HasIndexBuffer() && m_MeshBufferDescriptor.Uses32BitIndices());
-
-    // Number of vertex streams
-    chunk << m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams.GetCount();
+    // Version 5: Stream config
+    chunk << m_MeshBufferDescriptor.GetVertexStreamConfig().m_uiTypesMask;
+    chunk << m_MeshBufferDescriptor.GetVertexStreamConfig().m_bUseHighPrecision;
 
     // Version 3: Topology
     chunk << (ezUInt8)m_MeshBufferDescriptor.GetTopology();
-
-    for (ezUInt32 idx = 0; idx < m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams.GetCount(); ++idx)
-    {
-      const auto& vs = m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams[idx];
-
-      chunk << idx;                // Vertex stream index
-      chunk << (ezInt32)vs.m_Format;
-      chunk << (ezInt32)vs.m_Semantic;
-      chunk << vs.m_uiElementSize; // not needed, but can be used to check that memory layout has not changed
-      chunk << vs.m_uiOffset;      // not needed, but can be used to check that memory layout has not changed
-    }
 
     // Version 2
     if (!m_Bounds.IsValid())
@@ -212,14 +194,21 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& inout_stream)
   }
 
   {
-    chunk.BeginChunk("VertexBuffer", 1);
+    chunk.BeginChunk("VertexBuffer", 2);
 
-    // size in bytes
-    chunk << m_MeshBufferDescriptor.GetVertexBufferData().GetCount();
-
-    if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
+    const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
+    for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
     {
-      chunk.WriteBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount()).IgnoreResult();
+      auto type = static_cast<ezMeshVertexStreamType::Enum>(i);
+      const auto& data = m_MeshBufferDescriptor.GetVertexBufferData(type);
+
+      // size in bytes
+      chunk << data.GetCount();
+
+      if (!data.IsEmpty())
+      {
+        chunk.WriteBytes(data.GetData(), data.GetCount()).IgnoreResult();
+      }
     }
 
     chunk.EndChunk();
@@ -330,8 +319,6 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
   chunk.BeginStream();
 
   ezUInt32 count;
-  bool bHasIndexBuffer = false;
-  bool b32BitIndices = false;
   bool bCalculateBounds = true;
 
   while (chunk.GetCurrentChunk().m_bValid)
@@ -387,7 +374,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
     if (ci.m_sChunkName == "MeshInfo")
     {
-      if (ci.m_uiChunkVersion > 4)
+      if (ci.m_uiChunkVersion != 5)
       {
         ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
@@ -401,48 +388,19 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
       ezUInt32 uiPrimitiveCount = 0;
       chunk >> uiPrimitiveCount;
 
-      // Whether any index buffer is used
-      chunk >> bHasIndexBuffer;
+      ezMeshVertexStreamConfig streamConfig;
+      chunk >> streamConfig.m_uiTypesMask;
+      chunk >> streamConfig.m_bUseHighPrecision;
 
-      // Whether the indices are 16 or 32 Bit, always false, if no index buffer is used
-      chunk >> b32BitIndices;
-
-      // Number of vertex streams
-      ezUInt32 uiStreamCount = 0;
-      chunk >> uiStreamCount;
-
+      // Topology
       ezUInt8 uiTopology = ezGALPrimitiveTopology::Triangles;
-      if (ci.m_uiChunkVersion >= 3)
+      chunk >> uiTopology;
+
+
+      for (ezUInt32 idx : ezIterateBitIndices(streamConfig.m_uiTypesMask))
       {
-        chunk >> uiTopology;
-      }
-
-      for (ezUInt32 i = 0; i < uiStreamCount; ++i)
-      {
-        ezUInt32 idx;
-        chunk >> idx; // Vertex stream index
-        EZ_ASSERT_DEV(idx == i, "Invalid stream index ({0}) in file (should be {1})", idx, i);
-
-        ezInt32 iFormat, iSemantic;
-        ezUInt16 uiElementSize, uiOffset;
-
-        chunk >> iFormat;
-        chunk >> iSemantic;
-        chunk >> uiElementSize; // not needed, but can be used to check that memory layout has not changed
-        chunk >> uiOffset;      // not needed, but can be used to check that memory layout has not changed
-
-        if (uiVersion < 7)
-        {
-          // ezGALVertexAttributeSemantic got new elements inserted
-          // need to adjust old file formats accordingly
-
-          if (iSemantic >= ezGALVertexAttributeSemantic::Color2) // should be ezGALVertexAttributeSemantic::TexCoord0 instead
-          {
-            iSemantic += 6;
-          }
-        }
-
-        m_MeshBufferDescriptor.AddStream((ezGALVertexAttributeSemantic::Enum)iSemantic, (ezGALResourceFormat::Enum)iFormat);
+        auto type = static_cast<ezMeshVertexStreamType::Enum>(idx);
+        m_MeshBufferDescriptor.AddStream(type, streamConfig.m_bUseHighPrecision);
       }
 
       m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (ezGALPrimitiveTopology::Enum)uiTopology, uiPrimitiveCount);
@@ -464,18 +422,31 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
 
     if (ci.m_sChunkName == "VertexBuffer")
     {
-      if (ci.m_uiChunkVersion != 1)
+      if (ci.m_uiChunkVersion != 2)
       {
         ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
-      // size in bytes
-      chunk >> count;
-      m_MeshBufferDescriptor.GetVertexBufferData().SetCountUninitialized(count);
+      const ezUInt32 uiNumBuffers = m_MeshBufferDescriptor.GetNumVertexBuffers();
+      for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+      {
+        auto type = static_cast<ezMeshVertexStreamType::Enum>(i);
+        auto& data = m_MeshBufferDescriptor.GetVertexBufferData(type);
 
-      if (!m_MeshBufferDescriptor.GetVertexBufferData().IsEmpty())
-        chunk.ReadBytes(m_MeshBufferDescriptor.GetVertexBufferData().GetData(), m_MeshBufferDescriptor.GetVertexBufferData().GetCount());
+        // size in bytes
+        chunk >> count;
+        if (data.GetCount() != count)
+        {
+          ezLog::Error("Buffer data size mismatch: Expected {} but got {}", ezArgFileSize(data.GetCount()), ezArgFileSize(count));
+          return EZ_FAILURE;
+        }
+
+        if (!data.IsEmpty())
+        {
+          chunk.ReadBytes(data.GetData(), data.GetCount());
+        }
+      }
     }
 
     if (ci.m_sChunkName == "IndexBuffer")

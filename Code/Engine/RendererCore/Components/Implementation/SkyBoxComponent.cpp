@@ -48,7 +48,7 @@ void ezSkyBoxComponent::Initialize()
     geom.AddRect(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);

@@ -55,7 +55,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
   // Bind mesh buffer
   {
-    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
+    pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
   }
 
   // now render all particle effects of type Quad

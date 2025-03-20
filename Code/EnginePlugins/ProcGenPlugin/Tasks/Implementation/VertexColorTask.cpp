@@ -38,48 +38,25 @@ VertexColorTask::VertexColorTask()
 
 VertexColorTask::~VertexColorTask() = default;
 
-void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
+void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, const ezBoundingBox& bbox, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezColorLinearUB> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
   m_InputVertices.Clear();
   m_InputVertices.Reserve(desc.GetVertexCount());
 
-  const ezVertexDeclarationInfo& vdi = desc.GetVertexDeclaration();
-  const ezUInt8* pRawVertexData = desc.GetVertexBufferData().GetPtr();
+  const ezVec3* pPositions = desc.GetPositionData().GetPtr();
 
-  const float* pPositions = nullptr;
-  const ezUInt8* pNormals = nullptr;
-  ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
-  const ezColorLinearUB* pColors = nullptr;
+  ezUInt32 uiNormalDataStride = 0;
+  const ezUInt8* pNormals = desc.GetNormalData(&uiNormalDataStride).GetPtr();
+  const ezGALResourceFormat::Enum normalFormat = desc.GetVertexStreamConfig().GetNormalFormat();
 
-  for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+  ezUInt32 uiColorDataStride = 0;
+  const ezUInt8* pColors = nullptr;
+  const ezGALResourceFormat::Enum colorFormat = desc.GetVertexStreamConfig().GetColorFormat();
+  if (desc.GetVertexStreamConfig().HasColor0())
   {
-    if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
-    {
-      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
-      {
-        ezLog::Error("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-        return; // other position formats are not supported
-      }
-
-      pPositions = reinterpret_cast<const float*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
-    }
-    else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
-    {
-      pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
-      normalFormat = vdi.m_VertexStreams[vs].m_Format;
-    }
-    else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Color0)
-    {
-      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBAUByteNormalized)
-      {
-        ezLog::Error("Unsupported CPU mesh vertex color format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-        return; // other color formats are not supported
-      }
-
-      pColors = reinterpret_cast<const ezColorLinearUB*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
-    }
+    pColors = desc.GetColor0Data(&uiColorDataStride).GetPtr();
   }
 
   if (pPositions == nullptr || pNormals == nullptr)
@@ -100,22 +77,32 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   normalTransform.Invert(0.0f).IgnoreResult();
   normalTransform.Transpose();
 
-  const ezUInt32 uiElementStride = desc.GetVertexDataSize();
-
   // write out all vertices
   for (ezUInt32 i = 0; i < desc.GetVertexCount(); ++i)
   {
     ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
 
     auto& vert = m_InputVertices.ExpandAndGetRef();
-    vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
+    vert.m_vPosition = transform.TransformPosition(*pPositions);
     vert.m_vNormal = normalTransform.TransformDirection(vNormal).GetNormalized();
-    vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::MakeZero();
     vert.m_uiIndex = i;
 
-    pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
-    pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
-    pColors = pColors != nullptr ? ezMemoryUtils::AddByteOffset(pColors, uiElementStride) : nullptr;
+    ++pPositions;
+    pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiNormalDataStride);
+
+    if (pColors != nullptr)
+    {
+      ezVec4 c;
+      ezMeshBufferUtils::DecodeToVec4(ezMakeArrayPtr(pColors, sizeof(ezColor)), colorFormat, c).IgnoreResult();
+
+      vert.m_Color = ezColor(c.x, c.y, c.z, c.w);
+
+      pColors = ezMemoryUtils::AddByteOffset(pColors, uiColorDataStride);
+    }
+    else
+    {
+      vert.m_Color = ezColor::MakeZero();
+    }
   }
 
   m_Outputs = outputs;
@@ -124,9 +111,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
 
   //////////////////////////////////////////////////////////////////////////
 
-  // TODO:
-  // ezBoundingBox box = mbDesc.GetBounds();
-  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-1000), ezVec3(1000));
+  ezBoundingBox box = bbox;
   box.TransformFromOrigin(transform.GetAsMat4());
 
   m_VolumeCollections.Clear();
@@ -203,10 +188,8 @@ void VertexColorTask::Execute()
       remappedColor.b = Remap(outputMapping.m_B, srcColor);
       remappedColor.a = Remap(outputMapping.m_A, srcColor);
 
-      ezColorLinearUB vertexColor = remappedColor;
-
       // Store output vertex colors interleaved
-      m_OutputVertexColors[i * uiNumOutputs + uiOutputIndex] = *reinterpret_cast<ezUInt32*>(&vertexColor.r);
+      m_OutputVertexColors[i * uiNumOutputs + uiOutputIndex] = remappedColor;
     }
   }
 }

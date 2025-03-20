@@ -73,7 +73,7 @@ protected:
 
   ezShaderResourceHandle m_hShader;
   ezGALBufferPool m_VertexBuffer;
-  ezVertexDeclarationInfo m_VertexDeclarationInfo;
+  ezSmallArray<ezGALVertexAttribute, 2> m_VertexAttributes;
   mutable ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
 
 private:

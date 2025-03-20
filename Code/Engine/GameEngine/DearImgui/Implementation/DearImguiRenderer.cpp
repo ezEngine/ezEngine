@@ -178,7 +178,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     pCommandEncoder->UpdateBuffer(hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
     pCommandEncoder->UpdateBuffer(hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-    pRenderContext->BindMeshBuffer(hVertexBuffer, hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
+    pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hVertexBuffer, 1), hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
 
     ezUInt32 uiFirstIndex = 0;
     const ezUInt32 numBatches = pRenderData->m_Batches.GetCount();
@@ -238,27 +238,24 @@ void ezImguiRenderer::SetupRenderer()
   // Setup the vertex declaration
   {
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYZFloat;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_Position);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-      si.m_Format = ezGALResourceFormat::UVFloat;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 8;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
+      va.m_eFormat = ezGALResourceFormat::UVFloat;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_TexCoord);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 20;
-      si.m_uiElementSize = 4;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_Color);
     }
   }
 }

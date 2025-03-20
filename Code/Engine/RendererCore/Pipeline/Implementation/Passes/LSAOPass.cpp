@@ -204,7 +204,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
     bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
     bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer, m_LineSweepOutputBufferRange);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
@@ -237,7 +237,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
     bindGroup.BindTexture("SSAOGatherOutput", tempTexture);
 
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     // Give back temp texture.

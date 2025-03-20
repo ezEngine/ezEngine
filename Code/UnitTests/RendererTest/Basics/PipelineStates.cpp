@@ -63,20 +63,20 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
   {
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreams(3);
 
     if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
     {
-      desc.SetVertexData<ezVec3>(0, 0, ezVec3(1.f, 1.f, 0.0f));
-      desc.SetVertexData<ezVec3>(0, 1, ezVec3(-1.f, 1.f, 0.0f));
-      desc.SetVertexData<ezVec3>(0, 2, ezVec3(0.f, -1.f, 0.0f));
+      desc.SetPosition(0, ezVec3(1.f, 1.f, 0.0f));
+      desc.SetPosition(1, ezVec3(-1.f, 1.f, 0.0f));
+      desc.SetPosition(2, ezVec3(0.f, -1.f, 0.0f));
     }
     else
     {
-      desc.SetVertexData<ezVec3>(0, 0, ezVec3(1.f, -1.f, 0.0f));
-      desc.SetVertexData<ezVec3>(0, 1, ezVec3(-1.f, -1.f, 0.0f));
-      desc.SetVertexData<ezVec3>(0, 2, ezVec3(0.f, 1.f, 0.0f));
+      desc.SetPosition(0, ezVec3(1.f, -1.f, 0.0f));
+      desc.SetPosition(1, ezVec3(-1.f, -1.f, 0.0f));
+      desc.SetPosition(2, ezVec3(0.f, 1.f, 0.0f));
     }
 
     m_hTriangleMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-TriangleMesh", std::move(desc), "TriangleMesh");
@@ -86,7 +86,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     geom.AddStackedSphere(0.5f, 16, 16);
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
@@ -157,7 +157,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::ST_CustomVertexStreams)
   {
-    // Save as ST_StructuredBuffer, but we put the data in a vertex buffer.
+    // Same as ST_StructuredBuffer, but we put the data in a vertex buffer.
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTestShaderData);
     desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
@@ -166,35 +166,36 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     ezHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData);
-    m_hInstancingDataCustomVertexStream = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
+    m_hInstancingDataVertexStream = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
-    ezVertexStreamInfo& color = m_CustomVertexStreams.ExpandAndGetRef();
-    color.m_Format = ezGALResourceFormat::XYZWFloat;
-    color.m_uiVertexBufferSlot = 5;
-    color.m_Semantic = ezGALVertexAttributeSemantic::Color4;
-    color.m_uiElementSize = sizeof(ezVec4);
+    {
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hTriangleMesh, ezResourceAcquireMode::BlockTillLoaded);
+      m_VertexAttributes = pMeshBuffer->GetVertexAttributes();
+    }
+
+    auto& color = m_VertexAttributes.ExpandAndGetRef();
+    color.m_eSemantic = ezGALVertexAttributeSemantic::Color4;
+    color.m_eFormat = ezGALResourceFormat::XYZWFloat;
     color.m_uiOffset = sizeof(ezVec4) * 0;
+    color.m_uiVertexBufferSlot = 5;
 
-    ezVertexStreamInfo& r0 = m_CustomVertexStreams.ExpandAndGetRef();
-    r0.m_Format = ezGALResourceFormat::XYZWFloat;
-    r0.m_uiVertexBufferSlot = 5;
-    r0.m_Semantic = ezGALVertexAttributeSemantic::Color5;
-    r0.m_uiElementSize = sizeof(ezVec4);
+    auto& r0 = m_VertexAttributes.ExpandAndGetRef();
+    r0.m_eSemantic = ezGALVertexAttributeSemantic::Color5;
+    r0.m_eFormat = ezGALResourceFormat::XYZWFloat;
     r0.m_uiOffset = sizeof(ezVec4) * 1;
+    r0.m_uiVertexBufferSlot = 5;
 
-    ezVertexStreamInfo& r1 = m_CustomVertexStreams.ExpandAndGetRef();
-    r1.m_Format = ezGALResourceFormat::XYZWFloat;
-    r1.m_uiVertexBufferSlot = 5;
-    r1.m_Semantic = ezGALVertexAttributeSemantic::Color6;
-    r1.m_uiElementSize = sizeof(ezVec4);
+    auto& r1 = m_VertexAttributes.ExpandAndGetRef();
+    r1.m_eSemantic = ezGALVertexAttributeSemantic::Color6;
+    r1.m_eFormat = ezGALResourceFormat::XYZWFloat;
     r1.m_uiOffset = sizeof(ezVec4) * 2;
+    r1.m_uiVertexBufferSlot = 5;
 
-    ezVertexStreamInfo& r2 = m_CustomVertexStreams.ExpandAndGetRef();
-    r2.m_Format = ezGALResourceFormat::XYZWFloat;
-    r2.m_uiVertexBufferSlot = 5;
-    r2.m_Semantic = ezGALVertexAttributeSemantic::Color7;
-    r2.m_uiElementSize = sizeof(ezVec4);
+    auto& r2 = m_VertexAttributes.ExpandAndGetRef();
+    r2.m_eSemantic = ezGALVertexAttributeSemantic::Color7;
+    r2.m_eFormat = ezGALResourceFormat::XYZWFloat;
     r2.m_uiOffset = sizeof(ezVec4) * 3;
+    r2.m_uiVertexBufferSlot = 5;
   }
 
   {
@@ -368,12 +369,12 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
     m_hInstancingDataUAV.Invalidate();
   }
 
-  if (!m_hInstancingDataCustomVertexStream.IsInvalidated())
+  if (!m_hInstancingDataVertexStream.IsInvalidated())
   {
-    m_pDevice->DestroyBuffer(m_hInstancingDataCustomVertexStream);
-    m_hInstancingDataCustomVertexStream.Invalidate();
+    m_pDevice->DestroyBuffer(m_hInstancingDataVertexStream);
+    m_hInstancingDataVertexStream.Invalidate();
   }
-  m_CustomVertexStreams.Clear();
+  m_VertexAttributes.Clear();
 
   if (!m_hTexture2D.IsInvalidated())
   {
@@ -1059,24 +1060,21 @@ void ezRendererTestPipelineStates::CustomVertexStreams()
     {
       pContext->BindShader(m_hCustomVertexStreamShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
-      pContext->SetCustomVertexStreams(m_CustomVertexStreams);
+      pContext->SetVertexAttributes(m_VertexAttributes);
 
       if (m_iFrame <= ImageCaptureFrames::DefaultCapture)
       {
-        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
+        pContext->BindVertexBuffer(m_hInstancingDataVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame >= ImageCaptureFrames::CustomVertexStreams_Offsets)
       {
         // Render the same image but this time using two draw calls with offsets.
-        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
+        pContext->BindVertexBuffer(m_hInstancingDataVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
-        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 4 * sizeof(ezTestShaderData));
+        pContext->BindVertexBuffer(m_hInstancingDataVertexStream, 5, ezGALVertexBindingRate::Instance, 4 * sizeof(ezTestShaderData));
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
       }
-
-      // Make sure to reset once no longer in use, or it will mess with subsequent rendering.
-      pContext->SetCustomVertexStreams({});
     }
   }
   EndRendering();

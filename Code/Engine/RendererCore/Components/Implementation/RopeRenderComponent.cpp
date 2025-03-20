@@ -414,8 +414,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
   auto& meshBufferDesc = desc.MeshBufferDesc();
   meshBufferDesc.AddCommonStreams();
-  meshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUByte);
-  meshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
+  meshBufferDesc.AddStream(ezMeshVertexStreamType::SkinningData);
   meshBufferDesc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(meshBufferDesc.GetPrimitiveCount(), 0, 0);

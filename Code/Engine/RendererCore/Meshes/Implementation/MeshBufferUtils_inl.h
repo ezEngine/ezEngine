@@ -1,13 +1,14 @@
+#include "MeshBufferUtils.h"
 
 // static
-EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatNormal(Enum value)
+EZ_ALWAYS_INLINE constexpr ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatNormal(Enum value)
 {
   return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized
                          : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZFloat);
 }
 
 // static
-EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatTangent(Enum value)
+EZ_ALWAYS_INLINE constexpr ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatTangent(Enum value)
 {
   return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized
                          : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZWFloat);
@@ -16,7 +17,7 @@ EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceForm
 //////////////////////////////////////////////////////////////////////////
 
 // static
-EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshTexCoordPrecision::ToResourceFormat(Enum value)
+EZ_ALWAYS_INLINE constexpr ezGALResourceFormat::Enum ezMeshTexCoordPrecision::ToResourceFormat(Enum value)
 {
   return value == _16Bit ? ezGALResourceFormat::UVHalf : ezGALResourceFormat::UVFloat;
 }
@@ -24,7 +25,7 @@ EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshTexCoordPrecision::ToResourceFo
 //////////////////////////////////////////////////////////////////////////
 
 // static
-EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshBoneWeigthPrecision::ToResourceFormat(Enum value)
+EZ_ALWAYS_INLINE constexpr ezGALResourceFormat::Enum ezMeshBoneWeightPrecision::ToResourceFormat(Enum value)
 {
   switch (value)
   {
@@ -63,29 +64,9 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTexCoord(const ezVec2& vTexCo
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeBoneWeights(const ezVec4& vWeights, ezArrayPtr<ezUInt8> dest, ezMeshBoneWeigthPrecision::Enum precision)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeBoneWeights(const ezVec4& vWeights, ezArrayPtr<ezUInt8> dest, ezMeshBoneWeightPrecision::Enum precision)
 {
-  return EncodeBoneWeights(vWeights, dest, ezMeshBoneWeigthPrecision::ToResourceFormat(precision));
-}
-
-// static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeColor(const ezVec4& vColor, ezArrayPtr<ezUInt8> dest, ezMeshVertexColorConversion::Enum conversion)
-{
-  ezVec4 finalColor;
-  if (conversion == ezMeshVertexColorConversion::LinearToSrgb)
-  {
-    finalColor = ezColor::LinearToGamma(vColor.GetAsVec3()).GetAsVec4(vColor.w);
-  }
-  else if (conversion == ezMeshVertexColorConversion::SrgbToLinear)
-  {
-    finalColor = ezColor::GammaToLinear(vColor.GetAsVec3()).GetAsVec4(vColor.w);
-  }
-  else
-  {
-    finalColor = vColor;
-  }
-
-  return EncodeFromVec4(finalColor, dest, ezGALResourceFormat::RGBAUByteNormalized);
+  return EncodeBoneWeights(vWeights, dest, ezMeshBoneWeightPrecision::ToResourceFormat(precision));
 }
 
 // static
@@ -118,6 +99,26 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeBoneWeights(const ezVec4& vWe
 }
 
 // static
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeColor(const ezVec4& vColor, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat, ezMeshVertexColorConversion::Enum conversion)
+{
+  ezVec4 finalColor;
+  if (conversion == ezMeshVertexColorConversion::LinearToSrgb)
+  {
+    finalColor = ezColor::LinearToGamma(vColor.GetAsVec3()).GetAsVec4(vColor.w);
+  }
+  else if (conversion == ezMeshVertexColorConversion::SrgbToLinear)
+  {
+    finalColor = ezColor::GammaToLinear(vColor.GetAsVec3()).GetAsVec4(vColor.w);
+  }
+  else
+  {
+    finalColor = vColor;
+  }
+
+  return EncodeFromVec4(finalColor, dest, destFormat);
+}
+
+// static
 EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& ref_vDestNormal, ezMeshNormalPrecision::Enum normalPrecision)
 {
   return DecodeNormal(source, ezMeshNormalPrecision::ToResourceFormatNormal(normalPrecision), ref_vDestNormal);
@@ -133,6 +134,12 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(ezArrayPtr<const ezUI
 EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezVec2& ref_vDestTexCoord, ezMeshTexCoordPrecision::Enum texCoordPrecision)
 {
   return DecodeTexCoord(source, ezMeshTexCoordPrecision::ToResourceFormat(texCoordPrecision), ref_vDestTexCoord);
+}
+
+// static
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeBoneWeights(ezArrayPtr<const ezUInt8> source, ezVec4& ref_vDestWeights, ezMeshBoneWeightPrecision::Enum precision)
+{
+  return DecodeBoneWeights(source, ezMeshBoneWeightPrecision::ToResourceFormat(precision), ref_vDestWeights);
 }
 
 // static
@@ -158,4 +165,10 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(ezArrayPtr<const ezUI
 EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& ref_vDestTexCoord)
 {
   return DecodeToVec2(source, sourceFormat, ref_vDestTexCoord);
+}
+
+// static
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeBoneWeights(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& ref_vDestWeights)
+{
+  return DecodeToVec4(source, sourceFormat, ref_vDestWeights);
 }

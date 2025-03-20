@@ -64,11 +64,10 @@ public:
   ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 
   bool m_bRecalculateNormals = false;
-  bool m_bRecalculateTrangents = true;
+  bool m_bRecalculateTangents = true;
   bool m_bImportMaterials = true;
 
-  ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
-  ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+  bool m_bHighPrecision = false;
   ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;

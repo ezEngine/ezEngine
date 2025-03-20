@@ -68,19 +68,17 @@ void ezGridRenderer::CreateVertexBuffer()
   // Setup the vertex declaration
   {
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYZFloat;
+      va.m_uiOffset = offsetof(GridVertex, m_position);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 4;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(GridVertex, m_color);
     }
   }
 }
@@ -194,7 +192,7 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
       pRenderContext->GetCommandEncoder()->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-      pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+      pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), m_VertexAttributes, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
       pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;

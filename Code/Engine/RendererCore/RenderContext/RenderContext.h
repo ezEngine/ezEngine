@@ -162,15 +162,16 @@ public:
   void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
   void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 
-  void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer);
-  void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2 = {}, ezGALBufferHandle hVertexBuffer3 = {}, ezGALBufferHandle hVertexBuffer4 = {});
-  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  void BindMeshBuffer(ezArrayPtr<const ezGALBufferHandle> hVertexBuffers, ezGALBufferHandle hIndexBuffer, ezArrayPtr<const ezGALVertexAttribute> vertexAttributes, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
   {
-    BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
+    BindMeshBuffer({}, {}, {}, topology, uiPrimitiveCount);
   }
+
   void BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32 uiSlot, ezEnum<ezGALVertexBindingRate> rate = ezGALVertexBindingRate::Vertex, ezUInt32 uiOffset = 0);
-  void SetCustomVertexStreams(ezArrayPtr<ezVertexStreamInfo> customStreams);
+  void SetVertexAttributes(ezArrayPtr<ezGALVertexAttribute> vertexAttributes);
 
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
@@ -292,11 +293,10 @@ private:
   // Vertex / Index Buffer
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
-  ezEnum<ezGALVertexBindingRate> m_VertexBufferBindingRates[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
-  ezVertexDeclarationInfo m_CustomVertexStreams;
+  ezEnum<ezGALVertexBindingRate> m_VertexBufferBindingRates[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezGALBufferHandle m_hIndexBuffer;
-  const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
+  ezSmallArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
@@ -315,7 +315,7 @@ private:
   struct ShaderVertexDecl
   {
     ezGALShaderHandle m_hShader;
-    ezUInt32 m_uiVertexDeclarationHash;
+    ezUInt32 m_uiVertexAttributesHash;
 
     EZ_FORCE_INLINE bool operator<(const ShaderVertexDecl& rhs) const
     {
@@ -323,16 +323,16 @@ private:
         return true;
       if (rhs.m_hShader < m_hShader)
         return false;
-      return m_uiVertexDeclarationHash < rhs.m_uiVertexDeclarationHash;
+      return m_uiVertexAttributesHash < rhs.m_uiVertexAttributesHash;
     }
 
     EZ_FORCE_INLINE bool operator==(const ShaderVertexDecl& rhs) const
     {
-      return (m_hShader == rhs.m_hShader && m_uiVertexDeclarationHash == rhs.m_uiVertexDeclarationHash);
+      return (m_hShader == rhs.m_hShader && m_uiVertexAttributesHash == rhs.m_uiVertexAttributesHash);
     }
   };
 
-  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, const ezVertexDeclarationInfo& decl, const ezVertexDeclarationInfo& customVertexDecl, ezGALVertexDeclarationHandle& out_Declaration);
+  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, ezArrayPtr<ezGALVertexAttribute> vertexAttributes, ezGALVertexDeclarationHandle& out_Declaration);
 
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 

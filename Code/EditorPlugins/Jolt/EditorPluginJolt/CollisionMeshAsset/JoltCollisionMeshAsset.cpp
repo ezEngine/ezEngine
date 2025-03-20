@@ -200,13 +200,12 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
 
   // Extract vertices
   {
-    const ezUInt8* pVertexData = meshDesc.MeshBufferDesc().GetVertexData(0, 0).GetPtr();
-    const ezUInt32 uiVertexSize = meshBuffer.GetVertexDataSize();
+    const ezVec3* pVertexData = meshBuffer.GetPositionData().GetPtr();
 
     outMesh.m_Vertices.SetCountUninitialized(uiNumVertices);
     for (ezUInt32 v = 0; v < uiNumVertices; ++v)
     {
-      outMesh.m_Vertices[v] = *reinterpret_cast<const ezVec3*>(pVertexData + v * uiVertexSize);
+      outMesh.m_Vertices[v] = pVertexData[v];
     }
   }
 

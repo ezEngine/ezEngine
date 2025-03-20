@@ -158,8 +158,7 @@ void ezOccluderComponent::UpdateOccluder()
         return;
       }
 
-      if (desc.GetVertexDeclaration().m_VertexStreams[0].m_Semantic != ezGALVertexAttributeSemantic::Position ||
-          desc.GetVertexDeclaration().m_VertexStreams[0].m_uiOffset != 0)
+      if (!desc.GetVertexStreamConfig().HasPosition())
       {
         ezLog::Error("Mesh can't be used as a occluder, invalid vertex stream configuration: {}", m_hMesh.GetResourceIdOrDescription());
         return;
@@ -179,15 +178,12 @@ void ezOccluderComponent::UpdateOccluder()
 
       ezGeometry geo;
 
-      const ezUInt32 uiStride = desc.GetVertexDataSize();
-      const ezUInt8* pVtxData = desc.GetVertexBufferData().GetPtr();
-
+      const ezVec3* pPositions = desc.GetPositionData().GetPtr();
       const ezUInt16* pIndices = (const ezUInt16*)desc.GetIndexBufferData().GetPtr();
 
       for (ezUInt32 vtx = 0; vtx < desc.GetVertexCount(); ++vtx)
       {
-        const ezVec3 v = *(const ezVec3*)ezMemoryUtils::AddByteOffset(pVtxData, uiStride * vtx);
-
+        const ezVec3& v = pPositions[vtx];
         geo.AddVertex(v, ezVec3(0, 0, 1));
       }
 

@@ -730,8 +730,7 @@ void ezJoltBreakableSlabComponent::BuildMeshResourceFromGeometry(ezGeometry& Geo
 
   if (bWithSkinningData)
   {
-    MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
-    MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
+    MeshBufferDesc.AddStream(ezMeshVertexStreamType::SkinningData);
   }
   MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, ezGALPrimitiveTopology::Triangles);
 

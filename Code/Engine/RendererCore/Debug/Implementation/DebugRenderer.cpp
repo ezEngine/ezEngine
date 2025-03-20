@@ -55,7 +55,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 namespace
 {
-  struct alignas(16) Vertex
+  struct Vertex
   {
     ezVec3 m_position;
     ezColorLinearUB m_color;
@@ -63,15 +63,14 @@ namespace
 
   static_assert(sizeof(Vertex) == 16);
 
-  struct alignas(16) TexVertex
+  struct TexVertex
   {
     ezVec3 m_position;
     ezColorLinearUB m_color;
     ezVec2 m_texCoord;
-    float padding[2];
   };
 
-  static_assert(sizeof(TexVertex) == 32);
+  static_assert(sizeof(TexVertex) == 24);
 
   struct alignas(16) BoxData
   {
@@ -217,8 +216,8 @@ namespace
 
   static ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   static ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
-  static ezVertexDeclarationInfo s_VertexDeclarationInfo;
-  static ezVertexDeclarationInfo s_TexVertexDeclarationInfo;
+  static ezGALVertexAttribute s_VertexAttributes[2];
+  static ezGALVertexAttribute s_TexVertexAttributes[3];
   static ezTexture2DResourceHandle s_hDebugFontTexture;
 
   static ezShaderResourceHandle s_hDebugGeometryShader;
@@ -1635,7 +1634,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
         EZ_ASSERT_DEV(uiNumTriangleVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pTriangleData, uiNumTriangleVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumTriangleVerticesInBatch / 3);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Triangles, uiNumTriangleVerticesInBatch / 3);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1674,7 +1673,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
           EZ_ASSERT_DEV(uiNumVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
           pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-          renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_TexVertexAttributes), ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
 
           renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1703,7 +1702,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
         EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1775,7 +1774,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
         bindGroupRenderPass.BindBuffer("glyphData", hBuffer);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1924,7 +1923,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
         EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1964,7 +1963,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
           EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
           pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-          renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_TexVertexAttributes), ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
 
           renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -1993,7 +1992,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
         EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -2029,7 +2028,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
         bindGroupRenderPass.BindBuffer("glyphData", hBuffer);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-        renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
@@ -2047,7 +2046,7 @@ void ezDebugRenderer::OnEngineStartup()
     geom.AddLineBox(ezVec3(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Lines);
 
     s_hLineBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugLineBox", std::move(desc), "Mesh for Rendering Debug Line Boxes");
@@ -2059,7 +2058,7 @@ void ezDebugRenderer::OnEngineStartup()
     geom.AddBox(ezVec3(2.0f), false);
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", std::move(desc), "Mesh for Rendering Debug Solid Boxes");
@@ -2067,60 +2066,33 @@ void ezDebugRenderer::OnEngineStartup()
   }
 
   {
-    // reset, if already used before
-    s_VertexDeclarationInfo.m_VertexStreams.Clear();
-
     {
-      ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
+      ezGALVertexAttribute& va = s_VertexAttributes[0];
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYZFloat;
+      va.m_uiOffset = 0;
+      va.m_uiVertexBufferSlot = 0;
     }
 
     {
-      ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 4;
+      ezGALVertexAttribute& va = s_VertexAttributes[1];
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = 12;
+      va.m_uiVertexBufferSlot = 0;
     }
   }
 
   {
-    // reset, if already used before
-    s_TexVertexDeclarationInfo.m_VertexStreams.Clear();
+    s_TexVertexAttributes[0] = s_VertexAttributes[0];
+    s_TexVertexAttributes[1] = s_VertexAttributes[1];
 
     {
-      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
-    }
-
-    {
-      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 4;
-    }
-
-    {
-      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-      si.m_Format = ezGALResourceFormat::XYFloat;
-      si.m_uiOffset = 16;
-      si.m_uiElementSize = 8;
-    }
-
-    {
-      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord1; // padding
-      si.m_Format = ezGALResourceFormat::XYFloat;
-      si.m_uiOffset = 24;
-      si.m_uiElementSize = 8;
+      ezGALVertexAttribute& va = s_TexVertexAttributes[2];
+      va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
+      va.m_eFormat = ezGALResourceFormat::XYFloat;
+      va.m_uiOffset = 16;
+      va.m_uiVertexBufferSlot = 0;
     }
   }
 

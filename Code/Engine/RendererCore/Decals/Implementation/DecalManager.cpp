@@ -285,7 +285,7 @@ struct ezDecalManager::Data
       geom.AddRect(ezVec2(2.0f));
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezMeshVertexStreamType::Position);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       m_hPlaneMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc));

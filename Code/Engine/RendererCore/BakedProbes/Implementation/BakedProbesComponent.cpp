@@ -102,8 +102,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
     if (!hMeshBuffer.IsValid())
     {
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);

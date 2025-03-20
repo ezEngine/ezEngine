@@ -349,7 +349,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
     return hCpuMesh;
 
   ezMeshResourceDescriptor desc;
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AddStream(ezMeshVertexStreamType::Position);
 
   ezDynamicArray<ezVec3> positions;
   positions.Reserve(256);
@@ -375,7 +375,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
     return {};
 
   desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles);
-  desc.MeshBufferDesc().GetVertexBufferData().GetArrayPtr().CopyFrom(positions.GetByteArrayPtr());
+  desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
   desc.ComputeBounds();

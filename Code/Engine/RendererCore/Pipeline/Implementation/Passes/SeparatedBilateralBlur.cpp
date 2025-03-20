@@ -110,7 +110,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);

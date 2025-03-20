@@ -390,10 +390,6 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
 
   desc.MeshBufferDesc().AddCommonStreams();
-  // 0 = position
-  // 1 = texcoord
-  // 2 = normal
-  // 3 = tangent
 
   {
     auto& mb = desc.MeshBufferDesc();
@@ -408,19 +404,23 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
     const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));
     const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, -m_fHeight);
 
-    const auto texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default);
-    const auto normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::Default);
-    const auto tangentFormat = ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::Default);
+    const auto texCoordFormat = mb.GetVertexStreamConfig().GetTexCoordFormat();
+    const auto normalFormat = mb.GetVertexStreamConfig().GetNormalFormat();
+    const auto tangentFormat = mb.GetVertexStreamConfig().GetTangentFormat();
 
     // access the vertex data directly
     // this is way more complicated than going through SetVertexData, but it is ~20% faster
 
-    auto positionData = mb.GetVertexData(0, 0);
-    auto texcoordData = mb.GetVertexData(1, 0);
-    auto normalData = mb.GetVertexData(2, 0);
-    auto tangentData = mb.GetVertexData(3, 0);
+    auto positionData = mb.GetPositionData();
 
-    const ezUInt32 uiVertexDataSize = mb.GetVertexDataSize();
+    ezUInt32 uiNormalDataStride = 0;
+    auto normalData = mb.GetNormalData(&uiNormalDataStride);
+
+    ezUInt32 uiTangentDataStride = 0;
+    auto tangentData = mb.GetTangentData(&uiTangentDataStride);
+
+    ezUInt32 uiTexCoordDataStride = 0;
+    auto texcoordData = mb.GetTexCoord0Data(&uiTexCoordDataStride);
 
     ezUInt32 uiVertexIdx = 0;
 
@@ -436,12 +436,12 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         const ezVec2 tc = m_vTexCoordOffset + ndc.CompMul(m_vTexCoordScale);
         const ezVec2 heightTC = ndc;
 
-        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
-
         const float fHeightScale = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
 
         // complicated but faster
-        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
+        positionData.GetPtr()[uiVertexIdx] = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
+        
+        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTexCoordDataStride;        
         ezMeshBufferUtils::EncodeTexCoord(tc, ezByteArrayPtr(texcoordData.GetPtr() + uiByteOffset, 32), texCoordFormat).IgnoreResult();
 
         // easier to understand, but slower
@@ -458,8 +458,6 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
     {
       for (ezUInt32 x = 0; x < uiNumVerticesX; ++x)
       {
-        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
-
         const ezInt32 centerIDx = uiVertexIdx;
         ezInt32 leftIDx = uiVertexIdx - 1;
         ezInt32 rightIDx = uiVertexIdx + 1;
@@ -476,11 +474,11 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         if (y + 1 == uiNumVerticesY)
           topIDx = centerIDx;
 
-        const ezVec3 vPosCenter = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)centerIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosLeft = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)leftIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosRight = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)rightIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosBottom = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)bottomIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosTop = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)topIDx * (size_t)uiVertexDataSize);
+        const ezVec3 vPosCenter = *(positionData.GetPtr() + (size_t)centerIDx);
+        const ezVec3 vPosLeft = *(positionData.GetPtr() + (size_t)leftIDx);
+        const ezVec3 vPosRight = *(positionData.GetPtr() + (size_t)rightIDx);
+        const ezVec3 vPosBottom = *(positionData.GetPtr() + (size_t)bottomIDx);
+        const ezVec3 vPosTop = *(positionData.GetPtr() + (size_t)topIDx);
 
         ezVec3 edgeL = vPosLeft - vPosCenter;
         ezVec3 edgeR = vPosRight - vPosCenter;
@@ -509,7 +507,10 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         ezVec3 vTangent = ezVec3(1, 0, 0).CrossRH(vNormal).GetNormalized();
 
         // complicated but faster
+        size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiNormalDataStride;
         ezMeshBufferUtils::EncodeNormal(vNormal, ezByteArrayPtr(normalData.GetPtr() + uiByteOffset, 32), normalFormat).IgnoreResult();
+
+        uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTangentDataStride;
         ezMeshBufferUtils::EncodeTangent(vTangent, 1.0f, ezByteArrayPtr(tangentData.GetPtr() + uiByteOffset, 32), tangentFormat).IgnoreResult();
 
         // easier to understand, but slower

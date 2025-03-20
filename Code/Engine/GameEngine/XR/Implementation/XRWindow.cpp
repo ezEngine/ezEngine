@@ -122,15 +122,17 @@ void ezWindowOutputTargetXR::CompanionViewEndFrame()
 
     m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
 
-    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+    m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    
     m_pRenderContext->BindShader(m_hCompanionShader);
 
     auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
     constants->TargetSize = targetSize;
 
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
     bindGroup.BindTexture("VRTexture", m_hColorRT);
+    
     m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     m_pRenderContext->EndRendering();

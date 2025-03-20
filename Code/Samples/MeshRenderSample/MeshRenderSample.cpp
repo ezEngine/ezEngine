@@ -269,8 +269,7 @@ public:
     geom.TriangulatePolygons();
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+    desc.AddCommonStreams();
 
     desc.AllocateStreamsFromGeometry(geom);
 
@@ -286,8 +285,7 @@ public:
     geom.TriangulatePolygons();
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+    desc.AddCommonStreams();
 
     desc.AllocateStreamsFromGeometry(geom);
 

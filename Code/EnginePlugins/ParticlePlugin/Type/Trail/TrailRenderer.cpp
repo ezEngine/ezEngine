@@ -82,7 +82,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     const ezUInt32 uiMaxPrimitivesToRender = s_uiParticlesPerBatch * uiMaxTrailSegments * uiPrimFactor;
 
 
-    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
+    pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
     const ezTrailParticleShaderData* pParticleTrailData = pRenderData->m_TrailParticleData.GetPtr();
