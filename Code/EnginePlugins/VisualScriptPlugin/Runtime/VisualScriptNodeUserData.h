@@ -129,20 +129,11 @@ namespace
       return EZ_SUCCESS;
     }
 
-    template <bool PropIsFunction>
     static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
       auto& userData = ref_node.InitUserData<NodeUserData_TypeAndProperty>(inout_pAdditionalData);
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-
-      if constexpr (PropIsFunction)
-      {
-        EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetFunctions(), userData.m_pProperty));
-      }
-      else
-      {
-        EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
-      }
+      EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
 
       return EZ_SUCCESS;
     }
@@ -237,6 +228,94 @@ namespace
 
   static_assert(sizeof(NodeUserData_TypeAndProperties) == 24);
   static_assert(GetUserDataAlignment<NodeUserData_TypeAndProperties>() == 8);
+
+  //////////////////////////////////////////////////////////////////////////
+
+  struct NodeUserData_TypeAndFunction : public NodeUserData_TypeAndProperty
+  {
+    ezUInt32 m_uiInputArgsMask = 0;
+    ezUInt32 m_uiOutputArgsMask = 0;
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+
+      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+      EZ_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
+
+      ezHashedString sFunctionName = propertiesVar[0].Get<ezHashedString>();
+      inout_stream << sFunctionName;
+
+      const ezRTTI* pType = ezRTTI::FindTypeByName(nodeDesc.m_sTargetTypeName);
+      if (pType == nullptr)
+        return EZ_FAILURE;
+
+      const ezAbstractFunctionProperty* pFunction = nullptr;
+      for (auto pFunc : pType->GetFunctions())
+      {
+        if (pFunc->GetPropertyName() == sFunctionName)
+        {
+          pFunction = pFunc;
+          break;
+        }
+      }
+
+      if (pFunction == nullptr)
+        return EZ_FAILURE;
+
+      auto pScriptableFunctionAttribute = pFunction->GetAttributeByType<ezScriptableFunctionAttribute>();
+      if (pScriptableFunctionAttribute == nullptr)
+        EZ_FAILURE;
+
+      ezUInt32 uiInputArgsMask = 0;
+      ezUInt32 uiOutputArgsMask = 0;
+      for (ezUInt32 i = 0; i < pScriptableFunctionAttribute->GetArgumentCount(); ++i)
+      {
+        auto argType = pScriptableFunctionAttribute->GetArgumentType(i);
+        if (argType == ezScriptableFunctionAttribute::In || argType == ezScriptableFunctionAttribute::Inout)
+        {
+          uiInputArgsMask |= EZ_BIT(i);
+        }
+        else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
+        {
+          uiOutputArgsMask |= EZ_BIT(i);
+        }
+      }
+
+      inout_stream << uiInputArgsMask;
+      inout_stream << uiOutputArgsMask;
+
+      out_uiSize = sizeof(NodeUserData_TypeAndFunction);
+      out_uiAlignment = GetUserDataAlignment<NodeUserData_TypeAndFunction>();
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      auto& userData = ref_node.InitUserData<NodeUserData_TypeAndFunction>(inout_pAdditionalData);
+      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+      EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetFunctions(), userData.m_pProperty));
+
+      inout_stream >> userData.m_uiInputArgsMask;
+      inout_stream >> userData.m_uiOutputArgsMask;
+
+      if (static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty)->GetArgumentCount() != ezMath::CountBits(userData.m_uiInputArgsMask | userData.m_uiOutputArgsMask))
+      {
+        ezLog::Error("Visual script {} '{}': Argument count mismatch. Script needs re-transform.", ezVisualScriptNodeDescription::Type::GetName(ref_node.m_Type), userData.m_pProperty->GetPropertyName());
+        return EZ_FAILURE;
+      }
+
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+      NodeUserData_TypeAndProperty::ToString(nodeDesc, out_sResult);
+    }
+  };
+
+  static_assert(sizeof(NodeUserData_TypeAndFunction) == 24);
+  static_assert(GetUserDataAlignment<NodeUserData_TypeAndFunction>() == 8);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -440,18 +519,18 @@ namespace
     {&NodeUserData_TypeAndProperties::Serialize,
       &NodeUserData_TypeAndProperties::Deserialize,
       &NodeUserData_TypeAndProperties::ToString}, // MessageHandler_Coroutine,
+    {&NodeUserData_TypeAndFunction::Serialize,
+      &NodeUserData_TypeAndFunction::Deserialize,
+      &NodeUserData_TypeAndFunction::ToString},   // ReflectedFunction,
     {&NodeUserData_TypeAndProperty::Serialize,
-      &NodeUserData_TypeAndProperty::Deserialize<true>,
-      &NodeUserData_TypeAndProperty::ToString},   // ReflectedFunction,
-    {&NodeUserData_TypeAndProperty::Serialize,
-      &NodeUserData_TypeAndProperty::Deserialize<false>,
+      &NodeUserData_TypeAndProperty::Deserialize,
       &NodeUserData_TypeAndProperty::ToString},   // GetReflectedProperty,
     {&NodeUserData_TypeAndProperty::Serialize,
-      &NodeUserData_TypeAndProperty::Deserialize<false>,
+      &NodeUserData_TypeAndProperty::Deserialize,
       &NodeUserData_TypeAndProperty::ToString},   // SetReflectedProperty,
-    {&NodeUserData_TypeAndProperty::Serialize,
-      &NodeUserData_TypeAndProperty::Deserialize<true>,
-      &NodeUserData_TypeAndProperty::ToString},   // InplaceCoroutine,
+    {&NodeUserData_TypeAndFunction::Serialize,
+      &NodeUserData_TypeAndFunction::Deserialize,
+      &NodeUserData_TypeAndFunction::ToString},   // InplaceCoroutine,
     {},                                           // GetScriptOwner,
     {&NodeUserData_TypeAndProperties::Serialize,
       &NodeUserData_TypeAndProperties::Deserialize,

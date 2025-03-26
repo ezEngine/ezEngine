@@ -1630,20 +1630,13 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
         }
         else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
-          // ezLog::Error("Script function out parameter are not yet supported");
-          return;
-
-#if 0
           if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
           {
-            // TODO: ezPropertyFlags::Reference is also set for const-ref parameters, should we change that ?
-
             ezLog::Error("Script function '{}' argument {} is marked 'out' but is not a non-const reference value", pRtti->GetTypeName(), argIdx);
             return;
           }
 
-          nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType, sDynamicPinProperty);
-#endif
+          nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType);
         }
       }
     }

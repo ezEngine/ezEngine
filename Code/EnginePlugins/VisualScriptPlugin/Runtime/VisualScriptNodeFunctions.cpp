@@ -2,6 +2,7 @@
 
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
+#include <Foundation/Containers/IterateBits.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
 
@@ -59,19 +60,23 @@ ezStringView GetTypeName()
 
 namespace
 {
-  static EZ_FORCE_INLINE ezResult FillFunctionArgs(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const ezAbstractFunctionProperty* pFunction, ezUInt32 uiStartSlot, ezDynamicArray<ezVariant>& out_args)
+  static EZ_FORCE_INLINE ezResult FillFunctionArgs(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const ezAbstractFunctionProperty* pFunction, ezUInt32 uiInputArgsMask, ezUInt32 uiStartSlot, ezDynamicArray<ezVariant>& out_args)
   {
     const ezUInt32 uiArgCount = pFunction->GetArgumentCount();
-    if (uiArgCount != node.m_NumInputDataOffsets - uiStartSlot)
-    {
-      ezLog::Error("Visual script {} '{}': Argument count mismatch. Script needs re-transform.", ezVisualScriptNodeDescription::Type::GetName(node.m_Type), pFunction->GetPropertyName());
-      return EZ_FAILURE;
-    }
 
+    ezUInt32 uiInputSlot = uiStartSlot;
     for (ezUInt32 i = 0; i < uiArgCount; ++i)
     {
       const ezRTTI* pArgType = pFunction->GetArgumentType(i);
-      out_args.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(uiStartSlot + i), pArgType));
+      if ((uiInputArgsMask & EZ_BIT(i)) != 0)
+      {
+        out_args.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(uiInputSlot), pArgType));
+        ++uiInputSlot;
+      }
+      else
+      {
+        out_args.PushBack(ezReflectionUtils::GetDefaultVariantFromType(pArgType));
+      }
     }
 
     return EZ_SUCCESS;
@@ -91,12 +96,12 @@ namespace
 
   static ExecResult NodeFunction_ReflectedFunction(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+    auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
     EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
     auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
 
     ezTypedPointer pInstance;
-    ezUInt32 uiSlot = 0;
+    ezUInt32 uiInputSlot = 0;
 
     if (pFunction->GetFunctionType() == ezFunctionType::Member)
     {
@@ -113,11 +118,11 @@ namespace
         return ExecResult::Error();
       }
 
-      ++uiSlot;
+      ++uiInputSlot;
     }
 
     ezHybridArray<ezVariant, 8> args;
-    if (FillFunctionArgs(inout_context, node, pFunction, uiSlot, args).Failed())
+    if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, uiInputSlot, args).Failed())
     {
       return ExecResult::Error();
     }
@@ -129,6 +134,13 @@ namespace
     if (dataOffsetR.IsValid())
     {
       inout_context.SetDataFromVariant(dataOffsetR, returnValue);
+    }
+
+    ezUInt32 uiOutputSlot = 1;
+    for (ezUInt32 uiArgIndex : ezIterateBitIndices(userData.m_uiOutputArgsMask))
+    {
+      inout_context.SetDataFromVariant(node.GetOutputDataOffset(uiOutputSlot), args[uiArgIndex]);
+      ++uiOutputSlot;
     }
 
     return ExecResult::RunNext(0);
@@ -254,14 +266,14 @@ namespace
       if (pModule == nullptr)
         return ExecResult::Error();
 
-      auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+      auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
       pModule->CreateCoroutine(userData.m_pType, userData.m_pType->GetTypeName(), inout_context.GetInstance(), ezScriptCoroutineCreationMode::AllowOverlap, pCoroutine);
 
       EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
       auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
 
       ezHybridArray<ezVariant, 8> args;
-      if (FillFunctionArgs(inout_context, node, pFunction, 0, args).Failed())
+      if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, 0, args).Failed())
       {
         return ExecResult::Error();
       }
