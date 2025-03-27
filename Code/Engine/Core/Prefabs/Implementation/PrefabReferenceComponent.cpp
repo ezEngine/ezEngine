@@ -311,7 +311,7 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
       if (comps[i] != this && // don't try to delete yourself
           comps[i]->WasCreatedByPrefab())
       {
-        comps[i]->GetOwningManager()->DeleteComponent(comps[i]);
+        comps[i]->DeleteComponent();
       }
     }
 

@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteComponent),
     EZ_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Initialize)),
     EZ_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Deinitialize)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
@@ -128,6 +129,11 @@ bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
   EZ_ASSERT_DEBUG(uiFlagIndex < 8, "Flag index {0} is out of the valid range [0 - 7]", uiFlagIndex);
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
+}
+
+void ezComponent::DeleteComponent()
+{
+  GetOwningManager()->DeleteComponent(this);
 }
 
 void ezComponent::Initialize() {}

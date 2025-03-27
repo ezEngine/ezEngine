@@ -517,7 +517,7 @@ void ezJoltWorldModule::CheckBreakableConstraints()
         pConstraint->GetOwner()->SendEventMessage(msg, pConstraint);
 
         // currently we don't track the broken state separately, we just remove the component
-        pConstraint->GetOwningManager()->DeleteComponent(pConstraint);
+        pConstraint->DeleteComponent();
         it = m_BreakableConstraints.Remove(it);
       }
       else

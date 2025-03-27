@@ -390,7 +390,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 2);
 
-      TestComponent::DeleteComponent(pComponent);
+      pComponent->DeleteComponent();
     }
 
     // Simulation stopped, component inactive
@@ -441,7 +441,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
-      TestComponent::DeleteComponent(pComponent);
+      pComponent->DeleteComponent();
     }
 
     // Simulation started, component active
@@ -464,7 +464,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
-      TestComponent::DeleteComponent(pComponent);
+      pComponent->DeleteComponent();
     }
 
     // Simulation started, component inactive
@@ -495,7 +495,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
-      TestComponent::DeleteComponent(pComponent);
+      pComponent->DeleteComponent();
     }
   }
 

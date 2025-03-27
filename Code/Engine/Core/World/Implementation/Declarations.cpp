@@ -100,7 +100,7 @@ namespace
 
     if (action == T::DeleteComponent)
     {
-      pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
+      pComponent->DeleteComponent();
     }
   }
 

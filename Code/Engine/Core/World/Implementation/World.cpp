@@ -286,7 +286,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
   while (!pObject->m_Components.IsEmpty())
   {
     ezComponent* pComponent = pObject->m_Components[0];
-    pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
+    pComponent->DeleteComponent();
   }
   EZ_ASSERT_DEV(pObject->m_Components.GetCount() == 0, "Components should already be removed");
 

@@ -19,7 +19,7 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_w
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {
-      pSiMan->DeleteComponent(it->GetHandle());
+      pSiMan->DeleteComponent(it);
     }
   }
 }
@@ -57,7 +57,7 @@ void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_wo
         it->GetOwner()->SetName(ezStringView());
       }
 
-      pSiMan->DeleteComponent(it->GetHandle());
+      pSiMan->DeleteComponent(it);
     }
   }
 }
