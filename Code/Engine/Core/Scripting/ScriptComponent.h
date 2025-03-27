@@ -35,7 +35,10 @@ public:
   const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; } // [ property ]
 
   void SetUpdateInterval(ezTime interval);                                             // [ property ]
-  ezTime GetUpdateInterval() const;                                                    // [ property ]
+  ezTime GetUpdateInterval() const { return m_UpdateInterval; }                        // [ property ]
+
+  void SetUpdateOnlyWhenSimulating(bool bUpdate);                                      // [ property ]
+  bool GetUpdateOnlyWhenSimulating() const { return m_bUpdateOnlyWhenSimulating; }     // [ property ]
 
   void BroadcastEventMsg(ezEventMessage& ref_msg);
 
@@ -63,6 +66,7 @@ private:
 
   ezScriptClassResourceHandle m_hScriptClass;
   ezTime m_UpdateInterval = ezTime::MakeZero();
+  bool m_bUpdateOnlyWhenSimulating = true;
 
   ezSharedPtr<ezScriptRTTI> m_pScriptType;
   ezUniquePtr<ezScriptInstance> m_pInstance;

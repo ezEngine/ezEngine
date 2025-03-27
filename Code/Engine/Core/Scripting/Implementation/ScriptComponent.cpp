@@ -6,11 +6,12 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("UpdateOnlyWhenSimulating", GetUpdateOnlyWhenSimulating, SetUpdateOnlyWhenSimulating)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
@@ -19,7 +20,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetScriptVariable, In, "Name", In, "Value"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetScriptVariable, In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetUpdateInterval, In, "interval"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -41,6 +41,7 @@ void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hScriptClass;
   s << m_UpdateInterval;
+  s << m_bUpdateOnlyWhenSimulating;
 
   ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
   s << uiNumParams;
@@ -55,11 +56,16 @@ void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hScriptClass;
   s >> m_UpdateInterval;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bUpdateOnlyWhenSimulating;
+  }
 
   ezUInt16 uiNumParams = 0;
   s >> uiNumParams;
@@ -156,14 +162,22 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
 
 void ezScriptComponent::SetUpdateInterval(ezTime interval)
 {
+  if (m_UpdateInterval == interval)
+    return;
+
   m_UpdateInterval = interval;
 
   AddUpdateFunctionToSchedule();
 }
 
-ezTime ezScriptComponent::GetUpdateInterval() const
+void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
 {
-  return m_UpdateInterval;
+  if (m_bUpdateOnlyWhenSimulating == bUpdate)
+    return;
+
+  m_bUpdateOnlyWhenSimulating = bUpdate;
+
+  AddUpdateFunctionToSchedule();
 }
 
 void ezScriptComponent::BroadcastEventMsg(ezEventMessage& ref_msg)
@@ -311,8 +325,7 @@ void ezScriptComponent::AddUpdateFunctionToSchedule()
   auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
   if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
   {
-    const bool bOnlyWhenSimulating = true;
-    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, bOnlyWhenSimulating);
+    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, m_bUpdateOnlyWhenSimulating);
   }
 }
 
