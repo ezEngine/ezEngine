@@ -73,7 +73,7 @@ shared class ezAngelScriptClass : ezIAngelScriptClass
 
     void SetUpdateInterval(ezTime interval)
     {
-      GetScriptOwnerComponent(@this).SetUpdateInterval(interval);
+      GetScriptOwnerComponent(@this).UpdateInterval = interval;
     }
 }
     )";
