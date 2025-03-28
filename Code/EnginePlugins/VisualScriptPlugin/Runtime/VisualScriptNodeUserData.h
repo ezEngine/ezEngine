@@ -276,7 +276,8 @@ namespace
         {
           uiInputArgsMask |= EZ_BIT(i);
         }
-        else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
+
+        if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
           uiOutputArgsMask |= EZ_BIT(i);
         }

@@ -130,13 +130,13 @@ namespace
     ezVariant returnValue;
     pFunction->Execute(pInstance.m_pObject, args, returnValue);
 
-    auto dataOffsetR = node.GetOutputDataOffset(0);
-    if (dataOffsetR.IsValid())
+    ezUInt32 uiOutputSlot = 0;
+    if (pFunction->GetReturnType() != nullptr)
     {
-      inout_context.SetDataFromVariant(dataOffsetR, returnValue);
+      inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), returnValue);
+      ++uiOutputSlot;
     }
 
-    ezUInt32 uiOutputSlot = 1;
     for (ezUInt32 uiArgIndex : ezIterateBitIndices(userData.m_uiOutputArgsMask))
     {
       inout_context.SetDataFromVariant(node.GetOutputDataOffset(uiOutputSlot), args[uiArgIndex]);

@@ -1628,7 +1628,8 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
             titleArgIdx = argIdx;
           }
         }
-        else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
+
+        if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
           if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
           {
