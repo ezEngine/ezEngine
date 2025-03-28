@@ -156,6 +156,12 @@ public:
   /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
   bool WasCreatedByPrefab() const { return m_Flags.IsSet(ezObjectFlags::CreatedByPrefab); }
 
+  /// \brief Adds ezObjectFlags::HideShapeIcon to the object. See the flag for details.
+  void SetHideShapeIcon() { m_Flags.Add(ezObjectFlags::HideShapeIcon); }
+
+  /// \brief Checks whether the ezObjectFlags::HideShapeIcon flag is set on this object.
+  bool IsShapeIconHidden() const { return m_Flags.IsSet(ezObjectFlags::HideShapeIcon); }
+
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);

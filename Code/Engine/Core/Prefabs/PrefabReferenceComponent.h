@@ -62,6 +62,9 @@ public:
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);                                 // [ property ]
   EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; } // [ property ]
 
+  void SetShowShapeIcons(bool bShow);                                                    // [ property ]
+  bool GetShowShapeIcons() const;                                                        // [ property ]
+
   const ezRangeView<const char*, ezUInt32> GetParameters() const;                        // [ property ] (exposed parameter)
   void SetParameter(const char* szKey, const ezVariant& value);                          // [ property ] (exposed parameter)
   void RemoveParameter(const char* szKey);                                               // [ property ] (exposed parameter)
@@ -76,5 +79,4 @@ private:
 
   ezPrefabResourceHandle m_hPrefab;
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
-  bool m_bInUpdateList = false;
 };

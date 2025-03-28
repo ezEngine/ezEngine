@@ -9,6 +9,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("ShowShapeIcons", GetShowShapeIcons, SetShowShapeIcons),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
@@ -24,6 +25,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 enum class PrefabComponentFlags : ezUInt8
 {
   SelfDeletion = 1, ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
+  ShowShapeIcons = 2, ///< the prefab component should show shape icons for the instantiated objects
+  InUpdateList = 3,   ///< the prefab component is currently in the update list of the prefab manager
 };
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
@@ -204,6 +207,24 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
   }
 }
 
+void ezPrefabReferenceComponent::SetShowShapeIcons(bool bShow)
+{
+  SetUserFlag((ezUInt8)PrefabComponentFlags::ShowShapeIcons, bShow);
+
+  if (IsActiveAndInitialized())
+  {
+    // only add to update list, if not yet activated,
+    // since OnActivate will do the instantiation anyway
+
+    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  }
+}
+
+bool ezPrefabReferenceComponent::GetShowShapeIcons() const
+{
+  return GetUserFlag((ezUInt8)PrefabComponentFlags::ShowShapeIcons);
+}
+
 void ezPrefabReferenceComponent::InstantiatePrefab()
 {
   // now instantiate the prefab
@@ -233,13 +254,18 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID)
+      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID, bool bShowShapeIcons)
       {
         // while exporting a scene all game objects with this flag are ignored and not exported
         // set this flag on all game objects that were created by instantiating this prefab
         // instead it should be instantiated at runtime again
         // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
         pChild->SetCreatedByPrefab();
+
+        if (!bShowShapeIcons)
+        {
+          pChild->SetHideShapeIcon();
+        }
 
         for (auto pComponent : pChild->GetComponents())
         {
@@ -249,18 +275,19 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
       };
 
       const ezUInt32 uiUniqueID = GetUniqueID();
+      const bool bShowShapeIcons = GetShowShapeIcons();
 
       for (ezGameObject* pChild : createdRootObjects)
       {
         if (pChild == GetOwner())
           continue;
 
-        FixComponent(pChild, uiUniqueID);
+        FixComponent(pChild, uiUniqueID, bShowShapeIcons);
       }
 
       for (ezGameObject* pChild : createdChildObjects)
       {
-        FixComponent(pChild, uiUniqueID);
+        FixComponent(pChild, uiUniqueID, bShowShapeIcons);
       }
 
       for (; uiPrevCompCount < GetOwner()->GetComponents().GetCount(); ++uiPrevCompCount)
@@ -455,7 +482,7 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
     if (!TryGetComponent(hComp, pComponent))
       continue;
 
-    pComponent->m_bInUpdateList = false;
+    pComponent->SetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList, false);
     if (!pComponent->IsActive())
       continue;
 
@@ -468,10 +495,10 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
 
 void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceComponent* pComponent)
 {
-  if (!pComponent->m_bInUpdateList)
+  if (!pComponent->GetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList))
   {
     m_ComponentsToUpdate.PushBack(pComponent->GetHandle());
-    pComponent->m_bInUpdateList = true;
+    pComponent->SetUserFlag((ezUInt8)PrefabComponentFlags::InUpdateList, true);
   }
 }
 

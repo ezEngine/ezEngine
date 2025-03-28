@@ -101,7 +101,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
   if (pObject->GetTags().IsSet(tagEditor) || pObject->GetTags().IsSet(tagHidden))
     return;
 
-  if (pObject->WasCreatedByPrefab())
+  if (pObject->IsShapeIconHidden())
     return;
 
   if (pObject->GetComponents().IsEmpty())

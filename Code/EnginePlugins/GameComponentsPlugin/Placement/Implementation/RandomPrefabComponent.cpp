@@ -327,6 +327,7 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
     // instead it should be instantiated at runtime again
     // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
     pChild->SetCreatedByPrefab();
+    pChild->SetHideShapeIcon();
 
     for (auto pComponent : pChild->GetComponents())
     {
