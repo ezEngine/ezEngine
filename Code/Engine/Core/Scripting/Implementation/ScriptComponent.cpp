@@ -167,6 +167,7 @@ void ezScriptComponent::SetUpdateInterval(ezTime interval)
 
   m_UpdateInterval = interval;
 
+  RemoveUpdateFunctionToSchedule();
   AddUpdateFunctionToSchedule();
 }
 
@@ -177,6 +178,7 @@ void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
 
   m_bUpdateOnlyWhenSimulating = bUpdate;
 
+  RemoveUpdateFunctionToSchedule();
   AddUpdateFunctionToSchedule();
 }
 

@@ -61,6 +61,8 @@ void ezIntervalScheduler<T>::AddOrUpdateWork(const T& work, ezTime interval)
   {
     auto& data = it.Value();
     ezTime oldInterval = data.m_Interval;
+    if (interval == oldInterval)
+      return;
 
     data.MarkAsInvalid();
 
