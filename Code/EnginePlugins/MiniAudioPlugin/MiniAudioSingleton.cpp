@@ -318,11 +318,11 @@ ezMiniAudioSoundInstance* ezMiniAudioSingleton::AllocateSoundInstance(const ezDa
   return pInstance;
 }
 
-void ezMiniAudioSingleton::FreeSoundInstance(ezMiniAudioSoundInstance*& pInstance)
+void ezMiniAudioSingleton::FreeSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance)
 {
-  const ezUInt32 uiIndex = pInstance->m_uiOwnIndex;
+  const ezUInt32 uiIndex = ref_pInstance->m_uiOwnIndex;
 
-  if (!pInstance->m_bInUse) // already freed
+  if (!ref_pInstance->m_bInUse) // already freed
   {
     EZ_ASSERT_DEBUG(m_pData->m_SoundInstanceFreeList.Contains(uiIndex), "Sound is not in the free list");
     return;
@@ -332,7 +332,7 @@ void ezMiniAudioSingleton::FreeSoundInstance(ezMiniAudioSoundInstance*& pInstanc
 
   EZ_ASSERT_DEBUG(!m_pData->m_SoundInstanceFreeList.Contains(uiIndex), "Sound is already freed");
 
-  pInstance->m_bInUse = false;
+  ref_pInstance->m_bInUse = false;
 
   auto& inst = m_pData->m_SoundInstancesStorage[uiIndex];
   inst.m_hComponent.Invalidate();
@@ -344,40 +344,40 @@ void ezMiniAudioSingleton::FreeSoundInstance(ezMiniAudioSoundInstance*& pInstanc
 
   m_pData->m_SoundInstanceFreeList.PushBack(uiIndex);
 
-  pInstance = nullptr;
+  ref_pInstance = nullptr;
 }
 
-void ezMiniAudioSingleton::DetachSoundInstance(ezMiniAudioSoundInstance*& pInstance)
+void ezMiniAudioSingleton::DetachSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance)
 {
-  if (pInstance == nullptr)
+  if (ref_pInstance == nullptr)
     return;
 
   // deactivate looping
-  EZ_MA_CHECK(ma_data_source_set_looping(&pInstance->m_Decoder, false));
+  EZ_MA_CHECK(ma_data_source_set_looping(&ref_pInstance->m_Decoder, false));
 
-  pInstance->m_hComponent.Invalidate(); // owner doesn't want to be notified anymore
+  ref_pInstance->m_hComponent.Invalidate(); // owner doesn't want to be notified anymore
   // pInstance->pWorld = nullptr; // but keep the world reference for shutdown behavior
 
   // owner doesn't point to it any longer, but we'll continue playing it
-  pInstance = nullptr;
+  ref_pInstance = nullptr;
 }
 
 
-void ezMiniAudioSingleton::DetachAndFadeOutSoundInstance(ezMiniAudioSoundInstance*& pInstance, ezTime fadeDuration)
+void ezMiniAudioSingleton::DetachAndFadeOutSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance, ezTime fadeDuration)
 {
-  if (pInstance == nullptr)
+  if (ref_pInstance == nullptr)
     return;
 
   EZ_LOCK(m_pData->m_Mutex);
-  m_pData->m_FadingInstances.PushBack(pInstance->m_uiOwnIndex);
+  m_pData->m_FadingInstances.PushBack(ref_pInstance->m_uiOwnIndex);
 
-  pInstance->m_hComponent.Invalidate(); // owner doesn't want to be notified anymore
+  ref_pInstance->m_hComponent.Invalidate(); // owner doesn't want to be notified anymore
   // pInstance->pWorld = nullptr; // but keep the world reference for shutdown behavior
 
-  ma_sound_stop_with_fade_in_milliseconds(&pInstance->m_Sound, static_cast<ma_uint64>(fadeDuration.GetMilliseconds()));
+  ma_sound_stop_with_fade_in_milliseconds(&ref_pInstance->m_Sound, static_cast<ma_uint64>(fadeDuration.GetMilliseconds()));
 
   // owner doesn't point to it any longer, but we'll continue playing it
-  pInstance = nullptr;
+  ref_pInstance = nullptr;
 }
 
 void ezMiniAudioSingleton::SoundEnded(ezMiniAudioSoundInstance* pInstance)

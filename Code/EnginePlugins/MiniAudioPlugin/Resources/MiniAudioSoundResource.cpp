@@ -23,23 +23,23 @@ const ezDataBuffer& ezMiniAudioSoundResource::GetAudioData() const
   return m_AudioData[0];
 }
 
-const ezDataBuffer& ezMiniAudioSoundResource::GetAudioData(ezRandom& rng) const
+const ezDataBuffer& ezMiniAudioSoundResource::GetAudioData(ezRandom& ref_rng) const
 {
-  return m_AudioData[rng.UInt32Index(m_AudioData.GetCount())];
+  return m_AudioData[ref_rng.UInt32Index(m_AudioData.GetCount())];
 }
 
-float ezMiniAudioSoundResource::GetVolume(ezRandom& rng) const
+float ezMiniAudioSoundResource::GetVolume(ezRandom& ref_rng) const
 {
   if (m_fMinVolume < m_fMaxVolume)
-    return rng.FloatMinMax(m_fMinVolume, m_fMaxVolume);
+    return ref_rng.FloatMinMax(m_fMinVolume, m_fMaxVolume);
 
   return m_fMinVolume;
 }
 
-float ezMiniAudioSoundResource::GetPitch(ezRandom& rng) const
+float ezMiniAudioSoundResource::GetPitch(ezRandom& ref_rng) const
 {
   if (m_fMinPitch < m_fMaxPitch)
-    return rng.FloatMinMax(m_fMinPitch, m_fMaxPitch);
+    return ref_rng.FloatMinMax(m_fMinPitch, m_fMaxPitch);
 
   return m_fMinPitch;
 }

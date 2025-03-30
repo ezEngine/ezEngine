@@ -2,6 +2,9 @@
 
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/ResourceManager/Implementation/ResourceHandleReflection.h>
+#include <Core/World/GameObject.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <MiniAudioPlugin/Components/MiniAudioSoundComponent.h>
 #include <MiniAudioPlugin/MiniAudioSingleton.h>

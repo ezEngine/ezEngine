@@ -22,11 +22,11 @@ public:
   ~ezMiniAudioSoundResource();
 
   const ezDataBuffer& GetAudioData() const;
-  const ezDataBuffer& GetAudioData(ezRandom& rng) const;
+  const ezDataBuffer& GetAudioData(ezRandom& ref_rng) const;
 
   bool GetLoop() const { return m_bLoop; }
-  float GetVolume(ezRandom& rng) const;
-  float GetPitch(ezRandom& rng) const;
+  float GetVolume(ezRandom& ref_rng) const;
+  float GetPitch(ezRandom& ref_rng) const;
   bool GetSpatialize() const { return m_bSpatialize; }
   float GetDopplerFactor() const { return m_fDopplerFactor; }
   float GetMinDistance() const { return m_fMinDistance; }

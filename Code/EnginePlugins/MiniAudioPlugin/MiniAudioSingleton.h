@@ -89,10 +89,10 @@ public:
   virtual ezResult OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
 
   ezMiniAudioSoundInstance* AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent);
-  void FreeSoundInstance(ezMiniAudioSoundInstance*& pInstance);
-  void DetachSoundInstance(ezMiniAudioSoundInstance*& pInstance);
+  void FreeSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
+  void DetachSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
 
-  void DetachAndFadeOutSoundInstance(ezMiniAudioSoundInstance*& pInstance, ezTime fadeDuration);
+  void DetachAndFadeOutSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance, ezTime fadeDuration);
 
   void SoundEnded(ezMiniAudioSoundInstance* pInstance);
 
