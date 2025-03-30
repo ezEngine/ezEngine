@@ -39,6 +39,7 @@ private:
 class EZ_TEST_DLL ezRegisterTestHelper : public ezEnumerable<ezRegisterTestHelper>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterTestHelper);
+
 public:
   ezRegisterTestHelper() = default;
   virtual ~ezRegisterTestHelper() = default;

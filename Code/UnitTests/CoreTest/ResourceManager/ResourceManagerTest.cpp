@@ -1,8 +1,8 @@
 #include <CoreTest/CoreTestPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Threading/Thread.h>
+#include <Foundation/Types/ScopeExit.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(ResourceManager);
 
