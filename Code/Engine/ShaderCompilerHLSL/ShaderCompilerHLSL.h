@@ -19,6 +19,11 @@ public:
     out_platforms.PushBack("DX11_SM50");
   }
 
+  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const override
+  {
+    return ezGALBufferLayout::DirectX_ConstantButter;
+  }
+
   virtual ezResult ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
   virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
 

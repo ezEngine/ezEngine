@@ -57,28 +57,17 @@ int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impo
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-[VERTEXSHADER]
+[MATERIALCONSTANTS]
 
-#include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
   COLOR4F(VariationColor);
-  COLOR4F(EmissiveColor);
-  FLOAT1(MetallicValue);
-  FLOAT1(ReflectanceValue);
   FLOAT1(RoughnessValue);
-  FLOAT1(MaskThreshold);
-  BOOL1(UseBaseTexture);
-  BOOL1(UseMetallicTexture);
   BOOL1(UseNormalTexture);
   BOOL1(UseRoughnessTexture);
-  BOOL1(UseEmissiveTexture);
   BOOL1(UseOcclusionTexture);
-  
-  INT1(KrautTreeMode);
   COLOR4F(SubsurfaceColor);
-};
+  INT1(KrautTreeMode);
+
+[VERTEXSHADER]
 
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include "TreeShaderData.h"
@@ -160,7 +149,7 @@ VS_OUT main(VS_IN Input)
   float globalUniformScale = dot(scale, 1.0 / 3.0);
   
   [branch]
-  if (KrautTreeMode == 4) // Billboard Impostor
+  if (GetMaterialData(KrautTreeMode) == 4) // Billboard Impostor
   {
     worldPosition.xyz += GetCameraDirRight() * result.TexCoord1.x * globalUniformScale;
     result.TexCoord1.x = 1.0;
@@ -215,7 +204,7 @@ VS_OUT main(VS_IN Input)
   }
 
   [branch]
-  if (KrautTreeMode == 2) // Leaf
+  if (GetMaterialData(KrautTreeMode) == 2) // Leaf
   {
     float2 span = result.TexCoord0.xy * 2.0 - 1.0;
     float size = result.TexCoord1.x * globalUniformScale;
@@ -266,27 +255,6 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 #define USE_TWO_SIDED_LIGHTING
 #define USE_FOG
 
-#include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-  COLOR4F(VariationColor);
-  COLOR4F(EmissiveColor);
-  FLOAT1(MetallicValue);
-  FLOAT1(ReflectanceValue);
-  FLOAT1(RoughnessValue);
-  FLOAT1(MaskThreshold);
-  BOOL1(UseBaseTexture);
-  BOOL1(UseMetallicTexture);
-  BOOL1(UseNormalTexture);
-  BOOL1(UseRoughnessTexture);
-  BOOL1(UseEmissiveTexture);
-  BOOL1(UseOcclusionTexture);
-  
-  INT1(KrautTreeMode);
-  COLOR4F(SubsurfaceColor);
-};
-
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
@@ -328,8 +296,8 @@ float3 GetBaseColor()
     
   #else
 
-    float3 variationColor = VariationColor.rgb;
-    float variationStrength = VariationColor.a;
+    float3 variationColor = GetMaterialData(VariationColor).rgb;
+    float variationStrength = GetMaterialData(VariationColor).a;
     float vertexStrength = G.Input.Color0.a;
 
     float3 texColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
@@ -345,7 +313,7 @@ float3 GetNormal()
   float3 wsNormal;
 
   [branch]
-  if (UseNormalTexture)
+  if (GetMaterialData(UseNormalTexture))
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
 
@@ -362,7 +330,7 @@ float3 GetNormal()
   #if !MATERIAL_PREVIEW
 
     [branch]
-    if (KrautTreeMode == 2) // Leaf
+    if (GetMaterialData(KrautTreeMode) == 2) // Leaf
     {
       wsNormal += normalize(G.Input.LeafNormal);
     }
@@ -385,13 +353,13 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseRoughnessTexture)
+  if (GetMaterialData(UseRoughnessTexture))
   {
-    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, GetTexCoord()).r;
+    return GetMaterialData(RoughnessValue) * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, GetTexCoord()).r;
   }
   else
   {
-    return RoughnessValue;
+    return GetMaterialData(RoughnessValue);
   }
 }
 
@@ -418,7 +386,7 @@ float GetOcclusion()
 
 
   [branch]
-  if (UseOcclusionTexture)
+  if (GetMaterialData(UseOcclusionTexture))
   {
     return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r * fBaseOcclusion;
   }
@@ -430,5 +398,5 @@ float GetOcclusion()
 
 float3 GetSubsurfaceColor()
 {
-  return SubsurfaceColor.rgb;
+  return GetMaterialData(SubsurfaceColor).rgb;
 }

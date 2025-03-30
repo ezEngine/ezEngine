@@ -12,6 +12,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererCore/Material/MaterialManager.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/ImmutableSamplers.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -606,15 +607,9 @@ ezResult ezRenderContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThre
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
   // First apply material state since this can modify all other states.
-  // Note ApplyMaterialState only returns a valid material pointer if the constant buffer of this material needs to be updated.
-  // This needs to be done once we have determined the correct shader permutation.
-  ezMaterialResource* pMaterial = nullptr;
-  EZ_SCOPE_EXIT(if (pMaterial != nullptr) { ezResourceManager::EndAcquireResource(pMaterial); });
-
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MaterialBindingChanged))
   {
-    pMaterial = ApplyMaterialState();
-
+    ApplyMaterialState();
     m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
   }
 
@@ -657,7 +652,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     }
 
     ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation ? pShaderPermutation->GetResourceDescription().GetData() : "");
-
+    UploadConstants();
     if (bDirty)
     {
       if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
@@ -683,19 +678,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
         ApplyBufferBindings(pShader);
         m_StateFlags.Remove(ezRenderContextFlags::BufferBindingChanged);
       }
-    }
 
-    // Note that pMaterial is only valid, if material constants have changed, so this also always implies that ConstantBufferBindingChanged is set.
-    if (pMaterial != nullptr)
-    {
-      pMaterial->UpdateConstantBuffer(pShaderPermutation);
-      BindConstantBuffer("ezMaterialConstants", pMaterial->m_hConstantBufferStorage);
-    }
-
-    UploadConstants();
-
-    if (bDirty)
-    {
       if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged))
       {
         ApplyConstantBufferBindings(pShader);
@@ -1164,57 +1147,54 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
   return pShaderPermutation;
 }
 
-ezMaterialResource* ezRenderContext::ApplyMaterialState()
+void ezRenderContext::ApplyMaterialState()
 {
   if (!m_hNewMaterial.IsValid())
   {
     BindShaderInternal(ezShaderResourceHandle(), ezShaderBindFlags::Default);
-    return nullptr;
+    return;
   }
 
   // check whether material has been modified
-  ezMaterialResource* pMaterial = ezResourceManager::BeginAcquireResource(m_hNewMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezMaterialResource> pMaterial(m_hNewMaterial, ezResourceAcquireMode::AllowLoadingFallback);
 
-  if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
+  if (m_hNewMaterial != m_hMaterial)
   {
-    auto pCachedValues = pMaterial->GetOrUpdateCachedValues();
-
-    BindShaderInternal(pCachedValues->m_hShader, ezShaderBindFlags::Default);
-
-    if (!pMaterial->m_hConstantBufferStorage.IsInvalidated())
+    const ezMaterialManager::MaterialData* data = ezMaterialManager::GetMaterialData(pMaterial.GetPointer());
+    if (data == nullptr)
     {
-      BindConstantBuffer("ezMaterialConstants", pMaterial->m_hConstantBufferStorage);
+      BindShaderInternal(ezShaderResourceHandle(), ezShaderBindFlags::Default);
+      return;
     }
 
-    for (auto it = pCachedValues->m_PermutationVars.GetIterator(); it.IsValid(); ++it)
+    BindShaderInternal(data->m_hShader, ezShaderBindFlags::Default);
+
+    if (!data->m_StructuredBufferView.IsInvalidated())
     {
-      SetShaderPermutationVariableInternal(it.Key(), it.Value());
+      BindBuffer("materialData", data->m_StructuredBufferView);
+    }
+    else if (!data->m_ConstantBuffer.IsInvalidated())
+    {
+      BindConstantBuffer("materialData", data->m_ConstantBuffer);
     }
 
-    for (auto it = pCachedValues->m_Texture2DBindings.GetIterator(); it.IsValid(); ++it)
+    for (const ezPermutationVar& perm : data->m_PermutationVars)
     {
-      BindTexture2D(it.Key(), it.Value());
+      SetShaderPermutationVariableInternal(perm.m_sName, perm.m_sValue);
     }
 
-    for (auto it = pCachedValues->m_TextureCubeBindings.GetIterator(); it.IsValid(); ++it)
+    for (const ezMaterialResourceDescriptor::Texture2DBinding& binding : data->m_Texture2DBindings)
     {
-      BindTextureCube(it.Key(), it.Value());
+      BindTexture2D(binding.m_Name, binding.m_Value);
+    }
+
+    for (const ezMaterialResourceDescriptor::TextureCubeBinding& binding : data->m_TextureCubeBindings)
+    {
+      BindTextureCube(binding.m_Name, binding.m_Value);
     }
 
     m_hMaterial = m_hNewMaterial;
   }
-
-  // The material needs its constant buffer updated.
-  // Thus, we keep it acquired until we have the correct shader permutation for the constant buffer layout.
-  if (pMaterial->AreConstantsModified())
-  {
-    m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
-
-    return pMaterial;
-  }
-
-  ezResourceManager::EndAcquireResource(pMaterial);
-  return nullptr;
 }
 
 void ezRenderContext::ApplyConstantBufferBindings(const ezGALShader* pShader)

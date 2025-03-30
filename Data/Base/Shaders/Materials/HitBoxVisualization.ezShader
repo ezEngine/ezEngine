@@ -26,7 +26,6 @@ WireFrame = true
     #define USE_SKINNING
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -93,7 +92,6 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 
 #define CUSTOM_INTERPOLATOR float3 Barycentric : TEXCOORD0;
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;

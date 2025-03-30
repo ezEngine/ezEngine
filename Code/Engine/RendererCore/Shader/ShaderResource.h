@@ -10,6 +10,8 @@ struct ezShaderResourceDescriptor
 {
 };
 
+class ezShaderConstantBufferLayout;
+
 class EZ_RENDERERCORE_DLL ezShaderResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderResource, ezResource);
@@ -18,10 +20,12 @@ class EZ_RENDERERCORE_DLL ezShaderResource : public ezResource
 
 public:
   ezShaderResource();
+  ~ezShaderResource() = default;
 
   bool IsShaderValid() const { return m_bShaderResourceIsValid; }
 
   ezArrayPtr<const ezHashedString> GetUsedPermutationVars() const { return m_PermutationVarsUsed; }
+  const ezSharedPtr<ezShaderConstantBufferLayout>& GetMaterialLayout() const { return m_pLayout; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -30,5 +34,6 @@ private:
 
 private:
   ezHybridArray<ezHashedString, 16> m_PermutationVarsUsed;
-  bool m_bShaderResourceIsValid;
+  ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout;
+  bool m_bShaderResourceIsValid = false;
 };

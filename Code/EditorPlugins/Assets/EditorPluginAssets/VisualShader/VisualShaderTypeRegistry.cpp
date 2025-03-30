@@ -125,8 +125,11 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
 
 void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 {
-  ezStringBuilder sPath(":app/VisualShader/", sCfgFileRelative);
-
+  ezStringBuilder sPath = sCfgFileRelative;
+  if (!ezPathUtils::IsAbsolutePath(sCfgFileRelative))
+  {
+    sPath.SetFormat(":app/VisualShader/{}", sCfgFileRelative);
+  }
   LoadConfigFile(sPath);
 }
 
@@ -584,6 +587,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeMaterialParams = temp;
+      }
+      else if (pElement->GetName() == "CodeMaterialConstants")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeMaterialConstants = temp;
       }
       else if (pElement->GetName() == "CodeMaterialCB")
       {

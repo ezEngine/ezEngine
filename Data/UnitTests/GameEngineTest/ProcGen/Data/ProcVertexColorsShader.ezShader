@@ -66,19 +66,14 @@ float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Common/GlobalConstants.h>
 
-// The values of the variables in the MATERIALPARAMETER section are written to this constant buffer.
-// The constant buffer is available to all shader stages and these variables
-// can be read anywhere like global variables.
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
+[MATERIALCONSTANTS]
+
   COLOR4F(Layer0_Color);
   COLOR4F(Layer1_Color);
   COLOR4F(Layer2_Color);
   COLOR4F(Layer3_Color);
   FLOAT1(RoughnessValue);
-};
 
 [VERTEXSHADER]
 // This section contains the vertex shader code.
@@ -135,10 +130,10 @@ float3 GetBaseColor()
 {
   float4 blendMask = G.Input.Color0;
 
-  float3 baseColor = Layer0_Color.rgb;
-  baseColor = lerp(baseColor, Layer1_Color.rgb, blendMask.r);
-  baseColor = lerp(baseColor, Layer2_Color.rgb, blendMask.g);
-  baseColor = lerp(baseColor, Layer3_Color.rgb, blendMask.b);
+  float3 baseColor = GetMaterialData(Layer0_Color).rgb;
+  baseColor = lerp(baseColor, GetMaterialData(Layer1_Color).rgb, blendMask.r);
+  baseColor = lerp(baseColor, GetMaterialData(Layer2_Color).rgb, blendMask.g);
+  baseColor = lerp(baseColor, GetMaterialData(Layer3_Color).rgb, blendMask.b);
   
   return baseColor;
 }
@@ -161,7 +156,7 @@ float GetReflectance()
 // smooth surfaces lead to sharper reflections, rougher surfaces are more diffuse
 float GetRoughness()
 {
-  return RoughnessValue;
+  return GetMaterialData(RoughnessValue);
 }
 
 // how opaque this pixel is, lower values make it more transparent

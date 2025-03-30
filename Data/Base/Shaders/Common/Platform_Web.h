@@ -14,6 +14,10 @@
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
+#  define BEGIN_MATERIAL_CONSTANTS cbuffer materialData
+#  define END_MATERIAL_CONSTANTS ;
+#  define GetMaterialData(x) x
+
 #  define SUPPORTS_TEXEL_BUFFER EZ_OFF
 #  define SUPPORTS_MSAA_ARRAYS EZ_OFF
 

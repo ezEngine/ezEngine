@@ -18,7 +18,6 @@ CullMode = CullMode_None
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "ReflectionFilteredSpecularConstants.h"
 
 TextureCube InputCubemap;

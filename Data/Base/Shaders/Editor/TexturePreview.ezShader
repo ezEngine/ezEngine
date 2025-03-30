@@ -16,11 +16,20 @@ bool IsLinear;
 
 CullMode = CullMode_None
 
-[VERTEXSHADER]
-
-#include <Shaders/Common/GlobalConstants.h>
+[SHADER]
 
 #define USE_TEXCOORD0
+#define USE_WORLDPOS
+
+[MATERIALCONSTANTS]
+
+  INT1(ShowChannelMode);
+  FLOAT1(AlphaThreshold);
+  FLOAT1(LodLevel);
+  BOOL1(IsLinear);
+
+[VERTEXSHADER]
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -30,19 +39,6 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-  INT1(ShowChannelMode);
-  FLOAT1(AlphaThreshold);
-  FLOAT1(LodLevel);
-  BOOL1(IsLinear);
-};
-
-#define USE_WORLDPOS
-#define USE_TEXCOORD0
-#include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 Texture2D BaseTexture;
@@ -50,10 +46,10 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 SampleTexture(PS_IN Input)
 {
-  if (LodLevel < 0)
+  if (GetMaterialData(LodLevel) < 0)
     return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
 
-  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoord0.xy, LodLevel);
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoord0.xy, GetMaterialData(LodLevel));
 }
 
 float4 main(PS_IN Input) : SV_Target
@@ -61,7 +57,7 @@ float4 main(PS_IN Input) : SV_Target
   float3 color = float3(1, 1, 1);
   float4 texel = SampleTexture(Input).rgba;
 
-  if (ShowChannelMode == 0)
+  if (GetMaterialData(ShowChannelMode) == 0)
   {
     float3 background[2];
     background[0] = float3(0.66, 0.66, 0.66);
@@ -72,36 +68,36 @@ float4 main(PS_IN Input) : SV_Target
 
     color = lerp(background[bgIdx], texel.rgb, texel.a);
   }
-  else if (ShowChannelMode == 1)
+  else if (GetMaterialData(ShowChannelMode) == 1)
   {
     color = texel.rgb;
   }
-  else if (ShowChannelMode == 2)
+  else if (GetMaterialData(ShowChannelMode) == 2)
   {
     color = texel.r;
   }
-  else if (ShowChannelMode == 3)
+  else if (GetMaterialData(ShowChannelMode) == 3)
   {
     color = texel.g;
   }
-  else if (ShowChannelMode == 4)
+  else if (GetMaterialData(ShowChannelMode) == 4)
   {
     color = texel.b;
   }
-  else if (ShowChannelMode == 5)
+  else if (GetMaterialData(ShowChannelMode) == 5)
   {
     color = SrgbToLinear(texel.a); // alpha is always linear
   }
-  else if (ShowChannelMode == 6)
+  else if (GetMaterialData(ShowChannelMode) == 6)
   {
-    color = texel.r >= AlphaThreshold;
+    color = texel.r >= GetMaterialData(AlphaThreshold);
   }
-  else if (ShowChannelMode == 7)
+  else if (GetMaterialData(ShowChannelMode) == 7)
   {
-    color = texel.a >= AlphaThreshold;
+    color = texel.a >= GetMaterialData(AlphaThreshold);
   }
 
-  if (IsLinear && ShowChannelMode < 5)
+  if (GetMaterialData(IsLinear) && GetMaterialData(ShowChannelMode) < 5)
   {
     color = SrgbToLinear(color);
   }

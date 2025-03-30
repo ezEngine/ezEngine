@@ -47,8 +47,26 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
   ezStringBuilder sAbsFilePath;
   (*stream) >> sAbsFilePath;
 
+  ezString sContent;
+  sContent.ReadAll(*stream);
+
+  ezShaderHelper::ezTextSectionizer Sections;
+  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
+
+  ezUInt32 uiFirstLine = 0;
   ezHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
-  ezShaderParser::ParsePermutationSection(*stream, m_PermutationVarsUsed, fixedPermVars);
+  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
+  ezShaderParser::ParsePermutationSection(sPermutations, m_PermutationVarsUsed, fixedPermVars);
+
+  uiFirstLine = 0;
+  ezStringView sShader = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstLine);
+  if (!sShader.IsEmpty())
+  {
+    if (ezShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded())
+    {
+      ezShaderParser::LayoutMaterialConstants(*m_pLayout, ezGALDevice::GetDefaultDevice()->GetCapabilities().m_MaterialBufferLayout);
+    }
+  }
 
   res.m_State = ezResourceState::Loaded;
   m_bShaderResourceIsValid = true;

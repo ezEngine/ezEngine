@@ -30,9 +30,12 @@ float3x3 TransformToRotation(Transform t)
   return float3x3(t.r0.xyz, t.r1.xyz, t.r2.xyz);
 }
 
+
 #  define CONSTANT_BUFFER(Name, Slot) cbuffer Name : register(b##Slot)
 #  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name : register(b##Slot, space##Set)
 #  define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
+
+// Note: If extended, you need to extend Engine/RendererCore/ShaderCompiler/Implementation/ShaderParser.cpp as well as ezShaderConstant::Type.
 #  define FLOAT1(Name) float Name
 #  define FLOAT2(Name) float2 Name
 #  define FLOAT3(Name) float3 Name
@@ -51,6 +54,8 @@ float3x3 TransformToRotation(Transform t)
 #  define COLOR4F(Name) float4 Name
 // #  define COLOR4UB(Name) uint Name // TODO: this doesn't actually work
 #  define BOOL1(Name) bool Name
+
+// The types below are not supported for material constants
 #  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
 #  define PACKEDCOLOR4H(Name)    \
     uint EZ_PP_CONCAT(Name, RG); \

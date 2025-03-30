@@ -70,6 +70,7 @@ private:
   ezStringBuilder m_sShaderGeometryDefines;
   ezStringBuilder m_sShaderGeometry;
   ezStringBuilder m_sShaderMaterialParam;
+  ezStringBuilder m_sShaderMaterialConstants;
   ezStringBuilder m_sShaderMaterialCB;
   ezStringBuilder m_sShaderRenderState;
   ezStringBuilder m_sShaderPermutations;

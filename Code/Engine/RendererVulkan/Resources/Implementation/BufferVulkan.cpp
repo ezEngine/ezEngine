@@ -139,6 +139,7 @@ void ezGALBufferVulkan::CreateBuffer()
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
 
   VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_buffer, m_alloc, &m_allocInfo));
+  m_resourceBufferInfo.buffer = m_buffer;
 }
 
 void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const

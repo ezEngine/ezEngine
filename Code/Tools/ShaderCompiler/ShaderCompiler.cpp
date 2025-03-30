@@ -150,9 +150,17 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
     return EZ_FAILURE;
   }
 
+  ezString sContent;
+  sContent.ReadAll(shaderFile);
+
+  ezShaderHelper::ezTextSectionizer Sections;
+  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
+
   ezHybridArray<ezHashedString, 16> permVars;
   ezHybridArray<ezPermutationVar, 16> fixedPermVars;
-  ezShaderParser::ParsePermutationSection(shaderFile, permVars, fixedPermVars);
+  ezUInt32 uiFirstLine = 0;
+  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
+  ezShaderParser::ParsePermutationSection(sPermutations, permVars, fixedPermVars);
 
   {
     EZ_LOG_BLOCK("Permutation Vars");

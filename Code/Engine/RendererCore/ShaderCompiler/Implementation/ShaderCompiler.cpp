@@ -270,6 +270,29 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   ezUInt32 uiFirstShaderLine = 0;
   ezStringView sShaderSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::SHADER, uiFirstShaderLine);
 
+  ezUInt32 uiFirstMaterialConstantsLine = 0;
+  ezStringView sMaterialConstantsSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstMaterialConstantsLine);
+
+  ezStringBuilder sMaterialConstantsTemplate;
+  // If this is a material shader (i.e. it has a [MATERIALCONSTANTS] section), we need to parse the section and also load the MaterialConstants.template file which will be used to generate the material constants struct which is prepended before every shader and defines the HAS_MATERIAL_CONSTANTS define.
+  if (!sMaterialConstantsSource.IsEmpty())
+  {
+    m_MaterialBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
+    ezStatus res = ezShaderParser::ParseMaterialConstantsSection(sMaterialConstantsSource, m_MaterialBufferLayout);
+    if (res.LogFailure())
+      return EZ_FAILURE;
+
+    ezStringView sMaterialConstantsTemplateFile = "Shaders/Materials/MaterialConstants.template";
+    ezFileReader materialConstantsTemplate;
+    if (materialConstantsTemplate.Open(sMaterialConstantsTemplateFile).Failed())
+    {
+      ezLog::Error(pLog, "Failed to load the '{}' file. Can't compile material shader", sMaterialConstantsTemplateFile);
+      return EZ_FAILURE;
+    }
+    sMaterialConstantsTemplate.ReadAll(materialConstantsTemplate);
+    m_IncludeFiles.Insert(sMaterialConstantsTemplateFile);
+  }
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     ezStringView sStageSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
@@ -278,6 +301,12 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
     if (!sStageSource.IsEmpty())
     {
       sTemp.Clear();
+
+      // prepend material constants section if there is any
+      if (!sMaterialConstantsSource.IsEmpty())
+      {
+        sTemp.AppendFormat(sMaterialConstantsTemplate, uiFirstMaterialConstantsLine, sMaterialConstantsSource);
+      }
 
       // prepend common shader section if there is any
       if (!sShaderSource.IsEmpty())
@@ -339,6 +368,10 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
   ezHybridArray<ezString, 4> Platforms;
   pCompiler->GetSupportedPlatforms(Platforms);
+  if (m_MaterialBufferLayout)
+  {
+    ezShaderParser::LayoutMaterialConstants(*m_MaterialBufferLayout, pCompiler->GetMaterialBufferLayout(sPlatform));
+  }
 
   for (ezUInt32 p = 0; p < Platforms.GetCount(); ++p)
   {
@@ -359,7 +392,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
     // 'DEBUG' is a platform tag that enables additional compiler flags
     if (PlatformEnabled(m_ShaderData.m_Platforms, "DEBUG"))
     {
-      ezLog::Warning("Shader specifies the 'DEBUG' platform, which enables the debug shader compiler flag.");
+      ezLog::Warning(pLog, "Shader specifies the 'DEBUG' platform, which enables the debug shader compiler flag.");
       spd.m_Flags.Add(ezShaderCompilerFlags::Debug);
     }
 #endif
@@ -389,13 +422,13 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
 
       bool bFoundUndefinedVars = false;
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars, pLog](const ezPreprocessor::ProcessingEvent& e)
         {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error(pLog, "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         } });
 
       ezStringBuilder sOutput;
@@ -431,13 +464,13 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars, pLog](const ezPreprocessor::ProcessingEvent& e)
         {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error(pLog, "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         } });
 
       EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(s_szStageDefines[stage]));
@@ -504,6 +537,40 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
     {
       WriteFailedShaderSource(spd, pLog);
       return EZ_FAILURE;
+    }
+
+    ezTempHashedString sMaterialConstants("ezMaterialConstants");
+    ezTempHashedString sMaterialData("materialData");
+    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      if (!spd.m_ByteCode[stage])
+        continue;
+
+      for (const ezShaderResourceBinding& binding : spd.m_ByteCode[stage]->m_ShaderResourceBindings)
+      {
+        if (binding.m_sName == sMaterialConstants)
+        {
+          if (sFile.EndsWith(".autogen.ezShader"))
+          {
+            ezLog::Error(pLog, "Compiled {} references a ezMaterialConstants buffer in the reflection. As this is a Visual Shader, please re-transform your material asset. File: {}", ezGALShaderStage::Names[stage], sFile);
+          }
+          else
+          {
+            ezLog::Error(pLog, "Compiled {} references a ezMaterialConstants buffer in the reflection. Please port your material shader to the new [MATERIALCONSTANTS] section. File: {}", ezGALShaderStage::Names[stage], sFile);
+          }
+
+          return EZ_FAILURE;
+        }
+
+        if (binding.m_sName != sMaterialData || !m_MaterialBufferLayout)
+          continue;
+
+        if (binding.m_pLayout && *binding.m_pLayout != *m_MaterialBufferLayout)
+        {
+          ezLog::Error(pLog, "Compiled {}'s layout of ezMaterialConstants struct differs from the parsed result via ezShaderParser::ParseMaterialConstantsSection / LayoutMaterialConstants. Either ifdefs where used in the [MATERIALCONSTANTS], unsupported macros where used or one of the functions is bugged. File: {}", ezGALShaderStage::Names[stage], sFile);
+          return EZ_FAILURE;
+        }
+      }
     }
 
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)

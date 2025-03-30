@@ -1,11 +1,11 @@
-#include <GameEngineTest/GameEngineTestPCH.h>
-
+#include <RendererTest/RendererTestPCH.h>
 
 #include <RendererFoundation/Utils/RingBufferTracker.h>
+#include <RendererTest/TestClass/SimpleRendererTest.h>
 
-EZ_CREATE_SIMPLE_TEST_GROUP(DataStructures);
+EZ_CREATE_SIMPLE_RENDERER_TEST_GROUP(DataStructures)
 
-EZ_CREATE_SIMPLE_TEST(DataStructures, RingBufferTracker)
+EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, RingBufferTracker)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Allocate entire buffer")
   {

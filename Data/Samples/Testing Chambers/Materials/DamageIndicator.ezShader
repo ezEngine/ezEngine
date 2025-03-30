@@ -34,14 +34,12 @@ RenderDataCategory = SimpleTransparent;
 [SHADER]
 #define USE_TEXCOORD0
 
-#include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
+[MATERIALCONSTANTS]
+
   COLOR4F(BaseColor);
   FLOAT1(NoiseStrength);
   FLOAT1(NoiseBias);
-};
 
 [VERTEXSHADER]
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -72,7 +70,7 @@ Texture2D NoiseTexture;
 
 float3 GetDiffuseColor()
 {
-  return BaseColor.rgb * GetInstanceData().Color.rgb;
+  return GetMaterialData(BaseColor).rgb * GetInstanceData().Color.rgb;
 }
 
 float GetOpacity()
@@ -80,8 +78,8 @@ float GetOpacity()
   float fade = saturate(length(G.Input.TexCoord0.xy - 0.5) - 0.2);
   
   float noise = NoiseTexture.Sample(LinearSampler, G.Input.TexCoord0).r;
-  fade = saturate(fade + (noise + NoiseBias) * NoiseStrength);
+  fade = saturate(fade + (noise + GetMaterialData(NoiseBias)) * GetMaterialData(NoiseStrength));
   fade = fade * fade;
   
-  return BaseColor.a * fade * GetInstanceData().Color.a;
+  return GetMaterialData(BaseColor).a * fade * GetInstanceData().Color.a;
 }

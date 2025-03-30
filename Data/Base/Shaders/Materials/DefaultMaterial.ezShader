@@ -57,6 +57,21 @@ Texture2D EmissiveTexture;
 
 #include <Shaders/Materials/MaterialState.h>
 
+[MATERIALCONSTANTS]
+
+  COLOR4F(BaseColor);
+  COLOR4F(EmissiveColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseNormalTexture);
+  BOOL1(UseRoughnessTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseEmissiveTexture);
+  BOOL1(UseOcclusionTexture);
+  BOOL1(UseOrmTexture);
+
 [VERTEXSHADER]
 
 #define USE_NORMAL
@@ -71,7 +86,6 @@ Texture2D EmissiveTexture;
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -114,7 +128,6 @@ VS_OUT main(VS_IN Input)
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
@@ -143,7 +156,7 @@ Texture2D DitherNoiseTexture;
 float3 GetNormal()
 {
   [branch]
-  if (UseNormalTexture)
+  if (GetMaterialData(UseNormalTexture))
   {
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
     return TangentToWorldSpace(normalTS);
@@ -156,7 +169,7 @@ float3 GetNormal()
 
 float3 GetBaseColor()
 {
-  float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
+  float3 baseColor = GetMaterialData(BaseColor).rgb * GetInstanceData().Color.rgb;
 
   // note that the default material actually doesn't support per-vertex colors
 #if defined(USE_COLOR0)  
@@ -164,7 +177,7 @@ float3 GetBaseColor()
 #endif
 
   [branch]
-  if (UseBaseTexture)
+  if (GetMaterialData(UseBaseTexture))
   {
     baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
   }
@@ -175,17 +188,17 @@ float3 GetBaseColor()
 float GetMetallic()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
     return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).b;
   }
-  else if (UseMetallicTexture)
+  else if (GetMaterialData(UseMetallicTexture))
   {
     return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
-    return MetallicValue;
+    return GetMaterialData(MetallicValue);
   }
 }
 
@@ -197,32 +210,32 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
-    return RoughnessValue * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+    return GetMaterialData(RoughnessValue) * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
   }
-  else if (UseRoughnessTexture)
+  else if (GetMaterialData(UseRoughnessTexture))
   {
-    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return GetMaterialData(RoughnessValue) * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
-    return RoughnessValue;
+    return GetMaterialData(RoughnessValue);
   }
 }
 
 float GetOpacity()
 {
-  float opacity = BaseColor.a * GetInstanceData().Color.a;
+  float opacity = GetMaterialData(BaseColor).a * GetInstanceData().Color.a;
 
   [branch]
-  if (UseBaseTexture)
+  if (GetMaterialData(UseBaseTexture))
   {
     opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
   }
 
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return opacity - MaskThreshold;
+    return opacity - GetMaterialData(MaskThreshold);
   #else
     return opacity;
   #endif
@@ -231,24 +244,24 @@ float GetOpacity()
 float3 GetEmissiveColor()
 {
   [branch]
-  if (UseEmissiveTexture)
+  if (GetMaterialData(UseEmissiveTexture))
   {
-    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * EmissiveColor.rgb;
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * GetMaterialData(EmissiveColor).rgb;
   }
   else
   {
-    return EmissiveColor.rgb;
+    return GetMaterialData(EmissiveColor).rgb;
   }
 }
 
 float GetOcclusion()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
     return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
-  else if (UseOcclusionTexture)
+  else if (GetMaterialData(UseOcclusionTexture))
   {
     return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }

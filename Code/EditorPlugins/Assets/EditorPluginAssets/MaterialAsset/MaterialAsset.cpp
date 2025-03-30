@@ -136,7 +136,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -914,7 +914,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
   // now generate the .ezBinMaterial file
   {
-    const ezUInt8 uiVersion = 7;
+    const ezUInt8 uiVersion = 8;
 
     inout_stream0 << uiVersion;
 
@@ -954,8 +954,9 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
       for (auto pProp : properties)
       {
-        if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
-          continue;
+        // Starting with version 8, we skip this check and are flattening all base classes into this material. This is effectively removing runtime inheritance of materials due to the high runtime cost of maintaining the inheritance.
+        //if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
+        //  continue;
 
         const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
 

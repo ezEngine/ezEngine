@@ -27,7 +27,6 @@ CullMode = CullMode_None
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BlurConstants.h"
 
 Texture2DArray Input;

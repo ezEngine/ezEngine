@@ -35,7 +35,7 @@ ezResult ezGameEngineTestKraut::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::TreeRendering)
   {
-    m_ImgCompFrames.PushBack(1);
+    m_ImgCompFrames.PushBack(3);
     m_ImgCompFrames.PushBack(60);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("PlatformWin/AssetCache/Common/Kraut/Kraut.ezBinScene"));

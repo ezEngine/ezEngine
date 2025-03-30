@@ -29,7 +29,9 @@ private:
   void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
 
   ezResult ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
+  ezShaderConstantBufferLayout* ReflectStructuredBufferLayout(ezStringView sName, const SpvReflectBlockVariable& block);
   ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezStringView sName, const SpvReflectBlockVariable& block);
+  ezShaderConstantBufferLayout* ReflectBufferLayout(const SpvReflectBlockVariable& block);
   ezResult FillResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   ezResult FillSRVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);
   ezResult FillUAVResourceBinding(ezShaderResourceBinding& binding, const SpvReflectDescriptorBinding& info);

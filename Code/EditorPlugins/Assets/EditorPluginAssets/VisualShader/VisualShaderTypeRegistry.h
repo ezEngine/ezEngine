@@ -50,6 +50,7 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sShaderCodePixelBody;
   ezString m_sShaderCodePermutations;
   ezString m_sShaderCodeMaterialParams;
+  ezString m_sShaderCodeMaterialConstants;
   ezString m_sShaderCodeMaterialCB;
   ezString m_sShaderCodeRenderState;
   ezString m_sShaderCodeVertexShader;

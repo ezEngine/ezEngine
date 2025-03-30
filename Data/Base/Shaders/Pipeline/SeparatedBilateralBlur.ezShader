@@ -27,7 +27,6 @@ CullMode = CullMode_None
 #include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BilateralBlurConstants.h"
 #include "Utils.h"
 

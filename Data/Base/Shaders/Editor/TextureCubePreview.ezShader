@@ -13,11 +13,19 @@ int ShowChannelMode;
 
 CullMode = CullMode_None
 
+[SHADER]
+
+#define USE_WORLDPOS
+#define USE_NORMAL
+
+[MATERIALCONSTANTS]
+
+  INT1(ShowChannelMode);
+  FLOAT1(LodLevel);
+  BOOL1(IsLinear);
+
 [VERTEXSHADER]
 
-#include <Shaders/Common/GlobalConstants.h>
-
-#define USE_NORMAL
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -27,18 +35,6 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-	INT1(ShowChannelMode);
-  FLOAT1(LodLevel);
-  BOOL1(IsLinear);
-};
-
-#define USE_WORLDPOS
-#define USE_NORMAL
-#include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 TextureCube BaseTexture;
@@ -54,11 +50,11 @@ float4 SampleTexture(PS_IN Input)
   float3 dir = CubeMapDirection(normal);
   //float3 dir = CubeMapDirection(reflect(viewDir, normal));
 
-  if (LodLevel < 0)
+  if (GetMaterialData(LodLevel) < 0)
   {
     return BaseTexture.Sample(BaseTexture_AutoSampler, dir);
   }
-  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, dir, LodLevel);
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, dir, GetMaterialData(LodLevel));
 }
 
 float4 main(PS_IN Input) : SV_Target
@@ -67,33 +63,33 @@ float4 main(PS_IN Input) : SV_Target
   float4 texel = SampleTexture(Input).rgba;
   float alpha = 1.0;
 
-  if (ShowChannelMode == 0)
+  if (GetMaterialData(ShowChannelMode) == 0)
   {
     color = texel.rgb;
     alpha = texel.a;
   }
-  else if (ShowChannelMode == 1)
+  else if (GetMaterialData(ShowChannelMode) == 1)
   {
     color = texel.rgb;
   }
-  else if (ShowChannelMode == 2)
+  else if (GetMaterialData(ShowChannelMode) == 2)
   {
     color = texel.r;
   }
-  else if (ShowChannelMode == 3)
+  else if (GetMaterialData(ShowChannelMode) == 3)
   {
     color = texel.g;
   }
-  else if (ShowChannelMode == 4)
+  else if (GetMaterialData(ShowChannelMode) == 4)
   {
     color = texel.b;
   }
-  else if (ShowChannelMode == 5)
+  else if (GetMaterialData(ShowChannelMode) == 5)
   {
     color = SrgbToLinear(texel.a); // alpha is always linear
   }
 
-  if (IsLinear && ShowChannelMode < 5)
+  if (GetMaterialData(IsLinear) && GetMaterialData(ShowChannelMode) < 5)
   {
     color = SrgbToLinear(color);
   }

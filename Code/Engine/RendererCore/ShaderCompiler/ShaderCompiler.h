@@ -23,6 +23,11 @@ public:
   /// \param out_platforms Filled with the platforms this compiler supports.
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& out_platforms) = 0;
 
+  /// \brief Returns the layout used for material buffers on the given platform
+  /// \param sPlatform The platform for which the layout is to be retrieved
+  /// \return an ezGALBufferLayout value.
+  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const = 0;
+
   /// Allows the shader compiler to modify the shader source before hashing and compiling. This allows it to implement custom features by injecting code before the compile process. Mostly used to define resource bindings that do not cause conflicts across shader stages.
   /// \param inout_data The state of the shader compiler. Only m_sShaderSource should be modified by the implementation.
   /// \param pLog Logging interface to be used when outputting any errors.
@@ -61,6 +66,7 @@ private:
 
   ezResult FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
+  ezSharedPtr<ezShaderConstantBufferLayout> m_MaterialBufferLayout;
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 
   ezTokenizedFileCache m_FileCache;

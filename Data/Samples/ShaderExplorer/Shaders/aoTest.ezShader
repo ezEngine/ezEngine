@@ -7,6 +7,10 @@ ALL
 DepthTest = false
 CullMode = CullMode_None
 
+[MATERIALCONSTANTS]
+
+  MAT4(ViewMatrix);
+
 [VERTEXSHADER]
 
 #include "Common.h"

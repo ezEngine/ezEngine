@@ -42,7 +42,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderConstant
 
   static ezUInt32 s_TypeSize[Type::ENUM_COUNT];
 
-  void CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const;
+  void CopyDataFormVariant(ezUInt8* pDest, const ezVariant* pValue) const;
 
   ezHashedString m_sName;
   ezEnum<Type> m_Type;
@@ -57,6 +57,8 @@ class EZ_RENDERERFOUNDATION_DLL ezShaderConstantBufferLayout : public ezRefCount
 public:
   ezUInt32 m_uiTotalSize = 0;
   ezHybridArray<ezShaderConstant, 16> m_Constants;
+  bool operator==(const ezShaderConstantBufferLayout& rhs) const;
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezShaderConstantBufferLayout&);
 };
 
 /// \brief Shader reflection of the vertex shader input.
@@ -83,7 +85,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
   ezInt16 m_iSlot = -1;                                       //< The slot under which the resource needs to be bound in the set.
   ezUInt32 m_uiArraySize = 1;                                 //< Number of array elements. Only 1 is currently supported. 0 if bindless.
   ezHashedString m_sName;                                     //< Name under which a resource must be bound to fulfill this resource binding.
-  ezScopedRefPointer<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer or PushConstants. #TODO_SHADER We could also support this for StructuredBuffer / StructuredBufferRW, but currently there is no use case for that.
+  ezScopedRefPointer<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer, PushConstants, StructuredBuffer, StructuredBufferRW.
 
   static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName);
 };

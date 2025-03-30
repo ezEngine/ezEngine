@@ -63,14 +63,6 @@ VERTEX_SKINNING=FALSE
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include <Shaders/Common/VisualShaderUtil.h>
 
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-  FLOAT1(MaskThreshold);
-  
-  // Insert custom Visual Shader parameters here
-  VSE_CONSTANTS
-}
-
 VS_OUT main(VS_IN Input)
 {
   return FillVertexData(Input);
@@ -153,16 +145,15 @@ float MaskThreshold @Default($prop0);
 
   string %CodePixelSamplers { "" }
   string %CodePixelConstants { "" }
-  string %CodePixelBody { "
-  
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
+  string %CodeMaterialConstants { "
+
   FLOAT1(MaskThreshold);
-  
   // Insert custom Visual Shader parameters here
   VSE_CONSTANTS
-}
+" }
 
+  string %CodePixelBody { "
+  
 float3 GetBaseColor()
 {
   return ToColor3($in0);
@@ -195,7 +186,7 @@ float GetRoughness()
 float GetOpacity()
 {
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return saturate(ToFloat1($in5)) - MaskThreshold;
+    return saturate(ToFloat1($in5)) - GetMaterialData(MaskThreshold);
   #else
     return saturate(ToFloat1($in5));
   #endif

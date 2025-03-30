@@ -1,11 +1,12 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/Material/MaterialResource.h>
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -18,6 +19,84 @@
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
+
+namespace
+{
+  template <typename Source, typename Target>
+  void CopyMaterialDesc(const Source& source, Target& target)
+  {
+    target.Clear();
+    target.Reserve(source.GetCount());
+    for (const auto& entry : source)
+    {
+      target.PushBack({entry.Key(), entry.Value()});
+    }
+  }
+
+  template <typename Property>
+  struct SetNameHelper
+  {
+    EZ_ALWAYS_INLINE void SetName(Property& prop, const char* szName) { prop.m_Name.Assign(szName); }
+    EZ_ALWAYS_INLINE void SetName(Property& prop, ezHashedString sName) { prop.m_Name = sName; }
+  };
+
+  template <typename Value, typename Property, typename Name>
+  Value GetProperty(ezDynamicArray<Property>& properties, Name sName)
+  {
+    for (ezUInt32 i = 0; i < properties.GetCount(); ++i)
+    {
+      if (properties[i].m_Name == sName)
+      {
+        return properties[i].m_Value;
+      }
+    }
+    return {};
+  }
+
+  template <typename Property, typename Name, typename Value, typename NameLookup>
+  bool SetProperty(ezDynamicArray<Property>& properties, const Name& sName, const Value& value, const NameLookup& sNameLookup)
+  {
+    SetNameHelper<Property> setNameHelper;
+    ezUInt32 uiIndex = ezInvalidIndex;
+    for (ezUInt32 i = 0; i < properties.GetCount(); ++i)
+    {
+      if (properties[i].m_Name == sNameLookup)
+      {
+        uiIndex = i;
+        break;
+      }
+    }
+
+    if (value.IsValid())
+    {
+      if (uiIndex != ezInvalidIndex)
+      {
+        if (properties[uiIndex].m_Value == value)
+        {
+          return false;
+        }
+
+        properties[uiIndex].m_Value = value;
+      }
+      else
+      {
+        auto& param = properties.ExpandAndGetRef();
+        setNameHelper.SetName(param, sName);
+        param.m_Value = value;
+      }
+    }
+    else
+    {
+      if (uiIndex == ezInvalidIndex)
+      {
+        return false;
+      }
+
+      properties.RemoveAtAndSwap(uiIndex);
+    }
+    return true;
+  }
+} // namespace
 
 void ezMaterialResourceDescriptor::Clear()
 {
@@ -51,357 +130,105 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMaterialResource);
 // clang-format on
 
-// clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, MaterialResource)
 
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation",
-    "Core"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_HIGHLEVELSYSTEMS_SHUTDOWN
-  {
-    ezMaterialResource::ClearCache();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION;
-// clang-format on
-
-ezDeque<ezMaterialResource::CachedValues> ezMaterialResource::s_CachedValues;
 
 ezMaterialResource::ezMaterialResource()
   : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
-  m_iLastUpdated = 0;
-  m_iLastConstantsUpdated = 0;
-  m_uiCacheIndex = ezInvalidIndex;
-  m_pCachedValues = nullptr;
-
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
 ezMaterialResource::~ezMaterialResource()
 {
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
+  ezMaterialManager::MaterialRemoved(this);
 }
 
 ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)
 {
-  auto pCachedValues = GetOrUpdateCachedValues();
-
-  ezHashedString sResult;
-  pCachedValues->m_PermutationVars.TryGetValue(sName, sResult);
-
-  return sResult;
+  for (ezUInt32 i = 0; i < m_mDesc.m_PermutationVars.GetCount(); ++i)
+  {
+    if (m_mDesc.m_PermutationVars[i].m_sName == sName)
+    {
+      return m_mDesc.m_PermutationVars[i].m_sValue;
+      break;
+    }
+  }
+  return {};
 }
 
 ezHashedString ezMaterialResource::GetSurface() const
 {
-  if (!m_mDesc.m_sSurface.IsEmpty())
-    return m_mDesc.m_sSurface;
-
-  if (m_mDesc.m_hBaseMaterial.IsValid())
-  {
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_mDesc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    return pBaseMaterial->GetSurface();
-  }
-
-  return ezHashedString();
+  return m_mDesc.m_sSurface;
 }
 
 void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVariant& value)
 {
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_Parameters.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_Parameters, sName, value, sName))
   {
-    if (m_mDesc.m_Parameters[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::Parameter);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      if (m_mDesc.m_Parameters[uiIndex].m_Value == value)
-      {
-        return;
-      }
-
-      m_mDesc.m_Parameters[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& param = m_mDesc.m_Parameters.ExpandAndGetRef();
-      param.m_Name = sName;
-      param.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex == ezInvalidIndex)
-    {
-      return;
-    }
-
-    m_mDesc.m_Parameters.RemoveAtAndSwap(uiIndex);
-  }
-
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 void ezMaterialResource::SetParameter(const char* szName, const ezVariant& value)
 {
   ezTempHashedString sName(szName);
-
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_Parameters.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_Parameters, szName, value, sName))
   {
-    if (m_mDesc.m_Parameters[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::Parameter);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      if (m_mDesc.m_Parameters[uiIndex].m_Value == value)
-      {
-        return;
-      }
-
-      m_mDesc.m_Parameters[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& param = m_mDesc.m_Parameters.ExpandAndGetRef();
-      param.m_Name.Assign(szName);
-      param.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex == ezInvalidIndex)
-    {
-      return;
-    }
-
-    m_mDesc.m_Parameters.RemoveAtAndSwap(uiIndex);
-  }
-
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 ezVariant ezMaterialResource::GetParameter(const ezTempHashedString& sName)
 {
-  auto pCachedValues = GetOrUpdateCachedValues();
-
-  ezVariant value;
-  pCachedValues->m_Parameters.TryGetValue(sName, value);
-
-  return value;
+  return GetProperty<ezVariant>(m_mDesc.m_Parameters, sName);
 }
 
 void ezMaterialResource::SetTexture2DBinding(const ezHashedString& sName, const ezTexture2DResourceHandle& value)
 {
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_Texture2DBindings.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_Texture2DBindings, sName, value, sName))
   {
-    if (m_mDesc.m_Texture2DBindings[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::Texture2D);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_Texture2DBindings[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& binding = m_mDesc.m_Texture2DBindings.ExpandAndGetRef();
-      binding.m_Name = sName;
-      binding.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_Texture2DBindings.RemoveAtAndSwap(uiIndex);
-    }
-  }
-
-  m_iLastModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 void ezMaterialResource::SetTexture2DBinding(const char* szName, const ezTexture2DResourceHandle& value)
 {
   ezTempHashedString sName(szName);
-
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_Texture2DBindings.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_Texture2DBindings, szName, value, sName))
   {
-    if (m_mDesc.m_Texture2DBindings[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::Texture2D);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_Texture2DBindings[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& binding = m_mDesc.m_Texture2DBindings.ExpandAndGetRef();
-      binding.m_Name.Assign(szName);
-      binding.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_Texture2DBindings.RemoveAtAndSwap(uiIndex);
-    }
-  }
-
-  m_iLastModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 ezTexture2DResourceHandle ezMaterialResource::GetTexture2DBinding(const ezTempHashedString& sName)
 {
-  auto pCachedValues = GetOrUpdateCachedValues();
-
-  // Use pointer to prevent ref counting
-  ezTexture2DResourceHandle* pBinding;
-  if (pCachedValues->m_Texture2DBindings.TryGetValue(sName, pBinding))
-  {
-    return *pBinding;
-  }
-
-  return ezTexture2DResourceHandle();
+  return GetProperty<ezTexture2DResourceHandle>(m_mDesc.m_Texture2DBindings, sName);
 }
-
 
 void ezMaterialResource::SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value)
 {
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_TextureCubeBindings.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_TextureCubeBindings, sName, value, sName))
   {
-    if (m_mDesc.m_TextureCubeBindings[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::TextureCube);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_TextureCubeBindings[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& binding = m_mDesc.m_TextureCubeBindings.ExpandAndGetRef();
-      binding.m_Name = sName;
-      binding.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_TextureCubeBindings.RemoveAtAndSwap(uiIndex);
-    }
-  }
-
-  m_iLastModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 void ezMaterialResource::SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value)
 {
   ezTempHashedString sName(szName);
-
-  ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_TextureCubeBindings.GetCount(); ++i)
+  if (SetProperty(m_mDesc.m_TextureCubeBindings, szName, value, sName))
   {
-    if (m_mDesc.m_TextureCubeBindings[i].m_Name == sName)
-    {
-      uiIndex = i;
-      break;
-    }
+    SetModified(DirtyFlags::TextureCube);
   }
-
-  if (value.IsValid())
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_TextureCubeBindings[uiIndex].m_Value = value;
-    }
-    else
-    {
-      auto& binding = m_mDesc.m_TextureCubeBindings.ExpandAndGetRef();
-      binding.m_Name.Assign(szName);
-      binding.m_Value = value;
-    }
-  }
-  else
-  {
-    if (uiIndex != ezInvalidIndex)
-    {
-      m_mDesc.m_TextureCubeBindings.RemoveAtAndSwap(uiIndex);
-    }
-  }
-
-  m_iLastModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
 }
 
 ezTextureCubeResourceHandle ezMaterialResource::GetTextureCubeBinding(const ezTempHashedString& sName)
 {
-  auto pCachedValues = GetOrUpdateCachedValues();
-
-  // Use pointer to prevent ref counting
-  ezTextureCubeResourceHandle* pBinding;
-  if (pCachedValues->m_TextureCubeBindings.TryGetValue(sName, pBinding))
-  {
-    return *pBinding;
-  }
-
-  return ezTextureCubeResourceHandle();
+  return GetProperty<ezTextureCubeResourceHandle>(m_mDesc.m_TextureCubeBindings, sName);
 }
 
 ezRenderData::Category ezMaterialResource::GetRenderDataCategory()
 {
-  auto pCachedValues = GetOrUpdateCachedValues();
-  return pCachedValues->m_RenderDataCategory;
+  return m_mDesc.m_RenderDataCategory;
 }
 
 void ezMaterialResource::PreserveCurrentDesc()
@@ -415,10 +242,7 @@ void ezMaterialResource::ResetResource()
   {
     m_mDesc = m_mOriginalDesc;
 
-    m_iLastModified.Increment();
-    m_iLastConstantsModified.Increment();
-
-    m_ModifiedEvent.Broadcast(this);
+    SetModified(DirtyFlags::ResourceReset);
   }
 }
 
@@ -446,29 +270,8 @@ const char* ezMaterialResource::GetDefaultMaterialFileName(DefaultMaterialType m
 
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
-  if (m_mDesc.m_hBaseMaterial.IsValid())
-  {
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_mDesc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
-
-    auto d = ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this);
-    if (pBaseMaterial->m_ModifiedEvent.HasEventHandler(d))
-    {
-      pBaseMaterial->m_ModifiedEvent.RemoveEventHandler(d);
-    }
-  }
-
   m_mDesc.Clear();
   m_mOriginalDesc.Clear();
-
-  if (!m_hConstantBufferStorage.IsInvalidated())
-  {
-    ezRenderContext::DeleteConstantBufferStorage(m_hConstantBufferStorage);
-    m_hConstantBufferStorage.Invalidate();
-  }
-
-  DeallocateCache(m_uiCacheIndex);
-  m_uiCacheIndex = ezInvalidIndex;
-  m_pCachedValues = nullptr;
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -480,6 +283,8 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 
 ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStream)
 {
+  // Setting all dirty flags here outside of SetModified prevents the setters being used from calling into the ezMaterialManager before the resource is fully loaded.
+  m_DirtyFlags.SetValue(DirtyFlags::ResourceCreation);
   m_mDesc.Clear();
   m_mOriginalDesc.Clear();
 
@@ -497,6 +302,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
   ezStringBuilder sAbsFilePath;
   (*pOuterStream) >> sAbsFilePath;
 
+  ezUInt8 uiVersion = 0;
   if (sAbsFilePath.HasExtension("ezBinMaterial"))
   {
     ezStringBuilder sTemp, sTemp2;
@@ -504,9 +310,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
     ezAssetFileHeader AssetHash;
     AssetHash.Read(*pOuterStream).IgnoreResult();
 
-    ezUInt8 uiVersion = 0;
     (*pOuterStream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Unknown ezBinMaterial version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 8, "Unknown ezBinMaterial version {0}", uiVersion);
 
     ezUInt8 uiCompressionMode = 0;
     if (uiVersion >= 6)
@@ -790,39 +595,34 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
     ezLog::Error("Unknown material file type: '{}'", sAbsFilePath);
   }
 
-  if (m_mDesc.m_hBaseMaterial.IsValid())
+  if (uiVersion <= 8)
   {
-    // Block till the base material has been fully loaded to ensure that all parameters have their final value once this material is loaded.
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_mDesc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
-
-    if (!pBaseMaterial->m_ModifiedEvent.HasEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this)))
-    {
-      pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
-    }
+    // Flatten works on the original desc of the base material hierarchy and stores the end result in m_mDesc.
+    m_mOriginalDesc = m_mDesc;
+    FlattenOriginalDescHierarchy();
   }
+  // After loading, base material info is removed as everything is flattened into this material.
+  m_mDesc.m_hBaseMaterial.Invalidate();
+  EZ_ASSERT_DEBUG(m_mDesc.m_RenderDataCategory != ezInvalidRenderDataCategory, "FlattenHierarchy should have set a category and newer versions should have it serialized.");
 
   m_mOriginalDesc = m_mDesc;
 
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
-
+  // We add the material right away instead of during extraction / begin rendering to make sure the materialId can be used right away.
+  ezMaterialManager::MaterialAdded(this);
   return res;
 }
 
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
-                                            m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage()
+      + m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor)
 {
-  m_mDesc = descriptor;
   m_mOriginalDesc = descriptor;
 
   ezResourceLoadDesc res;
@@ -830,38 +630,17 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescripto
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
-  if (m_mDesc.m_hBaseMaterial.IsValid())
-  {
-    // Can't block here for the base material since this would result in a deadlock
-    ezResourceLock<ezMaterialResource> pBaseMaterial(m_mDesc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
-    pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
-  }
+  m_DirtyFlags = DirtyFlags::ResourceCreation;
+  FlattenOriginalDescHierarchy();
 
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
+  // After creation, base material info is removed as everything is flattened into this material.
+  m_mDesc.m_hBaseMaterial.Invalidate();
+  EZ_ASSERT_DEBUG(m_mDesc.m_RenderDataCategory != ezInvalidRenderDataCategory, "FlattenHierarchy should have set a category");
+  m_mOriginalDesc = m_mDesc;
 
+  // We add the material right away instead of during extraction / begin rendering to make sure the materialId can be used right away.
+  ezMaterialManager::MaterialAdded(this);
   return res;
-}
-
-void ezMaterialResource::OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial)
-{
-  EZ_ASSERT_DEV(m_mDesc.m_hBaseMaterial == pModifiedMaterial, "Implementation error");
-
-  m_iLastModified.Increment();
-  m_iLastConstantsModified.Increment();
-
-  m_ModifiedEvent.Broadcast(this);
-}
-
-void ezMaterialResource::OnResourceEvent(const ezResourceEvent& resourceEvent)
-{
-  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUpdated)
-    return;
-
-  if (m_pCachedValues != nullptr && m_pCachedValues->m_hShader == resourceEvent.m_pResource)
-  {
-    m_iLastConstantsModified.Increment();
-  }
 }
 
 void ezMaterialResource::AddPermutationVar(ezStringView sName, ezStringView sValue)
@@ -876,78 +655,27 @@ void ezMaterialResource::AddPermutationVar(ezStringView sName, ezStringView sVal
     ezPermutationVar& pv = m_mDesc.m_PermutationVars.ExpandAndGetRef();
     pv.m_sName = sNameHashed;
     pv.m_sValue = sValueHashed;
+    m_mDesc.m_PermutationVars.PushBack(pv);
   }
+  SetModified(DirtyFlags::PermutationVar);
 }
 
-bool ezMaterialResource::IsModified()
+void ezMaterialResource::SetModified(ezMaterialResource::DirtyFlags::Enum flag)
 {
-  return m_iLastModified != m_iLastUpdated;
-}
-
-bool ezMaterialResource::AreConstantsModified()
-{
-  return m_iLastConstantsModified != m_iLastConstantsUpdated;
-}
-
-void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation)
-{
-  if (pShaderPermutation == nullptr)
-    return;
-
-  const ezGALShader* pShader = ezGALDevice::GetDefaultDevice()->GetShader(pShaderPermutation->GetGALShader());
-  if (pShader == nullptr)
-    return;
-
-  ezTempHashedString sConstantBufferName("ezMaterialConstants");
-
-  const ezShaderResourceBinding* pBinding = pShader->GetShaderResourceBinding(sConstantBufferName);
-  const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout : nullptr;
-  if (pLayout == nullptr)
-    return;
-
-  auto pCachedValues = GetOrUpdateCachedValues();
-
-  m_iLastConstantsUpdated = m_iLastConstantsModified;
-
-  if (m_hConstantBufferStorage.IsInvalidated())
+  bool bAlreadyModified = m_DirtyFlags.IsAnyFlagSet();
+  m_DirtyFlags |= flag;
+  if (!bAlreadyModified)
   {
-    m_hConstantBufferStorage = ezRenderContext::CreateConstantBufferStorage(pLayout->m_uiTotalSize);
+    ezMaterialManager::MaterialModified(GetResourceHandle());
   }
-
-  ezConstantBufferStorageBase* pStorage = nullptr;
-  if (ezRenderContext::TryGetConstantBufferStorage(m_hConstantBufferStorage, pStorage))
-  {
-    ezArrayPtr<ezUInt8> data = pStorage->GetRawDataForWriting();
-    if (data.GetCount() != pLayout->m_uiTotalSize)
-    {
-      ezRenderContext::DeleteConstantBufferStorage(m_hConstantBufferStorage);
-      m_hConstantBufferStorage = ezRenderContext::CreateConstantBufferStorage(pLayout->m_uiTotalSize);
-
-      EZ_VERIFY(ezRenderContext::TryGetConstantBufferStorage(m_hConstantBufferStorage, pStorage), "");
-    }
-
-    for (auto& constant : pLayout->m_Constants)
-    {
-      if (constant.m_uiOffset + ezShaderConstant::s_TypeSize[constant.m_Type.GetValue()] <= data.GetCount())
-      {
-        ezUInt8* pDest = &data[constant.m_uiOffset];
-
-        ezVariant* pValue = nullptr;
-        pCachedValues->m_Parameters.TryGetValue(constant.m_sName, pValue);
-
-        constant.CopyDataFormVariant(pDest, pValue);
-      }
-    }
-  }
+  m_ModifiedEvent.Broadcast(this);
 }
 
-ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
+
+void ezMaterialResource::FlattenOriginalDescHierarchy()
 {
-  if (!IsModified())
-  {
-    EZ_ASSERT_DEV(m_pCachedValues != nullptr, "");
-    return m_pCachedValues;
-  }
+  EZ_ASSERT_DEBUG(!m_FlattenMutex.IsLocked(), "");
+  EZ_LOCK(m_FlattenMutex);
 
   ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
   ezMaterialResource* pCurrentMaterial = this;
@@ -956,7 +684,7 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
   {
     materialHierarchy.PushBack(pCurrentMaterial);
 
-    const ezMaterialResourceHandle& hBaseMaterial = pCurrentMaterial->m_mDesc.m_hBaseMaterial;
+    const ezMaterialResourceHandle& hBaseMaterial = pCurrentMaterial->m_mOriginalDesc.m_hBaseMaterial;
     if (!hBaseMaterial.IsValid())
       break;
 
@@ -972,153 +700,87 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
     materialHierarchy[i] = nullptr;
   });
 
-  EZ_LOCK(m_UpdateCacheMutex);
-
-  if (!IsModified())
+  struct FlattenedMaterial
   {
-    EZ_ASSERT_DEV(m_pCachedValues != nullptr, "");
-    return m_pCachedValues;
-  }
-
-  m_pCachedValues = AllocateCache(m_uiCacheIndex);
+    ezShaderResourceHandle m_hShader;
+    ezHashedString m_sSurface;
+    ezHashTable<ezHashedString, ezHashedString> m_PermutationVars;
+    ezHashTable<ezHashedString, ezVariant> m_Parameters;
+    ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
+    ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+    ezRenderData::Category m_RenderDataCategory;
+  } flattenedMaterial;
 
   // set state of parent material first
   for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0;)
   {
     ezMaterialResource* pMaterial = materialHierarchy[i];
-    const ezMaterialResourceDescriptor& desc = pMaterial->m_mDesc;
+    const ezMaterialResourceDescriptor& desc = pMaterial->m_mOriginalDesc;
 
     if (desc.m_hShader.IsValid())
-      m_pCachedValues->m_hShader = desc.m_hShader;
+      flattenedMaterial.m_hShader = desc.m_hShader;
+
+    if (!desc.m_sSurface.IsEmpty())
+      flattenedMaterial.m_sSurface = desc.m_sSurface;
 
     for (const auto& permutationVar : desc.m_PermutationVars)
     {
-      m_pCachedValues->m_PermutationVars.Insert(permutationVar.m_sName, permutationVar.m_sValue);
+      flattenedMaterial.m_PermutationVars.Insert(permutationVar.m_sName, permutationVar.m_sValue);
     }
 
     for (const auto& param : desc.m_Parameters)
     {
-      m_pCachedValues->m_Parameters.Insert(param.m_Name, param.m_Value);
+      flattenedMaterial.m_Parameters.Insert(param.m_Name, param.m_Value);
     }
 
     for (const auto& textureBinding : desc.m_Texture2DBindings)
     {
-      m_pCachedValues->m_Texture2DBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
+      flattenedMaterial.m_Texture2DBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
 
     for (const auto& textureBinding : desc.m_TextureCubeBindings)
     {
-      m_pCachedValues->m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
+      flattenedMaterial.m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
 
     if (desc.m_RenderDataCategory != ezInvalidRenderDataCategory)
     {
-      m_pCachedValues->m_RenderDataCategory = desc.m_RenderDataCategory;
+      flattenedMaterial.m_RenderDataCategory = desc.m_RenderDataCategory;
     }
   }
 
-  if (m_pCachedValues->m_RenderDataCategory == ezInvalidRenderDataCategory)
+  if (flattenedMaterial.m_RenderDataCategory == ezInvalidRenderDataCategory)
   {
     ezHashedString sBlendModeValue;
-    if (m_pCachedValues->m_PermutationVars.TryGetValue("BLEND_MODE", sBlendModeValue))
+    if (flattenedMaterial.m_PermutationVars.TryGetValue("BLEND_MODE", sBlendModeValue))
     {
       if (sBlendModeValue == ezTempHashedString("BLEND_MODE_OPAQUE"))
       {
-        m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
+        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
       }
       else if (sBlendModeValue == ezTempHashedString("BLEND_MODE_MASKED") || sBlendModeValue == ezTempHashedString("BLEND_MODE_DITHERED"))
       {
-        m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitMasked;
+        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitMasked;
       }
       else
       {
-        m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitTransparent;
+        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitTransparent;
       }
     }
     else
     {
-      m_pCachedValues->m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
+      flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
     }
   }
 
-  m_iLastUpdated = m_iLastModified;
-  return m_pCachedValues;
-}
-
-namespace
-{
-  static ezMutex s_MaterialCacheMutex;
-
-  struct FreeCacheEntry
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezUInt32 m_uiIndex;
-    ezUInt64 m_uiFrame;
-  };
-
-  static ezDynamicArray<FreeCacheEntry, ezStaticsAllocatorWrapper> s_FreeMaterialCacheEntries;
-} // namespace
-
-void ezMaterialResource::CachedValues::Reset()
-{
-  m_hShader.Invalidate();
-  m_PermutationVars.Clear();
-  m_Parameters.Clear();
-  m_Texture2DBindings.Clear();
-  m_TextureCubeBindings.Clear();
-  m_RenderDataCategory = ezInvalidRenderDataCategory;
-}
-
-// static
-ezMaterialResource::CachedValues* ezMaterialResource::AllocateCache(ezUInt32& inout_uiCacheIndex)
-{
-  EZ_LOCK(s_MaterialCacheMutex);
-
-  ezUInt32 uiOldCacheIndex = inout_uiCacheIndex;
-
-  ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
-  if (!s_FreeMaterialCacheEntries.IsEmpty() && s_FreeMaterialCacheEntries[0].m_uiFrame < uiCurrentFrame)
-  {
-    inout_uiCacheIndex = s_FreeMaterialCacheEntries[0].m_uiIndex;
-    s_FreeMaterialCacheEntries.RemoveAtAndCopy(0);
-  }
-  else
-  {
-    inout_uiCacheIndex = s_CachedValues.GetCount();
-    s_CachedValues.ExpandAndGetRef();
-  }
-
-  DeallocateCache(uiOldCacheIndex);
-
-  return &s_CachedValues[inout_uiCacheIndex];
-}
-
-// static
-void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
-{
-  if (uiCacheIndex != ezInvalidIndex)
-  {
-    EZ_LOCK(s_MaterialCacheMutex);
-
-    if (uiCacheIndex < s_CachedValues.GetCount())
-    {
-      s_CachedValues[uiCacheIndex].Reset();
-
-      auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
-      freeEntry.m_uiIndex = uiCacheIndex;
-      freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
-    }
-  }
-}
-
-// static
-void ezMaterialResource::ClearCache()
-{
-  EZ_LOCK(s_MaterialCacheMutex);
-
-  s_CachedValues.Clear();
-  s_FreeMaterialCacheEntries.Clear();
+  m_mDesc.m_hBaseMaterial.Invalidate();
+  m_mDesc.m_sSurface = flattenedMaterial.m_sSurface;
+  m_mDesc.m_hShader = flattenedMaterial.m_hShader;
+  m_mDesc.m_RenderDataCategory = flattenedMaterial.m_RenderDataCategory;
+  CopyMaterialDesc(flattenedMaterial.m_PermutationVars, m_mDesc.m_PermutationVars);
+  CopyMaterialDesc(flattenedMaterial.m_Parameters, m_mDesc.m_Parameters);
+  CopyMaterialDesc(flattenedMaterial.m_Texture2DBindings, m_mDesc.m_Texture2DBindings);
+  CopyMaterialDesc(flattenedMaterial.m_TextureCubeBindings, m_mDesc.m_TextureCubeBindings);
 }
 
 const ezMaterialResourceDescriptor& ezMaterialResource::GetCurrentDesc() const

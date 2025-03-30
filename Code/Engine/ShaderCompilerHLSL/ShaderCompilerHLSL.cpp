@@ -321,7 +321,17 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
     }
     else if (std.Class == D3D_SVC_STRUCT)
     {
-      continue;
+      constant.m_Type = ezShaderConstant::Type::Struct;
+      if (svd.Size == 48 && std.Members == 3)
+      {
+        ezStringView sMember0 = pVar->GetType()->GetMemberTypeName(0);
+        ezStringView sMember1 = pVar->GetType()->GetMemberTypeName(1);
+        ezStringView sMember2 = pVar->GetType()->GetMemberTypeName(2);
+        if (sMember0 == "r0" && sMember1 == "r1" && sMember2 == "r2")
+        {
+          constant.m_Type = ezShaderConstant::Type::Transform;
+        }
+      }
     }
 
     if (constant.m_Type == ezShaderConstant::Type::Default)

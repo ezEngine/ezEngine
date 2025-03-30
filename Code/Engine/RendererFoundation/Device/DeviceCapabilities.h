@@ -36,6 +36,19 @@ struct ezGALResourceFormatSupport
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALResourceFormatSupport);
 
+struct ezGALBufferLayout
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Vulkan_Std140_relaxed, // Vulkan uniform buffer
+    Vulkan_Std430_relaxed, // Vulkan structured buffer
+    DirectX_ConstantButter,
+    DirectX_StructuredButter,
+    Default = DirectX_ConstantButter
+  };
+};
+
 /// \brief This struct holds information about the rendering device capabilities (e.g. what shader stages are supported and more)
 /// To get the device capabilities you need to call the GetCapabilities() function on an ezGALDevice object.
 struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
@@ -50,6 +63,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   // General capabilities
   bool m_bSupportsMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
   bool m_bSupportsNoOverwriteBufferUpdate = false;
+  ezEnum<ezGALBufferLayout> m_MaterialBufferLayout;
 
   // Draw related capabilities
   bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT] = {};

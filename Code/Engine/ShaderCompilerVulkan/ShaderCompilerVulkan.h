@@ -13,4 +13,9 @@ public:
   {
     out_platforms.PushBack("VULKAN");
   }
+
+  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const override
+  {
+    return ezGALBufferLayout::Vulkan_Std430_relaxed;
+  }
 };

@@ -379,7 +379,7 @@ private: // Per Renderer States
   void SetShaderPermutationVariableInternal(const ezHashedString& sName, const ezHashedString& sValue);
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
-  ezMaterialResource* ApplyMaterialState();
+  void ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezGALShader* pShader);
   void ApplyTextureBindings(const ezGALShader* pShader);
   void ApplyUAVBindings(const ezGALShader* pShader);

@@ -16,6 +16,14 @@
     [[vk::push_constant]] EZ_PP_CONCAT(Name, _PushConstants) Name;
 #  define GET_PUSH_CONSTANT(Name, Constant) Name.Constant
 
+#  define BEGIN_MATERIAL_CONSTANTS struct ezMaterialConstants
+#  define END_MATERIAL_CONSTANTS \
+    ;                            \
+    StructuredBuffer<ezMaterialConstants> materialData;
+// #TODO_MATERIAL Right now, there is an individual structured buffer for each material, which is way we always sample at index 0.
+// Thus is until we have refactored the high level renderer to actually have a place to store the material index and use one single structured buffer + index.
+#  define GetMaterialData(x) materialData[0].x
+
 #  define SUPPORTS_TEXEL_BUFFER EZ_ON
 #  define SUPPORTS_MSAA_ARRAYS EZ_ON
 

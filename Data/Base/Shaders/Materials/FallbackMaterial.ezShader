@@ -18,13 +18,16 @@ MSAA = FALSE
 
 #include <Shaders/Materials/MaterialState.h>
 
+[MATERIALCONSTANTS]
+
+  COLOR4F(BaseColor);
+
 [VERTEXSHADER]
 
 #if defined(WGSL) && TOPOLOGY == TOPOLOGY_TRIANGLES
   #define USE_NORMAL
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -87,7 +90,6 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
   #define USE_NORMAL
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
@@ -105,9 +107,9 @@ float3 GetNormal()
 float3 GetDiffuseColor()
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition + 0.5, 1.0).rgb * BaseColor.rgb;
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition + 0.5, 1.0).rgb * GetMaterialData(BaseColor).rgb;
   #else
-    return float3(0.5, 0.5, 0.5) * BaseColor.rgb;
+    return float3(0.5, 0.5, 0.5) * GetMaterialData(BaseColor).rgb;
   #endif
 }
 

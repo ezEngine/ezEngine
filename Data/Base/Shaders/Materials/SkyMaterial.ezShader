@@ -30,19 +30,14 @@ Color BaseColor @Default(Color(1.0, 1.0, 1.0));
 
 DepthWrite = false
 
-[SHADER]
+[MATERIALCONSTANTS]
 
-#include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
   COLOR4F(BaseColor);
   FLOAT1(MaskThreshold);
   FLOAT1(ExposureBias);
   BOOL1(InverseTonemap);
   BOOL1(UseFog);
   FLOAT1(VirtualDistance);
-};
 
 [VERTEXSHADER]
 
@@ -94,10 +89,10 @@ float3 GetDiffuseColor()
 {
   float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).rgb;
 
-  color *= BaseColor.rgb;
-  float weight = exp2(ExposureBias);
+  color *= GetMaterialData(BaseColor).rgb;
+  float weight = exp2(GetMaterialData(ExposureBias));
 
-  if (InverseTonemap)
+  if (GetMaterialData(InverseTonemap))
   {
     float luminance = GetLuminance(color);
     weight *= rcp(max(1.0f - luminance, 0.001f));
@@ -105,9 +100,9 @@ float3 GetDiffuseColor()
 
   color *= weight;
 
-  if (UseFog)
+  if (GetMaterialData(UseFog))
   {
-    float3 worldPos = normalize(G.Input.ViewDirection) * VirtualDistance;
+    float3 worldPos = normalize(G.Input.ViewDirection) * GetMaterialData(VirtualDistance);
     color = ApplyFog(color, worldPos);
   }
 
@@ -126,10 +121,10 @@ float GetRoughness()
 
 float GetOpacity()
 {
-  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).a * BaseColor.a;
+  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).a * GetMaterialData(BaseColor).a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return opacity - MaskThreshold;
+    return opacity - GetMaterialData(MaskThreshold);
   #else
     return opacity;
   #endif

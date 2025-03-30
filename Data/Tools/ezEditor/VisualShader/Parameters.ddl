@@ -21,7 +21,7 @@ Node %Parameter1f
   OutputPin %Value
   {
     string %Type { "float" }
-    string %Inline { "$prop0" }
+    string %Inline { "GetMaterialData($prop0)" }
   }
 }
 
@@ -48,7 +48,7 @@ Node %Parameter2f
   OutputPin %Value
   {
     string %Type { "float2" }
-    string %Inline { "$prop0" }
+    string %Inline { "GetMaterialData($prop0)" }
   }
 }
 
@@ -75,7 +75,7 @@ Node %Parameter3f
   OutputPin %Value
   {
     string %Type { "float3" }
-    string %Inline { "$prop0" }
+    string %Inline { "GetMaterialData($prop0)" }
   }
 }
 
@@ -103,7 +103,7 @@ Node %Parameter4f
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "$prop0" }
+    string %Inline { "GetMaterialData($prop0)" }
   }
 }
 
@@ -131,6 +131,6 @@ Node %ParameterColor
   {
     string %Type { "color" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "$prop0" }
+    string %Inline { "GetMaterialData($prop0)" }
   }
 }
