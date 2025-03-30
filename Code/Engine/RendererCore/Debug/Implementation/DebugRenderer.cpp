@@ -2016,6 +2016,7 @@ void ezDebugRenderer::OnEngineStartup()
   }
 
   {
+    // BEGIN-DOCS-CODE-SNIPPET: resource-management-create
     ezGeometry geom;
     geom.AddBox(ezVec3(2.0f), false);
 
@@ -2024,6 +2025,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", std::move(desc), "Mesh for Rendering Debug Solid Boxes");
+    // END-DOCS-CODE-SNIPPET
   }
 
   {

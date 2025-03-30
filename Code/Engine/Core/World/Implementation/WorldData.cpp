@@ -105,7 +105,10 @@ namespace ezInternal
 
     m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
 
+    // BEGIN-DOCS-CODE-SNIPPET: resource-management-listen-all
+    // Listening to all resource events
     ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+    // END-DOCS-CODE-SNIPPET
   }
 
   WorldData::~WorldData()
