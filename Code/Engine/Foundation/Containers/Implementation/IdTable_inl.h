@@ -171,6 +171,12 @@ EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableB
 }
 
 template <typename IdType, typename ValueType>
+EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableBase<IdType, ValueType>::GetCapacity() const
+{
+  return m_Capacity;
+}
+
+template <typename IdType, typename ValueType>
 EZ_ALWAYS_INLINE bool ezIdTableBase<IdType, ValueType>::IsEmpty() const
 {
   return m_Count == 0;

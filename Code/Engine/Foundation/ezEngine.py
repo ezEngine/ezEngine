@@ -300,7 +300,7 @@ class ezArrayPtrSynthProvider:
 
     def update(self):
         try:
-            self.m_ptr = self.valobj.GetChildMemberWithName('m_ptr')
+            self.m_ptr = self.valobj.GetChildMemberWithName('m_pPtr')
             self.m_uiCount = self.valobj.GetChildMemberWithName('m_uiCount')
             self.element_type = self.m_ptr.GetType().GetPointeeType()
             self.element_size = self.element_type.GetByteSize()

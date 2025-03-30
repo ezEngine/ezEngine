@@ -3,7 +3,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <TestFramework/Framework/TestFramework.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterSimpleTestHelper);
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterTestHelper);
 
 void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc testFunc)
 {

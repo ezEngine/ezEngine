@@ -36,10 +36,17 @@ private:
   std::deque<SimpleTestEntry> m_SimpleTests;
 };
 
-class EZ_TEST_DLL ezRegisterSimpleTestHelper : public ezEnumerable<ezRegisterSimpleTestHelper>
+class EZ_TEST_DLL ezRegisterTestHelper : public ezEnumerable<ezRegisterTestHelper>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterSimpleTestHelper);
+  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterTestHelper);
+public:
+  ezRegisterTestHelper() = default;
+  virtual ~ezRegisterTestHelper() = default;
+  virtual void RegisterTest() = 0;
+};
 
+class EZ_TEST_DLL ezRegisterSimpleTestHelper : public ezRegisterTestHelper
+{
 public:
   ezRegisterSimpleTestHelper(ezSimpleTestGroup* pTestGroup, const char* szTestName, ezSimpleTestGroup::SimpleTestFunc func)
   {
@@ -48,7 +55,7 @@ public:
     m_Func = func;
   }
 
-  void RegisterTest() { m_pTestGroup->AddSimpleTest(m_szTestName, m_Func); }
+  virtual void RegisterTest() override { m_pTestGroup->AddSimpleTest(m_szTestName, m_Func); }
 
 private:
   ezSimpleTestGroup* m_pTestGroup;

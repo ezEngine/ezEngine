@@ -27,6 +27,10 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     return;
   }
 
+  // Runtime created resources are not loaded via tasks but created on the stack directly.
+  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsCreatedResource))
+    return;
+
   EZ_PROFILE_SCOPE("InternalPreloadResource");
 
   EZ_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");

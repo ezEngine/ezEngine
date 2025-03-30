@@ -23,6 +23,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     ezIdTable<Id, ezInt32> table;
 
     EZ_TEST_BOOL(table.GetCount() == 0);
+    EZ_TEST_BOOL(table.GetCapacity() == 0);
     EZ_TEST_BOOL(table.IsEmpty());
 
     ezUInt32 counter = 0;
@@ -69,6 +70,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       EZ_TEST_INT(table1.GetCount(), 100);
       EZ_TEST_INT(table2.GetCount(), 100);
       EZ_TEST_INT(table3.GetCount(), 100);
+
+      EZ_TEST_BOOL(table1.GetCapacity() >= 100);
+      EZ_TEST_BOOL(table2.GetCapacity() >= 100);
+      EZ_TEST_BOOL(table3.GetCapacity() >= 100);
 
       ezUInt32 uiCounter = 0;
       for (ezIdTable<Id, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
@@ -162,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       EZ_TEST_BOOL(x.s == y.s);
     }
     EZ_TEST_INT(table.GetCount(), 100);
-
+    ezUInt32 uiCapacity = table.GetCapacity();
     Id ids[10] = {Id(13, 1), Id(0, 1), Id(16, 1), Id(34, 1), Id(56, 1), Id(57, 1), Id(79, 1), Id(85, 1), Id(91, 1), Id(97, 1)};
 
 
@@ -173,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       EZ_TEST_BOOL(!table.Contains(ids[i]));
     }
     EZ_TEST_INT(table.GetCount(), 90);
-
+    EZ_TEST_INT_MSG(table.GetCapacity(), uiCapacity, "Removing items should not decrease capacity");
     for (int i = 0; i < 40; i++)
     {
       TestObject x = {1000, "Bla. This is a very long string which does not fit into 32 byte and will cause memory allocations."};

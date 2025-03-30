@@ -54,32 +54,55 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(ezStr
 template <typename ResourceType, typename DescriptorType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription)
 {
+  return CreateResourceInternal<ResourceType, DescriptorType>(sResourceID, std::move(descriptor), sResourceDescription, false);
+}
+
+template <typename ResourceType, typename DescriptorType>
+ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResourceInternal(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription, bool bAllowGetFallback)
+{
   static_assert(std::is_rvalue_reference<DescriptorType&&>::value, "Please std::move the descriptor into this function");
 
+  ezTypedResourceHandle<ResourceType> hResource;
+  ResourceType* pResource = nullptr;
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", sResourceID);
+  {
+    EZ_LOCK(s_ResourceMutex);
+    // In this locked scope, we decide whether we are creating the resource or waiting for it to be created by someone else.
+    if (bAllowGetFallback)
+      hResource = GetExistingResource<ResourceType>(sResourceID);
 
-  EZ_LOCK(s_ResourceMutex);
+    if (!hResource.IsValid())
+    {
+      hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(sResourceID, false));
+      pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
+      pResource->SetResourceDescription(sResourceDescription);
+      pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
 
-  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(sResourceID, false));
+      EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
+    }
+  }
 
-  ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
-  pResource->SetResourceDescription(sResourceDescription);
-  pResource->m_Flags.Add(ezResourceFlags::IsCreatedResource);
+  if (!pResource)
+  {
+    // If we didn't acquire the resource yet, someone else already did so we just wait for them to finish creation.
+    pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
+    EndAcquireResource(pResource);
+    return hResource;
+  }
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
 
   // If this does not compile, you either passed in the wrong descriptor type for the given resource type
   // or you forgot to std::move the descriptor when calling CreateResource
+  auto localDescriptor = std::move(descriptor);
+  ezResourceLoadDesc ld = pResource->CreateResource(std::move(localDescriptor));
+
   {
-    auto localDescriptor = std::move(descriptor);
-    ezResourceLoadDesc ld = pResource->CreateResource(std::move(localDescriptor));
+    EZ_LOCK(s_ResourceMutex);
     pResource->VerifyAfterCreateResource(ld);
+    EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
   }
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
-
   EndAcquireResource(pResource);
-
   return hResource;
 }
 
@@ -87,14 +110,7 @@ template <typename ResourceType, typename DescriptorType>
 ezTypedResourceHandle<ResourceType>
 ezResourceManager::GetOrCreateResource(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription)
 {
-  EZ_LOCK(s_ResourceMutex);
-  ezTypedResourceHandle<ResourceType> hResource = GetExistingResource<ResourceType>(sResourceID);
-  if (!hResource.IsValid())
-  {
-    hResource = CreateResource<ResourceType, DescriptorType>(sResourceID, std::move(descriptor), sResourceDescription);
-  }
-
-  return hResource;
+  return CreateResourceInternal<ResourceType, DescriptorType>(sResourceID, std::move(descriptor), sResourceDescription, true);
 }
 
 EZ_FORCE_INLINE ezResource* ezResourceManager::BeginAcquireResourcePointer(const ezRTTI* pType, const ezTypelessResourceHandle& hResource)

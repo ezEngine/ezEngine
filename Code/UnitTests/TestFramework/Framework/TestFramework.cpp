@@ -249,7 +249,7 @@ void ezTestFramework::GatherAllTests()
 
   // first let all simple tests register themselves
   {
-    ezRegisterSimpleTestHelper* pHelper = ezRegisterSimpleTestHelper::GetFirstInstance();
+    ezRegisterTestHelper* pHelper = ezRegisterTestHelper::GetFirstInstance();
 
     while (pHelper)
     {
