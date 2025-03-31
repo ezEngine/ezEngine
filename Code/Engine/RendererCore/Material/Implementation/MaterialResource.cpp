@@ -615,8 +615,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage()
-      + m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+    sizeof(ezMaterialResource) + (ezUInt32)(m_mDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mDesc.m_Parameters.GetHeapMemoryUsage() + m_mDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mDesc.m_TextureCubeBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_PermutationVars.GetHeapMemoryUsage() + m_mOriginalDesc.m_Parameters.GetHeapMemoryUsage() + m_mOriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() + m_mOriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }

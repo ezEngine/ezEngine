@@ -189,7 +189,7 @@ void ezShaderCompilerDXC::ConfigureDxcArgs(ezDynamicArray<ezStringWChar>& inout_
   inout_Args.PushBack(L"-spirv");
   inout_Args.PushBack(L"-fvk-use-dx-position-w");
   inout_Args.PushBack(L"-fspv-target-env=vulkan1.1");
-  //inout_Args.PushBack(L"-fvk-use-dx-layout");
+  // inout_Args.PushBack(L"-fvk-use-dx-layout");
 }
 
 ezResult ezShaderCompilerDXC::CompileSPIRVShader(ezStringView sFile, ezStringView sSource, bool bDebug, ezStringView sProfile, ezStringView sEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)

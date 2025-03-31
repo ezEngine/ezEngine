@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 class ezGALCommandEncoder;
 struct ezGALDeviceEvent;

@@ -119,33 +119,33 @@ private:
 
 public:
   struct DirtyFlags
-   {
-     using StorageType = ezUInt8;
+  {
+    using StorageType = ezUInt8;
 
-     enum Enum
-     {
-       Parameter = EZ_BIT(0),
-       Texture2D = EZ_BIT(1),
-       TextureCube = EZ_BIT(2),
-       PermutationVar = EZ_BIT(3),
-       ShaderAndId = EZ_BIT(4),
-       ResourceReset = Parameter | Texture2D | TextureCube | PermutationVar,
-       ResourceCreation = ResourceReset | ShaderAndId,
-       Default = 0
-     };
+    enum Enum
+    {
+      Parameter = EZ_BIT(0),
+      Texture2D = EZ_BIT(1),
+      TextureCube = EZ_BIT(2),
+      PermutationVar = EZ_BIT(3),
+      ShaderAndId = EZ_BIT(4),
+      ResourceReset = Parameter | Texture2D | TextureCube | PermutationVar,
+      ResourceCreation = ResourceReset | ShaderAndId,
+      Default = 0
+    };
 
-     struct Bits
-     {
-       StorageType Parameter : 1;
-       StorageType Texture2D : 1;
-       StorageType TextureCube : 1;
-       StorageType PermutationVar : 1;
-       StorageType ShaderAndId : 1;
-       StorageType FlattenHierarchy : 1;
-     };
-   };
+    struct Bits
+    {
+      StorageType Parameter : 1;
+      StorageType Texture2D : 1;
+      StorageType TextureCube : 1;
+      StorageType PermutationVar : 1;
+      StorageType ShaderAndId : 1;
+      StorageType FlattenHierarchy : 1;
+    };
+  };
 
- private:
+private:
   friend class ezRenderContext;
   friend class ezMaterialManager;
 
@@ -161,7 +161,7 @@ private:
 
   // Dynamic data
   ezMaterialResourceDescriptor m_mDesc; // Current desc of the material. Contains any changes done after loading.
-  ezBitflags<DirtyFlags> m_DirtyFlags; // Flags indicating what has changed in m_mDesc this frame.
+  ezBitflags<DirtyFlags> m_DirtyFlags;  // Flags indicating what has changed in m_mDesc this frame.
 
   // ezMaterialManager registration
   ezShaderResourceHandle m_hShader;

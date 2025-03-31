@@ -2,9 +2,9 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <RendererTest/TestClass/TestClass.h>
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/SimpleTest.h>
-#include <RendererTest/TestClass/TestClass.h>
 
 class ezSimpleRendererTestGroup : public ezGraphicsTest
 {
@@ -54,9 +54,9 @@ private:
 
 #define EZ_CREATE_SIMPLE_RENDERER_TEST_GROUP(GroupName) ezSimpleRendererTestGroup EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName)(EZ_PP_STRINGIFY(GroupName));
 
-#define EZ_CREATE_SIMPLE_RENDERER_TEST(GroupName, TestName)                                                                             \
+#define EZ_CREATE_SIMPLE_RENDERER_TEST(GroupName, TestName)                                                                                    \
   extern ezSimpleRendererTestGroup EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName);                                                       \
-  static void ezSimpleRendererTestFunction__##GroupName##_##TestName();                                                                \
+  static void ezSimpleRendererTestFunction__##GroupName##_##TestName();                                                                        \
   ezRegisterSimpleRendererTestHelper ezRegisterSimpleRendererTest__##GroupName##TestName(                                                      \
     &EZ_PP_CONCAT(g_SimpleRendererTestGroup__, GroupName), EZ_PP_STRINGIFY(TestName), ezSimpleRendererTestFunction__##GroupName##_##TestName); \
   static void ezSimpleRendererTestFunction__##GroupName##_##TestName()

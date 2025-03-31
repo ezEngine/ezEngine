@@ -955,7 +955,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       for (auto pProp : properties)
       {
         // Starting with version 8, we skip this check and are flattening all base classes into this material. This is effectively removing runtime inheritance of materials due to the high runtime cost of maintaining the inheritance.
-        //if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
+        // if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
         //  continue;
 
         const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();

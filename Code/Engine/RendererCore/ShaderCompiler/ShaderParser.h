@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Foundation/Types/Status.h>
 #include <RendererCore/Shader/ShaderHelper.h>
 #include <RendererCore/ShaderCompiler/Declarations.h>
-#include <RendererFoundation/Shader/ShaderByteCode.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
-#include <Foundation/Types/Status.h>
+#include <RendererFoundation/Shader/ShaderByteCode.h>
 
 class ezPropertyAttribute;
 

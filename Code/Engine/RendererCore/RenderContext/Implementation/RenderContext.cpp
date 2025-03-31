@@ -2,6 +2,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <RendererCore/Material/MaterialManager.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -12,7 +13,6 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererCore/Material/MaterialManager.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/ImmutableSamplers.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>

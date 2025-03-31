@@ -1,7 +1,7 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <RendererTest/TestClass/SimpleRendererTest.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RendererTest/TestClass/SimpleRendererTest.h>
 
 void ezSimpleRendererTestGroup::AddSimpleRendererTest(const char* szName, SimpleRendererTestFunc testFunc)
 {
