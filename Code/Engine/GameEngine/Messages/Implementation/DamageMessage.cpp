@@ -16,6 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDama
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_DamageMessage);

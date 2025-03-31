@@ -22,3 +22,13 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemovePathNodeComponents : 
 public:
   virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_GenericExport : public ezSceneExportModifier
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_GenericExport, ezSceneExportModifier);
+
+public:
+  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) override;
+};
