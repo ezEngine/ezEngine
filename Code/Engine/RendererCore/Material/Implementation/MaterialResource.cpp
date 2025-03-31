@@ -7,6 +7,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <RendererCore/Material/MaterialManager.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>

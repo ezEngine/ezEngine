@@ -426,7 +426,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
   EZ_LOCK(m_MaterialsMutex);
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezUInt32 uiCapacity = m_Materials.GetCapacity();
-  const ezUInt64 uiNewSize = m_pLayout->m_uiTotalSize * uiCapacity;
+  const ezUInt32 uiNewSize = m_pLayout->m_uiTotalSize * uiCapacity;
   const bool bBufferResized = uiNewSize != m_MaterialsData.GetCount();
   if (bBufferResized || bLayoutChanged)
   {
