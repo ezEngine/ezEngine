@@ -27,7 +27,8 @@ protected:
     Properties,
     Arrays,
     Maps,
-    Expressions
+    Expressions,
+    Physics,
   };
 
   virtual void SetupSubTests() override;

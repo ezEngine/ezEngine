@@ -412,7 +412,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       EZ_ASSERT_NOT_IMPLEMENTED;
 
     case ezVisualScriptDataType::Int64:
-      EZ_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) || pExpectedType == ezGetStaticRTTI<ezInt64>(), "");
+      EZ_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) || pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags) || pExpectedType == ezGetStaticRTTI<ezInt64>(), "");
       return GetData<ezInt64>(dataOffset);
 
     case ezVisualScriptDataType::Float:
