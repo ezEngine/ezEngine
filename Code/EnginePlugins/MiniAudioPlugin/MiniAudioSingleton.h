@@ -86,7 +86,7 @@ public:
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
   ezVec3 GetListenerPosition() { return m_vListenerPosition; }
 
-  virtual ezResult OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
+  virtual ezResult OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
 
   ezMiniAudioSoundInstance* AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent);
   void FreeSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);

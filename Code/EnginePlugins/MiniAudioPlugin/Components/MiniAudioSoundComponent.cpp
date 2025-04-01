@@ -37,12 +37,21 @@ void ezMiniAudioSoundComponentManager::Deinitialize()
 
 void ezMiniAudioSoundComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
 {
+  const ezTime tNow = ezTime::Now();
+  if (m_LastUpdate - tNow < ezTime::Milliseconds(1000 / 25))
+  {
+    // only update sound parameters with 25 FPS
+    return;
+  }
+
+  m_LastUpdate = tNow;
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->Update(false);
+      pComponent->Update();
     }
   }
 }
@@ -147,7 +156,6 @@ void ezMiniAudioSoundComponent::SetPitch(float f)
   if (f == m_fPitch)
     return;
 
-  m_uiPitchChanged = 1;
   m_fPitch = f;
 }
 
@@ -156,14 +164,12 @@ void ezMiniAudioSoundComponent::SetVolume(float f)
   if (f == m_fComponentVolume)
     return;
 
-  m_uiVolumeChanged = 1;
   m_fComponentVolume = f;
 }
 
 void ezMiniAudioSoundComponent::SetNoGlobalPitch(bool bEnable)
 {
   SetUserFlag(NoGlobalPitch, bEnable);
-  m_uiPitchChanged = 1;
 }
 
 bool ezMiniAudioSoundComponent::GetNoGlobalPitch() const
@@ -203,24 +209,12 @@ void ezMiniAudioSoundComponent::Play()
       return;
 
     ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
-
-    ezMiniAudioSingleton* pMA = ezMiniAudioSingleton::GetSingleton();
-
-    m_pInstance = pMA->AllocateSoundInstance(pResource->GetAudioData(rng), GetWorld(), GetHandle());
+    m_pInstance = pResource->InstantiateSound(&rng, GetWorld(), GetHandle());
 
     m_fResourceVolume = pResource->GetVolume(rng);
     m_fResourcePitch = pResource->GetPitch(rng);
 
-    EZ_MA_CHECK(ma_data_source_set_looping(&m_pInstance->m_Decoder, pResource->GetLoop()));
-
-    ma_sound_set_min_distance(&m_pInstance->m_Sound, pResource->GetMinDistance());
-    // ma_sound_set_max_distance(&m_pInstance->m_Sound, pResource->GetMaxDistance());
-    // ma_sound_set_attenuation_model(&m_pInstance->m_Sound, ma_attenuation_model_exponential);
-    ma_sound_set_rolloff(&m_pInstance->m_Sound, pResource->GetRolloff());
-    ma_sound_set_doppler_factor(&m_pInstance->m_Sound, pResource->GetDopplerFactor());
-    ma_sound_set_spatialization_enabled(&m_pInstance->m_Sound, pResource->GetSpatialize());
-
-    Update(true);
+    Update();
   }
 
   EZ_MA_CHECK(ma_sound_start(&m_pInstance->m_Sound));
@@ -256,22 +250,24 @@ void ezMiniAudioSoundComponent::FadeOut(ezTime fadeDuration)
 
 void ezMiniAudioSoundComponent::StartOneShot()
 {
-  // this only works correctly, if no sound is already playing, but we assume that people use
-  // this component either for one-shot sounds, or for the standard case, but not both
+  if (!m_hSound.IsValid())
+    return;
 
-  if (m_pInstance != nullptr)
-  {
-    ezMiniAudioSingleton* pMA = ezMiniAudioSingleton::GetSingleton();
-    pMA->DetachSoundInstance(m_pInstance);
-  }
+  ezResourceLock<ezMiniAudioSoundResource> pResource(m_hSound, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-  Play();
+  if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
 
-  if (m_pInstance != nullptr)
-  {
-    ezMiniAudioSingleton* pMA = ezMiniAudioSingleton::GetSingleton();
-    pMA->DetachSoundInstance(m_pInstance);
-  }
+  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+  auto pInstance = pResource->InstantiateSound(&rng, GetWorld(), {});
+
+  const float fResourceVolume = pResource->GetVolume(rng);
+  const float fResourcePitch = pResource->GetPitch(rng);
+
+  UpdateParameters(pInstance, m_fComponentVolume * fResourceVolume, m_fPitch * fResourcePitch);
+
+  // the sound will play until it ends and then get cleaned up automatically
+  EZ_MA_CHECK(ma_sound_start(&pInstance->m_Sound));
 }
 
 void ezMiniAudioSoundComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
@@ -279,37 +275,30 @@ void ezMiniAudioSoundComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg
   ezOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-void ezMiniAudioSoundComponent::Update(bool bForce)
+void ezMiniAudioSoundComponent::Update()
 {
-  if (m_pInstance == nullptr)
-    return;
+  if (m_pInstance)
+  {
+    UpdateParameters(m_pInstance, m_fComponentVolume * m_fResourceVolume, m_fPitch * m_fResourcePitch);
+  }
+}
 
+void ezMiniAudioSoundComponent::UpdateParameters(ezMiniAudioSoundInstance* pInstance, float fVolume, float fPitch) const
+{
   const ezVec3 pos = GetOwner()->GetGlobalPosition();
 
-  if (bForce || GetOwner()->IsDynamic())
+  ma_sound_set_position(&pInstance->m_Sound, pos.x, pos.y, pos.z);
+
+  if (GetNoGlobalPitch())
   {
-    ma_sound_set_position(&m_pInstance->m_Sound, pos.x, pos.y, pos.z);
+    ma_sound_set_pitch(&pInstance->m_Sound, fPitch);
+  }
+  else
+  {
+    ma_sound_set_pitch(&pInstance->m_Sound, fPitch * (float)GetWorld()->GetClock().GetSpeed());
   }
 
-  if (bForce || m_uiPitchChanged)
-  {
-    m_uiPitchChanged = 0;
-
-    if (GetNoGlobalPitch())
-    {
-      ma_sound_set_pitch(&m_pInstance->m_Sound, m_fPitch * m_fResourcePitch);
-    }
-    else
-    {
-      ma_sound_set_pitch(&m_pInstance->m_Sound, m_fPitch * m_fResourcePitch * (float)GetWorld()->GetClock().GetSpeed());
-    }
-  }
-
-  if (bForce || m_uiVolumeChanged)
-  {
-    m_uiVolumeChanged = 0;
-    ma_sound_set_volume(&m_pInstance->m_Sound, m_fComponentVolume * m_fResourceVolume);
-  }
+  ma_sound_set_volume(&pInstance->m_Sound, fVolume);
 
   // no need to set the direction, we currently don't support directional sounds
   // const ezVec3 dir = GetOwner()->GetGlobalDirForwards();

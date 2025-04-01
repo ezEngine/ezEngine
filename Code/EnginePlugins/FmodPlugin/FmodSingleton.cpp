@@ -359,7 +359,7 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
   }
 }
 
-ezResult ezFmod::OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+ezResult ezFmod::OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
   ezFmodSoundEventResourceHandle hSound = ezResourceManager::LoadResource<ezFmodSoundEventResource>(sResourceID);
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13673787206425879853,10883073949407795776}}
-		u4 %Hash{18172318618114734563}
+		u4 %Hash{7306597574619215260}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -3640,16 +3640,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16353518351201561472,5307631852201495976}}
-	s %t{"ezMiniAudioListenerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{4218479978457180064,5320288071705257264}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3755,7 +3745,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{6334136303972621210,4904951379053591304}}
-			Uuid{u4{16353518351201561472,5307631852201495976}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00003040,0x0000003F,0x0000D441}}
@@ -6408,32 +6397,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1228907325828051031,10140031194388618506}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{0}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16992619996391458355,10695684012820914968}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{4064734850503699296,10150367771000527258}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6550,7 +6513,6 @@ o
 			Uuid{u4{118134340877384252,10333783217025335567}}
 			Uuid{u4{2153686215678068777,10605594474540430792}}
 			Uuid{u4{9964630834698142507,10305366083135856745}}
-			Uuid{u4{1228907325828051031,10140031194388618506}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -6666,7 +6628,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -7099,30 +7061,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{16992619996391458355,10695684012820914968}}
-	s %t{"ezSphereReflectionProbeComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Vec3 %CaptureOffset{f{0,0,0}}
-		VarArray %ExcludeTags
-		{
-			s{"SkyLight"}
-		}
-		f %Falloff{0xCDCCCC3D}
-		f %FarPlane{0x0000C842}
-		VarArray %IncludeTags{}
-		f %NearPlane{0}
-		f %Radius{0x00004842}
-		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
-		b %ShowDebugInfo{0}
-		b %ShowMipMaps{0}
-		b %SphereProjection{1}
 	}
 }
 o
@@ -11730,23 +11668,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7156867284130120138,2127711369401232967}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectionProbeComponentBase"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{15501499876559131010,2215366623898344174}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -11776,23 +11697,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionVisualizerAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{17022679703366345737,2362589303538873091}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAbstractObjectNode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -12070,23 +11974,6 @@ o
 }
 o
 {
-	Uuid %id{u4{455663516835322266,10016785433957589977}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezManipulatorAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezTransformManipulatorAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -12138,23 +12025,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7223601987112261230,12139124130745219210}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectionProbeComponentBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSphereReflectionProbeComponent"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{9604010176759229512,12868035041842190965}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -12167,26 +12037,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4329696860022476200,14745461572989144024}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{12904688914020318453,18189955014897005351}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezMiniAudioPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezMiniAudioListenerComponent"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -12277,23 +12127,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15796815132701145913,16426079668733115146}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezManipulatorAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSphereManipulatorAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{14469700887475489738,16951777026318265606}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -12306,23 +12139,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14207082430471941233,17000358661146427261}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualizerAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSphereVisualizerAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -12358,16 +12174,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12904688914020318453,18189955014897005351}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Sound/MiniAudio"}
 	}
 }
 }

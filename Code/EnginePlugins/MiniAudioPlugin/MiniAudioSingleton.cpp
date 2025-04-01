@@ -183,16 +183,19 @@ bool ezMiniAudioSingleton::GetMasterChannelPaused() const
 
 void ezMiniAudioSingleton::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)
 {
+  // TODO MiniAudio: implement sound groups
   UpdateSoundGroupVolumes();
 }
 
 float ezMiniAudioSingleton::GetSoundGroupVolume(ezStringView sVcaGroupGuid) const
 {
+  // TODO MiniAudio: implement sound groups
   return 1.0f;
 }
 
 void ezMiniAudioSingleton::UpdateSoundGroupVolumes()
 {
+  // TODO MiniAudio: implement sound groups
 }
 
 void ezMiniAudioSingleton::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
@@ -234,7 +237,7 @@ void ezMiniAudioSingleton::SetListener(ezInt32 iIndex, const ezVec3& vPosition, 
   ma_engine_listener_set_velocity(&m_pData->m_Engine, iIndex, vVelocity.x, vVelocity.y, vVelocity.z);
 }
 
-ezResult ezMiniAudioSingleton::OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+ezResult ezMiniAudioSingleton::OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
   ezMiniAudioSoundResourceHandle hSound = ezResourceManager::LoadResource<ezMiniAudioSoundResource>(sResourceID);
 
@@ -249,21 +252,24 @@ ezResult ezMiniAudioSingleton::OneShotSound(ezStringView sResourceID, const ezTr
   if (pResource->GetLoop())
     return EZ_FAILURE; // never play looping sounds
 
-  // can't randomize anything here, we have no world and therefore no random number generator
+  ezRandom* pRng = nullptr;
 
-  auto pInstance = AllocateSoundInstance(pResource->GetAudioData(), nullptr, {});
+  if (pWorld)
+  {
+    pRng = &pWorld->GetRandomNumberGenerator();
 
-  ma_sound_set_min_distance(&pInstance->m_Sound, pResource->GetMinDistance());
-  ma_sound_set_rolloff(&pInstance->m_Sound, pResource->GetRolloff());
-  ma_sound_set_doppler_factor(&pInstance->m_Sound, pResource->GetDopplerFactor());
-  ma_sound_set_spatialization_enabled(&pInstance->m_Sound, pResource->GetSpatialize());
+    fVolume *= pResource->GetVolume(*pRng);
+    fPitch *= pResource->GetPitch(*pRng);
+  }
+
+  auto pInstance = pResource->InstantiateSound(pRng, pWorld, {});
 
   const ezVec3 pos = globalPosition.m_vPosition;
   ma_sound_set_position(&pInstance->m_Sound, pos.x, pos.y, pos.z);
   ma_sound_set_pitch(&pInstance->m_Sound, fPitch);
   ma_sound_set_volume(&pInstance->m_Sound, fVolume);
 
-  // the sound will play till its end and then get cleaned up automatically
+  // the sound will play until it ends and then get cleaned up automatically
   EZ_MA_CHECK(ma_sound_start(&pInstance->m_Sound));
 
   return EZ_SUCCESS;

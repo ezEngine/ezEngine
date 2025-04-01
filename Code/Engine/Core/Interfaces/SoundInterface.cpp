@@ -4,11 +4,11 @@
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Foundation/Configuration/Singleton.h>
 
-ezResult ezSoundInterface::PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+ezResult ezSoundInterface::PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
   if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
-    return pSoundInterface->OneShotSound(sResourceID, globalPosition, fPitch, fVolume, bBlockIfNotLoaded);
+    return pSoundInterface->OneShotSound(pWorld, sResourceID, globalPosition, fPitch, fVolume, bBlockIfNotLoaded);
   }
 
   return EZ_FAILURE;
@@ -19,7 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Sound, ezNoBase, 1, ezRTTI
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(PlaySound, In, "Resource", In, "GlobalPosition", In, "GlobalRotation", In, "Pitch", In, "Volume", In, "BlockToLoad")->AddAttributes(
+    EZ_SCRIPT_FUNCTION_PROPERTY(PlaySound, In, "World", In, "Resource", In, "GlobalPosition", In, "GlobalRotation", In, "Pitch", In, "Volume", In, "BlockToLoad")->AddAttributes(
       new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(1.0f)),
       new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(1.0f)),
       new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true))
@@ -35,7 +35,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Sound, ezNoBase, 1, ezRTTI
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezScriptExtensionClass_Sound::PlaySound(ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+void ezScriptExtensionClass_Sound::PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
-  ezSoundInterface::PlaySound(sResourceID, ezTransform(vGlobalPos, qGlobalRot), fPitch, fVolume, bBlockIfNotLoaded).IgnoreResult();
+  ezSoundInterface::PlaySound(pWorld, sResourceID, ezTransform(vGlobalPos, qGlobalRot), fPitch, fVolume, bBlockIfNotLoaded).IgnoreResult();
 }

@@ -185,6 +185,15 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
 
 void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
 {
+  const ezTime tNow = ezTime::Now();
+  if (m_LastUpdate - tNow < ezTime::Milliseconds(1000 / 25))
+  {
+    // only update sound parameters with 25 FPS
+    return;
+  }
+
+  m_LastUpdate = tNow;
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;

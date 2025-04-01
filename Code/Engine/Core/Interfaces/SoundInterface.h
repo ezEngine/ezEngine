@@ -4,6 +4,8 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
 
+class ezWorld;
+
 class EZ_CORE_DLL ezSoundInterface
 {
 public:
@@ -50,7 +52,7 @@ public:
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) = 0;
 
   /// \brief Plays a sound once. Callced by ezSoundInterface::PlaySound().
-  virtual ezResult OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) = 0;
+  virtual ezResult OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) = 0;
 
   /// \brief Plays a sound once.
   ///
@@ -67,13 +69,13 @@ public:
   ///
   /// Also by default a pitch of 1 is always used. If the game speed is not 1 (ezWorld clock), a custom pitch would need to be provided,
   /// if the sound should play at the same speed.
-  static ezResult PlaySound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
+  static ezResult PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };
 
 class EZ_CORE_DLL ezScriptExtensionClass_Sound
 {
 public:
-  static void PlaySound(ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
+  static void PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezVec3& vGlobalPos, const ezQuat& qGlobalRot, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Sound);

@@ -19,6 +19,8 @@ private:
   friend class ezMiniAudioSoundComponent;
 
   void UpdateEvents(const ezWorldModule::UpdateContext& context);
+
+  ezTime m_LastUpdate;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -99,7 +101,8 @@ public:
 protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
 
-  void Update(bool bForce);
+  void Update();
+  void UpdateParameters(ezMiniAudioSoundInstance* pInstance, float fVolume, float fPitch) const;
 
   friend class ezMiniAudioSingleton;
   void SoundFinished();
@@ -110,8 +113,6 @@ protected:
   float m_fResourceVolume = 1.0f;
   float m_fResourcePitch = 1.0f;
   bool m_bPaused = false;
-  ezUInt8 m_uiVolumeChanged : 1;
-  ezUInt8 m_uiPitchChanged : 1;
 
   ezMiniAudioSoundInstance* m_pInstance = nullptr;
 
