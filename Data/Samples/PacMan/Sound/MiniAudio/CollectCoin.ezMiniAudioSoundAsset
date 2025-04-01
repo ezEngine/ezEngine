@@ -14,7 +14,7 @@ o
 			s{"Sound/FmodStudio/Sound/Assets/336933__the-sacha-rush__coin4.wav"}
 		}
 		Uuid %DocumentID{u4{16426865519179633332,5381659000472681282}}
-		u4 %Hash{13287782003874888286}
+		u4 %Hash{13407424649096897728}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -40,6 +40,7 @@ o
 		{
 			s{"Sound/FmodStudio/Sound/Assets/336933__the-sacha-rush__coin4.wav"}
 		}
+		s %Group{"Effects"}
 		b %IsPositional{0}
 		b %Loop{0}
 		f %MaxRandomPitch{0x0000803F}

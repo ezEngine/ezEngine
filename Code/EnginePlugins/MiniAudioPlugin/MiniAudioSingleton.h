@@ -12,12 +12,10 @@
 //
 // * in MiniAudioResource Load sounds through the MA resource manager (redirect file hooks to our resource manager)
 // * then decode one sound right away and use that as a template to copy from for future sound playback
-// * Add support for sound buses (groups / VCAs), ie each sound resource should be in a group and the volume of groups should be configurable at runtime
 // * Add max sound size, check whether MA adds FMOD-like attenuation models
 // * skip sounds that are too far away
 // * potentially virtualize sounds (probably out of scope for the MA plugin)
 // * Add preview playback to sound asset
-// * For the PlaySound function, take an ezWorld arg and then create a game object in that world -> works for randomization etc
 
 struct ezGameApplicationExecutionEvent;
 
@@ -69,12 +67,20 @@ public:
   virtual void SetMasterChannelPaused(bool bPaused) override;
   virtual bool GetMasterChannelPaused() const override;
 
-  /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
+  /// \brief Specifies the volume for a sound group.
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
-  virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) override;
-  virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const override;
-  void UpdateSoundGroupVolumes();
+  virtual void SetSoundGroupVolume(ezStringView sGroupName, float fVolume) override;
+  virtual float GetSoundGroupVolume(ezStringView sGroupName) const override;
+
+  struct SoundGroup
+  {
+    ezString m_sName;
+    float m_fVolume = 1.0f;
+    ezUniquePtr<ma_sound_group> m_pGroup;
+  };
+
+  SoundGroup& GetSoundGroup(ezStringView sGroupName);
 
   /// \brief Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
   virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
@@ -88,7 +94,7 @@ public:
 
   virtual ezResult OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true) override;
 
-  ezMiniAudioSoundInstance* AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent);
+  ezMiniAudioSoundInstance* AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent, ma_sound_group* pGroup);
   void FreeSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
   void DetachSoundInstance(ezMiniAudioSoundInstance*& ref_pInstance);
 
@@ -113,6 +119,8 @@ private:
 
     ezDeque<ezUInt32> m_FadingInstances;
     ezDeque<ezUInt32> m_FinishedInstances;
+
+    ezHybridArray<SoundGroup, 4> m_SoundGroups;
   };
 
   ezUniquePtr<Data> m_pData;

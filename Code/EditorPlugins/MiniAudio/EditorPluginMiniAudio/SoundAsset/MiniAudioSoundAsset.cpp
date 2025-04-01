@@ -13,6 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundAssetProperties, 1, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Files", m_SoundFiles)->AddAttributes(new ezFileBrowserAttribute("Select Sound", "*.wav;*.mp3")),
+    EZ_MEMBER_PROPERTY("Group", m_sGroup)->AddAttributes(new ezDynamicStringEnumAttribute("MiniAudioSoundGroups")),
     EZ_MEMBER_PROPERTY("Loop", m_bLoop),
     EZ_MEMBER_PROPERTY("MinRandomVolume", m_fMinVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
     EZ_MEMBER_PROPERTY("MaxRandomVolume", m_fMaxVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
@@ -53,7 +54,7 @@ ezTransformStatus ezMiniAudioSoundAssetDocument::InternalTransformAsset(ezStream
   if (pProp->m_SoundFiles.IsEmpty())
     return ezStatus("No sound files have been specified.");
 
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   stream << pProp->m_bLoop;
@@ -103,6 +104,9 @@ ezTransformStatus ezMiniAudioSoundAssetDocument::InternalTransformAsset(ezStream
     stream << storage.GetStorageSize32();
     EZ_SUCCEED_OR_RETURN(storage.CopyToStream(stream));
   }
+
+  // version 2
+  stream << pProp->m_sGroup;
 
   return ezStatus(EZ_SUCCESS);
 }

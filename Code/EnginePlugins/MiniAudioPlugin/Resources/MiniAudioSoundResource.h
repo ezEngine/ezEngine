@@ -44,6 +44,7 @@ private:
 private:
   ezHybridArray<ezDataBuffer, 1> m_AudioData;
 
+  ezString m_sSoundGroup;
   bool m_bLoop = false;
   float m_fMinVolume = 1.0f;
   float m_fMaxVolume = 1.0f;

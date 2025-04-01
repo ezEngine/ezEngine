@@ -14,7 +14,7 @@ o
 			s{"Sound/FmodStudio/Sound/Assets/270333__littlerobotsoundfactory__jingle_win_00.wav"}
 		}
 		Uuid %DocumentID{u4{5962894257955300534,5136302079345809450}}
-		u4 %Hash{10166469699038143632}
+		u4 %Hash{3399919528369907801}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -40,6 +40,7 @@ o
 		{
 			s{"Sound/FmodStudio/Sound/Assets/270333__littlerobotsoundfactory__jingle_win_00.wav"}
 		}
+		s %Group{"Music"}
 		b %IsPositional{0}
 		b %Loop{0}
 		f %MaxRandomPitch{0x0000803F}

@@ -11,6 +11,7 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
+  ezString m_sGroup;
   bool m_bLoop = false;
   float m_fMinVolume = 1.0f;
   float m_fMaxVolume = 1.0f;

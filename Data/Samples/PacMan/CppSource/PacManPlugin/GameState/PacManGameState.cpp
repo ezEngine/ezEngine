@@ -1,6 +1,7 @@
 #include <PacManPlugin/PacManPluginPCH.h>
 
 #include <Core/Input/InputManager.h>
+#include <Core/Interfaces/SoundInterface.h>
 #include <Core/System/Window.h>
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
@@ -60,6 +61,14 @@ void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition,
     m_pRightStick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
     m_pRightStick->SetAreaFocusMode(ezInputActionConfig::OnEnterArea::RequireKeyUp, ezInputActionConfig::OnLeaveArea::LoseFocus);
     m_pRightStick->SetEnabled(false);
+  }
+
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
+  {
+    // adjust the volume of the sound groups
+    // this would usually be a user setting
+    pSoundInterface->SetSoundGroupVolume("Music", 0.7f);
+    pSoundInterface->SetSoundGroupVolume("Effects", 0.9f);
   }
 }
 

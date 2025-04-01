@@ -57,6 +57,24 @@ void ezMiniAudioSingleton::Shutdown()
   if (m_bInitialized)
   {
     m_bInitialized = false;
+
+    for (ezUInt32 i = 0; i < m_pData->m_SoundInstancesStorage.GetCount(); ++i)
+    {
+      auto* pInst = &m_pData->m_SoundInstancesStorage[i];
+
+      if (pInst->m_bInUse)
+      {
+        FreeSoundInstance(pInst);
+      }
+    }
+
+    for (auto& group : m_pData->m_SoundGroups)
+    {
+      ma_sound_group_uninit(group.m_pGroup.Borrow());
+    }
+
+    m_pData->m_SoundGroups.Clear();
+
     ma_engine_uninit(&m_pData->m_Engine);
   }
 
@@ -181,21 +199,40 @@ bool ezMiniAudioSingleton::GetMasterChannelPaused() const
   return cvar_MiniAudioPause;
 }
 
-void ezMiniAudioSingleton::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)
+void ezMiniAudioSingleton::SetSoundGroupVolume(ezStringView sGroupName, float fVolume)
 {
-  // TODO MiniAudio: implement sound groups
-  UpdateSoundGroupVolumes();
+  auto& group = GetSoundGroup(sGroupName);
+  group.m_fVolume = fVolume;
+
+  ma_sound_group_set_volume(group.m_pGroup.Borrow(), fVolume);
 }
 
-float ezMiniAudioSingleton::GetSoundGroupVolume(ezStringView sVcaGroupGuid) const
+float ezMiniAudioSingleton::GetSoundGroupVolume(ezStringView sGroupName) const
 {
-  // TODO MiniAudio: implement sound groups
+  for (ezUInt32 i = 0; i < m_pData->m_SoundGroups.GetCount(); ++i)
+  {
+    if (m_pData->m_SoundGroups[i].m_sName == sGroupName)
+      return m_pData->m_SoundGroups[i].m_fVolume;
+  }
+
   return 1.0f;
 }
 
-void ezMiniAudioSingleton::UpdateSoundGroupVolumes()
+ezMiniAudioSingleton::SoundGroup& ezMiniAudioSingleton::GetSoundGroup(ezStringView sGroupName)
 {
-  // TODO MiniAudio: implement sound groups
+  for (ezUInt32 i = 0; i < m_pData->m_SoundGroups.GetCount(); ++i)
+  {
+    if (m_pData->m_SoundGroups[i].m_sName == sGroupName)
+      return m_pData->m_SoundGroups[i];
+  }
+
+  auto& group = m_pData->m_SoundGroups.ExpandAndGetRef();
+  group.m_sName = sGroupName;
+  group.m_pGroup = EZ_DEFAULT_NEW(ma_sound_group);
+
+  ma_sound_group_init(GetEngine(), 0, nullptr, group.m_pGroup.Borrow());
+
+  return group;
 }
 
 void ezMiniAudioSingleton::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
@@ -280,7 +317,7 @@ static void SoundEndedCallback(void* pUserData, ma_sound* pSound)
   ezMiniAudioSingleton::GetSingleton()->SoundEnded((ezMiniAudioSoundInstance*)pUserData);
 }
 
-ezMiniAudioSoundInstance* ezMiniAudioSingleton::AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent)
+ezMiniAudioSoundInstance* ezMiniAudioSingleton::AllocateSoundInstance(const ezDataBuffer& audioData, ezWorld* pWorld, ezComponentHandle hComponent, ma_sound_group* pGroup)
 {
   if (!m_bInitialized)
     return nullptr;
@@ -312,7 +349,7 @@ ezMiniAudioSoundInstance* ezMiniAudioSingleton::AllocateSoundInstance(const ezDa
     return nullptr;
   }
 
-  if (ma_sound_init_from_data_source(GetEngine(), &pInstance->m_Decoder, MA_SOUND_FLAG_DECODE, nullptr, &pInstance->m_Sound) != MA_SUCCESS)
+  if (ma_sound_init_from_data_source(GetEngine(), &pInstance->m_Decoder, MA_SOUND_FLAG_DECODE, pGroup, &pInstance->m_Sound) != MA_SUCCESS)
   {
     FreeSoundInstance(pInstance);
     return nullptr;

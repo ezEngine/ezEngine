@@ -14,7 +14,7 @@ o
 			s{"Sound/FmodStudio/Sound/Assets/350982__cabled_mess__lose_c_06.wav"}
 		}
 		Uuid %DocumentID{u4{16767302834438820236,5080947550865513012}}
-		u4 %Hash{40086624845940183}
+		u4 %Hash{3272439274383342049}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -40,6 +40,7 @@ o
 		{
 			s{"Sound/FmodStudio/Sound/Assets/350982__cabled_mess__lose_c_06.wav"}
 		}
+		s %Group{"Music"}
 		b %IsPositional{0}
 		b %Loop{0}
 		f %MaxRandomPitch{0x0000803F}

@@ -310,7 +310,7 @@ void ezMiniAudioSoundComponent::SoundFinished()
   // reset used sound
   m_pInstance = nullptr;
 
-  // TODO MA: send event
+  // TODO MiniAudio: send event
   // ezMsgFmodSoundFinished msg;
   // m_SoundFinishedEventSender.SendEventMessage(msg, this, GetOwner());
 

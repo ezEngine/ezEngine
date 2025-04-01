@@ -50,14 +50,22 @@ ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* p
 
   ezMiniAudioSoundInstance* pInstance = nullptr;
 
+  ma_sound_group* pGroup = nullptr;
+
+  if (!m_sSoundGroup.IsEmpty())
+  {
+    pGroup = pMA->GetSoundGroup(m_sSoundGroup).m_pGroup.Borrow();
+  }
+
   if (pRng)
   {
-    pInstance = pMA->AllocateSoundInstance(GetAudioData(*pRng), pWorld, hComponent);
+    pInstance = pMA->AllocateSoundInstance(GetAudioData(*pRng), pWorld, hComponent, pGroup);
   }
   else
   {
-    pInstance = pMA->AllocateSoundInstance(GetAudioData(), pWorld, hComponent);
+    pInstance = pMA->AllocateSoundInstance(GetAudioData(), pWorld, hComponent, pGroup);
   }
+
 
 
   EZ_MA_CHECK(ma_data_source_set_looping(&pInstance->m_Decoder, GetLoop()));
@@ -148,6 +156,11 @@ ezResourceLoadDesc ezMiniAudioSoundResource::UpdateContent(ezStreamReader* pStre
       res.m_State = ezResourceState::LoadedResourceMissing;
       return res;
     }
+  }
+
+  if (uiVersion >= 2)
+  {
+    *pStream >> m_sSoundGroup;
   }
 
   res.m_State = ezResourceState::Loaded;
