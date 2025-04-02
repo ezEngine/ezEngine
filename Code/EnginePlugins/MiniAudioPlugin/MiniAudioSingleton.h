@@ -12,10 +12,9 @@
 //
 // * in MiniAudioResource Load sounds through the MA resource manager (redirect file hooks to our resource manager)
 // * then decode one sound right away and use that as a template to copy from for future sound playback
+// * Add preview playback to sound asset
 // * Add max sound size, check whether MA adds FMOD-like attenuation models
 // * skip sounds that are too far away
-// * potentially virtualize sounds (probably out of scope for the MA plugin)
-// * Add preview playback to sound asset
 
 struct ezGameApplicationExecutionEvent;
 

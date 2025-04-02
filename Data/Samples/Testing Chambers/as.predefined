@@ -845,8 +845,8 @@ class ezStringView
   void ChopAwayFirstCharacterAscii();
   bool TrimWordStart(ezStringView sWord);
   bool TrimWordEnd(ezStringView sWord);
-  bool opEquals(ezStringView) const;
-  int opCmp(ezStringView) const;
+  bool opEquals(const ezStringView&in) const;
+  int opCmp(const ezStringView&in) const;
   void opAssign(const ezString&in);
   void opAssign(const ezHashedString&in);
   void opAssign(const ezStringBuilder&in);
@@ -949,7 +949,9 @@ class ezStringBuilder
 {
   ezStringBuilder();
   ezStringBuilder(const ezStringView s1);
-  ezStringBuilder(const ezStringView s1, const ezStringView s2, const ezStringView s3 = "", const ezStringView s4 = "");
+  ezStringBuilder(const ezStringView&in, const ezStringView&in);
+  ezStringBuilder(const ezStringView&in, const ezStringView&in, const ezStringView&in);
+  ezStringBuilder(const ezStringView&in, const ezStringView&in, const ezStringView&in, const ezStringView&in);
 
   bool StartsWith(ezStringView) const;
   bool StartsWith_NoCase(ezStringView) const;
@@ -2305,9 +2307,11 @@ class ezFmodComponent : ezComponent
 
 class ezFmodEventComponent : ezFmodComponent
 {
-  void Restart();
+  void Play();
+  void Pause();
+  void Stop();
+  void FadeOut();
   void StartOneShot();
-  void StopSound(bool Immediate);
   void SoundCue();
   void SetEventParameter(ezString ParamName, float Value);
   bool Paused;
@@ -3270,7 +3274,7 @@ namespace ezClock
 
 namespace ezSound
 {
-  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1);
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = 1, float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
 }
 
 namespace ezCVar

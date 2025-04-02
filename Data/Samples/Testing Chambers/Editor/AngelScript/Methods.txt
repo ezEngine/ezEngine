@@ -57,6 +57,7 @@ DropGrabbedObject
 EndsWith
 EndsWith_NoCase
 ExpandAndGetRef
+FadeOut
 FindChildByName
 FindChildByPath
 FireTransitionEvent
@@ -261,7 +262,9 @@ OnActivated
 OnDeactivated
 OnSimulationStarted
 PathParentDirectory
+Pause
 PeekBack
+Play
 PlayAnimationRange
 PopBack
 PostEventMessage
@@ -279,7 +282,6 @@ RemoveFileExtension
 ReplaceAll
 ReplaceAll_NoCase
 Reserve
-Restart
 Reverse
 Rotate
 ScaleRGB
@@ -337,8 +339,8 @@ StartTransition
 StartTransitionWithOffsetTo
 StartsWith
 StartsWith_NoCase
+Stop
 StopEffect
-StopSound
 StopWalking
 TeleportCharacter
 ThrowGrabbedObject

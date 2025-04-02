@@ -67,7 +67,7 @@ class ScriptObject :  ezAngelScriptClass
                         ezFmodEventComponent@ leakSound;
                         if (leakObj.TryGetComponentOfBaseType(@leakSound))
                         {
-                            leakSound.Restart();
+                            leakSound.Play();
                         }
                     }
 

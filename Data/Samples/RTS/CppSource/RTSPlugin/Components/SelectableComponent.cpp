@@ -65,7 +65,7 @@ void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg
   ezBoundingBoxSphere bounds;
   bounds.m_fSphereRadius = m_fSelectionRadius;
   bounds.m_vCenter.SetZero();
-  bounds.m_vBoxHalfExtends.Set(m_fSelectionRadius);
+  bounds.m_vBoxHalfExtents.Set(m_fSelectionRadius);
 
   ref_msg.AddBounds(bounds, s_SelectableCategory);
 }

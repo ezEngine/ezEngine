@@ -247,7 +247,7 @@ bool ezStringView::StartsWith(ezStringView) const
 bool ezStringView::StartsWith_NoCase(ezStringView) const
 bool ezStringView::TrimWordEnd(ezStringView sWord)
 bool ezStringView::TrimWordStart(ezStringView sWord)
-bool ezStringView::opEquals(ezStringView) const
+bool ezStringView::opEquals(const ezStringView&in) const
 bool ezTempHashedString::IsEmpty() const
 bool ezTempHashedString::opEquals(ezTempHashedString) const
 bool ezTime::IsNegative() const
@@ -2160,7 +2160,7 @@ int ezStringView::Compare(ezStringView) const
 int ezStringView::CompareN(ezStringView, uint) const
 int ezStringView::CompareN_NoCase(ezStringView, uint) const
 int ezStringView::Compare_NoCase(ezStringView) const
-int ezStringView::opCmp(ezStringView) const
+int ezStringView::opCmp(const ezStringView&in) const
 int ezTime::opCmp(const ezTime&in) const
 int ezVec2::opCmp(const ezVec2&in) const
 int ezVec3::opCmp(const ezVec3&in) const
@@ -2427,11 +2427,13 @@ void ezFillLightComponent::set_LightMode(ezFillLightMode)
 void ezFillLightComponent::set_Range(float)
 void ezFillLightComponent::set_Temperature(uint)
 void ezFillLightComponent::set_UseColorTemperature(bool)
-void ezFmodEventComponent::Restart()
+void ezFmodEventComponent::FadeOut()
+void ezFmodEventComponent::Pause()
+void ezFmodEventComponent::Play()
 void ezFmodEventComponent::SetEventParameter(ezString ParamName, float Value)
 void ezFmodEventComponent::SoundCue()
 void ezFmodEventComponent::StartOneShot()
-void ezFmodEventComponent::StopSound(bool Immediate)
+void ezFmodEventComponent::Stop()
 void ezFmodEventComponent::set_NoGlobalPitch(bool)
 void ezFmodEventComponent::set_OcclusionCollisionLayer(uint8)
 void ezFmodEventComponent::set_OcclusionThreshold(float)
@@ -2957,7 +2959,7 @@ void ezSliderComponent::set_Axis(ezBasisAxis)
 void ezSliderComponent::set_Deceleration(float)
 void ezSliderComponent::set_Distance(float)
 void ezSliderComponent::set_RandomStart(ezTime)
-void ezSound::PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1)
+void ezSound::PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = 1, float Pitch = 1, float Volume = 1, bool BlockToLoad = false)
 void ezSpatial::FindObjectsInSphere(ezStringView sCategory, const ezVec3&in vCenter, float fRadius, ReportObjectCB@ callback)
 void ezSpawnBoxComponent::StartSpawning()
 void ezSpawnBoxComponent::set_Duration(ezTime)

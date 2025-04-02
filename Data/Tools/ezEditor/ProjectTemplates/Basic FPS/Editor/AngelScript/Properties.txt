@@ -209,7 +209,6 @@ ISO
 IgnoreOwnerRotation
 ImpactDirection
 Impulse
-IncludeInNavmesh
 IndianRed
 Indigo
 InfluenceScale
