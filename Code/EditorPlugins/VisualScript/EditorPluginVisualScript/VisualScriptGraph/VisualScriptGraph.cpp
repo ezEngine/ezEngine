@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
@@ -168,6 +169,32 @@ ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString s
   }
 
   return EZ_FAILURE;
+}
+
+void ezVisualScriptNodeManager::GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const
+{
+  out_variables.Clear();
+
+  if (GetRootObject()->GetChildren().IsEmpty() == false)
+  {
+    auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
+    ezUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
+    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    {
+      ezVariant variableUuid = typeAccessor.GetValue("Variables", i);
+      if (variableUuid.IsA<ezUuid>() == false)
+        continue;
+
+      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      if (pVariableObject == nullptr)
+        continue;
+
+      auto& variable = out_variables.ExpandAndGetRef();
+      variable.m_sName = pVariableObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezHashedString>();
+      variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
+      variable.m_bExpose = pVariableObject->GetTypeAccessor().GetValue("Expose").ConvertTo<bool>();
+    }
+  }
 }
 
 void ezVisualScriptNodeManager::GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const

@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/CodeUtils/Expression/ExpressionCompiler.h>
 #include <Foundation/CodeUtils/Expression/ExpressionParser.h>
@@ -469,6 +470,8 @@ ezResult ezVisualScriptCompiler::AddFunction(ezStringView sName, const ezDocumen
 
 ezResult ezVisualScriptCompiler::Compile(ezStringView sDebugAstOutputPath)
 {
+  EZ_SUCCEED_OR_RETURN(BuildInstanceDataMapping());
+
   for (ezUInt32 i = 0; i < m_Module.m_Functions.GetCount(); ++i)
   {
     auto& function = m_Module.m_Functions[i];
@@ -607,20 +610,8 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::CreateJumpNode(AstNode*
 ezVisualScriptCompiler::DataOffset ezVisualScriptCompiler::GetInstanceDataOffset(ezHashedString sName, ezVisualScriptDataType::Enum dataType)
 {
   ezVisualScriptInstanceData instanceData;
-  if (m_Module.m_InstanceDataMapping.m_Content.TryGetValue(sName, instanceData) == false)
-  {
-    EZ_ASSERT_DEBUG(dataType < ezVisualScriptDataType::Count, "Invalid data type");
-    auto& offsetAndCount = m_Module.m_InstanceDataDesc.m_PerTypeInfo[dataType];
-    instanceData.m_DataOffset.m_uiByteOffset = offsetAndCount.m_uiCount;
-    instanceData.m_DataOffset.m_uiType = dataType;
-    instanceData.m_DataOffset.m_uiSource = DataOffset::Source::Instance;
-    ++offsetAndCount.m_uiCount;
-
-    m_pManager->GetVariableDefaultValue(sName, instanceData.m_DefaultValue).AssertSuccess();
-
-    m_Module.m_InstanceDataMapping.m_Content.Insert(sName, instanceData);
-  }
-
+  EZ_VERIFY(m_Module.m_InstanceDataMapping.m_Content.TryGetValue(sName, instanceData), "");
+  EZ_ASSERT_DEBUG(instanceData.m_DataType == dataType, "Data type mismatch");
   return instanceData.m_DataOffset;
 }
 
@@ -1767,6 +1758,30 @@ ezResult ezVisualScriptCompiler::TraverseAllConnections(AstNode* pEntryAstNode, 
       return VisitorResult::Continue;
     },
     bDeduplicate);
+}
+
+ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
+{
+  ezHybridArray<ezVisualScriptVariable, 16> variables;
+  m_pManager->GetAllVariables(variables);
+
+  for (auto& variable : variables)
+  {
+    ezVisualScriptInstanceData instanceData;
+    auto dataType = ezVisualScriptDataType::FromVariantType(variable.m_DefaultValue.GetType());
+
+    auto& offsetAndCount = m_Module.m_InstanceDataDesc.m_PerTypeInfo[dataType];
+    instanceData.m_DataOffset.m_uiByteOffset = offsetAndCount.m_uiCount;
+    instanceData.m_DataOffset.m_uiType = dataType;
+    instanceData.m_DataOffset.m_uiSource = DataOffset::Source::Instance;
+    instanceData.m_DefaultValue = variable.m_DefaultValue;
+
+    ++offsetAndCount.m_uiCount;
+
+    m_Module.m_InstanceDataMapping.m_Content.Insert(variable.m_sName, instanceData);
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezVisualScriptCompiler::FinalizeConstantData()

@@ -3,6 +3,8 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
+struct ezVisualScriptVariable;
+
 class ezVisualScriptPin : public ezPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezPin);
@@ -48,6 +50,7 @@ public:
 
   ezVisualScriptDataType::Enum GetVariableType(ezTempHashedString sName) const;
   ezResult GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_value) const;
+  void GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const;
 
   void GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
   void GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
