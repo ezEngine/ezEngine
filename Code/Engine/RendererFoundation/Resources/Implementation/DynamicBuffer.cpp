@@ -53,10 +53,7 @@ void ezGALDynamicBuffer::Initialize(const ezGALBufferCreationDescription& desc, 
 
 void ezGALDynamicBuffer::Deinitialize()
 {
-  m_Data.Clear();
-  m_Allocations.Clear();
-  m_FreeRanges.Clear();
-  m_DirtyRange.Reset();
+  Clear();
 
   if (m_hBufferForUpload.IsInvalidated() == false)
   {
@@ -70,6 +67,16 @@ void ezGALDynamicBuffer::Deinitialize()
 
   m_hBufferForUpload.Invalidate();
   m_hBufferForRendering.Invalidate();
+}
+
+void ezGALDynamicBuffer::Clear()
+{
+  m_Data.Clear();
+  m_uiNextOffset = 0;
+
+  m_Allocations.Clear();
+  m_FreeRanges.Clear();
+  m_DirtyRange.Reset();
 }
 
 ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
@@ -128,6 +135,18 @@ void ezGALDynamicBuffer::Deallocate(ezUInt32 uiOffset)
   if (it.Key() == m_Allocations.GetReverseIterator().Key())
   {
     m_uiNextOffset = uiOffset;
+
+    // Remove free range in front of the last allocation
+    for (ezUInt32 i = 0; i < m_FreeRanges.GetCount(); ++i)
+    {
+      auto& freeRange = m_FreeRanges[i];
+      if (freeRange.m_uiMax + 1 == m_uiNextOffset)
+      {
+        m_uiNextOffset = freeRange.m_uiMin;
+        m_FreeRanges.RemoveAtAndCopy(i);
+        break;
+      }
+    }
   }
   else
   {

@@ -177,6 +177,26 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       EZ_TEST_INT(changedAllocations[1].m_uiUserData, 6);
       EZ_TEST_INT(changedAllocations[1].m_uiNewOffset, offsets[3] + uiAllocationSizes[4]);
     }
+
+    pDynamicBuffer->Clear();
+    offsets.Clear();
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
+    {
+      offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
+    }
+
+    pDynamicBuffer->Deallocate(offsets[6]);
+    pDynamicBuffer->Deallocate(offsets[7]);
+
+    // Compaction should have already happened in deallocate
+    {
+      pDynamicBuffer->RunCompactionSteps(changedAllocations, 16);
+      EZ_TEST_INT(changedAllocations.GetCount(), 0);
+    }
+
+    ezUInt32 uiOffset = pDynamicBuffer->Allocate(400, 20);
+    EZ_TEST_INT(uiOffset, offsets[6]);
   }
 
   return ezTestAppRun::Quit;

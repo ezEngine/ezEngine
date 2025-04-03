@@ -12,6 +12,9 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALDynamicBuffer
 {
 public:
+  /// \brief Deallocates all data.
+  void Clear();
+
   /// \brief Allocates a single or multiple elements and returns the offset to the first element.
   /// This offset is used to identify the allocation and should also be used in a shader to read the data from the buffer.
   ///
