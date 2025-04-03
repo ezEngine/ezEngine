@@ -1631,9 +1631,9 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
         if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
-          if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+          if (!pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::Reference | ezPropertyFlags::Pointer))
           {
-            ezLog::Error("Script function '{}' argument {} is marked 'out' but is not a non-const reference value", pRtti->GetTypeName(), argIdx);
+            ezLog::Error("Script function '{}::{}' argument {} is marked 'out' but is not a non-const reference or pointer value", sTypeName, sFunctionName, argIdx);
             return;
           }
 

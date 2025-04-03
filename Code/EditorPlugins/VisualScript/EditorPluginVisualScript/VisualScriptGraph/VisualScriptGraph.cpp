@@ -71,7 +71,7 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
 
   if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
-      targetScriptDataType == ezVisualScriptDataType::AnyPointer)
+      (targetScriptDataType == ezVisualScriptDataType::AnyPointer || targetScriptDataType == ezVisualScriptDataType::Bool))
     return true;
 
   if (sourceScriptDataType == ezVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
