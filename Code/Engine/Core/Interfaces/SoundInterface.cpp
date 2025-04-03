@@ -2,6 +2,7 @@
 
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Scripting/ScriptAttributes.h>
+#include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 
 ezResult ezSoundInterface::PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)

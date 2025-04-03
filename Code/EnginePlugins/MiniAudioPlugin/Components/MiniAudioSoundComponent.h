@@ -20,7 +20,7 @@ private:
 
   void UpdateEvents(const ezWorldModule::UpdateContext& context);
 
-  ezTime m_LastUpdate;
+  ezUInt32 m_uiFirstComponentIndex = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////

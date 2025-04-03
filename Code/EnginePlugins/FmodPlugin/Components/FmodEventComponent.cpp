@@ -185,23 +185,33 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
 
 void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
 {
-  const ezTime tNow = ezTime::Now();
-  if (m_LastUpdate - tNow < ezTime::Milliseconds(1000 / 25))
+  constexpr ezUInt32 uiUpdatesPerSec = 20;
+  constexpr ezTime tUpdateRate = ezTime::Milliseconds(1000 / uiUpdatesPerSec);
+
+  const float fUpdateFraction = (GetWorld()->GetClock().GetTimeDiff() / tUpdateRate).AsFloatInSeconds();
+
+  const ezUInt32 uiNumComps = m_ComponentStorage.GetCount();
+
+  if (m_uiFirstComponentIndex >= uiNumComps)
   {
-    // only update sound parameters with 25 FPS
-    return;
+    m_uiFirstComponentIndex = 0;
   }
 
-  m_LastUpdate = tNow;
+  const ezUInt32 uiNumUpdate = static_cast<ezUInt32>(uiNumComps * fUpdateFraction) + 1;
+  const ezUInt32 uiLastCompP1 = ezMath::Min(m_uiFirstComponentIndex + uiNumUpdate, uiNumComps);
 
-  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  for (auto it = m_ComponentStorage.GetIterator(m_uiFirstComponentIndex, uiNumComps); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;
+
+    // a lot of components will actually be inactive (waiting to be reused)
     if (pComponent->IsActiveAndInitialized())
     {
       pComponent->Update();
     }
   }
+
+  m_uiFirstComponentIndex = uiLastCompP1;
 }
 
 void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)

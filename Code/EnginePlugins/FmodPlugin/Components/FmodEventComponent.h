@@ -41,7 +41,7 @@ private:
     float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
   };
 
-  ezTime m_LastUpdate;
+  ezUInt32 m_uiFirstComponentIndex = 0;
   ezDynamicArray<OcclusionState> m_OcclusionStates;
 
   ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);
