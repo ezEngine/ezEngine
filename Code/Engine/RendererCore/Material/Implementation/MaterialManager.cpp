@@ -228,16 +228,16 @@ void ezMaterialManager::ExtractMaterial(ezMaterialResource* pMaterial, ezMateria
     switch (flag)
     {
       case ezMaterialResource::DirtyFlags::Parameter:
-        extractedMaterial.m_Parameters = pMaterial->m_mDesc.m_Parameters;
+        extractedMaterial.m_Parameters = std::move(pMaterial->m_mDesc.m_Parameters);
         break;
       case ezMaterialResource::DirtyFlags::Texture2D:
-        extractedMaterial.m_Texture2DBindings = pMaterial->m_mDesc.m_Texture2DBindings;
+        extractedMaterial.m_Texture2DBindings = std::move(pMaterial->m_mDesc.m_Texture2DBindings);
         break;
       case ezMaterialResource::DirtyFlags::TextureCube:
-        extractedMaterial.m_TextureCubeBindings = pMaterial->m_mDesc.m_TextureCubeBindings;
+        extractedMaterial.m_TextureCubeBindings = std::move(pMaterial->m_mDesc.m_TextureCubeBindings);
         break;
       case ezMaterialResource::DirtyFlags::PermutationVar:
-        extractedMaterial.m_PermutationVars = pMaterial->m_mDesc.m_PermutationVars;
+        extractedMaterial.m_PermutationVars = std::move(pMaterial->m_mDesc.m_PermutationVars);
         break;
       default:
         break;
@@ -688,11 +688,8 @@ bool ezMaterialManager::MaterialShaderConstants::IsEmpty() const
 }
 
 ezMaterialManager::ExtractedMaterial::ExtractedMaterial()
-  : m_Parameters(ezFrameAllocator::GetCurrentAllocator())
-  , m_Texture2DBindings(ezFrameAllocator::GetCurrentAllocator())
-  , m_TextureCubeBindings(ezFrameAllocator::GetCurrentAllocator())
-  , m_PermutationVars(ezFrameAllocator::GetCurrentAllocator())
 {
+  // Not using the frame allocator on the member arrays as we std::move these.
 }
 
 ezMaterialManager::PendingChanges::PendingChanges()

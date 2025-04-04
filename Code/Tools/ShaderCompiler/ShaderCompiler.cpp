@@ -273,18 +273,21 @@ void ezShaderCompilerApplication::Run()
     }
   }
 
+  ezUInt32 uiErrors = 0;
   for (const auto& shader : shadersToCompile)
   {
     if (CompileShader(shader).Failed())
     {
+      ++uiErrors;
       if (!opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Never))
       {
+        SetReturnCode(uiErrors);
         RequestApplicationQuit();
         return;
       }
     }
   }
-
+  SetReturnCode(uiErrors);
   RequestApplicationQuit();
 }
 

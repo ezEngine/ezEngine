@@ -40,7 +40,7 @@ void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMateri
   ezStringBuilder sEzFileContent;
   {
     ezFileReader fileEz;
-    if (!EZ_TEST_RESULT(fileEz.Open("RendererTest/Shaders/ShaderParserTestTemplate.ezShader")))
+    if (!EZ_TEST_RESULT(fileEz.Open("RendererTest/Shaders/ShaderParserTest.ezShader.template")))
     {
       return;
     }
