@@ -27,13 +27,13 @@ public:
   struct EZ_RENDERERCORE_DLL MaterialData
   {
     ezShaderResourceHandle m_hShader;
-    ezMaterialResource::ezMaterialId m_MaterialId; ///< Index into m_StructuredBufferView
+    ezMaterialResource::ezMaterialId m_MaterialId; ///< Index into m_hStructuredBufferView
 
     ezDynamicArray<ezPermutationVar> m_PermutationVars;
 
     // Depending on the capabilities of the GAL device, materials are either stored in a constant or structured buffer.
-    ezGALBufferResourceViewHandle m_StructuredBufferView;
-    ezGALBufferHandle m_ConstantBuffer;
+    ezGALBufferResourceViewHandle m_hStructuredBufferView;
+    ezGALBufferHandle m_hConstantBuffer;
 
     ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters; // Builds constant buffer
     ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
@@ -95,8 +95,8 @@ private:
 
     ezDynamicArray<ezUInt8> m_MaterialsData;
     // #TODO_MATERIAL Right now, there are individual structured buffers for each material until we have refactored the high level renderer to actually have a place to store the material index.
-    ezGALBufferHandle m_StructuredBuffer;
-    ezGALBufferResourceViewHandle m_StructuredBufferView;
+    ezGALBufferHandle m_hStructuredBuffer;
+    ezGALBufferResourceViewHandle m_hStructuredBufferView;
 
     ezDynamicArray<ezGALBufferHandle> m_MaterialBuffers;
     ezDynamicArray<ezGALBufferResourceViewHandle> m_MaterialBufferViews;

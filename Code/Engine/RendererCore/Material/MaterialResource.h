@@ -141,7 +141,6 @@ public:
       StorageType TextureCube : 1;
       StorageType PermutationVar : 1;
       StorageType ShaderAndId : 1;
-      StorageType FlattenHierarchy : 1;
     };
   };
 

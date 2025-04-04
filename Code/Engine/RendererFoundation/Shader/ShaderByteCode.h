@@ -42,7 +42,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderConstant
 
   static ezUInt32 s_TypeSize[Type::ENUM_COUNT];
 
-  void CopyDataFormVariant(ezUInt8* pDest, const ezVariant* pValue) const;
+  void CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pValue) const;
 
   ezHashedString m_sName;
   ezEnum<Type> m_Type;

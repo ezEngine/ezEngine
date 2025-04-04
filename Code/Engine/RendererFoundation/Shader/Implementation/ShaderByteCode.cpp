@@ -7,7 +7,7 @@
 ezUInt32 ezShaderConstant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3, sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
   sizeof(ezUInt32) * 3, sizeof(ezUInt32) * 4, sizeof(ezShaderMat3), sizeof(ezMat4), sizeof(ezShaderTransform), sizeof(ezShaderBool)};
 
-void ezShaderConstant::CopyDataFormVariant(ezUInt8* pDest, const ezVariant* pValue) const
+void ezShaderConstant::CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pValue) const
 {
   EZ_ASSERT_DEV(m_uiArrayElements == 1, "Array constants are not supported");
 

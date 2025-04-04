@@ -813,18 +813,18 @@ ezStatus ezShaderParser::ParseMaterialConstantsSection(ezStringView sMaterialCon
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezShaderParser::LayoutMaterialConstants(ezShaderConstantBufferLayout& ref_MaterialConstantBufferLayout, ezEnum<ezGALBufferLayout> layout)
+void ezShaderParser::LayoutMaterialConstants(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout, ezEnum<ezGALBufferLayout> layout)
 {
   switch (layout)
   {
     case ezGALBufferLayout::Vulkan_Std430_relaxed:
-      AlignStructuredBufferStd430Relaxed(ref_MaterialConstantBufferLayout);
+      AlignStructuredBufferStd430Relaxed(ref_materialConstantBufferLayout);
       break;
     case ezGALBufferLayout::DirectX_StructuredButter:
-      AlignStructuredBufferDX(ref_MaterialConstantBufferLayout);
+      AlignStructuredBufferDX(ref_materialConstantBufferLayout);
       break;
     case ezGALBufferLayout::DirectX_ConstantButter:
-      AlignConstantBufferDX(ref_MaterialConstantBufferLayout);
+      AlignConstantBufferDX(ref_materialConstantBufferLayout);
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;

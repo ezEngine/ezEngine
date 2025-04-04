@@ -24,44 +24,44 @@
 namespace
 {
   template <typename Source, typename Target>
-  void CopyMaterialDesc(const Source& source, Target& target)
+  void CopyMaterialDesc(const Source& source, Target& ref_target)
   {
-    target.Clear();
-    target.Reserve(source.GetCount());
+    ref_target.Clear();
+    ref_target.Reserve(source.GetCount());
     for (const auto& entry : source)
     {
-      target.PushBack({entry.Key(), entry.Value()});
+      ref_target.PushBack({entry.Key(), entry.Value()});
     }
   }
 
   template <typename Property>
   struct SetNameHelper
   {
-    EZ_ALWAYS_INLINE void SetName(Property& prop, const char* szName) { prop.m_Name.Assign(szName); }
-    EZ_ALWAYS_INLINE void SetName(Property& prop, ezHashedString sName) { prop.m_Name = sName; }
+    EZ_ALWAYS_INLINE void SetName(Property& ref_prop, const char* szName) { ref_prop.m_Name.Assign(szName); }
+    EZ_ALWAYS_INLINE void SetName(Property& ref_prop, ezHashedString sName) { ref_prop.m_Name = sName; }
   };
 
   template <typename Value, typename Property, typename Name>
-  Value GetProperty(ezDynamicArray<Property>& properties, Name sName)
+  Value GetProperty(ezDynamicArray<Property>& ref_properties, Name sName)
   {
-    for (ezUInt32 i = 0; i < properties.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < ref_properties.GetCount(); ++i)
     {
-      if (properties[i].m_Name == sName)
+      if (ref_properties[i].m_Name == sName)
       {
-        return properties[i].m_Value;
+        return ref_properties[i].m_Value;
       }
     }
     return {};
   }
 
   template <typename Property, typename Name, typename Value, typename NameLookup>
-  bool SetProperty(ezDynamicArray<Property>& properties, const Name& sName, const Value& value, const NameLookup& sNameLookup)
+  bool SetProperty(ezDynamicArray<Property>& ref_properties, const Name& sName, const Value& value, const NameLookup& sNameLookup)
   {
     SetNameHelper<Property> setNameHelper;
     ezUInt32 uiIndex = ezInvalidIndex;
-    for (ezUInt32 i = 0; i < properties.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < ref_properties.GetCount(); ++i)
     {
-      if (properties[i].m_Name == sNameLookup)
+      if (ref_properties[i].m_Name == sNameLookup)
       {
         uiIndex = i;
         break;
@@ -72,16 +72,16 @@ namespace
     {
       if (uiIndex != ezInvalidIndex)
       {
-        if (properties[uiIndex].m_Value == value)
+        if (ref_properties[uiIndex].m_Value == value)
         {
           return false;
         }
 
-        properties[uiIndex].m_Value = value;
+        ref_properties[uiIndex].m_Value = value;
       }
       else
       {
-        auto& param = properties.ExpandAndGetRef();
+        auto& param = ref_properties.ExpandAndGetRef();
         setNameHelper.SetName(param, sName);
         param.m_Value = value;
       }
@@ -93,7 +93,7 @@ namespace
         return false;
       }
 
-      properties.RemoveAtAndSwap(uiIndex);
+      ref_properties.RemoveAtAndSwap(uiIndex);
     }
     return true;
   }

@@ -1,5 +1,7 @@
 #include <RendererTest/TestClass/SimpleRendererTest.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -214,3 +216,4 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, ShaderParser)
     TestMaterialConstants(shaderSection, "GetMaterialData(Value1).r", "Temp_Float3.ezShader", 3);
   }
 }
+#endif

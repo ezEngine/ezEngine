@@ -442,24 +442,24 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
         break;
       case ezMaterialManager::MaterialStorageMode::SingleStructuredBuffer:
       {
-        if (!m_StructuredBufferView.IsInvalidated())
-          pDevice->DestroyResourceView(m_StructuredBufferView);
+        if (!m_hStructuredBufferView.IsInvalidated())
+          pDevice->DestroyResourceView(m_hStructuredBufferView);
 
-        if (!m_StructuredBuffer.IsInvalidated())
-          pDevice->DestroyBuffer(m_StructuredBuffer);
+        if (!m_hStructuredBuffer.IsInvalidated())
+          pDevice->DestroyBuffer(m_hStructuredBuffer);
 
         ezGALBufferCreationDescription bufferDesc;
         bufferDesc.m_uiStructSize = m_pLayout->m_uiTotalSize;
         bufferDesc.m_uiTotalSize = uiNewSize;
         bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
         bufferDesc.m_ResourceAccess.m_bImmutable = false;
-        m_StructuredBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(bufferDesc);
+        m_hStructuredBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(bufferDesc);
 
         ezGALBufferResourceViewCreationDescription viewDesc;
-        viewDesc.m_hBuffer = m_StructuredBuffer;
+        viewDesc.m_hBuffer = m_hStructuredBuffer;
         viewDesc.m_uiFirstElement = 0;
         viewDesc.m_uiNumElements = uiCapacity;
-        m_StructuredBufferView = ezGALDevice::GetDefaultDevice()->CreateResourceView(viewDesc);
+        m_hStructuredBufferView = ezGALDevice::GetDefaultDevice()->CreateResourceView(viewDesc);
       }
       break;
       default:
@@ -502,11 +502,11 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
 void ezMaterialManager::MaterialShaderConstants::DestroyGpuResources()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  if (!m_StructuredBufferView.IsInvalidated())
-    pDevice->DestroyResourceView(m_StructuredBufferView);
+  if (!m_hStructuredBufferView.IsInvalidated())
+    pDevice->DestroyResourceView(m_hStructuredBufferView);
 
-  if (!m_StructuredBuffer.IsInvalidated())
-    pDevice->DestroyBuffer(m_StructuredBuffer);
+  if (!m_hStructuredBuffer.IsInvalidated())
+    pDevice->DestroyBuffer(m_hStructuredBuffer);
 
   for (ezGALBufferResourceViewHandle hBufferView : m_MaterialBufferViews)
   {
@@ -577,8 +577,8 @@ bool ezMaterialManager::MaterialShaderConstants::UpdateMaterialLayout()
         auto itMaterial = m_pParent->m_Materials.Find(pMaterial.GetPointer());
         if (itMaterial.IsValid())
         {
-          itMaterial.Value().m_ConstantBuffer.Invalidate();
-          itMaterial.Value().m_StructuredBufferView.Invalidate();
+          itMaterial.Value().m_hConstantBuffer.Invalidate();
+          itMaterial.Value().m_hStructuredBufferView.Invalidate();
         }
       }
     }
@@ -607,7 +607,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
       if (constant.m_uiOffset + ezShaderConstant::s_TypeSize[constant.m_Type.GetValue()] <= data.GetCount())
       {
         ezUInt8* pDest = &data[constant.m_uiOffset];
-        constant.CopyDataFormVariant(pDest, &param.m_Value);
+        constant.CopyDataFromVariant(pDest, &param.m_Value);
       }
     }
   }
@@ -627,7 +627,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
       }
 
       // We lazily create the buffer so we need to always update the MaterialData as this could be a constant buffer from a previous material that resided in this slot.
-      md.m_ConstantBuffer = m_MaterialBuffers[id.m_InstanceIndex];
+      md.m_hConstantBuffer = m_MaterialBuffers[id.m_InstanceIndex];
       pEncoder->UpdateBuffer(m_MaterialBuffers[id.m_InstanceIndex], 0, data, ezGALUpdateMode::AheadOfTime);
     }
     break;
@@ -651,14 +651,14 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
       }
 
       // We lazily create the buffer so we need to always update the MaterialData as this could be a constant buffer from a previous material that resided in this slot.
-      md.m_StructuredBufferView = m_MaterialBufferViews[id.m_InstanceIndex];
+      md.m_hStructuredBufferView = m_MaterialBufferViews[id.m_InstanceIndex];
       pEncoder->UpdateBuffer(m_MaterialBuffers[id.m_InstanceIndex], 0, data, ezGALUpdateMode::AheadOfTime);
     }
     break;
     case ezMaterialManager::MaterialStorageMode::SingleStructuredBuffer:
     {
-      md.m_StructuredBufferView = m_StructuredBufferView;
-      pEncoder->UpdateBuffer(m_StructuredBuffer, m_pLayout->m_uiTotalSize * id.m_InstanceIndex, data, ezGALUpdateMode::AheadOfTime);
+      md.m_hStructuredBufferView = m_hStructuredBufferView;
+      pEncoder->UpdateBuffer(m_hStructuredBuffer, m_pLayout->m_uiTotalSize * id.m_InstanceIndex, data, ezGALUpdateMode::AheadOfTime);
     }
     break;
     default:

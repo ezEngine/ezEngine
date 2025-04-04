@@ -1169,13 +1169,13 @@ void ezRenderContext::ApplyMaterialState()
 
     BindShaderInternal(data->m_hShader, ezShaderBindFlags::Default);
 
-    if (!data->m_StructuredBufferView.IsInvalidated())
+    if (!data->m_hStructuredBufferView.IsInvalidated())
     {
-      BindBuffer("materialData", data->m_StructuredBufferView);
+      BindBuffer("materialData", data->m_hStructuredBufferView);
     }
-    else if (!data->m_ConstantBuffer.IsInvalidated())
+    else if (!data->m_hConstantBuffer.IsInvalidated())
     {
-      BindConstantBuffer("materialData", data->m_ConstantBuffer);
+      BindConstantBuffer("materialData", data->m_hConstantBuffer);
     }
 
     for (const ezPermutationVar& perm : data->m_PermutationVars)

@@ -2,6 +2,7 @@
 
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>)
