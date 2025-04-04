@@ -155,7 +155,6 @@ private:
   void FlattenOriginalDescHierarchy();
 
 private:
-  ezMutex m_FlattenMutex;
   ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
 
   // Dynamic data

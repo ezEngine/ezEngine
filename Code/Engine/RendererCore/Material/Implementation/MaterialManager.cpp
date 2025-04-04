@@ -135,15 +135,16 @@ void ezMaterialManager::ExtractMaterialUpdates()
   }
 
   m_pPendingChanges = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), PendingChanges);
-  m_pPendingChanges->m_AddedOrModifiedMaterials.SetCount(modifiedMaterials.GetCount());
+  m_pPendingChanges->m_AddedOrModifiedMaterials.Reserve(modifiedMaterials.GetCount());
 
-  ezUInt32 uiCurrentIndex = 0;
   for (const ezMaterialResourceHandle& hMaterial : modifiedMaterials)
   {
-    ExtractedMaterial& extractedMaterial = m_pPendingChanges->m_AddedOrModifiedMaterials[uiCurrentIndex];
     ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    ExtractMaterial(pMaterial.GetPointerNonConst(), extractedMaterial);
-    uiCurrentIndex++;
+    if (pMaterial->m_hShader.IsValid())
+    {
+      ExtractedMaterial& extractedMaterial = m_pPendingChanges->m_AddedOrModifiedMaterials.ExpandAndGetRef();
+      ExtractMaterial(pMaterial.GetPointerNonConst(), extractedMaterial);
+    }
   }
   m_pPendingChanges->m_RemovedMaterials = removedMaterials;
 }
@@ -160,10 +161,13 @@ void ezMaterialManager::RegisterMaterial(ezMaterialResource* pMaterial)
 
   if (!hOldShader.IsValid())
   {
-    // Newly created material
-    pMaterial->m_hShader = pMaterial->m_mDesc.m_hShader;
-    MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
-    pMaterial->m_MaterialId = msc.AddMaterial(pMaterial->GetResourceHandle());
+    if (pMaterial->m_mDesc.m_hShader.IsValid())
+    {
+      // Newly created material
+      pMaterial->m_hShader = pMaterial->m_mDesc.m_hShader;
+      MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
+      pMaterial->m_MaterialId = msc.AddMaterial(pMaterial->GetResourceHandle());
+    }
   }
   else if (bShaderChanged)
   {
@@ -171,9 +175,17 @@ void ezMaterialManager::RegisterMaterial(ezMaterialResource* pMaterial)
     UnregisterMaterial(pMaterial);
 
     // Create new material registration
-    pMaterial->m_hShader = pMaterial->m_mDesc.m_hShader;
-    MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
-    pMaterial->m_MaterialId = msc.AddMaterial(pMaterial->GetResourceHandle());
+    if (pMaterial->m_mDesc.m_hShader.IsValid())
+    {
+      pMaterial->m_hShader = pMaterial->m_mDesc.m_hShader;
+      MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
+      pMaterial->m_MaterialId = msc.AddMaterial(pMaterial->GetResourceHandle());
+    }
+    else
+    {
+      pMaterial->m_hShader = pMaterial->m_mDesc.m_hShader;
+      pMaterial->m_MaterialId.Invalidate();
+    }
 
     // Fire event that the shader / id has changed and needs to be invalidated.
     ezMaterialShaderChanged change;
@@ -196,9 +208,12 @@ void ezMaterialManager::UnregisterMaterial(ezMaterialResource* pMaterial)
   EZ_LOCK(m_MaterialShaderMutex);
   EZ_LOCK(m_ExtractionMutex);
 
-  MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
-  msc.RemoveMaterial(pMaterial->m_MaterialId);
-  m_RemovedMaterials.PushBack(pMaterial);
+  if (pMaterial->m_hShader.IsValid())
+  {
+    MaterialShaderConstants& msc = GetShaderConstants(pMaterial->m_hShader);
+    msc.RemoveMaterial(pMaterial->m_MaterialId);
+    m_RemovedMaterials.PushBack(pMaterial);
+  }
 }
 
 void ezMaterialManager::ExtractMaterial(ezMaterialResource* pMaterial, ezMaterialManager::ExtractedMaterial& extractedMaterial)
@@ -328,6 +343,7 @@ void ezMaterialManager::Cleanup()
 
 ezMaterialManager::MaterialShaderConstants& ezMaterialManager::GetShaderConstants(ezShaderResourceHandle hShader)
 {
+  EZ_ASSERT_DEBUG(hShader.IsValid(), "Invalid materials should not be handled by the material manager");
   EZ_ASSERT_DEBUG(m_MaterialShaderMutex.IsLocked(), "m_MaterialShaderMutex must be locked before accessing m_MaterialShaders");
   auto it = m_MaterialShaders.FindOrAdd(hShader);
   if (it.Value() == nullptr)

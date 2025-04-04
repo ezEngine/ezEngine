@@ -674,9 +674,6 @@ void ezMaterialResource::SetModified(ezMaterialResource::DirtyFlags::Enum flag)
 
 void ezMaterialResource::FlattenOriginalDescHierarchy()
 {
-  EZ_ASSERT_DEBUG(!m_FlattenMutex.IsLocked(), "");
-  EZ_LOCK(m_FlattenMutex);
-
   ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
   ezMaterialResource* pCurrentMaterial = this;
 
