@@ -2,11 +2,11 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/ShaderCompiler/ShaderParser.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <Foundation/IO/FileSystem/FileWriter.h>
+#  include <RendererCore/Shader/ShaderPermutationResource.h>
+#  include <RendererCore/ShaderCompiler/ShaderManager.h>
+#  include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 void CompareLayouts(const ezShaderConstantBufferLayout& layoutA, const ezShaderConstantBufferLayout& layoutB)
 {
