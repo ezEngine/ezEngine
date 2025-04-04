@@ -611,7 +611,7 @@ ezVisualScriptCompiler::DataOffset ezVisualScriptCompiler::GetInstanceDataOffset
 {
   ezVisualScriptInstanceData instanceData;
   EZ_VERIFY(m_Module.m_InstanceDataMapping.m_Content.TryGetValue(sName, instanceData), "");
-  EZ_ASSERT_DEBUG(instanceData.m_DataType == dataType, "Data type mismatch");
+  EZ_ASSERT_DEBUG(instanceData.m_DataOffset.m_uiType == dataType, "Data type mismatch");
   return instanceData.m_DataOffset;
 }
 
@@ -1762,6 +1762,10 @@ ezResult ezVisualScriptCompiler::TraverseAllConnections(AstNode* pEntryAstNode, 
 
 ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
 {
+  // Can happen if there are no functions in the script yet
+  if (m_pManager == nullptr)
+    return EZ_SUCCESS;
+
   ezHybridArray<ezVisualScriptVariable, 16> variables;
   m_pManager->GetAllVariables(variables);
 
