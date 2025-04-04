@@ -63,7 +63,7 @@ jobs:
     displayName: Delete old crash dumps
     inputs:
       targetType: inline
-      script: >-
+      script: |
         if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64))
         {
             Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
@@ -72,7 +72,7 @@ jobs:
     displayName: Enable Windows Error Reporting
     inputs:
       targetType: inline
-      script: >-
+      script: |
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Force
         New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpFolder" -Value "$(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64" -PropertyType ExpandString -Force
         New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "10" -PropertyType DWORD -Force
@@ -137,7 +137,7 @@ jobs:
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: >-
+      script: |
         set QT_PLUGIN_PATH=Output\Bin\WinVs2022Dev64
         Output\Bin\WinVs2022Dev64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
   - task: CmdLine@2
@@ -151,7 +151,7 @@ jobs:
     displayName: Disable Windows Error Reporting
     inputs:
       targetType: inline
-      script: >-
+      script: |
         New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "0" -PropertyType DWORD -Force
   - task: CmdLine@2
     displayName: List files
@@ -162,7 +162,7 @@ jobs:
     displayName: Copy Bin
     condition: failed()
     inputs:
-      script: >-
+      script: |
         xcopy Output\Bin\WinVs2022Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
         xcopy Output\Bin\WinVs2022Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
         xcopy Output\Bin\WinVs2022Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
@@ -172,7 +172,7 @@ jobs:
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: >-
+      script: |
         $RootDir = "$(System.DefaultWorkingDirectory)"
         $TargetDir = "$(Build.ArtifactStagingDirectory)\AssetCache"
         Set-Location $RootDir
