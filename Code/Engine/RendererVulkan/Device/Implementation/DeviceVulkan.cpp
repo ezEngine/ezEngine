@@ -1679,7 +1679,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 
   m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;
   m_Capabilities.m_bSupportsNoOverwriteBufferUpdate = true; // TODO how to check
-  m_Capabilities.m_MaterialBufferLayout = ezGALBufferLayout::Vulkan_Std430_relaxed;
+  m_Capabilities.m_materialBufferLayout = ezGALBufferLayout::Vulkan_Std430_relaxed;
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = features.tessellationShader;

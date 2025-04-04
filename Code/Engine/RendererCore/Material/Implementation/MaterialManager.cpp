@@ -350,7 +350,7 @@ ezMaterialManager::MaterialShaderConstants::MaterialShaderConstants(ezShaderReso
   pShader->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMaterialManager::MaterialShaderConstants::OnResourceEvent, this), m_ShaderResourceEventSubscriber);
   // END-DOCS-CODE-SNIPPET
 
-  ezEnum<ezGALBufferLayout> layout = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_MaterialBufferLayout;
+  ezEnum<ezGALBufferLayout> layout = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_materialBufferLayout;
   switch (layout)
   {
     case ezGALBufferLayout::Vulkan_Std140_relaxed:

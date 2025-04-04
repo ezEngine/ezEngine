@@ -65,7 +65,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
   {
     if (ezShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded())
     {
-      ezShaderParser::LayoutMaterialConstants(*m_pLayout, ezGALDevice::GetDefaultDevice()->GetCapabilities().m_MaterialBufferLayout);
+      ezShaderParser::LayoutMaterialConstants(*m_pLayout, ezGALDevice::GetDefaultDevice()->GetCapabilities().m_materialBufferLayout);
     }
   }
 

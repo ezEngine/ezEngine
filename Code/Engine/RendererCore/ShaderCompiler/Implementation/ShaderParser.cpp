@@ -754,10 +754,10 @@ void AlignStructuredBufferDX(ezShaderConstantBufferLayout& ref_materialConstantB
   ref_materialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
 }
 
-void AlignStructuredBufferStd430Relaxed(ezShaderConstantBufferLayout& ref_MaterialConstantBufferLayout)
+void AlignStructuredBufferStd430Relaxed(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
 {
   ezUInt32 uiCurrentOffset = 0;
-  for (ezShaderConstant& constant : ref_MaterialConstantBufferLayout.m_Constants)
+  for (ezShaderConstant& constant : ref_materialConstantBufferLayout.m_Constants)
   {
     const ezUInt32 uiScalarSize = s_ShaderConstantScalarSize[constant.m_Type];
     const ezUInt32 uiConstantSize = s_ShaderConstantSize[constant.m_Type];
@@ -772,7 +772,7 @@ void AlignStructuredBufferStd430Relaxed(ezShaderConstantBufferLayout& ref_Materi
     constant.m_uiOffset = uiCurrentOffset;
     uiCurrentOffset += uiConstantSize;
   }
-  ref_MaterialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
+  ref_materialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
 }
 
 ezStatus ParseMaterialConstants(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)

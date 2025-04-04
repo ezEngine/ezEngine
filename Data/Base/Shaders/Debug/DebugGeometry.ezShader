@@ -40,9 +40,9 @@ struct VS_IN_POS_ONLY
 
 VS_OUT main(VS_IN_POS_ONLY Input)
 {
-#if CAMERA_MODE == CAMERA_MODE_STEREO
-  s_ActiveCameraEyeIndex = Input.InstanceID % 2;
-#endif
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+  #endif
 
   #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
     float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID / 2].transform);
@@ -56,6 +56,9 @@ VS_OUT main(VS_IN_POS_ONLY Input)
   RetVal.Position = mul(GetWorldToScreenMatrix(), worldPos);
   #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
     RetVal.Color0 = boxData[Input.InstanceID / 2].color;
+    #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
+      RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
+    #endif
   #else
     RetVal.Color0 = boxData[Input.InstanceID].color;
   #endif

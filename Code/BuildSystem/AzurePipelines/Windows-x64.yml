@@ -69,6 +69,15 @@ jobs:
             Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
         }
   - task: PowerShell@2
+    displayName: Enable Windows Error Reporting
+    inputs:
+      targetType: inline
+      script: >-
+        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Force
+        New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpFolder" -Value "$(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64" -PropertyType ExpandString -Force
+        New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "10" -PropertyType DWORD -Force
+        New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpType" -Value "2" -PropertyType DWORD -Force
+  - task: PowerShell@2
     displayName: Run CMake
     inputs:
       targetType: filePath
@@ -130,7 +139,6 @@ jobs:
     inputs:
       script: >-
         set QT_PLUGIN_PATH=Output\Bin\WinVs2022Dev64
-
         Output\Bin\WinVs2022Dev64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
   - task: CmdLine@2
     displayName: GameEngineTest
@@ -139,6 +147,12 @@ jobs:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
       script: Output\Bin\WinVs2022Dev64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+  - task: PowerShell@2
+    displayName: Disable Windows Error Reporting
+    inputs:
+      targetType: inline
+      script: >-
+        New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "0" -PropertyType DWORD -Force
   - task: CmdLine@2
     displayName: List files
     condition: always()
@@ -149,13 +163,10 @@ jobs:
     condition: failed()
     inputs:
       script: >-
-        REM rmdir /S /Q $(System.DefaultWorkingDirectory)\build
-
         xcopy Output\Bin\WinVs2022Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
-
         xcopy Output\Bin\WinVs2022Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
-
         xcopy Output\Bin\WinVs2022Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
+        xcopy Output\Bin\WinVs2022Dev64\*.dmp $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
   - task: PowerShell@2
     displayName: Copy AssetCaches
     condition: eq(variables['task.MSBuild.status'], 'success')
@@ -163,17 +174,10 @@ jobs:
       targetType: inline
       script: >-
         $RootDir = "$(System.DefaultWorkingDirectory)"
-
         $TargetDir = "$(Build.ArtifactStagingDirectory)\AssetCache"
-
-
         Set-Location $RootDir
-
         $AssetCaches = (Get-ChildItem $RootDir -Directory -include AssetCache -recurse)
-
-
         foreach($Dir in $AssetCaches)
-
         {
             Write-Host "Dir: $Dir"
             $relativePath = Get-Item $Dir | Resolve-Path -Relative
