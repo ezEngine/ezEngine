@@ -19,7 +19,6 @@ private:
     ST_CreateNewMaterialFromShader,
     ST_CreateNewMaterialFromBase,
     ST_CreateNewMaterialFromVSE,
-    ST_CreateNewMaterialFromTemplate
   };
 
   virtual void SetupSubTests() override;
@@ -30,11 +29,11 @@ private:
   ezResult CreateMaterial(const char* szSceneName);
   void CloseMaterial();
   const ezDocumentObject* GetShaderProperties(const ezDocumentObject* pMaterialProperties);
+  void CaptureMaterialImage();
 
   void CreateMaterialFromShader();
   void CreateMaterialFromBase();
   void CreateMaterialFromVSE();
-  void CreateMaterialFromTemplate();
 
 private:
   ezAssetDocument* m_pDoc = nullptr;

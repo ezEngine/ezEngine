@@ -65,6 +65,10 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
   ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+
+  // To read reference images
+  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+  ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()

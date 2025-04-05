@@ -16,14 +16,16 @@
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-// #include <EditorPlugins/Assets/EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QBackingStore>
 #include <QMimeData>
 #include <ToolsFoundation/Command/TreeCommands.h>
-static ezMaterialDocumentTest s_EditorSceneDocumentTest;
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
+static ezMaterialDocumentTest s_MaterialDocumentTest;
 
 const char* ezMaterialDocumentTest::GetTestName() const
 {
@@ -35,7 +37,6 @@ void ezMaterialDocumentTest::SetupSubTests()
   AddSubTest("Create New Material FromShader", SubTests::ST_CreateNewMaterialFromShader);
   AddSubTest("Create New Material FromBase", SubTests::ST_CreateNewMaterialFromBase);
   AddSubTest("Create New Material FromVSE", SubTests::ST_CreateNewMaterialFromVSE);
-  AddSubTest("Create New Material FromTemplate", SubTests::ST_CreateNewMaterialFromTemplate);
 }
 
 ezResult ezMaterialDocumentTest::InitializeTest()
@@ -78,9 +79,6 @@ ezTestAppRun ezMaterialDocumentTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
       break;
     case SubTests::ST_CreateNewMaterialFromVSE:
       CreateMaterialFromVSE();
-      break;
-    case SubTests::ST_CreateNewMaterialFromTemplate:
-      CreateMaterialFromTemplate();
       break;
   }
   return ezTestAppRun::Quit;
@@ -135,6 +133,45 @@ const ezDocumentObject* ezMaterialDocumentTest::GetShaderProperties(const ezDocu
   return pAccessor->GetObject(childGuild);
 }
 
+void ezMaterialDocumentTest::CaptureMaterialImage()
+{
+  ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDoc));
+  if (!EZ_TEST_BOOL(pWindow != nullptr))
+    return;
+
+  pWindow->backingStore()->window()->showMaximized();
+
+  EZ_ANALYSIS_ASSUME(pWindow != nullptr);
+  auto viewWidgets = pWindow->GetViewWidgets();
+
+  if (!EZ_TEST_BOOL(!viewWidgets.IsEmpty()))
+    return;
+
+  ezQtEngineViewWidget::InteractionContext ctxt;
+  ctxt.m_pLastHoveredViewWidget = viewWidgets[0];
+  ezQtEngineViewWidget::SetInteractionContext(ctxt);
+
+  viewWidgets[0]->m_pViewConfig->m_RenderMode = ezViewRenderMode::DiffuseColor;
+  viewWidgets[0]->m_pViewConfig->m_Perspective = ezSceneViewPerspective::Perspective;
+  viewWidgets[0]->m_pViewConfig->ApplyPerspectiveSetting(90.0f);
+
+  ezActionContext ctx2;
+  ctx2.m_pDocument = m_pDoc;
+  ctx2.m_pWindow = viewWidgets[0];
+
+  ezActionManager::ExecuteAction(nullptr, "View.SkyBox", ctx2, false).AssertSuccess();
+  ProcessEvents();
+
+  for (int i = 0; i < 10; ++i)
+  {
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    ProcessEvents();
+  }
+
+  EZ_TEST_BOOL(CaptureImage(pWindow, "MatFromShader").Succeeded());
+  EZ_TEST_IMAGE(1, 100);
+}
+
 void ezMaterialDocumentTest::CreateMaterialFromShader()
 {
   if (CreateMaterial("CreateMaterialFromShader.ezMaterialAsset").Failed())
@@ -160,45 +197,8 @@ void ezMaterialDocumentTest::CreateMaterialFromShader()
   EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "SHADING_MODE", 1));
   pAccessor->FinishTransaction();
 
-  // m_pDoc->GetCommandHistory()->ClearUndoHistory();
+  CaptureMaterialImage();
 
-  ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDoc));
-  if (!EZ_TEST_BOOL(pWindow != nullptr))
-    return;
-
-  pWindow->backingStore()->window()->showMaximized();
-
-  EZ_ANALYSIS_ASSUME(pWindow != nullptr);
-  auto viewWidgets = pWindow->GetViewWidgets();
-
-  if (!EZ_TEST_BOOL(!viewWidgets.IsEmpty()))
-    return;
-
-  ezQtEngineViewWidget::InteractionContext ctxt;
-  ctxt.m_pLastHoveredViewWidget = viewWidgets[0];
-  ezQtEngineViewWidget::SetInteractionContext(ctxt);
-
-  viewWidgets[0]->m_pViewConfig->m_RenderMode = ezViewRenderMode::Default;
-  viewWidgets[0]->m_pViewConfig->m_Perspective = ezSceneViewPerspective::Perspective;
-  viewWidgets[0]->m_pViewConfig->ApplyPerspectiveSetting(90.0f);
-
-  ezActionContext ctx2;
-  ctx2.m_pDocument = m_pDoc;
-  ctx2.m_pWindow = viewWidgets[0];
-
-  ezActionManager::ExecuteAction(nullptr, "View.SkyBox", ctx2, false).AssertSuccess();
-  ProcessEvents();
-
-  for (int i = 0; i < 10; ++i)
-  {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
-    ProcessEvents();
-  }
-
-  EZ_TEST_BOOL(CaptureImage(pWindow, "MatFromShader").Succeeded());
-  EZ_TEST_IMAGE(1, 100);
-
-  // ProcessEvents(999999999);
   CloseMaterial();
 }
 
@@ -208,7 +208,23 @@ void ezMaterialDocumentTest::CreateMaterialFromBase()
   if (CreateMaterial("CreateMaterialFromBase.ezMaterialAsset").Failed())
     return;
 
-  ProcessEvents(10);
+  auto pAccessor = m_pDoc->GetObjectAccessor();
+  const ezDocumentObject* pProperties = m_pDoc->GetSelectionManager()->GetCurrentObject();
+
+  pAccessor->StartTransaction("Change Property 'Shader Mode'");
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 0));
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  pAccessor->StartTransaction("Change Property 'BaseMaterial'");
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "BaseMaterial", "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"));
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  CaptureMaterialImage();
+
   CloseMaterial();
 }
 
@@ -218,18 +234,103 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
     return;
 
   auto pAccessor = m_pDoc->GetObjectAccessor();
+  auto pHistory = m_pDoc->GetCommandHistory();
+  const ezDocumentObject* pProperties = m_pDoc->GetSelectionManager()->GetCurrentObject();
 
-  ProcessEvents(9999999);
-  CloseMaterial();
-}
+  ProcessEvents();
 
-void ezMaterialDocumentTest::CreateMaterialFromTemplate()
-{
-  if (CreateMaterial("CreateMaterialFromTemplate.ezMaterialAsset").Failed())
-    return;
+  {
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log, true);
+    log.ExpectMessage("Visual Shader graph is empty", ezLogMsgType::ErrorMsg, 1);
 
-  auto pAccessor = m_pDoc->GetObjectAccessor();
+    pAccessor->StartTransaction("Change Property 'Shader Mode'");
+    EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 2));
+    pAccessor->FinishTransaction();
+  }
+  ProcessEvents();
 
-  ProcessEvents(10);
+  ezUuid materialOutputGuid = ezUuid::MakeUuid();
+  pAccessor->StartTransaction("Add Node");
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = ezRTTI::FindTypeByName("ShaderNode::MaterialOutput");
+    cmd.m_NewObjectGuid = materialOutputGuid;
+    cmd.m_Index = -1;
+
+    EZ_TEST_STATUS(pHistory->AddCommand(cmd));
+
+    ezMoveNodeCommand move;
+    move.m_Object = cmd.m_NewObjectGuid;
+    move.m_NewPos = {0, 0};
+    EZ_TEST_STATUS(pHistory->AddCommand(move));
+  }
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  ezUuid parameterColorGuid = ezUuid::MakeUuid();
+  pAccessor->StartTransaction("Add Node");
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = ezRTTI::FindTypeByName("ShaderNode::ParameterColor");
+    cmd.m_NewObjectGuid = parameterColorGuid;
+    cmd.m_Index = -1;
+
+    EZ_TEST_STATUS(pHistory->AddCommand(cmd));
+
+    ezMoveNodeCommand move;
+    move.m_Object = cmd.m_NewObjectGuid;
+    move.m_NewPos = {-200, 60};
+    EZ_TEST_STATUS(pHistory->AddCommand(move));
+  }
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  {
+    pAccessor->StartTransaction("Connect Nodes");
+    auto pNodeManager = static_cast<ezDocumentNodeManager*>(m_pDoc->GetObjectManager());
+    auto pMateriaOutput = pAccessor->GetObject(materialOutputGuid);
+    auto pParameterColor = pAccessor->GetObject(parameterColorGuid);
+
+    const ezPin* pValue = pNodeManager->GetOutputPinByName(pParameterColor, "Value");
+    const ezPin* pBaseColor = pNodeManager->GetInputPinByName(pMateriaOutput, "BaseColor");
+    if (EZ_TEST_BOOL(pValue && pBaseColor))
+    {
+      EZ_TEST_STATUS(ezNodeCommands::AddAndConnectCommand(pHistory, pNodeManager->GetConnectionType(), *pValue, *pBaseColor));
+    }   
+    pAccessor->FinishTransaction();
+  }
+
+  // Bug: Shader won't update until transformed and shader mode is switched back and forth.
+  m_pDoc->SaveDocument();
+  ezAssetCurator::GetSingleton()->TransformAsset(m_MaterialGuid, ezTransformFlags::ForceTransform);
+
+
+  ProcessEvents();
+  
+  pAccessor->StartTransaction("Change Property 'Shader Mode'");
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 0));
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  pAccessor->StartTransaction("Change Property 'Shader Mode'");
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 2));
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  const ezDocumentObject* pShaderProperties = GetShaderProperties(pProperties);
+  pAccessor->StartTransaction("Change Properties");
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "SHADING_MODE", 1));
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "Parameter", ezColor::DarkGoldenRod));
+  pAccessor->FinishTransaction();
+
+  ProcessEvents();
+
+  CaptureMaterialImage();
+
   CloseMaterial();
 }
