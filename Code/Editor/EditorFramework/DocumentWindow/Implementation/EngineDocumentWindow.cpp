@@ -192,3 +192,9 @@ void ezQtEngineDocumentWindow::DestroyAllViews()
     delete m_ViewWidgets[0];
   }
 }
+
+void ezQtEngineDocumentWindow::CreateImageCapture(const char* szOutputPath)
+{
+  if (!m_ViewWidgets.IsEmpty())
+    m_ViewWidgets[0]->TakeScreenshot(szOutputPath);
+}

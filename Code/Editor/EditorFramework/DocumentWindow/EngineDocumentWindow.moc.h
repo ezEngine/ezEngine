@@ -58,6 +58,7 @@ public:
 
   void AddViewWidget(ezQtEngineViewWidget* pView);
 
+  virtual void CreateImageCapture(const char* szOutputPath) override;
 public:
   mutable ezEvent<const ezEngineWindowEvent&> m_EngineWindowEvent;
 
