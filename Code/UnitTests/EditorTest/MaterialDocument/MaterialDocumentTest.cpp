@@ -22,9 +22,9 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QBackingStore>
 #include <QMimeData>
+#include <TestFramework/Utilities/TestLogInterface.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
-#include <TestFramework/Utilities/TestLogInterface.h>
 static ezMaterialDocumentTest s_MaterialDocumentTest;
 
 const char* ezMaterialDocumentTest::GetTestName() const
@@ -299,7 +299,7 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
     if (EZ_TEST_BOOL(pValue && pBaseColor))
     {
       EZ_TEST_STATUS(ezNodeCommands::AddAndConnectCommand(pHistory, pNodeManager->GetConnectionType(), *pValue, *pBaseColor));
-    }   
+    }
     pAccessor->FinishTransaction();
   }
 
@@ -309,7 +309,7 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
 
 
   ProcessEvents();
-  
+
   pAccessor->StartTransaction("Change Property 'Shader Mode'");
   EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 0));
   pAccessor->FinishTransaction();
