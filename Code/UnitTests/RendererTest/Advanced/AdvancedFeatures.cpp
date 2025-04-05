@@ -8,8 +8,9 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
-
+#include <RendererTest/Basics/RendererTestUtils.h>
 #undef CreateWindow
 
 
@@ -41,6 +42,7 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   }
   AddSubTest("06 - FloatSampling", SubTests::ST_FloatSampling);
   AddSubTest("07 - ProxyTexture", SubTests::ST_ProxyTexture);
+  AddSubTest("08 - Material", SubTests::ST_Material);
 
   ShutdownRenderer();
   ezStartup::ShutdownCoreSystems();
@@ -175,6 +177,59 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StereoPreview.ezShader");
   }
 
+  if (iIdentifier == ST_Material)
+  {
+    // Texture Resource
+    ezGALTextureCreationDescription galTexDesc;
+    galTexDesc.m_uiWidth = 8;
+    galTexDesc.m_uiHeight = 8;
+    galTexDesc.m_uiMipLevelCount = 1;
+    galTexDesc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+
+    ezImage coloredMips;
+    ezRendererTestUtils::CreateImage(coloredMips, galTexDesc.m_uiWidth, galTexDesc.m_uiHeight, 1, true);
+
+    ezHybridArray<ezGALSystemMemoryDescription, 1> initialData;
+    initialData.SetCount(galTexDesc.m_uiMipLevelCount);
+    for (ezUInt32 m = 0; m < galTexDesc.m_uiMipLevelCount; m++)
+    {
+      ezGALSystemMemoryDescription& memoryDesc = initialData[m];
+      memoryDesc.m_pData = coloredMips.GetSubImageView(m).GetByteBlobPtr();
+      memoryDesc.m_uiRowPitch = static_cast<ezUInt32>(coloredMips.GetRowPitch(m));
+      memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips.GetDepthPitch(m));
+    }
+
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/TestMaterial.ezShader");
+
+    ezGALSamplerStateCreationDescription samplerDesc;
+    samplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_MagFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+    samplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
+    samplerDesc.m_BorderColor = ezColor::White;
+
+    ezTexture2DResourceDescriptor texDesc;
+    texDesc.m_DescGAL = galTexDesc;
+    texDesc.m_InitialContent = initialData;
+    texDesc.m_SamplerDesc = samplerDesc;
+
+    m_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>("TestTexture", std::move(texDesc), "A Test Texture");
+
+    // Material
+    ezMaterialResourceDescriptor matDesc;
+    matDesc.m_hShader = m_hShader;
+    matDesc.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
+    m_sBaseColor.Assign("BaseColor");
+    matDesc.m_Parameters.PushBack({m_sBaseColor, ezColor::White});
+
+    m_sTexture.Assign("DiffuseTexture");
+    matDesc.m_Texture2DBindings.PushBack({m_sTexture, m_hTexture});
+
+    m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>("TestMaterial", std::move(matDesc), "A Test Material");
+  }
+
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   if (iIdentifier == ST_SharedTexture)
   {
@@ -299,6 +354,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_ProxyTexture:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
       break;
+    case SubTests::ST_Material:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::Material_ColorChange);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::Material_ChangeTexture);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -366,6 +426,13 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
   m_hShader2.Invalidate();
   m_hShader3.Invalidate();
 
+  m_hTexture.Invalidate();
+  m_hMaterial.Invalidate();
+//  if (!m_hTexture2DSampler.IsInvalidated())
+//  {
+//    m_pDevice->DestroySamplerState(m_hTexture2DSampler);
+//    m_hTexture2DSampler.Invalidate();
+//  }
   if (!m_hTexture2D.IsInvalidated())
   {
     m_pDevice->DestroyTexture(m_hTexture2D);
@@ -396,6 +463,10 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
     return SharedTexture();
   }
 #endif
+  if (iIdentifier == ST_Material)
+  {
+    return Material();
+  }
 
   BeginFrame();
 
@@ -696,6 +767,59 @@ void ezRendererTestAdvancedFeatures::Compute()
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DView);
   }
   EndCommands();
+}
+
+ezTestAppRun ezRendererTestAdvancedFeatures::Material()
+{
+  if (m_iFrame == ImageCaptureFrames::Material_ColorChange)
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    pMaterial->SetParameter(m_sBaseColor, ezColor::Gray);
+  }
+  if (m_iFrame == ImageCaptureFrames::Material_ChangeTexture)
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
+    pMaterial->SetTexture2DBinding(m_sTexture, hTexture);
+  }
+
+  BeginFrame();
+  {
+    const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+    const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+    const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
+    BeginCommands("Tessellation");
+    {
+      ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
+      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+
+      ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+      pContext->BindMaterial(m_hMaterial);
+
+      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ocb->m_MVP = mMVP;
+      ocb->m_Color = ezColor(1, 1, 1, 1);
+
+      ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+
+      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
+      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+
+      EndRendering();
+      if (m_ImgCompFrames.Contains(m_iFrame))
+      {
+        EZ_TEST_IMAGE(m_iFrame, 100);
+      }
+    }
+    EndCommands();
+  }
+  EndFrame();
+
+  if (m_ImgCompFrames.IsEmpty() || m_ImgCompFrames.PeekBack() == m_iFrame)
+  {
+    return ezTestAppRun::Quit;
+  }
+  return ezTestAppRun::Continue;
 }
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)

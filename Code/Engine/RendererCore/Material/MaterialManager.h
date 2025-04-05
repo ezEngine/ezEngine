@@ -117,8 +117,7 @@ private:
 
   struct ExtractedMaterial
   {
-    ExtractedMaterial();
-
+    // Not using the frame allocator on the member arrays as we std::move these.
     ezMaterialResourceHandle m_hMaterial;
     ezShaderResourceHandle m_hShader;
     ezMaterialResource::ezMaterialId m_MaterialId;

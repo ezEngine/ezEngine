@@ -687,11 +687,6 @@ bool ezMaterialManager::MaterialShaderConstants::IsEmpty() const
   return m_Materials.IsEmpty();
 }
 
-ezMaterialManager::ExtractedMaterial::ExtractedMaterial()
-{
-  // Not using the frame allocator on the member arrays as we std::move these.
-}
-
 ezMaterialManager::PendingChanges::PendingChanges()
   : m_RemovedMaterials(ezFrameAllocator::GetCurrentAllocator())
   , m_AddedOrModifiedMaterials(ezFrameAllocator::GetCurrentAllocator())

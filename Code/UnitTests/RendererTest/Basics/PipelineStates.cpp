@@ -5,89 +5,11 @@
 #include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <RendererTest/Basics/PipelineStates.h>
+#include <RendererTest/Basics/RendererTestUtils.h>
 
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
-#include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestInstancing.h>
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestPushConstants.h>
 
-EZ_DEFINE_AS_POD_TYPE(ezTestShaderData);
-
-namespace
-{
-  ezTransform CreateTransform(const ezUInt32 uiColumns, const ezUInt32 uiRows, ezUInt32 x, ezUInt32 y)
-  {
-    ezTransform t = ezTransform::MakeIdentity();
-    t.m_vScale = ezVec3(1.0f / float(uiColumns), 1.0f / float(uiRows), 1);
-    t.m_vPosition = ezVec3(ezMath::Lerp(-1.f, 1.f, (float(x) + 0.5f) / float(uiColumns)), ezMath::Lerp(1.f, -1.f, (float(y) + 0.5f) / float(uiRows)), 0);
-    if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
-    {
-      ezTransform flipY = ezTransform::MakeIdentity();
-      flipY.m_vScale.y *= -1.0f;
-      t = flipY * t;
-    }
-    return t;
-  }
-
-  void FillStructuredBuffer(ezHybridArray<ezTestShaderData, 16>& ref_instanceData, ezUInt32 uiColorOffset = 0, ezUInt32 uiSlotOffset = 0)
-  {
-    ref_instanceData.SetCount(16);
-    const ezUInt32 uiColumns = 4;
-    const ezUInt32 uiRows = 2;
-
-    for (ezUInt32 x = 0; x < uiColumns; ++x)
-    {
-      for (ezUInt32 y = 0; y < uiRows; ++y)
-      {
-        ezTestShaderData& instance = ref_instanceData[uiSlotOffset + x * uiRows + y];
-        const float fColorIndex = float(uiColorOffset + x * uiRows + y) / 32.0f;
-        instance.InstanceColor = ezColorScheme::LightUI(fColorIndex).GetAsVec4();
-        ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
-        instance.InstanceTransform = t;
-      }
-    }
-  }
-
-  struct ImgColor
-  {
-    EZ_DECLARE_POD_TYPE();
-    ezUInt8 b;
-    ezUInt8 g;
-    ezUInt8 r;
-    ezUInt8 a;
-  };
-
-  void CreateImage(ezImage& ref_image, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiMipLevelCount, bool bMipLevelIsBlue, ezUInt8 uiFixedBlue = 0)
-  {
-    ezImageHeader header;
-    header.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
-    header.SetWidth(uiWidth);
-    header.SetHeight(uiHeight);
-    header.SetNumMipLevels(uiMipLevelCount);
-
-    ref_image.ResetAndAlloc(header);
-    for (ezUInt32 m = 0; m < uiMipLevelCount; m++)
-    {
-      const ezUInt32 uiHeight = ref_image.GetHeight(m);
-      const ezUInt32 uiWidth = ref_image.GetWidth(m);
-
-      const ezUInt8 uiBlue = bMipLevelIsBlue ? static_cast<ezUInt8>(255.0f * float(m) / (uiMipLevelCount - 1)) : uiFixedBlue;
-      for (ezUInt32 y = 0; y < uiHeight; y++)
-      {
-        const ezUInt8 uiGreen = static_cast<ezUInt8>(255.0f * float(y) / (uiHeight - 1));
-        for (ezUInt32 x = 0; x < uiWidth; x++)
-        {
-          ImgColor* pColor = ref_image.GetPixelPointer<ImgColor>(m, 0u, 0u, x, y);
-          pColor->a = 255;
-          pColor->b = uiBlue;
-          pColor->g = uiGreen;
-          pColor->r = static_cast<ezUInt8>(255.0f * float(x) / (uiWidth - 1));
-        }
-      }
-    }
-  }
-
-
-} // namespace
 
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
@@ -157,7 +79,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.
     ezHybridArray<ezTestShaderData, 16> instanceData;
-    FillStructuredBuffer(instanceData);
+    ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
     desc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;
@@ -181,7 +103,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
     ezImage coloredMips;
-    CreateImage(coloredMips, desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, true);
+    ezRendererTestUtils::CreateImage(coloredMips, desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, true);
 
     if (iIdentifier == SubTests::ST_GenerateMipMaps)
     {
@@ -196,7 +118,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
         {
           for (ezUInt32 x = 0; x < uiWidth; x++)
           {
-            ImgColor* pColor = coloredMips.GetPixelPointer<ImgColor>(m, 0u, 0u, x, y);
+            ezRendererTestUtils::ImgColor* pColor = coloredMips.GetPixelPointer<ezRendererTestUtils::ImgColor>(m, 0u, 0u, x, y);
             pColor->a = 255;
             pColor->b = 0;
             pColor->g = 0;
@@ -241,8 +163,8 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
     ezImage coloredMips[2];
-    CreateImage(coloredMips[0], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 0);
-    CreateImage(coloredMips[1], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 255);
+    ezRendererTestUtils::CreateImage(coloredMips[0], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 0);
+    ezRendererTestUtils::CreateImage(coloredMips[1], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 255);
 
     ezHybridArray<ezGALSystemMemoryDescription, 8> initialData;
     initialData.SetCount(desc.m_uiArraySize * desc.m_uiMipLevelCount);
@@ -554,7 +476,7 @@ void ezRendererTestPipelineStates::PushConstantsTest()
         for (ezUInt32 y = 0; y < uiRows; ++y)
         {
           ezTestData constants;
-          ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
+          ezTransform t = ezRendererTestUtils::CreateTransform(uiColumns, uiRows, x, y);
           constants.Vertex0 = (t * ezVec3(1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
           constants.Vertex1 = (t * ezVec3(-1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
           constants.Vertex2 = (t * ezVec3(-0.f, 1.f, 0.0f)).GetAsVec4(1.0f);
@@ -629,7 +551,7 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
             constants->VertexColor = ezColorScheme::LightUI(float(x * uiRows + y) / (uiColumns * uiRows)).GetAsVec4();
           }
           {
-            ezTransform t = CreateTransform(uiColumns, uiRows, x, y);
+            ezTransform t = ezRendererTestUtils::CreateTransform(uiColumns, uiRows, x, y);
             auto constants = ezRenderContext::GetConstantBufferData<ezTestPositions>(m_hTestPositionsConstantBuffer);
             constants->Vertex0 = (t * ezVec3(1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
             constants->Vertex1 = (t * ezVec3(-1.f, -1.f, 0.0f)).GetAsVec4(1.0f);
@@ -654,14 +576,14 @@ void ezRendererTestPipelineStates::StructuredBufferTestUpload()
   {
     // Replace the elements at [0, 3] with more green ones by offsetting the color by 16.
     ezHybridArray<ezTestShaderData, 16> instanceData;
-    FillStructuredBuffer(instanceData, 16 /*green*/);
+    ezRendererTestUtils::FillStructuredBuffer(instanceData, 16 /*green*/);
     m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 4).ToByteArray());
   }
   if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
   {
     // Replace the elements at [8, 15] with the same data as the original 8 elements. We will render these afterwards using custom buffer views.
     ezHybridArray<ezTestShaderData, 16> instanceData;
-    FillStructuredBuffer(instanceData);
+    ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), sizeof(ezTestShaderData) * 8);
   }
 }
@@ -693,7 +615,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient1)
       {
         ezHybridArray<ezTestShaderData, 16> instanceData;
-        FillStructuredBuffer(instanceData, 16 /*green*/);
+        ezRendererTestUtils::FillStructuredBuffer(instanceData, 16 /*green*/);
         // Update the entire buffer in lots of little upload calls with greener versions.
         for (ezUInt32 i = 0; i < 16; i++)
         {
@@ -705,7 +627,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
       {
         ezHybridArray<ezTestShaderData, 16> instanceData;
-        FillStructuredBuffer(instanceData);
+        ezRendererTestUtils::FillStructuredBuffer(instanceData);
         // Update with one single update call for the first 8 elements matching the initial state.
         pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient));
