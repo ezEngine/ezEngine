@@ -3,6 +3,8 @@
 #include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
@@ -15,14 +17,12 @@
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 // #include <EditorPlugins/Assets/EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 
 #include <GuiFoundation/Action/ActionManager.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
-#include <QMimeData>
 #include <QBackingStore>
+#include <QMimeData>
+#include <ToolsFoundation/Command/TreeCommands.h>
 static ezMaterialDocumentTest s_EditorSceneDocumentTest;
 
 const char* ezMaterialDocumentTest::GetTestName() const
@@ -160,7 +160,7 @@ void ezMaterialDocumentTest::CreateMaterialFromShader()
   EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "SHADING_MODE", 1));
   pAccessor->FinishTransaction();
 
-  //m_pDoc->GetCommandHistory()->ClearUndoHistory();
+  // m_pDoc->GetCommandHistory()->ClearUndoHistory();
 
   ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDoc));
   if (!EZ_TEST_BOOL(pWindow != nullptr))
@@ -198,7 +198,7 @@ void ezMaterialDocumentTest::CreateMaterialFromShader()
   EZ_TEST_BOOL(CaptureImage(pWindow, "MatFromShader").Succeeded());
   EZ_TEST_IMAGE(1, 100);
 
-  //ProcessEvents(999999999);
+  // ProcessEvents(999999999);
   CloseMaterial();
 }
 

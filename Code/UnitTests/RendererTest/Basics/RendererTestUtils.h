@@ -22,4 +22,3 @@ public:
 
   static void CreateImage(ezImage& ref_image, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiMipLevelCount, bool bMipLevelIsBlue, ezUInt8 uiFixedBlue = 0);
 };
-

@@ -428,11 +428,11 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
 
   m_hTexture.Invalidate();
   m_hMaterial.Invalidate();
-//  if (!m_hTexture2DSampler.IsInvalidated())
-//  {
-//    m_pDevice->DestroySamplerState(m_hTexture2DSampler);
-//    m_hTexture2DSampler.Invalidate();
-//  }
+  //  if (!m_hTexture2DSampler.IsInvalidated())
+  //  {
+  //    m_pDevice->DestroySamplerState(m_hTexture2DSampler);
+  //    m_hTexture2DSampler.Invalidate();
+  //  }
   if (!m_hTexture2D.IsInvalidated())
   {
     m_pDevice->DestroyTexture(m_hTexture2D);

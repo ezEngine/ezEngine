@@ -4,7 +4,7 @@
 
 #include <EditorTest/TestClass/TestClass.h>
 
-//class ezMaterialAssetDocument;
+// class ezMaterialAssetDocument;
 
 class ezMaterialDocumentTest : public ezEditorTest
 {
