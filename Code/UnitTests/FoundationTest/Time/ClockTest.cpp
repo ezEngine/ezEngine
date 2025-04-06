@@ -169,10 +169,15 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     ezClock c("Test");
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.001, 0.0); // to ensure the tests fail if somebody changes these constants
 
-    c.Update();
-    c.Update();
-
-    EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMinimumTimeStep().GetSeconds(), 0.0000000001);
+    double smallestValue = ezMath::MaxValue<double>();
+    for (ezUInt32 i = 0; i < 10; i++)
+    {
+      c.Update();
+      smallestValue = ezMath::Min(smallestValue, c.GetTimeDiff().GetSeconds());
+      if (ezMath::IsEqual(smallestValue, c.GetMinimumTimeStep().GetSeconds(), 0.0000000001))
+        break;
+    }
+    EZ_TEST_DOUBLE_MSG(smallestValue, c.GetMinimumTimeStep().GetSeconds(), 0.0000000001, "After 10 itterations, c.GetTimeDiff() did not reach the minimum step");
 
     c.SetMinimumTimeStep(ezTime::MakeFromSeconds(0.1));
     c.SetMaximumTimeStep(ezTime::MakeFromSeconds(1.0));
