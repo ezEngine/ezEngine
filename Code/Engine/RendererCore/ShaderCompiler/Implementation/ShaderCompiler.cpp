@@ -277,8 +277,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   // If this is a material shader (i.e. it has a [MATERIALCONSTANTS] section), we need to parse the section and also load the MaterialConstants.template file which will be used to generate the material constants struct which is prepended before every shader and defines the HAS_MATERIAL_CONSTANTS define.
   if (!sMaterialConstantsSource.IsEmpty())
   {
-    m_MaterialBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
-    ezStatus res = ezShaderParser::ParseMaterialConstantsSection(sMaterialConstantsSource, m_MaterialBufferLayout);
+    m_pMaterialBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
+    ezStatus res = ezShaderParser::ParseMaterialConstantsSection(sMaterialConstantsSource, m_pMaterialBufferLayout);
     if (res.LogFailure())
       return EZ_FAILURE;
 
@@ -368,9 +368,9 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
   ezHybridArray<ezString, 4> Platforms;
   pCompiler->GetSupportedPlatforms(Platforms);
-  if (m_MaterialBufferLayout)
+  if (m_pMaterialBufferLayout)
   {
-    ezShaderParser::LayoutMaterialConstants(*m_MaterialBufferLayout, pCompiler->GetMaterialBufferLayout(sPlatform));
+    ezShaderParser::LayoutMaterialConstants(*m_pMaterialBufferLayout, pCompiler->GetMaterialBufferLayout(sPlatform));
   }
 
   for (ezUInt32 p = 0; p < Platforms.GetCount(); ++p)
@@ -562,10 +562,10 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
           return EZ_FAILURE;
         }
 
-        if (binding.m_sName != sMaterialData || !m_MaterialBufferLayout)
+        if (binding.m_sName != sMaterialData || !m_pMaterialBufferLayout)
           continue;
 
-        if (binding.m_pLayout && *binding.m_pLayout != *m_MaterialBufferLayout)
+        if (binding.m_pLayout && *binding.m_pLayout != *m_pMaterialBufferLayout)
         {
           ezLog::Error(pLog, "Compiled {}'s layout of ezMaterialConstants struct differs from the parsed result via ezShaderParser::ParseMaterialConstantsSection / LayoutMaterialConstants. Either ifdefs where used in the [MATERIALCONSTANTS], unsupported macros where used or one of the functions is bugged. File: {}", ezGALShaderStage::Names[stage], sFile);
           return EZ_FAILURE;
