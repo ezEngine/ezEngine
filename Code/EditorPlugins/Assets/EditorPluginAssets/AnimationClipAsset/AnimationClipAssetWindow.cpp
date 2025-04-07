@@ -132,6 +132,14 @@ ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimation
   return static_cast<ezAnimationClipAssetDocument*>(GetDocument());
 }
 
+void ezQtAnimationClipAssetDocumentWindow::ExtractRootMotionFromFeet()
+{
+  ezSimpleDocumentConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ExtractRootMotionFromFeet";
+
+  GetDocument()->SendMessageToEngine(&msg);
+}
+
 void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
@@ -260,6 +268,38 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
 
         UpdateEventTrackEditor();
       }
+
+      return;
+    }
+    else if (pMsg->m_sWhatToDo == "ExtractRootMotionFromFeet")
+    {
+      const ezVec4 vResult = pMsg->m_PayloadValue.Get<ezVec4>();
+
+      auto pPropObj = GetAnimationClipDocument()->GetPropertyObject();
+
+      ezObjectCommandAccessor acc(GetAnimationClipDocument()->GetCommandHistory());
+      acc.StartTransaction("Extract Root Motion From Feet");
+
+      acc.SetValueByName(pPropObj, "RootMotion", (ezInt32)ezRootMotionSource::Constant).AssertSuccess();
+      acc.SetValueByName(pPropObj, "ConstantRootMotion", vResult.GetAsVec3()).AssertSuccess();
+      acc.SetValueByName(pPropObj, "RootMotionDistance", vResult.w).AssertSuccess();
+
+      acc.FinishTransaction();
+
+      GetAnimationClipDocument()->GetCommandHistory();
+
+      return;
+    }
+    else if (pMsg->m_sWhatToDo == "ReportError")
+    {
+      QString text = ezMakeQString(pMsg->m_sPayload);
+      QTimer::singleShot(1, [=]()
+        {
+          // we have to break out of this callback, and execute the UI stuff on the main thread
+          ezQtUiServices::MessageBoxInformation(ezFmt(text.toUtf8().data()));
+          //
+        });
+      return;
     }
   }
 

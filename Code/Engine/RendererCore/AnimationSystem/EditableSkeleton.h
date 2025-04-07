@@ -120,6 +120,10 @@ public:
   ezEnum<ezBasisAxis> m_BoneDirection;
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
+
+  // used for motion extraction
+  ezString m_sLeftFootJoint;
+  ezString m_sRightFootJoint;
 };
 
 struct EZ_RENDERERCORE_DLL ezExposedBone

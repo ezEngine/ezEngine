@@ -11,6 +11,7 @@
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetObjects.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipActions.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/Dialogs/ShaderTemplateDlg.moc.h>
@@ -275,16 +276,23 @@ static void ConfigureDecalAsset()
 
 static void ConfigureAnimationClipAsset()
 {
+  ezAnimationClipActions::RegisterActions();
+
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAnimationClipAssetProperties::PropertyMetaStateEventHandler);
 
   // Menu Bar
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar", "AssetMenuBar");
+
+    // additionally to the standard menus, also map the 'Assets' menu for asset specific actions
+    ezStandardMenus::MapActions("AnimationClipAssetMenuBar", ezStandardMenuTypes::Asset);
+    ezAnimationClipActions::MapActions("AnimationClipAssetMenuBar", "G.Asset");
   }
 
   // Tool Bar
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetToolBar", "AssetToolbar");
+    ezAnimationClipActions::MapActions("AnimationClipAssetToolBar", "");
     ezCommonAssetActions::MapToolbarActions("AnimationClipAssetToolBar", ezCommonAssetUiState::Loop | ezCommonAssetUiState::Pause | ezCommonAssetUiState::Restart | ezCommonAssetUiState::SimulationSpeed | ezCommonAssetUiState::Grid);
   }
 
@@ -452,6 +460,7 @@ void OnUnloadPlugin()
   ezVisualShaderActions::UnregisterActions();
   ezMaterialAssetActions::UnregisterActions();
   ezSkeletonActions::UnregisterActions();
+  ezAnimationClipActions::UnregisterActions();
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAnimatedMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);

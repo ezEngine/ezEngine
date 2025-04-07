@@ -6,8 +6,10 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Tracks/EventTrack.h>
+#include <ozz/base/memory/unique_ptr.h>
 
 class ezSkeletonResource;
+class ezSkeleton;
 
 namespace ozz::animation
 {
@@ -32,6 +34,7 @@ public:
   ezTime GetDuration() const;
   void SetDuration(ezTime duration);
 
+  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& ozzAnim, const ezSkeleton& skeleton) const;
   const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
 
   struct JointInfo

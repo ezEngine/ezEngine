@@ -94,6 +94,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 2, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("MaxImpulse", m_fMaxImpulse)->AddAttributes(new ezDefaultValueAttribute(100.f)),
+    EZ_MEMBER_PROPERTY("LeftFootJoint", m_sLeftFootJoint),
+    EZ_MEMBER_PROPERTY("RightFootJoint", m_sRightFootJoint),
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
@@ -228,6 +230,9 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& re
 
   sb.BuildSkeleton(ref_desc.m_Skeleton);
   ref_desc.m_Skeleton.m_BoneDirection = m_BoneDirection;
+
+  ref_desc.m_uiLeftFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sLeftFootJoint));
+  ref_desc.m_uiRightFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sRightFootJoint));
 }
 
 static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& ref_dstJoint)

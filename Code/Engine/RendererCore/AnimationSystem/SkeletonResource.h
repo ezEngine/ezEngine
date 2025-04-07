@@ -38,6 +38,10 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
   ezSkeleton m_Skeleton;
   float m_fMaxImpulse = ezMath::HighValue<float>();
 
+  // used for motion extraction
+  ezUInt16 m_uiLeftFootJoint = ezInvalidJointIndex;
+  ezUInt16 m_uiRightFootJoint = ezInvalidJointIndex;
+
   ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };
 

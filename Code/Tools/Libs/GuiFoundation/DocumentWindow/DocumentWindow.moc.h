@@ -74,6 +74,7 @@ public:
 
   static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
+  /// \brief Returns the document window for the given document, if there is any. nullptr otherwise.
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
   ezQtContainerWindow* GetContainerWindow() const;
 

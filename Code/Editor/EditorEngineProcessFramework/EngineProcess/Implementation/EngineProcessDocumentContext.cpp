@@ -149,6 +149,15 @@ void ezEngineProcessDocumentContext::Deinitialize()
 
 void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
 {
+  if (ezEditorEngineDocumentMsg* pEngineMsg = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg))
+  {
+    if (!pEngineMsg->m_DocumentGuid.IsValid())
+    {
+      // automatically fill this out, if it wasn't done by the calling code
+      pEngineMsg->m_DocumentGuid = GetDocumentGuid();
+    }
+  }
+
   m_pIPC->SendMessage(pMsg);
 }
 

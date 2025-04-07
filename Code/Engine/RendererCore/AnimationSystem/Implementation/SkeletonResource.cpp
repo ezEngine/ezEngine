@@ -104,7 +104,7 @@ ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
 
 ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(7);
+  inout_stream.WriteVersion(8);
 
   m_Skeleton.Save(inout_stream);
   inout_stream << m_RootTransform;
@@ -125,12 +125,16 @@ ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) c
     EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(geo.m_TriangleIndices));
   }
 
+  // version 8
+  inout_stream << m_uiLeftFootJoint;
+  inout_stream << m_uiRightFootJoint;
+
   return EZ_SUCCESS;
 }
 
 ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(7);
+  const ezTypeVersion version = inout_stream.ReadVersion(8);
 
   if (version < 6)
     return EZ_FAILURE;
@@ -174,6 +178,12 @@ ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
       EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_VertexPositions));
       EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(geo.m_TriangleIndices));
     }
+  }
+
+  if (version >= 8)
+  {
+    inout_stream >> m_uiLeftFootJoint;
+    inout_stream >> m_uiRightFootJoint;
   }
 
   // make sure the geometry is sorted by bones

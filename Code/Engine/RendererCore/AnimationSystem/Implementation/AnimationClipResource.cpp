@@ -254,18 +254,9 @@ EZ_FORCE_INLINE void ez2ozz(const ezQuat& qIn, ozz::math::Quaternion& ref_out)
   ref_out.w = qIn.w;
 }
 
-const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const
+void ezAnimationClipResourceDescriptor::CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& ozzAnim, const ezSkeleton& skeleton) const
 {
-  auto it = m_pOzzImpl->m_MappedOzzAnimations.Find(&skeleton);
-  if (it.IsValid())
-  {
-    if (it.Value().m_uiResourceChangeCounter == skeleton.GetCurrentResourceChangeCounter())
-    {
-      return *it.Value().m_pAnim.get();
-    }
-  }
-
-  auto pOzzSkeleton = &skeleton.GetDescriptor().m_Skeleton.GetOzzSkeleton();
+  auto pOzzSkeleton = &skeleton.GetOzzSkeleton();
   const ezUInt32 uiNumJoints = pOzzSkeleton->num_joints();
 
   ozz::animation::offline::RawAnimation rawAnim;
@@ -286,11 +277,11 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
       dstTrack.rotations.resize(1);
       dstTrack.scales.resize(1);
 
-      const ezUInt16 uiFallbackIdx = skeleton.GetDescriptor().m_Skeleton.FindJointByName(sJointName);
+      const ezUInt16 uiFallbackIdx = skeleton.FindJointByName(sJointName);
 
       EZ_ASSERT_DEV(uiFallbackIdx != ezInvalidJointIndex, "");
 
-      const auto& fallbackJoint = skeleton.GetDescriptor().m_Skeleton.GetJointByIndex(uiFallbackIdx);
+      const auto& fallbackJoint = skeleton.GetJointByIndex(uiFallbackIdx);
 
       const ezTransform& fallbackTransform = m_bAdditive ? ezTransform::MakeIdentity() : fallbackJoint.GetRestPoseLocalTransform();
 
@@ -356,8 +347,22 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
 
   EZ_ASSERT_DEBUG(rawAnim.Validate(), "Invalid animation data");
 
+  ozzAnim = std::move(animBuilder(rawAnim));
+}
+
+const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const
+{
+  auto it = m_pOzzImpl->m_MappedOzzAnimations.Find(&skeleton);
+  if (it.IsValid())
+  {
+    if (it.Value().m_uiResourceChangeCounter == skeleton.GetCurrentResourceChangeCounter())
+    {
+      return *it.Value().m_pAnim.get();
+    }
+  }
+
   auto& cached = m_pOzzImpl->m_MappedOzzAnimations[&skeleton];
-  cached.m_pAnim = std::move(animBuilder(rawAnim));
+  CreateMappedOzzAnimation(cached.m_pAnim, skeleton.GetDescriptor().m_Skeleton);
   cached.m_uiResourceChangeCounter = skeleton.GetCurrentResourceChangeCounter();
 
   return *cached.m_pAnim.get();

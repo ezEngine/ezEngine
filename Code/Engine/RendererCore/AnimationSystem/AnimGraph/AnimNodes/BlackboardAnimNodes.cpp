@@ -74,7 +74,7 @@ const char* ezSetBlackboardNumberAnimNode::GetBlackboardEntry() const
 
 void ezSetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(ref_graph))
+  if (m_InActivate.IsConnected() && !m_InActivate.IsTriggered(ref_graph))
     return;
 
   auto pBlackboard = ref_controller.GetBlackboard();

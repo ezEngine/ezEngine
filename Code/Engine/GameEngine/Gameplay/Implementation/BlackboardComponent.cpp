@@ -332,6 +332,13 @@ void ezLocalBlackboardComponent::OnSimulationStarted()
   // and we then press play, to have the new entries in the BB
   // this would NOT update the initial values, though, if they changed
   InitializeFromTemplate();
+
+  // override with the component specific initial entries
+  for (auto& entry : m_InitialEntries)
+  {
+    m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+    m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
+  }
 }
 
 void ezLocalBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream) const

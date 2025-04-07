@@ -9,6 +9,8 @@ Animation Clip;Animation Clip
 AnimationClipImport_Single;Animation Clip (Single)
 AnimationClipImport_All;Animation Clips (All)
 
+AnimationClip.RootMotionFromFeet;Extract Root Motion From Feet
+
 # Properties
 
 ezRootMotionSource::None;No Root Motion

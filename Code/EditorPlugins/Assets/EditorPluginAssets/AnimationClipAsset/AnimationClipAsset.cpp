@@ -29,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
+    EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -51,14 +52,17 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 
   const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
 
+  props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
+  props["RootMotionDistance"].m_Visibility = ezPropertyUiState::Invisible;
+
   switch (motionType)
   {
     case ezRootMotionSource::Constant:
       props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Default;
+      props["RootMotionDistance"].m_Visibility = ezPropertyUiState::Default;
       break;
 
     default:
-      props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
       break;
   }
 }
@@ -134,6 +138,11 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
     if (pProp->m_RootMotionMode == ezRootMotionSource::Constant)
     {
       desc.m_vConstantRootMotion = pProp->m_vConstantRootMotion;
+
+      if (pProp->m_fConstantRootMotionLength > 0.0f)
+      {
+        desc.m_vConstantRootMotion.SetLength(pProp->m_fConstantRootMotionLength, 0.01f).IgnoreResult();
+      }
     }
 
     range.BeginNextStep("Writing Result");
@@ -198,156 +207,6 @@ ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const 
 
   return newObjectGuid;
 }
-
-// void ezAnimationClipAssetDocument::ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const
-//{
-//  const ezAnimationClipAssetProperties* pProp = GetProperties();
-//  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-//  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
-//
-//  const ezVec3 vKeyframeMotion = pProp->m_vCustomRootMotion / (float)anim.GetFramesPerSecond();
-//  const ezTransform rootTransform(vKeyframeMotion);
-//
-//  for (ezUInt32 kf = 0; kf < anim.GetNumFrames(); ++kf)
-//  {
-//    pRootTransforms[kf] = rootTransform;
-//  }
-//}
-//
-// void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const
-//{
-//  const ezAnimationClipAssetProperties* pProp = GetProperties();
-//  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-//  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
-//
-//  const ezUInt16 uiFoot1 = skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint1.GetData()));
-//  const ezUInt16 uiFoot2 = skeleton.FindJointByName(ezTempHashedString(pProp->m_sJoint2.GetData()));
-//
-//  if (uiFoot1 == ezInvalidJointIndex || uiFoot2 == ezInvalidJointIndex)
-//  {
-//    ezLog::Error("Joints '{0}' and '{1}' could not be found in animation clip", pProp->m_sJoint1, pProp->m_sJoint2);
-//    return;
-//  }
-//
-//  ezAnimationPose pose;
-//  pose.Configure(skeleton);
-//
-//  ezVec3 lastFootPos1(0), lastFootPos2(0);
-//
-//  // init last foot position with very last frame data
-//  {
-//    pose.SetToBindPoseInLocalSpace(skeleton);
-//    anim.SetPoseToKeyframe(pose, skeleton, anim.GetNumFrames() - 1);
-//    pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
-//
-//    lastFootPos1 = pose.GetTransform(uiFoot1).GetTranslationVector();
-//    lastFootPos2 = pose.GetTransform(uiFoot2).GetTranslationVector();
-//  }
-//
-//  ezInt32 lastFootDown = (lastFootPos1.z < lastFootPos2.z) ? 1 : 2;
-//
-//  ezHybridArray<ezUInt16, 32> unknownMotion;
-//
-//  for (ezUInt16 frame = 0; frame < anim.GetNumFrames(); ++frame)
-//  {
-//    pose.SetToBindPoseInLocalSpace(skeleton);
-//    anim.SetPoseToKeyframe(pose, skeleton, frame);
-//    pose.ConvertFromLocalSpaceToObjectSpace(skeleton);
-//
-//    const ezVec3 footPos1 = pose.GetTransform(uiFoot1).GetTranslationVector();
-//    const ezVec3 footPos2 = pose.GetTransform(uiFoot2).GetTranslationVector();
-//
-//    const ezVec3 footDir1 = footPos1 - lastFootPos1;
-//    const ezVec3 footDir2 = footPos2 - lastFootPos2;
-//
-//    ezVec3 rootMotion(0);
-//
-//    const ezInt32 curFootDown = (footPos1.z < footPos2.z) ? 1 : 2;
-//
-//    if (lastFootDown == curFootDown)
-//    {
-//      if (curFootDown == 1)
-//        rootMotion = -footDir1;
-//      else
-//        rootMotion = -footDir2;
-//
-//      rootMotion.z = 0;
-//      pRootTransforms[frame] = ezTransform(rootMotion);
-//    }
-//    else
-//    {
-//      // set them via average later on
-//      unknownMotion.PushBack(frame);
-//      pRootTransforms[frame].SetIdentity();
-//    }
-//
-//    lastFootDown = curFootDown;
-//    lastFootPos1 = footPos1;
-//    lastFootPos2 = footPos2;
-//  }
-//
-//  // fix unknown motion frames
-//  for (ezUInt16 crossedFeet : unknownMotion)
-//  {
-//    const ezUInt16 prevFrame = (crossedFeet > 0) ? (crossedFeet - 1) : anim.GetNumFrames() - 1;
-//    const ezUInt16 nextFrame = (crossedFeet + 1) % anim.GetNumFrames();
-//
-//    const ezVec3 avgTranslation = ezMath::Lerp(pRootTransforms[prevFrame].m_vPosition, pRootTransforms[nextFrame].m_vPosition, 0.5f);
-//
-//    pRootTransforms[crossedFeet] = ezTransform(avgTranslation);
-//  }
-//
-//  const ezUInt16 numFrames = anim.GetNumFrames();
-//
-//  ezHybridArray<ezVec3, 32> translations;
-//  translations.SetCount(numFrames);
-//
-//  for (ezUInt16 thisFrame = 0; thisFrame < numFrames; ++thisFrame)
-//  {
-//    translations[thisFrame] = pRootTransforms[thisFrame].m_vPosition;
-//  }
-//
-//  // do some smoothing
-//  for (ezUInt16 thisFrame = 0; thisFrame < numFrames; ++thisFrame)
-//  {
-//    const ezUInt16 prevFrame2 = (numFrames + thisFrame - 2) % numFrames;
-//    const ezUInt16 prevFrame = (numFrames + thisFrame - 1) % numFrames;
-//    const ezUInt16 nextFrame = (thisFrame + 1) % numFrames;
-//    const ezUInt16 nextFrame2 = (thisFrame + 2) % numFrames;
-//
-//    const ezVec3 smoothedTranslation =
-//      (translations[prevFrame2] + translations[prevFrame] + translations[thisFrame] + translations[nextFrame] + translations[nextFrame2]) * 0.2f;
-//
-//    pRootTransforms[thisFrame].m_vPosition = smoothedTranslation;
-//  }
-//
-//  // for (ezUInt32 i = 0; i < anim.GetNumFrames(); ++i)
-//  //{
-//  //  ezLog::Info("Motion {0}: {1} | {2}", ezArgI(i, 3), ezArgF(pRootTransforms[i].m_vPosition.x, 1),
-//  //              ezArgF(pRootTransforms[i].m_vPosition.y, 1));
-//  //}
-//}
-//
-// void ezAnimationClipAssetDocument::MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const
-//{
-//  const ezUInt16 uiRootMotionJointIdx = anim.GetRootMotionJoint();
-//  ezArrayPtr<ezTransform> pRootTransforms = anim.GetJointKeyframes(uiRootMotionJointIdx);
-//  const ezUInt16 numFrames = anim.GetNumFrames();
-//
-//  ezVec3 avgFootTranslation(0);
-//
-//  for (ezUInt16 thisFrame = 0; thisFrame < numFrames; ++thisFrame)
-//  {
-//    avgFootTranslation += pRootTransforms[thisFrame].m_vPosition;
-//  }
-//
-//  avgFootTranslation /= numFrames;
-//
-//  for (ezUInt16 thisFrame = 0; thisFrame < numFrames; ++thisFrame)
-//  {
-//    pRootTransforms[thisFrame].m_vPosition = avgFootTranslation;
-//  }
-//}
 
 //////////////////////////////////////////////////////////////////////////
 

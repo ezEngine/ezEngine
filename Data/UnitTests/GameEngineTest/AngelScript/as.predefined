@@ -796,7 +796,7 @@ class ezStringView
   void ChopAwayFirstCharacterAscii();
   bool TrimWordStart(ezStringView sWord);
   bool TrimWordEnd(ezStringView sWord);
-  bool opEquals(const ezStringView&in);
+  bool opEquals(const ezStringView&in) const;
   int opCmp(const ezStringView&in) const;
   void opAssign(const ezString&in);
   void opAssign(const ezHashedString&in);
@@ -2878,7 +2878,7 @@ namespace ezClock
 
 namespace ezSound
 {
-  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation, float Pitch = 1, float Volume = 1, bool BlockToLoad = 1);
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = 1, float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
 }
 
 namespace ezCVar

@@ -30,24 +30,24 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // ezActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezActionMapManager::RegisterActionMap(ezStringView sMapping, ezStringView sParentMapping)
+void ezActionMapManager::RegisterActionMap(ezStringView sActionMapName, ezStringView sParentActionMapName)
 {
-  auto it = s_Mappings.Find(sMapping);
-  EZ_ASSERT_ALWAYS(!it.IsValid(), "Mapping '{}' already exists", sMapping);
-  s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap, sParentMapping));
+  auto it = s_Mappings.Find(sActionMapName);
+  EZ_ASSERT_ALWAYS(!it.IsValid(), "Mapping '{}' already exists", sActionMapName);
+  s_Mappings.Insert(sActionMapName, EZ_DEFAULT_NEW(ezActionMap, sParentActionMapName));
 }
 
-void ezActionMapManager::UnregisterActionMap(ezStringView sMapping)
+void ezActionMapManager::UnregisterActionMap(ezStringView sActionMapName)
 {
-  auto it = s_Mappings.Find(sMapping);
-  EZ_ASSERT_ALWAYS(it.IsValid(), "Mapping '{}' not found", sMapping);
+  auto it = s_Mappings.Find(sActionMapName);
+  EZ_ASSERT_ALWAYS(it.IsValid(), "Mapping '{}' not found", sActionMapName);
   EZ_DEFAULT_DELETE(it.Value());
   s_Mappings.Remove(it);
 }
 
-ezActionMap* ezActionMapManager::GetActionMap(ezStringView sMapping)
+ezActionMap* ezActionMapManager::GetActionMap(ezStringView sActionMapName)
 {
-  auto it = s_Mappings.Find(sMapping);
+  auto it = s_Mappings.Find(sActionMapName);
   if (!it.IsValid())
     return nullptr;
 

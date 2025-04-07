@@ -46,6 +46,7 @@ private:
   ezTime m_InputResponse = ezTime::MakeFromMilliseconds(100); // [ property ]
   bool m_bLoop = true;                                        // [ property ]
   bool m_bApplyRootMotion = false;                            // [ property ]
+  float m_fRootMotionAmount = 1.0f;                           // [ property ]
   float m_fPlaybackSpeed = 1.0f;                              // [ property ]
 
   ezAnimGraphTriggerInputPin m_InStart;                       // [ property ]

@@ -15,8 +15,6 @@ struct ezRootMotionSource
   {
     None,
     Constant,
-    // FromFeet,
-    // AvgFromFeet,
 
     Default = None
   };
@@ -41,6 +39,7 @@ public:
   ezString m_sPreviewMesh;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
   ezVec3 m_vConstantRootMotion;
+  float m_fConstantRootMotionLength = 0.0f;
 
   ezEventTrackData m_EventTrack;
 
@@ -64,10 +63,6 @@ public:
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
-
-  // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
-  // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
-  // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
 
 private:
   float m_fSimulationSpeed = 1.0f;

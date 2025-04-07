@@ -29,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace2DAnimNode, 1, ezRTTIDefaultAl
       EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
       EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
+      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
       EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(100))),
     EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
       EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
@@ -70,7 +71,7 @@ ezSampleBlendSpace2DAnimNode::~ezSampleBlendSpace2DAnimNode() = default;
 
 ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -85,6 +86,7 @@ ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) con
 
   stream << m_bLoop;
   stream << m_bApplyRootMotion;
+  stream << m_fRootMotionAmount;
   stream << m_fPlaybackSpeed;
   stream << m_InputResponse;
 
@@ -102,7 +104,7 @@ ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) con
 
 ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(1);
+  const auto version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -119,6 +121,12 @@ ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_bLoop;
   stream >> m_bApplyRootMotion;
+
+  if (version >= 2)
+  {
+    stream >> m_fRootMotionAmount;
+  }
+
   stream >> m_fPlaybackSpeed;
   stream >> m_InputResponse;
 
@@ -405,13 +413,13 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
 
   ezAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
 
-  if (m_bApplyRootMotion)
+  if (m_bApplyRootMotion && m_fRootMotionAmount > 0.0f)
   {
     pOutputTransform->m_bUseRootMotion = true;
 
     const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
-    pOutputTransform->m_vRootMotion = tDiff.AsFloatInSeconds() * vRootMotion * fSpeed;
+    pOutputTransform->m_vRootMotion = tDiff.AsFloatInSeconds() * vRootMotion * fSpeed * m_fRootMotionAmount;
   }
 
   if (clips.GetCount() == 1)
