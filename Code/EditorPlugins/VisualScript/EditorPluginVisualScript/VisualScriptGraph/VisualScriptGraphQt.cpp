@@ -54,17 +54,17 @@ bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
 {
   ezColorGammaUB overwriteColor;
   const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
+
+  ezVisualScriptDataType::Enum type = vsPin.GetResolvedScriptDataType();
   if (vsPin.NeedsTypeDeduction())
   {
-    auto pManager = static_cast<const ezVisualScriptNodeManager*>(vsPin.GetParent()->GetDocumentObjectManager());
-    auto deductedType = pManager->GetDeductedType(vsPin);
-    overwriteColor = ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(deductedType);
+    overwriteColor = ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(type);
     pOverwriteColor = &overwriteColor;
   }
 
   bool res = ezQtPin::UpdatePinColors(pOverwriteColor);
 
-  if (vsPin.IsRequired() && HasAnyConnections() == false)
+  if (vsPin.IsRequired() && type != ezVisualScriptDataType::GameObject && HasAnyConnections() == false)
   {
     QColor requiredColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
 

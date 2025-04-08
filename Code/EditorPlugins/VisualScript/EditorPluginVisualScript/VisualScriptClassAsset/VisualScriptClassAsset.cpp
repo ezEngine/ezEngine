@@ -49,7 +49,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
 
   ezStringView sScriptClassName = ezPathUtils::GetFileName(GetDocumentPath());
 
-  ezVisualScriptCompiler compiler;
+  ezVisualScriptCompiler compiler(*pManager);
   compiler.InitModule(sBaseClassName, sScriptClassName);
 
   ezHybridArray<const ezVisualScriptPin*, 16> pins;

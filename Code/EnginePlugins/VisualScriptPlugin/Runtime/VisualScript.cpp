@@ -360,6 +360,14 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
   auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
   while (pNode != nullptr)
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (pNode->m_Function == nullptr)
+    {
+      ezLog::Error("Node '{}' is not supported by runtime and should have been removed by the compiler.", ezVisualScriptNodeDescription::Type::GetName(pNode->m_Type));
+      return ExecResult::Error();
+    }
+#endif
+
     ExecResult result = pNode->m_Function(*this, *pNode);
     if (result.m_NextExecAndState < ExecResult::State::Completed)
     {

@@ -112,10 +112,11 @@ private:
   const ezRTTI* m_pSetVariableType = nullptr;
   const ezRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
-  ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
+  ezHashTable<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
   ezHashSet<const ezRTTI*> m_ExposedTypes;
+  ezHashSet<const ezRTTI*> m_TypesToUpdate;
 
   ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
   ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
-  ezDeque<ezString> m_PropertyNodeTypeNames;
+  ezSet<ezString> m_PropertyNodeTypeNames;
 };

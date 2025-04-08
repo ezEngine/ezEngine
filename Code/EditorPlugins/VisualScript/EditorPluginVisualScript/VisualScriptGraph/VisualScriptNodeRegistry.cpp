@@ -317,6 +317,13 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
 
   ezRTTI::ForEachType([this](const ezRTTI* pRtti)
     { UpdateNodeType(pRtti); });
+
+  for (const ezRTTI* pRtti : m_TypesToUpdate)
+  {
+    if (m_ExposedTypes.Contains(pRtti) == false)
+      UpdateNodeType(pRtti, true);
+  }
+  m_TypesToUpdate.Clear();
 }
 
 void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose /*= false*/)
@@ -378,8 +385,9 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForce
         CreateFunctionCallNodeType(pRtti, bIsBaseClassFunction ? sEventHandlerCategory : sCategoryHashed, pFuncProp, pScriptableFunctionAttribute, bIsBaseClassFunction);
       }
 
-      if (bExposeToVisualScript)
+      if (bExposeToVisualScript && m_ExposedTypes.Insert(pRtti) == false)
       {
+        ezStringView sTypeName = GetTypeName(pRtti);
         ezStringBuilder sPropertyNodeTypeName;
 
         for (const ezAbstractProperty* pProp : pRtti->GetProperties())
@@ -394,18 +402,18 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForce
           }
 
           ezUInt32 uiStart = m_PropertyValues.GetCount();
-          m_PropertyValues.PushBack({sType, pRtti->GetTypeName()});
+          m_PropertyValues.PushBack({sType, sTypeName});
           m_PropertyValues.PushBack({sProperty, pProp->GetPropertyName()});
           m_PropertyValues.PushBack({sValue, ezReflectionUtils::GetDefaultValue(pProp)});
 
           // Setter
           {
             sPropertyNodeTypeName.Set("Set", pProp->GetPropertyName());
-            m_PropertyNodeTypeNames.PushBack(sPropertyNodeTypeName);
+            auto it = m_PropertyNodeTypeNames.Insert(sPropertyNodeTypeName);
 
             auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
             nodeTemplate.m_pType = m_pSetPropertyType;
-            nodeTemplate.m_sTypeName = m_PropertyNodeTypeNames.PeekBack();
+            nodeTemplate.m_sTypeName = it.Key();
             nodeTemplate.m_sCategory = sCategoryHashed;
             nodeTemplate.m_uiPropertyValuesStart = uiStart;
             nodeTemplate.m_uiPropertyValuesCount = 3;
@@ -414,11 +422,11 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForce
           // Getter
           {
             sPropertyNodeTypeName.Set("Get", pProp->GetPropertyName());
-            m_PropertyNodeTypeNames.PushBack(sPropertyNodeTypeName);
+            auto it = m_PropertyNodeTypeNames.Insert(sPropertyNodeTypeName);
 
             auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
             nodeTemplate.m_pType = m_pGetPropertyType;
-            nodeTemplate.m_sTypeName = m_PropertyNodeTypeNames.PeekBack();
+            nodeTemplate.m_sTypeName = it.Key();
             nodeTemplate.m_sCategory = sCategoryHashed;
             nodeTemplate.m_uiPropertyValuesStart = uiStart;
             nodeTemplate.m_uiPropertyValuesCount = 2;
@@ -1555,8 +1563,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
           return;
         }
 
-        if (m_ExposedTypes.Insert(pReturnRtti) == false)
-          UpdateNodeType(pReturnRtti, true);
+        m_TypesToUpdate.Insert(pReturnRtti);
 
         nodeDesc.AddOutputDataPin("Result", pReturnRtti, scriptDataType);
       }
@@ -1598,8 +1605,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
         pinScriptDataType = ezVisualScriptDataType::Variant;
       }
 
-      if (m_ExposedTypes.Insert(pArgRtti) == false)
-        UpdateNodeType(pArgRtti, true);
+      m_TypesToUpdate.Insert(pArgRtti);
 
       if (bIsEntryFunction)
       {
@@ -1962,10 +1968,8 @@ void ezVisualScriptNodeRegistry::FillDesc(ezReflectedTypeDescriptor& desc, ezStr
 const ezRTTI* ezVisualScriptNodeRegistry::RegisterNodeType(ezReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const ezHashedString& sCategory)
 {
   const ezRTTI* pRtti = ezPhantomRttiManager::RegisterType(typeDesc);
-  if (m_TypeToNodeDescs.Contains(pRtti) == false)
+  if (m_TypeToNodeDescs.Insert(pRtti, std::move(nodeDesc)) == false)
   {
-    m_TypeToNodeDescs.Insert(pRtti, std::move(nodeDesc));
-
     auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
     nodeTemplate.m_pType = pRtti;
     nodeTemplate.m_sCategory = sCategory;
