@@ -34,7 +34,7 @@ public:
   ezTime GetDuration() const;
   void SetDuration(ezTime duration);
 
-  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& ozzAnim, const ezSkeleton& skeleton) const;
+  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& out_pOzzAnim, const ezSkeleton& skeleton) const;
   const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
 
   struct JointInfo

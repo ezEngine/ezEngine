@@ -254,7 +254,7 @@ EZ_FORCE_INLINE void ez2ozz(const ezQuat& qIn, ozz::math::Quaternion& ref_out)
   ref_out.w = qIn.w;
 }
 
-void ezAnimationClipResourceDescriptor::CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& ozzAnim, const ezSkeleton& skeleton) const
+void ezAnimationClipResourceDescriptor::CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& out_pOzzAnim, const ezSkeleton& skeleton) const
 {
   auto pOzzSkeleton = &skeleton.GetOzzSkeleton();
   const ezUInt32 uiNumJoints = pOzzSkeleton->num_joints();
@@ -347,7 +347,7 @@ void ezAnimationClipResourceDescriptor::CreateMappedOzzAnimation(ozz::unique_ptr
 
   EZ_ASSERT_DEBUG(rawAnim.Validate(), "Invalid animation data");
 
-  ozzAnim = std::move(animBuilder(rawAnim));
+  out_pOzzAnim = std::move(animBuilder(rawAnim));
 }
 
 const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const
