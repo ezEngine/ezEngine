@@ -290,7 +290,14 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
       break;
 #endif
     case ezIDE::Rider:
-      if (!ezQtUiServices::OpenInRider(ezCppProject::GetSolutionPath(cfg)))
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      auto solutionPath = ezCppProject::GetSolutionPath(cfg);
+#else
+      auto solutionPath = ezCppProject::GetTargetSourceDir();
+#endif
+
+      if (!ezQtUiServices::OpenInRider(solutionPath))
       {
         return ezStatus("Opening the solution in Rider failed");
       }
