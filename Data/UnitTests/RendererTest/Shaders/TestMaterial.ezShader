@@ -8,6 +8,7 @@ ALL
 [MATERIALCONSTANTS]
 
   COLOR4F(BaseColor);
+  COLOR4F(BaseColor2);
 
 [VERTEXSHADER]
 
@@ -30,5 +31,5 @@ SamplerState DiffuseTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return GetMaterialData(BaseColor).rgba * DiffuseTexture.Sample(DiffuseTexture_AutoSampler, Input.texcoord0);
+  return GetMaterialData(BaseColor).rgba * GetMaterialData(BaseColor2).rgba * DiffuseTexture.Sample(DiffuseTexture_AutoSampler, Input.texcoord0);
 }

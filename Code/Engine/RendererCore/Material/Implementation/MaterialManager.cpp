@@ -228,16 +228,16 @@ void ezMaterialManager::ExtractMaterial(ezMaterialResource* pMaterial, ezMateria
     switch (flag)
     {
       case ezMaterialResource::DirtyFlags::Parameter:
-        extractedMaterial.m_Parameters = std::move(pMaterial->m_mDesc.m_Parameters);
+        extractedMaterial.m_Parameters = pMaterial->m_mDesc.m_Parameters;
         break;
       case ezMaterialResource::DirtyFlags::Texture2D:
-        extractedMaterial.m_Texture2DBindings = std::move(pMaterial->m_mDesc.m_Texture2DBindings);
+        extractedMaterial.m_Texture2DBindings = pMaterial->m_mDesc.m_Texture2DBindings;
         break;
       case ezMaterialResource::DirtyFlags::TextureCube:
-        extractedMaterial.m_TextureCubeBindings = std::move(pMaterial->m_mDesc.m_TextureCubeBindings);
+        extractedMaterial.m_TextureCubeBindings = pMaterial->m_mDesc.m_TextureCubeBindings;
         break;
       case ezMaterialResource::DirtyFlags::PermutationVar:
-        extractedMaterial.m_PermutationVars = std::move(pMaterial->m_mDesc.m_PermutationVars);
+        extractedMaterial.m_PermutationVars = pMaterial->m_mDesc.m_PermutationVars;
         break;
       default:
         break;
@@ -272,16 +272,16 @@ void ezMaterialManager::ApplyMaterialChanges()
       switch (flag)
       {
         case ezMaterialResource::DirtyFlags::Parameter:
-          md.m_Parameters = extractedMaterial.m_Parameters;
+          md.m_Parameters = std::move(extractedMaterial.m_Parameters);
           break;
         case ezMaterialResource::DirtyFlags::Texture2D:
-          md.m_Texture2DBindings = extractedMaterial.m_Texture2DBindings;
+          md.m_Texture2DBindings = std::move(extractedMaterial.m_Texture2DBindings);
           break;
         case ezMaterialResource::DirtyFlags::TextureCube:
-          md.m_TextureCubeBindings = extractedMaterial.m_TextureCubeBindings;
+          md.m_TextureCubeBindings = std::move(extractedMaterial.m_TextureCubeBindings);
           break;
         case ezMaterialResource::DirtyFlags::PermutationVar:
-          md.m_PermutationVars = extractedMaterial.m_PermutationVars;
+          md.m_PermutationVars = std::move(extractedMaterial.m_PermutationVars);
           break;
         case ezMaterialResource::DirtyFlags::ShaderAndId:
           md.m_MaterialId = extractedMaterial.m_MaterialId;

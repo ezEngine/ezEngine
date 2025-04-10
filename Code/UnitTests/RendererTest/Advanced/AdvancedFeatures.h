@@ -27,7 +27,8 @@ private:
   {
     DefaultCapture = 5,
     Material_ColorChange = 6,
-    Material_ChangeTexture = 7
+    Material_ColorChange2 = 7,
+    Material_ChangeTexture = 8
   };
 
   virtual void SetupSubTests() override;
@@ -67,8 +68,10 @@ private:
 
   // Material Test
   ezTexture2DResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture2;
   ezMaterialResourceHandle m_hMaterial;
   ezHashedString m_sBaseColor;
+  ezHashedString m_sBaseColor2;
   ezHashedString m_sTexture;
 
   // Shared Texture Test
