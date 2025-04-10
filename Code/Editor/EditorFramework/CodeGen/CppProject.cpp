@@ -22,7 +22,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezIDE, 1)
   EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_ENUM_CONSTANT(ezIDE::VisualStudio),
+  EZ_ENUM_CONSTANT(ezIDE::SolutionDefault),
 #endif
+  EZ_ENUM_CONSTANT(ezIDE::Rider),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCompiler, 1)
@@ -275,12 +277,24 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezIDE::VisualStudio:
-      if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)))
+      if (!ezQtUiServices::OpenInVisualStudio(ezCppProject::GetSolutionPath(cfg)))
       {
         return ezStatus("Opening the solution in Visual Studio failed.");
       }
       break;
+    case ezIDE::SolutionDefault:
+      if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)))
+      {
+        return ezStatus("Failed to open solution.");
+      }
+      break;
 #endif
+    case ezIDE::Rider:
+      if (!ezQtUiServices::OpenInRider(ezCppProject::GetSolutionPath(cfg)))
+      {
+        return ezStatus("Opening the solution in Rider failed");
+      }
+      break;
     case ezIDE::VisualStudioCode:
     {
       auto solutionPath = ezCppProject::GetTargetSourceDir();

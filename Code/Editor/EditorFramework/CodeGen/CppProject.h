@@ -17,8 +17,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezIDE
     VisualStudioCode,
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     VisualStudio,
+    SolutionDefault, // Uses the system default way of opening an sln file
 #endif
-
+    Rider,
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     Default = VisualStudio
 #else

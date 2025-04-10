@@ -100,6 +100,12 @@ public:
   /// \brief Opens the given file in the program that is registered in the OS to handle that file type.
   static bool OpenFileInDefaultProgram(const char* szPath);
 
+  /// \brief Open the given file in Visual Studio
+  static bool OpenInVisualStudio(const char* szPath);
+
+  /// \brief Open the given file in Jetbrains Rider
+  static bool OpenInRider(const char* szPath);
+
   /// \brief Opens the given file or folder in the Explorer
   static void OpenInExplorer(const char* szPath, bool bIsFile);
 

@@ -360,3 +360,79 @@ bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
 {
   return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath));
 }
+
+bool ezQtUiServices::OpenInVisualStudio(const char* szPath)
+{
+  QString sVSExe;
+  QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
+  QString sVSKey = settings.value(".", "").value<QString>();
+
+  if (sVSKey.length() > 5)
+  {
+    // Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
+    sVSExe = sVSKey.left(sVSKey.length() - 5).replace("\\", "/").replace("\"", "");
+  }
+
+  QStringList arguments;
+  arguments.push_back(szPath);
+
+  QProcess proc;
+  if (proc.startDetached(sVSExe, arguments) == false)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+bool ezQtUiServices::OpenInRider(const char* szPath)
+{
+  QString sRiderPath;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  QSettings settings("\\HKEY_CURRENT_USER\\SOFTWARE\\JetBrains\\Toolbox\\", QSettings::NativeFormat);
+  QString sToolboxKey = settings.value(".", "").value<QString>();
+
+  QString sToolboxPath = sToolboxKey.replace("\\", "/").replace("\"", "");
+  sToolboxPath.append("/../.settings.json");
+
+  if (QFile::exists(sToolboxPath))
+  {
+
+    QFile file(sToolboxPath);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray rawData = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(rawData);
+
+    QJsonObject rootObject = doc.object();
+    QJsonValue shellPathValue = rootObject.value("shell_scripts");
+    QJsonObject shellPathObject = shellPathValue.toObject();
+    sRiderPath = shellPathObject.value("location").toString().replace("\\", "/").replace("\"", "");
+    sRiderPath.append("/rider.cmd");
+    file.close();
+  }
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  if (QFile::exists("/opt/rider/bin/rider.sh"))
+  {
+    sRiderPath = "/opt/clion/bin/rider.sh";
+  }
+  else
+  {
+    // Maybe its in path????
+    sRiderPath = "rider.sh";
+  }
+#else
+  return false;
+#endif
+
+  QStringList arguments;
+  arguments.push_back(szPath);
+
+  if (!QProcess::startDetached(sRiderPath, arguments))
+  {
+    return false;
+  }
+
+  return true;
+}
