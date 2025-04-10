@@ -70,7 +70,7 @@ private:
   ezAnimGraphNumberInputPin m_InNumber;      // [ property ]
   ezAnimGraphNumberInputPin m_InReference;   // [ property ]
   ezAnimGraphBoolOutputPin m_OutIsTrue;      // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse;      // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsFalse;     // [ property ]
 };
 
 
