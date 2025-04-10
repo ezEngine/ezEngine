@@ -70,7 +70,7 @@ ezSampleBlendSpace2DAnimNode::~ezSampleBlendSpace2DAnimNode() = default;
 
 ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(2);
+  stream.WriteVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -102,7 +102,7 @@ ezResult ezSampleBlendSpace2DAnimNode::SerializeNode(ezStreamWriter& stream) con
 
 ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(2);
+  const auto version = stream.ReadVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -119,13 +119,14 @@ ezResult ezSampleBlendSpace2DAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_bLoop;
 
-  if (version == 1)
+  if (version <= 2)
   {
     bool bApplyRootMotion = false;
     stream >> bApplyRootMotion;
     m_fRootMotionAmount = bApplyRootMotion ? 1.0f : 0.0f;
   }
-  else if (version >= 2)
+
+  if (version >= 2)
   {
     stream >> m_fRootMotionAmount;
   }

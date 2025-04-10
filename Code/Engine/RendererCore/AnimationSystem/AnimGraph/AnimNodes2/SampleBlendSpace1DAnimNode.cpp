@@ -79,6 +79,7 @@ ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) con
     stream << m_Clips[i].m_fSpeed;
   }
 
+  stream << m_bLoop;
   stream << m_fRootMotionAmount;
   stream << m_fPlaybackSpeed;
 
