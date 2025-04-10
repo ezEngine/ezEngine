@@ -9,13 +9,13 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipAnimNode, 1, ezRTTIDefaultAllocator<ezSampleAnimClipAnimNode>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipAnimNode, 2, ezRTTIDefaultAllocator<ezSampleAnimClipAnimNode>)
   {
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
-      EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
+      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
       EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
 
       EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
@@ -43,13 +43,13 @@ ezSampleAnimClipAnimNode::~ezSampleAnimClipAnimNode() = default;
 
 ezResult ezSampleAnimClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sClip;
   stream << m_bLoop;
-  stream << m_bApplyRootMotion;
+  stream << m_fRootMotionAmount;
   stream << m_fPlaybackSpeed;
 
   EZ_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
@@ -64,13 +64,24 @@ ezResult ezSampleAnimClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 
 ezResult ezSampleAnimClipAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(1);
+  const auto version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sClip;
   stream >> m_bLoop;
-  stream >> m_bApplyRootMotion;
+
+  if (version == 1)
+  {
+    bool bApplyRootMotion = false;
+    stream >> bApplyRootMotion;
+    m_fRootMotionAmount = bApplyRootMotion ? 1.0f : 0.0f;
+  }
+  else if (version >= 2)
+  {
+    stream >> m_fRootMotionAmount;
+  }
+
   stream >> m_fPlaybackSpeed;
 
   EZ_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
@@ -153,10 +164,15 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
-    pLocalTransforms->m_bUseRootMotion = m_bApplyRootMotion;
     pLocalTransforms->m_fOverallWeight = 1.0f;
-    pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
+
+    if (m_fRootMotionAmount != 0.0f)
+    {
+      pLocalTransforms->m_bUseRootMotion = true;
+
+      pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed * m_fRootMotionAmount;
+    }
 
     m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
@@ -178,5 +194,36 @@ bool ezSampleAnimClipAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
   return true;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSampleAnimClipAnimNodePatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSampleAnimClipAnimNodePatch_1_2()
+    : ezGraphPatch("ezSampleAnimClipAnimNode", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    if (auto pProp = pNode->FindProperty("ApplyRootMotion"))
+    {
+      if (pProp->m_Value.IsA<bool>())
+      {
+        const bool bApply = pProp->m_Value.Get<bool>();
+
+        if (bApply)
+        {
+          pNode->AddProperty("RootMotionAmount", 1.0f);
+        }
+      }
+    }
+  }
+};
+
+ezSampleAnimClipAnimNodePatch_1_2 g_ezSampleAnimClipAnimNodePatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleAnimClipAnimNode);

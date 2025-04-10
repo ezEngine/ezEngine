@@ -41,7 +41,7 @@ private:
   ezHashedString m_sStartClip;                      // [ property ]
   ezHybridArray<ezHashedString, 1> m_Clips;         // [ property ]
   ezHashedString m_sEndClip;                        // [ property ]
-  bool m_bApplyRootMotion = false;                  // [ property ]
+  float m_fRootMotionAmount = 0.0f;                 // [ property ]
   bool m_bLoop = false;                             // [ property ]
   float m_fPlaybackSpeed = 1.0f;                    // [ property ]
 

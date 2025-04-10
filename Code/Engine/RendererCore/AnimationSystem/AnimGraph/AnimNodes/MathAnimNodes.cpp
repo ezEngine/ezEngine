@@ -125,6 +125,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocat
     EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
 
     EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("InNumber", m_InNumber)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("InReference", m_InReference)->AddAttributes(new ezHiddenAttribute()),
   }
@@ -142,7 +143,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -152,13 +153,14 @@ ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_InNumber.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InReference.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  stream.ReadVersion(1);
+  auto version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -169,6 +171,11 @@ ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_InReference.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
 
+  if (version >= 2)
+  {
+    EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -177,6 +184,7 @@ void ezCompareNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraph
   const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(ref_graph), m_InReference.GetNumber(ref_graph, m_fReferenceValue));
 
   m_OutIsTrue.SetBool(ref_graph, bIsTrue);
+  m_OutIsFalse.SetBool(ref_graph, !bIsTrue);
 }
 
 //////////////////////////////////////////////////////////////////////////

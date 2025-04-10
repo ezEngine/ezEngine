@@ -130,9 +130,29 @@ namespace ezModelImporter2
       {
         ozz::animation::offline::AdditiveAnimationBuilder builder;
 
-        if (builder(*pFinalRawAnim, &additiveAnim))
+        if (m_Options.m_AdditiveReference == AdditiveReference::LastKeyFrame)
         {
-          pFinalRawAnim = &additiveAnim;
+          ozz::vector<ozz::math::Transform> reference;
+          reference.resize(pFinalRawAnim->num_tracks());
+          for (size_t i = 0; i < reference.size(); ++i)
+          {
+            const auto& track = pFinalRawAnim->tracks[i];
+            reference[i].translation = track.translations.empty() ? ozz::math::Float3::zero() : track.translations.back().value;
+            reference[i].rotation = track.rotations.empty() ? ozz::math::Quaternion::identity() : track.rotations.back().value;
+            reference[i].scale = track.scales.empty() ? ozz::math::Float3::one() : track.scales.back().value;
+          }
+
+          if (builder(*pFinalRawAnim, ozz::span<const ozz::math::Transform>(reference.data(), reference.size()), &additiveAnim))
+          {
+            pFinalRawAnim = &additiveAnim;
+          }
+        }
+        else
+        {
+          if (builder(*pFinalRawAnim, &additiveAnim))
+          {
+            pFinalRawAnim = &additiveAnim;
+          }
         }
       }
 

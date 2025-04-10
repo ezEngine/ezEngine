@@ -7,6 +7,8 @@
 class ezAnimationClipAssetDocument;
 struct ezPropertyMetaStateEvent;
 
+//////////////////////////////////////////////////////////////////////////
+
 struct ezRootMotionSource
 {
   using StorageType = ezUInt8;
@@ -21,6 +23,25 @@ struct ezRootMotionSource
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionSource);
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ezAdditiveAnimationReference
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    FirstKeyFrame,
+    LastKeyFrame,
+
+    Default = FirstKeyFrame
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezAdditiveAnimationReference);
+
+//////////////////////////////////////////////////////////////////////////
 
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
@@ -38,6 +59,7 @@ public:
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
+  ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
   ezVec3 m_vConstantRootMotion;
   float m_fConstantRootMotionLength = 0.0f;
 

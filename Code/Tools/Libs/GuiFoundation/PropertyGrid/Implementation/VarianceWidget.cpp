@@ -52,9 +52,10 @@ void ezQtVarianceTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
 void ezQtVarianceTypeWidget::onBeginTemporary()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 }
 
 void ezQtVarianceTypeWidget::onEndTemporary()

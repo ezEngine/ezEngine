@@ -40,7 +40,7 @@ public:
 private:
   ezHybridArray<ezAnimationClip1D, 4> m_Clips; // [ property ]
   bool m_bLoop = true;                         // [ property ]
-  bool m_bApplyRootMotion = false;             // [ property ]
+  float m_fRootMotionAmount = 0.0f;            // [ property ]
   float m_fPlaybackSpeed = 1.0f;               // [ property ]
 
   ezAnimGraphTriggerInputPin m_InStart;        // [ property ]

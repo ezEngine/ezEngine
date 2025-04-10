@@ -16,6 +16,10 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
   EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAdditiveAnimationReference, 1)
+  EZ_ENUM_CONSTANTS(ezAdditiveAnimationReference::FirstKeyFrame, ezAdditiveAnimationReference::LastKeyFrame)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,13 +27,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations)),
     EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
-    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
+    EZ_ENUM_MEMBER_PROPERTY("AdditiveReference", ezAdditiveAnimationReference, m_AdditiveReference),
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
+    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezTemporaryAttribute(), new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -50,8 +55,10 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 
   auto& props = *e.m_pPropertyStates;
 
-  const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
+  const bool bAdditive = e.m_pObject->GetTypeAccessor().GetValue("Additive").ConvertTo<bool>();
+  props["AdditiveReference"].m_Visibility = bAdditive ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
+  const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
   props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
   props["RootMotionDistance"].m_Visibility = ezPropertyUiState::Invisible;
 
@@ -127,6 +134,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
   // opt.m_pSkeletonOutput = &skeleton; // TODO: may be needed later to optimize the clip
   opt.m_pAnimationOutput = &desc;
   opt.m_bAdditiveAnimation = pProp->m_bAdditive;
+  opt.m_AdditiveReference = (pProp->m_AdditiveReference == ezAdditiveAnimationReference::FirstKeyFrame) ? ezModelImporter2::AdditiveReference::FirstKeyFrame : ezModelImporter2::AdditiveReference::LastKeyFrame;
   opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;

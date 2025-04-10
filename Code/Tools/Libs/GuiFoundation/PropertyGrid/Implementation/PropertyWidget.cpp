@@ -351,9 +351,10 @@ void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   switch (m_iNumComponents)
   {
@@ -442,9 +443,10 @@ void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezTime::MakeFromSeconds(m_pWidget->value()));
 }
@@ -532,9 +534,10 @@ void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezAngle::MakeFromDegree(m_pWidget->value()));
 }
@@ -816,9 +819,10 @@ void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value
 void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   ezVariant newValue;
   switch (m_iNumComponents)
@@ -850,9 +854,10 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 void ezQtPropertyEditorIntSpinboxWidget::onBeginTemporary()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 }
 
 void ezQtPropertyEditorIntSpinboxWidget::onEndTemporary()
@@ -1072,9 +1077,10 @@ void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
 void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezVariant(fValue).ConvertTo(m_OriginalType));
 
@@ -1089,9 +1095,10 @@ void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorSliderWidget::onBeginTemporary()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 }
 
 void ezQtPropertyEditorSliderWidget::onEndTemporary()
@@ -1197,9 +1204,10 @@ void ezQtPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   ezAngle x = ezAngle::MakeFromDegree(m_pWidget[0]->value());
   ezAngle y = ezAngle::MakeFromDegree(m_pWidget[1]->value());

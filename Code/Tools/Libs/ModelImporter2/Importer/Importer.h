@@ -12,6 +12,12 @@ struct ezAnimationClipResourceDescriptor;
 
 namespace ezModelImporter2
 {
+  enum AdditiveReference
+  {
+    FirstKeyFrame,
+    LastKeyFrame,
+  };
+
   struct ImportOptions
   {
     ezString m_sSourceFile;
@@ -31,6 +37,8 @@ namespace ezModelImporter2
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 
     bool m_bAdditiveAnimation = false;
+    AdditiveReference m_AdditiveReference = AdditiveReference::FirstKeyFrame;
+
     ezString m_sAnimationToImport; // empty = first in file; "name" = only anim with that name
     ezAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
     ezUInt32 m_uiFirstAnimKeyframe = 0;

@@ -47,9 +47,10 @@ void ezQtExposedBoneWidget::SetSelection(const ezHybridArray<ezPropertySelection
 void ezQtExposedBoneWidget::onBeginTemporary()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 }
 
 void ezQtExposedBoneWidget::onEndTemporary()

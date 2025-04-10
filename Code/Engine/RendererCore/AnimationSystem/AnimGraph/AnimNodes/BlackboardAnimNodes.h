@@ -92,6 +92,7 @@ private:
   ezAnimGraphTriggerOutputPin m_OutOnTrue;      // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnFalse;     // [ property ]
   ezAnimGraphBoolOutputPin m_OutIsTrue;         // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsFalse;        // [ property ]
 
   struct InstanceData
   {

@@ -15,3 +15,6 @@ AnimationClip.RootMotionFromFeet;Extract Root Motion From Feet
 
 ezRootMotionSource::None;No Root Motion
 ezRootMotionSource::Constant;Constant Motion
+
+ezAdditiveAnimationReference::FirstKeyFrame;First Keyframe
+ezAdditiveAnimationReference::LastKeyFrame;Last Keyframe

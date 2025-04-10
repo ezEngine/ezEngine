@@ -173,21 +173,19 @@ void ezQtFilePropertyWidget::OnOpenFileWith()
 
 void ezQtFilePropertyWidget::OnCreateFile()
 {
-  static QString sLastDir;
-  if (sLastDir.isEmpty())
-  {
-    sLastDir = ezToolsProject::GetSingleton()->GetProjectDirectory().GetData();
-  }
-
   const ezFileBrowserAttribute* pFileAttribute = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+
+  ezStringBuilder sStartDir = m_pGrid->GetDocument()->GetDocumentPath();
+  sStartDir.RemoveFileExtension();
 
   const QString sTitle = QString("Create %1").arg(ezMakeQString(pFileAttribute->GetCreateTitle()));
   const QString sExt = QString("%1 %2").arg(ezMakeQString(pFileAttribute->GetCreateTitle())).arg(ezMakeQString(pFileAttribute->GetTypeFilter()));
 
-  QString sResult = QFileDialog::getSaveFileName(this, sTitle, sLastDir, sExt, nullptr);
+  QString sResult = QFileDialog::getSaveFileName(this, sTitle, sStartDir.GetData(), sExt, nullptr);
 
   if (sResult.isEmpty())
     return;
+
 
   ezStringBuilder sPath = sResult.toUtf8().data();
 

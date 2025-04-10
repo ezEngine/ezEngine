@@ -22,13 +22,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimationClip1D, ezNoBase, 1, ezRTTIDefaultAllo
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace1DAnimNode, 1, ezRTTIDefaultAllocator<ezSampleBlendSpace1DAnimNode>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace1DAnimNode, 2, ezRTTIDefaultAllocator<ezSampleBlendSpace1DAnimNode>)
   {
     EZ_BEGIN_PROPERTIES
     {
       EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
-      EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
+      EZ_MEMBER_PROPERTY("RootMotionAmount", m_fRootMotionAmount)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 100.0f)),
       EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
       EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
@@ -67,7 +67,7 @@ ezSampleBlendSpace1DAnimNode::~ezSampleBlendSpace1DAnimNode() = default;
 
 ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -79,8 +79,7 @@ ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) con
     stream << m_Clips[i].m_fSpeed;
   }
 
-  stream << m_bLoop;
-  stream << m_bApplyRootMotion;
+  stream << m_fRootMotionAmount;
   stream << m_fPlaybackSpeed;
 
   EZ_SUCCEED_OR_RETURN(m_InStart.Serialize(stream));
@@ -96,7 +95,7 @@ ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) con
 
 ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(1);
+  const auto version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -111,7 +110,18 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
   }
 
   stream >> m_bLoop;
-  stream >> m_bApplyRootMotion;
+
+  if (version == 1)
+  {
+    bool bApplyRootMotion = false;
+    stream >> bApplyRootMotion;
+    m_fRootMotionAmount = bApplyRootMotion ? 1.0f : 0.0f;
+  }
+  else if (version >= 2)
+  {
+    stream >> m_fRootMotionAmount;
+  }
+
   stream >> m_fPlaybackSpeed;
 
   EZ_SUCCEED_OR_RETURN(m_InStart.Deserialize(stream));
@@ -300,11 +310,11 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   // send to output
   {
-    if (m_bApplyRootMotion)
+    if (m_fRootMotionAmount != 0.0f)
     {
       pOutputTransform->m_bUseRootMotion = true;
 
-      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed;
+      pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed * m_fRootMotionAmount;
     }
 
     m_OutPose.SetPose(ref_graph, pOutputTransform);
@@ -317,5 +327,36 @@ bool ezSampleBlendSpace1DAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_d
   return true;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezSampleBlendSpace1DAnimNodePatch_1_2 : public ezGraphPatch
+{
+public:
+  ezSampleBlendSpace1DAnimNodePatch_1_2()
+    : ezGraphPatch("ezSampleBlendSpace1DAnimNode", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    if (auto pProp = pNode->FindProperty("ApplyRootMotion"))
+    {
+      if (pProp->m_Value.IsA<bool>())
+      {
+        const bool bApply = pProp->m_Value.Get<bool>();
+
+        if (bApply)
+        {
+          pNode->AddProperty("RootMotionAmount", 1.0f);
+        }
+      }
+    }
+  }
+};
+
+ezSampleBlendSpace1DAnimNodePatch_1_2 g_ezSampleBlendSpace1DAnimNodePatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleBlendSpace1DAnimNode);

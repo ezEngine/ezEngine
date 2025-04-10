@@ -31,7 +31,7 @@ public:
 private:
   ezHashedString m_sClip;                      // [ property ]
   bool m_bLoop = true;                         // [ property ]
-  bool m_bApplyRootMotion = false;             // [ property ]
+  float m_fRootMotionAmount = 0.0f;            // [ property ]
   float m_fPlaybackSpeed = 1.0f;               // [ property ]
 
   ezAnimGraphTriggerInputPin m_InStart;        // [ property ]

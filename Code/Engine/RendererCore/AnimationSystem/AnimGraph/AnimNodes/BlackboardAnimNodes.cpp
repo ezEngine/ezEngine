@@ -181,6 +181,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareBlackboardNumberAnimNode, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -196,7 +197,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezResult ezCompareBlackboardNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(2);
+  stream.WriteVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
@@ -207,13 +208,14 @@ ezResult ezCompareBlackboardNumberAnimNode::SerializeNode(ezStreamWriter& stream
   EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezCompareBlackboardNumberAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(2);
+  const auto version = stream.ReadVersion(3);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
@@ -224,6 +226,11 @@ ezResult ezCompareBlackboardNumberAnimNode::DeserializeNode(ezStreamReader& stre
   EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+
+  if (version >= 3)
+  {
+    EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
+  }
 
   return EZ_SUCCESS;
 }
@@ -262,6 +269,7 @@ void ezCompareBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, e
   const ezInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
 
   m_OutIsTrue.SetBool(ref_graph, bIsTrueNow);
+  m_OutIsFalse.SetBool(ref_graph, !bIsTrueNow);
 
   // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
   if (pInstance->m_iIsTrue != iIsTrueNow)
