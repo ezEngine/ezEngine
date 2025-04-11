@@ -95,8 +95,7 @@ namespace clang
           if (prefixAdded)
             *prefixAdded = true;
           return newName.insert(0, "b");
-        }
-        else if (typeName == "ezAtomicInteger")
+        } else if (typeName == "ezAtomicInteger32" || typeName == "ezAtomicInteger64")
         {
           if (prefixAdded)
             *prefixAdded = true;
@@ -223,7 +222,7 @@ namespace clang
             {
               return newName;
             }
-            else if (auto declTemplate = dyn_cast<ClassTemplateSpecializationDecl>(recordDecl); declTemplate && recordName == "atomic")
+            else if (auto declTemplate = dyn_cast<ClassTemplateSpecializationDecl>(recordDecl); declTemplate && (recordName == "atomic" || recordName == "ezAtomicInteger"))
             {
               auto& templateArgs = declTemplate->getTemplateArgs();
               if (templateArgs.size() == 1)

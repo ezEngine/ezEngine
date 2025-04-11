@@ -1,20 +1,27 @@
-diff --git forkSrcPrefix/clang-tools-extra/clang-tidy/utils/RenamerClangTidyCheck.h forkDstPrefix/clang-tools-extra/clang-tidy/utils/RenamerClangTidyCheck.h
-index 38228fb59bf62487674a5ba28bbe8449956d37e2..a75ee3c87822304991835c6adba76df299849948 100644
---- forkSrcPrefix/clang-tools-extra/clang-tidy/utils/RenamerClangTidyCheck.h
-+++ forkDstPrefix/clang-tools-extra/clang-tidy/utils/RenamerClangTidyCheck.h
-@@ -50,7 +50,7 @@ public:
-     ShouldFix,
- 
-     /// The fixup will conflict with a language keyword,
--    /// so we can't fix it automatically.
-+    /// so we can't fix it automaticallyt.
-     ConflictsWithKeyword,
- 
-     /// The fixup will conflict with a macro
-diff --git forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
-index 0a80c996aaaade5fdb7e523ea231354d0cbb0e2f..045cb8961d1de610e7e20071a5901efafb340117 100644
---- forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
-+++ forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
+diff --git a/clang-tools-extra/clang-tidy/CMakeLists.txt b/clang-tools-extra/clang-tidy/CMakeLists.txt
+index 7e1905aa897b..b2fb1291ef52 100644
+--- a/clang-tools-extra/clang-tidy/CMakeLists.txt
++++ b/clang-tools-extra/clang-tidy/CMakeLists.txt
+@@ -67,6 +67,7 @@ add_subdirectory(linuxkernel)
+ add_subdirectory(llvm)
+ add_subdirectory(llvmlibc)
+ add_subdirectory(misc)
++add_subdirectory(ez)
+ add_subdirectory(modernize)
+ if(CLANG_TIDY_ENABLE_STATIC_ANALYZER)
+   add_subdirectory(mpi)
+@@ -87,6 +88,7 @@ set(ALL_CLANG_TIDY_CHECKS
+   clangTidyConcurrencyModule
+   clangTidyCppCoreGuidelinesModule
+   clangTidyDarwinModule
++  clangTidyEzModule
+   clangTidyFuchsiaModule
+   clangTidyGoogleModule
+   clangTidyHICPPModule
+diff --git a/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp b/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
+index 0a80c996aaaa..045cb8961d1d 100644
+--- a/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
++++ b/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.cpp
 @@ -565,17 +565,17 @@ void ClangTidyDiagnosticConsumer::checkFilters(SourceLocation Location,
    StringRef FileName(File->getName());
    LastErrorRelatesToUserCode = LastErrorRelatesToUserCode ||
@@ -36,10 +43,10 @@ index 0a80c996aaaade5fdb7e523ea231354d0cbb0e2f..045cb8961d1de610e7e20071a5901efa
    return HeaderFilter.get();
  }
  
-diff --git forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
-index 9280eb1e1f218dfb22c3fb8e6025db9d882733bd..45b4fec125907e95416ff04dc93c8143f6862308 100644
---- forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
-+++ forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
+diff --git a/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h b/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
+index 9280eb1e1f21..45b4fec12590 100644
+--- a/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
++++ b/clang-tools-extra/clang-tidy/ClangTidyDiagnosticConsumer.h
 @@ -20,6 +20,8 @@
  #include "llvm/Support/Regex.h"
  #include <optional>
@@ -67,10 +74,10 @@ index 9280eb1e1f218dfb22c3fb8e6025db9d882733bd..45b4fec125907e95416ff04dc93c8143
    bool LastErrorRelatesToUserCode = false;
    bool LastErrorPassesLineFilter = false;
    bool LastErrorWasIgnored = false;
-diff --git forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
-index adde9136ff1dd5de54a3f7eb976cf2d2494d344b..4c8eef0533c2230217da356c23a4050c8ca3c298 100644
---- forkSrcPrefix/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
-+++ forkDstPrefix/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
+diff --git a/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h b/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
+index adde9136ff1d..4c8eef0533c2 100644
+--- a/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
++++ b/clang-tools-extra/clang-tidy/ClangTidyForceLinker.h
 @@ -94,6 +94,11 @@ extern volatile int MiscModuleAnchorSource;
  static int LLVM_ATTRIBUTE_UNUSED MiscModuleAnchorDestination =
      MiscModuleAnchorSource;
@@ -83,23 +90,3 @@ index adde9136ff1dd5de54a3f7eb976cf2d2494d344b..4c8eef0533c2230217da356c23a4050c
  // This anchor is used to force the linker to link the ModernizeModule.
  extern volatile int ModernizeModuleAnchorSource;
  static int LLVM_ATTRIBUTE_UNUSED ModernizeModuleAnchorDestination =
-diff --git forkSrcPrefix/clang-tools-extra/clang-tidy/CMakeLists.txt forkDstPrefix/clang-tools-extra/clang-tidy/CMakeLists.txt
-index 7e1905aa897b7e7a7362f9d023ec178e4d730f4f..b2fb1291ef525e510fcfcc22e888a68ce080e060 100644
---- forkSrcPrefix/clang-tools-extra/clang-tidy/CMakeLists.txt
-+++ forkDstPrefix/clang-tools-extra/clang-tidy/CMakeLists.txt
-@@ -67,6 +67,7 @@ add_subdirectory(linuxkernel)
- add_subdirectory(llvm)
- add_subdirectory(llvmlibc)
- add_subdirectory(misc)
-+add_subdirectory(ez)
- add_subdirectory(modernize)
- if(CLANG_TIDY_ENABLE_STATIC_ANALYZER)
-   add_subdirectory(mpi)
-@@ -87,6 +88,7 @@ set(ALL_CLANG_TIDY_CHECKS
-   clangTidyConcurrencyModule
-   clangTidyCppCoreGuidelinesModule
-   clangTidyDarwinModule
-+  clangTidyEzModule
-   clangTidyFuchsiaModule
-   clangTidyGoogleModule
-   clangTidyHICPPModule

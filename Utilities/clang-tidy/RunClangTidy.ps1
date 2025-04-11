@@ -1,7 +1,7 @@
 param
 (
     [string]
-    $Workspace,
+    $Workspace = "Workspace/clang-tidy",
     [string]
     $Checks = "-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
     [string]
@@ -13,17 +13,17 @@ param
     [string]
     $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_).)*$",
     [string]
-    $LlvmInstallDir = "C:\Program Files\LLVM",
+    $LlvmInstallDir,
     [string]
     $TempDir,
     [string]
-    $ClangTidy = "$PSScriptRoot\..\Data\Tools\Precompiled\clang-tidy\clang-tidy.exe",
+    $ClangTidy = "$PSScriptRoot\..\..\Data\Tools\Precompiled\clang-tidy\clang-tidy.exe",
     [string]
-    $DependencyAnalysis = "$PSScriptRoot\..\Data\Tools\Precompiled\DependencyAnalysis.exe",
+    $DependencyAnalysis = "$PSScriptRoot\..\..\Data\Tools\Precompiled\DependencyAnalysis.exe",
     [string]
     $LogFile,
     [string]
-    $DiffTo,
+    $DiffTo = "origin/dev",
     [string]
     $SingleFile,
     [int]
@@ -36,6 +36,25 @@ param
 
 $ErrorActionPreference = "Stop"
 
+Set-Location (Join-Path -Path $PSScriptRoot -ChildPath "..\..")
+
+if (-not $LlvmInstallDir) {
+    Write-Host "LlvmInstallDir is not set. Searching for clang-apply-replacements.exe in default paths..."
+    $possiblePaths = @((Join-Path $pwd "llvm"), "C:\Program Files\LLVM")
+    foreach ($path in $possiblePaths) {
+        $testPath = Join-Path $path "bin\clang-apply-replacements.exe"
+        if (Test-Path $testPath) {
+            $LlvmInstallDir = $path
+            Write-Host "LlvmInstallDir set to $LlvmInstallDir"
+            break
+        }
+    }
+    if (-not $LlvmInstallDir) {
+        Write-Error "LlvmInstallDir is not set. Please run SetupWorkspace.ps1."
+        exit 1
+    }
+}
+
 $Workspace = (Resolve-Path $Workspace).Path
 
 function New-TemporaryDirectory {
@@ -45,7 +64,7 @@ function New-TemporaryDirectory {
 
 if(!(Test-Path $Workspace/compile_commands.json))
 {
-    Write-Error "Could not find compile commands database at $Workspace/compile_commands.json"
+    Write-Error "Could not find compile commands database at $Workspace/compile_commands.json. Please run SetupWorkspace.ps1."
     exit 1
 }
 
@@ -94,7 +113,7 @@ else
     $files = @((Get-Content $Workspace\compile_commands.json | ConvertFrom-Json -Depth 3).file | ? {!($_ -match $ExcludeRootFiles)})
 }
 
-if($DiffTo)
+if($DiffTo -and [string]::IsNullOrEmpty($SingleFile))
 {
     # Get list of changed files from git
     $mergeBase = git merge-base HEAD "$DiffTo"
@@ -154,7 +173,7 @@ if($DiffTo)
         . $DependencyAnalysis -i "Qt6-6" -i "VulkanSDK" -i "ThirdParty" -i ".moc.cpp" -i "qrc_resources.cpp" -i "moc_" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json
         if($lastexitcode -ne 0)
         {
-            Write-Error "Dependency analysis faild. Command used: $DependencyAnalysis -i `"Qt6-6`" -i `"VulkanSDK`" -i `"ThirdParty`" -i `".moc.cpp`" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json"
+            Write-Error "Dependency analysis failed. Command used: $DependencyAnalysis -i `"Qt6-6`" -i `"VulkanSDK`" -i `"ThirdParty`" -i `".moc.cpp`" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json"
             exit 1
         }
         

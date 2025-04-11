@@ -358,9 +358,8 @@ MigrationBackup/
 /Workspace
 /Output
 AssetCache
-/build/
-/buildUWP/
 Code/Engine/ezBuildInfo.h
+/llvm/
 
 # NOTE: Allows Live++ API to be used in the project without being ignored by git.
 !Code/ThirdParty/LivePP/**

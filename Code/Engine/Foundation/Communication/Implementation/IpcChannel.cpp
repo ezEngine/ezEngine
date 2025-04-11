@@ -125,7 +125,7 @@ ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 
 void ezIpcChannel::SetConnectionState(ezEnum<ezIpcChannel::ConnectionState> state)
 {
-  const ezEnum<ezIpcChannel::ConnectionState> oldValue = m_iConnectionState.Set(state);
+  const ezEnum<ezIpcChannel::ConnectionState> oldValue = m_ConnectionState.Set(state);
 
   if (state != oldValue)
   {
