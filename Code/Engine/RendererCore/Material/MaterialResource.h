@@ -153,6 +153,7 @@ private:
   void AddPermutationVar(ezStringView sName, ezStringView sValue);
   void SetModified(DirtyFlags::Enum flag);
   void FlattenOriginalDescHierarchy();
+  void ComputeRenderDataCategory();
 
 private:
   ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later

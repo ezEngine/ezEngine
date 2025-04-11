@@ -172,10 +172,9 @@ private:
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
 private:
-  volatile ezResourceState m_LoadingState = ezResourceState::Unloaded;
-
-  ezUInt8 m_uiQualityLevelsDiscardable = 0;
-  ezUInt8 m_uiQualityLevelsLoadable = 0;
+  ezAtomicInteger<ezResourceState> m_LoadingState = ezResourceState::Unloaded;
+  ezAtomicInteger<ezUInt8> m_uiQualityLevelsDiscardable = 0;
+  ezAtomicInteger<ezUInt8> m_uiQualityLevelsLoadable = 0;
 
 
 protected:

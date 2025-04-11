@@ -208,6 +208,13 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       // and accidentally skipping InternalPreloadResource() is no problem
       if (IsQueuedForLoading(pResource) == false && pResource->GetNumQualityLevelsLoadable() > 0)
         InternalPreloadResource(pResource, false);
+
+      if (GetForceNoFallbackAcquisition() > 0 && pResource->GetNumQualityLevelsLoadable() > 0)
+      {
+        // Wait for higher quality level to finish loading
+        ezTaskSystem::WaitForCondition([=]() -> bool
+          { return pResource->GetNumQualityLevelsLoadable() == 0 || (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+      }
     }
   }
 

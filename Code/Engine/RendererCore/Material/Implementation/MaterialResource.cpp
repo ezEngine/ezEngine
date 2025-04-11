@@ -596,12 +596,17 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
     ezLog::Error("Unknown material file type: '{}'", sAbsFilePath);
   }
 
-  if (uiVersion <= 8)
+  // With version 8, all materials are flattened at asset transform time, removing the need to flatten the base material hierarchy.
+  if (uiVersion < 8)
   {
     // Flatten works on the original desc of the base material hierarchy and stores the end result in m_mDesc.
     m_mOriginalDesc = m_mDesc;
     FlattenOriginalDescHierarchy();
   }
+  
+  // There is no guarantee that a material defines a render data category, so we always have to compute the fallbacks.
+  ComputeRenderDataCategory();
+
   // After loading, base material info is removed as everything is flattened into this material.
   m_mDesc.m_hBaseMaterial.Invalidate();
   EZ_ASSERT_DEBUG(m_mDesc.m_RenderDataCategory != ezInvalidRenderDataCategory, "FlattenHierarchy should have set a category and newer versions should have it serialized.");
@@ -632,6 +637,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMaterialResource, ezMaterialResourceDescripto
 
   m_DirtyFlags = DirtyFlags::ResourceCreation;
   FlattenOriginalDescHierarchy();
+  ComputeRenderDataCategory();
 
   // After creation, base material info is removed as everything is flattened into this material.
   m_mDesc.m_hBaseMaterial.Invalidate();
@@ -655,7 +661,6 @@ void ezMaterialResource::AddPermutationVar(ezStringView sName, ezStringView sVal
     ezPermutationVar& pv = m_mDesc.m_PermutationVars.ExpandAndGetRef();
     pv.m_sName = sNameHashed;
     pv.m_sValue = sValueHashed;
-    m_mDesc.m_PermutationVars.PushBack(pv);
   }
   SetModified(DirtyFlags::PermutationVar);
 }
@@ -746,30 +751,6 @@ void ezMaterialResource::FlattenOriginalDescHierarchy()
     }
   }
 
-  if (flattenedMaterial.m_RenderDataCategory == ezInvalidRenderDataCategory)
-  {
-    ezHashedString sBlendModeValue;
-    if (flattenedMaterial.m_PermutationVars.TryGetValue("BLEND_MODE", sBlendModeValue))
-    {
-      if (sBlendModeValue == ezTempHashedString("BLEND_MODE_OPAQUE"))
-      {
-        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (sBlendModeValue == ezTempHashedString("BLEND_MODE_MASKED") || sBlendModeValue == ezTempHashedString("BLEND_MODE_DITHERED"))
-      {
-        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitMasked;
-      }
-      else
-      {
-        flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitTransparent;
-      }
-    }
-    else
-    {
-      flattenedMaterial.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
-    }
-  }
-
   m_mDesc.m_hBaseMaterial.Invalidate();
   m_mDesc.m_sSurface = flattenedMaterial.m_sSurface;
   m_mDesc.m_hShader = flattenedMaterial.m_hShader;
@@ -778,6 +759,26 @@ void ezMaterialResource::FlattenOriginalDescHierarchy()
   CopyMaterialDesc(flattenedMaterial.m_Parameters, m_mDesc.m_Parameters);
   CopyMaterialDesc(flattenedMaterial.m_Texture2DBindings, m_mDesc.m_Texture2DBindings);
   CopyMaterialDesc(flattenedMaterial.m_TextureCubeBindings, m_mDesc.m_TextureCubeBindings);
+}
+
+void ezMaterialResource::ComputeRenderDataCategory()
+{
+  if (m_mDesc.m_RenderDataCategory.IsValid())
+    return;
+
+  ezHashedString sBlendModeValue = GetPermutationValue("BLEND_MODE");
+  if (sBlendModeValue.IsEmpty() || sBlendModeValue == ezTempHashedString("BLEND_MODE_OPAQUE"))
+  {
+    m_mDesc.m_RenderDataCategory = ezDefaultRenderDataCategories::LitOpaque;
+  }
+  else if (sBlendModeValue == ezTempHashedString("BLEND_MODE_MASKED") || sBlendModeValue == ezTempHashedString("BLEND_MODE_DITHERED"))
+  {
+    m_mDesc.m_RenderDataCategory = ezDefaultRenderDataCategories::LitMasked;
+  }
+  else
+  {
+    m_mDesc.m_RenderDataCategory = ezDefaultRenderDataCategories::LitTransparent;
+  }
 }
 
 const ezMaterialResourceDescriptor& ezMaterialResource::GetCurrentDesc() const

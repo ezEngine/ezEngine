@@ -772,38 +772,38 @@ void ezRendererTestAdvancedFeatures::Compute()
 
 ezTestAppRun ezRendererTestAdvancedFeatures::Material()
 {
-  if (m_iFrame == ImageCaptureFrames::Material_ColorChange)
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    const ezMaterialResourceDescriptor& desc = pMaterial->GetCurrentDesc();
+    EZ_TEST_INT(desc.m_PermutationVars.GetCount(), 0);
+    EZ_TEST_INT(desc.m_Parameters.GetCount(), 2);
+    EZ_TEST_INT(desc.m_Texture2DBindings.GetCount(), 1);
+    EZ_TEST_INT(desc.m_TextureCubeBindings.GetCount(), 0);
     ezVariant color1 = pMaterial->GetParameter(m_sBaseColor);
     ezVariant color2 = pMaterial->GetParameter(m_sBaseColor2);
-    EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::White);
-    EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
     ezTexture2DResourceHandle hTexture = pMaterial->GetTexture2DBinding(m_sTexture);
-    EZ_TEST_BOOL(hTexture == m_hTexture);
-    pMaterial->SetParameter(m_sBaseColor, ezColor::Yellow);
-  }
-  else if (m_iFrame == ImageCaptureFrames::Material_ColorChange2)
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    ezVariant color1 = pMaterial->GetParameter(m_sBaseColor);
-    ezVariant color2 = pMaterial->GetParameter(m_sBaseColor2);
-    EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
-    EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
-    ezTexture2DResourceHandle hTexture = pMaterial->GetTexture2DBinding(m_sTexture);
-    EZ_TEST_BOOL(hTexture == m_hTexture);
-    pMaterial->SetParameter(m_sBaseColor2, ezColor::Cyan);
-  }
-  else if (m_iFrame == ImageCaptureFrames::Material_ChangeTexture)
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    ezVariant color1 = pMaterial->GetParameter(m_sBaseColor);
-    ezVariant color2 = pMaterial->GetParameter(m_sBaseColor2);
-    EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
-    EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::Cyan);
-    ezTexture2DResourceHandle hTexture = pMaterial->GetTexture2DBinding(m_sTexture);
-    EZ_TEST_BOOL(hTexture == m_hTexture);
-    pMaterial->SetTexture2DBinding(m_sTexture, m_hTexture2);
+
+    if (m_iFrame == ImageCaptureFrames::Material_ColorChange)
+    {
+      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::White);
+      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
+      EZ_TEST_BOOL(hTexture == m_hTexture);
+      pMaterial->SetParameter(m_sBaseColor, ezColor::Yellow);
+    }
+    else if (m_iFrame == ImageCaptureFrames::Material_ColorChange2)
+    {
+      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
+      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::White);
+      EZ_TEST_BOOL(hTexture == m_hTexture);
+      pMaterial->SetParameter(m_sBaseColor2, ezColor::Cyan);
+    }
+    else if (m_iFrame == ImageCaptureFrames::Material_ChangeTexture)
+    {
+      EZ_TEST_BOOL(color1.IsA<ezColor>() && color1.Get<ezColor>() == ezColor::Yellow);
+      EZ_TEST_BOOL(color2.IsA<ezColor>() && color2.Get<ezColor>() == ezColor::Cyan);
+      EZ_TEST_BOOL(hTexture == m_hTexture);
+      pMaterial->SetTexture2DBinding(m_sTexture, m_hTexture2);
+    }
   }
 
   BeginFrame();
