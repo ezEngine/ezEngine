@@ -278,7 +278,7 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
-    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader);
+    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader).IgnoreResult();
   }
   else
   {

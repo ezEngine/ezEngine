@@ -270,7 +270,7 @@ void ezAngelScriptAssetDocument::OpenExternalEditor()
     if (ezQtUiServices::OpenInVsCode(args).Failed())
     {
       // try again with a different program
-      ezQtUiServices::OpenFileInDefaultProgram(sScriptFileAbs);
+      ezQtUiServices::OpenFileInDefaultProgram(sScriptFileAbs).IgnoreResult();
     }
   }
 }

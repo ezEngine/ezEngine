@@ -415,7 +415,7 @@ ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
     ezStringBuilder abs;
     if (ezFileSystem::ResolvePath(dlg.m_sResult, &abs, nullptr).Succeeded())
     {
-      if (!ezQtUiServices::GetSingleton()->OpenFileInDefaultProgram(abs))
+      if (ezQtUiServices::GetSingleton()->OpenFileInDefaultProgram(abs).Failed())
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("There is no default program set to open shader files:\n\n{}", abs));
       }

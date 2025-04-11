@@ -19,11 +19,11 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezIDE, 1)
-  EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
+  EZ_ENUM_CONSTANT(ezIDE::DefaultProgram),
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_ENUM_CONSTANT(ezIDE::VisualStudio),
-  EZ_ENUM_CONSTANT(ezIDE::SolutionDefault),
 #endif
+  EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
   EZ_ENUM_CONSTANT(ezIDE::Rider),
 EZ_END_STATIC_REFLECTED_ENUM;
 
@@ -275,33 +275,44 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
 
   switch (preferences->m_Ide.GetValue())
   {
+    case ezIDE::DefaultProgram:
+    {
+      if (ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)).Failed())
+      {
+        return ezStatus("Failed to open solution with default program.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+      }
+
+      return ezStatus(EZ_SUCCESS);
+    }
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezIDE::VisualStudio:
-      if (!ezQtUiServices::OpenInVisualStudio(ezCppProject::GetSolutionPath(cfg)))
+    {
+      if (ezQtUiServices::OpenInVisualStudio(ezCppProject::GetSolutionPath(cfg)).Failed())
       {
-        return ezStatus("Opening the solution in Visual Studio failed.");
+        return ezStatus("Failed to open solution with Visual Studio.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
-      break;
-    case ezIDE::SolutionDefault:
-      if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)))
-      {
-        return ezStatus("Failed to open solution.");
-      }
-      break;
-#endif
-    case ezIDE::Rider:
 
+      return ezStatus(EZ_SUCCESS);
+    }
+#endif
+
+    case ezIDE::Rider:
+    {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       auto solutionPath = ezCppProject::GetSolutionPath(cfg);
 #else
       auto solutionPath = ezCppProject::GetTargetSourceDir();
 #endif
 
-      if (!ezQtUiServices::OpenInRider(solutionPath))
+      if (ezQtUiServices::OpenInRider(solutionPath).Failed())
       {
-        return ezStatus("Opening the solution in Rider failed");
+        return ezStatus("Failed to open solution with Rider.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
-      break;
+
+      return ezStatus(EZ_SUCCESS);
+    }
+
     case ezIDE::VisualStudioCode:
     {
       auto solutionPath = ezCppProject::GetTargetSourceDir();
@@ -309,13 +320,14 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
       args.push_back(QString::fromUtf8(solutionPath.GetData(), solutionPath.GetElementCount()));
       if (ezStatus status = ezQtUiServices::OpenInVsCode(args); status.Failed())
       {
-        return ezStatus(ezFmt("Opening Visual Studio Code failed: {}", status.m_sMessage));
+        return ezStatus(ezFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.m_sMessage));
       }
+
+      return ezStatus(EZ_SUCCESS);
     }
-    break;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return ezStatus("Failed to open solution: Unknown error");
 }
 
 ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 iLineNumber)

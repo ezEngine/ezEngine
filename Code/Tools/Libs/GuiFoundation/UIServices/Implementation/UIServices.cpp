@@ -356,12 +356,12 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
 }
 
 
-bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
+ezResult ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
 {
-  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath));
+  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-bool ezQtUiServices::OpenInVisualStudio(const char* szPath)
+ezResult ezQtUiServices::OpenInVisualStudio(const char* szPath)
 {
   QString sVSExe;
   QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
@@ -379,13 +379,13 @@ bool ezQtUiServices::OpenInVisualStudio(const char* szPath)
   QProcess proc;
   if (proc.startDetached(sVSExe, arguments) == false)
   {
-    return false;
+    return EZ_FAILURE;
   }
 
-  return true;
+  return EZ_SUCCESS;
 }
 
-bool ezQtUiServices::OpenInRider(const char* szPath)
+ezResult ezQtUiServices::OpenInRider(const char* szPath)
 {
   QString sRiderPath;
 
@@ -423,7 +423,7 @@ bool ezQtUiServices::OpenInRider(const char* szPath)
     sRiderPath = "rider.sh";
   }
 #else
-  return false;
+  return EZ_FAILURE;
 #endif
 
   QStringList arguments;
@@ -431,8 +431,8 @@ bool ezQtUiServices::OpenInRider(const char* szPath)
 
   if (!QProcess::startDetached(sRiderPath, arguments))
   {
-    return false;
+    return EZ_FAILURE;
   }
 
-  return true;
+  return EZ_SUCCESS;
 }

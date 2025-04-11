@@ -54,7 +54,7 @@ void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelat
   }
   else
   {
-    ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAssetPathAbsolute));
+    ezQtUiServices::OpenFileInDefaultProgram(qtToEzString(sAssetPathAbsolute)).IgnoreResult();
   }
 }
 

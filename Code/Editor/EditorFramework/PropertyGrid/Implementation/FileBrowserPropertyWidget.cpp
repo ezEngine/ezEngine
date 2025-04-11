@@ -156,10 +156,12 @@ void ezQtFilePropertyWidget::OnOpenFile()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
+  if (ezQtUiServices::OpenFileInDefaultProgram(sPath).Failed())
+  {
     ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated "
                                                 "with this file type and that access to this file is not denied.",
       sPath));
+  }
 }
 
 void ezQtFilePropertyWidget::OnOpenFileWith()
@@ -360,10 +362,12 @@ void ezQtExternalFilePropertyWidget::OnOpenFile()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
+  if (ezQtUiServices::OpenFileInDefaultProgram(sPath).Failed())
+  {
     ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated "
                                                 "with this file type and that access to this file is not denied.",
       sPath));
+  }
 }
 
 void ezQtExternalFilePropertyWidget::OnOpenFileWith()
