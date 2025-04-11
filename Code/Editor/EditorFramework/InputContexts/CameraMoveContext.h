@@ -60,7 +60,6 @@ private:
   ezCamera* m_pCamera = nullptr;
 
   bool m_bRun = false;
-  bool m_bSlowDown = false;
   bool m_bMoveForwards = false;
   bool m_bMoveBackwards = false;
   bool m_bMoveRight = false;

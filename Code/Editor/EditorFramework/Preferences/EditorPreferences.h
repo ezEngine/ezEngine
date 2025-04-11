@@ -18,6 +18,7 @@ public:
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
+  float m_fCameraRotationSpeed = 1.0f;
   ezAngle m_RotationSnapValue = ezAngle::MakeFromDegree(15.0f);
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;

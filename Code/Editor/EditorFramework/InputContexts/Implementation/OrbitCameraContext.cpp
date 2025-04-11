@@ -207,13 +207,34 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   if (m_Mode == Mode::Off)
     return ezEditorInput::MayBeHandledByOthers;
 
+  const QSize viewSize = GetOwnerView()->size();
+
+  const ezEditorPreferencesUser* pEditorPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
   const ezVec2I32 CurMousePos(QCursor::pos().x(), QCursor::pos().y());
-  const ezVec2I32 diff = CurMousePos - m_vLastMousePos;
+  const ezVec2I32 mouseDiff = CurMousePos - m_vLastMousePos;
   m_vLastMousePos = UpdateMouseMode(e);
+
+  ezVec2 diffNorm = ezVec2(mouseDiff.x, mouseDiff.y);
+
+  switch (m_pCamera->GetCameraMode())
+  {
+    case ezCameraMode::PerspectiveFixedFovX:
+    case ezCameraMode::OrthoFixedWidth:
+      diffNorm /= (float)viewSize.width();
+      break;
+    case ezCameraMode::PerspectiveFixedFovY:
+    case ezCameraMode::OrthoFixedHeight:
+      diffNorm /= (float)viewSize.height();
+      break;
+
+    default:
+      break;
+  }
 
   SetCurrentMouseMode();
 
-  const float fMouseMoveSensitivity = 0.002f;
+  const float fMouseRotationSpeed = 2.0f * pEditorPref->m_fCameraRotationSpeed;
 
   const ezVec3 vHalfExtents = m_Volume.GetHalfExtents();
   const float fMaxExtent = ezMath::Max(vHalfExtents.x, vHalfExtents.y, vHalfExtents.z);
@@ -221,8 +242,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
   if (m_Mode == Mode::Orbit)
   {
-    const float fMoveRight = diff.x * fMouseMoveSensitivity;
-    const float fMoveUp = -diff.y * fMouseMoveSensitivity;
+    const float fMoveRight = diffNorm.x;
+    const float fMoveUp = -diffNorm.y;
 
     const ezVec3 vOrbitPoint = m_Volume.GetCenter();
 
@@ -251,18 +272,15 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
   if (m_Mode == Mode::Free)
   {
-    const float fAspectRatio = (float)GetOwnerView()->size().width() / (float)GetOwnerView()->size().height();
+    const float fAspectRatio = (float)viewSize.width() / (float)viewSize.height();
     const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
     const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
 
-    float fRotateBoost = 1.0f;
+    const float fMouseRotateSensitivityX = fFovX.GetRadian() * fMouseRotationSpeed;
+    const float fMouseRotateSensitivityY = fFovY.GetRadian() * fMouseRotationSpeed;
 
-    const float fMouseScale = 4.0f;
-    const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)GetOwnerView()->size().width()) * fRotateBoost * fMouseScale;
-    const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)GetOwnerView()->size().height()) * fRotateBoost * fMouseScale;
-
-    float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
-    float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
+    float fRotateHorizontal = diffNorm.x * fMouseRotateSensitivityX;
+    float fRotateVertical = -diffNorm.y * fMouseRotateSensitivityY;
 
     m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateVertical), ezAngle::MakeFromRadian(0));
     m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateHorizontal));
@@ -272,8 +290,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   {
     const float fSpeedFactor = GetCameraSpeed();
 
-    const float fMoveUp = -diff.y * fMouseMoveSensitivity * fSpeedFactor;
-    const float fMoveRight = diff.x * fMouseMoveSensitivity * fSpeedFactor;
+    const float fMoveUp = -diffNorm.y * fSpeedFactor;
+    const float fMoveRight = diffNorm.x * fSpeedFactor;
 
     m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
   }
