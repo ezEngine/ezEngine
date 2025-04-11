@@ -603,7 +603,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
     m_mOriginalDesc = m_mDesc;
     FlattenOriginalDescHierarchy();
   }
-  
+
   // There is no guarantee that a material defines a render data category, so we always have to compute the fallbacks.
   ComputeRenderDataCategory();
 
