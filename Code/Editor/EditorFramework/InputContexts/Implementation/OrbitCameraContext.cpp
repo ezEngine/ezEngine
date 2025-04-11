@@ -3,6 +3,7 @@
 #include <Core/Graphics/Camera.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
