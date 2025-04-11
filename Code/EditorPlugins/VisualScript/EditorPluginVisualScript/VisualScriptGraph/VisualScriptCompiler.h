@@ -52,6 +52,9 @@ public:
 
     AstNode* m_pSourceNode = nullptr;
     ezUInt32 m_uiSourcePinIndex = 0;
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+    ezUInt32 m_uiPadding = 0;
+#endif
   };
 
   struct ExecOutput
@@ -89,6 +92,7 @@ public:
 
     ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
     ezEnum<ezVisualScriptDataType> m_DeductedDataType;
+    bool m_bImplicitExecution = false;
 
     ezHashedString m_sTargetTypeName;
     ezVariant m_Value;
@@ -110,7 +114,12 @@ private:
   }
 
   // Ast node creation
-  AstNode& CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, ezVisualScriptDataType::Enum deductedDataType = ezVisualScriptDataType::Invalid);
+  AstNode& CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, ezVisualScriptDataType::Enum deductedDataType = ezVisualScriptDataType::Invalid, bool bImplicitExecution = false);
+  EZ_ALWAYS_INLINE AstNode& CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, bool bImplicitExecution)
+  {
+    return CreateAstNode(type, ezVisualScriptDataType::Invalid, bImplicitExecution);
+  }
+
   AstNode& CreateJumpNode(AstNode* pTargetNode);
   AstNode* CreateAstNodeFromObject(const ezDocumentObject* pObject, const ezVisualScriptNodeRegistry::NodeDesc* pNodeDesc, const ezDocumentObject* pEntryObject, bool bImplicitOnly = false);
   DataInput GetOrCreateDefaultPointerNode(const AstNode& node, const ezRTTI* pRtti);
@@ -141,6 +150,7 @@ private:
 
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);
 
+  ezResult ReplaceLoop(AstNode* pEntryAstNode);
   ezResult ReplaceUnsupportedNodes(AstNode* pEntryAstNode);
 
   ezResult AssignInstanceVariables(AstNode* pEntryAstNode);
@@ -154,6 +164,7 @@ private:
   enum class VisitorResult
   {
     Continue,
+    Skip,
     Error,
   };
 
