@@ -394,7 +394,15 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
   QString sToolboxKey = settings.value(".", "").value<QString>();
 
   QString sToolboxPath = sToolboxKey.replace("\\", "/").replace("\"", "");
-  sToolboxPath.append("/../.settings.json");
+  if (sToolboxPath.isEmpty())
+  {
+    sToolboxPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).split("Local/",Qt::KeepEmptyParts,Qt::CaseInsensitive).first();
+    sToolboxPath += "Local/JetBrains/Toolbox/.settings.json";
+  }
+  else
+  {
+    sToolboxPath.append("/../.settings.json");
+  }
 
   if (QFile::exists(sToolboxPath))
   {
@@ -412,6 +420,11 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
     sRiderPath.append("/rider.cmd");
     file.close();
   }
+  else
+  {
+    sRiderPath = "rider64.exe";
+  }
+
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (QFile::exists("/opt/rider/bin/rider.sh"))
   {
