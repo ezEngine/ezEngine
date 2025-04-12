@@ -95,7 +95,8 @@ namespace clang
           if (prefixAdded)
             *prefixAdded = true;
           return newName.insert(0, "b");
-        } else if (typeName == "ezAtomicInteger32" || typeName == "ezAtomicInteger64")
+        }
+        else if (typeName == "ezAtomicInteger32" || typeName == "ezAtomicInteger64")
         {
           if (prefixAdded)
             *prefixAdded = true;
