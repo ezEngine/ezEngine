@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum class PrefabComponentFlags : ezUInt8
 {
-  SelfDeletion = 1, ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
+  SelfDeletion = 1,   ///< the prefab component is currently deleting itself but does not want to remove the instantiated objects
   ShowShapeIcons = 2, ///< the prefab component should show shape icons for the instantiated objects
   InUpdateList = 3,   ///< the prefab component is currently in the update list of the prefab manager
 };

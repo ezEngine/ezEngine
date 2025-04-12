@@ -250,7 +250,7 @@ struct ezObjectFlags
     StorageType CreatedByPrefab : 1;                     //< 13
     StorageType HideShapeIcon : 1;                       //< 14
 
-    StorageType Padding : 9;                            // 15 - 23
+    StorageType Padding : 9;                             // 15 - 23
 
     StorageType UserFlag0 : 1;                           //< 24
     StorageType UserFlag1 : 1;                           //< 25
