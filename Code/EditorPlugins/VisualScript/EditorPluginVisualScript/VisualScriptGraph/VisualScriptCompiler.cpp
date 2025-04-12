@@ -366,7 +366,7 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
     chunk.BeginChunk("FunctionGraphs", 1);
     chunk << m_Functions.GetCount();
 
-    // Reverse order so functions that are added later are loaded first
+    // Reverse order so functions that are added later (e.g. coroutines) are loaded first
     for (ezUInt32 i = m_Functions.GetCount(); i-- > 0;)
     {
       auto& function = m_Functions[i];
@@ -468,7 +468,7 @@ ezResult ezVisualScriptCompiler::Compile(ezStringView sDebugAstOutputPath)
 
     EZ_SUCCEED_OR_RETURN(ReplaceUnsupportedNodes(pEntryAstNode));
 
-    DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_03_Replaced");    
+    DumpAST(pEntryAstNode, sDebugAstOutputPath, function.m_sName, "_03_Replaced");
 
     EZ_SUCCEED_OR_RETURN(CopyOutputsToInputs(pEntryAstNode));
     EZ_SUCCEED_OR_RETURN(AssignLocalVariables(pEntryAstNode, function.m_LocalDataDesc));
@@ -1306,50 +1306,51 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
   ezHybridArray<AstNode*, 8> nodesConnectedToBreak;
 
   if (TraverseAstDepthFirst(pLoopBody,
-    [&](AstNode*& pAstNode)
-    {
-      EZ_ASSERT_DEV(ezVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) == false, "Nested Loops should have been resolved already");
-      
-      for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
-      {
-        auto& execOutput = pAstNode->m_ExecOutputs[i];
-        if (execOutput.m_pTargetNode == nullptr)
+        [&](AstNode*& pAstNode)
         {
-          ConnectExecution(*pAstNode, *pJumpNode, i);
-        }
-        else if (execOutput.m_pTargetNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
-        {
-          // handle breaks after this traversal, otherwise we could end up traversing to nodes outside the loop
-          nodesConnectedToBreak.PushBack(pAstNode);
-        }
-      }
+          EZ_ASSERT_DEV(ezVisualScriptNodeDescription::Type::IsLoop(pAstNode->m_Type) == false, "Nested Loops should have been resolved already");
 
-      for (auto& dataInput : pAstNode->m_DataInputs)
-      {
-        if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
-          loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
-        {
-          if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
+          for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)
           {
-            dataInput.m_pSourceNode = pLoopElement;
+            auto& execOutput = pAstNode->m_ExecOutputs[i];
+            if (execOutput.m_pTargetNode == nullptr)
+            {
+              ConnectExecution(*pAstNode, *pJumpNode, i);
+            }
+            else if (execOutput.m_pTargetNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
+            {
+              // handle breaks after this traversal, otherwise we could end up traversing to nodes outside the loop
+              nodesConnectedToBreak.PushBack(pAstNode);
+            }
           }
-          else if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 1)
-          {
-            dataInput.m_pSourceNode = pLoopIndex;
-            dataInput.m_uiSourcePinIndex = 0;
-          }
-        }
-        else
-        {
-          if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
-          {
-            dataInput.m_pSourceNode = pLoopIndex;
-          }
-        }
-      }
 
-      return VisitorResult::Continue;
-    }).Failed())
+          for (auto& dataInput : pAstNode->m_DataInputs)
+          {
+            if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
+                loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
+            {
+              if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
+              {
+                dataInput.m_pSourceNode = pLoopElement;
+              }
+              else if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 1)
+              {
+                dataInput.m_pSourceNode = pLoopIndex;
+                dataInput.m_uiSourcePinIndex = 0;
+              }
+            }
+            else
+            {
+              if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
+              {
+                dataInput.m_pSourceNode = pLoopIndex;
+              }
+            }
+          }
+
+          return VisitorResult::Continue;
+        })
+        .Failed())
   {
     return EZ_FAILURE;
   }
@@ -1393,6 +1394,7 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
     return EZ_FAILURE;
   }
 
+  // Replace unsupported nodes backwards so that we replace inner loops first, order doesn't matter for the other nodes
   for (ezUInt32 i = unsupportedNodes.GetCount(); i-- > 0;)
   {
     AstNode* pAstNode = unsupportedNodes[i];
@@ -1447,6 +1449,7 @@ ezResult ezVisualScriptCompiler::AssignInstanceVariables(AstNode* pEntryAstNode)
           dataInput.m_uiSourcePinIndex = 0;
           dataInput.m_DataOffset = GetInstanceDataOffset(sName, dataOutput.m_DataOffset.GetType());
 
+          // Remove the GetVariable node from the execution flow
           if (pSourceNode->m_ExecOutputs.IsEmpty() == false)
           {
             AstNode* pNodeAfterGetVariable = pSourceNode->m_ExecOutputs[0].m_pTargetNode;
@@ -1534,6 +1537,9 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
   if (r.Failed())
     return EZ_FAILURE;
 
+  // This is an implementation of the linear scan register allocation algorithm without spilling
+  // https://www2.seas.gwu.edu/~hchoi/teaching/cs160d/linearscan.pdf
+
   // Sort lifetime by start index
   m_CompilationState.m_LiveLocalVars.Sort(
     [](const LiveLocalVar& a, const LiveLocalVar& b)
@@ -1550,7 +1556,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
 
   for (auto& liveInterval : m_CompilationState.m_LiveLocalVars)
   {
-    // Expire old intervals afterwards so we don't end up using the same data as input and output
+    // Expire old intervals with less comparison instead of less equal (as in the original paper) so we don't end up using the same data as input and output
     for (ezUInt32 uiActiveIndex = activeIntervals.GetCount(); uiActiveIndex-- > 0;)
     {
       auto& activeInterval = activeIntervals[uiActiveIndex];
@@ -1686,6 +1692,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
     {
       ezUInt32 uiTargetIndex = 0;
 
+      // Jump nodes should not end up in the final node descriptions
       if (pAstNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Jump)
       {
         ezUInt64 uiPtr = pAstNode->m_Value.Get<ezUInt64>();
@@ -1696,7 +1703,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
       }
       else
       {
-        if (CreateNodeDesc(*pAstNode, uiTargetIndex).Failed())        
+        if (CreateNodeDesc(*pAstNode, uiTargetIndex).Failed())
           return VisitorResult::Error;
       }
 
@@ -1761,6 +1768,7 @@ ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, e
     if (r == VisitorResult::Error)
       return EZ_FAILURE;
 
+    // Check whether the node has been replaced by a new one and if so mark the new one as visited as well
     if (pAstNode != pOldAstNode)
     {
       EZ_VERIFY(m_CompilationState.m_VisitedNodes.Insert(pAstNode) == false, "");
@@ -1842,6 +1850,9 @@ ezResult ezVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEnt
     if (r == VisitorResult::Error)
       return EZ_FAILURE;
 
+    // Since we use a stack we need to iterate the execution outputs backwards to ensure that they are processed in order.
+    // Strictly speaking this is not necessary but improves data locality especially for loops,
+    // which in the end results in shorter variable lifetimes and thus in fewer local variables.
     for (ezUInt32 i = pAstNode->m_ExecOutputs.GetCount(); i-- > 0;)
     {
       auto& execOutput = pAstNode->m_ExecOutputs[i];
