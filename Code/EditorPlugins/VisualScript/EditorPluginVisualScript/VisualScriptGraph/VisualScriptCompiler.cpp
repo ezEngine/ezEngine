@@ -388,8 +388,8 @@ ezResult ezVisualScriptCompiler::CompiledModule::Serialize(ezStreamWriter& inout
 
 //////////////////////////////////////////////////////////////////////////
 
-ezVisualScriptCompiler::ezVisualScriptCompiler(ezVisualScriptNodeManager& nodeManager)
-  : m_NodeManager(nodeManager)
+ezVisualScriptCompiler::ezVisualScriptCompiler(ezVisualScriptNodeManager& ref_nodeManager)
+  : m_NodeManager(ref_nodeManager)
 {
 }
 

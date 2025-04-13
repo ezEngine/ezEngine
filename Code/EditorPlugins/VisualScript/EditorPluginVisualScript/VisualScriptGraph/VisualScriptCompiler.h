@@ -5,7 +5,7 @@
 class ezVisualScriptCompiler
 {
 public:
-  ezVisualScriptCompiler(ezVisualScriptNodeManager& nodeManager);
+  ezVisualScriptCompiler(ezVisualScriptNodeManager& ref_nodeManager);
   ~ezVisualScriptCompiler();
 
   void InitModule(ezStringView sBaseClassName, ezStringView sScriptClassName);
