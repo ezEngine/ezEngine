@@ -74,9 +74,9 @@ public:
 
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const;
+  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const;
+  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 

@@ -222,7 +222,9 @@ bool ezJoltWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float 
   qRot = qRot * qFixRot;
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-  const JPH::Vec3 scale = ezJoltConversionUtils::ToVec3(transform.m_vScale);
+  const JPH::Vec3 scale(transform.m_vScale.x,
+                        transform.m_vScale.z,
+                        transform.m_vScale.y);
 
   return SweepTest(out_result, shape, scale, trans, vDir, fDistance, params, collection);
 }
@@ -307,7 +309,9 @@ bool ezJoltWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleH
   qRot = qRot * qFixRot;
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-  const JPH::Vec3 scale = ezJoltConversionUtils::ToVec3(transform.m_vScale);
+  const JPH::Vec3 scale(transform.m_vScale.x,
+                        transform.m_vScale.z,
+                        transform.m_vScale.y);
 
   return OverlapTest(shape, scale, trans, params);
 }
@@ -374,7 +378,9 @@ void ezJoltWorldModule::QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_re
   qRot = qRot * qFixRot;
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
-  const JPH::Vec3 scale = ezJoltConversionUtils::ToVec3(transform.m_vScale);
+  const JPH::Vec3 scale(transform.m_vScale.x,
+                        transform.m_vScale.z,
+                        transform.m_vScale.y);
 
   QueryShapes(out_results, shape, scale, trans, params);
 }
