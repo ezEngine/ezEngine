@@ -194,9 +194,9 @@ bool ezJoltWorldModule::SweepTestSphere(ezPhysicsCastResult& out_result, float f
   return SweepTest(out_result, shape, JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vStart)), vDir, fDistance, params, collection);
 }
 
-bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
+bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
-  const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtends * 0.5f));
+  const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtents * 0.5f));
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(transform.m_qRotation), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
 
@@ -327,6 +327,47 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
     return;
 
   const JPH::SphereShape shape(fSphereRadius);
+  const JPH::Mat44 trans = JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition));
+
+  QueryShapes(out_results, shape, trans, params);
+}
+
+void ezJoltWorldModule::QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const
+{
+  out_results.m_Results.Clear();
+
+  if (vBoxExtents.x <= 0.0f || vBoxExtents.y <= 0.0f || vBoxExtents.z <= 0.0f)
+    return;
+
+  const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtents * 0.5f));
+  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(transform.m_qRotation),
+                                                            ezJoltConversionUtils::ToVec3(transform.m_vPosition));
+
+  QueryShapes(out_results, shape, trans, params);
+}
+
+void ezJoltWorldModule::QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const
+{
+  out_results.m_Results.Clear();
+
+  if (fCapsuleRadius <= 0.0f)
+    return;
+
+  const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
+
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
+
+  ezQuat qRot;
+  qRot = transform.m_qRotation;
+  qRot = qRot * qFixRot;
+
+  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qRot), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
+
+  QueryShapes(out_results, shape, trans, params);
+}
+
+void ezJoltWorldModule::QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const
+{
   const JPH::NarrowPhaseQuery& query = m_pSystem->GetNarrowPhaseQuery();
 
   ezJoltBroadPhaseLayerFilter broadphaseFilter(params.m_ShapeTypes);
@@ -334,7 +375,8 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
   ezJoltBodyFilter bodyFilter(params.m_uiIgnoreObjectFilterID);
 
   ezJoltShapeCollectorAll collector;
-  query.CollideShape(&shape, JPH::RVec3(1, 1, 1), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), {}, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, bodyFilter);
+
+  query.CollideShape(&shape, JPH::RVec3(1, 1, 1), transform, {}, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, bodyFilter);
 
   out_results.m_Results.SetCount(collector.m_Results.GetCount());
 
