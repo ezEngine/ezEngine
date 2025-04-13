@@ -118,9 +118,9 @@ public:
   ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
 
 private:
-  bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
-  bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
-  void QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
+  bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Vec3& scale, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
+  bool OverlapTest(const JPH::Shape& shape, const JPH::Vec3& scale, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
+  void QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Vec3& scale, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
 
   void FreeUserDataAfterSimulationStep();
 
