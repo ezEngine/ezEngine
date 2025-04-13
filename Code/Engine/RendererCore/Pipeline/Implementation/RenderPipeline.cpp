@@ -1366,7 +1366,8 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
   if (!cvar_SpatialCullingOcclusionEnable)
     return nullptr;
 
-  if (!ezSystemInformation::Get().GetCpuFeatures().IsAvx1Available())
+  auto& cpuFeatures = ezSystemInformation::Get().GetCpuFeatures();
+  if (!cpuFeatures.IsAvx1Available() || !cpuFeatures.HW_FMA3)
     return nullptr;
 
   ezRasterizerView* pRasterizer = nullptr;
