@@ -23,6 +23,27 @@ void ezObjectPickingResult::Reset()
   m_vPickingRayStart.SetZero();
 }
 
+/// \brief Small helper class which exposes the native surface that the renderer can render into.
+class ezQtNativeSurfaceWidget : public QWidget
+{
+public:
+  ezQtNativeSurfaceWidget(QWidget* parent = nullptr)
+  : QWidget(parent)
+  {
+    // setAttribute(Qt::WA_OpaquePaintEvent);
+    setAutoFillBackground(false);
+    setMouseTracking(true);
+    setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
+
+    setAttribute(Qt::WA_PaintOnScreen, true);
+    setAttribute(Qt::WA_NativeWindow, true);
+    setAttribute(Qt::WA_NoSystemBackground);
+  }
+
+  virtual void paintEvent(QPaintEvent* event) override  {}
+  virtual QPaintEngine* paintEngine() const override { return nullptr; }
+};
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
@@ -34,20 +55,16 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
 {
-  m_pRestartButtonLayout = nullptr;
-  m_pRestartButton = nullptr;
-
-  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  // setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
   setMouseTracking(true);
-  setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
+  setMinimumSize(64, 64);
+  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 
-  setAttribute(Qt::WA_PaintOnScreen, true);
-  setAttribute(Qt::WA_NativeWindow, true);
-  setAttribute(Qt::WA_NoSystemBackground);
+  m_pMainLayout = new QHBoxLayout(this);
+  m_pMainLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pMainLayout);
 
-  installEventFilter(this);
+  RecreateEngineViewport();
 
   m_bUpdatePickingData = false;
   m_bInDragAndDropOperation = false;
@@ -117,11 +134,11 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_vDirRight = m_pViewConfig->m_Camera.GetCenterDirRight();
   cam.m_vPosition = m_pViewConfig->m_Camera.GetCenterPosition();
   cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
-  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), cam.m_ProjMatrix);
 
-  cam.m_uiHWND = (ezUInt64)(winId());
-  cam.m_uiWindowWidth = width() * this->devicePixelRatio();
-  cam.m_uiWindowHeight = height() * this->devicePixelRatio();
+  cam.m_uiHWND = (ezUInt64)(m_pViewportWidget->winId());
+  cam.m_uiWindowWidth = m_pViewportWidget->width() * this->devicePixelRatio();
+  cam.m_uiWindowHeight = m_pViewportWidget->height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
   cam.m_bEnablePickTransparent = m_bPickTransparent;
@@ -139,7 +156,7 @@ void ezQtEngineViewWidget::SyncToEngine()
 void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_mViewMatrix, ezMat4& out_mProjectionMatrix) const
 {
   out_mViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
-  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_mProjectionMatrix);
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), out_mProjectionMatrix);
 }
 
 void ezQtEngineViewWidget::UpdateCameraInterpolation()
@@ -262,14 +279,14 @@ ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScree
 
   ezMat4 mView = cam.GetViewMatrix();
   ezMat4 mProj;
-  cam.GetProjectionMatrix((float)width() / (float)height(), mProj);
+  cam.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), mProj);
   ezMat4 mViewProj = mProj * mView;
   ezMat4 mInvViewProj = mViewProj.GetInverse();
 
   ezVec3 vScreenPos(uiScreenPosX, uiScreenPosY, 0);
   ezVec3 vResPos, vResRay;
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, width(), height(), vScreenPos, vResPos, &vResRay).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_pViewportWidget->width(), m_pViewportWidget->height(), vScreenPos, vResPos, &vResRay).Failed())
     return EZ_FAILURE;
 
   if (plane.GetRayIntersection(vResPos, vResRay, nullptr, &out_vPosition))
@@ -628,6 +645,7 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
 
     case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
+      RecreateEngineViewport();
       ShowRestartButton(false);
     }
     break;
@@ -651,20 +669,15 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 {
   ezQtScopedUpdatesDisabled _(this);
 
-  if (m_pRestartButtonLayout == nullptr && bShow == true)
+  if (m_pRestartButton == nullptr && bShow == true)
   {
-    m_pRestartButtonLayout = new QHBoxLayout(this);
-    m_pRestartButtonLayout->setContentsMargins(0, 0, 0, 0);
-
-    setLayout(m_pRestartButtonLayout);
-
     m_pRestartButton = new QPushButton(this);
     m_pRestartButton->setText("Restart Engine View Process");
     m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
     m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezQtEngineViewWidget::SlotRestartEngineProcess);
 
-    m_pRestartButtonLayout->addWidget(m_pRestartButton);
+    m_pMainLayout->addWidget(m_pRestartButton);
   }
 
   if (m_pRestartButton)
@@ -674,8 +687,36 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
     if (bShow)
       m_pRestartButton->update();
   }
+
+  m_pViewportWidget->setVisible(!bShow);
 }
 
+void ezQtEngineViewWidget::RecreateEngineViewport()
+{
+  if (m_pViewportWidget)
+  {
+    m_pViewportWidget->removeEventFilter(this);
+    m_pViewportWidget->hide();
+    m_pViewportWidget->setParent(nullptr);
+    m_pViewportWidget->deleteLater();
+  }
+
+  m_pViewportWidget = new ezQtNativeSurfaceWidget(this);
+  m_pViewportWidget->installEventFilter(this);
+  m_pViewportWidget->setFocusProxy(this);
+  if (s_FixedResolution.HasNonZeroArea())
+  {
+    qreal pixelRatio = devicePixelRatio();
+    // When using DPI scaling, this could actually not be possible to achieve so we use the ceiling of the logical size. This is fine, as the editor tests crop the resulting image if not of the proper size.
+    m_pViewportWidget->setFixedSize(
+      static_cast<ezInt32>(ezMath::Ceil(s_FixedResolution.width / pixelRatio)),
+      static_cast<ezInt32>(ezMath::Ceil(s_FixedResolution.height / pixelRatio)));
+  }
+  else
+  {
+    m_pMainLayout->addWidget(m_pViewportWidget);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget private slots

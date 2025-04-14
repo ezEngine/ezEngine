@@ -139,8 +139,6 @@ void ezMaterialDocumentTest::CaptureMaterialImage()
   if (!EZ_TEST_BOOL(pWindow != nullptr))
     return;
 
-  pWindow->backingStore()->window()->showMaximized();
-
   EZ_ANALYSIS_ASSUME(pWindow != nullptr);
   auto viewWidgets = pWindow->GetViewWidgets();
 

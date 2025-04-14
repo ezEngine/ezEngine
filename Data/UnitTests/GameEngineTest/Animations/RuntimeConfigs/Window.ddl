@@ -1,6 +1,6 @@
 WindowDesc
 {
-	string %Title{"AngelScript"}
+	string %Title{"ezEngine"}
 	string %Mode{"Window"}
 	Vec2u %Resolution{uint32{1280,720}}
 	bool %ClipMouseCursor{false}

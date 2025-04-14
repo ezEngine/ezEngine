@@ -194,6 +194,11 @@ void ezQtAssetBrowserModel::resetModel()
   m_EntriesToDisplay.Clear();
   m_DisplayedEntries.Clear();
 
+  // Get Curator Mutex first to prevent deadlocks
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
+
+  auto allFiles = ezFileSystemModel::GetSingleton()->GetFiles();
   auto allFolders = ezFileSystemModel::GetSingleton()->GetFolders();
 
   for (const auto& folder : *allFolders)
@@ -205,8 +210,6 @@ void ezQtAssetBrowserModel::resetModel()
     entry.m_Flags = folder.Key().GetDataDirRelativePath().IsEmpty() ? ezAssetBrowserItemFlags::DataDirectory : ezAssetBrowserItemFlags::Folder;
     entry.m_sAbsFilePath = folder.Key();
   }
-
-  auto allFiles = ezFileSystemModel::GetSingleton()->GetFiles();
 
   for (const auto& file : *allFiles)
   {
@@ -251,8 +254,6 @@ void ezQtAssetBrowserModel::resetModel()
     }
   }
 
-  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   FileComparer cmp(this, AllAssets);
   m_EntriesToDisplay.Sort(cmp);

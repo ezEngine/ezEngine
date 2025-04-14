@@ -15,6 +15,7 @@
 #include <QMimeData>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <Texture/Image/ImageUtils.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezEditorTestApplication::ezEditorTestApplication()
@@ -109,7 +110,16 @@ ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest,
   if (!m_CapturedImage.IsValid())
     return EZ_FAILURE;
 
-  ref_img.ResetAndMove(std::move(m_CapturedImage));
+  if (m_CapturedImage.GetWidth() == 512 && m_CapturedImage.GetHeight() == 512)
+  {
+    ref_img.ResetAndMove(std::move(m_CapturedImage));
+  }
+  else
+  {
+    // Due to DPI scaling, we can't guarantee that the swapchain is exactly 512x512. The viewport still is though, so as long as we have something bigger the resulting image is correct if we crop off the remaining pixels.
+    ezImageUtils::CropImage(m_CapturedImage, {0, 0}, {512, 512}, ref_img);
+    m_CapturedImage.Clear();
+  }
   return EZ_SUCCESS;
 }
 

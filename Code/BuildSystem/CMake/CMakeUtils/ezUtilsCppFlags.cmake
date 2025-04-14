@@ -237,7 +237,8 @@ endfunction()
 # #####################################
 function(ez_set_build_flags_gcc TARGET_NAME)
 	# Wno-enum-compare removes all annoying enum cast warnings
-	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread)
+	# -fno-gnu-unique prevents symbols like static inline or static templates to be marked with STB_GNU_UNIQUE, preventing the owning dll from being unloaded.
+	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread -fno-gnu-unique)
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse)

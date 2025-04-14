@@ -298,8 +298,6 @@ void ezAiNavigationComponent::Turn(ezTransform& transform, float tDiff)
   if (m_State != ezAiNavigationComponentState::Turning)
     return;
 
-  m_vTurnTowardsPos;
-
   ezAngle turnSpeed = ezAngle::MakeFromDegree(360);
 
   const ezVec3 vTargetDir = (m_vTurnTowardsPos.GetAsVec3(0) - GetOwner()->GetGlobalPosition()).GetNormalized();

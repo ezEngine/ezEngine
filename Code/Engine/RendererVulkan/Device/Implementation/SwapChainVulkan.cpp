@@ -65,7 +65,7 @@ namespace
 void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
   EZ_PROFILE_SCOPE("AcquireNextRenderTarget");
-
+  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   EZ_ASSERT_DEV(!m_currentPipelineImageAvailableSemaphore, "Pipeline semaphores leaked");
   m_currentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
@@ -74,35 +74,36 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   {
     // #TODO_VULKAN We leave the fence parameter blank as we do not care on the CPU whether a swap chain image is still in use or not. Currently, we daisy-chain each frame to the previous frame's semaphore. Not sure if this won't break if we stop doing that. If we call acquireNextImageKHR, can we be sure that the image is no longer in use?
     vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
-    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+    if (result == vk::Result::eSuboptimalKHR)
     {
       const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
-      if (result == vk::Result::eSuboptimalKHR && (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height))
+      if ((surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height))
       {
         ezLog::Warning("Swap-chain does not match the target window size and should be recreated. Expected size {0}x{1}, current size {2}x{3}.", surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height, m_CurrentSize.width, m_CurrentSize.height);
-        break;
+      }
+      break;
+    }
+    else if (result == vk::Result::eErrorOutOfDateKHR)
+    {
+      if (retryCount > 0)
+      {
+        ezLog::Warning("Automatic swap-chain re-creation didn't have an effect, retrying");
+      }
+      
+      if (retryCount >= 4)
+      {
+        EZ_REPORT_FAILURE("Automatic swap-chain re-creation didn't have an effect 4 times in a row, application can't be recovered.");
+      }
+      // It is not a size issue, re-create automatically
+      if (CreateSwapChainInternal().Failed())
+      {
+        ezLog::Error("Failed automatic swapchain re-creation");
       }
       else
       {
-        if (retryCount > 0)
-        {
-          ezLog::Error("Automatic swap-chain re-creation didn't have an effect");
-          break;
-        }
-        else
-        {
-          // It is not a size issue, re-create automatically
-          if (CreateSwapChainInternal().Failed())
-          {
-            ezLog::Error("Failed automatic swapchain re-creation");
-          }
-          else
-          {
-            ezLog::Info("Automatic swapchain re-creation succeeded");
-          }
-          retryCount++;
-        }
+        ezLog::Debug("Automatic swapchain re-creation succeeded");
       }
+      retryCount++;
     }
     else
     {
@@ -115,9 +116,6 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 #endif
 
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
-
-  auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  // pVulkanDevice->Submit();
   pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
   pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
 }
@@ -125,6 +123,9 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
 {
   EZ_PROFILE_SCOPE("PresentRenderTarget");
+  if (m_RenderTargets.m_hRTs[0].IsInvalidated())
+    return;
+
 
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   {

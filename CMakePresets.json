@@ -30,6 +30,10 @@
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
+      },
+      "environment": {
+        "VK_LAYER_PATH" : "${sourceDir}/Workspace/shared/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+        "LD_LIBRARY_PATH" : "${sourceDir}/Workspace/shared/vulkan-sdk/1.3.275.0/x86_64/lib"
       }
     },
     {

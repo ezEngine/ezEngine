@@ -347,7 +347,7 @@ void ezEditorAssetDocumentTest::FileOperations()
   sAbsAssetCopyPath.ChangeFileName("meshCopy");
   ezUuid copyGuid;
 
-  // Tests that copy gets a unique ID to resolev conflict.
+  // Tests that copy gets a unique ID to resolve conflict.
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Asset")
   {
     const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsAssetCopyPath);
