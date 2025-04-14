@@ -530,11 +530,13 @@ void ezMaterialManager::MaterialShaderConstants::DestroyGpuResources()
       pDevice->DestroyResourceView(hBufferView);
   }
   m_MaterialBufferViews.Clear();
+
   for (ezGALBufferHandle hBuffer : m_MaterialBuffers)
   {
     if (!hBuffer.IsInvalidated())
       pDevice->DestroyBuffer(hBuffer);
   }
+  m_MaterialBuffers.Clear();
 }
 
 void ezMaterialManager::MaterialShaderConstants::OnResourceEvent(const ezResourceEvent& e)
