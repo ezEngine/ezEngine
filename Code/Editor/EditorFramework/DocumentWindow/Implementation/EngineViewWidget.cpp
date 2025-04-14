@@ -27,8 +27,8 @@ void ezObjectPickingResult::Reset()
 class ezQtNativeSurfaceWidget : public QWidget
 {
 public:
-  ezQtNativeSurfaceWidget(QWidget* parent = nullptr)
-    : QWidget(parent)
+  ezQtNativeSurfaceWidget(QWidget* pParent = nullptr)
+    : QWidget(pParent)
   {
     // setAttribute(Qt::WA_OpaquePaintEvent);
     setAutoFillBackground(false);
