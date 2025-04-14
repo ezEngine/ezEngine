@@ -28,7 +28,7 @@ class ezQtNativeSurfaceWidget : public QWidget
 {
 public:
   ezQtNativeSurfaceWidget(QWidget* parent = nullptr)
-  : QWidget(parent)
+    : QWidget(parent)
   {
     // setAttribute(Qt::WA_OpaquePaintEvent);
     setAutoFillBackground(false);
@@ -40,7 +40,7 @@ public:
     setAttribute(Qt::WA_NoSystemBackground);
   }
 
-  virtual void paintEvent(QPaintEvent* event) override  {}
+  virtual void paintEvent(QPaintEvent* event) override {}
   virtual QPaintEngine* paintEngine() const override { return nullptr; }
 };
 

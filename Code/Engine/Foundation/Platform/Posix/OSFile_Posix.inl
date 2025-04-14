@@ -340,11 +340,11 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
   out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(sFileOrFolder); // no OS support, so just pass it through
-#ifdef __USE_XOPEN2K8
+#    ifdef __USE_XOPEN2K8
   out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(tempStat.st_mtim.tv_sec * 1000000000ull + tempStat.st_mtim.tv_nsec, ezSIUnitOfTime::Nanosecond);
-#else
+#    else
   out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(tempStat.st_mtime, ezSIUnitOfTime::Second);
-#endif
+#    endif
   return EZ_SUCCESS;
 }
 

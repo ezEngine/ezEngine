@@ -89,7 +89,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
       {
         ezLog::Warning("Automatic swap-chain re-creation didn't have an effect, retrying");
       }
-      
+
       if (retryCount >= 4)
       {
         EZ_REPORT_FAILURE("Automatic swap-chain re-creation didn't have an effect 4 times in a row, application can't be recovered.");
