@@ -29,6 +29,7 @@ protected:
     Maps,
     Expressions,
     Physics,
+    Misc,
   };
 
   virtual void SetupSubTests() override;

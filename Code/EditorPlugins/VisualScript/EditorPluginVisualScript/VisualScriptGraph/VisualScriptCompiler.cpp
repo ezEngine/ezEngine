@@ -1005,6 +1005,11 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
                 }
               }
             }
+            else if (out_Stack.RemoveAndCopy(pSourceAstNode))
+            {
+              // If the source node was already added to the stack, we need to move it to the top to ensure correct execution order
+              out_Stack.PushBack(pSourceAstNode);
+            }
 
             ezVisualScriptDataType::Enum sourceDataType = sourcePin.GetResolvedScriptDataType();
             if (sourceDataType == ezVisualScriptDataType::Invalid)

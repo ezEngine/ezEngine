@@ -31,6 +31,7 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Arrays", SubTests::Arrays);
   AddSubTest("Expressions", SubTests::Expressions);
   AddSubTest("Physics", SubTests::Physics);
+  AddSubTest("Misc", SubTests::Misc);
 }
 
 ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -129,6 +130,12 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(2);
 
     return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Physics.ezBinScene");
+  }
+  else if (iIdentifier == SubTests::Misc)
+  {
+    m_ImgCompFrames.PushBack(2);
+
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Misc.ezBinScene");
   }
 
   return EZ_FAILURE;
