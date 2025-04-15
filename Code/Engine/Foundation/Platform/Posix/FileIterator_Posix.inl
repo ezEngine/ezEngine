@@ -62,11 +62,11 @@ namespace
     curFile.m_bIsDirectory = hCurrentFile->d_type == DT_DIR;
     curFile.m_sParentPath = curPath;
     curFile.m_sName = hCurrentFile->d_name;
-#    ifdef __USE_XOPEN2K8
+#ifdef __USE_XOPEN2K8
     curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtim.tv_sec * 1000000000ull + fileStat.st_mtim.tv_nsec, ezSIUnitOfTime::Nanosecond);
-#    else
+#else
     curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtime, ezSIUnitOfTime::Second);
-#    endif
+#endif
 
     return EZ_SUCCESS;
   }
