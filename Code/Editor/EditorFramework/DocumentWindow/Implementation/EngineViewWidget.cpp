@@ -40,7 +40,7 @@ public:
     setAttribute(Qt::WA_NoSystemBackground);
   }
 
-  virtual void paintEvent(QPaintEvent* event) override {}
+  virtual void paintEvent(QPaintEvent* pEvent) override {}
   virtual QPaintEngine* paintEngine() const override { return nullptr; }
 };
 
