@@ -250,6 +250,9 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezVec3 GetGlobalDirRight() const", asMETHOD(ezGameObject, GetGlobalDirRight), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezVec3 GetGlobalDirUp() const", asMETHOD(ezGameObject, GetGlobalDirUp), asCALL_THISCALL));
 
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SetGlobalRotationToLookAt(const ezVec3& in vTargetPosition, const ezVec3& in vUp = ezVec3(0, 0, 1))", asMETHOD(ezGameObject, SetGlobalRotationToLookAt), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void SetGlobalTransformToLookAt(const ezVec3& in vOwnPosition, const ezVec3& in vTargetPosition, const ezVec3& in vUp = ezVec3(0, 0, 1))", asMETHOD(ezGameObject, SetGlobalTransformToLookAt), asCALL_THISCALL));
+
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezVec3 GetLinearVelocity() const", asMETHOD(ezGameObject, GetLinearVelocity), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "ezVec3 GetAngularVelocity() const", asMETHOD(ezGameObject, GetAngularVelocity), asCALL_THISCALL));

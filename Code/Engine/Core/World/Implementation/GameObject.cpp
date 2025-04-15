@@ -67,6 +67,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirRight),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirUp),
 
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetGlobalRotationToLookAt, In, "TargetPosition", In, "Up")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(ezVec3::MakeAxisZ()))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetGlobalTransformToLookAt, In, "OwnPosition", In, "TargetPosition", In, "Up")->AddAttributes(new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3::MakeAxisZ()))),
+
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetLinearVelocity),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetAngularVelocity),
