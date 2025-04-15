@@ -680,7 +680,10 @@ const ezWorld* ezGameObject::GetWorld() const
 
 void ezGameObject::SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
 {
-  const ezVec3 vFwd = (vTargetPosition - GetGlobalPosition()).GetNormalized();
+  const ezVec3 vDir = vTargetPosition - GetGlobalPosition();
+  EZ_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
+
+  const ezVec3 vFwd = vDir.GetNormalized();
   const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
   const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
 
@@ -694,7 +697,10 @@ void ezGameObject::SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, cons
 
 void ezGameObject::SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
 {
-  const ezVec3 vFwd = (vTargetPosition - vOwnPosition).GetNormalized();
+  const ezVec3 vDir = vTargetPosition - vOwnPosition;
+  EZ_ASSERT_DEV(!vDir.IsZero(0.0001f), "Own position and target position must differ.");
+
+  const ezVec3 vFwd = vDir.GetNormalized();
   const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
   const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
 

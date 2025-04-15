@@ -140,6 +140,7 @@ ezMsgComponentsChanged
 ezMsgDamage
 ezMsgDeleteGameObject
 ezMsgDeliverAngelScriptMsg
+ezMsgExport
 ezMsgExtractGeometry
 ezMsgExtractOccluderData
 ezMsgExtractRenderData
@@ -246,6 +247,7 @@ ezString
 ezStringBuilder
 ezStringView
 ezTempHashedString
+ezThirdPersonViewComponent
 ezTime
 ezTimedDeathComponent
 ezTransform

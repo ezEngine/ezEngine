@@ -1085,6 +1085,8 @@ class ezGameObject
   ezVec3 GetGlobalDirForwards() const;
   ezVec3 GetGlobalDirRight() const;
   ezVec3 GetGlobalDirUp() const;
+  void SetGlobalRotationToLookAt(const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
+  void SetGlobalTransformToLookAt(const ezVec3&in vOwnPosition, const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
   ezVec3 GetLinearVelocity() const;
   ezVec3 GetAngularVelocity() const;
   void UpdateGlobalTransform();
@@ -1125,6 +1127,7 @@ class ezComponent
   ezGameObject@ GetOwner() const;
   ezWorld@ GetWorld() const;
   uint GetUniqueID() const;
+  void DeleteComponent();
   void Initialize();
   void Deinitialize();
   void OnActivated();
@@ -1229,6 +1232,7 @@ class ezComponent
   ezFmodListenerComponent@ opCast();
   ezCreatureCrawlComponent@ opCast();
   ezMoveToComponent@ opCast();
+  ezThirdPersonViewComponent@ opCast();
   ezLineToComponent@ opCast();
   ezCameraShakeComponent@ opCast();
   ezCameraShakeVolumeComponent@ opCast();
@@ -1359,6 +1363,7 @@ class ezMessage
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
+  ezMsgExport@ opCast();
   ezMsgMoveCharacterController@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
   ezMsgDeliverAngelScriptMsg@ opCast();
@@ -1437,6 +1442,7 @@ class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
 class ezPrefabReferenceComponent : ezComponent
 {
   ezStringView Prefab;
+  bool ShowShapeIcons;
 }
 
 class ezScriptComponent : ezEventMessageHandlerComponent
@@ -1455,8 +1461,8 @@ class ezScriptComponent : ezEventMessageHandlerComponent
   ezString GetScriptVariable_asString(ezHashedString Name) const;
   ezGameObjectHandle GetScriptVariable_asGameObjectHandle(ezHashedString Name) const;
   ezComponentHandle GetScriptVariable_asComponentHandle(ezHashedString Name) const;
-  void SetUpdateInterval(ezTime interval);
   ezTime UpdateInterval;
+  bool UpdateOnlyWhenSimulating;
   ezStringView ScriptClass;
   void BroadcastEventMsg(const ezEventMessage&in msg);
 }
@@ -2349,6 +2355,23 @@ class ezMoveToComponent : ezComponent
   float TranslationDeceleration;
 }
 
+class ezThirdPersonViewComponent : ezComponent
+{
+  void RotateUp(ezAngle angle);
+  ezString TargetObject;
+  float TargetDistance;
+  float MinDistance;
+  ezVec3 TargetOffsetHigh;
+  ezVec3 TargetOffsetLow;
+  ezAngle MinUpRotation;
+  ezAngle MaxUpRotation;
+  float SweepWidth;
+  float ZoomInSpeed;
+  float ZoomOutSpeed;
+  float TargetCeilingHeight;
+  float TargetFloorHeight;
+}
+
 class ezLineToComponent : ezComponent
 {
   ezString Target;
@@ -3049,6 +3072,12 @@ class ezMsgDamage : ezEventMessage
   ezString HitObjectName;
   ezVec3 GlobalPosition;
   ezVec3 ImpactDirection;
+}
+
+class ezMsgExport : ezMessage
+{
+  ezString DocumentType;
+  ezString DocumentGuid;
 }
 
 class ezMsgMoveCharacterController : ezMessage

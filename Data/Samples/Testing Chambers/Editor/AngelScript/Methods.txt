@@ -44,6 +44,7 @@ CreateComponent
 CreateObject
 CrossRH
 Deinitialize
+DeleteComponent
 DeleteObjectDelayed
 Detach
 DetachChild
@@ -284,6 +285,7 @@ ReplaceAll_NoCase
 Reserve
 Reverse
 Rotate
+RotateUp
 ScaleRGB
 ScaleRGBA
 ScheduleSpawn
@@ -302,8 +304,10 @@ SetFormat
 SetGlobalKey
 SetGlobalPosition
 SetGlobalRotation
+SetGlobalRotationToLookAt
 SetGlobalScaling
 SetGlobalTransform
+SetGlobalTransformToLookAt
 SetIdentity
 SetInitialImpulse
 SetJointTypeOverride
@@ -324,7 +328,6 @@ SetStableRandomSeed
 SetState
 SetTargetPosition
 SetTeamID
-SetUpdateInterval
 SetValue
 SetVerticalRotation
 SetZero

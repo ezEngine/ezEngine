@@ -141,10 +141,14 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
   InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if (!m_InStart.IsConnected() && pState->m_PlaybackTime > ezTime::MakeFromHours(10))
+  if (pState->m_PlaybackTime > ezTime::MakeFromHours(10))
   {
+    if (!m_InStart.IsConnected())
+    {
+      pState->m_State = State::Start;
+    }
+
     pState->m_PlaybackTime = ezTime::MakeZero();
-    pState->m_State = State::Start;
   }
 
   if (m_InStart.IsTriggered(ref_graph))

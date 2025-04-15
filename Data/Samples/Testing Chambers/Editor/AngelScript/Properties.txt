@@ -139,6 +139,8 @@ Dimensions
 Directionality
 DisableTargetObjectOnNoHit
 Distance
+DocumentGuid
+DocumentType
 DodgerBlue
 DriveMode
 DriveStrength
@@ -297,6 +299,7 @@ MaxSubSteps
 MaxTilt
 MaxTiltZ
 MaxTwist
+MaxUpRotation
 MaxWindStrength
 MediumAquaMarine
 MediumBlue
@@ -319,6 +322,7 @@ MinScale
 MinShadowRange
 MinShake
 MinSpawnCount
+MinUpRotation
 MinWindStrength
 MintCream
 MistyRose
@@ -470,6 +474,7 @@ ShowDebugInfo
 ShowDebugOverlay
 ShowDebugProbes
 ShowMipMaps
+ShowShapeIcons
 ShowStats
 ShutterTime
 Sienna
@@ -527,13 +532,19 @@ Strength
 StrengthFactor
 Subdivide
 Surface
+SweepWidth
 SwingLimitY
 SwingLimitZ
 Tan
 Tangent1
 Tangent2
 Target
+TargetCeilingHeight
+TargetDistance
+TargetFloorHeight
 TargetObject
+TargetOffsetHigh
+TargetOffsetLow
 TargetScene
 Teal
 Temperature
@@ -565,6 +576,7 @@ UScale
 UVUnitsPerWorldUnit
 UpVector
 UpdateInterval
+UpdateOnlyWhenSimulating
 UpdateRate
 UpdateThreshold
 UpperLimit
@@ -608,3 +620,5 @@ WindInfluence
 WrapAround
 Yellow
 YellowGreen
+ZoomInSpeed
+ZoomOutSpeed
