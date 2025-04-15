@@ -316,6 +316,20 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
+  /// \brief Sets the global rotation of this game object such that it 'looks at' the target position.
+  ///
+  /// Per convention, that means the +X axis will point towards the target position, +Y will point to the right,
+  /// and +Z will point upwards.
+  ///
+  /// vUp is used to calculate the necessary right and up vectors.
+  /// A custom vUp vector must be provided, in case the look-at position can be directly above the game object.
+  void SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
+
+  /// \brief Same as SetGlobalRotationToLookAt but also changes the position of this object.
+  ///
+  /// Note that the scale of this object gets set to 1.
+  void SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
+
   const ezSimdTransform& GetLastGlobalTransformSimd() const;
 
   /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space

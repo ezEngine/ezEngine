@@ -365,6 +365,34 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_VEC3(vOp1.Abs(), ezVec3T(4.0, 0.2f, 7.0f), ezMath::SmallEpsilon<ezMathTestType>());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAngleBetween")
+  {
+    ezVec3 v;
+
+    v.Set(1, 0, 0);
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 0.0f, 0.001f);
+
+    v.Set(1, -1, 0);
+    v.Normalize();
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 45.0f, 0.001f);
+
+    v.Set(1, 1, 0);
+    v.Normalize();
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 315.0f, 0.001f);
+
+    v.Set(-1, 0, 0);
+    v.Normalize();
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 180.0f, 0.001f);
+
+    v.Set(1, 0, 0);
+    v.Normalize();
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(0, 1, 0), ezVec3(0, 0, 1)).GetDegree(), 90.0f, 0.001f);
+
+    v.Set(0, 1, 0);
+    v.Normalize();
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 270.0f, 0.001f);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalculateNormal")
   {
     ezVec3T n;

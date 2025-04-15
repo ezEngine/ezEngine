@@ -675,6 +675,34 @@ const ezWorld* ezGameObject::GetWorld() const
   return ezWorld::GetWorld(m_InternalId.m_WorldIndex);
 }
 
+void ezGameObject::SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
+{
+  const ezVec3 vFwd = (vTargetPosition - GetGlobalPosition()).GetNormalized();
+  const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
+  const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
+
+  ezMat3 mLook;
+  mLook.SetColumn(0, vFwd);
+  mLook.SetColumn(1, vRight);
+  mLook.SetColumn(2, vUp2);
+
+  SetGlobalRotation(ezQuat::MakeFromMat3(mLook));
+}
+
+void ezGameObject::SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp /*= ezVec3::MakeAxisZ()*/)
+{
+  const ezVec3 vFwd = (vTargetPosition - vOwnPosition).GetNormalized();
+  const ezVec3 vRight = vUp.CrossRH(vFwd).GetNormalized();
+  const ezVec3 vUp2 = vFwd.CrossRH(vRight).GetNormalized();
+
+  ezMat3 mLook;
+  mLook.SetColumn(0, vFwd);
+  mLook.SetColumn(1, vRight);
+  mLook.SetColumn(2, vUp2);
+
+  SetGlobalTransform(ezTransform(vOwnPosition, ezQuat::MakeFromMat3(mLook)));
+}
+
 ezVec3 ezGameObject::GetGlobalDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;

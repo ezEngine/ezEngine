@@ -178,9 +178,22 @@ public:
 
   // *** Common vector operations ***
 public:
-  /// \brief Returns the positive angle between *this and rhs.
+  /// \brief Returns the shortest angle between *this and rhs.
   /// Both this and rhs must be normalized
   ezAngle GetAngleBetween(const ezVec3Template<Type>& rhs) const; // [tested]
+
+  /// \brief Returns the angle between vForward and *this, going around the vUp direction.
+  ///
+  /// Clockwise rotations (looking top down) would result in a small angle,
+  /// counter-clockwise rotations give a large angle (360 degree minus the shortest angle).
+  /// All vectors must be normalized. vUp must not coincide with vForward, but doesn't need to be orthogonal to it.
+  ///
+  /// NOTE: This function assumes a right-handed coordinate system.
+  /// If you put in vectors from a left-handed coordinate system, the angles will simply invert.
+  ///
+  /// The order of operands is also important, if you swap this and vForward, the result also inverts.
+  ezAngle GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const; // [tested]
+
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   [[nodiscard]] Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]

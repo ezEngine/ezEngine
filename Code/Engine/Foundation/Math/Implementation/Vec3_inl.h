@@ -326,6 +326,24 @@ ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) c
 }
 
 template <typename Type>
+ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const
+{
+  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
+  EZ_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
+  EZ_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
+
+  const ezVec3 vRight = vForward.CrossRH(vUp).GetNormalized();
+  const ezAngle shortAngle = GetAngleBetween(vForward);
+
+  if (this->Dot(vRight) < 0) // more than 90 degrees away from it
+  {
+    return ezAngle::MakeFromDegree(360.0f) - shortAngle;
+  }
+
+  return shortAngle;
+}
+
+template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMin(const ezVec3Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
