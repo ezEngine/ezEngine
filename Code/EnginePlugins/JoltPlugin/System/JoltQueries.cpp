@@ -194,8 +194,11 @@ bool ezJoltWorldModule::SweepTestSphere(ezPhysicsCastResult& out_result, float f
   return SweepTest(out_result, shape, JPH::Vec3(1., 1., 1.), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vStart)), vDir, fDistance, params, collection);
 }
 
-bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
+bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, const ezVec3& vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
+  if (vBoxExtents.x <= 0.0f || vBoxExtents.y <= 0.0f || vBoxExtents.z <= 0.0f)
+    return false;
+
   const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtents * 0.5f));
 
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(transform.m_qRotation), ezJoltConversionUtils::ToVec3(transform.m_vPosition));
@@ -206,7 +209,7 @@ bool ezJoltWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBo
 
 bool ezJoltWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
-  if (fCapsuleRadius <= 0.0f)
+  if (fCapsuleRadius <= 0.0f || fCapsuleHeight <= 0.0f)
     return false;
 
   const ezVec3 vScaleAbs = transform.m_vScale.Abs();
@@ -295,6 +298,20 @@ bool ezJoltWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPo
   return OverlapTest(shape, JPH::Vec3(1, 1, 1), JPH::Mat44::sTranslation(ezJoltConversionUtils::ToVec3(vPosition)), params);
 }
 
+bool ezJoltWorldModule::OverlapTestBox(const ezVec3& vBoxExtents, const ezVec3& vPosition, const ezTransform& transform, const ezPhysicsQueryParameters& params) const
+{
+  if (vBoxExtents.x <= 0.0f || vBoxExtents.y <= 0.0f || vBoxExtents.z <= 0.0f)
+    return false;
+
+  const JPH::BoxShape shape(ezJoltConversionUtils::ToVec3(vBoxExtents * 0.5f));
+
+  const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(transform.m_qRotation),
+                                                            ezJoltConversionUtils::ToVec3(transform.m_vPosition));
+  const JPH::Vec3 scale = ezJoltConversionUtils::ToVec3(transform.m_vScale);
+
+  return OverlapTest(shape, scale, trans, params);
+}
+
 bool ezJoltWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const
 {
   if (fCapsuleRadius <= 0.0f || fCapsuleHeight <= 0.0f)
@@ -362,7 +379,7 @@ void ezJoltWorldModule::QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_re
 {
   out_results.m_Results.Clear();
 
-  if (fCapsuleRadius <= 0.0f)
+  if (fCapsuleRadius <= 0.0f || fCapsuleHeight <= 0.0f)
     return;
 
   const ezVec3 vScaleAbs = transform.m_vScale.Abs();
