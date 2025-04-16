@@ -292,6 +292,11 @@ void ezQtDashboardDlg::on_OpenTwitter_clicked()
   QDesktopServices::openUrl(QUrl("https://twitter.com/ezEngineProject"));
 }
 
+void ezQtDashboardDlg::on_OpenBsky_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://bsky.app/profile/ezengine.bsky.social"));
+}
+
 bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
 {
   if (e->type() == QEvent::Type::KeyPress)

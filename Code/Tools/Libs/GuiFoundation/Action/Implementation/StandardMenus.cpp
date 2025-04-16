@@ -17,6 +17,7 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuTools;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
 ezActionDescriptorHandle ezStandardMenus::s_hReportProblem;
+ezActionDescriptorHandle ezStandardMenus::s_hAskQuestion;
 
 void ezStandardMenus::RegisterActions()
 {
@@ -31,6 +32,7 @@ void ezStandardMenus::RegisterActions()
   s_hMenuHelp = EZ_REGISTER_MENU("G.Help");
   s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
   s_hReportProblem = EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
+  s_hAskQuestion = EZ_REGISTER_ACTION_1("Help.AskQuestion", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::AskQuestion);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -46,6 +48,7 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuHelp);
   ezActionManager::UnregisterAction(s_hCheckForUpdates);
   ezActionManager::UnregisterAction(s_hReportProblem);
+  ezActionManager::UnregisterAction(s_hAskQuestion);
 }
 
 void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes>& menus)
@@ -83,6 +86,7 @@ void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStand
   {
     pMap->MapAction(s_hMenuHelp, "", 8.0f);
     pMap->MapAction(s_hReportProblem, "G.Help", 3.0f);
+    pMap->MapAction(s_hAskQuestion, "G.Help", 4.0f);
     pMap->MapAction(s_hCheckForUpdates, "G.Help", 10.0f);
   }
 }
@@ -159,6 +163,10 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
   {
     SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
   }
+  if (button == ButtonType::AskQuestion)
+  {
+    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
+  }
 }
 
 ezHelpActions::~ezHelpActions() = default;
@@ -169,7 +177,11 @@ void ezHelpActions::Execute(const ezVariant& value)
   {
     QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
   }
-  if (m_ButtonType == ButtonType::CheckForUpdates)
+  else if (m_ButtonType == ButtonType::AskQuestion)
+  {
+    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/discussions"));
+  }
+  else if (m_ButtonType == ButtonType::CheckForUpdates)
   {
     ezQtUiServices::CheckForUpdates();
   }

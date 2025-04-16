@@ -58,6 +58,7 @@ public:
   static ezActionDescriptorHandle s_hMenuHelp;
   static ezActionDescriptorHandle s_hCheckForUpdates;
   static ezActionDescriptorHandle s_hReportProblem;
+  static ezActionDescriptorHandle s_hAskQuestion;
 };
 
 ///
@@ -85,6 +86,7 @@ public:
   {
     CheckForUpdates,
     ReportProblem,
+    AskQuestion,
   };
 
   ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);
