@@ -459,7 +459,7 @@ void ezQtDynamicMenuProxy::SlotMenuAboutToShow()
       }
       else
       {
-        auto pAction = m_pMenu->addAction(ezMakeQString(ezTranslate(p.m_sDisplay)));
+        auto pAction = m_pMenu->addAction(ezMakeQString(p.m_sDisplay));
         pAction->setData(i);
         pAction->setIcon(p.m_Icon);
         pAction->setCheckable(p.m_CheckState != ezDynamicMenuAction::Item::CheckMark::NotCheckable);

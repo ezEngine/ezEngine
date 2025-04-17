@@ -105,79 +105,79 @@ public:
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.01f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_01";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_01");
       e.m_UserValue = 0.01f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.05f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_05";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_05");
       e.m_UserValue = 0.05f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_1";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_1");
       e.m_UserValue = 0.1f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.2f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_2";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_2");
       e.m_UserValue = 0.2f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.25f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_25";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_25");
       e.m_UserValue = 0.25f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 0.5f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.0_5";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.0_5");
       e.m_UserValue = 0.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 1.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.1";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.1");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 2.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.2";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.2");
       e.m_UserValue = 2.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 4.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.4";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.4");
       e.m_UserValue = 4.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 5.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.5";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.5");
       e.m_UserValue = 5.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 8.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.8";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.8");
       e.m_UserValue = 8.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = (fValue == 10.0f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Translate.Snap.10";
+      e.m_sDisplay = ezTranslate("Gizmo.Translate.Snap.10");
       e.m_UserValue = 10.0f;
     }
   }
@@ -259,49 +259,49 @@ public:
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.0_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.0_Degree");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.1_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.1_Degree");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 5.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.5_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.5_Degree");
       e.m_UserValue = 5.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 10.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.10_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.10_Degree");
       e.m_UserValue = 10.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 15.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.15_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.15_Degree");
       e.m_UserValue = 15.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 22.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.22_5_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.22_5_Degree");
       e.m_UserValue = 22.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 30.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.30_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.30_Degree");
       e.m_UserValue = 30.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 45.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Rotation.Snap.45_Degree";
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.45_Degree");
       e.m_UserValue = 45.0f;
     }
   }
@@ -373,43 +373,43 @@ public:
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 0.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.0";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0");
       e.m_UserValue = 0.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 0.125f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.0_125";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_125");
       e.m_UserValue = 0.125f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 0.25f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.0_25";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_25");
       e.m_UserValue = 0.25f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 0.5f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.0_5";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.0_5");
       e.m_UserValue = 0.5f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 1.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.1";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.1");
       e.m_UserValue = 1.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 2.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.2";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.2");
       e.m_UserValue = 2.0f;
     }
     {
       auto& e = out_entries.ExpandAndGetRef();
       e.m_CheckState = ezMath::IsEqual(fValue, 4.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
-      e.m_sDisplay = "Gizmo.Scale.Snap.4";
+      e.m_sDisplay = ezTranslate("Gizmo.Scale.Snap.4");
       e.m_UserValue = 4.0f;
     }
   }
