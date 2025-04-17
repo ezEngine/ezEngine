@@ -1,6 +1,6 @@
 # Asset Types
 
-Curve1D;Curve 1D
+Curve1D;Curve 1D;;https://ezengine.net/pages/docs/animation/common/curves.html
 
 # Component Types
 

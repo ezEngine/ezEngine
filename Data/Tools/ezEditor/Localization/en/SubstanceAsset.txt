@@ -1,7 +1,7 @@
 # Asset Types
 
-Substance Package;Substance Package
-Substance Texture;Substance Texture
+Substance Package;Substance Package;;https://ezengine.net/pages/docs/graphics/substance-textures.html
+Substance Texture;Substance Texture;;https://ezengine.net/pages/docs/graphics/substance-textures.html
 
 # UI
 

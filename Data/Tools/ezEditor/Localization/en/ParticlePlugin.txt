@@ -1,6 +1,6 @@
 # Asset Types
 
-Particle Effect;Particle Effect
+Particle Effect;Particle Effect;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effects-overview.html
 
 # Component Types
 

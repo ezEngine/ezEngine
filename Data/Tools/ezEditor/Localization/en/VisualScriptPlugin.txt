@@ -1,6 +1,6 @@
 # Asset Types
 
-VisualScriptClass;Visual Script Class
+VisualScriptClass;Visual Script Class;;https://ezengine.net/pages/docs/custom-code/visual-script/visual-script-class-asset.html
 
 # UI
 

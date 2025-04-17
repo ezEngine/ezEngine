@@ -1,6 +1,6 @@
 # Asset Types
 
-Material;Material
+Material;Material;;https://ezengine.net/pages/docs/materials/materials-overview.html
 
 # Enums
 

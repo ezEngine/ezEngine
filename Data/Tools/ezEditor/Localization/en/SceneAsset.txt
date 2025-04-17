@@ -1,8 +1,10 @@
 # Asset Types
 
-Layer;Scene Layer
-Prefab;Prefab
-Scene;Scene
+Layer;Scene Layer;;https://ezengine.net/pages/docs/scenes/scene-layers.html
+Prefab;Prefab;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+Scene;Scene;;https://ezengine.net/pages/docs/scenes/scene-editing.html
+BlackboardTemplate;Blackboard Template;;https://ezengine.net/pages/docs/Miscellaneous/blackboard-template-asset.html
+CustomData;Custom Data;;https://ezengine.net/pages/docs/Miscellaneous/custom-data.html
 
 # Component Types
 

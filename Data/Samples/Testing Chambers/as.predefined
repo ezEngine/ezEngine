@@ -2359,17 +2359,18 @@ class ezThirdPersonViewComponent : ezComponent
 {
   void RotateUp(ezAngle angle);
   ezString TargetObject;
-  float TargetDistance;
-  float MinDistance;
   ezVec3 TargetOffsetHigh;
   ezVec3 TargetOffsetLow;
+  float MinDistance;
+  float MaxDistance;
+  float MaxDistanceUp;
+  float MaxDistanceDown;
   ezAngle MinUpRotation;
   ezAngle MaxUpRotation;
+  uint8 CollisionLayer;
   float SweepWidth;
   float ZoomInSpeed;
   float ZoomOutSpeed;
-  float TargetCeilingHeight;
-  float TargetFloorHeight;
 }
 
 class ezLineToComponent : ezComponent

@@ -1,6 +1,6 @@
 # Asset Types
 
-Collection;Collection
+Collection;Collection;;https://ezengine.net/pages/docs/performance/asset-collections.html
 
 # Component Types
 

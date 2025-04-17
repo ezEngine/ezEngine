@@ -2106,11 +2106,11 @@ float ezSpotLightComponent::get_ShadowFadeOutRange() const
 float ezSpriteComponent::get_AspectRatio() const
 float ezSpriteComponent::get_MaxScreenSize() const
 float ezSpriteComponent::get_Size() const
+float ezThirdPersonViewComponent::get_MaxDistance() const
+float ezThirdPersonViewComponent::get_MaxDistanceDown() const
+float ezThirdPersonViewComponent::get_MaxDistanceUp() const
 float ezThirdPersonViewComponent::get_MinDistance() const
 float ezThirdPersonViewComponent::get_SweepWidth() const
-float ezThirdPersonViewComponent::get_TargetCeilingHeight() const
-float ezThirdPersonViewComponent::get_TargetDistance() const
-float ezThirdPersonViewComponent::get_TargetFloorHeight() const
 float ezThirdPersonViewComponent::get_ZoomInSpeed() const
 float ezThirdPersonViewComponent::get_ZoomOutSpeed() const
 float ezTime::AsFloatInSeconds() const
@@ -2240,6 +2240,7 @@ uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
 uint8 ezProjectileComponent::get_CollisionLayer() const
 uint8 ezRaycastComponent::get_CollisionLayerEndPoint() const
 uint8 ezSensorComponent::get_CollisionLayer() const
+uint8 ezThirdPersonViewComponent::get_CollisionLayer() const
 void T[]::Clear()
 void T[]::InsertAt(uint index, const T&in value)
 void T[]::InsertRangeAt(uint index, const T[]&inout arr)
@@ -3088,13 +3089,14 @@ void ezTempHashedString::Clear()
 void ezTempHashedString::opAssign(const ezHashedString&in)
 void ezTempHashedString::opAssign(ezStringView)
 void ezThirdPersonViewComponent::RotateUp(ezAngle angle)
+void ezThirdPersonViewComponent::set_CollisionLayer(uint8)
+void ezThirdPersonViewComponent::set_MaxDistance(float)
+void ezThirdPersonViewComponent::set_MaxDistanceDown(float)
+void ezThirdPersonViewComponent::set_MaxDistanceUp(float)
 void ezThirdPersonViewComponent::set_MaxUpRotation(ezAngle)
 void ezThirdPersonViewComponent::set_MinDistance(float)
 void ezThirdPersonViewComponent::set_MinUpRotation(ezAngle)
 void ezThirdPersonViewComponent::set_SweepWidth(float)
-void ezThirdPersonViewComponent::set_TargetCeilingHeight(float)
-void ezThirdPersonViewComponent::set_TargetDistance(float)
-void ezThirdPersonViewComponent::set_TargetFloorHeight(float)
 void ezThirdPersonViewComponent::set_TargetOffsetHigh(ezVec3)
 void ezThirdPersonViewComponent::set_TargetOffsetLow(ezVec3)
 void ezThirdPersonViewComponent::set_ZoomInSpeed(float)

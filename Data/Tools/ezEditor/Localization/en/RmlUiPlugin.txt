@@ -1,6 +1,6 @@
 # Asset Types
 
-RmlUi;Rml UI
+RmlUi;Rml UI;;https://ezengine.net/pages/docs/ui/rmlui.html
 
 # Component Types
 

@@ -1,5 +1,5 @@
 # Asset Types
 
-Image Data;Image Data
+Image Data;Image Data;;https://ezengine.net/pages/docs/Miscellaneous/imagedata-asset.html
 
 # Properties

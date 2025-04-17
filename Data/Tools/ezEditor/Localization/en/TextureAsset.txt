@@ -1,8 +1,8 @@
 # Asset Types
 
-Texture 2D;Texture 2D
-Texture Cube;Texture Cube
-Render Target;Render Target
+Texture 2D;Texture 2D;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Texture Cube;Texture Cube;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Render Target;Render Target;;https://ezengine.net/pages/docs/graphics/textures-overview.html
 
 # UI
 

@@ -1,6 +1,6 @@
 # Asset Types
 
-ProcGen Graph;ProcGen Graph
+ProcGen Graph;ProcGen Graph;;https://ezengine.net/pages/docs/terrain/procedural/procgen-graph-asset.html
 
 # Component Types
 

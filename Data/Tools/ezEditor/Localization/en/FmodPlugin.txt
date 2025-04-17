@@ -1,7 +1,7 @@
 # Asset Types
 
-Sound Bank;FMOD Sound Bank
-Sound Event;FMOD Sound Event
+Sound Bank;FMOD Sound Bank;;https://ezengine.net/pages/docs/sound/fmod/fmod-soundbank-asset.html
+Sound Event;FMOD Sound Event;;https://ezengine.net/pages/docs/sound/fmod/fmod-soundevent-asset.html
 
 # Component Types
 

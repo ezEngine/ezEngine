@@ -1,6 +1,6 @@
 # Asset Types
 
-Decal;Decal
+Decal;Decal;;https://ezengine.net/pages/docs/effects/decals.html
 
 # Component Types
 

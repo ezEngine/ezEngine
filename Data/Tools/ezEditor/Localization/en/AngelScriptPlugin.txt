@@ -1,2 +1,4 @@
+AngelScript;Angel Script;;https://ezengine.net/pages/docs/custom-code/angelscript/as-asset.html
+
 AngelScript.OpenInVSC;Open in External Code Editor
 AngelScript.SyncExposedParams;Sync Parameter List

@@ -1,6 +1,6 @@
 # Asset Types
 
-MiniAudioSound;Sound
+MiniAudioSound;Sound;;https://ezengine.net/pages/docs/sound/miniaudio/ma-sound-asset.html
 
 # Component Types
 

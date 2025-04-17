@@ -1,6 +1,6 @@
 # Asset Types
 
-Mesh;Mesh
+Mesh;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-asset.html
 
 # Component Types
 

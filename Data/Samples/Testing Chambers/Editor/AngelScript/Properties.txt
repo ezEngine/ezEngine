@@ -287,6 +287,8 @@ MaxBodies
 MaxClimbingSlope
 MaxDeviation
 MaxDistance
+MaxDistanceDown
+MaxDistanceUp
 MaxGrabPointDistance
 MaxLifetime
 MaxRotationZ
@@ -539,9 +541,6 @@ Tan
 Tangent1
 Tangent2
 Target
-TargetCeilingHeight
-TargetDistance
-TargetFloorHeight
 TargetObject
 TargetOffsetHigh
 TargetOffsetLow

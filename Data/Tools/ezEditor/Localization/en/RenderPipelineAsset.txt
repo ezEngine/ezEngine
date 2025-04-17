@@ -1,6 +1,6 @@
 # Asset Types
 
-RenderPipeline;Render Pipeline
+RenderPipeline;Render Pipeline;;https://ezengine.net/pages/docs/graphics/render-pipeline/render-pipeline-overview.html
 
 # Enums
 

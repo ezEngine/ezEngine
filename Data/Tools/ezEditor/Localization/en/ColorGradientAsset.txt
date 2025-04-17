@@ -1,6 +1,6 @@
 # Asset Types
 
-ColorGradient;Color Gradient
+ColorGradient;Color Gradient;;https://ezengine.net/pages/docs/animation/common/color-gradients.html
 
 # Component Types
 
