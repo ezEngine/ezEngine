@@ -33,6 +33,21 @@ struct EZ_SHADER_STRUCT ezPerLightData
 
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerLightData> perLightDataBuffer;
+
+  uint GetLightType(ezPerLightData data)
+  {
+    return (data.colorAndType >> 24) & 0xFF;
+  }
+
+  float3 GetLightColor(ezPerLightData data)
+  {
+    return RGB8ToFloat3(data.colorAndType);
+  }
+
+  float3 GetLightDirection(ezPerLightData data)
+  {
+    return normalize(RGB10ToFloat3(data.direction) * 2.0 - 1.0);
+  }
 #else
   static_assert(sizeof(ezPerLightData) == 48);
 #endif
@@ -141,8 +156,8 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 
     UINT1(NumLights);
     UINT1(NumDecals);
-    UINT1(Padding);
 
+    UINT1(BrightestDirectionalLightIndex); // aka sun
     UINT1(SkyIrradianceIndex);
 
     FLOAT1(FogHeight);

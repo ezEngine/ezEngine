@@ -228,6 +228,9 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     EZ_PROFILE_SCOPE("Lights");
     m_TempLightData.Clear();
 
+    ezUInt32 uiBrightestDirectionalLightIndex = ezInvalidIndex;
+    float fBrightestDirectionalLightIntensity = 0.0f;
+
     auto batchList = ref_extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
@@ -282,6 +285,13 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
+
+          const float fIntensity = pDirLightRenderData->m_fIntensity * ezColor(pDirLightRenderData->m_LightColor).GetLuminance();
+          if (fIntensity > fBrightestDirectionalLightIntensity)
+          {
+            fBrightestDirectionalLightIntensity = fIntensity;
+            uiBrightestDirectionalLightIndex = uiLightIndex;
+          }
         }
         else if (auto pFillLightRenderData = ezDynamicCast<const ezFillLightRenderData*>(it))
         {
@@ -319,6 +329,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     pData->m_LightData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerLightData, m_TempLightData.GetCount());
     pData->m_LightData.CopyFrom(m_TempLightData);
 
+    pData->m_uiBrightestDirectionalLightIndex = uiBrightestDirectionalLightIndex;
     pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
     pData->m_cameraUsageHint = view.GetCameraUsageHint();
   }

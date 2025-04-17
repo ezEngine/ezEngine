@@ -474,7 +474,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
 // Returns unsaturated NdotL
 float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, out float3 lightVector, out float attenuation, out float distanceToLight)
 {
-  float3 lightDir = normalize(RGB10ToFloat3(lightData.direction) * 2.0 - 1.0);
+  float3 lightDir = GetLightDirection(lightData);
   lightVector = lightDir;
   attenuation = 1.0;
   distanceToLight = 1.0;
@@ -515,7 +515,7 @@ void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseC
   attenuation *= saturate(lerp(1.0, NdotL, directionality));
   attenuation *= lightData.intensity;
 
-  float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+  float3 lightColor = GetLightColor(lightData);
   if (type == LIGHT_TYPE_FILL_ADDITIVE)
   {
     diffuseLight += diffuseColor * lightColor * attenuation;
@@ -547,7 +547,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
     uint lightIndex = GET_LIGHT_INDEX(itemIndex);
 
     ezPerLightData lightData = perLightDataBuffer[lightIndex];
-    uint type = (lightData.colorAndType >> 24) & 0xFF;
+    uint type = GetLightType(lightData);
 
     [branch] if (type <= LIGHT_TYPE_DIR)
     {
@@ -574,7 +574,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         }
 
         attenuation *= lightData.intensity;
-        float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+        float3 lightColor = GetLightColor(lightData);
 
         // debug cascade or point face selection
 #if 0

@@ -417,10 +417,13 @@ namespace
 
     auto CheckPath = [&](ezStringView sPath)
     {
+      if (sPath.IsEmpty())
+        return false;
+
       ezStringBuilder path = sPath;
       path.AppendPath("sbscooker.exe");
 
-      if (ezOSFile::ExistsFile(path))
+      if (path.IsAbsolutePath() && ezOSFile::ExistsFile(path))
       {
         s_CachedPath = sPath;
         out_sPath = sPath;
