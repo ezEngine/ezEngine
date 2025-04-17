@@ -193,6 +193,16 @@ struct ezPerClusterData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
+
+  ezPerLightData GetBrightestDirectionalLightData()
+  {
+    if (BrightestDirectionalLightIndex != 0xFFFFFFFF)
+    {
+      return perLightDataBuffer[BrightestDirectionalLightIndex];
+    }
+    
+    return (ezPerLightData)0;
+  }
 #endif
 
 // clang-format on
