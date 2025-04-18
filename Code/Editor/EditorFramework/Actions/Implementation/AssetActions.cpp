@@ -9,7 +9,6 @@ ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;
 ezActionDescriptorHandle ezAssetActions::s_hAssetHelp;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
-ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 ezActionDescriptorHandle ezAssetActions::s_hWriteDependencyDGML;
 ezActionDescriptorHandle ezAssetActions::s_hCopyAssetGuid;
 
@@ -20,7 +19,6 @@ void ezAssetActions::RegisterActions()
   s_hAssetHelp = EZ_REGISTER_ACTION_1("Asset.Help", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::AssetHelp);
   s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "Ctrl+Shift+E", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
-  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
   s_hWriteDependencyDGML = EZ_REGISTER_ACTION_1("Asset.WriteDependencyDGML", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteDependencyDGML);
   s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Asset.CopyAssetGuid", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CopyAssetGuid);
 
@@ -37,7 +35,6 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hAssetHelp);
   ezActionManager::UnregisterAction(s_hTransformAllAssets);
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
-  ezActionManager::UnregisterAction(s_hWriteLookupTable);
   ezActionManager::UnregisterAction(s_hWriteDependencyDGML);
   ezActionManager::UnregisterAction(s_hCopyAssetGuid);
 }
@@ -52,8 +49,9 @@ void ezAssetActions::MapMenuActions(ezStringView sMapping)
   pMap->MapAction(s_hAssetHelp, sTargetMenu, 1.0f);
   pMap->MapAction(s_hTransformAsset, sTargetMenu, 2.0f);
   pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 3.0f);
-  pMap->MapAction(s_hTransformAllAssets, sTargetMenu, 4.0f);
-  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 5.0f);
+  pMap->MapAction(s_hCheckFileSystem, sTargetMenu, 4.0f);
+  pMap->MapAction(s_hTransformAllAssets, sTargetMenu, 5.0f);
+  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 6.0f);
 }
 
 void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
@@ -96,9 +94,6 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
       break;
     case ezAssetAction::ButtonType::CheckFileSystem:
       SetIconPath(":/EditorFramework/Icons/CheckFileSystem.svg");
-      break;
-    case ezAssetAction::ButtonType::WriteLookupTable:
-      SetIconPath(":/EditorFramework/Icons/WriteLookupTable.svg");
       break;
     case ezAssetAction::ButtonType::AssetHelp:
       SetIconPath(":/GuiFoundation/Icons/Log.svg");
@@ -153,12 +148,6 @@ void ezAssetAction::Execute(const ezVariant& value)
     case ezAssetAction::ButtonType::CheckFileSystem:
     {
       ezAssetCurator::GetSingleton()->CheckFileSystem();
-      ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-    }
-    break;
-
-    case ezAssetAction::ButtonType::WriteLookupTable:
-    {
       ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
     }
     break;

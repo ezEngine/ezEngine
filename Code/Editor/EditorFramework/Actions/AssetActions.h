@@ -18,7 +18,6 @@ public:
   static ezActionDescriptorHandle s_hAssetHelp;
   static ezActionDescriptorHandle s_hTransformAllAssets;
   static ezActionDescriptorHandle s_hCheckFileSystem;
-  static ezActionDescriptorHandle s_hWriteLookupTable;
   static ezActionDescriptorHandle s_hWriteDependencyDGML;
   static ezActionDescriptorHandle s_hCopyAssetGuid;
 };
@@ -35,7 +34,6 @@ public:
     AssetHelp,
     TransformAllAssets,
     CheckFileSystem,
-    WriteLookupTable,
     WriteDependencyDGML,
     CopyAssetGuid,
   };
