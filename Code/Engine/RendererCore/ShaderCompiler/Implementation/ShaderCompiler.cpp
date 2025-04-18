@@ -293,7 +293,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
     m_IncludeFiles.Insert(sMaterialConstantsTemplateFile);
   }
 
-  ezStringView extensions[] {"vs", "hs", "ds", "gs", "ps", "cs"};
+  ezStringView extensions[]{"vs", "hs", "ds", "gs", "ps", "cs"};
   static_assert(EZ_ARRAY_SIZE(extensions) == ezGALShaderStage::ENUM_COUNT);
   ezStringBuilder tmp = sFile;
   tmp.MakeCleanPath();
