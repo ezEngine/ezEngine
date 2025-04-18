@@ -1480,7 +1480,7 @@ ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVer
   {
     iHighestUsedBinding = ezMath::Max(iHighestUsedBinding, static_cast<ezInt32>(desc.m_VertexAttributes[slot].m_uiVertexBufferSlot));
   }
-  if (desc.m_VertexBindings.GetCount() != iHighestUsedBinding + 1)
+  if (desc.m_VertexBindings.GetCount() != static_cast<ezUInt32>(iHighestUsedBinding + 1))
   {
     ezLog::Error("Not enough vertex bindings ({}) to support the maximum used vertex buffer index ({}) used by the vertex attributes.", desc.m_VertexBindings.GetCount(), iHighestUsedBinding);
     return {};
