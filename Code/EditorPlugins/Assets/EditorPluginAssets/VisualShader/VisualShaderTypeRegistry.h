@@ -69,6 +69,7 @@ class ezVisualShaderTypeRegistry
 
 public:
   ezVisualShaderTypeRegistry();
+  ~ezVisualShaderTypeRegistry();
 
   const ezVisualShaderNodeDescriptor* GetDescriptorForType(const ezRTTI* pRtti) const;
 
@@ -83,6 +84,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
 
+  void EditorEventHandler(const ezEditorAppEvent& e);
   void LoadNodeData();
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile);

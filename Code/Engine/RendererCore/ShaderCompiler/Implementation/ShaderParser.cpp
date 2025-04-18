@@ -692,10 +692,7 @@ ezStatus ParseShaderConstant(const TokenStream& tokens, ezUInt32& ref_uiCurToken
       return ezStatus(EZ_SUCCESS);
     }
 
-    const char* szStart = tokens[uiStartToken]->m_DataView.GetStartPointer();
-    const char* szEnd = tokens[ref_uiCurToken]->m_DataView.GetStartPointer();
-    ezStringView sConstant(szStart, static_cast<ezUInt32>(szEnd - szStart));
-    return ezStatus(ezFmt("Unknown shader constant: {}", sConstant));
+    return ezStatus(ezFmt("Unknown shader constant type: {}", tokens[uiTypeToken]->m_DataView));
   }
   else if (Accept(tokens, ref_uiCurToken, packedhalf2Pattern, &acceptedTokens))
   {
@@ -777,10 +774,13 @@ void AlignStructuredBufferStd430Relaxed(ezShaderConstantBufferLayout& ref_materi
 
 ezStatus ParseMaterialConstants(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
 {
-  const bool bIsConstantBuffer = true;
-
-  while (ParseShaderConstant(tokens, ref_uiCurToken, ref_materialConstantBufferLayout).Succeeded())
+  while (!Accept(tokens, ref_uiCurToken, ezTokenType::EndOfFile))
   {
+    ezStatus parseResult = ParseShaderConstant(tokens, ref_uiCurToken, ref_materialConstantBufferLayout);
+    if (!parseResult.Succeeded())
+    {
+      return parseResult;
+    }
   }
 
   if (ref_materialConstantBufferLayout.m_Constants.IsEmpty())

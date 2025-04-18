@@ -97,6 +97,12 @@ ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
 {
   m_pBaseType = nullptr;
   m_pSamplerPinType = nullptr;
+  ezQtEditorApp::m_Events.AddEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
+}
+
+ezVisualShaderTypeRegistry::~ezVisualShaderTypeRegistry()
+{
+  ezQtEditorApp::m_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
 }
 
 const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
@@ -109,9 +115,21 @@ const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorFor
   return &it.Value();
 }
 
+void ezVisualShaderTypeRegistry::EditorEventHandler(const ezEditorAppEvent& e)
+{
+  if (e.m_Type == ezEditorAppEvent::Type::EditorStarted)
+  {
+    UpdateNodeData();
+  }
+}
 
 void ezVisualShaderTypeRegistry::UpdateNodeData()
 {
+  // If the assets plugin is statically linked, ON_CORESYSTEMS_STARTUP is fired before the editor is running, at which point the data directories are not set up yet so the code below will fail. Therefore, we also run this code in the EditorEventHandler code above to ensure that we run this code at the appropriate time.
+  // If linked dynamically, the plugin will be loaded during project open, at which point everything is already running.
+  if (!ezQtEditorApp::GetSingleton() || !ezQtEditorApp::GetSingleton()->IsRunning())
+    return;
+
   ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSearchDir.AppendPath("VisualShader/*.ddl");
 

@@ -401,11 +401,13 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   LoadEditorPlugins();
   CloseSplashScreen();
 
+  m_bIsRunning = true;
   {
     ezEditorAppEvent e;
     e.m_Type = ezEditorAppEvent::Type::EditorStarted;
     m_Events.Broadcast(e);
   }
+
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
@@ -462,6 +464,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  m_bIsRunning = false;
   ezStackTraceLogParser::Unregister();
 
   ezToolsProject::SaveProjectState();

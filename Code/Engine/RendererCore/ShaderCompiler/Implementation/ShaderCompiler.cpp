@@ -293,8 +293,16 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
     m_IncludeFiles.Insert(sMaterialConstantsTemplateFile);
   }
 
+  ezStringView extensions[] {"vs", "hs", "ds", "gs", "ps", "cs"};
+  static_assert(EZ_ARRAY_SIZE(extensions) == ezGALShaderStage::ENUM_COUNT);
+  ezStringBuilder tmp = sFile;
+  tmp.MakeCleanPath();
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
+    m_StageSourceFile[stage] = tmp;
+    m_StageSourceFile[stage].ChangeFileExtension(extensions[stage]);
+
     ezStringView sStageSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
 
     // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
@@ -305,7 +313,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
       // prepend material constants section if there is any
       if (!sMaterialConstantsSource.IsEmpty())
       {
-        sTemp.AppendFormat(sMaterialConstantsTemplate, uiFirstMaterialConstantsLine, sMaterialConstantsSource);
+        // We need to fill teh template not only with the section content but also the starting line and filename to get correct line numbers for all compile failures.
+        sTemp.AppendFormat(sMaterialConstantsTemplate, uiFirstMaterialConstantsLine, m_StageSourceFile[stage], sMaterialConstantsSource);
       }
 
       // prepend common shader section if there is any
@@ -323,27 +332,6 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
       m_ShaderData.m_ShaderStageSource[stage].Clear();
     }
   }
-
-  ezStringBuilder tmp = sFile;
-  tmp.MakeCleanPath();
-
-  m_StageSourceFile[ezGALShaderStage::VertexShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::VertexShader].ChangeFileExtension("vs");
-
-  m_StageSourceFile[ezGALShaderStage::HullShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::HullShader].ChangeFileExtension("hs");
-
-  m_StageSourceFile[ezGALShaderStage::DomainShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::DomainShader].ChangeFileExtension("ds");
-
-  m_StageSourceFile[ezGALShaderStage::GeometryShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::GeometryShader].ChangeFileExtension("gs");
-
-  m_StageSourceFile[ezGALShaderStage::PixelShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::PixelShader].ChangeFileExtension("ps");
-
-  m_StageSourceFile[ezGALShaderStage::ComputeShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::ComputeShader].ChangeFileExtension("cs");
 
   // try out every compiler that we can find
   ezResult result = EZ_SUCCESS;

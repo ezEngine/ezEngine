@@ -27,7 +27,7 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Material");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezBinMaterial";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
@@ -76,6 +76,14 @@ bool ezMaterialAssetDocumentManager::IsOutputUpToDate(ezStringView sDocumentPath
   return ezAssetDocumentManager::IsOutputUpToDate(sDocumentPath, sOutputTag, uiHash, pTypeDescriptor);
 }
 
+ezStringView ezMaterialAssetDocumentManager::GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
+{
+  if (sOutputTag == s_szShaderOutputTag)
+  {
+    return "Shader";
+  }
+  return SUPER::GetOutputDocumentType(pTypeDesc, sOutputTag, pAssetProfile);
+}
 
 void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {

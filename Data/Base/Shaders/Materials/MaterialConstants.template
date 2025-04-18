@@ -8,7 +8,8 @@
 
 BEGIN_MATERIAL_CONSTANTS
 {
-#line {0}
-{1}
+// The line below should be filled out with the starting line of the material constant section of the shader that is being compiled so that the "Shaders/Materials/MaterialConstants.template" line above does not propagate further through the rest of the code. E.g. #line 8 "RendererTest/Shaders/TestMaterial.vs", followed by the content of the section.
+#line {0} "{1}"
+{2}
 }
 END_MATERIAL_CONSTANTS
