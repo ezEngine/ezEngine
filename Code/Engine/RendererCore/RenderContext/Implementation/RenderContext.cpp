@@ -1080,7 +1080,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
     ezHashStreamWriter32 writer;
     writer << decl.m_uiHash;
     writer << customVertexDecl.m_uiHash;
-    for (ezUInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
+    for (ezInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
     {
       writer << vertexBufferStrides[bufferIndex];
       writer << vertexBufferBindingRates[bufferIndex];
@@ -1105,7 +1105,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
       ConvertVertexStreamInfo(customVertexDecl.m_VertexStreams[slot], vd.m_VertexAttributes.ExpandAndGetRef());
     }
 
-    for (ezUInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
+    for (ezInt32 bufferIndex = 0; bufferIndex <= iHighestUsedBinding; ++bufferIndex)
     {
       ezGALVertexBinding binding;
       binding.m_uiStride = vertexBufferStrides[bufferIndex];
