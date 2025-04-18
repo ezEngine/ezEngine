@@ -102,7 +102,14 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
         pButton->setIcon(ezQtUiServices::GetCachedIconResource(pNamed->GetIconPath()));
-        pButton->setToolTip(pQtMenu->toolTip());
+
+        ezStringBuilder sTooltip = ezTranslateTooltip(pNamed->GetName());
+        if (sTooltip.IsEmpty())
+        {
+          sTooltip = ezTranslate(pNamed->GetName());
+          sTooltip.ReplaceAll("&", "");
+        }
+        pButton->setToolTip(ezMakeQString(sTooltip));
 
         pNamed->m_StatusUpdateEvent.AddEventHandler([=](ezAction* pAction)
           { pButton->setIcon(ezQtUiServices::GetCachedIconResource(pNamed->GetIconPath())); });
@@ -117,6 +124,8 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
 
       case ezActionType::ActionAndMenu:
       {
+        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
+
         QMenu* pQtMenu = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQMenu();
         QAction* pQtAction = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQAction();
         // TODO pButton leaks!
@@ -124,6 +133,14 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setDefaultAction(pQtAction);
         pButton->setMenu(pQtMenu);
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
+
+        ezStringBuilder sTooltip = ezTranslateTooltip(pNamed->GetName());
+        if (sTooltip.IsEmpty())
+        {
+          sTooltip = ezTranslate(pNamed->GetName());
+          sTooltip.ReplaceAll("&", "");
+        }
+        pButton->setToolTip(ezMakeQString(sTooltip));
 
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);
