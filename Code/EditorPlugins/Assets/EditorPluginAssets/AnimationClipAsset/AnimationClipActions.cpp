@@ -28,12 +28,9 @@ void ezAnimationClipActions::MapActions(ezStringView sActionMapName, ezStringVie
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sActionMapName);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sActionMapName);
 
-  pMap->MapAction(s_hCategory, sSubPath, 20.0f);
+  pMap->MapAction(s_hCategory, sSubPath, 10.0f);
 
-  ezStringBuilder sPath;
-  sPath.SetPath(sSubPath, "AnimationClipAssetCategory");
-
-  pMap->MapAction(s_hRootMotionFromFeet, sPath, 1.0f);
+  pMap->MapAction(s_hRootMotionFromFeet, "AnimationClipAssetCategory", 1.0f);
 }
 
 ezAnimationClipAction::ezAnimationClipAction(const ezActionContext& context, const char* szName, ezAnimationClipAction::ActionType type)

@@ -106,9 +106,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     {
       const char* szMenuBar = "AssetMenuBar";
       ezActionMapManager::RegisterActionMap(szMenuBar);
-      ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
+      ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit| ezStandardMenuTypes::Asset);
       ezProjectActions::MapActions(szMenuBar);
-      ezDocumentActions::MapMenuActions(szMenuBar);
+      ezDocumentActions::MapMenuActions(szMenuBar, "G.File.Common");
       ezAssetActions::MapMenuActions(szMenuBar);
       ezCommandHistoryActions::MapActions(szMenuBar);
     }

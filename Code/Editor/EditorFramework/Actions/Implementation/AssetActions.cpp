@@ -35,14 +35,15 @@ void ezAssetActions::UnregisterActions()
 
 void ezAssetActions::MapMenuActions(ezStringView sMapping)
 {
-  const ezStringView sTargetMenu = "G.AssetDoc";
+  const ezStringView sTargetMenu = "G.Asset";
 
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
-  pMap->MapAction(s_hTransformAsset, sTargetMenu, 1.0f);
-  pMap->MapAction(s_hAssetHelp, sTargetMenu, 2.0f);
-  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 10.0f);
+  pMap->MapAction(s_hAssetHelp, sTargetMenu, 1.0f);
+  pMap->MapAction(s_hTransformAsset, sTargetMenu, 2.0f);
+  pMap->MapAction(s_hTransformAllAssets, sTargetMenu, 3.0f);
+  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 4.0f);
 }
 
 void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
@@ -54,8 +55,8 @@ void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
 
   if (bDocument)
   {
-    pMap->MapAction(s_hTransformAsset, "AssetCategory", 1.0f);
-    pMap->MapAction(s_hAssetHelp, "AssetCategory", 2.0f);
+    pMap->MapAction(s_hAssetHelp, "AssetCategory", 1.0f);
+    pMap->MapAction(s_hTransformAsset, "AssetCategory", 2.0f);
   }
   else
   {

@@ -33,12 +33,10 @@ void ezAngelScriptActions::MapActionsMenu(ezStringView sMapping)
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hCategory, "G.Asset", 1.0f);
+  pMap->MapAction(s_hCategory, "G.Asset", 5.0f);
 
-  const char* szSubPath = "AngelScriptCategory";
-
-  pMap->MapAction(s_hOpenInVSC, szSubPath, 1.0f);
-  pMap->MapAction(s_hSyncExposedParams, szSubPath, 2.0f);
+  pMap->MapAction(s_hOpenInVSC, "AngelScriptCategory", 1.0f);
+  pMap->MapAction(s_hSyncExposedParams, "AngelScriptCategory", 2.0f);
 }
 
 void ezAngelScriptActions::MapActionsToolbar(ezStringView sMapping)

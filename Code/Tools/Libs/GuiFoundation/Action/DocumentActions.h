@@ -10,7 +10,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu = "G.File.Common");
+  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu);
   static void MapToolbarActions(ezStringView sMapping);
   static void MapToolsActions(ezStringView sMapping);
 

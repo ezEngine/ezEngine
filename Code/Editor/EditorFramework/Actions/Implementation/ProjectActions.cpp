@@ -28,7 +28,6 @@ ezActionDescriptorHandle ezProjectActions::s_hCatProjectExternal;
 ezActionDescriptorHandle ezProjectActions::s_hCatFilesGeneral;
 ezActionDescriptorHandle ezProjectActions::s_hCatFileCommon;
 ezActionDescriptorHandle ezProjectActions::s_hCatFileSpecial;
-ezActionDescriptorHandle ezProjectActions::s_hCatAssetDoc;
 
 ezActionDescriptorHandle ezProjectActions::s_hCreateDocument;
 ezActionDescriptorHandle ezProjectActions::s_hOpenDocument;
@@ -84,7 +83,6 @@ void ezProjectActions::RegisterActions()
   s_hCatFilesGeneral = EZ_REGISTER_CATEGORY("G.Files.General");
   s_hCatFileCommon = EZ_REGISTER_CATEGORY("G.File.Common");
   s_hCatFileSpecial = EZ_REGISTER_CATEGORY("G.File.Special");
-  s_hCatAssetDoc = EZ_REGISTER_CATEGORY("G.AssetDoc");
 
 
   s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
@@ -156,7 +154,6 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCatFilesGeneral);
   ezActionManager::UnregisterAction(s_hCatFileCommon);
   ezActionManager::UnregisterAction(s_hCatFileSpecial);
-  ezActionManager::UnregisterAction(s_hCatAssetDoc);
 
   ezActionManager::UnregisterAction(s_hCreateDocument);
   ezActionManager::UnregisterAction(s_hOpenDocument);
@@ -221,7 +218,6 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
   {
     pMap->MapAction(s_hCatFilesGeneral, "G.File", 1.0f);
     pMap->MapAction(s_hCatFileCommon, "G.File", 2.0f);
-    pMap->MapAction(s_hCatAssetDoc, "G.File", 3.0f);
     pMap->MapAction(s_hCatFileSpecial, "G.File", 4.0f);
   }
 

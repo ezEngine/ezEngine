@@ -21,8 +21,6 @@ void OnLoadPlugin()
     {
       ezActionMapManager::RegisterActionMap("AngelScriptAssetMenuBar", "AssetMenuBar");
 
-      ezStandardMenus::MapActions("AngelScriptAssetMenuBar", ezStandardMenuTypes::Asset);
-
       ezEditActions::MapActions("AngelScriptAssetMenuBar", false, false);
       ezAngelScriptActions::MapActionsMenu("AngelScriptAssetMenuBar");
     }

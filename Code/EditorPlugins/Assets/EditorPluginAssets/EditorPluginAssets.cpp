@@ -284,8 +284,6 @@ static void ConfigureAnimationClipAsset()
   {
     ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar", "AssetMenuBar");
 
-    // additionally to the standard menus, also map the 'Assets' menu for asset specific actions
-    ezStandardMenus::MapActions("AnimationClipAssetMenuBar", ezStandardMenuTypes::Asset);
     ezAnimationClipActions::MapActions("AnimationClipAssetMenuBar", "G.Asset");
   }
 

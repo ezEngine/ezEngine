@@ -24,7 +24,6 @@ public:
   static ezActionDescriptorHandle s_hCatFilesGeneral;
   static ezActionDescriptorHandle s_hCatFileCommon;
   static ezActionDescriptorHandle s_hCatFileSpecial;
-  static ezActionDescriptorHandle s_hCatAssetDoc;
 
   static ezActionDescriptorHandle s_hCreateDocument;
   static ezActionDescriptorHandle s_hOpenDocument;
