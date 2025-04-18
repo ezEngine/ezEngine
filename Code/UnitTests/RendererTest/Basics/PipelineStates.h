@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../TestClass/TestClass.h"
-#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezRendererTestPipelineStates : public ezGraphicsTest
 {
