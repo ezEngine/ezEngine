@@ -24,7 +24,6 @@ public:
   static ezActionDescriptorHandle s_hCloseAllButThis;
 
   static ezActionDescriptorHandle s_hOpenContainingFolder;
-  static ezActionDescriptorHandle s_hCopyAssetGuid;
 
   static ezActionDescriptorHandle s_hUpdatePrefabs;
 };
@@ -46,7 +45,6 @@ public:
     CloseAllButThis,
     OpenContainingFolder,
     UpdatePrefabs,
-    CopyAssetGuid,
   };
   ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button);
   ~ezDocumentAction();

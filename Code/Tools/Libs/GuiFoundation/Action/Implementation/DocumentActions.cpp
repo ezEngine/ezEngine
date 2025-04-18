@@ -29,7 +29,6 @@ ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseAll;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseAllButThis;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
-ezActionDescriptorHandle ezDocumentActions::s_hCopyAssetGuid;
 ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
 
 void ezDocumentActions::RegisterActions()
@@ -42,7 +41,6 @@ void ezDocumentActions::RegisterActions()
   s_hCloseAll = EZ_REGISTER_ACTION_1("Document.CloseAll", ezActionScope::Document, "Document", "Ctrl+Shift+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAll);
   s_hCloseAllButThis = EZ_REGISTER_ACTION_1("Document.CloseAllButThis", ezActionScope::Document, "Document", "Shift+Alt+W", ezDocumentAction, ezDocumentAction::ButtonType::CloseAllButThis);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
-  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
@@ -56,7 +54,6 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCloseAll);
   ezActionManager::UnregisterAction(s_hCloseAllButThis);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
-  ezActionManager::UnregisterAction(s_hCopyAssetGuid);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
 
@@ -72,7 +69,6 @@ void ezDocumentActions::MapMenuActions(ezStringView sMapping, ezStringView sTarg
   pMap->MapAction(s_hCloseAll, sTargetMenu, 9.0f);
   pMap->MapAction(s_hCloseAllButThis, sTargetMenu, 10.0f);
   pMap->MapAction(s_hOpenContainingFolder, sTargetMenu, 11.0f);
-  pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 12.0f);
 }
 
 void ezDocumentActions::MapToolbarActions(ezStringView sMapping)
@@ -127,9 +123,6 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
       break;
     case ezDocumentAction::ButtonType::OpenContainingFolder:
       SetIconPath(":/GuiFoundation/Icons/OpenFolder.svg");
-      break;
-    case ezDocumentAction::ButtonType::CopyAssetGuid:
-      SetIconPath(":/GuiFoundation/Icons/Guid.svg");
       break;
     case ezDocumentAction::ButtonType::UpdatePrefabs:
       SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate.svg");
@@ -301,20 +294,6 @@ void ezDocumentAction::Execute(const ezVariant& value)
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
       ezQtUiServices::OpenInExplorer(sPath, true);
-    }
-    break;
-
-    case ezDocumentAction::ButtonType::CopyAssetGuid:
-    {
-      ezStringBuilder sGuid;
-      ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid(), sGuid);
-
-      QClipboard* clipboard = QApplication::clipboard();
-      QMimeData* mimeData = new QMimeData();
-      mimeData->setText(sGuid.GetData());
-      clipboard->setMimeData(mimeData);
-
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
     }
     break;
 

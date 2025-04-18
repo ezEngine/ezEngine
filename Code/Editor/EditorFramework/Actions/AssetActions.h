@@ -20,6 +20,7 @@ public:
   static ezActionDescriptorHandle s_hCheckFileSystem;
   static ezActionDescriptorHandle s_hWriteLookupTable;
   static ezActionDescriptorHandle s_hWriteDependencyDGML;
+  static ezActionDescriptorHandle s_hCopyAssetGuid;
 };
 
 ///
@@ -36,6 +37,7 @@ public:
     CheckFileSystem,
     WriteLookupTable,
     WriteDependencyDGML,
+    CopyAssetGuid,
   };
 
   ezAssetAction(const ezActionContext& context, const char* szName, ButtonType button);

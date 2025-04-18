@@ -71,7 +71,6 @@ Document.Close;Close
 Document.CloseAll;Close All
 Document.CloseAllButThis;Close All But This
 Document.OpenContainingFolder;Open in Explorer
-Document.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 Document.MoveWindow;Move to Container Window
 Document.NewWindow;New Container Window
 Document.Undo;Undo
@@ -92,6 +91,7 @@ Asset.ResaveAll;Resave All Assets;Opens every document and saves it. Used to get
 Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
 Asset.WriteLookupTable;Write Lookup Table
 Asset.Help;Open Asset Documentation;Open online documentation page for this asset type
+Asset.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 
 # Prefabs
 
