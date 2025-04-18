@@ -1,6 +1,20 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
+EZ_ALWAYS_INLINE vk::VertexInputRate ezConversionUtilsVulkan::GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate)
+{
+  switch (rate)
+  {
+    case ezGALVertexBindingRate::Vertex:
+      return vk::VertexInputRate::eVertex;
+    case ezGALVertexBindingRate::Instance:
+      return vk::VertexInputRate::eInstance;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::VertexInputRate::eVertex;
+  }
+}
+
 EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezEnum<ezGALMSAASampleCount> samples)
 {
   switch (samples)

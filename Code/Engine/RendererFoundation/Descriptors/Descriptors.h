@@ -134,6 +134,12 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
   ezUInt32 m_uiMaxAnisotropy = 4;
 };
 
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexBinding
+{
+  ezUInt32 m_uiStride = 0;
+  ezEnum<ezGALVertexBindingRate> m_Rate;
+};
+
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 {
   ezGALVertexAttribute() = default;
@@ -148,8 +154,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
-  ezGALShaderHandle m_hShader; // TODO WebGPU: try to get rid of this
-  ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
+  ezGALShaderHandle m_hShader; // Needed for attribute indices
+  ezStaticArray<ezGALVertexAttribute, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_VertexAttributes;
+  ezStaticArray<ezGALVertexBinding, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBindings;
 };
 
 struct ezGALResourceAccess

@@ -122,7 +122,7 @@ public:
   // State functions
 
   void SetIndexBuffer(ezGALBufferHandle hIndexBuffer);
-  void SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer);
+  void SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer, ezUInt32 uiOffset = 0);
   void SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
   ezGALPrimitiveTopology::Enum GetPrimitiveTopology() const { return m_State.m_Topology; }

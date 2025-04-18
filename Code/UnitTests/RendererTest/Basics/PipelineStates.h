@@ -2,6 +2,7 @@
 
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 
 class ezRendererTestPipelineStates : public ezGraphicsTest
 {
@@ -24,6 +25,7 @@ private:
     ST_SetsSlots,
     ST_Timestamps,
     ST_OcclusionQueries,
+    ST_CustomVertexStreams,
   };
 
   enum ImageCaptureFrames
@@ -34,6 +36,7 @@ private:
     StructuredBuffer_UpdateForNextFrame2 = 7,
     StructuredBuffer_Transient1 = 8,
     StructuredBuffer_Transient2 = 9,
+    CustomVertexStreams_Offsets = 6,
     Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
   };
 
@@ -52,6 +55,7 @@ private:
     AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
     AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
     AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
+    AddSubTest("14 - CustomVertexStreams", SubTests::ST_CustomVertexStreams);
   }
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
@@ -72,6 +76,7 @@ private:
   void GenerateMipMaps();
   void PushConstantsTest();
   void SetsSlotsTest();
+  void CustomVertexStreams();
   ezTestAppRun Timestamps();
   ezTestAppRun OcclusionQueries();
 
@@ -81,6 +86,7 @@ private:
   ezShaderResourceHandle m_hConstantBufferShader;
   ezShaderResourceHandle m_hPushConstantsShader;
   ezShaderResourceHandle m_hInstancingShader;
+  ezShaderResourceHandle m_hCustomVertexStreamShader;
 
   ezMeshBufferResourceHandle m_hTriangleMesh;
   ezMeshBufferResourceHandle m_hSphereMesh;
@@ -93,6 +99,9 @@ private:
   ezGALBufferHandle m_hInstancingDataTransient;
   ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
   ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
+
+  ezGALBufferHandle m_hInstancingDataCustomVertexStream;
+  ezHybridArray<ezVertexStreamInfo, 4> m_CustomVertexStreams;
 
   ezGALTextureHandle m_hTexture2D;
   ezGALTextureResourceViewHandle m_hTexture2D_Mip0;

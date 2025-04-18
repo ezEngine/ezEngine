@@ -8,6 +8,7 @@ void ezGALCommandEncoderRenderState::InvalidateState()
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
   {
     m_hVertexBuffers[i].Invalidate();
+    m_hVertexBufferOffsets[i] = 0;
   }
   m_hIndexBuffer.Invalidate();
 

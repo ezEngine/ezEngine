@@ -629,9 +629,9 @@ void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   m_State.m_hIndexBuffer = hIndexBuffer;
 }
 
-void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer)
+void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer, ezUInt32 uiOffset)
 {
-  if (m_State.m_hVertexBuffers[uiSlot] == hVertexBuffer)
+  if (m_State.m_hVertexBuffers[uiSlot] == hVertexBuffer && m_State.m_hVertexBufferOffsets[uiSlot] == uiOffset)
   {
     return;
   }
@@ -640,9 +640,10 @@ void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVe
   // Assert on vertex buffer type (if non-zero)
   // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
 
-  m_CommonImpl.SetVertexBufferPlatform(uiSlot, pBuffer);
+  m_CommonImpl.SetVertexBufferPlatform(uiSlot, pBuffer, uiOffset);
 
   m_State.m_hVertexBuffers[uiSlot] = hVertexBuffer;
+  m_State.m_hVertexBufferOffsets[uiSlot] = uiOffset;
 }
 
 void ezGALCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)

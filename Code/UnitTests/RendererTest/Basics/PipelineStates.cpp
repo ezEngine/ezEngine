@@ -35,6 +35,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hConstantBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ConstantBuffer.ezShader");
   m_hPushConstantsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/PushConstants.ezShader");
   m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Instancing.ezShader");
+  m_hCustomVertexStreamShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CustomVertexStreams.ezShader");
 
   {
     ezMeshBufferResourceDescriptor desc;
@@ -70,6 +71,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hTestColorsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestColors>();
   m_hTestPositionsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPositions>();
 
+  if (iIdentifier == SubTests::ST_StructuredBuffer)
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezTestShaderData);
@@ -92,6 +94,49 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     m_hInstancingDataView_8_4 = m_pDevice->CreateResourceView(viewDesc);
     viewDesc.m_uiFirstElement = 12;
     m_hInstancingDataView_12_4 = m_pDevice->CreateResourceView(viewDesc);
+  }
+
+
+  if (iIdentifier == SubTests::ST_CustomVertexStreams)
+  {
+    // Save as ST_StructuredBuffer, but we put the data in a vertex buffer.
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(ezTestShaderData);
+    desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+    desc.m_ResourceAccess.m_bImmutable = false;
+
+    ezHybridArray<ezTestShaderData, 16> instanceData;
+    ezRendererTestUtils::FillStructuredBuffer(instanceData);
+    m_hInstancingDataCustomVertexStream = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
+
+    ezVertexStreamInfo& color = m_CustomVertexStreams.ExpandAndGetRef();
+    color.m_Format = ezGALResourceFormat::XYZWFloat;
+    color.m_uiVertexBufferSlot = 5;
+    color.m_Semantic = ezGALVertexAttributeSemantic::Color4;
+    color.m_uiElementSize = sizeof(ezVec4);
+    color.m_uiOffset = sizeof(ezVec4) * 0;
+
+    ezVertexStreamInfo& r0 = m_CustomVertexStreams.ExpandAndGetRef();
+    r0.m_Format = ezGALResourceFormat::XYZWFloat;
+    r0.m_uiVertexBufferSlot = 5;
+    r0.m_Semantic = ezGALVertexAttributeSemantic::Color5;
+    r0.m_uiElementSize = sizeof(ezVec4);
+    r0.m_uiOffset = sizeof(ezVec4) * 1;
+
+    ezVertexStreamInfo& r1 = m_CustomVertexStreams.ExpandAndGetRef();
+    r1.m_Format = ezGALResourceFormat::XYZWFloat;
+    r1.m_uiVertexBufferSlot = 5;
+    r1.m_Semantic = ezGALVertexAttributeSemantic::Color6;
+    r1.m_uiElementSize = sizeof(ezVec4);
+    r1.m_uiOffset = sizeof(ezVec4) * 2;
+
+    ezVertexStreamInfo& r2 = m_CustomVertexStreams.ExpandAndGetRef();
+    r2.m_Format = ezGALResourceFormat::XYZWFloat;
+    r2.m_uiVertexBufferSlot = 5;
+    r2.m_Semantic = ezGALVertexAttributeSemantic::Color7;
+    r2.m_uiElementSize = sizeof(ezVec4);
+    r2.m_uiOffset = sizeof(ezVec4) * 3;
   }
 
   {
@@ -244,6 +289,10 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_Timestamps:
     case SubTests::ST_OcclusionQueries:
       break;
+    case SubTests::ST_CustomVertexStreams:
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::CustomVertexStreams_Offsets);
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -262,6 +311,7 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hConstantBufferShader.Invalidate();
   m_hPushConstantsShader.Invalidate();
   m_hInstancingShader.Invalidate();
+  m_hCustomVertexStreamShader.Invalidate();
 
   m_hTestPerFrameConstantBuffer.Invalidate();
   m_hTestColorsConstantBuffer.Invalidate();
@@ -279,6 +329,13 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   }
   m_hInstancingDataView_8_4.Invalidate();
   m_hInstancingDataView_12_4.Invalidate();
+
+  if (!m_hInstancingDataCustomVertexStream.IsInvalidated())
+  {
+    m_pDevice->DestroyBuffer(m_hInstancingDataCustomVertexStream);
+    m_hInstancingDataCustomVertexStream.Invalidate();
+  }
+  m_CustomVertexStreams.Clear();
 
   if (!m_hTexture2D.IsInvalidated())
   {
@@ -368,6 +425,9 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
       return res;
     }
     break;
+    case SubTests::ST_CustomVertexStreams:
+      CustomVertexStreams();
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -882,6 +942,44 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
   }
 
   return ezTestAppRun::Continue;
+}
+
+void ezRendererTestPipelineStates::CustomVertexStreams()
+{
+  BeginCommands("InstancingTest");
+  {
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+
+    ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+    {
+      pContext->BindShader(m_hCustomVertexStreamShader);
+      pContext->BindMeshBuffer(m_hTriangleMesh);
+      pContext->SetCustomVertexStreams(m_CustomVertexStreams);
+
+      if (m_iFrame <= ImageCaptureFrames::DefaultCapture)
+      {
+        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
+        pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
+      }
+      else if (m_iFrame >= ImageCaptureFrames::CustomVertexStreams_Offsets)
+      {
+        // Render the same image but this time using two draw calls with offsets.
+        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 0);
+        pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
+        pContext->BindVertexBuffer(m_hInstancingDataCustomVertexStream, 5, ezGALVertexBindingRate::Instance, 4 * sizeof(ezTestShaderData));
+        pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
+      }
+
+      // Make sure to reset once no longer in use, or it will mess with subsequent rendering.
+      pContext->SetCustomVertexStreams({});
+    }
+  }
+  EndRendering();
+  if (m_ImgCompFrames.Contains(m_iFrame))
+  {
+    EZ_TEST_IMAGE(m_iFrame, 100);
+  }
+  EndCommands();
 }
 
 static ezRendererTestPipelineStates g_PipelineStatesTest;

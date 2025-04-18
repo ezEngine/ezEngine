@@ -25,7 +25,7 @@ struct EZ_RENDERERCORE_DLL ezVertexDeclarationInfo
   void ComputeHash();
 
   ezHybridArray<ezVertexStreamInfo, 8> m_VertexStreams;
-  ezUInt32 m_uiHash;
+  ezUInt32 m_uiHash = 0;
 };
 
 

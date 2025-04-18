@@ -27,6 +27,7 @@ public:
     return static_cast<typename T::MaskType>(value);
   }
 
+  static vk::VertexInputRate GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate);
   static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);
   static vk::PresentModeKHR GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes);
   static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& desc);

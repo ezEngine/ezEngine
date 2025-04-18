@@ -971,22 +971,16 @@ void ezGALCommandEncoderImplVulkan::SetIndexBufferPlatform(const ezGALBuffer* pI
   }
 }
 
-void ezGALCommandEncoderImplVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer)
+void ezGALCommandEncoderImplVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset)
 {
   EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
   vk::Buffer buffer = pVertexBuffer != nullptr ? static_cast<const ezGALBufferVulkan*>(pVertexBuffer)->GetVkBuffer() : nullptr;
-  ezUInt32 stride = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
 
-  if (buffer != m_pBoundVertexBuffers[uiSlot])
+  if (buffer != m_pBoundVertexBuffers[uiSlot] || uiOffset != m_VertexBufferOffsets[uiSlot])
   {
     m_pBoundVertexBuffers[uiSlot] = buffer;
+    m_VertexBufferOffsets[uiSlot] = uiOffset;
     m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
-
-    if (m_PipelineDesc.m_VertexBufferStrides[uiSlot] != stride)
-    {
-      m_PipelineDesc.m_VertexBufferStrides[uiSlot] = stride;
-      m_bPipelineStateDirty = true;
-    }
   }
 }
 

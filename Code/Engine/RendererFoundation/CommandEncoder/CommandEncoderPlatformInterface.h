@@ -91,7 +91,7 @@ public:
   // State functions
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
-  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) = 0;
+  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) = 0;
   virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) = 0;
   virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology) = 0;
 

@@ -20,6 +20,8 @@ static const char* GALSemanticToDX11[] = {"POSITION", "NORMAL", "TANGENT", "COLO
 
 static UINT GALSemanticToIndexDX11[] = {0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 1, 0, 1};
 
+static D3D11_INPUT_CLASSIFICATION GalInputRateToDX11[] = {D3D11_INPUT_PER_VERTEX_DATA, D3D11_INPUT_PER_INSTANCE_DATA};
+
 static_assert(EZ_ARRAY_SIZE(GALSemanticToDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
   "GALSemanticToDX11 array size does not match vertex attribute semantic count");
 static_assert(EZ_ARRAY_SIZE(GALSemanticToIndexDX11) == ezGALVertexAttributeSemantic::ENUM_COUNT,
@@ -55,15 +57,22 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
       return EZ_FAILURE;
     }
 
+    const ezGALVertexBinding& binding = m_Description.m_VertexBindings[Current.m_uiVertexBufferSlot];
+
     DXDesc.InputSlot = Current.m_uiVertexBufferSlot;
-    DXDesc.InputSlotClass = /*Current.m_bInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA :*/ D3D11_INPUT_PER_VERTEX_DATA;
-    DXDesc.InstanceDataStepRate = /*Current.m_bInstanceData ? 1 :*/ 0; /// \todo Expose step rate?
+    DXDesc.InputSlotClass = GalInputRateToDX11[binding.m_Rate.GetValue()];
+    DXDesc.InstanceDataStepRate = binding.m_Rate == ezGALVertexBindingRate::Vertex ? 0 : 1;
     DXDesc.SemanticIndex = GALSemanticToIndexDX11[Current.m_eSemantic];
     DXDesc.SemanticName = GALSemanticToDX11[Current.m_eSemantic];
 
     DXInputElementDescs.PushBack(DXDesc);
   }
 
+  m_VertexBufferStrides.SetCount(m_Description.m_VertexBindings.GetCount());
+  for (ezUInt32 i = 0; i < m_Description.m_VertexBindings.GetCount(); i++)
+  {
+    m_VertexBufferStrides[i] = m_Description.m_VertexBindings[i].m_uiStride;
+  }
 
   const ezSharedPtr<const ezGALShaderByteCode>& pByteCode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
 

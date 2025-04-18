@@ -688,19 +688,34 @@ void ezGALCommandEncoderImplDX11::SetIndexBufferPlatform(const ezGALBuffer* pInd
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer)
+void ezGALCommandEncoderImplDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset)
 {
   EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
 
   m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<const ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
-  m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
+  m_VertexBufferOffsets[uiSlot] = uiOffset;
   m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
 
 void ezGALCommandEncoderImplDX11::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
 {
-  m_pDXContext->IASetInputLayout(
-    pVertexDeclaration != nullptr ? static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
+  ezMemoryUtils::ZeroFill(m_VertexBufferStrides, EZ_ARRAY_SIZE(m_VertexBufferStrides));
+  auto pVertexDeclarationDX11 = static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration);
+  if (pVertexDeclaration)
+  {
+    ezArrayPtr<const ezUInt32> strides = pVertexDeclarationDX11->GetVertexBufferStrides();
+    if (!strides.IsEmpty())
+    {
+      m_BoundVertexBuffersRange.SetToIncludeValue(0);
+      m_BoundVertexBuffersRange.SetToIncludeValue(strides.GetCount() - 1);
+    }
+    ezMemoryUtils::Copy(m_VertexBufferStrides, strides.GetPtr(), strides.GetCount());
+    m_pDXContext->IASetInputLayout(pVertexDeclarationDX11->GetDXInputLayout());
+  }
+  else
+  {
+    m_pDXContext->IASetInputLayout(nullptr);
+  }
 }
 
 static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[] = {

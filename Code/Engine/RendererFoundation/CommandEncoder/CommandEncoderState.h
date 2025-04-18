@@ -11,6 +11,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderState final
   void InvalidateState();
   ezGALShaderHandle m_hShader;
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  ezUInt32 m_hVertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
   ezGALBufferHandle m_hIndexBuffer;
 
   ezGALVertexDeclarationHandle m_hVertexDeclaration;

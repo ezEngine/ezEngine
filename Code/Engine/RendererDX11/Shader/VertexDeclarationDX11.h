@@ -11,6 +11,7 @@ class ezGALVertexDeclarationDX11 : public ezGALVertexDeclaration
 {
 public:
   EZ_ALWAYS_INLINE ID3D11InputLayout* GetDXInputLayout() const;
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezUInt32> GetVertexBufferStrides() const;
 
 protected:
   friend class ezGALDeviceDX11;
@@ -25,6 +26,7 @@ protected:
   virtual ~ezGALVertexDeclarationDX11();
 
   ID3D11InputLayout* m_pDXInputLayout = nullptr;
+  ezHybridArray<ezUInt32, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBufferStrides;
 };
 
 #include <RendererDX11/Shader/Implementation/VertexDeclarationDX11_inl.h>

@@ -5,6 +5,7 @@
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Strings/String.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
@@ -185,6 +186,8 @@ public:
   {
     BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
   }
+  void BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32 uiSlot, ezEnum<ezGALVertexBindingRate> rate = ezGALVertexBindingRate::Vertex, ezUInt32 uiOffset = 0);
+  void SetCustomVertexStreams(ezArrayPtr<ezVertexStreamInfo> customStreams);
 
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
@@ -296,7 +299,11 @@ private:
 
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
-  ezGALBufferHandle m_hVertexBuffers[4];
+  ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  ezEnum<ezGALVertexBindingRate> m_VertexBufferBindingRates[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  ezVertexDeclarationInfo m_CustomVertexStreams;
   ezGALBufferHandle m_hIndexBuffer;
   const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
   ezGALPrimitiveTopology::Enum m_Topology;
@@ -359,7 +366,7 @@ private:
     }
   };
 
-  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
+  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, const ezVertexDeclarationInfo& decl, const ezVertexDeclarationInfo& customVertexDecl, ezGALVertexDeclarationHandle& out_Declaration);
 
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 

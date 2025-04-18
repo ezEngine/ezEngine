@@ -417,20 +417,10 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   ezLog::Info("Creating Graphics Pipeline #{}", s_graphicsPipelines.GetCount());
 #endif // EZ_LOG_VULKAN_RESOURCES
 
-  vk::PipelineVertexInputStateCreateInfo vertex_input;
+  vk::PipelineVertexInputStateCreateInfo dummy;
+  const vk::PipelineVertexInputStateCreateInfo* pVertexCreateInfo = nullptr;
   ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings;
-  if (desc.m_pCurrentVertexDecl)
-  {
-    bindings = desc.m_pCurrentVertexDecl->GetBindings();
-    for (ezUInt32 i = 0; i < bindings.GetCount(); i++)
-    {
-      bindings[i].stride = desc.m_VertexBufferStrides[bindings[i].binding];
-    }
-    vertex_input.vertexAttributeDescriptionCount = desc.m_pCurrentVertexDecl->GetAttributes().GetCount();
-    vertex_input.pVertexAttributeDescriptions = desc.m_pCurrentVertexDecl->GetAttributes().GetPtr();
-    vertex_input.vertexBindingDescriptionCount = bindings.GetCount();
-    vertex_input.pVertexBindingDescriptions = bindings.GetData();
-  }
+  pVertexCreateInfo = desc.m_pCurrentVertexDecl ? &desc.m_pCurrentVertexDecl->GetCreateInfo() : &dummy;
 
   vk::PipelineInputAssemblyStateCreateInfo input_assembly;
   input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(desc.m_topology);
@@ -497,7 +487,7 @@ vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipeli
   pipe.layout = desc.m_layout;
   pipe.stageCount = shader_stages.GetCount();
   pipe.pStages = shader_stages.GetData();
-  pipe.pVertexInputState = &vertex_input;
+  pipe.pVertexInputState = pVertexCreateInfo;
   pipe.pInputAssemblyState = &input_assembly;
   pipe.pRasterizationState = raster;
   pipe.pColorBlendState = &blend;
@@ -722,12 +712,6 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Less(const GraphicsPipelineDesc& 
   LESS_CHECK(m_pCurrentDepthStencilState);
   LESS_CHECK(m_pCurrentShader);
   LESS_CHECK(m_pCurrentVertexDecl);
-
-  for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
-  {
-    if (a.m_VertexBufferStrides[i] != b.m_VertexBufferStrides[i])
-      return a.m_VertexBufferStrides[i] < b.m_VertexBufferStrides[i];
-  }
   return false;
 
 #undef LESS_CHECK
@@ -793,7 +777,6 @@ ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDe
   writer << desc.m_pCurrentDepthStencilState;
   writer << desc.m_pCurrentShader;
   writer << desc.m_pCurrentVertexDecl;
-  writer.WriteArray(desc.m_VertexBufferStrides).IgnoreResult();
   return writer.GetHashValue();
 }
 
@@ -809,7 +792,7 @@ bool ArraysEqual(const ezUInt32 (&a)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT], const ezUI
 
 bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
 {
-  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_msaa == b.m_msaa && a.m_uiAttachmentCount == b.m_uiAttachmentCount && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl && ArraysEqual(a.m_VertexBufferStrides, b.m_VertexBufferStrides);
+  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_msaa == b.m_msaa && a.m_uiAttachmentCount == b.m_uiAttachmentCount && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl;
 }
 
 bool ezResourceCacheVulkan::ResourceCacheHash::Less(const ComputePipelineDesc& a, const ComputePipelineDesc& b)

@@ -49,7 +49,6 @@ public:
     const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState = nullptr;
     const ezGALShaderVulkan* m_pCurrentShader = nullptr;
     const ezGALVertexDeclarationVulkan* m_pCurrentVertexDecl = nullptr;
-    ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
   };
 
   struct ComputePipelineDesc
