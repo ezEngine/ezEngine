@@ -4,6 +4,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
+#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
@@ -54,6 +55,18 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   colors[ezAssetInfo::TransformState::CircularDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
   colors[ezAssetInfo::TransformState::TransformError] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
 
+  const ezUInt32 uiProblems = sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] + sections[ezAssetInfo::TransformState::MissingPackageDependency] + sections[ezAssetInfo::TransformState::TransformError] + sections[ezAssetInfo::TransformState::CircularDependency];
+
+  if (uiProblems > 0)
+  {
+    for (auto& col : colors)
+    {
+      col.setRed(255);
+      col.setGreen(ezMath::Min(50, col.green()));
+      col.setBlue(ezMath::Min(50, col.blue()));
+    }
+  }
+
   const float fTotalCount = uiNumAssets;
   const ezInt32 iTargetWidth = rect.width();
   ezInt32 iCurrentCount = 0;
@@ -74,10 +87,25 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.SetFormat("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail], sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] + sections[ezAssetInfo::TransformState::MissingPackageDependency] + sections[ezAssetInfo::TransformState::TransformError] + sections[ezAssetInfo::TransformState::CircularDependency], sections[ezAssetInfo::TransformState::NeedsImport]);
+
+  if (uiProblems > 0)
+  {
+    s.SetFormat("{} Problems (click)", uiProblems);
+  }
+  else
+  {
+    s = "Asset Status";
+  }
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
+}
+
+void ezQtCuratorControl::mouseReleaseEvent(QMouseEvent* e)
+{
+  QWidget::mouseReleaseEvent(e);
+
+  ezQtAssetCuratorPanel::GetSingleton()->EnsureVisible();
 }
 
 void ezQtCuratorControl::UpdateBackgroundProcessState()
