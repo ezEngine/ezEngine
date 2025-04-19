@@ -244,14 +244,18 @@ void ezAngelScriptAssetDocument::OpenExternalEditor()
 {
   ezStringBuilder sScriptFile(GetProperties()->m_sScriptFile);
 
-  if (GetProperties()->m_sScriptFile.IsEmpty())
+  if (GetProperties()->m_CodeMode != ezAngelScriptCodeMode::FromFile)
   {
-    ShowDocumentStatus("No script file specified.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("The source for this asset is 'inline'. To be able to view it in an external program, it has to be moved into a dedicated file.");
+
+    ShowDocumentStatus("Can't open script file, source code is 'inline'.");
     return;
   }
 
   if (!ezFileSystem::ExistsFile(sScriptFile))
   {
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Can't find the file '{}'.\nTo create a script file click the button next to 'SourceFile'.", sScriptFile));
+
     ShowDocumentStatus("Script file doesn't exist.");
     return;
   }
