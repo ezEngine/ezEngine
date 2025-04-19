@@ -43,12 +43,12 @@ namespace
     return 0;
   }
 
-  void ConvertVertexStreamInfo(const ezVertexStreamInfo& stream, ezGALVertexAttribute& gal)
+  void ConvertVertexStreamInfo(const ezVertexStreamInfo& stream, ezGALVertexAttribute& out_gal)
   {
-    gal.m_eFormat = stream.m_Format;
-    gal.m_eSemantic = stream.m_Semantic;
-    gal.m_uiOffset = stream.m_uiOffset;
-    gal.m_uiVertexBufferSlot = stream.m_uiVertexBufferSlot;
+    out_gal.m_eFormat = stream.m_Format;
+    out_gal.m_eSemantic = stream.m_Semantic;
+    out_gal.m_uiOffset = stream.m_uiOffset;
+    out_gal.m_uiVertexBufferSlot = stream.m_uiVertexBufferSlot;
   }
 } // namespace
 
