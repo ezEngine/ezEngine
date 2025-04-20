@@ -63,8 +63,7 @@ void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
 
   if (bDocument)
   {
-    pMap->MapAction(s_hAssetHelp, "AssetCategory", 1.0f);
-    pMap->MapAction(s_hTransformAsset, "AssetCategory", 2.0f);
+    pMap->MapAction(s_hTransformAsset, "AssetCategory", 1.0f);
   }
   else
   {

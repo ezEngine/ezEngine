@@ -21,6 +21,14 @@ ezQtAssetStatusIndicator::ezQtAssetStatusIndicator(ezAssetDocument* pDoc, QWidge
 
   layout()->addWidget(m_pLabel);
 
+  m_pHelp = new QPushButton();
+  connect(m_pHelp, &QPushButton::clicked, this, &ezQtAssetStatusIndicator::onHelp);
+  m_pHelp->setFlat(true);
+  m_pHelp->setIcon(QIcon(":/GuiFoundation/Icons/Help.svg"));
+  m_pHelp->setMaximumWidth(32);
+  m_pHelp->setToolTip(ezMakeQString(ezTranslateTooltip("Asset.Help")));
+  layout()->addWidget(m_pHelp);
+
   m_pAsset->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::DocumentEventHandler, this));
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetStatusIndicator::AssetEventHandler, this));
 
@@ -229,5 +237,16 @@ void ezQtAssetStatusIndicator::onClick(bool)
 
       break;
     }
+  }
+}
+
+void ezQtAssetStatusIndicator::onHelp(bool)
+{
+  ezStringView sType = m_pAsset->GetDocumentTypeName();
+  ezString sURL = ezTranslateHelpURL(sType);
+
+  if (!sURL.IsEmpty())
+  {
+    QDesktopServices::openUrl(QUrl(ezMakeQString(sURL)));
   }
 }
