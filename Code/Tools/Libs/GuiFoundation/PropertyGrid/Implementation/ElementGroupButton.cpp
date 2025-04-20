@@ -25,7 +25,7 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
       setToolTip("Remove this element.");
       break;
     case ezQtElementGroupButton::ElementAction::Help:
-      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Log.svg")));
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Help-BW.svg")));
       setToolTip("Open the online help for this.");
       break;
   }

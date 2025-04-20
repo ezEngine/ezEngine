@@ -96,7 +96,7 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
       SetIconPath(":/EditorFramework/Icons/CheckFileSystem.svg");
       break;
     case ezAssetAction::ButtonType::AssetHelp:
-      SetIconPath(":/GuiFoundation/Icons/Log.svg");
+      SetIconPath(":/GuiFoundation/Icons/Help.svg");
       SetEnabled(!ezTranslateHelpURL(context.m_pDocument->GetDocumentTypeName()).IsEmpty());
       break;
     case ezAssetAction::ButtonType::WriteDependencyDGML:

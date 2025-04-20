@@ -25,7 +25,7 @@
     <file>Icons/Project.svg</file>
     <file>Icons/ProjectAdd.svg</file>
     <file>Icons/ProjectClose.svg</file>
-  <file>Icons/Save.svg</file>
+    <file>Icons/Save.svg</file>
     <file>Icons/SaveAll.svg</file>
     <file>Icons/Settings.svg</file>
     <file>Icons/Undo.svg</file>
@@ -44,7 +44,7 @@
     <file>Icons/Flag_Red.svg</file>
     <file>Icons/Flag_Yellow.svg</file>
     <file>Icons/Log.svg</file>
-  <file>Icons/Background.svg</file>
+    <file>Icons/Background.svg</file>
     <file>Icons/ControlPlay.svg</file>
     <file>Icons/ControlPause.svg</file>
     <file>Icons/ControlStop.svg</file>
@@ -61,5 +61,7 @@
     <file>Icons/Warning.svg</file>
     <file>Icons/Error.svg</file>
     <file>Icons/Clear.svg</file>
+    <file>Icons/Help.svg</file>
+    <file>Icons/Help-BW.svg</file>
   </qresource>
 </RCC>

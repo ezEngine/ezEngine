@@ -464,7 +464,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
       break;
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
-      SetIconPath(":/GuiFoundation/Icons/Log.svg");
+      SetIconPath(":/GuiFoundation/Icons/Help-BW.svg");
       break;
     case ezProjectAction::ButtonType::ClearAssetCaches:
       // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
