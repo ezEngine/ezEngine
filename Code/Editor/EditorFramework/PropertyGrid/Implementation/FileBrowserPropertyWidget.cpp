@@ -193,8 +193,25 @@ void ezQtFilePropertyWidget::OnCreateFile()
 
   if (!ezOSFile::ExistsFile(sPath))
   {
-    ezOSFile file;
-    file.Open(sPath, ezFileOpenMode::Write).IgnoreResult();
+    ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
+    sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());
+
+    bool bCreate = true;
+
+    ezStringBuilder sAbs;
+    if (ezFileSystem::ResolvePath(sTemplateDoc, &sAbs, nullptr).Succeeded())
+    {
+      if (ezOSFile::CopyFile(sAbs, sPath).Succeeded())
+      {
+        bCreate = false;
+      }
+    }
+
+    if (bCreate)
+    {
+      ezOSFile file;
+      file.Open(sPath, ezFileOpenMode::Write).IgnoreResult();
+    }
   }
 
   if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
