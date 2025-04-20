@@ -72,7 +72,7 @@ void ezComputeShaderHistogramApp::Run()
     // Draw background.
     {
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hScreenRTV);
+      renderingSetup.SetColorTarget(0, m_hScreenRTV);
       renderContext.BeginRendering(renderingSetup, viewport, "Background");
 
       renderContext.BindShader(m_hScreenShader);
@@ -90,7 +90,7 @@ void ezComputeShaderHistogramApp::Run()
     // Switch to backbuffer (so that the screen texture is no longer bound)
     {
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
+      renderingSetup.SetColorTarget(0, hBackbufferRTV);
       renderContext.BeginRendering(renderingSetup, viewport, "Dummy");
       renderContext.EndRendering();
     }
@@ -113,7 +113,7 @@ void ezComputeShaderHistogramApp::Run()
     // Draw histogram.
     {
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
+      renderingSetup.SetColorTarget(0, hBackbufferRTV);
       renderContext.BeginRendering(renderingSetup, viewport, "DrawHistogram");
 
       renderContext.BindShader(m_hHistogramDisplayShader);

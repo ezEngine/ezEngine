@@ -27,6 +27,8 @@ public:
     return static_cast<typename T::MaskType>(value);
   }
 
+  static vk::AttachmentLoadOp GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op);
+  static vk::AttachmentStoreOp GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op);
   static vk::VertexInputRate GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate);
   static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);
   static vk::PresentModeKHR GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes);

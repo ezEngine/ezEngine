@@ -205,14 +205,14 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       ezShaderResourceHandle shader;
       if (bIsDepthTexture)
       {
-        renderingSetup.m_bDiscardDepth = true;
-        renderingSetup.m_bClearDepth = true;
-        renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetClearDepth().SetClearStencil();
         shader = m_hUVColorDepthShader;
       }
       else
       {
-        renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
         if (bIsIntTexture)
         {
           shader = bIsSigned ? m_hUVColorIntShader : m_hUVColorUIntShader;
@@ -222,8 +222,6 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
           shader = m_hUVColorShader;
         }
       }
-      renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-      renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
       ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
       ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);

@@ -176,9 +176,8 @@ public:
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
-      renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-      renderingSetup.m_bClearDepth = true;
+      renderingSetup.SetColorTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+      renderingSetup.SetClearColor(0).SetClearDepth();
 
       ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
 

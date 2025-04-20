@@ -87,14 +87,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup = m_RenderTargetSetup;
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_bClearDepth = true;
-  renderingSetup.m_bClearStencil = true;
-
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, m_RenderTargetSetup, GetName());
 
     ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
     if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
@@ -235,7 +229,9 @@ void ezPickingRenderPass::CreateTarget()
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 
-  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
+  m_RenderTargetSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
+  m_RenderTargetSetup.SetClearColor(0);
+  m_RenderTargetSetup.SetClearDepth().SetClearStencil();
 }
 
 void ezPickingRenderPass::DestroyTarget()

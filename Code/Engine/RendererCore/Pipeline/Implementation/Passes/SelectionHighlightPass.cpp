@@ -96,9 +96,8 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
-    renderingSetup.m_bClearDepth = true;
-    renderingSetup.m_bClearStencil = true;
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
+    renderingSetup.SetClearDepth().SetClearStencil();
 
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
@@ -114,7 +113,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     constants->OverlayOpacity = m_fOverlayOpacity;
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 

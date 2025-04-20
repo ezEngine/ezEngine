@@ -154,7 +154,7 @@ private:
 
   ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT] = {};
 
-  ezGALRenderTargetSetup m_RenderTargetSetup;
+  ezGALRenderingSetup m_RenderTargetSetup;
   ID3D11RenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
   ezUInt32 m_uiBoundRenderTargetCount = 0;
   ID3D11DepthStencilView* m_pBoundDepthStencilTarget = nullptr;

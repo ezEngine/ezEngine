@@ -6,6 +6,9 @@
 
 class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALResource<ezGALTextureCreationDescription>
 {
+public:
+  ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
+
 protected:
   friend class ezGALDevice;
 

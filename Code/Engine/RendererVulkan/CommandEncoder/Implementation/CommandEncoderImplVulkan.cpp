@@ -25,6 +25,27 @@
 
 #include <Foundation/Profiling/Profiling.h>
 
+namespace
+{
+  bool UsesClearOp(const ezGALRenderingSetup& renderingSetup)
+  {
+    if (renderingSetup.HasDepthStencilTarget())
+    {
+      if (renderingSetup.GetRenderPass().m_DepthLoadOp == ezGALRenderTargetLoadOp::Clear || renderingSetup.GetRenderPass().m_StencilLoadOp == ezGALRenderTargetLoadOp::Clear)
+        return true;
+    }
+
+    const ezUInt32 uiRTs = renderingSetup.GetRenderPass().m_uiRTCount;
+    for (ezUInt32 i = 0; i < uiRTs; ++i)
+    {
+      if (renderingSetup.GetRenderPass().m_ColorLoadOp[i] == ezGALRenderTargetLoadOp::Clear)
+        return true;
+    }
+
+    return false;
+  }
+}
+
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
   : m_GALDeviceVulkan(device)
 {
@@ -50,7 +71,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_BoundVertexBuffersRange.Reset();
 
   m_LayoutDesc = {};
-  m_PipelineDesc = {};
+  m_PipelineDesc = ezResourceCacheVulkan::GraphicsPipelineDesc();
   m_frameBuffer = nullptr;
 
   m_viewport = vk::Viewport();
@@ -751,7 +772,7 @@ void ezGALCommandEncoderImplVulkan::PushMarkerPlatform(const char* szMarker)
 {
   if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
   {
-    constexpr float markerColor[4] = {1, 1, 1, 1};
+    constexpr float markerColor[4] = {0, 0, 0, 0};
     vk::DebugUtilsLabelEXT markerInfo = {};
     ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
     markerInfo.pLabelName = szMarker;
@@ -789,11 +810,11 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   // We have to ensure we have enough queries before entering the render pass as we can't replenish pools while within.
   m_GALDeviceVulkan.GetQueryPool().EnsureFreeQueryPoolSize(*m_pCommandBuffer);
 
-  m_PipelineDesc.m_renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup);
-  m_PipelineDesc.m_uiAttachmentCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
-  ezSizeU32 size;
-  m_frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_PipelineDesc.m_renderPass, renderingSetup.m_RenderTargetSetup, size, m_PipelineDesc.m_msaa, m_uiLayers);
-
+  m_PipelineDesc.m_renderPassDesc = renderingSetup.GetRenderPass();
+  m_PipelineDesc.m_renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
+  m_frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_PipelineDesc.m_renderPass, renderingSetup.GetFrameBuffer());
+  m_uiLayers = renderingSetup.GetFrameBuffer().m_uiSliceCount;
+  ezSizeU32 size = renderingSetup.GetFrameBuffer().m_Size;
   SetScissorRectPlatform(ezRectU32(size.width, size.height));
 
   {
@@ -804,26 +825,26 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
 
     m_clearValues.Clear();
 
-    const bool m_bHasDepth = !renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget().IsInvalidated();
-    const ezUInt32 uiColorCount = renderingSetup.m_RenderTargetSetup.GetRenderTargetCount();
-    m_bClearSubmitted = !(renderingSetup.m_bClearDepth || renderingSetup.m_bClearStencil || renderingSetup.m_uiRenderTargetClearMask);
+    const bool m_bHasDepth = renderingSetup.HasDepthStencilTarget();
+    const ezUInt32 uiColorCount = renderingSetup.GetColorTargetCount();
+    m_bClearSubmitted = !UsesClearOp(renderingSetup);
 
     if (m_bHasDepth)
     {
       vk::ClearValue& depthClear = m_clearValues.ExpandAndGetRef();
-      depthClear.depthStencil.setDepth(1.0f).setStencil(0);
+      depthClear.depthStencil.setDepth(renderingSetup.GetClearDepth()).setStencil(renderingSetup.GetClearStencil());
 
-      const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget()));
+      const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.GetFrameBuffer().m_hDepthTarget));
       m_depthMask = pRenderTargetView->GetRange().aspectMask;
       m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead);
     }
     for (ezUInt32 i = 0; i < uiColorCount; i++)
     {
       vk::ClearValue& colorClear = m_clearValues.ExpandAndGetRef();
-      ezColor col = renderingSetup.m_ClearColor;
+      ezColor col = renderingSetup.GetClearColor(i);
       colorClear.color.setFloat32({col.r, col.g, col.b, col.a});
 
-      const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.m_RenderTargetSetup.GetRenderTarget(i)));
+      const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.GetFrameBuffer().m_hColorTarget[i]));
       m_pPipelineBarrier->EnsureImageLayout(pRenderTargetView, vk::ImageLayout::eColorAttachmentOptimal, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead);
     }
 
@@ -854,7 +875,7 @@ void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
 
   m_depthMask = {};
   m_uiLayers = 0;
-  m_PipelineDesc.m_msaa = ezGALMSAASampleCount::None;
+  m_PipelineDesc.m_renderPassDesc = ezGALRenderPassDescriptor();
   m_PipelineDesc.m_renderPass = nullptr;
   m_frameBuffer = nullptr;
 }
@@ -880,7 +901,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
   {
     for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
     {
-      if (uiRenderTargetClearMask & (1u << i) && i < m_PipelineDesc.m_uiAttachmentCount)
+      if (uiRenderTargetClearMask & (1u << i) && i < m_PipelineDesc.m_renderPassDesc.m_uiRTCount)
       {
         vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
         attachment.aspectMask = vk::ImageAspectFlagBits::eColor;

@@ -100,9 +100,8 @@ void ezOffscreenRendererTest::Run()
 
     ezGALRenderingSetup renderingSetup;
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-    renderingSetup.m_ClearColor = ezColor::Pink;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, hBackbufferRTV);
+    renderingSetup.SetClearColor(0, ezColor::Pink);
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
     ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);

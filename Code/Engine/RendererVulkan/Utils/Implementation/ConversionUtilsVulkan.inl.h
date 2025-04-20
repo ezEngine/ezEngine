@@ -1,6 +1,36 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
+EZ_ALWAYS_INLINE vk::AttachmentLoadOp ezConversionUtilsVulkan::GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op)
+{
+  switch (op)
+  {
+    case ezGALRenderTargetLoadOp::Load:
+      return vk::AttachmentLoadOp::eLoad;
+    case ezGALRenderTargetLoadOp::Clear:
+      return vk::AttachmentLoadOp::eClear;
+    case ezGALRenderTargetLoadOp::DontCare:
+      return vk::AttachmentLoadOp::eDontCare;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::AttachmentLoadOp::eLoad;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::AttachmentStoreOp ezConversionUtilsVulkan::GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op)
+{
+  switch (op)
+  {
+    case ezGALRenderTargetStoreOp::Store:
+      return vk::AttachmentStoreOp::eStore;
+    case ezGALRenderTargetStoreOp::Discard:
+      return vk::AttachmentStoreOp::eDontCare;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::AttachmentStoreOp::eStore;
+  }
+}
+
 EZ_ALWAYS_INLINE vk::VertexInputRate ezConversionUtilsVulkan::GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate)
 {
   switch (rate)

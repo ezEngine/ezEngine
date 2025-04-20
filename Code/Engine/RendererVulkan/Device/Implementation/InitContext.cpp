@@ -45,6 +45,10 @@ vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
   {
     m_pStagingBufferPool->BeforeCommandBufferSubmit();
     m_pPipelineBarrier->Submit();
+    if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
+    {
+      m_currentCommandBuffer.endDebugUtilsLabelEXT();
+    }
     vk::CommandBuffer res = m_currentCommandBuffer;
     res.end();
 
@@ -63,6 +67,15 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
     vk::CommandBufferBeginInfo beginInfo;
     m_currentCommandBuffer.begin(&beginInfo);
     m_pPipelineBarrier->SetCommandBuffer(&m_currentCommandBuffer);
+    if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
+    {
+      constexpr float markerColor[4] = {0, 0, 0, 0};
+      vk::DebugUtilsLabelEXT markerInfo = {};
+      ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+      markerInfo.pLabelName = "InitContext";
+
+      m_currentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo);
+    }
   }
 }
 

@@ -487,20 +487,20 @@ void ezGALCommandEncoderImplDX11::InsertEventMarkerPlatform(const char* szMarker
 
 void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup)
 {
-  if (m_RenderTargetSetup != renderingSetup.m_RenderTargetSetup)
+  if (m_RenderTargetSetup != renderingSetup)
   {
-    m_RenderTargetSetup = renderingSetup.m_RenderTargetSetup;
+    m_RenderTargetSetup = renderingSetup;
 
     const ezGALRenderTargetView* pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = {nullptr};
     const ezGALRenderTargetView* pDepthStencilView = nullptr;
 
-    const ezUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetRenderTargetCount();
+    const ezUInt32 uiRenderTargetCount = m_RenderTargetSetup.GetColorTargetCount();
 
     bool bFlushNeeded = false;
 
     for (ezUInt8 uiIndex = 0; uiIndex < uiRenderTargetCount; ++uiIndex)
     {
-      const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetRenderTarget(uiIndex));
+      const ezGALRenderTargetView* pRenderTargetView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetFrameBuffer().m_hColorTarget[uiIndex]);
       if (pRenderTargetView != nullptr)
       {
         const ezGALResourceBase* pTexture = pRenderTargetView->GetTexture()->GetParentResource();
@@ -512,13 +512,16 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
       pRenderTargetViews[uiIndex] = pRenderTargetView;
     }
 
-    pDepthStencilView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetDepthStencilTarget());
-    if (pDepthStencilView != nullptr)
+    if (m_RenderTargetSetup.HasDepthStencilTarget())
     {
-      const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
+      pDepthStencilView = m_GALDeviceDX11.GetRenderTargetView(m_RenderTargetSetup.GetFrameBuffer().m_hDepthTarget);
+      if (pDepthStencilView != nullptr)
+      {
+        const ezGALResourceBase* pTexture = pDepthStencilView->GetTexture()->GetParentResource();
 
-      bFlushNeeded |= UnsetResourceViews(pTexture);
-      bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
+        bFlushNeeded |= UnsetResourceViews(pTexture);
+        bFlushNeeded |= UnsetUnorderedAccessViews(pTexture);
+      }
     }
 
     if (bFlushNeeded)
@@ -560,7 +563,23 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
     }
   }
 
-  ClearPlatform(renderingSetup.m_ClearColor, renderingSetup.m_uiRenderTargetClearMask, renderingSetup.m_bClearDepth, renderingSetup.m_bClearStencil, renderingSetup.m_fDepthClear, renderingSetup.m_uiStencilClear);
+  for (ezUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
+  {
+    if (m_RenderTargetSetup.GetRenderPass().m_ColorLoadOp[i] == ezGALRenderTargetLoadOp::Clear && m_pBoundRenderTargets[i])
+    {
+      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], m_RenderTargetSetup.GetClearColor(i).GetData());
+    }
+  }
+
+  bool bClearDepth = m_RenderTargetSetup.GetRenderPass().m_DepthLoadOp == ezGALRenderTargetLoadOp::Clear;
+  bool bClearStencil = m_RenderTargetSetup.GetRenderPass().m_StencilLoadOp == ezGALRenderTargetLoadOp::Clear;
+  if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
+  {
+    ezUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
+    uiClearFlags |= bClearStencil ? D3D11_CLEAR_STENCIL : 0;
+
+    m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, uiClearFlags, m_RenderTargetSetup.GetClearDepth(), m_RenderTargetSetup.GetClearStencil());
+  }
 }
 
 void ezGALCommandEncoderImplDX11::EndRenderingPlatform()
@@ -571,7 +590,7 @@ void ezGALCommandEncoderImplDX11::BeginComputePlatform()
 {
   // We need to unbind all render targets as otherwise using them in a compute shader as input will fail:
   // DEVICE_CSSETSHADERRESOURCES_HAZARD: Resource being set to CS shader resource slot 0 is still bound on output!
-  m_RenderTargetSetup = ezGALRenderTargetSetup();
+  m_RenderTargetSetup = ezGALRenderingSetup();
   m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
 }
 void ezGALCommandEncoderImplDX11::EndComputePlatform()

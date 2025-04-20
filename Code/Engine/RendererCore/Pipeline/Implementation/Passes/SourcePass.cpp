@@ -159,18 +159,15 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
 
   // Setup render target
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_ClearColor = m_ClearColor;
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_bClearDepth = true;
-  renderingSetup.m_bClearStencil = true;
-
   if (ezGALResourceFormat::IsDepthFormat(pOutput->m_Desc.m_Format))
   {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetClearDepth().SetClearStencil();
   }
   else
   {
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetClearColor(0, m_ClearColor);
   }
 
   auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());

@@ -71,9 +71,8 @@ void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
     // Setup render target
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-    renderingSetup.m_uiRenderTargetClearMask = ezInvalidIndex;
-    renderingSetup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f);
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
 
     // Bind render target and viewport
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());

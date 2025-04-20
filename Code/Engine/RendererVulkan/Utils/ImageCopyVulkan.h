@@ -29,19 +29,11 @@ public:
   static void Initialize(ezGALDeviceVulkan& GALDeviceVulkan);
   static void DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan);
 
-  struct RenderPassCacheKey
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    vk::Format targetFormat;
-    vk::SampleCountFlagBits targetSamples;
-  };
-
   struct FramebufferCacheKey
   {
     EZ_DECLARE_POD_TYPE();
 
-    vk::RenderPass m_renderpass;
+    vk::RenderPass m_renderPass;
     vk::ImageView m_targetView;
     ezVec3U32 m_extends;
     uint32_t m_layerCount;
@@ -93,7 +85,6 @@ private:
     ~Cache();
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
-    ezHashTable<RenderPassCacheKey, vk::RenderPass> m_renderPasses;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_sourceImageViews;
     ezHashTable<vk::Image, ImageViewCacheValue> m_imageToSourceImageViewCacheKey;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_targetImageViews;

@@ -110,14 +110,12 @@ ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUIn
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
-    renderingSetup.m_ClearColor = ezColor::CornflowerBlue;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
+    renderingSetup.SetClearColor(0, ezColor::CornflowerBlue);
     if (!m_hDepthStencilTexture.IsInvalidated())
     {
-      renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
-      renderingSetup.m_bClearDepth = true;
-      renderingSetup.m_bClearStencil = true;
+      renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+      renderingSetup.SetClearDepth().SetClearStencil();
     }
     ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 

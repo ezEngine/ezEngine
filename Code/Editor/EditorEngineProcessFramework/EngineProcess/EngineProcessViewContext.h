@@ -10,7 +10,6 @@ class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
-class ezGALRenderTargetSetup;
 class ezActor;
 struct ezGALRenderTargets;
 

@@ -81,10 +81,10 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
   {
     // Setup render target
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
     // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
     globals.NumMsaaSamples = m_MsaaSampleCount;

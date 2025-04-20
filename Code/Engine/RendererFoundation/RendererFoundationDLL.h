@@ -57,7 +57,6 @@ class ezGALReadbackTexture;
 class ezGALDepthStencilState;
 class ezGALBlendState;
 class ezGALRasterizerState;
-class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
 class ezGALSamplerState;
 class ezGALTextureResourceView;
@@ -365,6 +364,31 @@ struct ezGALVertexBindingRate
     Vertex,
     Instance,
     Default = Vertex,
+  };
+};
+
+/// \brief The initial state of a render target when starting to render to it.
+struct ezGALRenderTargetLoadOp
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Load, ///< The previous contents of the render target are preserved when starting to render to it.
+    Clear, ///< The render target is cleared before rendering.
+    DontCare, ///< The contents of the render target is undefined. Use if you intent to render to the entirety of the viewport.
+    Default = Load
+  };
+};
+
+/// \brief The state of a render target after finishing to render to it.
+struct ezGALRenderTargetStoreOp
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Store, ///< The render result is written back to the render target's memory.
+    Discard, ///< The end result is not needed. Use for transient render targets.
+    Default = Store
   };
 };
 

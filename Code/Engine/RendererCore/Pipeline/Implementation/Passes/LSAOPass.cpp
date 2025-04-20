@@ -152,11 +152,11 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     tempTextureDesc.m_bAllowShaderResourceView = true;
     tempTextureDesc.m_bAllowRenderTargetView = true;
     tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
   }
   else
   {
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
   }
 
   // Line Sweep part (compute)
@@ -224,7 +224,8 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.Reset();
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
 
@@ -252,9 +253,8 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_ClearColor = ezColor::White;
+  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  renderingSetup.SetClearColor(0, ezColor::White);
 
   auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
 }

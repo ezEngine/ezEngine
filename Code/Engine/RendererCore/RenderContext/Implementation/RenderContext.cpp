@@ -166,23 +166,7 @@ void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, 
 {
   EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
   m_bRendering = true;
-  ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::None;
-
-  ezGALRenderTargetViewHandle hRTV;
-  if (renderingSetup.m_RenderTargetSetup.GetRenderTargetCount() > 0)
-  {
-    hRTV = renderingSetup.m_RenderTargetSetup.GetRenderTarget(0);
-  }
-  if (hRTV.IsInvalidated())
-  {
-    hRTV = renderingSetup.m_RenderTargetSetup.GetDepthStencilTarget();
-  }
-
-  if (const ezGALRenderTargetView* pRTV = ezGALDevice::GetDefaultDevice()->GetRenderTargetView(hRTV))
-  {
-    msaaSampleCount = pRTV->GetTexture()->GetDescription().m_SampleCount;
-  }
-
+  const ezGALMSAASampleCount::Enum msaaSampleCount = renderingSetup.GetRenderPass().m_Msaa;
   if (msaaSampleCount != ezGALMSAASampleCount::None)
   {
     SetShaderPermutationVariable("MSAA", "TRUE");
@@ -1071,8 +1055,8 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
   {
     iHighestUsedBinding = ezMath::Max(iHighestUsedBinding, static_cast<ezInt32>(customVertexDecl.m_VertexStreams[slot].m_uiVertexBufferSlot));
   }
-  EZ_ASSERT_DEBUG(iHighestUsedBinding < vertexBufferStrides.GetCount(), "Not enough vertex buffer strides");
-  EZ_ASSERT_DEBUG(iHighestUsedBinding < vertexBufferBindingRates.GetCount(), "Not enough vertex buffer binding rates");
+  EZ_ASSERT_DEBUG(iHighestUsedBinding < (ezInt32)vertexBufferStrides.GetCount(), "Not enough vertex buffer strides");
+  EZ_ASSERT_DEBUG(iHighestUsedBinding < (ezInt32)vertexBufferBindingRates.GetCount(), "Not enough vertex buffer binding rates");
 
   ShaderVertexDecl svd;
   {

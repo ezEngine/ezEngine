@@ -512,9 +512,8 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
   BeginCommands("Offscreen");
   {
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2D));
-    renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2D));
+    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
     ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
@@ -557,9 +556,8 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
   BeginCommands("Offscreen");
   {
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_bDiscardDepth = true;
-    renderingSetup.m_bClearDepth = true;
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
+    renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
+    renderingSetup.SetClearDepth();
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
     ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
@@ -609,9 +607,8 @@ void ezRendererTestAdvancedFeatures::ProxyTexture()
   for (ezUInt32 i = 0; i < 2; i++)
   {
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hProxyTexture2D[i]));
-    renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hProxyTexture2D[i]));
+    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
     ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
@@ -656,9 +653,8 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
   BeginCommands("Offscreen Stereo");
   {
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
-    renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DArray));
+    renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
 
     ezRectFloat viewport = ezRectFloat(0, 0, m_pWindow->GetClientAreaSize().width / 2.0f, (float)m_pWindow->GetClientAreaSize().height);
     ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);

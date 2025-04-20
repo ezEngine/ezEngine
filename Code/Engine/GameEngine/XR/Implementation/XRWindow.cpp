@@ -124,7 +124,7 @@ void ezWindowOutputTargetXR::CompanionViewEndFrame()
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hRenderTargetView);
+    renderingSetup.SetColorTarget(0, hRenderTargetView);
 
     m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
 

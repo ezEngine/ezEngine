@@ -1101,8 +1101,8 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Shadow Atlas");
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
-  renderingSetup.m_bClearDepth = true;
+  renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
+  renderingSetup.SetClearDepth();
 
   pCommandEncoder->BeginRendering(renderingSetup);
 

@@ -27,8 +27,8 @@ public:
   static void Initialize(ezGALDeviceVulkan* pDevice, vk::Device device);
   static void DeInitialize();
 
-  static vk::RenderPass RequestRenderPass(const ezGALRenderingSetup& renderingSetup);
-  static vk::Framebuffer RequestFrameBuffer(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, ezSizeU32& out_Size, ezEnum<ezGALMSAASampleCount>& out_msaa, ezUInt32& out_uiLayers);
+  static vk::RenderPass RequestRenderPass(const ezGALRenderPassDescriptor& renderPass);
+  static vk::Framebuffer RequestFrameBuffer(vk::RenderPass vkRenderPass, const ezGALFrameBufferDescriptor& frameBuffer);
 
   struct PipelineLayoutDesc
   {
@@ -39,11 +39,10 @@ public:
   struct GraphicsPipelineDesc
   {
     EZ_DECLARE_POD_TYPE();
-    vk::RenderPass m_renderPass;     // Created from ezGALRenderingSetup
-    vk::PipelineLayout m_layout;     // Created from shader
+    ezGALRenderPassDescriptor m_renderPassDesc;
+    vk::RenderPass m_renderPass;     // Created from ezGALRenderPassDescriptor above
+    vk::PipelineLayout m_layout;     // Created from shader (descriptor sets)
     ezEnum<ezGALPrimitiveTopology> m_topology;
-    ezEnum<ezGALMSAASampleCount> m_msaa;
-    ezUInt8 m_uiAttachmentCount = 0; // DX12 requires format list for RT and DT
     const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState = nullptr;
     const ezGALBlendStateVulkan* m_pCurrentBlendState = nullptr;
     const ezGALDepthStencilStateVulkan* m_pCurrentDepthStencilState = nullptr;
@@ -78,49 +77,14 @@ private:
   struct FramebufferKey
   {
     vk::RenderPass m_renderPass;
-    ezGALRenderTargetSetup m_renderTargetSetup;
+    ezGALFrameBufferDescriptor m_frameBuffer;
   };
 
-  /// \brief Hashable version without pointers of vk::FramebufferCreateInfo
-  struct FramebufferDesc
-  {
-    VkRenderPass renderPass;
-    ezSizeU32 m_size = {0, 0};
-    uint32_t layers = 1;
-    ezHybridArray<vk::ImageView, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> attachments;
-    ezEnum<ezGALMSAASampleCount> m_msaa;
-  };
 
-  /// \brief Hashable version without pointers or redundant data of vk::AttachmentDescription
-  struct AttachmentDesc
+    struct ResourceCacheHash
   {
-    EZ_DECLARE_POD_TYPE();
-    vk::Format format = vk::Format::eUndefined;
-    vk::SampleCountFlagBits samples = vk::SampleCountFlagBits::e1;
-    // Not set at all right now
-    vk::ImageUsageFlags usage = vk::ImageUsageFlagBits::eSampled;
-    // Not set at all right now
-    vk::ImageLayout initialLayout = vk::ImageLayout::eUndefined;
-    // No support for eDontCare in EZ right now
-    vk::AttachmentLoadOp loadOp = vk::AttachmentLoadOp::eClear;
-    vk::AttachmentStoreOp storeOp = vk::AttachmentStoreOp::eStore;
-    vk::AttachmentLoadOp stencilLoadOp = vk::AttachmentLoadOp::eClear;
-    vk::AttachmentStoreOp stencilStoreOp = vk::AttachmentStoreOp::eStore;
-  };
-
-  /// \brief Hashable version without pointers of vk::RenderPassCreateInfo
-  struct RenderPassDesc
-  {
-    ezHybridArray<AttachmentDesc, EZ_GAL_MAX_RENDERTARGET_COUNT> attachments;
-  };
-
-  struct ResourceCacheHash
-  {
-    static ezUInt32 Hash(const RenderPassDesc& renderingSetup);
-    static bool Equal(const RenderPassDesc& a, const RenderPassDesc& b);
-
-    static ezUInt32 Hash(const ezGALRenderingSetup& renderingSetup);
-    static bool Equal(const ezGALRenderingSetup& a, const ezGALRenderingSetup& b);
+    static ezUInt32 Hash(const ezGALRenderPassDescriptor& renderingSetup);
+    static bool Equal(const ezGALRenderPassDescriptor& a, const ezGALRenderPassDescriptor& b);
 
     static ezUInt32 Hash(const FramebufferKey& renderTargetSetup);
     static bool Equal(const FramebufferKey& a, const FramebufferKey& b);
@@ -139,19 +103,6 @@ private:
     static bool Equal(const ezGALShaderVulkan::DescriptorSetLayoutDesc& a, const ezGALShaderVulkan::DescriptorSetLayoutDesc& b);
   };
 
-  struct FrameBufferCache
-  {
-    vk::Framebuffer m_frameBuffer;
-    ezSizeU32 m_size;
-    ezEnum<ezGALMSAASampleCount> m_msaa;
-    ezUInt32 m_layers = 0;
-    EZ_DECLARE_POD_TYPE();
-  };
-
-  static vk::RenderPass RequestRenderPassInternal(const RenderPassDesc& desc);
-  static void GetRenderPassDesc(const ezGALRenderingSetup& renderingSetup, RenderPassDesc& out_desc);
-  static void GetFrameBufferDesc(vk::RenderPass renderPass, const ezGALRenderTargetSetup& renderTargetSetup, FramebufferDesc& out_desc);
-
 public:
   using GraphicsPipelineMap = ezMap<ezResourceCacheVulkan::GraphicsPipelineDesc, vk::Pipeline, ezResourceCacheVulkan::ResourceCacheHash>;
   using ComputePipelineMap = ezMap<ezResourceCacheVulkan::ComputePipelineDesc, vk::Pipeline, ezResourceCacheVulkan::ResourceCacheHash>;
@@ -160,11 +111,8 @@ public:
 private:
   static ezGALDeviceVulkan* s_pDevice;
   static vk::Device s_device;
-  // We have a N to 1 mapping for ezGALRenderingSetup to vk::RenderPass as multiple ezGALRenderingSetup can share the same RenderPassDesc.
-  // Thus, we have a two stage resolve to the vk::RenderPass. If a ezGALRenderingSetup is not present in s_shallowRenderPasses we create the RenderPassDesc which has a 1 to 1 relationship with vk::RenderPass and look that one up in s_renderPasses. Finally we add the entry to s_shallowRenderPasses to make sure a shallow lookup will work on the next query.
-  static ezHashTable<ezGALRenderingSetup, vk::RenderPass, ResourceCacheHash> s_shallowRenderPasses; // #TODO_VULKAN cache invalidation
-  static ezHashTable<RenderPassDesc, vk::RenderPass, ResourceCacheHash> s_renderPasses;
-  static ezHashTable<FramebufferKey, FrameBufferCache, ResourceCacheHash> s_frameBuffers;           // #TODO_VULKAN cache invalidation
+  static ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ResourceCacheHash> s_renderPasses;
+  static ezHashTable<FramebufferKey, vk::Framebuffer, ResourceCacheHash> s_frameBuffers;           // #TODO_VULKAN cache invalidation
 
   static ezHashTable<PipelineLayoutDesc, vk::PipelineLayout, ResourceCacheHash> s_pipelineLayouts;
   static GraphicsPipelineMap s_graphicsPipelines;

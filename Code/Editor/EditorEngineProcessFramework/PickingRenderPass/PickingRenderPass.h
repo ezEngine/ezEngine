@@ -52,7 +52,7 @@ private:
 
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
-  ezGALRenderTargetSetup m_RenderTargetSetup;
+  ezGALRenderingSetup m_RenderTargetSetup;
 
   ezHashSet<ezGameObjectHandle> m_SelectionSet;
 

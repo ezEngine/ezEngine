@@ -41,3 +41,5 @@ bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
 using ezSizeU32 = ezSizeTemplate<ezUInt32>;
 using ezSizeFloat = ezSizeTemplate<float>;
 using ezSizeDouble = ezSizeTemplate<double>;
+
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezSizeU32& arg);

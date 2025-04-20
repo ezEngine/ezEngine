@@ -157,7 +157,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezVec2 targetSize = targetSizes[i];
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
       renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
@@ -205,7 +205,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezVec2 targetSize = targetSizes[i];
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
       renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
@@ -258,9 +258,8 @@ void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_ClearColor = ezColor::Black;
+  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  renderingSetup.SetClearColor(0, ezColor::Black);
 
   auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
 }

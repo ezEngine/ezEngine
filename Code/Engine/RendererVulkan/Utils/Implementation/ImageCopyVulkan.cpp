@@ -31,20 +31,6 @@ struct ezHashHelper<ezGALShaderHandle>
 };
 
 template <>
-struct ezHashHelper<ezImageCopyVulkan::RenderPassCacheKey>
-{
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::RenderPassCacheKey& value)
-  {
-    return ezHashingUtils::CombineHashValues32(static_cast<uint32_t>(value.targetFormat), static_cast<uint32_t>(value.targetSamples));
-  }
-
-  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::RenderPassCacheKey& a, const ezImageCopyVulkan::RenderPassCacheKey& b)
-  {
-    return a.targetFormat == b.targetFormat && a.targetSamples == b.targetSamples;
-  }
-};
-
-template <>
 struct ezHashHelper<vk::Image>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(vk::Image value)
@@ -64,7 +50,7 @@ struct ezHashHelper<ezImageCopyVulkan::FramebufferCacheKey>
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::FramebufferCacheKey& value)
   {
     ezHashStreamWriter32 writer;
-    writer << (VkRenderPass)value.m_renderpass;
+    writer << (VkRenderPass)value.m_renderPass;
     writer << (VkImageView)value.m_targetView;
     writer << value.m_extends.x;
     writer << value.m_extends.y;
@@ -74,7 +60,7 @@ struct ezHashHelper<ezImageCopyVulkan::FramebufferCacheKey>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::FramebufferCacheKey& a, const ezImageCopyVulkan::FramebufferCacheKey& b)
   {
-    return a.m_renderpass == b.m_renderpass && a.m_targetView == b.m_targetView && a.m_extends == b.m_extends && a.m_layerCount == b.m_layerCount;
+    return a.m_renderPass == b.m_renderPass && a.m_targetView == b.m_targetView && a.m_extends == b.m_extends && a.m_layerCount == b.m_layerCount;
   }
 };
 
@@ -118,7 +104,6 @@ ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
 ezImageCopyVulkan::Cache::Cache(ezAllocator* pAllocator)
   : m_vertexDeclarations(pAllocator)
-  , m_renderPasses(pAllocator)
   , m_sourceImageViews(pAllocator)
   , m_imageToSourceImageViewCacheKey(pAllocator)
   , m_targetImageViews(pAllocator)
@@ -150,10 +135,6 @@ void ezImageCopyVulkan::DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan)
   for (auto& kv : (s_cache->m_vertexDeclarations))
   {
     GALDeviceVulkan.DestroyVertexDeclaration(kv.Value());
-  }
-  for (auto& kv : (s_cache->m_renderPasses))
-  {
-    GALDeviceVulkan.GetVulkanDevice().destroyRenderPass(kv.Value());
   }
   for (auto& kv : (s_cache->m_sourceImageViews))
   {
@@ -205,7 +186,6 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   auto& targetDesc = m_pTarget->GetDescription();
 
-  vk::Image targetImage = m_pTarget->GetImage();
   vk::Format targetFormat = m_pTarget->GetImageFormat();
 
   bool bTargetIsDepth = ezConversionUtilsVulkan::IsDepthFormat(targetFormat);
@@ -213,56 +193,11 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   // Render pass
   {
-    RenderPassCacheKey cacheEntry = {};
-    cacheEntry.targetFormat = targetFormat;
-    cacheEntry.targetSamples = ezConversionUtilsVulkan::GetSamples(targetDesc.m_SampleCount);
-
-    if (auto it = s_cache->m_renderPasses.Find(cacheEntry); it.IsValid())
-    {
-      m_renderPass = it.Value();
-    }
-    else
-    {
-      ezHybridArray<vk::AttachmentDescription, 4> attachments;
-      ezHybridArray<vk::AttachmentReference, 4> colorAttachmentRefs;
-      vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
-      vkAttachment.format = cacheEntry.targetFormat;
-      vkAttachment.samples = cacheEntry.targetSamples;
-      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; // #TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
-      vkAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-      vkAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-      vkAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
-
-      vk::AttachmentReference& colorAttachment = colorAttachmentRefs.ExpandAndGetRef();
-      colorAttachment.attachment = 0;
-      colorAttachment.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-      vk::SubpassDescription subpass;
-      subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-      subpass.colorAttachmentCount = colorAttachmentRefs.GetCount();
-      subpass.pColorAttachments = colorAttachmentRefs.GetData();
-      subpass.pDepthStencilAttachment = nullptr;
-
-      vk::SubpassDependency dependency;
-      dependency.dstSubpass = 0;
-      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
-
-      dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-      dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-      dependency.srcAccessMask = {};
-      dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-
-      vk::RenderPassCreateInfo renderPassCreateInfo;
-      renderPassCreateInfo.attachmentCount = attachments.GetCount();
-      renderPassCreateInfo.pAttachments = attachments.GetData();
-      renderPassCreateInfo.subpassCount = 1;
-      renderPassCreateInfo.pSubpasses = &subpass;
-      renderPassCreateInfo.dependencyCount = 1;
-      renderPassCreateInfo.pDependencies = &dependency;
-
-      VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createRenderPass(&renderPassCreateInfo, nullptr, &m_renderPass));
-      s_cache->m_renderPasses.Insert(cacheEntry, m_renderPass);
-    }
+    m_PipelineDesc.m_renderPassDesc = ezGALRenderPassDescriptor();
+    m_PipelineDesc.m_renderPassDesc.m_Msaa = targetDesc.m_SampleCount;
+    m_PipelineDesc.m_renderPassDesc.m_uiRTCount = 1;
+    m_PipelineDesc.m_renderPassDesc.m_ColorFormat[0] = m_pTarget->GetDescription().m_Format;
+    m_renderPass = ezResourceCacheVulkan::RequestRenderPass(m_PipelineDesc.m_renderPassDesc);
   }
 
   // Pipeline
@@ -302,9 +237,6 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
     m_PipelineDesc.m_renderPass = m_renderPass;
     m_PipelineDesc.m_topology = ezGALPrimitiveTopology::Triangles;
-    m_PipelineDesc.m_msaa = targetDesc.m_SampleCount;
-    m_PipelineDesc.m_uiAttachmentCount = 1;
-
 
     // Vertex declaration
     {
@@ -363,8 +295,6 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
 
   auto& sourceDesc = m_pSource->GetDescription();
   auto& targetDesc = m_pTarget->GetDescription();
-
-  const bool bSourceIsDepth = ezGALResourceFormat::IsDepthFormat(sourceDesc.m_Format);
 
   vk::Image sourceImage = m_pSource->GetImage();
   vk::Format sourceFormat = m_pSource->GetImageFormat();
@@ -436,7 +366,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   // Framebuffer
   {
     FramebufferCacheKey cacheEntry = {};
-    cacheEntry.m_renderpass = m_renderPass;
+    cacheEntry.m_renderPass = m_renderPass;
     cacheEntry.m_targetView = targetView;
     cacheEntry.m_extends = extends;
     cacheEntry.m_layerCount = targetLayers.layerCount;

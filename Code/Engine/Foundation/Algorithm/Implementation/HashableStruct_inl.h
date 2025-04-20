@@ -21,6 +21,23 @@ EZ_ALWAYS_INLINE void ezHashableStruct<T>::operator=(const ezHashableStruct<T>& 
     ezMemoryUtils::RawByteCopy(this, &other, sizeof(T));
   }
 }
+template <typename T>
+bool ezHashableStruct<T>::operator==(const ezHashableStruct<T>& other) const
+{
+  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) == 0;
+}
+
+template <typename T>
+bool ezHashableStruct<T>::operator!=(const ezHashableStruct<T>& other) const
+{
+  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) != 0;
+}
+
+template <typename T>
+bool ezHashableStruct<T>::operator<(const ezHashableStruct<T>& other) const
+{
+  return ezMemoryUtils::RawByteCompare(this, &other, sizeof(T)) < 0;
+}
 
 template <typename T>
 EZ_ALWAYS_INLINE ezUInt32 ezHashableStruct<T>::CalculateHash() const

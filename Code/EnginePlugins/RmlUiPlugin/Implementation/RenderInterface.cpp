@@ -401,11 +401,6 @@ namespace ezRmlUiInternal
     const ezGALResourceFormat::Enum tempStencilFormat = ezGALResourceFormat::D24S8;
     const ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::FourSamples;
 
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_uiRenderTargetClearMask = 0x1;
-    renderingSetup.m_bClearStencil = true;
-    renderingSetup.m_bDiscardDepth = true;
-
     pRenderContext->BindShader(m_hShader);
     pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
@@ -421,8 +416,12 @@ namespace ezRmlUiInternal
 
       ezGALTextureHandle hTempTarget = pGpuResourcePool->GetRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempTargetFormat, msaaSampleCount);
       ezGALTextureHandle hTempStencil = pGpuResourcePool->GetRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempStencilFormat, msaaSampleCount);
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hTempTarget));
-      renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hTempStencil));
+
+      ezGALRenderingSetup renderingSetup;
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hTempTarget));
+      renderingSetup.SetClearColor(0);
+      renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hTempStencil), ezGALRenderTargetLoadOp::DontCare, ezGALRenderTargetStoreOp::Discard);
+      renderingSetup.SetClearStencil().SetClearDepth();
 
       pRenderContext->BeginRendering(renderingSetup, viewport, pCommandBuffer->m_sName, false);
       pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_NORMAL");
