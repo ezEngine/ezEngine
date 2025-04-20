@@ -439,7 +439,7 @@
              </property>
              <property name="icon">
               <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-               <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+               <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
              </property>
             </widget>
            </item>

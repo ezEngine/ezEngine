@@ -249,4 +249,8 @@ void ezQtAssetStatusIndicator::onHelp(bool)
   {
     QDesktopServices::openUrl(QUrl(ezMakeQString(sURL)));
   }
+  else
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("There is no known online documentation for the asset type '{}'.\n\nPlease report this to the developers.", sType));
+  }
 }

@@ -161,11 +161,11 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
 
   if (button == ButtonType::ReportProblem)
   {
-    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
+    SetIconPath(":/EditorFramework/Icons/GitHub.svg");
   }
   if (button == ButtonType::AskQuestion)
   {
-    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
+    SetIconPath(":/EditorFramework/Icons/GitHub.svg");
   }
 }
 
