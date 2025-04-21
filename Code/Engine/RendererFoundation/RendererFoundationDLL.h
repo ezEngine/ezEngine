@@ -373,8 +373,8 @@ struct ezGALRenderTargetLoadOp
   using StorageType = ezUInt8;
   enum Enum
   {
-    Load, ///< The previous contents of the render target are preserved when starting to render to it.
-    Clear, ///< The render target is cleared before rendering.
+    Load,     ///< The previous contents of the render target are preserved when starting to render to it.
+    Clear,    ///< The render target is cleared before rendering.
     DontCare, ///< The contents of the render target is undefined. Use if you intent to render to the entirety of the viewport.
     Default = Load
   };
@@ -386,7 +386,7 @@ struct ezGALRenderTargetStoreOp
   using StorageType = ezUInt8;
   enum Enum
   {
-    Store, ///< The render result is written back to the render target's memory.
+    Store,   ///< The render result is written back to the render target's memory.
     Discard, ///< The end result is not needed. Use for transient render targets.
     Default = Store
   };

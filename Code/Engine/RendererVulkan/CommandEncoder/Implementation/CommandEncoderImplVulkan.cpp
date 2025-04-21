@@ -44,7 +44,7 @@ namespace
 
     return false;
   }
-}
+} // namespace
 
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
   : m_GALDeviceVulkan(device)

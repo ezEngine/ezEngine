@@ -40,8 +40,8 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
     ezGALRenderPassDescriptor m_renderPassDesc;
-    vk::RenderPass m_renderPass;     // Created from ezGALRenderPassDescriptor above
-    vk::PipelineLayout m_layout;     // Created from shader (descriptor sets)
+    vk::RenderPass m_renderPass; // Created from ezGALRenderPassDescriptor above
+    vk::PipelineLayout m_layout; // Created from shader (descriptor sets)
     ezEnum<ezGALPrimitiveTopology> m_topology;
     const ezGALRasterizerStateVulkan* m_pCurrentRasterizerState = nullptr;
     const ezGALBlendStateVulkan* m_pCurrentBlendState = nullptr;
@@ -81,7 +81,7 @@ private:
   };
 
 
-    struct ResourceCacheHash
+  struct ResourceCacheHash
   {
     static ezUInt32 Hash(const ezGALRenderPassDescriptor& renderingSetup);
     static bool Equal(const ezGALRenderPassDescriptor& a, const ezGALRenderPassDescriptor& b);
@@ -112,7 +112,7 @@ private:
   static ezGALDeviceVulkan* s_pDevice;
   static vk::Device s_device;
   static ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ResourceCacheHash> s_renderPasses;
-  static ezHashTable<FramebufferKey, vk::Framebuffer, ResourceCacheHash> s_frameBuffers;           // #TODO_VULKAN cache invalidation
+  static ezHashTable<FramebufferKey, vk::Framebuffer, ResourceCacheHash> s_frameBuffers; // #TODO_VULKAN cache invalidation
 
   static ezHashTable<PipelineLayoutDesc, vk::PipelineLayout, ResourceCacheHash> s_pipelineLayouts;
   static GraphicsPipelineMap s_graphicsPipelines;

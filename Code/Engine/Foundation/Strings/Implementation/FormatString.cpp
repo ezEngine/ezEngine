@@ -1,12 +1,12 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Rational.h>
+#include <Foundation/Math/Size.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Variant.h>
-#include <Foundation/Math/Size.h>
 
 ezFormatString::ezFormatString(const ezStringBuilder& s)
 {

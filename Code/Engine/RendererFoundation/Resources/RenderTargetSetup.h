@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/Math/Size.h>
 #include <Foundation/Algorithm/HashableStruct.h>
 #include <Foundation/Basics.h>
+#include <Foundation/Math/Size.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
@@ -71,7 +71,7 @@ public:
 
   /// \brief Sets the depth / stencil render target.
   /// If not set, the load and store operations default to 'Load' and 'Store' respectively for both depth and stencil.
-  ezGALRenderingSetup& SetDepthStencilTarget(ezGALRenderTargetViewHandle hDSTarget, ezEnum<ezGALRenderTargetLoadOp> depthLoadOp = {},  ezEnum<ezGALRenderTargetStoreOp> depthStoreOp = {}, ezEnum<ezGALRenderTargetLoadOp> stencilLoadOp = {},  ezEnum<ezGALRenderTargetStoreOp> stencilStoreOp = {});
+  ezGALRenderingSetup& SetDepthStencilTarget(ezGALRenderTargetViewHandle hDSTarget, ezEnum<ezGALRenderTargetLoadOp> depthLoadOp = {}, ezEnum<ezGALRenderTargetStoreOp> depthStoreOp = {}, ezEnum<ezGALRenderTargetLoadOp> stencilLoadOp = {}, ezEnum<ezGALRenderTargetStoreOp> stencilStoreOp = {});
 
   /// \brief Sets the clear color of the given render target and switches the load op to clear.
   /// Note that you first must have called SetColorTarget with the same uiIndex to be able to set the clear color.

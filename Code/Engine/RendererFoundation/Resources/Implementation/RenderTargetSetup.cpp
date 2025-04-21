@@ -119,7 +119,7 @@ ezGALRenderingSetup& ezGALRenderingSetup::SetClearColor(ezUInt8 uiIndex, const e
   EZ_ASSERT_DEBUG(uiIndex < m_RenderPass.m_uiRTCount, "Render target not set, call SetRenderTarget first");
   m_ClearColor[uiIndex] = color;
   m_RenderPass.m_ColorLoadOp[uiIndex] = ezGALRenderTargetLoadOp::Clear;
-  return * this;
+  return *this;
 }
 
 ezGALRenderingSetup& ezGALRenderingSetup::SetClearDepth(float fDepthClear)
@@ -127,7 +127,7 @@ ezGALRenderingSetup& ezGALRenderingSetup::SetClearDepth(float fDepthClear)
   EZ_ASSERT_DEBUG(HasDepthStencilTarget(), "Depth target not set, call SetDepthStencilTarget first");
   m_fClearDepth = fDepthClear;
   m_RenderPass.m_DepthLoadOp = ezGALRenderTargetLoadOp::Clear;
-  return * this;
+  return *this;
 }
 
 ezGALRenderingSetup& ezGALRenderingSetup::SetClearStencil(ezUInt8 uiStencilClear)
@@ -135,7 +135,7 @@ ezGALRenderingSetup& ezGALRenderingSetup::SetClearStencil(ezUInt8 uiStencilClear
   EZ_ASSERT_DEBUG(HasDepthStencilTarget(), "Depth target not set, call SetDepthStencilTarget first");
   m_uiClearStencil = uiStencilClear;
   m_RenderPass.m_StencilLoadOp = ezGALRenderTargetLoadOp::Clear;
-  return * this;
+  return *this;
 }
 
 void ezGALRenderingSetup::Reset()
