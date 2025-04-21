@@ -567,7 +567,7 @@ void ezGALCommandEncoderImplDX11::BeginRenderingPlatform(const ezGALRenderingSet
   {
     if (m_RenderTargetSetup.GetRenderPass().m_ColorLoadOp[i] == ezGALRenderTargetLoadOp::Clear && m_pBoundRenderTargets[i])
     {
-      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], m_RenderTargetSetup.GetClearColor(i).GetData());
+      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], m_RenderTargetSetup.GetClearColor((ezUInt8)i).GetData());
     }
   }
 
