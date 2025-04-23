@@ -1882,6 +1882,9 @@ void ezAssetCurator::RunNextUpdateTask()
 {
   EZ_LOCK(m_CuratorMutex);
 
+  if (ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
+    return;
+
   if (!m_bRunUpdateTask || (m_TransformStateStale.IsEmpty() && m_TransformState[ezAssetInfo::TransformState::Unknown].IsEmpty()))
     return;
 

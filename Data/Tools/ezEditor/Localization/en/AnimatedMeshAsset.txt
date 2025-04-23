@@ -9,7 +9,6 @@ ezLodAnimatedMeshComponent;LOD Animated Mesh;;https://ezengine.net/pages/docs/an
 
 # UI
 
-AnimatedMeshImport.NoMaterials;Animated Mesh
-AnimatedMeshImport.WithMaterials;Animated Mesh with Materials
+AnimatedMeshImport;Animated Mesh
 
 # Properties

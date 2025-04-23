@@ -117,6 +117,9 @@ public:
   ezAssetProcessor();
   ~ezAssetProcessor();
 
+  // used to temporarily not process assets, usually because currently assets get imported
+  ezAtomicInteger32 m_iPauseProcessing;
+
   void StartProcessTask();
   void StopProcessTask(bool bForce);
   ProcessTaskState GetProcessTaskState() const

@@ -94,6 +94,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
     pUpdateContentTask->m_pLoader = pLoader;
     pUpdateContentTask->m_pCustomLoader = std::move(pCustomLoader);
     pUpdateContentTask->m_pResourceToLoad = pResourceToLoad;
+    pUpdateContentTask->m_pResourceToLoad->m_iReferenceCount.Increment();
 
     // schedule the task to run, either on the main thread or on some other thread
     *pUpdateContentGroup = ezTaskSystem::StartSingleTask(
@@ -157,5 +158,6 @@ void ezResourceManagerWorkerUpdateContent::Execute()
   }
 
   m_pLoader = nullptr;
+  m_pResourceToLoad->m_iReferenceCount.Decrement();
   m_pResourceToLoad = nullptr;
 }

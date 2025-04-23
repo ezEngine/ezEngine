@@ -364,16 +364,36 @@ namespace ezMeshImportUtils
     pAccessor->FinishTransaction();
   }
 
+  static bool SearchForFile(ezStringView sTargetFolder, ezStringView sFilename, ezStringBuilder& out_sFullpath)
+  {
+    ezFileSystemIterator it;
+    for (it.StartSearch(sTargetFolder, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+    {
+      if (it.GetStats().m_sName == sFilename)
+      {
+        it.GetStats().GetFullPath(out_sFullpath);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter)
   {
     EZ_PROFILE_SCOPE("ImportMeshAssetMaterials");
 
     ezStringBuilder targetDirectory = sDocumentDirectory;
-    targetDirectory.RemoveFileExtension();
-    targetDirectory.Append("_data/");
+
+    if (targetDirectory.HasAnyExtension())
+    {
+      targetDirectory.RemoveFileExtension();
+      targetDirectory.Append("_data/");
+    }
+
     const ezStringBuilder sourceDirectory = ezPathUtils::GetFileDirectory(pImporter->GetImportOptions().m_sSourceFile);
 
-    ezStringBuilder tmp;
+    ezStringBuilder tmp, fullName;
     ezStringBuilder newResourcePathAbs;
 
     const ezUInt32 uiNumSubmeshes = inout_materialSlots.GetCount();
@@ -428,7 +448,7 @@ namespace ezMeshImportUtils
 
       const ezUInt32 subMeshIdx = impMaterial.m_iReferencedByMesh;
 
-      range.BeginNextStep("Importing Material");
+      range.BeginNextStep(impMaterial.m_sName);
 
       // Didn't find currently set resource, create new imported material.
       if (!ezAssetCurator::GetSingleton()->FindSubAsset(inout_materialSlots[subMeshIdx].m_sResource))
@@ -437,17 +457,22 @@ namespace ezMeshImportUtils
         if (importMatToGuid.TryGetValue(&impMaterial, inout_materialSlots[subMeshIdx].m_sResource))
           continue;
 
+        // search for the file recursively
+        fullName.Set(impMaterial.m_sName, ".ezMaterialAsset");
+        if (SearchForFile(targetDirectory, fullName, newResourcePathAbs))
+        {
+          // Does the generated path already exist? Use it.
+          if (const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs))
+          {
+            inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
+            continue;
+          }
+        }
+
         // Put the new asset in the data folder.
         newResourcePathAbs = targetDirectory;
         newResourcePathAbs.AppendPath(impMaterial.m_sName);
         newResourcePathAbs.Append(".ezMaterialAsset");
-
-        // Does the generated path already exist? Use it.
-        if (const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs))
-        {
-          inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
-          continue;
-        }
 
         ezMaterialAssetDocument* pMaterialDoc = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateDocument(newResourcePathAbs, ezDocumentFlags::AsyncSave));
         if (!pMaterialDoc)

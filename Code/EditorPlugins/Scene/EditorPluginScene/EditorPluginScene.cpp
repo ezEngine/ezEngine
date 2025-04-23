@@ -194,8 +194,6 @@ void OnLoadPlugin()
     ezActionMap* pMap = ezActionMapManager::GetActionMap(ToolBars[1]);
     pMap->HideAction(ezDocumentActions::s_hSave, "SaveCategory");
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
-    pMap->HideAction(ezAssetActions::s_hTransformAsset, "AssetCategory");
-    pMap->HideAction(ezAssetActions::s_hAssetHelp, "AssetCategory");
   }
 
   // View Tool Bar

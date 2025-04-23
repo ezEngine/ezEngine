@@ -25,7 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations)),
-    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
+    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::Thumbnail)),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),

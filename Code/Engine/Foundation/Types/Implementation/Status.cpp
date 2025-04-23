@@ -26,7 +26,7 @@ ezStatus::ezStatus(const ezFormatString& fmt)
   m_sMessage = fmt.GetText(sMsg);
 }
 
-bool ezStatus::LogFailure(ezLogInterface* pLog)
+bool ezStatus::LogFailure(ezLogInterface* pLog) const
 {
   if (Failed())
   {

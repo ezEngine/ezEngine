@@ -53,7 +53,7 @@ struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
   /// \brief If the state is EZ_FAILURE, the message is written to the given log (or the currently active thread-local log).
   ///
   /// The return value is the same as 'Failed()' but isn't marked as [[nodiscard]], ie returns true, if a failure happened.
-  bool LogFailure(ezLogInterface* pLog = nullptr);
+  bool LogFailure(ezLogInterface* pLog = nullptr) const;
 
   /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
   ///

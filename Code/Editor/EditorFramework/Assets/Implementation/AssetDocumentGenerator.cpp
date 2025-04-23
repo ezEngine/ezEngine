@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
@@ -91,6 +92,9 @@ void ezAssetDocumentGenerator::DestroyGenerators(const ezHybridArray<ezAssetDocu
 
 void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& filesToImport)
 {
+  ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Increment();
+  EZ_SCOPE_EXIT(ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Decrement());
+
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
 

@@ -6,8 +6,7 @@ Mesh;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-asset.html
 
 # UI
 
-MeshImport.WithMaterials;Mesh with Materials
-MeshImport.NoMaterials;Mesh
+MeshImport;Mesh
 
 # Enums
 

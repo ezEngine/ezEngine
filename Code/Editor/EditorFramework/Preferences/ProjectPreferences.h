@@ -16,4 +16,7 @@ public:
 
   // the directory where the project should be exported to
   ezString m_sExportFolder;
+
+  // path to a folder where shared materials should be stored
+  ezString m_sSharedMaterialFolder;
 };

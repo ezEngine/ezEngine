@@ -340,7 +340,6 @@ void ezQtAssetBrowserModel::HandleEntry(const VisibleEntry& entry, AssetOp op)
         m_DisplayedEntries.Remove(entry.m_Guid);
         endRemoveRows();
       }
-      HandleEntry(entry, AssetOp::Add);
     }
   }
 }

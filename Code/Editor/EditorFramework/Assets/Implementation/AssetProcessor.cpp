@@ -166,10 +166,14 @@ void ezAssetProcessor::Run()
 {
   while (m_ProcessTaskState == ProcessTaskState::Running)
   {
-    for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); i++)
+    if (m_iPauseProcessing == 0)
     {
-      m_ProcessTasks[i].Tick(true);
+      for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); i++)
+      {
+        m_ProcessTasks[i].Tick(true);
+      }
     }
+
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
@@ -408,7 +412,9 @@ bool ezProcessTask::Tick(bool bStartNewWork)
         m_TransitiveHull.Clear();
         m_Status = ezStatus(EZ_SUCCESS);
         {
-          EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
+          auto pCurator = ezAssetCurator::GetSingleton();
+
+          EZ_LOCK(pCurator->m_CuratorMutex);
 
           if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath))
           {
@@ -417,17 +423,27 @@ bool ezProcessTask::Tick(bool bStartNewWork)
             return bStartNewWork; // call again if we should be looking for new work
           }
 
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, nullptr, nullptr, m_uiAssetHash, m_uiThumbHash, m_uiPackageHash);
+          ezAssetInfo::TransformState state = pCurator->IsAssetUpToDate(m_AssetGuid, nullptr, nullptr, m_uiAssetHash, m_uiThumbHash, m_uiPackageHash);
           EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail, "An asset was selected that is already up to date.");
 
           ezSet<ezString> dependencies;
           ezStringBuilder sTemp;
-          ezAssetCurator::GetSingleton()->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), dependencies, true, true);
+          pCurator->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), dependencies, true, true);
 
           m_TransitiveHull.Reserve(dependencies.GetCount());
           for (const ezString& str : dependencies)
           {
-            m_TransitiveHull.PushBack(str);
+            if (ezConversionUtils::IsStringUuid(str))
+            {
+              if (auto pAsset = pCurator->FindSubAsset(str))
+              {
+                m_TransitiveHull.PushBack(pAsset->m_pAssetInfo->m_Path.GetAbsolutePath());
+              }
+            }
+            else
+            {
+              m_TransitiveHull.PushBack(str);
+            }
           }
         }
 

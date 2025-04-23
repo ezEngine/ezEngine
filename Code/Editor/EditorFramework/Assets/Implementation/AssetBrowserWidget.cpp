@@ -12,6 +12,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QFile>
 
@@ -787,6 +788,11 @@ void ezQtAssetBrowserWidget::OnImportAsClicked()
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
   ezAssetDocumentGenerator::CreateGenerators(generators);
 
+  ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Increment();
+  EZ_SCOPE_EXIT(ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Decrement());
+
+  ezProgressRange progress("Importing Assets", filesToImport.GetCount(), true);
+
   ezHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
   for (ezAssetDocumentGenerator* pGen : generators)
   {
@@ -799,9 +805,22 @@ void ezQtAssetBrowserWidget::OnImportAsClicked()
       {
         for (const ezString& file : filesToImport)
         {
+          if (progress.WasCanceled())
+          {
+            goto done;
+          }
+
+          progress.BeginNextStep(file.GetFileNameAndExtension());
+
+
           if (pGen->SupportsFileType(file))
           {
-            pGen->Import(file, sMode, false).LogFailure();
+            const ezStatus res = pGen->Import(file, sMode, false);
+            if (res.Failed())
+            {
+              res.LogFailure();
+              goto done;
+            }
           }
         }
 
@@ -1056,7 +1075,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     if (bImportable)
     {
       m.addSeparator();
-      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
+      // Import dialog is superseeded by better alternatives
+      // m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
       QMenu* imp = m.addMenu(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), "Import As");
       connect(imp, &QMenu::aboutToShow, this, &ezQtAssetBrowserWidget::OnImportAsAboutToShow);
       AddImportedViaMenu(&m);
@@ -1379,23 +1399,22 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
   }
 }
 
-void ezQtAssetBrowserWidget::ImportSelection()
-{
-  ezHybridArray<ezString, 4> filesToImport;
-  GetSelectedImportableFiles(filesToImport);
-
-  if (filesToImport.IsEmpty())
-    return;
-
-  ezAssetDocumentGenerator::ImportAssets(filesToImport);
-
-  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
-  for (const QModelIndex& id : selection)
-  {
-    Q_EMIT m_pModel->dataChanged(id, id);
-  }
-}
-
+// void ezQtAssetBrowserWidget::ImportSelection()
+//{
+//   ezHybridArray<ezString, 4> filesToImport;
+//   GetSelectedImportableFiles(filesToImport);
+//
+//   if (filesToImport.IsEmpty())
+//     return;
+//
+//   ezAssetDocumentGenerator::ImportAssets(filesToImport);
+//
+//   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+//   for (const QModelIndex& id : selection)
+//   {
+//     Q_EMIT m_pModel->dataChanged(id, id);
+//   }
+// }
 
 void ezQtAssetBrowserWidget::OnOpenImportReferenceAsset()
 {

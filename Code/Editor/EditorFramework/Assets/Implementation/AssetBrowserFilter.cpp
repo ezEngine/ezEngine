@@ -91,6 +91,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
 {
   ezStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
+  sCleanText.ReplaceAll("*", "");
 
   if (m_SearchFilter.GetSearchText() == sCleanText)
     return;
