@@ -207,7 +207,16 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       // accessing IsQueuedForLoading without a lock here is save because InternalPreloadResource() will lock and early out if necessary
       // and accidentally skipping InternalPreloadResource() is no problem
       if (IsQueuedForLoading(pResource) == false && pResource->GetNumQualityLevelsLoadable() > 0)
+      {
         InternalPreloadResource(pResource, false);
+
+        if (GetForceNoFallbackAcquisition() > 0)
+        {
+          EnsureResourceCondition(pResource, [=]() -> bool
+            { return ((ezInt32)pResource->GetLoadingState() >= (ezInt32)ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0) ||
+                     (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+        }
+      }
     }
   }
 

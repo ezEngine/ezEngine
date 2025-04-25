@@ -500,6 +500,11 @@ void ezResourceManager::PerFrameUpdate()
   {
     FreeUnusedResources(s_pState->m_AutoFreeUnusedTimeout, s_pState->m_AutoFreeUnusedThreshold);
   }
+
+  if (s_pState->m_uiForceNoFallbackAcquisition > 0)
+  {
+    s_pState->m_uiForceNoFallbackAcquisition--;
+  }
 }
 
 const ezEvent<const ezResourceEvent&, ezMutex>& ezResourceManager::GetResourceEvents()

@@ -458,6 +458,7 @@ private:
     EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
+  static void EnsureResourceCondition(ezResource* pResource, const ezDelegate<bool()>& condition);
   static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 

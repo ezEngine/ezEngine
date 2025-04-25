@@ -408,13 +408,19 @@ void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceH
   ReloadResource(hResource.m_pResource, true);
 };
 
-void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, const ezResourceState RequestedState)
+void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState)
+{
+  return EnsureResourceCondition(pResource, [=]() -> bool
+    { return (ezInt32)pResource->GetLoadingState() >= (ezInt32)RequestedState ||
+             (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+}
+
+void ezResourceManager::EnsureResourceCondition(ezResource* pResourceToLoad, const ezDelegate<bool()>& condition)
 {
   const ezRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
 
   // help loading until the requested resource is available
-  while ((ezInt32)pResourceToLoad->GetLoadingState() < (ezInt32)RequestedState &&
-         (pResourceToLoad->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+  while (!condition())
   {
     ezTaskGroupID tgid;
 
@@ -443,9 +449,7 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     else
     {
       // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
-      ezTaskSystem::WaitForCondition([=]() -> bool
-        { return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
-                 (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+      ezTaskSystem::WaitForCondition(condition);
     }
   }
 }
