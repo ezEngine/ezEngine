@@ -88,7 +88,7 @@ private Q_SLOTS:
   void OnModelReset();
   void NewAsset();
   void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
-  // void ImportSelection();
+  void ImportSelection();
   void OnOpenImportReferenceAsset();
   void RenameCurrent();
   void DeleteSelection();

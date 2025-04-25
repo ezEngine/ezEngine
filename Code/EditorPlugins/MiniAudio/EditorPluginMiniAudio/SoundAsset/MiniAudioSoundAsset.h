@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
 class ezMiniAudioSoundAssetProperties : public ezReflectedClass
@@ -41,4 +42,21 @@ protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+
+class ezMiniAudioSoundAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMiniAudioSoundAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezMiniAudioSoundAssetDocumentGenerator();
+  ~ezMiniAudioSoundAssetDocumentGenerator();
+
+  virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
+  virtual ezStringView GetDocumentExtension() const override { return "ezMiniAudioSoundAsset"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Sounds"; }
+  virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

@@ -269,7 +269,12 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping cubemap import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -296,6 +301,8 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
+
+  ezLog::Success("Imported cubemap: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

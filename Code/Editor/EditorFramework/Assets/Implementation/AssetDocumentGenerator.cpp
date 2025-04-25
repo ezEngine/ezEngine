@@ -105,8 +105,11 @@ void ezAssetDocumentGenerator::ImportAssets(const ezDynamicArray<ezString>& file
 
   SortAndSelectBestImportOption(allImports);
 
-  ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
-  dlg.exec();
+  if (!allImports.IsEmpty())
+  {
+    ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
+    dlg.exec();
+  }
 
   DestroyGenerators(generators);
 }

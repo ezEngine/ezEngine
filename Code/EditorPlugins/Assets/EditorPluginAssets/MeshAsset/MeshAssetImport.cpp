@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAsset.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
@@ -51,7 +52,12 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping mesh import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -174,6 +180,8 @@ ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument* pDoc, e
 
   ca.FinishTransaction();
 
+  ezLog::Success("Imported mesh: '{}'", sOutFile);
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -216,28 +224,39 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
 
     sOutFile2 = sOutFile;
     sOutFile2.ChangeFileExtension("ezSkeletonAsset");
-    ezOSFile::FindFreeFilename(sOutFile2);
 
-    ezDocument* pSkelDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
-    if (pSkelDoc == nullptr)
-      return ezStatus("Could not create skeleton document");
+    if (ezOSFile::ExistsFile(sOutFile2))
+    {
+      ezLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile2);
 
-    ezStringBuilder sAnimMeshGuid;
-    ezConversionUtils::ToString(pMainDoc->GetGuid(), sAnimMeshGuid);
+      auto pSkeletonDoc = ezAssetCurator::GetSingleton()->FindSubAsset(sOutFile2);
+      skeletonGuid = pSkeletonDoc->m_Data.m_Guid;
+    }
+    else
+    {
+      ezDocument* pSkelDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
+      if (pSkelDoc == nullptr)
+        return ezStatus("Could not create skeleton document");
 
-    out_generatedDocuments.PushBack(pSkelDoc);
+      ezStringBuilder sAnimMeshGuid;
+      ezConversionUtils::ToString(pMainDoc->GetGuid(), sAnimMeshGuid);
 
-    ezSkeletonAssetDocument* pSkeletonDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pSkelDoc);
+      out_generatedDocuments.PushBack(pSkelDoc);
 
-    auto pSkeletonPropObj = pSkeletonDoc->GetPropertyObject();
+      ezSkeletonAssetDocument* pSkeletonDoc = ezDynamicCast<ezSkeletonAssetDocument*>(pSkelDoc);
 
-    ezObjectCommandAccessor ca(pSkeletonDoc->GetCommandHistory());
-    ca.StartTransaction("Init Values");
-    ca.SetValueByName(pSkeletonPropObj, "File", sInputFile).AssertSuccess();
-    ca.SetValueByName(pSkeletonPropObj, "PreviewMesh", sAnimMeshGuid.GetView()).AssertSuccess();
-    ca.FinishTransaction();
+      auto pSkeletonPropObj = pSkeletonDoc->GetPropertyObject();
 
-    skeletonGuid = pSkeletonDoc->GetGuid();
+      ezObjectCommandAccessor ca(pSkeletonDoc->GetCommandHistory());
+      ca.StartTransaction("Init Values");
+      ca.SetValueByName(pSkeletonPropObj, "File", sInputFile).AssertSuccess();
+      ca.SetValueByName(pSkeletonPropObj, "PreviewMesh", sAnimMeshGuid.GetView()).AssertSuccess();
+      ca.FinishTransaction();
+
+      skeletonGuid = pSkeletonDoc->GetGuid();
+
+      ezLog::Success("Imported skeleton: '{}'", sOutFile2);
+    }
   }
 
   // configure animated mesh asset
@@ -266,6 +285,8 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
     }
 
     ca.FinishTransaction();
+
+    ezLog::Success("Imported animated mesh: '{}'", sOutFile);
   }
 
   // create animation clip assets
@@ -286,7 +307,12 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
       sOutFile2 = sOutFile;
       sOutFile2.ChangeFileName(sFilename);
       sOutFile2.ChangeFileExtension("ezAnimationClipAsset");
-      ezOSFile::FindFreeFilename(sOutFile2);
+
+      if (ezOSFile::ExistsFile(sOutFile2))
+      {
+        ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
+        continue;
+      }
 
       ezDocument* pAnimDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
       if (pAnimDoc == nullptr)
@@ -306,6 +332,8 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
       ca.SetValueByName(pAnimPropObj, "PreviewMesh", sPreviewMesh.GetView()).AssertSuccess();
 
       ca.FinishTransaction();
+
+      ezLog::Success("Imported animation clip: '{}'", sOutFile2);
     }
   }
 

@@ -136,14 +136,14 @@ namespace ezMeshImportUtils
         pAccessor->SetValueByName(pTextureAsset, "AddressModeW", (int)ezImageAddressMode::Clamp).LogFailure();
       }
 
-      // TODO: Set... something else?
-
       pAccessor->FinishTransaction();
       textureDocument->SaveDocument().LogFailure();
 
       ezStringBuilder guid;
       ezConversionUtils::ToString(textureDocument->GetGuid(), guid);
       textureDocument->GetDocumentManager()->CloseDocument(textureDocument);
+
+      ezLog::Success("Imported texture: '{}'", newAssetPathAbs);
 
       return guid;
     }
@@ -490,6 +490,8 @@ namespace ezMeshImportUtils
         // we have to flush because materials create worlds in the engine process and there is a world limit of 64
         if (pendingSaveTasks.GetCount() >= 16)
           WaitForPendingTasks();
+
+        ezLog::Success("Imported material: '{}'", newResourcePathAbs);
       }
 
       // If we have a material now, fill the mapping.

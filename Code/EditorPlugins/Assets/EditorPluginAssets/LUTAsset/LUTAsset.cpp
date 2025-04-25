@@ -125,7 +125,12 @@ ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStr
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping LUT import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -142,6 +147,8 @@ ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStr
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input", sInputFileRel.GetView());
+
+  ezLog::Success("Imported LUT: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

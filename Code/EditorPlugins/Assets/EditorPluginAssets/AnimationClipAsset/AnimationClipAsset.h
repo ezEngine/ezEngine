@@ -102,6 +102,6 @@ public:
 
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "AnimationClipGroup"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
   virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

@@ -192,7 +192,12 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping decal import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -209,6 +214,8 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("BaseColor", sInputFileRel.GetView());
+
+  ezLog::Success("Imported decal: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

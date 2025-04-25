@@ -3,6 +3,7 @@
 #include <EditorPluginMiniAudio/SoundAsset/MiniAudioSoundAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundAssetDocument, 1, ezRTTINoAllocator)
@@ -123,4 +124,68 @@ void ezMiniAudioSoundAssetProperties::PropertyMetaStateEventHandler(ezPropertyMe
     props["SoundSize"].m_Visibility = bIsPositional ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["Rolloff"].m_Visibility = bIsPositional ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMiniAudioSoundAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMiniAudioSoundAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezMiniAudioSoundAssetDocumentGenerator::ezMiniAudioSoundAssetDocumentGenerator()
+{
+  AddSupportedFileType("wav");
+  AddSupportedFileType("mp3");
+}
+
+ezMiniAudioSoundAssetDocumentGenerator::~ezMiniAudioSoundAssetDocumentGenerator() = default;
+
+void ezMiniAudioSoundAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
+{
+  {
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_sName = "MiniAudio_Sound";
+    info.m_sIcon = ":/AssetIcons/MiniAudioSound.svg";
+  }
+}
+
+ezStatus ezMiniAudioSoundAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+{
+  ezStringBuilder sOutFile = sInputFileAbs;
+  sOutFile.ChangeFileExtension(GetDocumentExtension());
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping sound import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezStringBuilder sInputFileRel = sInputFileAbs;
+  pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pDoc == nullptr)
+    return ezStatus("Could not create target document");
+
+  out_generatedDocuments.PushBack(pDoc);
+
+  ezMiniAudioSoundAssetDocument* pAssetDoc = ezDynamicCast<ezMiniAudioSoundAssetDocument*>(pDoc);
+  if (pAssetDoc == nullptr)
+    return ezStatus("Target document is not a valid ezMiniAudioSoundAssetDocument");
+
+  auto pPropObj = pAssetDoc->GetPropertyObject();
+
+  ezObjectCommandAccessor ca(pAssetDoc->GetCommandHistory());
+  ca.StartTransaction("Init Values");
+
+  ca.InsertValueByName(pPropObj, "Files", sInputFileRel.GetView(), 0).AssertSuccess();
+
+  ca.FinishTransaction();
+
+  ezLog::Success("Imported sound: '{}'", sOutFile);
+
+  return ezStatus(EZ_SUCCESS);
 }

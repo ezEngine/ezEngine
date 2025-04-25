@@ -779,6 +779,8 @@ void ezQtAssetBrowserWidget::OnImportAsAboutToShow()
 
 void ezQtAssetBrowserWidget::OnImportAsClicked()
 {
+  EZ_LOG_BLOCK("Importing Assets");
+
   ezHybridArray<ezString, 8> filesToImport;
   GetSelectedImportableFiles(filesToImport);
 
@@ -1076,7 +1078,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     {
       m.addSeparator();
       // Import dialog is superseeded by better alternatives
-      // m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
       QMenu* imp = m.addMenu(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), "Import As");
       connect(imp, &QMenu::aboutToShow, this, &ezQtAssetBrowserWidget::OnImportAsAboutToShow);
       AddImportedViaMenu(&m);
@@ -1399,22 +1401,22 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
   }
 }
 
-// void ezQtAssetBrowserWidget::ImportSelection()
-//{
-//   ezHybridArray<ezString, 4> filesToImport;
-//   GetSelectedImportableFiles(filesToImport);
-//
-//   if (filesToImport.IsEmpty())
-//     return;
-//
-//   ezAssetDocumentGenerator::ImportAssets(filesToImport);
-//
-//   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
-//   for (const QModelIndex& id : selection)
-//   {
-//     Q_EMIT m_pModel->dataChanged(id, id);
-//   }
-// }
+void ezQtAssetBrowserWidget::ImportSelection()
+{
+  ezHybridArray<ezString, 4> filesToImport;
+  GetSelectedImportableFiles(filesToImport);
+
+  if (filesToImport.IsEmpty())
+    return;
+
+  ezAssetDocumentGenerator::ImportAssets(filesToImport);
+
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+  for (const QModelIndex& id : selection)
+  {
+    Q_EMIT m_pModel->dataChanged(id, id);
+  }
+}
 
 void ezQtAssetBrowserWidget::OnOpenImportReferenceAsset()
 {

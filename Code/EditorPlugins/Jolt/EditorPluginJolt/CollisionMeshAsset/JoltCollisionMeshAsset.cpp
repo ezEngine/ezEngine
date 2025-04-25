@@ -379,7 +379,7 @@ void ezJoltCollisionMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbs
 {
   {
     ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "Jolt_Colmesh_Triangle";
     info.m_sIcon = ":/AssetIcons/Jolt_Collision_Mesh.svg";
   }
@@ -389,7 +389,12 @@ ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInput
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping collision mesh import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -408,6 +413,8 @@ ezStatus ezJoltCollisionMeshAssetDocumentGenerator::Generate(ezStringView sInput
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("MeshFile", sInputFileRel.GetView());
+
+  ezLog::Success("Imported collision mesh: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -441,7 +448,12 @@ ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView 
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping convex collision mesh import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -460,6 +472,8 @@ ezStatus ezJoltConvexCollisionMeshAssetDocumentGenerator::Generate(ezStringView 
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("MeshFile", sInputFileRel.GetView());
+
+  ezLog::Success("Imported convex collision mesh: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

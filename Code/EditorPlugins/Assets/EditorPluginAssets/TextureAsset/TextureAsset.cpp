@@ -809,7 +809,12 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
 
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping texture import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -871,6 +876,8 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
   }
+
+  ezLog::Success("Imported texture: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

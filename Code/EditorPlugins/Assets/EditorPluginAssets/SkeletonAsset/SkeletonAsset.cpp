@@ -465,7 +465,12 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -482,6 +487,8 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("File", sInputFileRel.GetView());
+
+  ezLog::Success("Imported skeleton: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

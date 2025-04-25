@@ -251,12 +251,22 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
   ezStringBuilder sInputFileRel = sInputFileAbs;
   pApp->MakePathDataDirectoryRelative(sInputFileRel);
+
+  if (sMode == "AnimationClipImport_Single")
+  {
+    if (ezOSFile::ExistsFile(sOutFile))
+    {
+      ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile);
+      return ezStatus(EZ_SUCCESS);
+    }
+
+    // skip the dialog below, if nothing will be imported anyway
+  }
 
   ezStringBuilder title;
   title.SetFormat("Select Preview Mesh for Animation Clip '{}'", sInputFileAbs.GetFileName());
@@ -286,6 +296,8 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
     accessor.SetValue("File", sInputFileRel.GetView());
     accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
 
+    ezLog::Success("Imported animation clip: '{}'", sOutFile);
+
     return ezStatus(EZ_SUCCESS);
   }
 
@@ -312,7 +324,12 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
 
       sOutFile2 = sOutFile;
       sOutFile2.ChangeFileName(sFilename);
-      ezOSFile::FindFreeFilename(sOutFile2);
+
+      if (ezOSFile::ExistsFile(sOutFile2))
+      {
+        ezLog::Info("Skipping animation clip import, file has been imported before: '{}'", sOutFile2);
+        continue;
+      }
 
       ezDocument* pDoc = pApp->CreateDocument(sOutFile2, ezDocumentFlags::None);
       if (pDoc == nullptr)
@@ -326,6 +343,8 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
       accessor.SetValue("File", sInputFileRel.GetView());
       accessor.SetValue("UseAnimationClip", clip);
       accessor.SetValue("PreviewMesh", sPreviewMesh.GetView());
+
+      ezLog::Success("Imported animation clip: '{}'", sOutFile2);
     }
 
     return ezStatus(EZ_SUCCESS);

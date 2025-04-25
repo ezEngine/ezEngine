@@ -63,6 +63,9 @@ public:
   virtual ezStringView GetDocumentExtension() const = 0;
 
   /// \brief Allows to merge the import modes of multiple generators in the UI in one group.
+  ///
+  /// Not really used anymore, but theoretically allows to show the same file multiple times in the import dialog,
+  /// such that one can import it as multiple different asset types.
   virtual ezStringView GetGeneratorGroup() const = 0;
 
   /// \brief Tells the generator to create a new asset document with the chosen mode.
