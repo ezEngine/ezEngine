@@ -1826,7 +1826,7 @@ void CScriptArray::Precache()
 				if( !isCmp && !isEq )
 					continue;
 
-				// The parameter must either be a reference to the subtype or a handle to the subtype
+				// The parameter must either be a reference to the subtype, a handle to the subtype or passed by value for pod value types
 				int paramTypeId;
 				func->GetParam(0, &paramTypeId, &flags);
 
@@ -1842,6 +1842,10 @@ void CScriptArray::Precache()
 				{
 					if( mustBeConst && !(paramTypeId & asTYPEID_HANDLETOCONST) )
 						continue;
+				}
+				else if( subType->GetFlags() & asOBJ_VALUE && subType->GetFlags() & asOBJ_POD )
+				{
+					// Passing pod value types by value is allowed
 				}
 				else
 					continue;

@@ -28,6 +28,7 @@ void ezGameEngineTestAngelScript::SetupSubTests()
 {
   AddSubTest("Types", SubTests::Types);
   AddSubTest("Strings", SubTests::Strings);
+  AddSubTest("Arrays", SubTests::Arrays);
   AddSubTest("EntryPoints", SubTests::EntryPoints);
   AddSubTest("World", SubTests::World);
   AddSubTest("Messaging", SubTests::Messaging);
@@ -51,6 +52,9 @@ ezTestAppRun ezGameEngineTestAngelScript::RunSubTest(ezInt32 iIdentifier, ezUInt
       return ezTestAppRun::Quit;
     case SubTests::Strings:
       m_pOwnApplication->RunTestScript("Tests/Types/StringsTest.as");
+      return ezTestAppRun::Quit;
+    case SubTests::Arrays:
+      m_pOwnApplication->RunTestScript("Tests/Types/ArraysTest.as");
       return ezTestAppRun::Quit;
     default:
       return m_pOwnApplication->SubTestBasisExec(GetSubTestName(iIdentifier));

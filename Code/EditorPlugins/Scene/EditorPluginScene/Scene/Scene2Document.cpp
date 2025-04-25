@@ -251,6 +251,20 @@ ezTransformStatus ezScene2Document::InternalTransformAsset(const char* szTargetF
   return SUPER::InternalTransformAsset(szTargetFile, sOutputTag, pAssetProfile, assetHeader, transformFlags);
 }
 
+void ezScene2Document::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  EZ_ASSERT_DEBUG(GetActiveLayer() == m_pDocumentInfo->m_DocumentID, "Ensure that the active layer is the scene itself before calling this function");
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // Add layers as dependencies
+  ezStringBuilder sTemp;
+  for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Key() != this->GetDocumentInfo()->m_DocumentID)
+      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(it.Key(), sTemp));
+  }
+}
+
 void ezScene2Document::PreventDoubleSelectionChange(bool b)
 {
   m_iAllowSelectionChanges = b ? 1 : -1;

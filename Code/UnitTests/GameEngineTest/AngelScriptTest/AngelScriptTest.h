@@ -32,6 +32,7 @@ public:
   {
     Types,
     Strings,
+    Arrays,
     EntryPoints,
     World,
     Messaging,
