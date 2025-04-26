@@ -47,14 +47,16 @@ namespace math {
 #define _OZZ_SIMD_IMPLEMENTATION "SSE3"
 #elif defined(OZZ_SIMD_SSEx)
 #define _OZZ_SIMD_IMPLEMENTATION "SSE2"
+#elif defined(OZZ_SIMD_ARM_NEON)
+#define _OZZ_SIMD_IMPLEMENTATION "ARM NEON"
 #elif defined(OZZ_SIMD_REF)
-#define _OZZ_SIMD_IMPLEMENTATION "Reference"
+#define _OZZ_SIMD_IMPLEMENTATION "Reference (scalar)"
 #else
 // Not defined
 #endif
 
 #pragma message("Ozz libraries were built with " _OZZ_SIMD_IMPLEMENTATION \
-                " SIMD math implementation")
+                " math implementation")
 
 const char* SimdImplementationName() { return _OZZ_SIMD_IMPLEMENTATION; }
 }  // namespace math

@@ -25,40 +25,56 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#include "ozz/animation/runtime/animation_utils.h"
+#ifndef OZZ_OZZ_ANIMATION_RUNTIME_MOTION_BLENDING_JOB_H_
+#define OZZ_OZZ_ANIMATION_RUNTIME_MOTION_BLENDING_JOB_H_
 
-// Internal include file
-#define OZZ_INCLUDE_PRIVATE_HEADER  // Allows to include private headers.
-#include "animation/runtime/animation_keyframe.h"
+#include "ozz/animation/runtime/export.h"
+#include "ozz/base/span.h"
 
 namespace ozz {
+
+// Forward declaration of math structures.
+namespace math {
+struct Transform;
+}
+
 namespace animation {
 
-inline int CountKeyframesImpl(const Animation::KeyframesCtrlConst& _ctrl,
-                              int _track) {
-  if (_track < 0) {
-    return static_cast<int>(_ctrl.previouses.size());
-  }
+// ozz::animation::MotionBlendingJob is in charge of blending delta motions
+// according to their respective weight. MotionBlendingJob is usually done to
+// blend the motion resulting from the motion extraction process, in parallel to
+// blending animations.
+struct OZZ_ANIMATION_DLL MotionBlendingJob {
+  // Validates job parameters.
+  // Returns true for a valid job, false otherwise:
+  // -if a layer transform pointer is null.
+  // -if output transform pointer is null.
+  bool Validate() const;
 
-  int count = 1;
-  size_t previous = static_cast<size_t>(_track);
-  for (size_t i = previous + 1; i < _ctrl.previouses.size(); ++i) {
-    if (i - _ctrl.previouses[i] == previous) {
-      ++count;
-      previous = i;
-    }
-  }
-  return count;
-}
+  // Runs job's blending task.
+  // The job is validated before any operation is performed, see Validate() for
+  // more details.
+  // Returns false if *this job is not valid.
+  bool Run() const;
 
-int CountTranslationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.translations_ctrl(), _track);
-}
-int CountRotationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.rotations_ctrl(), _track);
-}
-int CountScaleKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.scales_ctrl(), _track);
-}
+  // Defines a layer of blending input data and its weight.
+  struct OZZ_ANIMATION_DLL Layer {
+    // Blending weight of this layer. Negative values are considered as 0.
+    // Normalization is performed at the end of the blending stage, so weight
+    // can be in any range, even though range [0:1] is optimal.
+    float weight = 0.f;
+
+    // The motion delta transform to be blended.
+    const math::Transform* delta = nullptr;
+  };
+
+  // Job input layers, can be empty or nullptr.
+  // The range of layers that must be blended.
+  span<const Layer> layers;
+
+  // Job output.
+  ozz::math::Transform* output = nullptr;
+};
 }  // namespace animation
 }  // namespace ozz
+#endif  // OZZ_OZZ_ANIMATION_RUNTIME_MOTION_BLENDING_JOB_H_

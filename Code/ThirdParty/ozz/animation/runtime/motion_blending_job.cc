@@ -25,40 +25,72 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#include "ozz/animation/runtime/animation_utils.h"
+#include "ozz/animation/runtime/motion_blending_job.h"
 
-// Internal include file
-#define OZZ_INCLUDE_PRIVATE_HEADER  // Allows to include private headers.
-#include "animation/runtime/animation_keyframe.h"
+#include "ozz/base/maths/transform.h"
 
 namespace ozz {
 namespace animation {
 
-inline int CountKeyframesImpl(const Animation::KeyframesCtrlConst& _ctrl,
-                              int _track) {
-  if (_track < 0) {
-    return static_cast<int>(_ctrl.previouses.size());
+bool MotionBlendingJob::Validate() const {
+  bool valid = true;
+
+  valid &= output != nullptr;
+
+  // Validates layers.
+  for (const Layer& layer : layers) {
+    valid &= layer.delta != nullptr;
   }
 
-  int count = 1;
-  size_t previous = static_cast<size_t>(_track);
-  for (size_t i = previous + 1; i < _ctrl.previouses.size(); ++i) {
-    if (i - _ctrl.previouses[i] == previous) {
-      ++count;
-      previous = i;
+  return valid;
+}
+
+bool MotionBlendingJob::Run() const {
+  if (!Validate()) {
+    return false;
+  }
+
+  // Lerp each layer's transform according to its weight.
+  float acc_weight = 0.f;  // Accumulates weights for normalization.
+  float dl = 0.f;          // Weighted translation lengths.
+  ozz::math::Float3 dt = {0.f, 0.f, 0.f};  // Weighted translations directions.
+  ozz::math::Quaternion dr = {0.f, 0.f, 0.f, 0.f};  // Weighted rotations.
+
+  for (const auto& layer : layers) {
+    const float weight = layer.weight;
+    if (weight <= 0.f) {  // Negative weights are considered O.
+      continue;
     }
-  }
-  return count;
-}
+    acc_weight += weight;
 
-int CountTranslationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.translations_ctrl(), _track);
-}
-int CountRotationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.rotations_ctrl(), _track);
-}
-int CountScaleKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.scales_ctrl(), _track);
+    // Decomposes translation into a normalized vector and a length, to limit
+    // lerp error while interpolating vector length.
+    const float len = Length(layer.delta->translation);
+    dl = dl + len * weight;
+    const float denom = (len == 0.f) ? 0.f : weight / len;
+    dt = dt + layer.delta->translation * denom;
+
+    // Accumulates weighted rotation (NLerp). Makes sure quaternions are on the
+    // same hemisphere to lerp the shortest arc (using -Q otherwise).
+    const float signed_weight =
+        std::copysign(weight, Dot(dr, layer.delta->rotation));
+    dr = dr + layer.delta->rotation * signed_weight;
+  }
+
+  // Normalizes (weights) and fills output.
+
+  // Normalizes translation and re-applies interpolated length.
+  const float denom = Length(dt) * acc_weight;
+  const float norm = (denom == 0.f) ? 0.f : dl / denom;
+  output->translation = dt * norm;
+
+  // Normalizes rotation (doesn't need acc_weight).
+  output->rotation = NormalizeSafe(dr, ozz::math::Quaternion::identity());
+
+  // No scale.
+  output->scale = {1.f, 1.f, 1.f};
+
+  return true;
 }
 }  // namespace animation
 }  // namespace ozz

@@ -25,40 +25,23 @@
 //                                                                            //
 //----------------------------------------------------------------------------//
 
-#include "ozz/animation/runtime/animation_utils.h"
+#ifndef OZZ_OZZ_ANIMATION_OFFLINE_RAW_TRACK_UTILS_H_
+#define OZZ_OZZ_ANIMATION_OFFLINE_RAW_TRACK_UTILS_H_
 
-// Internal include file
-#define OZZ_INCLUDE_PRIVATE_HEADER  // Allows to include private headers.
-#include "animation/runtime/animation_keyframe.h"
+#include "ozz/animation/offline/export.h"
+#include "ozz/animation/offline/raw_track.h"
 
 namespace ozz {
 namespace animation {
+namespace offline {
 
-inline int CountKeyframesImpl(const Animation::KeyframesCtrlConst& _ctrl,
-                              int _track) {
-  if (_track < 0) {
-    return static_cast<int>(_ctrl.previouses.size());
-  }
+// Samples a RawTrack. This function shall be used for offline purpose.
+// Returns false if track is invalid.
+template <typename _RawTrack>
+OZZ_ANIMOFFLINE_DLL bool SampleTrack(const _RawTrack& _track, float _ratio,
+                                     typename _RawTrack::ValueType* _value);
 
-  int count = 1;
-  size_t previous = static_cast<size_t>(_track);
-  for (size_t i = previous + 1; i < _ctrl.previouses.size(); ++i) {
-    if (i - _ctrl.previouses[i] == previous) {
-      ++count;
-      previous = i;
-    }
-  }
-  return count;
-}
-
-int CountTranslationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.translations_ctrl(), _track);
-}
-int CountRotationKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.rotations_ctrl(), _track);
-}
-int CountScaleKeyframes(const Animation& _animation, int _track) {
-  return CountKeyframesImpl(_animation.scales_ctrl(), _track);
-}
+}  // namespace offline
 }  // namespace animation
 }  // namespace ozz
+#endif  // OZZ_OZZ_ANIMATION_OFFLINE_RAW_TRACK_UTILS_H_
