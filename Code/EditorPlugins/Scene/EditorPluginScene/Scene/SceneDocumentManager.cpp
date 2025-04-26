@@ -27,7 +27,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene");
 
     docTypeDesc.m_sResourceFileExtension = "ezBinScene";
-    docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
+    docTypeDesc.m_AssetDocumentFlags = /*ezAssetDocumentFlags::AutoTransformOnSave |*/ ezAssetDocumentFlags::SupportsThumbnail;
   }
 
   // Document type descriptor for a prefab
