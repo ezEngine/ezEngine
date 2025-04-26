@@ -32,7 +32,6 @@
 #include "ozz/base/log.h"
 #include "ozz/base/maths/math_ex.h"
 #include "ozz/base/maths/simd_quaternion.h"
-#include <windows.h>
 
 using namespace ozz::math;
 
@@ -278,11 +277,6 @@ SimdQuaternion ComputeStartJoint(const IKTwoBoneJob& _job,
         And(SplatX(Dot3(joint_plane_normal_ss, pole_ss)), _setup.mask_sign);
     const SimdFloat4 rotate_plane_axis_flipped_ss =
         Xor(rotate_plane_axis_ss, start_axis_flip);
-
-    char tmp[128];
-    snprintf(tmp, 128, "%.2f | %.2f | %.2f\n", rotate_plane_axis_flipped_ss.m128_f32[0], rotate_plane_axis_flipped_ss.m128_f32[1], rotate_plane_axis_flipped_ss.m128_f32[2]);
-
-    OutputDebugStringA(tmp);
 
     // Builds quaternion along rotation axis.
     const SimdQuaternion rotate_plane_ss = SimdQuaternion::FromAxisCosAngle(
