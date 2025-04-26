@@ -66,6 +66,14 @@ void ezQtLogModel::AddLogMsg(const ezLogEntry& msg)
 {
   {
     EZ_LOCK(m_NewMessagesMutex);
+
+    if (m_NewMessages.GetCount() > 1000)
+    {
+      // at the end of a play session, there can be a lot of log message queued up
+      // this will take ages to process and is mostly pointless, so just print the last ones
+      m_NewMessages.PopFront();
+    }
+
     m_NewMessages.PushBack(msg);
   }
 
