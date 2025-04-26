@@ -300,7 +300,7 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
 
     for (const auto& clip : pImporter->m_OutputAnimationNames)
     {
-      sFilename = clip;
+      ezPathUtils::MakeValidFilename(clip, '-', sFilename);
       sFilename.ReplaceAll(" ", "-");
       sFilename.Prepend(sOutFile.GetFileName(), "_");
 

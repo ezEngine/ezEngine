@@ -318,7 +318,7 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sInputFile
 
     for (const auto& clip : pImporter->m_OutputAnimationNames)
     {
-      sFilename = clip;
+      ezPathUtils::MakeValidFilename(clip, '-', sFilename);
       sFilename.ReplaceAll(" ", "-");
       sFilename.Prepend(sOutFile.GetFileName(), "_");
 
