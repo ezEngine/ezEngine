@@ -30,6 +30,7 @@ void ezAnimPoseGenerator::Reset(const ezSkeletonResource* pSkeleton, ezGameObjec
   m_CommandsLocalToModelPose.Clear();
   m_CommandsSampleEventTrack.Clear();
   m_CommandsAimIK.Clear();
+  m_CommandsTwoBoneIK.Clear();
 
   m_UsedLocalTransforms.Clear();
 

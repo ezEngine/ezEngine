@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4063831808526479806,5002292852126062766}}
-		u4 %Hash{5677804135592950555}
+		u4 %Hash{17945892956647622816}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5302902712215008652,16789820488192224536}}
@@ -86,7 +86,7 @@ o
 	{
 		b %Active{1}
 		s %AnimGraph{"{ 7cdef900-60f6-42a0-b1f9-0dfe4dbb555e }"}
-		b %EnableIK{0}
+		b %EnableIK{1}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::SendMoveCharacterMsg"}
 	}

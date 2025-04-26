@@ -71,20 +71,12 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   m_PinDataLocalTransforms.Clear();
   m_PinDataModelTransforms.Clear();
 
-  // TODO: step all instances
-
   for (auto& inst : m_Instances)
   {
     inst.m_pInstance->Update(*this, diff, pTarget, pSkeleton.GetPointer());
   }
 
   GenerateLocalResultProcessors(pSkeleton.GetPointer());
-
-  {
-    ezMsgAnimationPoseGeneration poseGenMsg;
-    poseGenMsg.m_pGenerator = &GetPoseGenerator();
-    pTarget->SendMessageRecursive(poseGenMsg);
-  }
 
   GetPoseGenerator().UpdatePose(bEnableIK);
 
