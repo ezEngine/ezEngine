@@ -323,6 +323,11 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
 
     hResources.Clear();
 
+    while (ezResourceManager::IsAnyLoadingInProgress())
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    }
+
     ezResourceManager::FreeAllUnusedResources();
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);
   }

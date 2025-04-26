@@ -494,11 +494,12 @@ void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
   m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: {} {}", szPlayerApp, sCmd));
 
   ezStringBuilder sPlayerApp = szPlayerApp;
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (sPlayerApp.IsRelativePath())
   {
     sPlayerApp.Prepend("./");
   }
-
+#endif()
   QProcess::startDetached(QString::fromUtf8(sPlayerApp.GetData()), arguments, QCoreApplication::applicationDirPath());
 }
 
