@@ -17,6 +17,8 @@
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
+#include <RendererDX11/State/GraphicsPipelineDX11.h>
+#include <RendererDX11/State/ComputePipelineDX11.h>
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
@@ -443,6 +445,49 @@ void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerSta
   EZ_DELETE(&m_Allocator, pDX11SamplerState);
 }
 
+ezGALGraphicsPipeline* ezGALDeviceDX11::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)
+{
+  ezGALGraphicsPipelineDX11* pGraphicsPipeline = EZ_NEW(&m_Allocator, ezGALGraphicsPipelineDX11, Description);
+
+  if (pGraphicsPipeline->InitPlatform(this).Succeeded())
+  {
+    return pGraphicsPipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pGraphicsPipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline)
+{
+  ezGALGraphicsPipelineDX11* pGraphicsPipelineDX11 = static_cast<ezGALGraphicsPipelineDX11*>(pGraphicsPipeline);
+  pGraphicsPipelineDX11->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pGraphicsPipelineDX11);
+}
+
+ezGALComputePipeline* ezGALDeviceDX11::CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description)
+{
+  ezGALComputePipelineDX11* pComputePipeline = EZ_NEW(&m_Allocator, ezGALComputePipelineDX11, Description);
+
+  if (pComputePipeline->InitPlatform(this).Succeeded())
+  {
+    return pComputePipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pComputePipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline)
+{
+  ezGALComputePipelineDX11* pComputePipelineDX11 = static_cast<ezGALComputePipelineDX11*>(pComputePipeline);
+  pComputePipelineDX11->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pComputePipelineDX11);
+}
 
 // Resource creation functions
 

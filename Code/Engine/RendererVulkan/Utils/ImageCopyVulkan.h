@@ -73,9 +73,10 @@ private:
   vk::RenderPass m_renderPass;
   ezShaderUtils::ezBuiltinShader m_shader;
   ezGALVertexDeclarationHandle m_hVertexDecl;
-  ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
-  ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+  ezGALGraphicsPipelineCreationDescription m_PipelineDesc;
+  ezGALGraphicsPipelineHandle m_hGalPipeline;
   vk::Pipeline m_pipeline;
+  const ezGALShaderVulkan* m_pShader = nullptr;
 
   // Cache to keep important resources alive
   // This avoids recreating them every frame

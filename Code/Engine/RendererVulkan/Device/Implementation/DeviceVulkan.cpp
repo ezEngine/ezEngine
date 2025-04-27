@@ -36,6 +36,8 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
+#include <RendererVulkan/State/ComputePipelineVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
@@ -1015,7 +1017,6 @@ ezGALBlendState* ezGALDeviceVulkan::CreateBlendStatePlatform(const ezGALBlendSta
 void ezGALDeviceVulkan::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 {
   ezGALBlendStateVulkan* pState = static_cast<ezGALBlendStateVulkan*>(pBlendState);
-  ezResourceCacheVulkan::ResourceDeleted(pState);
   pState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pState);
 }
@@ -1038,7 +1039,6 @@ ezGALDepthStencilState* ezGALDeviceVulkan::CreateDepthStencilStatePlatform(const
 void ezGALDeviceVulkan::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
 {
   ezGALDepthStencilStateVulkan* pVulkanDepthStencilState = static_cast<ezGALDepthStencilStateVulkan*>(pDepthStencilState);
-  ezResourceCacheVulkan::ResourceDeleted(pVulkanDepthStencilState);
   pVulkanDepthStencilState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanDepthStencilState);
 }
@@ -1061,7 +1061,6 @@ ezGALRasterizerState* ezGALDeviceVulkan::CreateRasterizerStatePlatform(const ezG
 void ezGALDeviceVulkan::DestroyRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
 {
   ezGALRasterizerStateVulkan* pVulkanRasterizerState = static_cast<ezGALRasterizerStateVulkan*>(pRasterizerState);
-  ezResourceCacheVulkan::ResourceDeleted(pVulkanRasterizerState);
   pVulkanRasterizerState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanRasterizerState);
 }
@@ -1107,7 +1106,6 @@ ezGALShader* ezGALDeviceVulkan::CreateShaderPlatform(const ezGALShaderCreationDe
 void ezGALDeviceVulkan::DestroyShaderPlatform(ezGALShader* pShader)
 {
   ezGALShaderVulkan* pVulkanShader = static_cast<ezGALShaderVulkan*>(pShader);
-  ezResourceCacheVulkan::ShaderDeleted(pVulkanShader);
   pVulkanShader->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanShader);
 }
@@ -1364,7 +1362,6 @@ ezGALVertexDeclaration* ezGALDeviceVulkan::CreateVertexDeclarationPlatform(const
 void ezGALDeviceVulkan::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
   ezGALVertexDeclarationVulkan* pVertexDeclarationVulkan = static_cast<ezGALVertexDeclarationVulkan*>(pVertexDeclaration);
-  ezResourceCacheVulkan::ResourceDeleted(pVertexDeclarationVulkan);
   pVertexDeclarationVulkan->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVertexDeclarationVulkan);
 }
@@ -2141,5 +2138,48 @@ void ezGALDeviceVulkan::AddSignalSemaphore(const SemaphoreInfo& signalSemaphore)
     m_signalSemaphores.PushBack(signalSemaphore);
 }
 
+ezGALGraphicsPipeline* ezGALDeviceVulkan::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)
+{
+  ezGALGraphicsPipelineVulkan* pGraphicsPipeline = EZ_NEW(&m_Allocator, ezGALGraphicsPipelineVulkan, Description);
+
+  if (pGraphicsPipeline->InitPlatform(this).Succeeded())
+  {
+    return pGraphicsPipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pGraphicsPipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceVulkan::DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline)
+{
+  ezGALGraphicsPipelineVulkan* pGraphicsPipelineVulkan = static_cast<ezGALGraphicsPipelineVulkan*>(pGraphicsPipeline);
+  pGraphicsPipelineVulkan->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pGraphicsPipelineVulkan);
+}
+
+ezGALComputePipeline* ezGALDeviceVulkan::CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description)
+{
+  ezGALComputePipelineVulkan* pComputePipeline = EZ_NEW(&m_Allocator, ezGALComputePipelineVulkan, Description);
+  
+  if (pComputePipeline->InitPlatform(this).Succeeded())
+  {
+    return pComputePipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pComputePipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceVulkan::DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline)
+{
+  ezGALComputePipelineVulkan* pComputePipelineVulkan = static_cast<ezGALComputePipelineVulkan*>(pComputePipeline);
+  pComputePipelineVulkan->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pComputePipelineVulkan);
+}
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_DeviceVulkan);

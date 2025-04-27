@@ -81,7 +81,7 @@ struct EZ_RENDERERCORE_DLL ezRenderToTexture2DResourceDescriptor
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezEnum<ezGALMSAASampleCount> m_SampleCount;
-  ezEnum<ezGALResourceFormat> m_Format;
+  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   ezGALSamplerStateCreationDescription m_SamplerDesc;
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };

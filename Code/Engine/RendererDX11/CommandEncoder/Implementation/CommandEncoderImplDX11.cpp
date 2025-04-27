@@ -14,6 +14,8 @@
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
+#include <RendererDX11/State/ComputePipelineDX11.h>
+#include <RendererDX11/State/GraphicsPipelineDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 
@@ -716,6 +718,47 @@ void ezGALCommandEncoderImplDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, const
   m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
 
+void ezGALCommandEncoderImplDX11::SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline)
+{
+  const ezGALShader* pShader = nullptr;
+  const ezGALVertexDeclaration* pVertexDeclaration = nullptr;
+  const ezGALRasterizerState* pRasterizerState = nullptr;
+  const ezGALBlendState* pBlendState = nullptr;
+  const ezGALDepthStencilState* pDepthStencilState = nullptr;
+
+  if (pGraphicsPipeline)
+  {
+    const ezGALGraphicsPipelineCreationDescription& desc = pGraphicsPipeline->GetDescription();
+    pShader = m_GALDeviceDX11.GetShader(desc.m_hShader);
+    EZ_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[ezGALShaderStage::ComputeShader] == nullptr, "");
+    pVertexDeclaration = m_GALDeviceDX11.GetVertexDeclaration(desc.m_hVertexDeclaration);
+    pRasterizerState = m_GALDeviceDX11.GetRasterizerState(desc.m_hRasterizerState);
+    pBlendState = m_GALDeviceDX11.GetBlendState(desc.m_hBlendState);
+    pDepthStencilState = m_GALDeviceDX11.GetDepthStencilState(desc.m_hDepthStencilState);
+    SetPrimitiveTopologyPlatform(desc.m_Topology);
+  }
+
+  SetShaderPlatform(pShader);
+  SetVertexDeclarationPlatform(pVertexDeclaration);
+  SetRasterizerStatePlatform(pRasterizerState);
+  SetBlendStatePlatform(pBlendState);
+  SetDepthStencilStatePlatform(pDepthStencilState);
+}
+
+void ezGALCommandEncoderImplDX11::SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline)
+{
+  const ezGALShader* pShader = nullptr;
+
+  if (pComputePipeline)
+  {
+    const ezGALComputePipelineCreationDescription& desc = pComputePipeline->GetDescription();
+    pShader = m_GALDeviceDX11.GetShader(desc.m_hShader);
+    EZ_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[ezGALShaderStage::ComputeShader] != nullptr, "");
+  }
+
+  SetShaderPlatform(pShader);
+}
+
 void ezGALCommandEncoderImplDX11::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
 {
   ezMemoryUtils::ZeroFill(m_VertexBufferStrides, EZ_ARRAY_SIZE(m_VertexBufferStrides));
@@ -759,11 +802,10 @@ void ezGALCommandEncoderImplDX11::SetBlendStatePlatform(const ezGALBlendState* p
     pBlendState != nullptr ? static_cast<const ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
 
-void ezGALCommandEncoderImplDX11::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
+void ezGALCommandEncoderImplDX11::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState)
 {
-  m_pDXContext->OMSetDepthStencilState(
-    pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr,
-    uiStencilRefValue);
+  ID3D11DepthStencilState* pDepthStencilStateDX11 = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr;
+  m_pDXContext->OMSetDepthStencilState(pDepthStencilStateDX11, m_uiStencilRefValue);
 }
 
 void ezGALCommandEncoderImplDX11::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
@@ -793,6 +835,17 @@ void ezGALCommandEncoderImplDX11::SetScissorRectPlatform(const ezRectU32& rect)
   ScissorRect.bottom = rect.y + rect.height;
 
   m_pDXContext->RSSetScissorRects(1, &ScissorRect);
+}
+
+void ezGALCommandEncoderImplDX11::SetStencilReferencePlatform(ezUInt8 uiStencilRefValue)
+{
+  if (m_uiStencilRefValue == uiStencilRefValue)
+    return;
+
+  m_uiStencilRefValue = uiStencilRefValue;
+  ID3D11DepthStencilState* pState = nullptr;
+  m_pDXContext->OMGetDepthStencilState(&pState, nullptr);
+  m_pDXContext->OMSetDepthStencilState(pState, m_uiStencilRefValue);
 }
 
 //////////////////////////////////////////////////////////////////////////

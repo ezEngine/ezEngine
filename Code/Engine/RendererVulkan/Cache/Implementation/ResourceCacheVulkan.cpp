@@ -1,6 +1,10 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Application/Application.h>
 #include <Foundation/Basics.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -11,14 +15,11 @@
 
 ezGALDeviceVulkan* ezResourceCacheVulkan::s_pDevice;
 vk::Device ezResourceCacheVulkan::s_device;
+vk::PipelineCache ezResourceCacheVulkan::s_pipelineCache;
 
 ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_renderPasses;
 ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_frameBuffers;
 ezHashTable<ezResourceCacheVulkan::PipelineLayoutDesc, vk::PipelineLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_pipelineLayouts;
-ezResourceCacheVulkan::GraphicsPipelineMap ezResourceCacheVulkan::s_graphicsPipelines;
-ezResourceCacheVulkan::ComputePipelineMap ezResourceCacheVulkan::s_computePipelines;
-ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::GraphicsPipelineMap::Iterator, 1>> ezResourceCacheVulkan::s_graphicsPipelineUsedBy;
-ezMap<const ezRefCounted*, ezHybridArray<ezResourceCacheVulkan::ComputePipelineMap::Iterator, 1>> ezResourceCacheVulkan::s_computePipelineUsedBy;
 
 ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_descriptorSetLayouts;
 
@@ -32,16 +33,75 @@ namespace
     Stream << reinterpret_cast<const ezUInt32&>(Value);
     return Stream;
   }
+
+  static constexpr ezUInt32 PIPELINE_CACHE_MAGIC = 0x45A9BCD7; // Arbitrary m_uiMagic number
+  // Header structure for Vulkan pipeline cache
+  struct PipelineCachePrefixHeader
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiMagic;             // An arbitrary m_uiMagic header to make sure this is actually our file
+    ezUInt32 m_uiDataSize;          // Equal to *pDataSize returned by vkGetPipelineCacheData
+    ezUInt64 m_uiDataHash;          // A hash of pipeline cache data, including the header
+    ezUInt32 m_uiVendorID;          // Equal to VkPhysicalDeviceProperties::vendorID
+    ezUInt32 m_uiDeviceID;          // Equal to VkPhysicalDeviceProperties::deviceID
+    ezUInt32 m_uiDriverVersion;     // Equal to VkPhysicalDeviceProperties::driverVersion
+    ezUInt32 m_uiDriverABI;         // Equal to sizeof(void*)
+    ezUInt8 m_uiUuid[VK_UUID_SIZE]; // Equal to VkPhysicalDeviceProperties::pipelineCacheUUID
+  };
+
+  ezString GetPipelineCacheFilename(const vk::PhysicalDeviceProperties& deviceProperties)
+  {
+    ezStringBuilder sCacheFilePath;
+    ezString sAppName = ezApplication::GetApplicationInstance() ? ezApplication::GetApplicationInstance()->GetApplicationName().GetView() : "ezEngine"_ezsv;
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    // Be extra pedantic on Android and don't reuse caches on driver version changes, see https://zeux.io/2019/07/17/serializing-pipeline-cache/
+    sCacheFilePath.SetFormat("{}/PipelineCache_{}_{}_{}.bin",
+      ezOSFile::GetUserDataFolder(sAppName),
+      ezArgU(deviceProperties.vendorID, 8, true, 16, true),
+      ezArgU(deviceProperties.deviceID, 8, true, 16, true),
+      ezArgU(deviceProperties.driverVersion, 8, true, 16, true));
+#else
+    // On desktop, we assume that vendors can actually write proper code and caches can be reused after driver updates.
+    sCacheFilePath.SetFormat("{}/PipelineCache_{}_{}.bin",
+      ezOSFile::GetUserDataFolder(sAppName),
+      ezArgU(deviceProperties.vendorID, 8, true, 16, true),
+      ezArgU(deviceProperties.deviceID, 8, true, 16, true));
+#endif
+    return sCacheFilePath;
+  }
 } // namespace
+
+
 
 void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device device)
 {
   s_pDevice = pDevice;
   s_device = device;
+
+  if (LoadPipelineCache(s_pipelineCache).Failed())
+  {
+    vk::PipelineCacheCreateInfo pipelineCacheInfo;
+    pipelineCacheInfo.initialDataSize = 0;
+    pipelineCacheInfo.pInitialData = nullptr;
+    VK_ASSERT_DEV(s_device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_pipelineCache));
+  }
 }
 
 void ezResourceCacheVulkan::DeInitialize()
 {
+  if (s_pipelineCache)
+  {
+    if (SavePipelineCache().Failed())
+    {
+      ezLog::Error("Failed to save Vulkan pipeline cache");
+    }
+    // Destroy the pipeline cache
+    s_device.destroyPipelineCache(s_pipelineCache, nullptr);
+    s_pipelineCache = nullptr;
+  }
+
+  // Destroy other resources
   for (auto it : s_renderPasses)
   {
     s_device.destroyRenderPass(it.Value(), nullptr);
@@ -55,34 +115,6 @@ void ezResourceCacheVulkan::DeInitialize()
   }
   s_frameBuffers.Clear();
   s_frameBuffers.Compact();
-
-  // graphic
-  {
-    for (auto it : s_graphicsPipelines)
-    {
-      s_device.destroyPipeline(it.Value(), nullptr);
-    }
-    s_graphicsPipelines.Clear();
-    GraphicsPipelineMap tmp;
-    s_graphicsPipelines.Swap(tmp);
-    s_graphicsPipelineUsedBy.Clear();
-    ezMap<const ezRefCounted*, ezHybridArray<GraphicsPipelineMap::Iterator, 1>> tmp2;
-    s_graphicsPipelineUsedBy.Swap(tmp2);
-  }
-
-  // compute
-  {
-    for (auto it : s_computePipelines)
-    {
-      s_device.destroyPipeline(it.Value(), nullptr);
-    }
-    s_computePipelines.Clear();
-    ComputePipelineMap tmp;
-    s_computePipelines.Swap(tmp);
-    s_computePipelineUsedBy.Clear();
-    ezMap<const ezRefCounted*, ezHybridArray<ComputePipelineMap::Iterator, 1>> tmp2;
-    s_computePipelineUsedBy.Swap(tmp2);
-  }
 
   for (auto it : s_pipelineLayouts)
   {
@@ -268,147 +300,6 @@ vk::PipelineLayout ezResourceCacheVulkan::RequestPipelineLayout(const PipelineLa
   return layout;
 }
 
-vk::Pipeline ezResourceCacheVulkan::RequestGraphicsPipeline(const GraphicsPipelineDesc& desc)
-{
-  if (const vk::Pipeline* pPipeline = s_graphicsPipelines.GetValue(desc))
-  {
-    return *pPipeline;
-  }
-
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating Graphics Pipeline #{}", s_graphicsPipelines.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
-
-  vk::PipelineVertexInputStateCreateInfo dummy;
-  const vk::PipelineVertexInputStateCreateInfo* pVertexCreateInfo = nullptr;
-  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> bindings;
-  pVertexCreateInfo = desc.m_pCurrentVertexDecl ? &desc.m_pCurrentVertexDecl->GetCreateInfo() : &dummy;
-
-  vk::PipelineInputAssemblyStateCreateInfo input_assembly;
-  input_assembly.topology = ezConversionUtilsVulkan::GetPrimitiveTopology(desc.m_topology);
-  const bool bTessellation = desc.m_pCurrentShader->GetShader(ezGALShaderStage::HullShader) != nullptr;
-  if (bTessellation)
-  {
-    // Tessellation shaders always need to use patch list as the topology.
-    input_assembly.topology = vk::PrimitiveTopology::ePatchList;
-  }
-
-  // Specify rasterization state.
-  const vk::PipelineRasterizationStateCreateInfo* raster = desc.m_pCurrentRasterizerState->GetRasterizerState();
-
-  // Our attachment will write to all color channels
-  vk::PipelineColorBlendStateCreateInfo blend = *desc.m_pCurrentBlendState->GetBlendState();
-  blend.attachmentCount = desc.m_renderPassDesc.m_uiRTCount;
-
-  // We will have one viewport and scissor box.
-  vk::PipelineViewportStateCreateInfo viewport;
-  viewport.viewportCount = 1;
-  viewport.scissorCount = 1;
-
-  // Depth Testing
-  const vk::PipelineDepthStencilStateCreateInfo* depth_stencil = desc.m_pCurrentDepthStencilState->GetDepthStencilState();
-
-  // Multisampling.
-  vk::PipelineMultisampleStateCreateInfo multisample;
-  multisample.rasterizationSamples = ezConversionUtilsVulkan::GetSamples(desc.m_renderPassDesc.m_Msaa);
-  if (multisample.rasterizationSamples != vk::SampleCountFlagBits::e1 && desc.m_pCurrentBlendState->GetDescription().m_bAlphaToCoverage)
-  {
-    multisample.alphaToCoverageEnable = true;
-  }
-
-  // Specify that these states will be dynamic, i.e. not part of pipeline state object.
-  ezHybridArray<vk::DynamicState, 2> dynamics;
-  dynamics.PushBack(vk::DynamicState::eViewport);
-  dynamics.PushBack(vk::DynamicState::eScissor);
-
-  vk::PipelineDynamicStateCreateInfo dynamic;
-  dynamic.pDynamicStates = dynamics.GetData();
-  dynamic.dynamicStateCount = dynamics.GetCount();
-
-  // Load our SPIR-V shaders.
-  ezHybridArray<vk::PipelineShaderStageCreateInfo, 6> shader_stages;
-  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
-  {
-    if (vk::ShaderModule shader = desc.m_pCurrentShader->GetShader((ezGALShaderStage::Enum)i))
-    {
-      vk::PipelineShaderStageCreateInfo& stage = shader_stages.ExpandAndGetRef();
-      stage.stage = ezConversionUtilsVulkan::GetShaderStage((ezGALShaderStage::Enum)i);
-      stage.module = shader;
-      stage.pName = "main";
-    }
-  }
-
-  vk::PipelineTessellationStateCreateInfo tessellationInfo;
-  if (bTessellation)
-  {
-    tessellationInfo.patchControlPoints = desc.m_pCurrentShader->GetDescription().m_ByteCodes[ezGALShaderStage::HullShader]->m_uiTessellationPatchControlPoints;
-  }
-
-  vk::GraphicsPipelineCreateInfo pipe;
-  pipe.renderPass = desc.m_renderPass;
-  pipe.layout = desc.m_layout;
-  pipe.stageCount = shader_stages.GetCount();
-  pipe.pStages = shader_stages.GetData();
-  pipe.pVertexInputState = pVertexCreateInfo;
-  pipe.pInputAssemblyState = &input_assembly;
-  pipe.pRasterizationState = raster;
-  pipe.pColorBlendState = &blend;
-  pipe.pMultisampleState = &multisample;
-  pipe.pViewportState = &viewport;
-  pipe.pDepthStencilState = depth_stencil;
-  pipe.pDynamicState = &dynamic;
-  if (bTessellation)
-    pipe.pTessellationState = &tessellationInfo;
-
-  vk::Pipeline pipeline;
-  vk::PipelineCache cache;
-  VK_ASSERT_DEBUG(s_device.createGraphicsPipelines(cache, 1, &pipe, nullptr, &pipeline));
-
-  auto it = s_graphicsPipelines.Insert(desc, pipeline);
-  {
-    s_graphicsPipelineUsedBy[desc.m_pCurrentRasterizerState].PushBack(it);
-    s_graphicsPipelineUsedBy[desc.m_pCurrentBlendState].PushBack(it);
-    s_graphicsPipelineUsedBy[desc.m_pCurrentDepthStencilState].PushBack(it);
-    s_graphicsPipelineUsedBy[desc.m_pCurrentShader].PushBack(it);
-    s_graphicsPipelineUsedBy[desc.m_pCurrentVertexDecl].PushBack(it);
-  }
-
-  return pipeline;
-}
-
-vk::Pipeline ezResourceCacheVulkan::RequestComputePipeline(const ComputePipelineDesc& desc)
-{
-  if (const vk::Pipeline* pPipeline = s_computePipelines.GetValue(desc))
-  {
-    return *pPipeline;
-  }
-
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating Compute Pipeline #{}", s_computePipelines.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
-
-  vk::ComputePipelineCreateInfo pipe;
-  pipe.layout = desc.m_layout;
-  {
-    vk::ShaderModule shader = desc.m_pCurrentShader->GetShader(ezGALShaderStage::ComputeShader);
-    EZ_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");
-    pipe.stage.stage = ezConversionUtilsVulkan::GetShaderStage(ezGALShaderStage::ComputeShader);
-    pipe.stage.module = shader;
-    pipe.stage.pName = "main";
-  }
-
-  vk::Pipeline pipeline;
-  vk::PipelineCache cache;
-  VK_ASSERT_DEBUG(s_device.createComputePipelines(cache, 1, &pipe, nullptr, &pipeline));
-
-  auto it = s_computePipelines.Insert(desc, pipeline);
-  {
-    s_computePipelineUsedBy[desc.m_pCurrentShader].PushBack(it);
-  }
-
-  return pipeline;
-}
-
 vk::DescriptorSetLayout ezResourceCacheVulkan::RequestDescriptorSetLayout(const ezGALShaderVulkan::DescriptorSetLayoutDesc& desc)
 {
   if (const vk::DescriptorSetLayout* pLayout = s_descriptorSetLayouts.GetValue(desc))
@@ -431,54 +322,112 @@ vk::DescriptorSetLayout ezResourceCacheVulkan::RequestDescriptorSetLayout(const 
   return layout;
 }
 
-void ezResourceCacheVulkan::ResourceDeleted(const ezRefCounted* pResource)
+ezResult ezResourceCacheVulkan::SavePipelineCache()
 {
-  auto it = s_graphicsPipelineUsedBy.Find(pResource);
-  if (it.IsValid())
+  // Get physical device properties for cache validation
+  vk::PhysicalDeviceProperties deviceProperties = s_pDevice->GetVulkanPhysicalDevice().getProperties();
+
+  // Get the cache data
+  size_t dataSize = 0;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_device.getPipelineCacheData(s_pipelineCache, &dataSize, nullptr));
+  if (dataSize == 0)
+    return EZ_SUCCESS;
+
+  ezDynamicArray<ezUInt8> pipelineCacheData;
+  pipelineCacheData.SetCountUninitialized(dataSize);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_device.getPipelineCacheData(s_pipelineCache, &dataSize, pipelineCacheData.GetData()));
+
+  // Create our custom prefix header
+  PipelineCachePrefixHeader prefixHeader;
+  prefixHeader.m_uiMagic = PIPELINE_CACHE_MAGIC;
+  prefixHeader.m_uiDataSize = static_cast<ezUInt32>(dataSize);
+  prefixHeader.m_uiVendorID = deviceProperties.vendorID;
+  prefixHeader.m_uiDeviceID = deviceProperties.deviceID;
+  prefixHeader.m_uiDriverVersion = deviceProperties.driverVersion;
+  prefixHeader.m_uiDriverABI = sizeof(void*);
+  for (ezUInt32 i = 0; i < VK_UUID_SIZE; ++i)
   {
-    const auto& itArray = it.Value();
-    for (GraphicsPipelineMap::Iterator it2 : itArray)
-    {
-      s_pDevice->DeleteLater(it2.Value());
-
-      const GraphicsPipelineDesc& desc = it2.Key();
-      ezArrayPtr<const ezRefCounted*> resources((const ezRefCounted**)&desc.m_pCurrentRasterizerState, 5);
-      for (const ezRefCounted* pResource2 : resources)
-      {
-        if (pResource2 != pResource)
-        {
-          s_graphicsPipelineUsedBy[pResource2].RemoveAndSwap(it2);
-        }
-      }
-
-      s_graphicsPipelines.Remove(it2);
-    }
-
-    s_graphicsPipelineUsedBy.Remove(it);
+    prefixHeader.m_uiUuid[i] = deviceProperties.pipelineCacheUUID[i];
   }
+  prefixHeader.m_uiDataHash = ezHashingUtils::MurmurHash64(pipelineCacheData.GetData(), dataSize);
+
+  ezString sCacheFilePath = GetPipelineCacheFilename(deviceProperties);
+  ezStringBuilder sTempFilePath;
+  sTempFilePath.SetFormat("{}_temp", sCacheFilePath);
+  // Write to the temporary file first
+  {
+    ezOSFile file;
+    //ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(sTempFilePath, ezFileOpenMode::Write, ezFileShareMode::Exclusive));
+    EZ_SUCCEED_OR_RETURN(file.Write(&prefixHeader, sizeof(PipelineCachePrefixHeader)));
+    EZ_SUCCEED_OR_RETURN(file.Write(pipelineCacheData.GetData(), dataSize));
+    file.Close();
+  }
+
+  // Now rename the temporary file to the final file
+  EZ_SUCCEED_OR_RETURN(ezOSFile::DeleteFile(sCacheFilePath));
+  EZ_SUCCEED_OR_RETURN(ezOSFile::MoveFileOrDirectory(sTempFilePath, sCacheFilePath));
+  return EZ_SUCCESS;
 }
 
-void ezResourceCacheVulkan::ShaderDeleted(const ezGALShaderVulkan* pShader)
+ezResult ezResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelineCache)
 {
-  if (pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::ComputeShader))
-  {
-    auto it = s_computePipelineUsedBy.Find(pShader);
-    if (it.IsValid())
-    {
-      const auto& itArray = it.Value();
-      for (ComputePipelineMap::Iterator it2 : itArray)
-      {
-        s_pDevice->DeleteLater(it2.Value());
-        s_computePipelines.Remove(it2);
-      }
+  // Pipeline cache implementation following https://zeux.io/2019/07/17/serializing-pipeline-cache/
+  vk::PhysicalDeviceProperties deviceProperties = s_pDevice->GetVulkanPhysicalDevice().getProperties();
 
-      s_computePipelineUsedBy.Remove(it);
+  // Try to load the pipeline cache from file
+  ezString cacheFilePath = GetPipelineCacheFilename(deviceProperties);
+
+  ezOSFile file;
+  EZ_SUCCEED_OR_RETURN(file.Open(cacheFilePath, ezFileOpenMode::Read, ezFileShareMode::Default));
+
+  // Read our custom prefix header
+  PipelineCachePrefixHeader prefixHeader;
+  ezUInt64 uiReadSize = file.Read(&prefixHeader, sizeof(PipelineCachePrefixHeader));
+  if (uiReadSize != sizeof(PipelineCachePrefixHeader))
+    return EZ_FAILURE;
+
+  bool bCacheUuidValid = true;
+  for (ezUInt32 i = 0; i < VK_UUID_SIZE; ++i)
+  {
+    if (prefixHeader.m_uiUuid[i] != deviceProperties.pipelineCacheUUID[i])
+    {
+      bCacheUuidValid = false;
+      break;
     }
   }
-  else
-  {
-    ResourceDeleted(pShader);
-  }
+  const bool bIsValid =
+    bCacheUuidValid && prefixHeader.m_uiMagic == PIPELINE_CACHE_MAGIC && prefixHeader.m_uiVendorID == deviceProperties.vendorID && prefixHeader.m_uiDeviceID == deviceProperties.deviceID
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    && prefixHeader.m_uiDriverVersion == deviceProperties.driverVersion && prefixHeader.m_uiDriverABI == sizeof(void*)
+#endif
+    ;
+
+  if (!bIsValid)
+    return EZ_FAILURE;
+
+  // Read the cache data into memory
+  ezDynamicArray<ezUInt8> initialData;
+  initialData.SetCountUninitialized(prefixHeader.m_uiDataSize);
+  uiReadSize = file.Read(initialData.GetData(), initialData.GetCount());
+  if (uiReadSize != prefixHeader.m_uiDataSize)
+    return EZ_FAILURE;
+
+  file.Close();
+
+  // Verify hash
+  const ezUInt64 computedHash = ezHashingUtils::MurmurHash64(initialData.GetData(), initialData.GetCount());
+  if (computedHash != prefixHeader.m_uiDataHash)
+    return EZ_FAILURE;
+
+  // Create the pipeline cache
+  vk::PipelineCacheCreateInfo pipelineCacheInfo;
+  pipelineCacheInfo.initialDataSize = initialData.GetCount();
+  pipelineCacheInfo.pInitialData = initialData.GetData();
+  if (s_device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_pipelineCache) != vk::Result::eSuccess)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }
 
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const ezGALRenderPassDescriptor& desc)
@@ -508,25 +457,6 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALShaderVulkan::De
   return true;
 }
 
-bool ezResourceCacheVulkan::ResourceCacheHash::Less(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
-{
-#define LESS_CHECK(member)  \
-  if (a.member != b.member) \
-    return a.member < b.member;
-
-  LESS_CHECK(m_renderPass);
-  LESS_CHECK(m_layout);
-  LESS_CHECK(m_topology);
-  LESS_CHECK(m_renderPassDesc);
-  LESS_CHECK(m_pCurrentRasterizerState);
-  LESS_CHECK(m_pCurrentBlendState);
-  LESS_CHECK(m_pCurrentDepthStencilState);
-  LESS_CHECK(m_pCurrentShader);
-  LESS_CHECK(m_pCurrentVertexDecl);
-  return false;
-
-#undef LESS_CHECK
-}
 
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
 {
@@ -568,46 +498,4 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const PipelineLayoutDesc& a
       return false;
   }
   return a.m_pushConstants == b.m_pushConstants;
-}
-
-ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const GraphicsPipelineDesc& desc)
-{
-  ezHashStreamWriter32 writer;
-  writer << desc.m_renderPass;
-  writer << desc.m_layout;
-  writer << desc.m_topology;
-  writer << desc.m_renderPassDesc.CalculateHash();
-  writer << desc.m_pCurrentRasterizerState;
-  writer << desc.m_pCurrentBlendState;
-  writer << desc.m_pCurrentDepthStencilState;
-  writer << desc.m_pCurrentShader;
-  writer << desc.m_pCurrentVertexDecl;
-  return writer.GetHashValue();
-}
-
-bool ArraysEqual(const ezUInt32 (&a)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT], const ezUInt32 (&b)[EZ_GAL_MAX_VERTEX_BUFFER_COUNT])
-{
-  for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
-  {
-    if (a[i] != b[i])
-      return false;
-  }
-  return true;
-}
-
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const GraphicsPipelineDesc& a, const GraphicsPipelineDesc& b)
-{
-  return a.m_renderPass == b.m_renderPass && a.m_layout == b.m_layout && a.m_topology == b.m_topology && a.m_renderPassDesc == b.m_renderPassDesc && a.m_pCurrentRasterizerState == b.m_pCurrentRasterizerState && a.m_pCurrentBlendState == b.m_pCurrentBlendState && a.m_pCurrentDepthStencilState == b.m_pCurrentDepthStencilState && a.m_pCurrentShader == b.m_pCurrentShader && a.m_pCurrentVertexDecl == b.m_pCurrentVertexDecl;
-}
-
-bool ezResourceCacheVulkan::ResourceCacheHash::Less(const ComputePipelineDesc& a, const ComputePipelineDesc& b)
-{
-  if (a.m_layout != b.m_layout)
-    return a.m_layout < b.m_layout;
-  return a.m_pCurrentShader < b.m_pCurrentShader;
-}
-
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ComputePipelineDesc& a, const ComputePipelineDesc& b)
-{
-  return a.m_layout == b.m_layout && a.m_pCurrentShader == b.m_pCurrentShader;
 }

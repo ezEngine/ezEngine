@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
@@ -321,7 +320,12 @@ protected:
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) override;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
 
+  virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) override;
+  virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) override;
 
+  virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) override;
+  virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) override;
+  
   // Resource creation functions
 
   virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) override;

@@ -120,7 +120,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
 
-  ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetRasterizerState(hState);
+  ezRenderContext::GetDefaultInstance()->SetRasterizerState(hState);
 
   ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
 

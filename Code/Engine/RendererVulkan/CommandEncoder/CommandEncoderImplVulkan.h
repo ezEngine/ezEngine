@@ -23,7 +23,8 @@ class ezGALTextureUnorderedAccessViewVulkan;
 class ezGALBufferUnorderedAccessViewVulkan;
 class ezGALDeviceVulkan;
 class ezFenceQueueVulkan;
-
+class ezGALGraphicsPipelineVulkan;
+class ezGALComputePipelineVulkan;
 
 class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
 {
@@ -40,8 +41,6 @@ public:
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
-
-  virtual void SetShaderPlatform(const ezGALShader* pShader) override;
 
   virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
   virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
@@ -126,16 +125,13 @@ public:
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
   virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) override;
-  virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) override;
-  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology) override;
 
-  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) override;
-  virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) override;
-  virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) override;
+  virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) override;
+  virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) override;
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
-
+  virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) override;
 
 
 private:
@@ -178,10 +174,10 @@ private:
   bool m_bPushConstantsDirty = false;
 
   // Bound objects for deferred state flushes
-  ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
-  ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
-  ezResourceCacheVulkan::ComputePipelineDesc m_ComputeDesc;
-  vk::Framebuffer m_frameBuffer;
+  const ezGALShaderVulkan* m_pShader = nullptr;
+  const ezGALGraphicsPipelineVulkan* m_pGraphicsPipeline = nullptr;
+  const ezGALComputePipelineVulkan* m_pComputePipeline = nullptr;
+
   vk::RenderPassBeginInfo m_renderPass;
   ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;
   vk::ImageAspectFlags m_depthMask = {};

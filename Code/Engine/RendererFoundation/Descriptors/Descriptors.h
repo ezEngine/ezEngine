@@ -10,11 +10,33 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
 
+/// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
+/// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
+struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>
+{
+  ezGALShaderHandle m_hShader; ///< Also defines pipeline layout
+  ezGALVertexDeclarationHandle m_hVertexDeclaration; ///< Optional
 
+  ezGALRasterizerStateHandle m_hRasterizerState;
+  ezGALBlendStateHandle m_hBlendState;
+  ezGALDepthStencilStateHandle m_hDepthStencilState;
+
+  ezEnum<ezGALPrimitiveTopology> m_Topology;
+
+  ezGALRenderPassDescriptor m_RenderPass; ///< Use ezGALRenderingSetup::GetRenderPass to set this.
+};
+
+/// \brief Defines the complete state of a compute pipeline, excluding bound resources (e.g. textures, buffers).
+/// Creating a compute pipeline increases the reference count on the shader handle.
+struct ezGALComputePipelineCreationDescription : public ezHashableStruct<ezGALComputePipelineCreationDescription>
+{
+  ezGALShaderHandle m_hShader; ///< Also defines pipeline layout
+};
 
 struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
 {

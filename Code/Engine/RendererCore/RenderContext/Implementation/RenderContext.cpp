@@ -18,6 +18,7 @@
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/State/PipelineCache.h>
 
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
 ezGALCommandEncoder* ezRenderContext::s_pCommandEncoder = nullptr;
@@ -125,7 +126,7 @@ ezRenderContext::ezRenderContext(ezGALCommandEncoder* pCommandEncoder)
   m_pGALCommandEncoder = pCommandEncoder;
 
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
-  m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
+  m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
   m_DefaultTextureFilter = ezTextureFilterSetting::FixedAnisotropic4x;
   m_bAllowAsyncShaderLoading = false;
@@ -166,6 +167,8 @@ void ezRenderContext::BeginRendering(const ezGALRenderingSetup& renderingSetup, 
 {
   EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
   m_bRendering = true;
+  m_GraphicsPipeline.m_RenderPass = renderingSetup.GetRenderPass();
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
   const ezGALMSAASampleCount::Enum msaaSampleCount = renderingSetup.GetRenderPass().m_Msaa;
   if (msaaSampleCount != ezGALMSAASampleCount::None)
   {
@@ -204,12 +207,14 @@ void ezRenderContext::BeginCompute(const char* szName /*= ""*/)
   EZ_ASSERT_DEBUG(m_bRendering == false && m_bCompute == false, "Already in a scope");
   m_pGALCommandEncoder->BeginCompute(szName);
   m_bCompute = true;
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
 }
 
 void ezRenderContext::EndCompute()
 {
   m_pGALCommandEncoder->EndCompute();
   m_bCompute = false;
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
   // TODO: See EndRendering
   // ResetContextState();
 }
@@ -487,6 +492,24 @@ void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitfla
   BindShaderInternal(hShader, flags);
 }
 
+void ezRenderContext::SetBlendState(ezGALBlendStateHandle hBlendState)
+{
+  m_GraphicsPipeline.m_hBlendState = hBlendState;
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
+}
+
+void ezRenderContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState)
+{
+  m_GraphicsPipeline.m_hDepthStencilState = hDepthStencilState;
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
+}
+
+void ezRenderContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
+{
+  m_GraphicsPipeline.m_hRasterizerState = hRasterizerState;
+  m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
+}
+
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
 {
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
@@ -497,7 +520,7 @@ void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
 void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer,
   const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2, ezGALBufferHandle hVertexBuffer3, ezGALBufferHandle hVertexBuffer4)
 {
-  if (m_hVertexBuffers[0] == hVertexBuffer && m_hVertexBuffers[1] == hVertexBuffer2 && m_hVertexBuffers[2] == hVertexBuffer3 && m_hVertexBuffers[3] == hVertexBuffer4 && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo && m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
+  if (m_hVertexBuffers[0] == hVertexBuffer && m_hVertexBuffers[1] == hVertexBuffer2 && m_hVertexBuffers[2] == hVertexBuffer3 && m_hVertexBuffers[3] == hVertexBuffer4 && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == pVertexDeclarationInfo && m_GraphicsPipeline.m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
   {
     return;
   }
@@ -519,9 +542,10 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
   }
 #endif
 
-  if (m_Topology != topology)
+  if (m_GraphicsPipeline.m_Topology != topology)
   {
-    m_Topology = topology;
+    m_GraphicsPipeline.m_Topology = topology;
+    m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
 
     ezTempHashedString sTopologies[] = {
       ezTempHashedString("TOPOLOGY_POINTS"),
@@ -532,7 +556,7 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
 
     static_assert(EZ_ARRAY_SIZE(sTopologies) == ezGALPrimitiveTopology::ENUM_COUNT);
 
-    SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);
+    SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_GraphicsPipeline.m_Topology]);
   }
 
   m_hVertexBuffers[0] = hVertexBuffer;
@@ -595,8 +619,8 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
 
   auto pCommandEncoder = GetCommandEncoder();
 
-  const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(pCommandEncoder->GetPrimitiveTopology(), uiPrimitiveCount);
-  const ezUInt32 uiFirstIndex = ezGALPrimitiveTopology::GetIndexCount(pCommandEncoder->GetPrimitiveTopology(), uiFirstPrimitive);
+  const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(m_GraphicsPipeline.m_Topology, uiPrimitiveCount);
+  const ezUInt32 uiFirstIndex = ezGALPrimitiveTopology::GetIndexCount(m_GraphicsPipeline.m_Topology, uiFirstPrimitive);
 
   if (m_bStereoRendering)
   {
@@ -653,11 +677,10 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   EZ_SCOPE_EXIT(if (pShaderPermutation != nullptr) { ezResourceManager::EndAcquireResource(pShaderPermutation); });
 
   bool bRebuildVertexDeclaration = m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
-
+ 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
     pShaderPermutation = ApplyShaderState();
-
     if (pShaderPermutation == nullptr)
     {
       return EZ_FAILURE;
@@ -686,6 +709,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       // #TODO_SHADER It's a bit unclean that we need to acquire the GAL shader on this level. Unfortunately, we need the resource binding on both the GAL and the high level renderer and the only alternative is some kind of duplication of the data.
       pShader = ezGALDevice::GetDefaultDevice()->GetShader(m_hActiveGALShader);
     }
+
 
     ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation ? pShaderPermutation->GetResourceDescription().GetData() : "");
     UploadConstants();
@@ -732,8 +756,6 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
     {
-      pCommandEncoder->SetPrimitiveTopology(m_Topology);
-
       for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
       {
         pCommandEncoder->SetVertexBuffer(i, m_hVertexBuffers[i], m_VertexBufferOffsets[i]);
@@ -752,9 +774,18 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if ((!m_hVertexBuffers[0].IsInvalidated() || !m_hVertexBuffers[1].IsInvalidated() || !m_hVertexBuffers[2].IsInvalidated() || !m_hVertexBuffers[3].IsInvalidated()) && hVertexDeclaration.IsInvalidated())
       return EZ_FAILURE;
 
-    pCommandEncoder->SetVertexDeclaration(hVertexDeclaration);
+    m_GraphicsPipeline.m_hVertexDeclaration = hVertexDeclaration;
+    m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
 
     m_StateFlags.Remove(ezRenderContextFlags::MeshBufferBindingChanged);
+  }
+
+  if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::PipelineChanged))
+  {
+    if (m_bRendering)
+      m_pGALCommandEncoder->SetGraphicsPipeline(ezGALPipelineCache::GetPipeline(m_GraphicsPipeline));
+    else if (m_bCompute)
+      m_pGALCommandEncoder->SetComputePipeline(ezGALPipelineCache::GetPipeline(m_ComputePipeline));
   }
 
   return EZ_SUCCESS;
@@ -785,7 +816,7 @@ void ezRenderContext::ResetContextState()
   m_CustomVertexStreams.m_uiHash = 0;
   m_hIndexBuffer.Invalidate();
   m_pVertexDeclarationInfo = nullptr;
-  m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
+  m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
 
   m_BoundTextures2D.Clear();
@@ -1167,8 +1198,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
 {
   m_hActiveGALShader.Invalidate();
 
-  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged |
-                   ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
+  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged | ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged | ezRenderContextFlags::PipelineChanged);
 
   if (!m_hActiveShader.IsValid())
     return nullptr;
@@ -1188,23 +1218,21 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
   }
 
   m_hActiveGALShader = pShaderPermutation->GetGALShader();
+  m_GraphicsPipeline.m_hShader = m_hActiveGALShader;
+  m_ComputePipeline.m_hShader = m_hActiveGALShader;
   EZ_ASSERT_DEV(!m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
-
-  m_pGALCommandEncoder->SetShader(m_hActiveGALShader);
 
   // Set render state from shader
   if (!m_bCompute)
   {
-    auto pCommandEncoder = GetCommandEncoder();
-
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
-      pCommandEncoder->SetBlendState(pShaderPermutation->GetBlendState());
+      m_GraphicsPipeline.m_hBlendState = pShaderPermutation->GetBlendState();
 
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoRasterizerState))
-      pCommandEncoder->SetRasterizerState(pShaderPermutation->GetRasterizerState());
+      m_GraphicsPipeline.m_hRasterizerState = pShaderPermutation->GetRasterizerState();
 
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
-      pCommandEncoder->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
+      m_GraphicsPipeline.m_hDepthStencilState = pShaderPermutation->GetDepthStencilState();
   }
 
   return pShaderPermutation;

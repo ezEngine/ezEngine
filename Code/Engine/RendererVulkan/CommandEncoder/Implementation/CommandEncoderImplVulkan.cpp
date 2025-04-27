@@ -19,6 +19,8 @@
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
+#include <RendererVulkan/State/ComputePipelineVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
@@ -70,9 +72,9 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_bDescriptorsDirty = true;
   m_BoundVertexBuffersRange.Reset();
 
-  m_LayoutDesc = {};
-  m_PipelineDesc = ezResourceCacheVulkan::GraphicsPipelineDesc();
-  m_frameBuffer = nullptr;
+  m_pShader = nullptr;
+  m_pGraphicsPipeline = nullptr;
+  m_pComputePipeline = nullptr;
 
   m_viewport = vk::Viewport();
   m_scissor = vk::Rect2D();
@@ -146,16 +148,6 @@ void ezGALCommandEncoderImplVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* c
 }
 
 // State setting functions
-
-void ezGALCommandEncoderImplVulkan::SetShaderPlatform(const ezGALShader* pShader)
-{
-  if (pShader != nullptr)
-  {
-    m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(pShader);
-    m_ComputeDesc.m_pCurrentShader = m_PipelineDesc.m_pCurrentShader;
-    m_bPipelineStateDirty = true;
-  }
-}
 
 void ezGALCommandEncoderImplVulkan::SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)
 {
@@ -810,16 +802,13 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   // We have to ensure we have enough queries before entering the render pass as we can't replenish pools while within.
   m_GALDeviceVulkan.GetQueryPool().EnsureFreeQueryPoolSize(*m_pCommandBuffer);
 
-  m_PipelineDesc.m_renderPassDesc = renderingSetup.GetRenderPass();
-  m_PipelineDesc.m_renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
-  m_frameBuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_PipelineDesc.m_renderPass, renderingSetup.GetFrameBuffer());
+  m_renderPass.renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
+  m_renderPass.framebuffer  = ezResourceCacheVulkan::RequestFrameBuffer(m_renderPass.renderPass, renderingSetup.GetFrameBuffer());
   m_uiLayers = renderingSetup.GetFrameBuffer().m_uiSliceCount;
   ezSizeU32 size = renderingSetup.GetFrameBuffer().m_Size;
   SetScissorRectPlatform(ezRectU32(size.width, size.height));
 
   {
-    m_renderPass.renderPass = m_PipelineDesc.m_renderPass;
-    m_renderPass.framebuffer = m_frameBuffer;
     m_renderPass.renderArea.offset.setX(0).setY(0);
     m_renderPass.renderArea.extent.setHeight(size.height).setWidth(size.width);
 
@@ -875,9 +864,9 @@ void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
 
   m_depthMask = {};
   m_uiLayers = 0;
-  m_PipelineDesc.m_renderPassDesc = ezGALRenderPassDescriptor();
-  m_PipelineDesc.m_renderPass = nullptr;
-  m_frameBuffer = nullptr;
+
+  m_renderPass.renderPass = nullptr;
+  m_renderPass.framebuffer  = nullptr;
 }
 
 void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
@@ -901,7 +890,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
   {
     for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
     {
-      if (uiRenderTargetClearMask & (1u << i) && i < m_PipelineDesc.m_renderPassDesc.m_uiRTCount)
+      if (uiRenderTargetClearMask & (1u << i) && i < m_pGraphicsPipeline->GetDescription().m_RenderPass.m_uiRTCount)
       {
         vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
         attachment.aspectMask = vk::ImageAspectFlagBits::eColor;
@@ -1005,53 +994,32 @@ void ezGALCommandEncoderImplVulkan::SetVertexBufferPlatform(ezUInt32 uiSlot, con
   }
 }
 
-void ezGALCommandEncoderImplVulkan::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
+void ezGALCommandEncoderImplVulkan::SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline)
 {
-  if (m_PipelineDesc.m_pCurrentVertexDecl != pVertexDeclaration)
+  if (m_pGraphicsPipeline != pGraphicsPipeline)
   {
-    m_PipelineDesc.m_pCurrentVertexDecl = static_cast<const ezGALVertexDeclarationVulkan*>(pVertexDeclaration);
-    m_bPipelineStateDirty = true;
-  }
-}
-
-void ezGALCommandEncoderImplVulkan::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology)
-{
-  if (m_PipelineDesc.m_topology != Topology)
-  {
-    m_PipelineDesc.m_topology = Topology;
-    m_bPipelineStateDirty = true;
-  }
-}
-
-void ezGALCommandEncoderImplVulkan::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
-{
-  // #TODO_VULKAN BlendFactor / uiSampleMask ?
-  if (m_PipelineDesc.m_pCurrentBlendState != pBlendState)
-  {
-    m_PipelineDesc.m_pCurrentBlendState = pBlendState != nullptr ? static_cast<const ezGALBlendStateVulkan*>(pBlendState) : nullptr;
-    m_bPipelineStateDirty = true;
-  }
-}
-
-void ezGALCommandEncoderImplVulkan::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
-{
-  // #TODO_VULKAN uiStencilRefValue ?
-  if (m_PipelineDesc.m_pCurrentDepthStencilState != pDepthStencilState)
-  {
-    m_PipelineDesc.m_pCurrentDepthStencilState = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateVulkan*>(pDepthStencilState) : nullptr;
-    m_bPipelineStateDirty = true;
-  }
-}
-
-void ezGALCommandEncoderImplVulkan::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
-{
-  if (m_PipelineDesc.m_pCurrentRasterizerState != pRasterizerState)
-  {
-    m_PipelineDesc.m_pCurrentRasterizerState = pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateVulkan*>(pRasterizerState) : nullptr;
-    if (m_PipelineDesc.m_pCurrentRasterizerState->GetDescription().m_bScissorTest != m_bScissorEnabled)
+    m_pGraphicsPipeline = static_cast<const ezGALGraphicsPipelineVulkan*>(pGraphicsPipeline);
+    if (m_pGraphicsPipeline)
     {
-      m_bScissorEnabled = m_PipelineDesc.m_pCurrentRasterizerState->GetDescription().m_bScissorTest;
-      m_bViewportDirty = true;
+      m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pGraphicsPipeline->GetDescription().m_hShader));
+      m_bScissorEnabled = m_GALDeviceVulkan.GetRasterizerState(m_pGraphicsPipeline->GetDescription().m_hRasterizerState)->GetDescription().m_bScissorTest;
+    }
+    else
+    {
+      m_bScissorEnabled = false;
+    }
+    m_bPipelineStateDirty = true;
+  }
+}
+
+void ezGALCommandEncoderImplVulkan::SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline)
+{
+  if (m_pComputePipeline != pComputePipeline)
+  {
+    m_pComputePipeline = static_cast<const ezGALComputePipelineVulkan*>(pComputePipeline);
+    if (m_pComputePipeline)
+    {
+      m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pComputePipeline->GetDescription().m_hShader));
     }
     m_bPipelineStateDirty = true;
   }
@@ -1079,6 +1047,11 @@ void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect
     m_scissor = scissor;
     m_bViewportDirty = true;
   }
+}
+
+void ezGALCommandEncoderImplVulkan::SetStencilReferencePlatform(ezUInt8 uiStencilRefValue)
+{
+  m_pCommandBuffer->setStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, uiStencilRefValue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1130,31 +1103,14 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   EZ_PROFILE_SCOPE("FlushDeferredStateChanges");
   if (m_bPipelineStateDirty)
   {
-    if (!m_PipelineDesc.m_pCurrentShader)
-    {
-      ezLog::Error("No shader set");
-      return EZ_FAILURE;
-    }
-
-    const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
-    m_LayoutDesc.m_layout.SetCount(uiSets);
-    m_LayoutDesc.m_pushConstants = m_PipelineDesc.m_pCurrentShader->GetPushConstantRange();
-    for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
-    {
-      m_LayoutDesc.m_layout[uiSet] = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout(uiSet);
-    }
-
-    m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
-    m_ComputeDesc.m_layout = m_PipelineDesc.m_layout;
-
     vk::Pipeline pipeline;
     if (m_bInsideCompute)
     {
-      pipeline = ezResourceCacheVulkan::RequestComputePipeline(m_ComputeDesc);
+      pipeline = m_pComputePipeline->GetPipeline();
     }
     else
     {
-      pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
+      pipeline = m_pGraphicsPipeline->GetPipeline();
     }
 
     m_pCommandBuffer->bindPipeline(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, pipeline);
@@ -1211,22 +1167,21 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
   if (true /*m_bDescriptorsDirty*/)
   {
-    // #TODO_VULKAN we always create a new descriptor set as we don't know if a buffer was modified since the last draw call (ezGALBufferVulkan::DiscardBuffer).
-    //  Need to figure out a fast check if any buffer or buffer of a resource view was discarded.
+    // #TODO_VULKAN we always create a new descriptor set
     m_bDescriptorsDirty = false;
 
     m_DescriptorWrites.Clear();
     m_TextureAndSampler.Clear();
-    const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
+    const ezUInt32 uiSets = m_pShader->GetSetCount();
     m_DescriptorSets.SetCount(uiSets);
     m_DynamicUniformBuffers.Clear();
     m_DynamicUniformBufferOffsets.Clear();
 
     for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
     {
-      m_DescriptorSets[uiSet] = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout[uiSet]);
+      m_DescriptorSets[uiSet] = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_pShader->GetDescriptorSetLayout(uiSet));
 
-      ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindings(uiSet);
+      ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_pShader->GetBindings(uiSet);
       const ezUInt32 uiCount = bindingMapping.GetCount();
 
       m_Resources.EnsureCount(uiSet + 1);
@@ -1339,14 +1294,14 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
       ezDescriptorSetPoolVulkan::UpdateDescriptorSet(m_DescriptorSets[uiSet], m_DescriptorWrites);
     }
-    m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, m_DescriptorSets.GetCount(), m_DescriptorSets.GetData(), m_DynamicUniformBufferOffsets.GetCount(), m_DynamicUniformBufferOffsets.GetData());
+    m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_pShader->GetPipelineLayout(), 0, m_DescriptorSets.GetCount(), m_DescriptorSets.GetData(), m_DynamicUniformBufferOffsets.GetCount(), m_DynamicUniformBufferOffsets.GetData());
   }
 
-  if (m_bPushConstantsDirty && m_LayoutDesc.m_pushConstants.size > 0)
+  if (m_bPushConstantsDirty && m_pShader->GetPushConstantRange().size > 0)
   {
-    EZ_ASSERT_DEBUG(m_LayoutDesc.m_pushConstants.size == m_PushConstants.GetCount(), "");
+    EZ_ASSERT_DEBUG(m_pShader->GetPushConstantRange().size == m_PushConstants.GetCount(), "");
 
-    m_pCommandBuffer->pushConstants(m_PipelineDesc.m_layout, m_LayoutDesc.m_pushConstants.stageFlags, m_LayoutDesc.m_pushConstants.offset, m_PushConstants.GetCount(), m_PushConstants.GetData());
+    m_pCommandBuffer->pushConstants(m_pShader->GetPipelineLayout(), m_pShader->GetPushConstantRange().stageFlags, m_pShader->GetPushConstantRange().offset, m_PushConstants.GetCount(), m_PushConstants.GetData());
   }
 
   if (m_bRenderPassActive && m_pPipelineBarrier->IsDirty())

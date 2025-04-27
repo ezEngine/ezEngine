@@ -49,6 +49,12 @@ public:
   ezGALSamplerStateHandle CreateSamplerState(const ezGALSamplerStateCreationDescription& description);
   void DestroySamplerState(ezGALSamplerStateHandle hSamplerState);
 
+  ezGALGraphicsPipelineHandle CreateGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& description);
+  void DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline);
+
+  ezGALComputePipelineHandle CreateComputePipeline(const ezGALComputePipelineCreationDescription& description);
+  void DestroyComputePipeline(ezGALComputePipelineHandle hComputePipeline);
+  
   // Resource creation functions
 
   ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& description);
@@ -214,6 +220,8 @@ public:
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
+  const ezGALGraphicsPipeline* GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const;
+  const ezGALComputePipeline* GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const;
   const ezGALTextureResourceView* GetResourceView(ezGALTextureResourceViewHandle hResourceView) const;
   const ezGALBufferResourceView* GetResourceView(ezGALBufferResourceViewHandle hResourceView) const;
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
@@ -292,11 +300,18 @@ protected:
   using BufferUnorderedAccessViewTable = ezIdTable<ezGALBufferUnorderedAccessViewHandle::IdType, ezGALBufferUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
+  using GraphicsPipelineTable = ezIdTable<ezGALGraphicsPipelineHandle::IdType, ezGALGraphicsPipeline*, ezLocalAllocatorWrapper>;
+  using ComputePipelineTable = ezIdTable<ezGALComputePipelineHandle::IdType, ezGALComputePipeline*, ezLocalAllocatorWrapper>;
 
   ShaderTable m_Shaders;
+  VertexDeclarationTable m_VertexDeclarations;
   BlendStateTable m_BlendStates;
   DepthStencilStateTable m_DepthStencilStates;
   RasterizerStateTable m_RasterizerStates;
+  GraphicsPipelineTable m_GraphicsPipelines;
+  ComputePipelineTable m_ComputePipelines;
+  SamplerStateTable m_SamplerStates;
+
   BufferTable m_Buffers;
   DynamicBufferTable m_DynamicBuffers;
   TextureTable m_Textures;
@@ -304,20 +319,20 @@ protected:
   ReadbackTextureTable m_ReadbackTextures;
   TextureResourceViewTable m_TextureResourceViews;
   BufferResourceViewTable m_BufferResourceViews;
-  SamplerStateTable m_SamplerStates;
   RenderTargetViewTable m_RenderTargetViews;
   TextureUnorderedAccessViewTable m_TextureUnorderedAccessViews;
   BufferUnorderedAccessViewTable m_BufferUnorderedAccessViews;
   SwapChainTable m_SwapChains;
-  VertexDeclarationTable m_VertexDeclarations;
-
 
   // Hash tables used to prevent state object duplication
+  ezHashTable<ezUInt32, ezGALShaderHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ShaderTable;
+  ezHashTable<ezUInt32, ezGALVertexDeclarationHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationTable;
   ezHashTable<ezUInt32, ezGALBlendStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BlendStateTable;
   ezHashTable<ezUInt32, ezGALDepthStencilStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_DepthStencilStateTable;
   ezHashTable<ezUInt32, ezGALRasterizerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateTable;
+  ezHashTable<ezUInt32, ezGALGraphicsPipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GraphicsPipelineTable;
+  ezHashTable<ezUInt32, ezGALComputePipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ComputePipelineTable;
   ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
-  ezHashTable<ezUInt32, ezGALVertexDeclarationHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationTable;
 
   struct DeadObject
   {
@@ -371,6 +386,12 @@ protected:
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) = 0;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
 
+  virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) = 0;
+  virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) = 0;
+
+  virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) = 0;
+  virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) = 0;
+  
   // Resource creation functions
 
   virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) = 0;

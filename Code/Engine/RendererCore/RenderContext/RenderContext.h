@@ -178,6 +178,9 @@ public:
   ///
   /// This function has no effect until the next draw or dispatch call on the context.
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
+  void SetBlendState(ezGALBlendStateHandle hBlendState);
+  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
+  void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 
   void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer);
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
@@ -306,11 +309,14 @@ private:
   ezVertexDeclarationInfo m_CustomVertexStreams;
   ezGALBufferHandle m_hIndexBuffer;
   const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
-  ezGALPrimitiveTopology::Enum m_Topology;
+
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
+
+  ezGALGraphicsPipelineCreationDescription m_GraphicsPipeline;
+  ezGALComputePipelineCreationDescription m_ComputePipeline;
 
   ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures2D;
   ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures3D;

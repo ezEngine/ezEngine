@@ -15,7 +15,10 @@
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
+#include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/State/State.h>
+#include <RendererFoundation/State/GraphicsPipeline.h>
+#include <RendererFoundation/State/ComputePipeline.h>
 
 namespace
 {
@@ -39,7 +42,9 @@ namespace
       TextureUnorderedAccessView,
       BufferUnorderedAccessView,
       SwapChain,
-      VertexDeclaration
+      VertexDeclaration,
+      GraphicsPipeline,
+      ComputePipeline
     };
   };
 
@@ -57,6 +62,8 @@ namespace
   static_assert(sizeof(ezGALBufferUnorderedAccessViewHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALGraphicsPipelineHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALComputePipelineHandle) == sizeof(ezUInt32));
 } // namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
@@ -113,6 +120,12 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_VertexDeclarations.IsEmpty())
       ezLog::Warning("{0} vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
+    
+    if (!m_GraphicsPipelines.IsEmpty())
+      ezLog::Warning("{0} graphics pipelines have not been cleaned up", m_GraphicsPipelines.GetCount());
+    
+    if (!m_ComputePipelines.IsEmpty())
+      ezLog::Warning("{0} Compute pipelines have not been cleaned up", m_ComputePipelines.GetCount());
   }
 }
 
@@ -145,8 +158,6 @@ ezResult ezGALDevice::Init()
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezProfilingSystem::InitializeGPUData();
-
-
 
   {
     ezGALDeviceEvent e;
@@ -480,7 +491,173 @@ void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
   }
 }
 
+ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& desc)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
 
+  auto IncreaseReference = [&](const auto& idTable, auto handle, GALObjectType::Enum type)
+  {
+    auto pRes = idTable[handle];
+    if (pRes->GetRefCount() == 0)
+    {
+      ReviveDeadObject(type, handle);
+    }
+    pRes->AddRef();
+  };
+
+  // Hash desc and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = desc.CalculateHash();
+  {
+    ezGALGraphicsPipelineHandle hGraphicsPipeline;
+    if (m_GraphicsPipelineTable.TryGetValue(uiHash, hGraphicsPipeline))
+    {
+      ezGALGraphicsPipeline* pGraphicsPipeline = m_GraphicsPipelines[hGraphicsPipeline];
+      if (pGraphicsPipeline->GetRefCount() == 0)
+      {
+        ReviveDeadObject(GALObjectType::GraphicsPipeline, hGraphicsPipeline);
+        IncreaseReference(m_Shaders, desc.m_hShader, GALObjectType::Shader);
+        IncreaseReference(m_RasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
+        IncreaseReference(m_BlendStates, desc.m_hBlendState, GALObjectType::BlendState);
+        IncreaseReference(m_DepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
+        if (!desc.m_hVertexDeclaration.IsInvalidated())
+        {
+          IncreaseReference(m_VertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
+        }
+      }
+
+      pGraphicsPipeline->AddRef();
+      return hGraphicsPipeline;
+    }
+  }
+
+  if (desc.m_hBlendState.IsInvalidated() || desc.m_hDepthStencilState.IsInvalidated() || desc.m_hRasterizerState.IsInvalidated() || desc.m_hShader.IsInvalidated())
+  {
+    ezLog::Error("An essential handle was invalid. Only the m_hVertexDeclaration handle can be invalid.");
+    return {};
+  }
+
+  ezGALGraphicsPipeline* pGraphicsPipeline = CreateGraphicsPipelinePlatform(desc);
+
+  if (pGraphicsPipeline != nullptr)
+  {
+    EZ_ASSERT_DEBUG(pGraphicsPipeline->GetDescription().CalculateHash() == uiHash, "GraphicsPipeline hash doesn't match");
+
+    pGraphicsPipeline->AddRef();
+
+    ezGALGraphicsPipelineHandle hGraphicsPipeline(m_GraphicsPipelines.Insert(pGraphicsPipeline));
+    m_GraphicsPipelineTable.Insert(uiHash, hGraphicsPipeline);
+
+    IncreaseReference(m_Shaders, desc.m_hShader, GALObjectType::Shader);
+    IncreaseReference(m_RasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
+    IncreaseReference(m_BlendStates, desc.m_hBlendState, GALObjectType::BlendState);
+    IncreaseReference(m_DepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
+    if (!desc.m_hVertexDeclaration.IsInvalidated())
+    {
+      IncreaseReference(m_VertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
+    }
+
+    return hGraphicsPipeline;
+  }
+
+  return ezGALGraphicsPipelineHandle();
+}
+
+void ezGALDevice::DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALGraphicsPipeline* pGraphicsPipeline = nullptr;
+
+  if (m_GraphicsPipelines.TryGetValue(hGraphicsPipeline, pGraphicsPipeline))
+  {
+    pGraphicsPipeline->ReleaseRef();
+
+    if (pGraphicsPipeline->GetRefCount() == 0)
+    {
+      AddDeadObject(GALObjectType::GraphicsPipeline, hGraphicsPipeline);
+      const ezGALGraphicsPipelineCreationDescription& desc = pGraphicsPipeline->GetDescription();
+
+      DestroyShader(desc.m_hShader);
+      DestroyRasterizerState(desc.m_hRasterizerState);
+      DestroyBlendState(desc.m_hBlendState);
+      DestroyDepthStencilState(desc.m_hDepthStencilState);
+      if (!desc.m_hVertexDeclaration.IsInvalidated())
+      {
+        DestroyVertexDeclaration(desc.m_hVertexDeclaration);
+      }
+    }
+  }
+  else
+  {
+    ezLog::Warning("DestroyGraphicsPipeline called on invalid handle (double free?)");
+  }
+}
+
+
+ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALComputePipelineCreationDescription& desc)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+  
+  // Hash desc and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = desc.CalculateHash();
+  {
+    ezGALComputePipelineHandle hComputePipeline;
+    if (m_ComputePipelineTable.TryGetValue(uiHash, hComputePipeline))
+    {
+      ezGALComputePipeline* pComputePipeline = m_ComputePipelines[hComputePipeline];
+      if (pComputePipeline->GetRefCount() == 0)
+      {
+        ReviveDeadObject(GALObjectType::ComputePipeline, hComputePipeline);
+      }
+
+      pComputePipeline->AddRef();
+      return hComputePipeline;
+    }
+  }
+
+  if (desc.m_hShader.IsInvalidated())
+  {
+    ezLog::Error("Shader handle must be valid.");
+    return {};
+  }
+
+  ezGALComputePipeline* pComputePipeline = CreateComputePipelinePlatform(desc);
+
+  if (pComputePipeline != nullptr)
+  {
+    EZ_ASSERT_DEBUG(pComputePipeline->GetDescription().CalculateHash() == uiHash, "ComputePipeline hash doesn't match");
+
+    pComputePipeline->AddRef();
+
+    ezGALComputePipelineHandle hComputePipeline(m_ComputePipelines.Insert(pComputePipeline));
+    m_ComputePipelineTable.Insert(uiHash, hComputePipeline);
+
+    return hComputePipeline;
+  }
+
+  return ezGALComputePipelineHandle();
+}
+
+void ezGALDevice::DestroyComputePipeline(ezGALComputePipelineHandle hComputePipeline)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALComputePipeline* pComputePipeline = nullptr;
+
+  if (m_ComputePipelines.TryGetValue(hComputePipeline, pComputePipeline))
+  {
+    pComputePipeline->ReleaseRef();
+
+    if (pComputePipeline->GetRefCount() == 0)
+    {
+      AddDeadObject(GALObjectType::ComputePipeline, hComputePipeline);
+    }
+  }
+  else
+  {
+    ezLog::Warning("DestroyComputePipeline called on invalid handle (double free?)");
+  }
+}
 
 ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription& desc)
 {
@@ -503,16 +680,39 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
     return ezGALShaderHandle();
   }
 
+  // Hash desc and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = desc.CalculateHash();
+
+  {
+    ezGALShaderHandle hShader;
+    if (m_ShaderTable.TryGetValue(uiHash, hShader))
+    {
+      ezGALShader* pShader = m_Shaders[hShader];
+      if (pShader->GetRefCount() == 0)
+      {
+        ReviveDeadObject(GALObjectType::Shader, hShader);
+      }
+
+      pShader->AddRef();
+      return hShader;
+    }
+  }
+
   ezGALShader* pShader = CreateShaderPlatform(desc);
 
-  if (pShader == nullptr)
+  if (pShader != nullptr)
   {
-    return ezGALShaderHandle();
+    EZ_ASSERT_DEBUG(pShader->GetDescription().CalculateHash() == uiHash, "Shader hash doesn't match");
+
+    pShader->AddRef();
+
+    ezGALShaderHandle hShader(m_Shaders.Insert(pShader));
+    m_ShaderTable.Insert(uiHash, hShader);
+
+    return hShader;
   }
-  else
-  {
-    return ezGALShaderHandle(m_Shaders.Insert(pShader));
-  }
+
+  return ezGALShaderHandle();
 }
 
 void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
@@ -523,7 +723,12 @@ void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
 
   if (m_Shaders.TryGetValue(hShader, pShader))
   {
-    AddDeadObject(GALObjectType::Shader, hShader);
+    pShader->ReleaseRef();
+
+    if (pShader->GetRefCount() == 0)
+    {
+      AddDeadObject(GALObjectType::Shader, hShader);
+    }
   }
   else
   {
@@ -1847,6 +2052,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALShader* pShader = nullptr;
 
         EZ_VERIFY(m_Shaders.Remove(hShader, &pShader), "");
+        m_ShaderTable.Remove(pShader->GetDescription().CalculateHash());
 
         DestroyShaderPlatform(pShader);
 
@@ -2018,6 +2224,28 @@ void ezGALDevice::DestroyDeadObjects()
 
         DestroyVertexDeclarationPlatform(pVertexDeclaration);
 
+        break;
+      }
+      case GALObjectType::GraphicsPipeline:
+      {
+        ezGALGraphicsPipelineHandle hGraphicsPipeline(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALGraphicsPipeline* pGraphicsPipeline = nullptr;
+
+        EZ_VERIFY(m_GraphicsPipelines.Remove(hGraphicsPipeline, &pGraphicsPipeline), "Unexpected invalid handle");
+        m_GraphicsPipelineTable.Remove(pGraphicsPipeline->GetDescription().CalculateHash());
+
+        DestroyGraphicsPipelinePlatform(pGraphicsPipeline);
+        break;
+      }
+      case GALObjectType::ComputePipeline:
+      {
+        ezGALComputePipelineHandle hComputePipeline(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALComputePipeline* pComputePipeline = nullptr;
+        
+        EZ_VERIFY(m_ComputePipelines.Remove(hComputePipeline, &pComputePipeline), "Unexpected invalid handle");
+        m_ComputePipelineTable.Remove(pComputePipeline->GetDescription().CalculateHash());
+
+        DestroyComputePipelinePlatform(pComputePipeline);
         break;
       }
       default:

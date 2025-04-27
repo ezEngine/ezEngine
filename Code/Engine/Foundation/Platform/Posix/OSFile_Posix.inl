@@ -374,10 +374,13 @@ ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
-    s_sUserDataPath = getenv("HOME");
+    ezStringBuilder sTemp = getenv("HOME");
 
-    if (s_sUserDataPath.IsEmpty())
-      s_sUserDataPath = getpwuid(getuid())->pw_dir;
+    if (sTemp.IsEmpty())
+      sTemp = getpwuid(getuid())->pw_dir;
+
+    sTemp.AppendPath(".local", "share");
+    s_sUserDataPath = sTemp;
   }
 
   ezStringBuilder s = s_sUserDataPath;
@@ -394,7 +397,13 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
 {
   if (s_sTempDataPath.IsEmpty())
   {
-    s_sTempDataPath = GetUserDataFolder(".cache").GetData();
+    ezStringBuilder sTemp = getenv("HOME");
+
+    if (sTemp.IsEmpty())
+      sTemp = getpwuid(getuid())->pw_dir;
+
+    sTemp.AppendPath(".cache");
+    s_sTempDataPath = sTemp;
   }
 
   ezStringBuilder s = s_sTempDataPath;
@@ -411,10 +420,13 @@ ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
 {
   if (s_sUserDocumentsPath.IsEmpty())
   {
-    s_sUserDataPath = getenv("HOME");
+    ezStringBuilder sTemp = getenv("HOME");
 
-    if (s_sUserDataPath.IsEmpty())
-      s_sUserDataPath = getpwuid(getuid())->pw_dir;
+    if (sTemp.IsEmpty())
+      sTemp = getpwuid(getuid())->pw_dir;
+
+    sTemp.AppendPath("Documents");
+    s_sUserDocumentsPath = sTemp;
   }
 
   ezStringBuilder s = s_sUserDocumentsPath;

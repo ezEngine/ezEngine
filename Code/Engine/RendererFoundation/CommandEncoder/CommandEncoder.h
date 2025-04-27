@@ -18,8 +18,6 @@ public:
 
   // State setting functions
 
-  void SetShader(ezGALShaderHandle hShader);
-
   void SetConstantBuffer(const ezShaderResourceBinding& binding, ezGALBufferHandle hBuffer);
   void SetSamplerState(const ezShaderResourceBinding& binding, ezGALSamplerStateHandle hSamplerState);
   void SetResourceView(const ezShaderResourceBinding& binding, ezGALTextureResourceViewHandle hResourceView);
@@ -27,6 +25,7 @@ public:
   void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView);
   void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
+
 
   // GPU -> CPU query functions
 
@@ -53,7 +52,7 @@ public:
   /// \sa ezGALDevice::GetFenceResult
   ezGALFenceHandle InsertFence();
 
-  // Resource functions
+  // Update functions
 
   /// Clears an unordered access view with a float value.
   void ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues);
@@ -119,24 +118,19 @@ public:
   ezResult DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex);
   ezResult DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
 
-  // State functions
-
+  // State Functions
   void SetIndexBuffer(ezGALBufferHandle hIndexBuffer);
   void SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuffer, ezUInt32 uiOffset = 0);
-  void SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
-  ezGALPrimitiveTopology::Enum GetPrimitiveTopology() const { return m_State.m_Topology; }
-  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology);
+  void SetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline);
+  void SetComputePipeline(ezGALComputePipelineHandle hComputePipeline);
 
-  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
-  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue = 0xFFu);
-  void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
-
+  // Dynamic State functions
   void SetViewport(const ezRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
   void SetScissorRect(const ezRectU32& rect);
+  void SetStencilReference(ezUInt8 uiStencilRefValue);
 
   // Internal
-
   EZ_ALWAYS_INLINE ezGALDevice& GetDevice() { return m_Device; }
   // Don't use light hearted ;)
   void InvalidateState();

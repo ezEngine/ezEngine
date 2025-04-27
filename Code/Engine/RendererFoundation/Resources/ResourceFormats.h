@@ -100,7 +100,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 
     ENUM_COUNT,
 
-    Default = RGBAUByteNormalizedsRGB
+    Default = Invalid
   };
 
 

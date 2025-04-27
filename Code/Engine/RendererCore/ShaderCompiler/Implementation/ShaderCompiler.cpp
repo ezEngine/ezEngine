@@ -315,12 +315,16 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
       {
         // We need to fill teh template not only with the section content but also the starting line and filename to get correct line numbers for all compile failures.
         sTemp.AppendFormat(sMaterialConstantsTemplate, uiFirstMaterialConstantsLine, m_StageSourceFile[stage], sMaterialConstantsSource);
+        if (!sTemp.EndsWith_NoCase("\n"))
+          sTemp.Append("\n");
       }
 
       // prepend common shader section if there is any
       if (!sShaderSource.IsEmpty())
       {
         sTemp.AppendFormat("#line {0}\n{1}", uiFirstShaderLine, sShaderSource);
+        if (!sTemp.EndsWith_NoCase("\n"))
+          sTemp.Append("\n");
       }
 
       sTemp.AppendFormat("#line {0}\n{1}", uiFirstLine, sStageSource);

@@ -18,6 +18,8 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = m_CurrentWindowSize.width;
     WindowCreationDesc.m_Resolution.height = m_CurrentWindowSize.height;
+    WindowCreationDesc.m_bClipMouseCursor = false;
+    WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
     // ezGameStateWindow will write any window size changes into the config.
     m_pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, WindowCreationDesc);

@@ -11,22 +11,6 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
 
-void ezGALCommandEncoder::SetShader(ezGALShaderHandle hShader)
-{
-  AssertRenderingThread();
-  /// \todo Assert for shader capabilities (supported shader stages etc.)
-
-  if (m_State.m_hShader == hShader)
-    return;
-
-  const ezGALShader* pShader = m_Device.GetShader(hShader);
-  EZ_ASSERT_DEV(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
-
-  m_CommonImpl.SetShaderPlatform(pShader);
-
-  m_State.m_hShader = hShader;
-}
-
 void ezGALCommandEncoder::SetConstantBuffer(const ezShaderResourceBinding& binding, ezGALBufferHandle hBuffer)
 {
   AssertRenderingThread();
@@ -646,86 +630,28 @@ void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVe
   m_State.m_hVertexBufferOffsets[uiSlot] = uiOffset;
 }
 
-void ezGALCommandEncoder::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)
+void ezGALCommandEncoder::SetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline)
 {
   AssertRenderingThread();
-
-  if (m_State.m_Topology == topology)
-  {
+  m_State.m_hComputePipeline.Invalidate();
+  if (m_State.m_hGraphicsPipeline == hGraphicsPipeline)
     return;
-  }
 
-  m_CommonImpl.SetPrimitiveTopologyPlatform(topology);
-
-  m_State.m_Topology = topology;
+  const ezGALGraphicsPipeline* pGraphicsPipeline = GetDevice().GetGraphicsPipeline(hGraphicsPipeline);
+  m_CommonImpl.SetGraphicsPipelinePlatform(pGraphicsPipeline);
+  m_State.m_hGraphicsPipeline = hGraphicsPipeline;
 }
 
-void ezGALCommandEncoder::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
+void ezGALCommandEncoder::SetComputePipeline(ezGALComputePipelineHandle hComputePipeline)
 {
   AssertRenderingThread();
-
-  if (m_State.m_hVertexDeclaration == hVertexDeclaration)
-  {
+  m_State.m_hGraphicsPipeline.Invalidate();
+  if (m_State.m_hComputePipeline == hComputePipeline)
     return;
-  }
-
-  const ezGALVertexDeclaration* pVertexDeclaration = GetDevice().GetVertexDeclaration(hVertexDeclaration);
-  // Assert on vertex buffer type (if non-zero)
-
-  m_CommonImpl.SetVertexDeclarationPlatform(pVertexDeclaration);
-
-  m_State.m_hVertexDeclaration = hVertexDeclaration;
-}
-
-void ezGALCommandEncoder::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(blendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
-  {
-    return;
-  }
-
-  const ezGALBlendState* pBlendState = GetDevice().GetBlendState(hBlendState);
-
-  m_CommonImpl.SetBlendStatePlatform(pBlendState, blendFactor, uiSampleMask);
-
-  m_State.m_hBlendState = hBlendState;
-  m_State.m_BlendFactor = blendFactor;
-  m_State.m_uiSampleMask = uiSampleMask;
-}
-
-void ezGALCommandEncoder::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hDepthStencilState == hDepthStencilState && m_State.m_uiStencilRefValue == uiStencilRefValue)
-  {
-    return;
-  }
-
-  const ezGALDepthStencilState* pDepthStencilState = GetDevice().GetDepthStencilState(hDepthStencilState);
-
-  m_CommonImpl.SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
-
-  m_State.m_hDepthStencilState = hDepthStencilState;
-  m_State.m_uiStencilRefValue = uiStencilRefValue;
-}
-
-void ezGALCommandEncoder::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
-{
-  AssertRenderingThread();
-
-  if (m_State.m_hRasterizerState == hRasterizerState)
-  {
-    return;
-  }
-
-  const ezGALRasterizerState* pRasterizerState = GetDevice().GetRasterizerState(hRasterizerState);
-
-  m_CommonImpl.SetRasterizerStatePlatform(pRasterizerState);
-
-  m_State.m_hRasterizerState = hRasterizerState;
+  
+  const ezGALComputePipeline* pComputePipeline = GetDevice().GetComputePipeline(hComputePipeline);
+  m_CommonImpl.SetComputePipelinePlatform(pComputePipeline);
+  m_State.m_hComputePipeline = hComputePipeline;
 }
 
 void ezGALCommandEncoder::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
@@ -756,6 +682,18 @@ void ezGALCommandEncoder::SetScissorRect(const ezRectU32& rect)
   m_CommonImpl.SetScissorRectPlatform(rect);
 
   m_State.m_ScissorRect = rect;
+}
+
+void ezGALCommandEncoder::SetStencilReference(ezUInt8 uiStencilRefValue)
+{
+  AssertRenderingThread();
+
+  if (m_State.m_uiStencilRefValue == uiStencilRefValue)
+    return;
+
+  m_CommonImpl.SetStencilReferencePlatform(uiStencilRefValue);
+
+  m_State.m_uiStencilRefValue = uiStencilRefValue;
 }
 
 void ezGALCommandEncoder::BeginCompute(const char* szName)

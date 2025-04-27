@@ -29,7 +29,7 @@ struct ezGALRenderPassDescriptor : public ezHashableStruct<ezGALRenderPassDescri
   ezEnum<ezGALRenderTargetStoreOp> m_DepthStoreOp;
   ezEnum<ezGALRenderTargetLoadOp> m_StencilLoadOp;
   ezEnum<ezGALRenderTargetStoreOp> m_StencilStoreOp;
-  ezEnum<ezGALResourceFormat> m_ColorFormat[EZ_GAL_MAX_RENDERTARGET_COUNT] = {ezGALResourceFormat::Invalid};
+  ezEnum<ezGALResourceFormat> m_ColorFormat[EZ_GAL_MAX_RENDERTARGET_COUNT];
   ezEnum<ezGALRenderTargetLoadOp> m_ColorLoadOp[EZ_GAL_MAX_RENDERTARGET_COUNT];
   ezEnum<ezGALRenderTargetStoreOp> m_ColorStoreOp[EZ_GAL_MAX_RENDERTARGET_COUNT];
 };

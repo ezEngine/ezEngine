@@ -4,6 +4,11 @@ vk::ShaderModule ezGALShaderVulkan::GetShader(ezGALShaderStage::Enum stage) cons
   return m_Shaders[stage];
 }
 
+vk::PipelineLayout ezGALShaderVulkan::GetPipelineLayout() const
+{
+  return m_PipelineLayout;
+}
+
 ezUInt32 ezGALShaderVulkan::GetSetCount() const
 {
   return m_SetBindings.GetCount();

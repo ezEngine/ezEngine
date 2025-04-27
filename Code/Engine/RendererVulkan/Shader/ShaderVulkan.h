@@ -23,6 +23,7 @@ public:
   virtual void SetDebugName(ezStringView sName) const override;
 
   EZ_ALWAYS_INLINE vk::ShaderModule GetShader(ezGALShaderStage::Enum stage) const;
+  EZ_ALWAYS_INLINE vk::PipelineLayout GetPipelineLayout() const;
   EZ_ALWAYS_INLINE ezUInt32 GetSetCount() const;
   EZ_ALWAYS_INLINE vk::DescriptorSetLayout GetDescriptorSetLayout(ezUInt32 uiSet = 0) const;
   EZ_ALWAYS_INLINE ezArrayPtr<const ezShaderResourceBinding> GetBindings(ezUInt32 uiSet = 0) const;
@@ -43,6 +44,7 @@ private:
   ezHybridArray<vk::DescriptorSetLayout, 4> m_descriptorSetLayout;
   ezHybridArray<ezHybridArray<ezShaderResourceBinding, 16>, 4> m_SetBindings;
   vk::ShaderModule m_Shaders[ezGALShaderStage::ENUM_COUNT];
+  vk::PipelineLayout m_PipelineLayout;
 };
 
 #include <RendererVulkan/Shader/Implementation/ShaderVulkan_inl.h>

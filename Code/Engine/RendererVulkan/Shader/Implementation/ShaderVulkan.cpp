@@ -150,6 +150,19 @@ ezResult ezGALShaderVulkan::InitPlatform(ezGALDevice* pDevice)
     }
   }
 
+  // Build pipeline Layout
+  {
+    ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
+    const ezUInt32 uiSets = GetSetCount();
+    m_LayoutDesc.m_layout.SetCount(uiSets);
+    m_LayoutDesc.m_pushConstants = GetPushConstantRange();
+    for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
+    {
+      m_LayoutDesc.m_layout[uiSet] = GetDescriptorSetLayout(uiSet);
+    }
+
+    m_PipelineLayout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
+  }
   return EZ_SUCCESS;
 }
 

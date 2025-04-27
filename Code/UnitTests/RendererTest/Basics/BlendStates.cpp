@@ -37,7 +37,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   hState = m_pDevice->CreateBlendState(StateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
 
-  ezRenderContext::GetDefaultInstance()->GetCommandEncoder()->SetBlendState(hState);
+  ezRenderContext::GetDefaultInstance()->SetBlendState(hState);
 
   RenderObjects(ezShaderBindFlags::NoBlendState);
 

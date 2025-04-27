@@ -12,9 +12,7 @@ struct ezGALRenderingSetup;
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderCommonPlatformInterface
 {
 public:
-  // State setting functions
-
-  virtual void SetShaderPlatform(const ezGALShader* pShader) = 0;
+  // Resource binding functions
 
   virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) = 0;
   virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) = 0;
@@ -71,6 +69,7 @@ public:
   virtual void BeginComputePlatform() = 0;
   virtual void EndComputePlatform() = 0;
 
+
   virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
   virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
 
@@ -92,13 +91,13 @@ public:
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
   virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) = 0;
-  virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) = 0;
-  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology) = 0;
 
-  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask) = 0;
-  virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
-  virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) = 0;
+  virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) = 0;
+  virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) = 0;
+
+  // Dynamic State Functions
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
+  virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) = 0;
 };

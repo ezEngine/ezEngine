@@ -44,6 +44,7 @@ struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
 struct ezGALTextureUnorderedAccessViewCreationDescription;
 struct ezGALBufferUnorderedAccessViewCreationDescription;
+struct ezGALGraphicsPipelineCreationDescription;
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -66,6 +67,8 @@ class ezGALTextureUnorderedAccessView;
 class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
 class ezGALCommandEncoder;
+class ezGALGraphicsPipeline;
+class ezGALComputePipeline;
 
 // Basic enums
 struct ezGALPrimitiveTopology
@@ -560,6 +563,20 @@ class ezGALSamplerStateHandle
 class ezGALVertexDeclarationHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALVertexDeclarationHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALGraphicsPipelineHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALGraphicsPipelineHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALComputePipelineHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALComputePipelineHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
