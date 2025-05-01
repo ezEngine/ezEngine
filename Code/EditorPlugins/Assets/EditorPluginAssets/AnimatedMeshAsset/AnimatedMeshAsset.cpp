@@ -79,6 +79,28 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_bNormalizeWeights = pProp->m_bNormalizeWeights;
   // opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
+  // include tags
+  {
+    ezHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshIncludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshIncludeTags.PushBack(tag);
+    }
+  }
+
+  // exclude tags
+  {
+    ezHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshExcludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshExcludeTags.PushBack(tag);
+    }
+  }
+
   if (pProp->m_bSimplifyMesh)
   {
     opt.m_uiMeshSimplification = pProp->m_uiMeshSimplification;
@@ -88,6 +110,17 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
+
+  if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
+    return ezStatus("Imported mesh is empty.");
+
+  for (auto& sm : desc.GetSubMeshes())
+  {
+    if (sm.m_uiPrimitiveCount == 0)
+    {
+      return ezStatus("Imported mesh is empty.");
+    }
+  }
 
   range.BeginNextStep("Importing Materials");
 

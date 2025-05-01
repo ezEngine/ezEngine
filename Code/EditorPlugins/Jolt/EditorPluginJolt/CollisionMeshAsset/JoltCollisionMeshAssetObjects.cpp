@@ -45,6 +45,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 2, ezRTTIDef
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
+    EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
+    EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
     EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
 
@@ -77,6 +79,8 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   props["Height"].m_Visibility = ezPropertyUiState::Invisible;
   props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
   props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
+  props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Invisible;
+  props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
   props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
   props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
   props["Surfaces"].m_Visibility = isConvex ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
@@ -95,6 +99,8 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   if (!isConvex)
   {
     props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+    props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+    props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
   }
   else
   {
@@ -108,6 +114,8 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
 
       case ezJoltConvexCollisionMeshType::ConvexHull:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezJoltConvexCollisionMeshType::Cylinder:

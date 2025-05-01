@@ -33,6 +33,13 @@ macro(ez_platform_detect_generator)
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Make")
 		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 
+	elseif(CMAKE_GENERATOR MATCHES "Ninja") # Ninja
+		message(STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_MAKE)")
+
+		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+
 	else()
 		message(FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend ez_platform_detect_generator()")
 	endif()

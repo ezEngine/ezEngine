@@ -19,4 +19,7 @@ public:
 
   // path to a folder where shared materials should be stored
   ezString m_sSharedMaterialFolder;
+
+  // the default mesh include tag used to indicate that a sub-mesh is an LOD
+  ezString m_sMeshLodPrefix;
 };

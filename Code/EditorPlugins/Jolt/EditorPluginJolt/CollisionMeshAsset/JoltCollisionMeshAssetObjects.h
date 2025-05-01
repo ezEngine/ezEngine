@@ -58,6 +58,8 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sMeshIncludeTags;
+  ezString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
   ezString m_sConvexMeshSurface;
 

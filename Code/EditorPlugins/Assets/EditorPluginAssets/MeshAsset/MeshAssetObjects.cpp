@@ -11,6 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 4, ezRTTIDefaultAllocator
   {
     EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
+    EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
+    EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new ezDefaultValueAttribute("$;UCX_")),
     EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
@@ -97,6 +99,8 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     auto& props = *e.m_pPropertyStates;
 
     props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
+    props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Invisible;
+    props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
     props["Radius"].m_Visibility = ezPropertyUiState::Invisible;
     props["Radius2"].m_Visibility = ezPropertyUiState::Invisible;
     props["Height"].m_Visibility = ezPropertyUiState::Invisible;
@@ -126,6 +130,8 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     {
       case ezMeshPrimitive::File:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
         props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
         props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Default;
         props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;

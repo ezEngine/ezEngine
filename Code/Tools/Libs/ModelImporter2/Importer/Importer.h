@@ -28,6 +28,11 @@ namespace ezModelImporter2
     bool m_bNormalizeWeights = false;
     ezMat3 m_RootTransform = ezMat3::MakeIdentity();
 
+    // if non-empty, only import meshes whose names start or end with any of these strings
+    ezDynamicArray<ezString> m_MeshIncludeTags;
+    // if non-empty, do not import meshes whose names start or end with any of these strings (unless already explicitly included)
+    ezDynamicArray<ezString> m_MeshExcludeTags;
+
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
     ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
@@ -105,6 +110,7 @@ namespace ezModelImporter2
     ezMap<ezString, OutputTexture> m_OutputTextures; // path -> additional data
     ezDeque<OutputMaterial> m_OutputMaterials;
     ezDynamicArray<ezString> m_OutputAnimationNames;
+    ezDynamicArray<ezString> m_OutputMeshNames;
 
   protected:
     virtual ezResult DoImport() = 0;

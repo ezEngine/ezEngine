@@ -149,6 +149,28 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   opt.m_pMeshOutput = &meshDesc;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
+  // include tags
+  {
+    ezHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshIncludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshIncludeTags.PushBack(tag);
+    }
+  }
+
+  // exclude tags
+  {
+    ezHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshExcludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshExcludeTags.PushBack(tag);
+    }
+  }
+
   if (pProp->m_bSimplifyMesh)
   {
     opt.m_uiMeshSimplification = pProp->m_uiMeshSimplification;

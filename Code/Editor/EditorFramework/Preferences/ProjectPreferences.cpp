@@ -12,6 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
     EZ_ARRAY_MEMBER_PROPERTY("Players", m_PlayerApps)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("ExportFolder", m_sExportFolder)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("SharedMaterialFolder", m_sSharedMaterialFolder)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("MeshLodPrefix", m_sMeshLodPrefix)->AddAttributes(new ezHiddenAttribute(), new ezDefaultValueAttribute("$LOD")),
   }
   EZ_END_PROPERTIES;
 }

@@ -265,7 +265,7 @@ namespace
 
       auto pScriptableFunctionAttribute = pFunction->GetAttributeByType<ezScriptableFunctionAttribute>();
       if (pScriptableFunctionAttribute == nullptr)
-        EZ_FAILURE;
+        return EZ_FAILURE;
 
       ezUInt32 uiInputArgsMask = 0;
       ezUInt32 uiOutputArgsMask = 0;

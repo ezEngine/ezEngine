@@ -31,7 +31,7 @@ namespace ezModelImporter2
   class aiLogStreamInfo : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Dev("AssImp: {0}", szMessage); }
+    void write(const char* szMessage) { ezLog::Debug("AssImp: {0}", szMessage); }
   };
 
   ezResult ImporterAssimp::DoImport()

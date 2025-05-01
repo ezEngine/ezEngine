@@ -43,6 +43,8 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sMeshIncludeTags;
+  ezString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
 
   float m_fRadius = 0.5f;

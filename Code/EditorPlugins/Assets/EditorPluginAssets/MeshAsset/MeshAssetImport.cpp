@@ -8,6 +8,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
@@ -20,6 +21,8 @@ bool ezMeshAssetDocumentGenerator::s_bCreateMaterials = true;
 bool ezMeshAssetDocumentGenerator::s_bUseSharedMaterials = false;
 bool ezMeshAssetDocumentGenerator::s_bReuseSkeleton = false;
 bool ezMeshAssetDocumentGenerator::s_bImportAllClips = false;
+bool ezMeshAssetDocumentGenerator::s_bAddLODs = false;
+ezUInt8 ezMeshAssetDocumentGenerator::s_uiNumLODs = 1;
 ezUuid ezMeshAssetDocumentGenerator::s_SharedSkeleton;
 
 ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
@@ -87,6 +90,9 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     dlg.m_bReuseExistingSkeleton = s_bReuseSkeleton;
     dlg.m_SharedSkeleton = s_SharedSkeleton;
     dlg.m_bImportAnimationClips = s_bImportAllClips;
+    dlg.m_bAddLODs = s_bAddLODs;
+    dlg.m_uiNumLODs = s_uiNumLODs;
+    dlg.m_sMeshLodPrefix = pPref->m_sMeshLodPrefix.IsEmpty() ? ezString("$LOD") : pPref->m_sMeshLodPrefix;
 
     if (dlg.exec() != QDialog::Accepted)
     {
@@ -104,6 +110,13 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
         sSharedMaterialsFolderAbs = dlg.m_sSharedMaterialsFolderAbs;
         pPref->m_sSharedMaterialFolder = dlg.m_sSharedMaterialsFolderAbs;
       }
+    }
+
+    s_bAddLODs = dlg.m_bAddLODs;
+    if (s_bAddLODs)
+    {
+      s_uiNumLODs = ezMath::Clamp<ezUInt8>(dlg.m_uiNumLODs, 0, 4);
+      pPref->m_sMeshLodPrefix = dlg.m_sMeshLodPrefix;
     }
 
     if (m_bAnimatedMesh)
@@ -148,39 +161,119 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     ezMeshImportUtils::ImportMeshAssetMaterials(materials, sMaterialFolder, pImporter.Borrow());
   }
 
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
-
-  out_generatedDocuments.PushBack(pDoc);
-
-  return ConfigureMeshDocument(pDoc, sInputFileRel, sOutFile, pImporter.Borrow(), materials, out_generatedDocuments);
+  return ConfigureMeshDocument(sInputFileRel, sOutFile, pImporter.Borrow(), materials, out_generatedDocuments);
 }
 
-ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument* pDoc, ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_FoundLods, ezModelImporter2::Importer* pImporter)
 {
-  ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(pDoc);
+  out_FoundLods.Clear();
 
-  auto pPropObj = pAssetDoc->GetPropertyObject();
+  ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 
-  ezObjectCommandAccessor ca(pAssetDoc->GetCommandHistory());
-  ca.StartTransaction("Init Values");
-  ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
-  ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
-
-  for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+  if (!pPref->m_sMeshLodPrefix.IsEmpty())
   {
-    ezUuid guid = ezUuid::MakeUuid();
-    ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
+    ezStringBuilder lod;
 
-    auto* pChildMatObj = ca.GetObject(guid);
-    ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
-    ca.SetValueByName(pChildMatObj, "Resource", materials[i].m_sResource).AssertSuccess();
+    for (ezUInt32 i = 0; i < 4; ++i)
+    {
+      lod = pPref->m_sMeshLodPrefix;
+      lod.AppendFormat("{}", i);
+
+      for (const auto& meshName : pImporter->m_OutputMeshNames)
+      {
+        if (meshName.StartsWith_NoCase(lod) || meshName.EndsWith_NoCase(lod))
+        {
+          out_FoundLods[i] = lod;
+        }
+      }
+    }
   }
 
-  ca.FinishTransaction();
+  out_FoundLods.Sort();
+}
 
-  ezLog::Success("Imported mesh: '{}'", sOutFile);
+static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& foundLods, ezDocumentObject* pPropObj, ezObjectCommandAccessor& ca)
+{
+  if (uiLod > 0)
+  {
+    if (foundLods.IsEmpty())
+    {
+      ca.SetValueByName(pPropObj, "SimplifyMesh", true).AssertSuccess();
+
+      const ezInt32 uiSimp[5] = {0, 50, 75, 90, 95};
+      const ezInt32 uiErro[5] = {0, 5, 5, 10, 15};
+      ca.SetValueByName(pPropObj, "MeshSimplification", uiSimp[uiLod]).AssertSuccess();
+      ca.SetValueByName(pPropObj, "MaxSimplificationError", uiErro[uiLod]).AssertSuccess();
+    }
+    else
+    {
+      // always use the smallest next LOD that was found
+      const ezString& sLodToUse = foundLods.GetValue(0);
+
+      ca.SetValueByName(pPropObj, "MeshIncludeTags", sLodToUse).AssertSuccess();
+
+      foundLods.RemoveAtAndCopy(0);
+    }
+  }
+}
+
+ezStatus ezMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezUInt32 uiNumLODs = 1;
+
+  ezArrayMap<ezUInt32, ezString> foundLods;
+  if (s_bAddLODs)
+  {
+    FindLODs(foundLods, pImporter);
+    uiNumLODs += (!foundLods.IsEmpty()) ? foundLods.GetCount() : s_uiNumLODs;
+  }
+
+  ezStringBuilder sFinalName, sFinalPath;
+
+  for (ezUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
+  {
+    sFinalPath = sOutFile;
+
+    if (uiLod > 0)
+    {
+      // sFinalName.SetFormat("{}_lod{}", sOutFile.GetFileName(), uiLod);
+      sFinalName.SetFormat("{}_data/LOD-{}", sOutFile.GetFileName(), uiLod);
+      sFinalPath.ChangeFileName(sFinalName);
+    }
+
+    ezDocument* pDoc = pApp->CreateDocument(sFinalPath, ezDocumentFlags::None);
+    if (pDoc == nullptr)
+      return ezStatus(ezFmt("Could not create document '{}'", sFinalPath));
+
+    out_generatedDocuments.PushBack(pDoc);
+
+    ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(pDoc);
+
+    auto pPropObj = pAssetDoc->GetPropertyObject();
+
+    ezObjectCommandAccessor ca(pAssetDoc->GetCommandHistory());
+    ca.StartTransaction("Init Values");
+    ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
+    ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
+
+    for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+    {
+      ezUuid guid = ezUuid::MakeUuid();
+      ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
+
+      auto* pChildMatObj = ca.GetObject(guid);
+      ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
+      ca.SetValueByName(pChildMatObj, "Resource", materials[i].m_sResource).AssertSuccess();
+    }
+
+    SetMeshLod(uiLod, foundLods, pPropObj, ca);
+
+    ca.FinishTransaction();
+
+    ezLog::Success("Imported mesh: '{}'", sFinalPath);
+  }
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -211,9 +304,15 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInput
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument* pMainDoc, ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
+ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezDocument* pMainDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
+  if (pMainDoc == nullptr)
+    return ezStatus(ezFmt("Could not create document '{}'", sOutFile));
+
+  out_generatedDocuments.PushBack(pMainDoc);
 
   ezUuid skeletonGuid = s_SharedSkeleton;
 
@@ -261,32 +360,70 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::ConfigureMeshDocument(ezDocument*
 
   // configure animated mesh asset
   {
-    ezAnimatedMeshAssetDocument* pAnimMeshDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pMainDoc);
+    ezStringBuilder sFinalName, sFinalPath;
 
-    auto pPropObj = pAnimMeshDoc->GetPropertyObject();
+    ezUInt32 uiNumLODs = 1;
 
-    ezStringBuilder sSkeletonGuid;
-    ezConversionUtils::ToString(skeletonGuid, sSkeletonGuid);
-
-    ezObjectCommandAccessor ca(pAnimMeshDoc->GetCommandHistory());
-    ca.StartTransaction("Init Values");
-    ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
-    ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
-    ca.SetValueByName(pPropObj, "DefaultSkeleton", sSkeletonGuid.GetView()).AssertSuccess();
-
-    for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+    ezArrayMap<ezUInt32, ezString> foundLods;
+    if (s_bAddLODs)
     {
-      ezUuid guid = ezUuid::MakeUuid();
-      ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
-
-      auto* pChildMatObj = ca.GetObject(guid);
-      ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
-      ca.SetValueByName(pChildMatObj, "Resource", materials[i].m_sResource).AssertSuccess();
+      FindLODs(foundLods, pImporter);
+      uiNumLODs += (!foundLods.IsEmpty()) ? foundLods.GetCount() : s_uiNumLODs;
     }
 
-    ca.FinishTransaction();
+    for (ezUInt32 uiLod = 0; uiLod < uiNumLODs; ++uiLod)
+    {
+      sFinalPath = sOutFile;
 
-    ezLog::Success("Imported animated mesh: '{}'", sOutFile);
+      ezAnimatedMeshAssetDocument* pAnimMeshDoc;
+
+      if (uiLod == 0)
+      {
+        pAnimMeshDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pMainDoc);
+      }
+      else
+      {
+        if (uiLod > 0)
+        {
+          // sFinalName.SetFormat("{}_lod{}", sOutFile.GetFileName(), uiLod);
+          sFinalName.SetFormat("{}_data/LOD-{}", sOutFile.GetFileName(), uiLod);
+          sFinalPath.ChangeFileName(sFinalName);
+        }
+
+        pAnimMeshDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pApp->CreateDocument(sFinalPath, ezDocumentFlags::None));
+        if (pAnimMeshDoc == nullptr)
+          return ezStatus(ezFmt("Could not create document '{}'", sFinalPath));
+
+        out_generatedDocuments.PushBack(pAnimMeshDoc);
+      }
+
+      auto pPropObj = pAnimMeshDoc->GetPropertyObject();
+
+      ezStringBuilder sSkeletonGuid;
+      ezConversionUtils::ToString(skeletonGuid, sSkeletonGuid);
+
+      ezObjectCommandAccessor ca(pAnimMeshDoc->GetCommandHistory());
+      ca.StartTransaction("Init Values");
+      ca.SetValueByName(pPropObj, "MeshFile", sInputFile).AssertSuccess();
+      ca.SetValueByName(pPropObj, "ImportMaterials", false).AssertSuccess();
+      ca.SetValueByName(pPropObj, "DefaultSkeleton", sSkeletonGuid.GetView()).AssertSuccess();
+
+      for (ezUInt32 i = 0; i < materials.GetCount(); ++i)
+      {
+        ezUuid guid = ezUuid::MakeUuid();
+        ca.AddObjectByName(pPropObj, "Materials", i, ezGetStaticRTTI<ezMaterialResourceSlot>(), guid).AssertSuccess();
+
+        auto* pChildMatObj = ca.GetObject(guid);
+        ca.SetValueByName(pChildMatObj, "Label", materials[i].m_sLabel).AssertSuccess();
+        ca.SetValueByName(pChildMatObj, "Resource", materials[i].m_sResource).AssertSuccess();
+      }
+
+      SetMeshLod(uiLod, foundLods, pPropObj, ca);
+
+      ca.FinishTransaction();
+
+      ezLog::Success("Imported animated mesh: '{}'", sFinalPath);
+    }
   }
 
   // create animation clip assets

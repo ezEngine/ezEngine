@@ -48,7 +48,7 @@ public:
 
 protected:
   ezMeshAssetDocumentGenerator(bool bAnimMesh);
-  virtual ezStatus ConfigureMeshDocument(ezDocument* pDoc, ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments);
+  virtual ezStatus ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments);
 
   bool m_bAnimatedMesh = false;
   bool m_bShowImportDlg = true;
@@ -56,6 +56,8 @@ protected:
   static bool s_bImportAllClips;
   static bool s_bUseSharedMaterials;
   static bool s_bCreateMaterials;
+  static bool s_bAddLODs;
+  static ezUInt8 s_uiNumLODs;
   static ezUuid s_SharedSkeleton;
 };
 
@@ -71,5 +73,5 @@ public:
   virtual ezStringView GetDocumentExtension() const override { return "ezAnimatedMeshAsset"; }
 
 protected:
-  virtual ezStatus ConfigureMeshDocument(ezDocument* pDoc, ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
+  virtual ezStatus ConfigureMeshDocument(ezStringView sInputFile, ezStringView sOutFile, ezModelImporter2::Importer* pImporter, ezArrayPtr<ezMaterialResourceSlot> materials, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

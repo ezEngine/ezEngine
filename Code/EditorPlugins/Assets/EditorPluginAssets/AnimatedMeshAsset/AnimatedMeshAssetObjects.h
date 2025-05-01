@@ -16,6 +16,8 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sMeshIncludeTags;
+  ezString m_sMeshExcludeTags;
   ezString m_sDefaultSkeleton;
 
   bool m_bRecalculateNormals = false;

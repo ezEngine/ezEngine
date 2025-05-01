@@ -19,7 +19,10 @@ public:
   bool m_bShowAnimMeshOptions = false;
   bool m_bReuseExistingSkeleton = false;
   bool m_bImportAnimationClips = false;
+  bool m_bAddLODs = false;
+  ezUInt8 m_uiNumLODs = 1;
   ezUuid m_SharedSkeleton;
+  ezString m_sMeshLodPrefix;
 
 private Q_SLOTS:
   void on_Buttons_accepted();
@@ -29,6 +32,7 @@ private Q_SLOTS:
   void on_UseSharedMaterials_clicked(bool);
   void on_Materials_clicked(bool);
   void on_ReuseSkeleton_clicked(bool);
+  void on_Help_clicked(bool);
 
 private:
   virtual void showEvent(QShowEvent*) override;

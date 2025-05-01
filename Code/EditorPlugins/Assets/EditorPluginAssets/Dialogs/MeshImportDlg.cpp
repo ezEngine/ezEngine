@@ -22,6 +22,9 @@ void ezMeshImportDlg::showEvent(QShowEvent* e)
   ImportAnimClips->setChecked(m_bImportAnimationClips);
   ReuseSkeleton->setChecked(m_bReuseExistingSkeleton);
   UseSharedMaterials->setChecked(m_bUseSharedMaterials);
+  Lod->setChecked(m_bAddLODs);
+  NumLODs->setValue(m_uiNumLODs);
+  LodIncludeTag->setText(ezMakeQString(m_sMeshLodPrefix));
 
   UpdateUI();
 }
@@ -106,6 +109,9 @@ void ezMeshImportDlg::on_Buttons_accepted()
   m_bCreateMaterials = Materials->isChecked();
   m_bImportAnimationClips = ImportAnimClips->isChecked();
   m_bApplyToAll = ApplyToAll->isChecked();
+  m_bAddLODs = Lod->isChecked();
+  m_uiNumLODs = NumLODs->value();
+  m_sMeshLodPrefix = LodIncludeTag->text().toUtf8().data();
 
   accept();
 }
@@ -180,4 +186,9 @@ void ezMeshImportDlg::on_ReuseSkeleton_clicked(bool)
   m_bReuseExistingSkeleton = ReuseSkeleton->isChecked();
 
   UpdateUI();
+}
+
+void ezMeshImportDlg::on_Help_clicked(bool)
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/docs/assets/import-assets.html"));
 }

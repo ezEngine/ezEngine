@@ -148,6 +148,40 @@ namespace ezModelImporter2
     if ((pMesh->mPrimitiveTypes & aiPrimitiveType::aiPrimitiveType_TRIANGLE) == 0) // no triangles in there ?
       return EZ_SUCCESS;
 
+    m_OutputMeshNames.PushBack(pMesh->mName.C_Str());
+
+    if (!m_Options.m_MeshIncludeTags.IsEmpty() || !m_Options.m_MeshExcludeTags.IsEmpty())
+    {
+      ezLog::Dev("Found mesh with name: '{}'", pMesh->mName.C_Str());
+    }
+
+    if (!m_Options.m_MeshIncludeTags.IsEmpty())
+    {
+      for (const auto& str : m_Options.m_MeshIncludeTags)
+      {
+        if (ezStringUtils::StartsWith_NoCase(pMesh->mName.C_Str(), str) || ezStringUtils::EndsWith_NoCase(pMesh->mName.C_Str(), str))
+        {
+          ezLog::Dev("Including mesh '{}' because of include-tag '{}'", pMesh->mName.C_Str(), str);
+          goto do_import;
+        }
+      }
+
+      ezLog::Dev("Skipping mesh '{}', because it doesn't match any include-tag.", pMesh->mName.C_Str());
+      return EZ_SUCCESS; // not a failure case
+    }
+
+    for (const auto& str : m_Options.m_MeshExcludeTags)
+    {
+      if (ezStringUtils::StartsWith_NoCase(pMesh->mName.C_Str(), str) || ezStringUtils::EndsWith_NoCase(pMesh->mName.C_Str(), str))
+      {
+        ezLog::Dev("Skipping mesh '{}' because of exclude-tag '{}'", pMesh->mName.C_Str(), str);
+        return EZ_SUCCESS; // not a failure case
+      }
+    }
+
+
+  do_import:
+
     if (m_Options.m_bImportSkinningData && !pMesh->HasBones())
     {
       ezLog::Warning("Mesh contains an unskinned part ('{}' - {} triangles)", pMesh->mName.C_Str(), pMesh->mNumFaces);

@@ -4,16 +4,19 @@
 
 macro(ez_requires_renderer)
 	# PLATFORM-TODO
+
+	# if we know which backend the user wants, require that
+	# otherwise require the platform specific renderer
+	# if nothing else is known, this platform doesn't support renderers
 	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
 		ez_requires_webgpu()
-	endif()
-
-	if(EZ_BUILD_EXPERIMENTAL_VULKAN)
+	elseif(EZ_BUILD_EXPERIMENTAL_VULKAN)
 		ez_requires_vulkan()
-	endif()
-
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
+	elseif(EZ_CMAKE_PLATFORM_WINDOWS)
 		ez_requires_d3d()
+	else()
+		message(STATUS "No renderer available on this platform.")
+		return()
 	endif()
 endmacro()
 

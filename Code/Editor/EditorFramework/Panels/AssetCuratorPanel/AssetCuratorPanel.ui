@@ -100,6 +100,9 @@
              <bool>false</bool>
             </property>
             <widget class="QTreeView" name="ListAssets">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
              <property name="uniformRowHeights">
               <bool>true</bool>
              </property>
