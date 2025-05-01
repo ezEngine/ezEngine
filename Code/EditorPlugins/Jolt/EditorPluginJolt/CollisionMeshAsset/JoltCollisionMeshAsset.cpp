@@ -186,6 +186,9 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   const ezUInt32 uiNumTriangles = meshBuffer.GetPrimitiveCount();
   const ezUInt32 uiNumVertices = meshBuffer.GetVertexCount();
 
+  if (uiNumTriangles < 3 || uiNumVertices < 3)
+    return ezStatus("Invalid collision mesh.");
+
   outMesh.m_PolygonSurfaceID.SetCountUninitialized(uiNumTriangles);
   outMesh.m_VerticesInPolygon.SetCountUninitialized(uiNumTriangles);
 
