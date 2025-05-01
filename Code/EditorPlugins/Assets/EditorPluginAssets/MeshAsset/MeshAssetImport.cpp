@@ -164,9 +164,9 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
   return ConfigureMeshDocument(sInputFileRel, sOutFile, pImporter.Borrow(), materials, out_generatedDocuments);
 }
 
-static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_FoundLods, ezModelImporter2::Importer* pImporter)
+static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_foundLods, ezModelImporter2::Importer* pImporter)
 {
-  out_FoundLods.Clear();
+  out_foundLods.Clear();
 
   ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 
@@ -183,36 +183,36 @@ static void FindLODs(ezArrayMap<ezUInt32, ezString>& out_FoundLods, ezModelImpor
       {
         if (meshName.StartsWith_NoCase(lod) || meshName.EndsWith_NoCase(lod))
         {
-          out_FoundLods[i] = lod;
+          out_foundLods[i] = lod;
         }
       }
     }
   }
 
-  out_FoundLods.Sort();
+  out_foundLods.Sort();
 }
 
-static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& foundLods, ezDocumentObject* pPropObj, ezObjectCommandAccessor& ca)
+static void SetMeshLod(ezUInt32 uiLod, ezArrayMap<ezUInt32, ezString>& ref_foundLods, ezDocumentObject* pPropObj, ezObjectCommandAccessor& ref_accessor)
 {
   if (uiLod > 0)
   {
-    if (foundLods.IsEmpty())
+    if (ref_foundLods.IsEmpty())
     {
-      ca.SetValueByName(pPropObj, "SimplifyMesh", true).AssertSuccess();
+      ref_accessor.SetValueByName(pPropObj, "SimplifyMesh", true).AssertSuccess();
 
       const ezInt32 uiSimp[5] = {0, 50, 75, 90, 95};
       const ezInt32 uiErro[5] = {0, 5, 5, 10, 15};
-      ca.SetValueByName(pPropObj, "MeshSimplification", uiSimp[uiLod]).AssertSuccess();
-      ca.SetValueByName(pPropObj, "MaxSimplificationError", uiErro[uiLod]).AssertSuccess();
+      ref_accessor.SetValueByName(pPropObj, "MeshSimplification", uiSimp[uiLod]).AssertSuccess();
+      ref_accessor.SetValueByName(pPropObj, "MaxSimplificationError", uiErro[uiLod]).AssertSuccess();
     }
     else
     {
       // always use the smallest next LOD that was found
-      const ezString& sLodToUse = foundLods.GetValue(0);
+      const ezString& sLodToUse = ref_foundLods.GetValue(0);
 
-      ca.SetValueByName(pPropObj, "MeshIncludeTags", sLodToUse).AssertSuccess();
+      ref_accessor.SetValueByName(pPropObj, "MeshIncludeTags", sLodToUse).AssertSuccess();
 
-      foundLods.RemoveAtAndCopy(0);
+      ref_foundLods.RemoveAtAndCopy(0);
     }
   }
 }
