@@ -32,7 +32,7 @@ ezResult ezEditorTestMisc::InitializeTest()
   if (SUPER::OpenProject("Data/UnitTests/EditorTest").Failed())
     return EZ_FAILURE;
 
-  if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None); res.Failed())
+  if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(); res.Failed())
   {
     ezLog::Error("Asset transform failed: {}", res.m_sMessage);
     return EZ_FAILURE;
@@ -81,7 +81,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   ////TODO: Newly created assets actually do not transform cleanly.
   // if (false)
   //{
-  //  ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
+  //  ezAssetCurator::GetSingleton()->TransformAllAssets();
 
   //  ezUInt32 uiNumAssets;
   //  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;

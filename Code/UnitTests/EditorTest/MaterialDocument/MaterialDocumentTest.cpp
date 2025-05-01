@@ -47,7 +47,7 @@ ezResult ezMaterialDocumentTest::InitializeTest()
   if (SUPER::CreateAndLoadProject("SceneTestProject").Failed())
     return EZ_FAILURE;
 
-  if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None); res.Failed())
+  if (ezStatus res = ezAssetCurator::GetSingleton()->TransformAllAssets(); res.Failed())
   {
     ezLog::Error("Asset transform failed: {}", res.m_sMessage);
     return EZ_FAILURE;

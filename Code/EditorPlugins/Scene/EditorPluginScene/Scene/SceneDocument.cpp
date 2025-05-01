@@ -1750,7 +1750,9 @@ ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
     res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
   }
   else
+  {
     res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+  }
 
   if (res.Failed())
     ezLog::Error(res.m_sMessage);

@@ -220,7 +220,10 @@ public:
   void StoreFullTransformDate();
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
+  ///
+  /// Pass ezTransformFlags::TriggeredManually to make sure that all assets get transformed,
+  /// even the ones that should not be transformed by background processors (mainly scenes).
+  ezStatus TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags = ezTransformFlags::TriggeredManually, const ezPlatformProfile* pAssetProfile = nullptr);
   ezTransformStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
 

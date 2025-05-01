@@ -289,7 +289,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       range.BeginNextStep("Transform Assets");
       if (dlg.s_bTransformAll)
       {
-        if (ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None).Succeeded())
+        if (ezAssetCurator::GetSingleton()->TransformAllAssets().Succeeded())
         {
           // once all assets have been transformed, disable it for the next export
           dlg.s_bTransformAll = false;

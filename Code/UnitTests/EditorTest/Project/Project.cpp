@@ -82,7 +82,7 @@ ezTestAppRun ezEditorTestProject::CreateDocuments()
   // TODO: Newly created assets actually do not transform cleanly.
   if (false)
   {
-    ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually).IgnoreResult();
+    ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult();
 
     ezUInt32 uiNumAssets;
     ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;

@@ -50,6 +50,8 @@ struct ezAssetDocumentFlags
     StorageType OnlyTransformManually : 1;
     StorageType SupportsThumbnail : 1;
     StorageType AutoThumbnailOnTransform : 1;
+    StorageType SubAssetsSupportThumbnail : 1;
+    StorageType SubAssetsAutoThumbnailOnTransform : 1;
   };
 };
 

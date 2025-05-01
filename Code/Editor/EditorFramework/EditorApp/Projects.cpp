@@ -357,7 +357,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
 
           // check whether the project needs to be transformed
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default).IgnoreResult(); });
+            { ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult(); });
         }
       }
 
