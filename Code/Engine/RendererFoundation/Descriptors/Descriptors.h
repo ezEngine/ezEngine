@@ -68,7 +68,7 @@ struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreat
   ezGALShaderCreationDescription(const ezGALShaderCreationDescription& other);
   ~ezGALShaderCreationDescription();
   /// \brief Needs to be overwritten as the base class impl can only handle pod types.
-  void operator=(const ezGALShaderCreationDescription& other); 
+  void operator=(const ezGALShaderCreationDescription& other);
 
   bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
 
