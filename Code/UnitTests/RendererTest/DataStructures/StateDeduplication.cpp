@@ -1,12 +1,12 @@
 #include <RendererTest/RendererTestPCH.h>
 
+#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/State/GraphicsPipeline.h>
 #include <RendererFoundation/State/State.h>
 #include <RendererFoundation/Utils/RingBufferTracker.h>
 #include <RendererTest/TestClass/SimpleRendererTest.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
 
 namespace
 {
