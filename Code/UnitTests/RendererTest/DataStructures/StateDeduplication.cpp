@@ -5,6 +5,8 @@
 #include <RendererFoundation/State/State.h>
 #include <RendererFoundation/Utils/RingBufferTracker.h>
 #include <RendererTest/TestClass/SimpleRendererTest.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 
 namespace
 {
