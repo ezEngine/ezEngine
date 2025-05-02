@@ -325,7 +325,7 @@ protected:
 
   virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) override;
   virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) override;
-  
+
   // Resource creation functions
 
   virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) override;

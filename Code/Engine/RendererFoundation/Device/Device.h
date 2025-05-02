@@ -54,7 +54,7 @@ public:
 
   ezGALComputePipelineHandle CreateComputePipeline(const ezGALComputePipelineCreationDescription& description);
   void DestroyComputePipeline(ezGALComputePipelineHandle hComputePipeline);
-  
+
   // Resource creation functions
 
   ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& description);
@@ -391,7 +391,7 @@ protected:
 
   virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) = 0;
   virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) = 0;
-  
+
   // Resource creation functions
 
   virtual ezGALShader* CreateShaderPlatform(const ezGALShaderCreationDescription& Description) = 0;

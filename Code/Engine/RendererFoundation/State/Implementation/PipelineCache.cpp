@@ -74,7 +74,7 @@ void ezGALPipelineCache::Clear()
 ezGALGraphicsPipelineHandle ezGALPipelineCache::GetPipeline(const ezGALGraphicsPipelineCreationDescription& description)
 {
   ezGALPipelineCache* pCache = ezGALPipelineCache::GetSingleton();
-  
+
   ezGALGraphicsPipelineHandle hGraphicsPipeline = pCache->TryGetPipeline<ezGALGraphicsPipelineHandle>(description, pCache->m_GraphicsPipelines);
 
   if (hGraphicsPipeline.IsInvalidated())
@@ -84,23 +84,23 @@ ezGALGraphicsPipelineHandle ezGALPipelineCache::GetPipeline(const ezGALGraphicsP
     {
       return {};
     }
-    
+
     if (pCache->TryInsertPipeline<ezGALGraphicsPipelineHandle>(description, hGraphicsPipeline, pCache->m_GraphicsPipelines).Failed())
     {
       // Already created and inserted, reduce ref count again.
       pCache->m_pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
     }
   }
-  
+
   return hGraphicsPipeline;
 }
 
 ezGALComputePipelineHandle ezGALPipelineCache::GetPipeline(const ezGALComputePipelineCreationDescription& description)
 {
   ezGALPipelineCache* pCache = ezGALPipelineCache::GetSingleton();
-  
+
   ezGALComputePipelineHandle hComputePipeline = pCache->TryGetPipeline<ezGALComputePipelineHandle>(description, pCache->m_ComputePipelines);
-  
+
   if (hComputePipeline.IsInvalidated())
   {
     hComputePipeline = pCache->m_pDevice->CreateComputePipeline(description);
@@ -108,14 +108,14 @@ ezGALComputePipelineHandle ezGALPipelineCache::GetPipeline(const ezGALComputePip
     {
       return {};
     }
-    
+
     if (pCache->TryInsertPipeline<ezGALComputePipelineHandle>(description, hComputePipeline, pCache->m_ComputePipelines).Failed())
     {
       // Already created and inserted, reduce ref count again.
       pCache->m_pDevice->DestroyComputePipeline(hComputePipeline);
     }
   }
-  
+
   return hComputePipeline;
 }
 

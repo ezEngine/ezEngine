@@ -14,11 +14,11 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/UnorderedAccesView.h>
-#include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/Shader/Shader.h>
-#include <RendererFoundation/State/State.h>
-#include <RendererFoundation/State/GraphicsPipeline.h>
+#include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/State/ComputePipeline.h>
+#include <RendererFoundation/State/GraphicsPipeline.h>
+#include <RendererFoundation/State/State.h>
 
 namespace
 {
@@ -120,10 +120,10 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_VertexDeclarations.IsEmpty())
       ezLog::Warning("{0} vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
-    
+
     if (!m_GraphicsPipelines.IsEmpty())
       ezLog::Warning("{0} graphics pipelines have not been cleaned up", m_GraphicsPipelines.GetCount());
-    
+
     if (!m_ComputePipelines.IsEmpty())
       ezLog::Warning("{0} Compute pipelines have not been cleaned up", m_ComputePipelines.GetCount());
   }
@@ -597,7 +597,7 @@ void ezGALDevice::DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsP
 ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALComputePipelineCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
-  
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
   {
@@ -2241,7 +2241,7 @@ void ezGALDevice::DestroyDeadObjects()
       {
         ezGALComputePipelineHandle hComputePipeline(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALComputePipeline* pComputePipeline = nullptr;
-        
+
         EZ_VERIFY(m_ComputePipelines.Remove(hComputePipeline, &pComputePipeline), "Unexpected invalid handle");
         m_ComputePipelineTable.Remove(pComputePipeline->GetDescription().CalculateHash());
 

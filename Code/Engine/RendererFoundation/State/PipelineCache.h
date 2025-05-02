@@ -12,6 +12,7 @@ class ezGALDevice;
 class EZ_RENDERERFOUNDATION_DLL ezGALPipelineCache
 {
   EZ_DECLARE_SINGLETON(ezGALPipelineCache);
+
 public:
   /// \brief Creates a pipeline or retrieves it from the cache. Ownership remains with the cache so do not call DestroyGraphicsPipeline on the handle.
   static ezGALGraphicsPipelineHandle GetPipeline(const ezGALGraphicsPipelineCreationDescription& description);
@@ -28,7 +29,7 @@ private:
     ezUInt32 m_uiHash = 0;
     ezGALGraphicsPipelineCreationDescription m_Desc;
   };
-  
+
   struct ComputePipelineCacheKey
   {
     EZ_DECLARE_POD_TYPE();
@@ -40,7 +41,7 @@ private:
   {
     static ezUInt32 Hash(const GraphicsPipelineCacheKey& a);
     static bool Equal(const GraphicsPipelineCacheKey& a, const GraphicsPipelineCacheKey& b);
-    
+
     static ezUInt32 Hash(const ComputePipelineCacheKey& a);
     static bool Equal(const ComputePipelineCacheKey& a, const ComputePipelineCacheKey& b);
   };
@@ -51,10 +52,10 @@ private:
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
   void Clear();
 
-  template <typename HandleType,  typename DescType, typename KeyType>
+  template <typename HandleType, typename DescType, typename KeyType>
   EZ_ALWAYS_INLINE HandleType TryGetPipeline(const DescType& description, ezHashTable<KeyType, HandleType, CacheKeyHasher>& table);
 
-  template <typename HandleType,  typename DescType, typename KeyType>
+  template <typename HandleType, typename DescType, typename KeyType>
   EZ_ALWAYS_INLINE ezResult TryInsertPipeline(const DescType& description, HandleType hNewPipeline, ezHashTable<KeyType, HandleType, CacheKeyHasher>& table);
 
 private:

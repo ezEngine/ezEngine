@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <RendererFoundation/State/GraphicsPipeline.h>
 #include <RendererDX11/RendererDX11DLL.h>
+#include <RendererFoundation/State/GraphicsPipeline.h>
 
 class ezGALDeviceDX11;
 
@@ -17,5 +17,4 @@ public:
   virtual void SetDebugName(const char* szName) override;
 
 private:
-
 };

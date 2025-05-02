@@ -18,9 +18,9 @@
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
-#include <RendererVulkan/State/StateVulkan.h>
-#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/ComputePipelineVulkan.h>
+#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
+#include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
@@ -803,7 +803,7 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   m_GALDeviceVulkan.GetQueryPool().EnsureFreeQueryPoolSize(*m_pCommandBuffer);
 
   m_renderPass.renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
-  m_renderPass.framebuffer  = ezResourceCacheVulkan::RequestFrameBuffer(m_renderPass.renderPass, renderingSetup.GetFrameBuffer());
+  m_renderPass.framebuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_renderPass.renderPass, renderingSetup.GetFrameBuffer());
   m_uiLayers = renderingSetup.GetFrameBuffer().m_uiSliceCount;
   ezSizeU32 size = renderingSetup.GetFrameBuffer().m_Size;
   SetScissorRectPlatform(ezRectU32(size.width, size.height));
@@ -866,7 +866,7 @@ void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
   m_uiLayers = 0;
 
   m_renderPass.renderPass = nullptr;
-  m_renderPass.framebuffer  = nullptr;
+  m_renderPass.framebuffer = nullptr;
 }
 
 void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)

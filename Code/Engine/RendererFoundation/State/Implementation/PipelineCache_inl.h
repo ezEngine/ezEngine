@@ -1,5 +1,5 @@
 
-template <typename HandleType,  typename DescType, typename KeyType>
+template <typename HandleType, typename DescType, typename KeyType>
 HandleType ezGALPipelineCache::TryGetPipeline(const DescType& description, ezHashTable<KeyType, HandleType, ezGALPipelineCache::CacheKeyHasher>& table)
 {
   EZ_ASSERT_DEV(m_pDevice != nullptr, "GAL device not initialized");
@@ -20,7 +20,7 @@ HandleType ezGALPipelineCache::TryGetPipeline(const DescType& description, ezHas
   return {};
 }
 
-template <typename HandleType,  typename DescType, typename KeyType>
+template <typename HandleType, typename DescType, typename KeyType>
 EZ_ALWAYS_INLINE ezResult ezGALPipelineCache::TryInsertPipeline(const DescType& description, HandleType hNewPipeline, ezHashTable<KeyType, HandleType, ezGALPipelineCache::CacheKeyHasher>& table)
 {
   KeyType key;

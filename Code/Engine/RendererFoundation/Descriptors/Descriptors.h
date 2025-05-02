@@ -8,9 +8,9 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
@@ -19,7 +19,7 @@ class ezWindowBase;
 /// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
 struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>
 {
-  ezGALShaderHandle m_hShader; ///< Also defines pipeline layout
+  ezGALShaderHandle m_hShader;                       ///< Also defines pipeline layout
   ezGALVertexDeclarationHandle m_hVertexDeclaration; ///< Optional
 
   ezGALRasterizerStateHandle m_hRasterizerState;

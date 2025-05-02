@@ -17,11 +17,11 @@
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/State/GraphicsPipelineDX11.h>
-#include <RendererDX11/State/ComputePipelineDX11.h>
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
+#include <RendererDX11/State/ComputePipelineDX11.h>
+#include <RendererDX11/State/GraphicsPipelineDX11.h>
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>

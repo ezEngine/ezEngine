@@ -35,9 +35,9 @@
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
-#include <RendererVulkan/State/StateVulkan.h>
-#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/ComputePipelineVulkan.h>
+#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
+#include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
@@ -2163,7 +2163,7 @@ void ezGALDeviceVulkan::DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* p
 ezGALComputePipeline* ezGALDeviceVulkan::CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description)
 {
   ezGALComputePipelineVulkan* pComputePipeline = EZ_NEW(&m_Allocator, ezGALComputePipelineVulkan, Description);
-  
+
   if (pComputePipeline->InitPlatform(this).Succeeded())
   {
     return pComputePipeline;

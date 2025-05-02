@@ -357,7 +357,7 @@ ezResult ezResourceCacheVulkan::SavePipelineCache()
   // Write to the temporary file first
   {
     ezOSFile file;
-    //ezFileWriter file;
+    // ezFileWriter file;
     EZ_SUCCEED_OR_RETURN(file.Open(sTempFilePath, ezFileOpenMode::Write, ezFileShareMode::Exclusive));
     EZ_SUCCEED_OR_RETURN(file.Write(&prefixHeader, sizeof(PipelineCachePrefixHeader)));
     EZ_SUCCEED_OR_RETURN(file.Write(pipelineCacheData.GetData(), dataSize));

@@ -112,12 +112,12 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
 
 inline const ezGALGraphicsPipeline* ezGALDevice::GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const
 {
-  return Get<GraphicsPipelineTable , ezGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);
+  return Get<GraphicsPipelineTable, ezGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);
 }
 
 inline const ezGALComputePipeline* ezGALDevice::GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const
 {
-  return Get<ComputePipelineTable , ezGALComputePipeline>(hComputePipeline, m_ComputePipelines);
+  return Get<ComputePipelineTable, ezGALComputePipeline>(hComputePipeline, m_ComputePipelines);
 }
 
 inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const

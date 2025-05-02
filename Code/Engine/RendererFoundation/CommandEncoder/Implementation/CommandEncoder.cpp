@@ -648,7 +648,7 @@ void ezGALCommandEncoder::SetComputePipeline(ezGALComputePipelineHandle hCompute
   m_State.m_hGraphicsPipeline.Invalidate();
   if (m_State.m_hComputePipeline == hComputePipeline)
     return;
-  
+
   const ezGALComputePipeline* pComputePipeline = GetDevice().GetComputePipeline(hComputePipeline);
   m_CommonImpl.SetComputePipelinePlatform(pComputePipeline);
   m_State.m_hComputePipeline = hComputePipeline;
