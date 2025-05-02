@@ -11,18 +11,16 @@ ezGALComputePipelineDX11::ezGALComputePipelineDX11(const ezGALComputePipelineCre
 
 ezGALComputePipelineDX11::~ezGALComputePipelineDX11() = default;
 
-ezResult ezGALComputePipelineDX11::InitPlatform(ezGALDevice* pDevice)
+ezResult ezGALComputePipelineDX11::InitPlatform(ezGALDevice*)
 {
   return EZ_SUCCESS;
 }
 
-ezResult ezGALComputePipelineDX11::DeInitPlatform(ezGALDevice* pDevice)
+ezResult ezGALComputePipelineDX11::DeInitPlatform(ezGALDevice*)
 {
-  EZ_IGNORE_UNUSED(pDevice);
   return EZ_SUCCESS;
 }
 
-void ezGALComputePipelineDX11::SetDebugName(const char* szName)
+void ezGALComputePipelineDX11::SetDebugName(const char*)
 {
-  EZ_IGNORE_UNUSED(szName);
 }

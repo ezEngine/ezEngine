@@ -334,7 +334,7 @@ ezResult ezResourceCacheVulkan::SavePipelineCache()
     return EZ_SUCCESS;
 
   ezDynamicArray<ezUInt8> pipelineCacheData;
-  pipelineCacheData.SetCountUninitialized(dataSize);
+  pipelineCacheData.SetCountUninitialized(static_cast<ezUInt32>(dataSize));
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_device.getPipelineCacheData(s_pipelineCache, &dataSize, pipelineCacheData.GetData()));
 
   // Create our custom prefix header

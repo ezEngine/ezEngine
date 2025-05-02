@@ -139,6 +139,6 @@ ezResult ezGALGraphicsPipelineVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-void ezGALGraphicsPipelineVulkan::SetDebugName(const char* szName)
+void ezGALGraphicsPipelineVulkan::SetDebugName(const char*)
 {
 }

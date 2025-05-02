@@ -55,6 +55,6 @@ ezResult ezGALComputePipelineVulkan::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-void ezGALComputePipelineVulkan::SetDebugName(const char* szName)
+void ezGALComputePipelineVulkan::SetDebugName(const char*)
 {
 }
