@@ -5,11 +5,27 @@ inline ezGALShaderCreationDescription::ezGALShaderCreationDescription()
 {
 }
 
+inline ezGALShaderCreationDescription::ezGALShaderCreationDescription(const ezGALShaderCreationDescription& other)
+{
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    m_ByteCodes[i] = other.m_ByteCodes[i];
+  }
+}
+
 inline ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
 {
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
   {
     m_ByteCodes[i] = nullptr;
+  }
+}
+
+inline void ezGALShaderCreationDescription::operator=(const ezGALShaderCreationDescription& other)
+{
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    m_ByteCodes[i] = other.m_ByteCodes[i];
   }
 }
 

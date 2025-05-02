@@ -100,10 +100,20 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, StateDeduplication)
       depthDesc = pDevice->GetDepthStencilState(graphicsPipelineDesc.m_hDepthStencilState)->GetDescription();
 
       hGraphicsPipeline = pDevice->CreateGraphicsPipeline(graphicsPipelineDesc);
-      ezResourceManager::FreeAllUnusedResources();
     }
-    ezUInt32 uiDeleted = ezResourceManager::FreeAllUnusedResources();
-    EZ_TEST_INT_MSG(uiDeleted, 2, "This should have freed the ezShaderResource and the ezShaderPermutationResource");
+
+    ezUInt32 uiUnloaded = 0;
+    for (ezUInt32 tries = 0; tries < 3; ++tries)
+    {
+      // if a resource is in a loading queue, unloading it can actually 'fail' for a short time
+      uiUnloaded += ezResourceManager::FreeAllUnusedResources();
+
+      if (uiUnloaded == 2)
+        break;
+
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    }
+    EZ_TEST_INT_MSG(uiUnloaded, 2, "This should have freed the ezShaderResource and the ezShaderPermutationResource");
 
     pDevice->BeginFrame(1);
     pDevice->EndFrame();
