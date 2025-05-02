@@ -10,7 +10,7 @@
 
 namespace
 {
-  void VerifyDependenciesExist(ezGALDevice* pDevice, ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
+  void VerifyDependenciesExist(ezGALDevice* pDevice, const ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
   {
     EZ_TEST_BOOL(pDevice->GetShader(graphicsPipelineDesc.m_hShader) != nullptr);
     EZ_TEST_BOOL(pDevice->GetBlendState(graphicsPipelineDesc.m_hBlendState) != nullptr);
@@ -18,7 +18,7 @@ namespace
     EZ_TEST_BOOL(pDevice->GetDepthStencilState(graphicsPipelineDesc.m_hDepthStencilState) != nullptr);
   }
 
-  void VerifyDependenciesAreDestroyed(ezGALDevice* pDevice, ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
+  void VerifyDependenciesAreDestroyed(ezGALDevice* pDevice, const ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
   {
     EZ_TEST_BOOL(pDevice->GetShader(graphicsPipelineDesc.m_hShader) == nullptr);
     EZ_TEST_BOOL(pDevice->GetBlendState(graphicsPipelineDesc.m_hBlendState) == nullptr);
@@ -26,7 +26,7 @@ namespace
     EZ_TEST_BOOL(pDevice->GetDepthStencilState(graphicsPipelineDesc.m_hDepthStencilState) == nullptr);
   }
 
-  void VerifyDependenciesRefCount(ezGALDevice* pDevice, ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc, ezUInt32 uiRefCount)
+  void VerifyDependenciesRefCount(ezGALDevice* pDevice, const ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc, ezUInt32 uiRefCount)
   {
     EZ_TEST_INT(pDevice->GetShader(graphicsPipelineDesc.m_hShader)->GetRefCount(), uiRefCount);
     EZ_TEST_INT(pDevice->GetBlendState(graphicsPipelineDesc.m_hBlendState)->GetRefCount(), uiRefCount);
@@ -34,7 +34,7 @@ namespace
     EZ_TEST_INT(pDevice->GetDepthStencilState(graphicsPipelineDesc.m_hDepthStencilState)->GetRefCount(), uiRefCount);
   }
 
-  void DestroyDependencies(ezGALDevice* pDevice, ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
+  void DestroyDependencies(ezGALDevice* pDevice, const ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
   {
     pDevice->DestroyShader(graphicsPipelineDesc.m_hShader);
     pDevice->DestroyBlendState(graphicsPipelineDesc.m_hBlendState);
