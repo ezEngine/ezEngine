@@ -249,3 +249,23 @@ vk::Result ezMemoryAllocatorVulkan::InvalidateAllocation(ezVulkanAllocation allo
 {
   return (vk::Result)vmaInvalidateAllocation(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), offset, size);
 }
+
+EZ_DEFINE_AS_POD_TYPE(VmaBudget);
+
+ezVulkanMemoryStatistics ezMemoryAllocatorVulkan::GetStats()
+{
+  ezVulkanMemoryStatistics stats;
+  const ezUInt32 uiHeapCount = m_pImpl->m_allocator->GetMemoryHeapCount();
+  ezHybridArray<VmaBudget, 4> budgets;
+  budgets.SetCount(uiHeapCount);
+  vmaGetHeapBudgets(m_pImpl->m_allocator, budgets.GetData());
+  for (ezUInt32 i = 0; i < uiHeapCount; ++i)
+  {
+    const VmaBudget& budget = budgets[i];
+    stats.m_uiBlockCount += budget.statistics.blockCount;
+    stats.m_uiAllocationCount += budget.statistics.allocationCount;
+    stats.m_uiBlockBytes += budget.statistics.blockBytes;
+    stats.m_uiAllocationBytes += budget.statistics.allocationBytes;
+  }
+  return stats;
+}

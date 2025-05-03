@@ -86,6 +86,16 @@ struct ezVulkanAllocationInfo
   const char* m_pName;
 };
 
+/// \brief Copy of VmaStatistics. Duplicated for abstraction purposes.
+struct ezVulkanMemoryStatistics
+{
+  ezUInt32 m_uiBlockCount = 0;
+  ezUInt32 m_uiAllocationCount = 0;
+  ezUInt32 m_uiBlockBytes = 0;
+  ezUInt32 m_uiAllocationBytes = 0;
+};
+
+
 /// \brief Thin abstraction layer over VulkanMemoryAllocator to allow for abstraction and prevent pulling in its massive header into other files.
 /// Functions are a subset of VMA's. To be extended once a use-case comes up.
 class EZ_RENDERERVULKAN_DLL ezMemoryAllocatorVulkan
@@ -109,6 +119,7 @@ public:
   static vk::Result FlushAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
   static vk::Result InvalidateAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
 
+  static ezVulkanMemoryStatistics GetStats();
 
 private:
   struct Impl;

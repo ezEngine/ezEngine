@@ -162,7 +162,7 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
     vkAttachment.storeOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_DepthStoreOp);
     vkAttachment.stencilLoadOp = ezConversionUtilsVulkan::GetAttachmentLoadOp(renderPass.m_StencilLoadOp);
     vkAttachment.stencilStoreOp = ezConversionUtilsVulkan::GetAttachmentStoreOp(renderPass.m_StencilStoreOp);
-    vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eDepthStencilAttachmentOptimal : vk::ImageLayout::eUndefined;
+    vkAttachment.initialLayout = vkAttachment.loadOp == vk::AttachmentLoadOp::eLoad || vkAttachment.stencilLoadOp == vk::AttachmentLoadOp::eLoad ? vk::ImageLayout::eDepthStencilAttachmentOptimal : vk::ImageLayout::eUndefined;
     vkAttachment.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 
     vk::AttachmentReference& depthAttachment = depthAttachmentRefs.ExpandAndGetRef();

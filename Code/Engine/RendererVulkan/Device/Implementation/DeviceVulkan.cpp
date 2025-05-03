@@ -8,6 +8,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
@@ -1634,6 +1635,14 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
   }
   m_uiFrameCounter.Increment();
   m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
+
+  {
+    ezVulkanMemoryStatistics stats = ezMemoryAllocatorVulkan::GetStats();
+    ezStats::SetStat("Vulkan/BlockCount", stats.m_uiBlockCount);
+    ezStats::SetStat("Vulkan/AllocationCount", stats.m_uiAllocationCount);
+    ezStats::SetStat("Vulkan/BlockBytes", stats.m_uiBlockBytes);
+    ezStats::SetStat("Vulkan/AllocationBytes", stats.m_uiAllocationBytes);
+  }
 }
 
 ezUInt64 ezGALDeviceVulkan::GetCurrentFramePlatform() const
