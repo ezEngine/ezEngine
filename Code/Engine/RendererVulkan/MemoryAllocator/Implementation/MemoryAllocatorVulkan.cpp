@@ -264,8 +264,8 @@ ezVulkanMemoryStatistics ezMemoryAllocatorVulkan::GetStats()
     const VmaBudget& budget = budgets[i];
     stats.m_uiBlockCount += budget.statistics.blockCount;
     stats.m_uiAllocationCount += budget.statistics.allocationCount;
-    stats.m_uiBlockBytes += budget.statistics.blockBytes;
-    stats.m_uiAllocationBytes += budget.statistics.allocationBytes;
+    stats.m_uiBlockBytes += (ezUInt64)budget.statistics.blockBytes;
+    stats.m_uiAllocationBytes += (ezUInt64)budget.statistics.allocationBytes;
   }
   return stats;
 }

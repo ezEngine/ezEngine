@@ -91,8 +91,8 @@ struct ezVulkanMemoryStatistics
 {
   ezUInt32 m_uiBlockCount = 0;
   ezUInt32 m_uiAllocationCount = 0;
-  ezUInt32 m_uiBlockBytes = 0;
-  ezUInt32 m_uiAllocationBytes = 0;
+  ezUInt64 m_uiBlockBytes = 0;
+  ezUInt64 m_uiAllocationBytes = 0;
 };
 
 
