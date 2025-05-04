@@ -30,8 +30,6 @@ public:
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
 
-  void SetShaderPlatform(const ezGALShader* pShader);
-
   virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
   virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
   virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) override;
@@ -116,18 +114,18 @@ public:
   virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) override;
   virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) override;
 
-  void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration);
-  void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology);
-  void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
-  void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState);
-  void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState);
-
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
   virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) override;
 
 private:
   friend class ezGALDeviceDX11;
+  void SetShader(const ezGALShader* pShader);
+  void SetVertexDeclaration(const ezGALVertexDeclaration* pVertexDeclaration);
+  void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology);
+  void SetBlendState(const ezGALBlendState* pBlendState, const ezColor& blendFactor = ezColor::White, ezUInt32 uiSampleMask = 0xFFFFFFFFu);
+  void SetDepthStencilState(const ezGALDepthStencilState* pDepthStencilState);
+  void SetRasterizerState(const ezGALRasterizerState* pRasterizerState);
 
   bool UnsetResourceViews(const ezGALResourceBase* pResource);
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);

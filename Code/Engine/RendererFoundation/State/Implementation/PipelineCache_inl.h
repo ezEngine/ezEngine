@@ -28,15 +28,12 @@ EZ_ALWAYS_INLINE ezResult ezGALPipelineCache::TryInsertPipeline(const DescType& 
   key.m_uiHash = description.CalculateHash();
 
   EZ_LOCK(m_Mutex);
-  HandleType* pExistingPipeline = table.GetValue(key);
-  if (pExistingPipeline == nullptr)
+
+  HandleType existingPipeline;
+  if (table.Insert(key, hNewPipeline, &existingPipeline))
   {
-    table.Insert(key, hNewPipeline);
-    return EZ_SUCCESS;
-  }
-  else
-  {
-    EZ_ASSERT_DEBUG(*pExistingPipeline == hNewPipeline, "On collision, both pipelines must be the same (create should have just increased the ref count)");
+    EZ_ASSERT_DEBUG(existingPipeline == hNewPipeline, "On collision, both pipelines must be the same (create should have just increased the ref count)");
     return EZ_FAILURE;
   }
+  return EZ_SUCCESS;
 }

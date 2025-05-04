@@ -45,7 +45,7 @@ void ezGALCommandEncoderImplDX11::EndFrame()
 
 // State setting functions
 
-void ezGALCommandEncoderImplDX11::SetShaderPlatform(const ezGALShader* pShader)
+void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
 {
   m_uiTessellationPatchControlPoints = 0;
   ID3D11VertexShader* pVS = nullptr;
@@ -735,14 +735,14 @@ void ezGALCommandEncoderImplDX11::SetGraphicsPipelinePlatform(const ezGALGraphic
     pRasterizerState = m_GALDeviceDX11.GetRasterizerState(desc.m_hRasterizerState);
     pBlendState = m_GALDeviceDX11.GetBlendState(desc.m_hBlendState);
     pDepthStencilState = m_GALDeviceDX11.GetDepthStencilState(desc.m_hDepthStencilState);
-    SetPrimitiveTopologyPlatform(desc.m_Topology);
+    SetPrimitiveTopology(desc.m_Topology);
   }
 
-  SetShaderPlatform(pShader);
-  SetVertexDeclarationPlatform(pVertexDeclaration);
-  SetRasterizerStatePlatform(pRasterizerState);
-  SetBlendStatePlatform(pBlendState);
-  SetDepthStencilStatePlatform(pDepthStencilState);
+  SetShader(pShader);
+  SetVertexDeclaration(pVertexDeclaration);
+  SetRasterizerState(pRasterizerState);
+  SetBlendState(pBlendState);
+  SetDepthStencilState(pDepthStencilState);
 }
 
 void ezGALCommandEncoderImplDX11::SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline)
@@ -756,10 +756,10 @@ void ezGALCommandEncoderImplDX11::SetComputePipelinePlatform(const ezGALComputeP
     EZ_ASSERT_DEBUG(pShader->GetDescription().m_ByteCodes[ezGALShaderStage::ComputeShader] != nullptr, "");
   }
 
-  SetShaderPlatform(pShader);
+  SetShader(pShader);
 }
 
-void ezGALCommandEncoderImplDX11::SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration)
+void ezGALCommandEncoderImplDX11::SetVertexDeclaration(const ezGALVertexDeclaration* pVertexDeclaration)
 {
   ezMemoryUtils::ZeroFill(m_VertexBufferStrides, EZ_ARRAY_SIZE(m_VertexBufferStrides));
   auto pVertexDeclarationDX11 = static_cast<const ezGALVertexDeclarationDX11*>(pVertexDeclaration);
@@ -789,12 +789,12 @@ static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[] = {
 
 static_assert(EZ_ARRAY_SIZE(GALTopologyToDX11) == ezGALPrimitiveTopology::ENUM_COUNT);
 
-void ezGALCommandEncoderImplDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology)
+void ezGALCommandEncoderImplDX11::SetPrimitiveTopology(ezGALPrimitiveTopology::Enum topology)
 {
   m_Topology = topology;
 }
 
-void ezGALCommandEncoderImplDX11::SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
+void ezGALCommandEncoderImplDX11::SetBlendState(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask)
 {
   FLOAT BlendFactors[4] = {blendFactor.r, blendFactor.g, blendFactor.b, blendFactor.a};
 
@@ -802,13 +802,13 @@ void ezGALCommandEncoderImplDX11::SetBlendStatePlatform(const ezGALBlendState* p
     pBlendState != nullptr ? static_cast<const ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
 
-void ezGALCommandEncoderImplDX11::SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState)
+void ezGALCommandEncoderImplDX11::SetDepthStencilState(const ezGALDepthStencilState* pDepthStencilState)
 {
   ID3D11DepthStencilState* pDepthStencilStateDX11 = pDepthStencilState != nullptr ? static_cast<const ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr;
   m_pDXContext->OMSetDepthStencilState(pDepthStencilStateDX11, m_uiStencilRefValue);
 }
 
-void ezGALCommandEncoderImplDX11::SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState)
+void ezGALCommandEncoderImplDX11::SetRasterizerState(const ezGALRasterizerState* pRasterizerState)
 {
   m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<const ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
 }

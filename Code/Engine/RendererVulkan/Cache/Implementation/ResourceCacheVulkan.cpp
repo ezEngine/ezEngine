@@ -349,7 +349,7 @@ ezResult ezResourceCacheVulkan::SavePipelineCache()
   {
     prefixHeader.m_uiUuid[i] = deviceProperties.pipelineCacheUUID[i];
   }
-  prefixHeader.m_uiDataHash = ezHashingUtils::MurmurHash64(pipelineCacheData.GetData(), dataSize);
+  prefixHeader.m_uiDataHash = ezHashingUtils::xxHash64(pipelineCacheData.GetData(), dataSize);
 
   ezString sCacheFilePath = GetPipelineCacheFilename(deviceProperties);
   ezStringBuilder sTempFilePath;
@@ -416,7 +416,7 @@ ezResult ezResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelin
   file.Close();
 
   // Verify hash
-  const ezUInt64 computedHash = ezHashingUtils::MurmurHash64(initialData.GetData(), initialData.GetCount());
+  const ezUInt64 computedHash = ezHashingUtils::xxHash64(initialData.GetData(), initialData.GetCount());
   if (computedHash != prefixHeader.m_uiDataHash)
     return EZ_FAILURE;
 

@@ -86,7 +86,8 @@ ezGALRenderingSetup& ezGALRenderingSetup::SetDepthStencilTarget(ezGALRenderTarge
   if (!bFirstRenderTarget)
   {
     EZ_ASSERT_DEBUG(m_RenderPass.m_Msaa == info.m_MSAA, "Missmatch between this render target's MSAA mode ({}) and the previously set MSAA mode ({}).", info.m_MSAA, m_RenderPass.m_Msaa);
-    EZ_ASSERT_DEBUG(m_FrameBuffer.m_Size == info.m_Size, "Missmatch between this render target's size ({}) and the previously set size ({}).", info.m_Size, m_FrameBuffer.m_Size);
+    m_FrameBuffer.m_Size.height = ezMath::Min(m_FrameBuffer.m_Size.height, info.m_Size.height);
+    m_FrameBuffer.m_Size.width = ezMath::Min(m_FrameBuffer.m_Size.width, info.m_Size.width);
     EZ_ASSERT_DEBUG(m_FrameBuffer.m_uiSliceCount == info.m_uiSliceCount, "Missmatch between this render target's slice count ({}) and the previously set slice count ({}).", info.m_uiSliceCount, m_FrameBuffer.m_uiSliceCount);
   }
   else
