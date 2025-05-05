@@ -63,6 +63,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
     EZ_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsInAir),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Jump),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Run),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Crouch),
+    EZ_SCRIPT_FUNCTION_PROPERTY(RotateZ, In, "Amount"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "Forward", In, "Right"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -169,27 +174,23 @@ void ezJoltDefaultCharacterComponent::ResetInputState()
 
 void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& ref_msg)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
+  Move((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
 
-  m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
-  m_vInputDirection *= fDistanceToMove;
-
-  m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
+  RotateZ((float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft));
 
   if (ref_msg.m_bRun)
   {
-    m_uiInputRunBit = 1;
+    Run();
   }
 
   if (ref_msg.m_bJump)
   {
-    m_uiInputJumpBit = 1;
+    Jump();
   }
 
   if (ref_msg.m_bCrouch)
   {
-    m_uiInputCrouchBit = 1;
+    Crouch();
   }
 }
 
@@ -206,6 +207,35 @@ float ezJoltDefaultCharacterComponent::GetCurrentCapsuleHeight() const
 float ezJoltDefaultCharacterComponent::GetShapeRadius() const
 {
   return m_fShapeRadius;
+}
+
+void ezJoltDefaultCharacterComponent::Jump()
+{
+  m_uiInputJumpBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Run()
+{
+  m_uiInputRunBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Crouch()
+{
+  m_uiInputCrouchBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Move(float fForward, float fRight)
+{
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs(fForward), ezMath::Abs(fRight));
+
+  m_vInputDirection += ezVec2(fForward, fRight);
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+  m_vInputDirection *= fDistanceToMove;
+}
+
+void ezJoltDefaultCharacterComponent::RotateZ(float fAmount)
+{
+  m_InputRotateZ += m_RotateSpeed * fAmount;
 }
 
 void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFootPosition)
