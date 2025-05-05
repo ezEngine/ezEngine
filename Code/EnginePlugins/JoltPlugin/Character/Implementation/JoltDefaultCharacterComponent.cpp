@@ -174,7 +174,7 @@ void ezJoltDefaultCharacterComponent::ResetInputState()
 
 void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& ref_msg)
 {
-  Move((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
+  Move(static_cast<float>(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), static_cast<float>(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
 
   RotateZ((float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft));
 
