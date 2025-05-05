@@ -332,7 +332,7 @@ HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouse
   EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
 
   ABI::Windows::Foundation::Rect windowRectangle;
-  EZ_SUCCEED_OR_RETURN(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
+  EZ_SUCCEED_OR_RETURN(m_coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
 
   const float fInvW = 1.0f / windowRectangle.Width;
   const float fInvH = 1.0f / windowRectangle.Height;

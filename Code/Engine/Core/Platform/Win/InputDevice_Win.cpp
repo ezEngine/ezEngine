@@ -698,8 +698,8 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
             // if this flag is set, we are getting mouse input through a remote desktop session
             // and that means we will not get any relative mouse move events, so we need to emulate them
 
-            static const ezInt32 iVirtualDesktopW = 1.0f; // GetSystemMetrics(SM_CXVIRTUALSCREEN);
-            static const ezInt32 iVirtualDesktopH = 1.0f; // GetSystemMetrics(SM_CYVIRTUALSCREEN);
+            static const ezInt32 iVirtualDesktopW = 1; // GetSystemMetrics(SM_CXVIRTUALSCREEN);
+            static const ezInt32 iVirtualDesktopH = 1; // GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
             static ezVec2 vLastPos(ezMath::MaxValue<float>());
             const ezVec2 vNewPos((raw->data.mouse.lLastX / 65535.0f) * iVirtualDesktopW, (raw->data.mouse.lLastY / 65535.0f) * iVirtualDesktopH);
