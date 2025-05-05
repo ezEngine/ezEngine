@@ -331,10 +331,16 @@ HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouse
   ABI::Windows::Devices::Input::MouseDelta mouseDelta;
   EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
 
-  m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((mouseDelta.X < 0) ? static_cast<float>(-mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
-  m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((mouseDelta.X > 0) ? static_cast<float>(mouseDelta.X) : 0.0f) * GetMouseSpeed().x;
-  m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((mouseDelta.Y < 0) ? static_cast<float>(-mouseDelta.Y) : 0.0f) * GetMouseSpeed().y;
-  m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((mouseDelta.Y > 0) ? static_cast<float>(mouseDelta.Y) : 0.0f) * GetMouseSpeed().y;
+  ABI::Windows::Foundation::Rect windowRectangle;
+  EZ_SUCCEED_OR_RETURN(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
+
+  const float fInvW = 1.0f / windowRectangle.Width;
+  const float fInvH = 1.0f / windowRectangle.Height;
+
+  m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((mouseDelta.X < 0) ? static_cast<float>(-mouseDelta.X) : 0.0f) * GetMouseSpeed().x * fInvW;
+  m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((mouseDelta.X > 0) ? static_cast<float>(mouseDelta.X) : 0.0f) * GetMouseSpeed().x * fInvW;
+  m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((mouseDelta.Y < 0) ? static_cast<float>(-mouseDelta.Y) : 0.0f) * GetMouseSpeed().y * fInvH;
+  m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((mouseDelta.Y > 0) ? static_cast<float>(mouseDelta.Y) : 0.0f) * GetMouseSpeed().y * fInvH;
 
   return S_OK;
 }

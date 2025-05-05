@@ -463,18 +463,20 @@ void ezStandardInputDevice::OnCursorPosition(double xpos, double ypos)
   int width;
   int height;
   glfwGetWindowSize(m_pWindow, &width, &height);
+  const float fInvW = 1.0f / width;
+  const float fInvH = 1.0f / height;
 
-  m_InputSlotValues[ezInputSlot_MousePositionX] = static_cast<float>(xpos / width);
-  m_InputSlotValues[ezInputSlot_MousePositionY] = static_cast<float>(ypos / height);
+  m_InputSlotValues[ezInputSlot_MousePositionX] = static_cast<float>(xpos * fInvW);
+  m_InputSlotValues[ezInputSlot_MousePositionY] = static_cast<float>(ypos * fInvH);
 
   if (m_LastPos.x != ezMath::MaxValue<double>())
   {
     ezVec2d diff = ezVec2d(xpos, ypos) - m_LastPos;
 
-    m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((diff.x < 0) ? (float)-diff.x : 0.0f) * GetMouseSpeed().x;
-    m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((diff.x > 0) ? (float)diff.x : 0.0f) * GetMouseSpeed().x;
-    m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((diff.y < 0) ? (float)-diff.y : 0.0f) * GetMouseSpeed().y;
-    m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((diff.y > 0) ? (float)diff.y : 0.0f) * GetMouseSpeed().y;
+    m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((diff.x < 0) ? (float)-diff.x : 0.0f) * GetMouseSpeed().x * fInvW;
+    m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((diff.x > 0) ? (float)diff.x : 0.0f) * GetMouseSpeed().x * fInvW;
+    m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((diff.y < 0) ? (float)-diff.y : 0.0f) * GetMouseSpeed().y * fInvH;
+    m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((diff.y > 0) ? (float)diff.y : 0.0f) * GetMouseSpeed().y * fInvH;
   }
   m_LastPos = ezVec2d(xpos, ypos);
 }
