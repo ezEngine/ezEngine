@@ -26,6 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltConvexCollisionMeshType, 1)
   EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexHull),
   EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::Cylinder),
   EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexDecomposition),
+  EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexHullGroup),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
@@ -83,12 +84,13 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
   props["ConvexMeshType"].m_Visibility = ezPropertyUiState::Invisible;
   props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
-  props["Surfaces"].m_Visibility = isConvex ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
-  props["Surface"].m_Visibility = isConvex ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-
-  props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Surfaces"].m_Visibility = ezPropertyUiState::Invisible;
+  props["SimplifyMesh"].m_Visibility = ezPropertyUiState::Invisible;
+  props["MeshSimplification"].m_Visibility = ezPropertyUiState::Invisible;
+  props["MaxSimplificationError"].m_Visibility = ezPropertyUiState::Invisible;
+  props["AggressiveSimplification"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Surface"].m_Visibility = ezPropertyUiState::Invisible;
 
   const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
   const bool bCustomTransform = importTransform == 127;
@@ -101,6 +103,12 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
     props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
     props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
     props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
+    props["Surfaces"].m_Visibility = ezPropertyUiState::Default;
+    props["SimplifyMesh"].m_Visibility = ezPropertyUiState::Default;
+
+    props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
   else
   {
@@ -108,14 +116,26 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
 
     switch (meshType)
     {
-      case ezJoltConvexCollisionMeshType::ConvexDecomposition:
-        props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Default;
-        [[fallthrough]];
-
       case ezJoltConvexCollisionMeshType::ConvexHull:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
         props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
         props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["Surface"].m_Visibility = ezPropertyUiState::Default;
+        break;
+
+      case ezJoltConvexCollisionMeshType::ConvexDecomposition:
+        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["Surface"].m_Visibility = ezPropertyUiState::Default;
+        props["MaxConvexPieces"].m_Visibility = ezPropertyUiState::Default;
+        break;
+
+      case ezJoltConvexCollisionMeshType::ConvexHullGroup:
+        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["Surfaces"].m_Visibility = ezPropertyUiState::Default;
         break;
 
       case ezJoltConvexCollisionMeshType::Cylinder:
@@ -123,6 +143,7 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
         props["Radius2"].m_Visibility = ezPropertyUiState::Default;
         props["Height"].m_Visibility = ezPropertyUiState::Default;
         props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Surface"].m_Visibility = ezPropertyUiState::Default;
         break;
     }
   }

@@ -38,6 +38,7 @@ struct ezJoltConvexCollisionMeshType
     ConvexHull,
     Cylinder,
     ConvexDecomposition,
+    ConvexHullGroup,
 
     Default = ConvexHull
   };

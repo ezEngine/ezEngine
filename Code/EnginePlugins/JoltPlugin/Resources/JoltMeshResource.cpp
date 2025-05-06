@@ -508,6 +508,17 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
       }
     }
 
+    if (materials.GetCount() > 1)
+    {
+      if (materials.GetCount() > uiPartIdx)
+      {
+        JPH::PhysicsMaterialRefC pMat = materials[uiPartIdx];
+        materials.SetCount(1);
+        materials[0] = pMat;
+      }
+
+      materials.SetCount(1);
+    }
 
     EZ_ASSERT_DEBUG(materials.GetCount() <= 1, "Convex meshes should only have a single material. '{}' has {}", GetResourceIdOrDescription(), materials.GetCount());
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());

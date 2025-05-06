@@ -90,11 +90,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
     ezJoltCookingMesh xMesh;
 
-    if (!m_bIsConvexMesh || pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHull || pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexDecomposition)
-    {
-      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(xMesh));
-    }
-    else
+    if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder)
     {
       const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
@@ -110,6 +106,10 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
+    }
+    else
+    {
+      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(xMesh));
     }
 
     range.BeginNextStep("Writing Result");
@@ -234,8 +234,10 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
     }
   }
 
+  const bool bUseSingleMaterial = m_bIsConvexMesh && (pProp->m_ConvexMeshType != ezJoltConvexCollisionMeshType::ConvexHullGroup);
+
   // Extract Material Information
-  if (m_bIsConvexMesh)
+  if (bUseSingleMaterial)
   {
     meshDesc.CollapseSubMeshes();
     pProp->m_Slots.SetCount(1);
@@ -354,7 +356,11 @@ ezStatus ezJoltCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& in
 
   if (pProp->m_bIsConvexMesh)
   {
-    if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexDecomposition)
+    if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHullGroup)
+    {
+      meshType = ezJoltCooking::MeshType::ConvexHullGroup;
+    }
+    else if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexDecomposition)
     {
       meshType = ezJoltCooking::MeshType::ConvexDecomposition;
     }

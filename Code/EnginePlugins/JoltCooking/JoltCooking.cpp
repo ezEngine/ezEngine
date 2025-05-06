@@ -337,6 +337,17 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& inout_stream,
 
       inout_stream.EndChunk();
     }
+
+    if (meshType == MeshType::ConvexHullGroup)
+    {
+      inout_stream.BeginChunk("ConvexDecompositionMesh", 1);
+
+      ezStopwatch timer;
+      resCooking = ezJoltCooking::CookConvexHullGroup(mesh, inout_stream);
+      ezLog::Dev("Decomposed Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+
+      inout_stream.EndChunk();
+    }
   }
 
   if (resCooking.Failed())
@@ -434,6 +445,51 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
     }
 
     EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(chm, ref_outputStream));
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezJoltCooking::CookConvexHullGroup(const ezJoltCookingMesh& meshSrc, ezStreamWriter& ref_outputStream)
+{
+  // ezProgressRange range("Cooking Convex Hull Group", 2, false);
+
+  // range.BeginNextStep("Computing Convex Hull");
+
+  ezMap<ezUInt16, ezJoltCookingMesh> parts;
+
+  ezUInt32 uiVertexIdx = 0;
+  for (ezUInt32 faceIdx = 0; faceIdx < meshSrc.m_VerticesInPolygon.GetCount(); ++faceIdx)
+  {
+    const ezUInt8 numVertices = meshSrc.m_VerticesInPolygon[faceIdx];
+    const ezUInt16 materialID = meshSrc.m_PolygonSurfaceID[faceIdx];
+
+    if (materialID == 0xFFFF)
+      continue;
+
+    ezJoltCookingMesh& meshPart = parts[materialID];
+
+    for (ezUInt8 v = 0; v < numVertices; ++v)
+    {
+      const ezUInt32 vtxIdx = meshSrc.m_PolygonIndices[uiVertexIdx++];
+
+      meshPart.m_Vertices.PushBack(meshSrc.m_Vertices[vtxIdx]);
+    }
+  }
+
+  ezUInt16 uiNumParts = parts.GetCount();
+  ref_outputStream << uiNumParts;
+
+  for (auto it : parts)
+  {
+    const ezJoltCookingMesh& meshPart = it.Value();
+
+    ezJoltCookingMesh meshCvx;
+    EZ_SUCCEED_OR_RETURN(ComputeConvexHull(meshPart, meshCvx));
+
+    // range.BeginNextStep("Cooking Convex Hull");
+
+    EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(meshCvx, ref_outputStream));
   }
 
   return EZ_SUCCESS;
