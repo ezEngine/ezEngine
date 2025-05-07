@@ -314,7 +314,7 @@ void ezJoltWorldModule::OnSimulationStarted()
     RegisterUpdateFunction(fetchResultsDesc);
   }
 
-  ezJoltCollisionFiltering::LoadCollisionFilters();
+  ezJoltCore::ReloadConfigs();
 
   UpdateSettingsCfg();
   ApplySettingsCfg();
@@ -392,7 +392,7 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
 
 ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
 {
-  return ezJoltCollisionFiltering::GetCollisionFilterConfig().GetFilterGroupByName(sName);
+  return ezJoltCore::GetCollisionFilterConfig().GetFilterGroupByName(sName);
 }
 
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)

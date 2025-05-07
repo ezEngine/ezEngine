@@ -85,15 +85,17 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 4, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 6, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
       EZ_MEMBER_PROPERTY("AllowSleeping", m_bAllowSleeping)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_MEMBER_PROPERTY("Mass", m_fInitialMass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
-      EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
+      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory"), new ezDefaultValueAttribute(250)),
+      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+      EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_ACCESSOR_PROPERTY("Density", GetWeightValue, SetWeightValue_Density)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
@@ -144,8 +146,8 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_bCCD;
   s << m_fLinearDamping;
   s << m_fAngularDamping;
-  s << m_fDensity;
-  s << m_fInitialMass;
+  s << m_fWeightValue;
+  s << m_fWeightValue; // dummy placeholder
   s << m_fGravityFactor;
   s << m_hSurface;
   s << m_OnContact;
@@ -153,6 +155,9 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_vCenterOfMass;
   s << m_bStartAsleep;
   s << m_bAllowSleeping;
+
+  // version 5
+  s << m_uiWeightCategory;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -162,12 +167,15 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
 
   auto& s = inout_stream.GetStream();
 
+  float fInitialMass = 0.0f;
+  float fDensity = 1.0f;
+
   s >> m_bKinematic;
   s >> m_bCCD;
   s >> m_fLinearDamping;
   s >> m_fAngularDamping;
-  s >> m_fDensity;
-  s >> m_fInitialMass;
+  s >> fDensity;
+  s >> fInitialMass;
   s >> m_fGravityFactor;
   s >> m_hSurface;
   s >> m_OnContact;
@@ -188,6 +196,25 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
   if (uiVersion >= 4)
   {
     s >> m_bAllowSleeping;
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_uiWeightCategory;
+    m_fWeightValue = fDensity;
+  }
+  else
+  {
+    if (fInitialMass > 0.0f)
+    {
+      m_uiWeightCategory = 1; // Custom Mass
+      m_fWeightValue = fInitialMass;
+    }
+    else
+    {
+      m_uiWeightCategory = 2; // Custom Density
+      m_fWeightValue = fDensity;
+    }
   }
 }
 
@@ -272,7 +299,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
 
   JPH::BodyCreationSettings bodyCfg;
 
-  if (CreateShape(&bodyCfg, m_fDensity, pMaterial).Failed())
+  if (CreateShape(&bodyCfg, m_fWeightValue, pMaterial).Failed())
   {
     ezLog::Error("Jolt dynamic actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
@@ -285,6 +312,29 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
+  float fInitialMass = 10.0f;
+  if (m_uiWeightCategory != 0)
+  {
+    if (m_uiWeightCategory == 1) // Custom Mass
+    {
+      fInitialMass = m_fWeightValue;
+    }
+    else if (m_uiWeightCategory == 2) // Custom Density
+    {
+      fInitialMass = 0.0f;
+    }
+    else
+    {
+      auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
+      ezUInt32 idx = cat.Find(m_uiWeightCategory);
+      if (idx != ezInvalidIndex)
+      {
+        fInitialMass = cat.GetValue(idx).m_fMass;
+        fInitialMass = ezMath::Clamp(fInitialMass * m_fWeightValue, 1.0f, 1000.0f);
+      }
+    }
+  }
+
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = m_bKinematic ? JPH::EMotionType::Kinematic : JPH::EMotionType::Dynamic;
@@ -293,8 +343,8 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   bodyCfg.mAllowSleeping = m_bAllowSleeping;
   bodyCfg.mLinearDamping = m_fLinearDamping;
   bodyCfg.mAngularDamping = m_fAngularDamping;
-  bodyCfg.mMassPropertiesOverride.mMass = m_fInitialMass;
-  bodyCfg.mOverrideMassProperties = m_fInitialMass > 0.0f ? JPH::EOverrideMassProperties::CalculateInertia : JPH::EOverrideMassProperties::CalculateMassAndInertia;
+  bodyCfg.mMassPropertiesOverride.mMass = fInitialMass;
+  bodyCfg.mOverrideMassProperties = fInitialMass > 0.0f ? JPH::EOverrideMassProperties::CalculateInertia : JPH::EOverrideMassProperties::CalculateMassAndInertia;
   bodyCfg.mGravityFactor = m_fGravityFactor;
   bodyCfg.mRestitution = pMaterial->m_fRestitution;
   bodyCfg.mFriction = pMaterial->m_fFriction;
@@ -477,6 +527,30 @@ const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
   return nullptr;
 }
 
+void ezJoltDynamicActorComponent::SetWeightValue_Scale(float fValue)
+{
+  if (m_uiWeightCategory >= 10)
+    return;
+
+  m_fWeightValue = fValue;
+}
+
+void ezJoltDynamicActorComponent::SetWeightValue_Mass(float fValue)
+{
+  if (m_uiWeightCategory != 1) // Custom Mass
+    return;
+
+  m_fWeightValue = fValue;
+}
+
+void ezJoltDynamicActorComponent::SetWeightValue_Density(float fValue)
+{
+  if (m_uiWeightCategory != 2) // Custom Density
+    return;
+
+  m_fWeightValue = fValue;
+}
+
 void ezJoltDynamicActorComponent::SetSurfaceFile(ezStringView sFile)
 {
   if (!sFile.IsEmpty())
@@ -499,6 +573,5 @@ ezStringView ezJoltDynamicActorComponent::GetSurfaceFile() const
 
   return m_hSurface.GetResourceID();
 }
-
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltDynamicActorComponent);

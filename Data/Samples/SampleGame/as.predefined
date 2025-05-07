@@ -1117,9 +1117,6 @@ class ezComponent
   ezStageSpaceComponent@ opCast();
   ezVisualizeHandComponent@ opCast();
   ezGizmoComponent@ opCast();
-  ezFmodComponent@ opCast();
-  ezFmodEventComponent@ opCast();
-  ezFmodListenerComponent@ opCast();
   ezParticleComponent@ opCast();
   ezParticleFinisherComponent@ opCast();
   DebugRenderComponent@ opCast();
@@ -1209,7 +1206,6 @@ class ezMessage
   ezMsgMoveCharacterController@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
   ezMsgDeliverAngelScriptMsg@ opCast();
-  ezMsgFmodSoundFinished@ opCast();
   ezMsgSetText@ opCast();
 }
 
@@ -2091,38 +2087,6 @@ class ezGizmoComponent : ezMeshComponent
 {
 }
 
-class ezFmodComponent : ezComponent
-{
-  ezFmodEventComponent@ opCast();
-  ezFmodListenerComponent@ opCast();
-}
-
-class ezFmodEventComponent : ezFmodComponent
-{
-  void Play();
-  void Pause();
-  void Stop();
-  void FadeOut();
-  void StartOneShot();
-  void SoundCue();
-  void SetEventParameter(ezString ParamName, float Value);
-  bool Paused;
-  float Volume;
-  float Pitch;
-  bool NoGlobalPitch;
-  ezStringView SoundEvent;
-  bool UseOcclusion;
-  float OcclusionThreshold;
-  uint8 OcclusionCollisionLayer;
-  ezOnComponentFinishedAction OnFinishedAction;
-  bool ShowDebugInfo;
-}
-
-class ezFmodListenerComponent : ezFmodComponent
-{
-  uint8 ListenerIndex;
-}
-
 class ezParticleComponent : ezRenderComponent
 {
   bool StartEffect();
@@ -2202,7 +2166,6 @@ class ezEventMessage : ezMessage
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
-  ezMsgFmodSoundFinished@ opCast();
 }
 
 class ezMsgPhysicsJointBroke : ezEventMessage
@@ -2413,10 +2376,6 @@ class ezMsgStateMachineStateChanged : ezEventMessage
 }
 
 class ezMsgDeliverAngelScriptMsg : ezMessage
-{
-}
-
-class ezMsgFmodSoundFinished : ezEventMessage
 {
 }
 

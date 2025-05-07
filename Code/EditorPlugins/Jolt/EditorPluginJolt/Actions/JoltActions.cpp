@@ -50,7 +50,7 @@ void ezJoltAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezQtJoltProjectSettingsDlg dlg(nullptr);
+    ezQtJoltProjectSettingsDlg dlg(value);
     if (dlg.exec() == QDialog::Accepted)
     {
       ezToolsProject::BroadcastConfigChanged();

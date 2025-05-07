@@ -38,6 +38,8 @@ ezJoltMaterial* ezJoltCore::s_pDefaultMaterial = nullptr;
 std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
+ezCollisionFilterConfig ezJoltCore::s_CollisionFilterConfig;
+ezWeightCategoryConfig ezJoltCore::s_WeightCategoryConfig;
 
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
@@ -107,6 +109,47 @@ void* ezJoltCore::JoltAlignedMalloc(size_t inSize, size_t inAlignment)
 void ezJoltCore::JoltAlignedFree(void* inBlock)
 {
   ezJoltCore::s_pAllocatorAligned->Deallocate(inBlock);
+}
+
+const ezCollisionFilterConfig& ezJoltCore::GetCollisionFilterConfig()
+{
+  return s_CollisionFilterConfig;
+}
+
+const ezWeightCategoryConfig& ezJoltCore::GetWeightCategoryConfig()
+{
+  return s_WeightCategoryConfig;
+}
+
+void ezJoltCore::ReloadConfigs()
+{
+  LoadCollisionFilters();
+  LoadWeightCategories();
+}
+
+void ezJoltCore::LoadCollisionFilters()
+{
+  EZ_LOG_BLOCK("ezJoltCore::LoadCollisionFilters");
+
+  if (s_CollisionFilterConfig.Load().Failed())
+  {
+    ezLog::Info("Collision filter config file could not be found ('{}'). Using default values.", ezCollisionFilterConfig::s_sConfigFile);
+
+    // setup some default config
+
+    s_CollisionFilterConfig.SetGroupName(0, "Default");
+    s_CollisionFilterConfig.EnableCollision(0, 0);
+  }
+}
+
+void ezJoltCore::LoadWeightCategories()
+{
+  EZ_LOG_BLOCK("ezJoltCore::LoadWeightCategories");
+
+  if (s_WeightCategoryConfig.Load().Failed())
+  {
+    ezLog::Info("Weight category config file could not be found ('{}').", ezWeightCategoryConfig::s_sConfigFile);
+  }
 }
 
 void ezJoltCore::Startup()

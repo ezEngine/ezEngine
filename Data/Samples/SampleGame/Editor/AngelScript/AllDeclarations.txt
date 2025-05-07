@@ -54,10 +54,6 @@ bool ezDeviceTrackingComponent::get_Scale() const
 bool ezEventMessageHandlerComponent::get_HandleGlobalEvents() const
 bool ezEventMessageHandlerComponent::get_PassThroughUnhandledEvents() const
 bool ezFillLightComponent::get_UseColorTemperature() const
-bool ezFmodEventComponent::get_NoGlobalPitch() const
-bool ezFmodEventComponent::get_Paused() const
-bool ezFmodEventComponent::get_ShowDebugInfo() const
-bool ezFmodEventComponent::get_UseOcclusion() const
 bool ezFogComponent::get_ModulateWithSkyColor() const
 bool ezFollowPathComponent::IsDirectionForwards() const
 bool ezFollowPathComponent::get_Running() const
@@ -609,9 +605,6 @@ ezComponent@ ezDeviceTrackingComponent::opImplCast()
 ezComponent@ ezDirectionalLightComponent::opImplCast()
 ezComponent@ ezEventMessageHandlerComponent::opImplCast()
 ezComponent@ ezFillLightComponent::opImplCast()
-ezComponent@ ezFmodComponent::opImplCast()
-ezComponent@ ezFmodEventComponent::opImplCast()
-ezComponent@ ezFmodListenerComponent::opImplCast()
 ezComponent@ ezFogComponent::opImplCast()
 ezComponent@ ezFollowPathComponent::opImplCast()
 ezComponent@ ezForwardEventsToGameStateComponent::opImplCast()
@@ -710,7 +703,6 @@ ezEventMessage@ ezMessage::opCast()
 ezEventMessage@ ezMsgAnimationReachedEnd::opImplCast()
 ezEventMessage@ ezMsgBlackboardEntryChanged::opImplCast()
 ezEventMessage@ ezMsgDamage::opImplCast()
-ezEventMessage@ ezMsgFmodSoundFinished::opImplCast()
 ezEventMessage@ ezMsgGenericEvent::opImplCast()
 ezEventMessage@ ezMsgInputActionTriggered::opImplCast()
 ezEventMessage@ ezMsgPathChanged::opImplCast()
@@ -727,13 +719,6 @@ ezFillLightMode ezFillLightComponent::get_LightMode() const
 ezFillLightMode::Additive
 ezFillLightMode::ModulateIndirect
 ezFillLightMode::Subtractive
-ezFmodComponent@ ezComponent::opCast()
-ezFmodComponent@ ezFmodEventComponent::opImplCast()
-ezFmodComponent@ ezFmodListenerComponent::opImplCast()
-ezFmodEventComponent@ ezComponent::opCast()
-ezFmodEventComponent@ ezFmodComponent::opCast()
-ezFmodListenerComponent@ ezComponent::opCast()
-ezFmodListenerComponent@ ezFmodComponent::opCast()
 ezFogComponent@ ezComponent::opCast()
 ezFogComponent@ ezSettingsComponent::opCast()
 ezFollowPathComponent@ ezComponent::opCast()
@@ -857,7 +842,6 @@ ezMessage@ ezMsgExport::opImplCast()
 ezMessage@ ezMsgExtractGeometry::opImplCast()
 ezMessage@ ezMsgExtractOccluderData::opImplCast()
 ezMessage@ ezMsgExtractRenderData::opImplCast()
-ezMessage@ ezMsgFmodSoundFinished::opImplCast()
 ezMessage@ ezMsgGenericEvent::opImplCast()
 ezMessage@ ezMsgInputActionTriggered::opImplCast()
 ezMessage@ ezMsgInterruptPlaying::opImplCast()
@@ -905,8 +889,6 @@ ezMsgExport@ ezMessage::opCast()
 ezMsgExtractGeometry@ ezMessage::opCast()
 ezMsgExtractOccluderData@ ezMessage::opCast()
 ezMsgExtractRenderData@ ezMessage::opCast()
-ezMsgFmodSoundFinished@ ezEventMessage::opCast()
-ezMsgFmodSoundFinished@ ezMessage::opCast()
 ezMsgGenericEvent@ ezEventMessage::opCast()
 ezMsgGenericEvent@ ezMessage::opCast()
 ezMsgInputActionTriggered@ ezEventMessage::opCast()
@@ -949,7 +931,6 @@ ezOccluderType ezOccluderComponent::get_Type() const
 ezOccluderType::Box
 ezOccluderType::QuadPosX
 ezOnComponentFinishedAction ezDecalComponent::get_OnFinishedAction() const
-ezOnComponentFinishedAction ezFmodEventComponent::get_OnFinishedAction() const
 ezOnComponentFinishedAction ezWindVolumeComponent::get_OnFinishedAction() const
 ezOnComponentFinishedAction2 ezParticleComponent::get_OnFinishedAction() const
 ezOnComponentFinishedAction2::DeleteComponent
@@ -1166,7 +1147,6 @@ ezStringView ezCameraComponent::get_RenderTarget() const
 ezStringView ezCollectionComponent::get_Collection() const
 ezStringView ezColorAnimationComponent::get_Gradient() const
 ezStringView ezCustomMeshComponent::get_Material() const
-ezStringView ezFmodEventComponent::get_SoundEvent() const
 ezStringView ezGameObject::GetGlobalKey() const
 ezStringView ezGameObject::GetName() const
 ezStringView ezGreyBoxComponent::get_Material() const
@@ -1535,9 +1515,6 @@ float ezFillLightComponent::get_Directionality() const
 float ezFillLightComponent::get_FalloffExponent() const
 float ezFillLightComponent::get_Intensity() const
 float ezFillLightComponent::get_Range() const
-float ezFmodEventComponent::get_OcclusionThreshold() const
-float ezFmodEventComponent::get_Pitch() const
-float ezFmodEventComponent::get_Volume() const
 float ezFogComponent::get_Density() const
 float ezFogComponent::get_HeightFalloff() const
 float ezFogComponent::get_SkyDistance() const
@@ -1739,8 +1716,6 @@ uint16 ezRandom::UInt16Index(uint16 uiArraySize, uint16 uiFallbackValue = 0xFFFF
 uint16 ezSpawnBoxComponent::get_MinSpawnCount() const
 uint16 ezSpawnBoxComponent::get_SpawnCountRange() const
 uint64 ezParticleComponent::get_RandomSeed() const
-uint8 ezFmodEventComponent::get_OcclusionCollisionLayer() const
-uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
 uint8 ezSensorComponent::get_CollisionLayer() const
 void DebugRenderComponent::SetRandomColor()
@@ -1907,24 +1882,6 @@ void ezFillLightComponent::set_LightMode(ezFillLightMode)
 void ezFillLightComponent::set_Range(float)
 void ezFillLightComponent::set_Temperature(uint)
 void ezFillLightComponent::set_UseColorTemperature(bool)
-void ezFmodEventComponent::FadeOut()
-void ezFmodEventComponent::Pause()
-void ezFmodEventComponent::Play()
-void ezFmodEventComponent::SetEventParameter(ezString ParamName, float Value)
-void ezFmodEventComponent::SoundCue()
-void ezFmodEventComponent::StartOneShot()
-void ezFmodEventComponent::Stop()
-void ezFmodEventComponent::set_NoGlobalPitch(bool)
-void ezFmodEventComponent::set_OcclusionCollisionLayer(uint8)
-void ezFmodEventComponent::set_OcclusionThreshold(float)
-void ezFmodEventComponent::set_OnFinishedAction(ezOnComponentFinishedAction)
-void ezFmodEventComponent::set_Paused(bool)
-void ezFmodEventComponent::set_Pitch(float)
-void ezFmodEventComponent::set_ShowDebugInfo(bool)
-void ezFmodEventComponent::set_SoundEvent(ezStringView)
-void ezFmodEventComponent::set_UseOcclusion(bool)
-void ezFmodEventComponent::set_Volume(float)
-void ezFmodListenerComponent::set_ListenerIndex(uint8)
 void ezFogComponent::set_Color(ezColor)
 void ezFogComponent::set_Density(float)
 void ezFogComponent::set_HeightFalloff(float)

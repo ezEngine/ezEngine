@@ -13,10 +13,14 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 void UpdateCollisionLayerDynamicEnumValues();
+void UpdateWeightCategoryDynamicEnumValues();
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+
+void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin()
 {
@@ -50,10 +54,15 @@ void OnLoadPlugin()
     {
     }
   }
+
+  // component property meta states
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezDynamicActorComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezDynamicActorComponent_PropertyMetaStateEventHandler);
+
   ezJoltActions::UnregisterActions();
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler);
@@ -90,6 +99,26 @@ void UpdateCollisionLayerDynamicEnumValues()
   }
 }
 
+void UpdateWeightCategoryDynamicEnumValues()
+{
+  auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategory");
+  cfe.Clear();
+  cfe.SetEditCommand("Jolt.Settings.Project", "WeightCategories");
+
+  ezWeightCategoryConfig cfg;
+  if (cfg.Load().Succeeded())
+  {
+    for (const auto it : cfg.m_Categories)
+    {
+      cfe.SetValueAndName(it.key, it.value.m_sName.GetView());
+    }
+  }
+
+  cfe.SetValueAndName(0, "<Default>");
+  cfe.SetValueAndName(1, "<Custom Mass>");
+  cfe.SetValueAndName(2, "<Custom Density>");
+}
+
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectSaveState)
@@ -99,10 +128,49 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
+    ezQtJoltProjectSettingsDlg::EnsureConfigFileExists();
     UpdateCollisionLayerDynamicEnumValues();
+    UpdateWeightCategoryDynamicEnumValues();
   }
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltDynamicActorComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt32 iCategory = e.m_pObject->GetTypeAccessor().GetValue("WeightCategory").ConvertTo<ezInt32>();
+
+  if (iCategory == 0) // Default
+  {
+    props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Density"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+  else if (iCategory == 1) // Custom Mass
+  {
+    props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Density"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+  else if (iCategory == 2) // Custom Density
+  {
+    props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+  else
+  {
+    props["Density"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -146,3 +214,37 @@ public:
 };
 
 ezJoltHitboxComponentPatch_1_2 g_ezJoltHitboxComponentPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezJoltDynamicActorComponentPatch_5_6 : public ezGraphPatch
+{
+public:
+  ezJoltDynamicActorComponentPatch_5_6()
+    : ezGraphPatch("ezJoltDynamicActorComponent", 6)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto pPropMass = pNode->FindProperty("Mass");
+
+    float fMass = 0.0f;
+
+    if (pPropMass && pPropMass->m_Value.IsNumber())
+    {
+      fMass = pPropMass->m_Value.ConvertTo<float>();
+    }
+
+    if (fMass != 0.0f)
+    {
+      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(1)); // Custom Mass
+    }
+    else
+    {
+      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(2)); // Custom Density
+    }
+  }
+};
+
+ezJoltDynamicActorComponentPatch_5_6 g_ezJoltDynamicActorComponentPatch_5_6;

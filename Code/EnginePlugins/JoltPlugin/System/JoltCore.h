@@ -3,6 +3,8 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/Physics/CollisionFilter.h>
+#include <GameEngine/Physics/WeightCategory.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
 class ezJoltMaterial;
@@ -27,6 +29,11 @@ public:
   static std::unique_ptr<ezJoltDebugRenderer> s_pDebugRenderer;
 #endif
 
+  static const ezCollisionFilterConfig& GetCollisionFilterConfig();
+  static const ezWeightCategoryConfig& GetWeightCategoryConfig();
+
+  static void ReloadConfigs();
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Jolt, JoltPlugin);
 
@@ -41,9 +48,15 @@ private:
   static void* JoltAlignedMalloc(size_t inSize, size_t inAlignment);
   static void JoltAlignedFree(void* inBlock);
 
+  static void LoadCollisionFilters();
+  static void LoadWeightCategories();
+
   static ezJoltMaterial* s_pDefaultMaterial;
   static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
 
   static ezUniquePtr<ezProxyAllocator> s_pAllocator;
   static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;
+
+  static ezCollisionFilterConfig s_CollisionFilterConfig;
+  static ezWeightCategoryConfig s_WeightCategoryConfig;
 };

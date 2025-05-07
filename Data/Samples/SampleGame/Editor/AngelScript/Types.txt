@@ -41,9 +41,6 @@ ezEventMessage
 ezEventMessageHandlerComponent
 ezFillLightComponent
 ezFillLightMode
-ezFmodComponent
-ezFmodEventComponent
-ezFmodListenerComponent
 ezFogComponent
 ezFollowPathComponent
 ezFollowPathMode
@@ -94,7 +91,6 @@ ezMsgExport
 ezMsgExtractGeometry
 ezMsgExtractOccluderData
 ezMsgExtractRenderData
-ezMsgFmodSoundFinished
 ezMsgGenericEvent
 ezMsgInputActionTriggered
 ezMsgInterruptPlaying

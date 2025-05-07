@@ -97,11 +97,8 @@ public:
   /// should only be done in very rare cases.
   bool m_bAllowSleeping = true; // [ property ]
 
-  /// \brief How heavy the object shall be. If zero, the mass is computed from the shapes and the density.
-  float m_fInitialMass = 0.0f; // [ property ]
-
-  /// \brief How dense the object shall be. Unused if m_fInitialMass is non-zero. Otherwise used to compute the weight from all the shapes.
-  float m_fDensity = 1.0f; // [ property ]
+  ezUInt8 m_uiWeightCategory;   // [ property ]
+  float m_fWeightValue = 1.0f;  // [ property ]
 
   /// \brief How much to dampen linear motion. The higher the value, the quicker a moving object comes to rest.
   float m_fLinearDamping = 0.1f; // [ property ]
@@ -147,8 +144,14 @@ public:
   /// For kinematic actors this function will return 0.
   float GetMass() const;
 
+
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;
+
+  float GetWeightValue() const { return m_fWeightValue; }
+  void SetWeightValue_Scale(float fValue);
+  void SetWeightValue_Mass(float fValue);
+  void SetWeightValue_Density(float fValue);
 
   bool m_bKinematic = false;
   float m_fGravityFactor = 1.0f; // [ property ]

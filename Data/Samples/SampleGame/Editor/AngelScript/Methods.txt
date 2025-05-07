@@ -47,7 +47,6 @@ DoubleZeroToOneInclusive
 EndsWith
 EndsWith_NoCase
 ExpandAndGetRef
-FadeOut
 FindChildByName
 FindChildByPath
 FireTransitionEvent
@@ -236,9 +235,7 @@ OnActivated
 OnDeactivated
 OnSimulationStarted
 PathParentDirectory
-Pause
 PeekBack
-Play
 PlayAnimationRange
 PopBack
 PostEventMessage
@@ -268,7 +265,6 @@ SetActiveFlag
 SetCount
 SetDirectionForwards
 SetEntryValue
-SetEventParameter
 SetFormat
 SetGlobalKey
 SetGlobalPosition
@@ -299,16 +295,13 @@ SetValue
 SetZero
 Shrink
 Sort
-SoundCue
 StartEffect
-StartOneShot
 StartPreload
 StartSpawning
 StartTransition
 StartTransitionWithOffsetTo
 StartsWith
 StartsWith_NoCase
-Stop
 StopEffect
 ToLinearFloat
 ToLower

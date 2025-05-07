@@ -3,34 +3,13 @@
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <JoltPlugin/System/JoltCollisionFiltering.h>
+#include <JoltPlugin/System/JoltCore.h>
 
 namespace ezJoltCollisionFiltering
 {
-  ezCollisionFilterConfig s_CollisionFilterConfig;
-
   JPH::ObjectLayer ConstructObjectLayer(ezUInt8 uiCollisionGroup, ezJoltBroadphaseLayer broadphase)
   {
     return static_cast<JPH::ObjectLayer>(static_cast<ezUInt16>(broadphase) << 8 | static_cast<ezUInt16>(uiCollisionGroup));
-  }
-
-  void LoadCollisionFilters()
-  {
-    EZ_LOG_BLOCK("ezJoltCore::LoadCollisionFilters");
-
-    if (s_CollisionFilterConfig.Load().Failed())
-    {
-      ezLog::Info("Collision filter config file could not be found ('{}'). Using default values.", ezCollisionFilterConfig::s_sConfigFile);
-
-      // setup some default config
-
-      s_CollisionFilterConfig.SetGroupName(0, "Default");
-      s_CollisionFilterConfig.EnableCollision(0, 0);
-    }
-  }
-
-  ezCollisionFilterConfig& GetCollisionFilterConfig()
-  {
-    return s_CollisionFilterConfig;
   }
 
   ezUInt32 GetBroadphaseCollisionMask(ezJoltBroadphaseLayer broadphase)
@@ -133,7 +112,7 @@ static_assert(ezPhysicsShapeType::Count == (ezUInt32)ezJoltBroadphaseLayer::ENUM
 
 bool ezJoltObjectLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer) const
 {
-  return ezJoltCollisionFiltering::s_CollisionFilterConfig.IsCollisionEnabled(m_uiCollisionLayer, static_cast<ezUInt32>(inLayer) & 0xFF);
+  return ezJoltCore::GetCollisionFilterConfig().IsCollisionEnabled(m_uiCollisionLayer, static_cast<ezUInt32>(inLayer) & 0xFF);
 }
 
 bool ezJoltObjectVsBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const
@@ -146,7 +125,5 @@ bool ezJoltObjectVsBroadPhaseLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer
 
 bool ezJoltObjectLayerPairFilter::ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const
 {
-  return ezJoltCollisionFiltering::s_CollisionFilterConfig.IsCollisionEnabled(static_cast<ezUInt32>(inObject1) & 0xFF, static_cast<ezUInt32>(inObject2) & 0xFF);
+  return ezJoltCore::GetCollisionFilterConfig().IsCollisionEnabled(static_cast<ezUInt32>(inObject1) & 0xFF, static_cast<ezUInt32>(inObject2) & 0xFF);
 }
-
-

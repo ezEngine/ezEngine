@@ -201,7 +201,6 @@ Lime
 LimeGreen
 Linen
 LinkToLightShape
-ListenerIndex
 LocalPosition
 LocalRotation
 LocalScaling
@@ -254,15 +253,12 @@ NearPlane
 NearPlaneOffset
 NegativeFalloff
 NewStateName
-NoGlobalPitch
 NumCascades
 Object
 ObjectFilterID
-OcclusionCollisionLayer
 OcclusionDepthOffset
 OcclusionSampleRadius
 OcclusionSampleSpread
-OcclusionThreshold
 OldLace
 OldStateName
 Olive
@@ -284,13 +280,11 @@ PaleVioletRed
 PapayaWhip
 PassThroughUnhandledEvents
 Path
-Paused
 Payload
 PeachPuff
 PenumbraSize
 Peru
 Pink
-Pitch
 Play
 PlayerPrefab
 Playing
@@ -387,7 +381,6 @@ Smoothing
 Snow
 SortOrder
 SortingDepthOffset
-SoundEvent
 SpatialCategory
 SpawnAtStart
 SpawnContinuously
@@ -441,7 +434,6 @@ UsageHint
 UseAsOccluder
 UseColorTemperature
 UseFog
-UseOcclusion
 UseTestPosition
 Value
 Value0
@@ -455,7 +447,6 @@ VisualizeJoints
 VisualizeSkeleton
 VisualizeSwingLimits
 VisualizeTwistLimits
-Volume
 VolumeType
 Weight
 Wheat
