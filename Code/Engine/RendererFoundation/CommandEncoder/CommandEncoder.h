@@ -135,6 +135,9 @@ public:
   // Don't use light hearted ;)
   void InvalidateState();
 
+  const ezGALCommandEncoderStats& GetStats() const { return m_Stats; }
+  void ResetStats();
+
 protected:
   friend class ezGALDevice;
 
@@ -151,16 +154,7 @@ protected:
   }
 
 private:
-  void ClearStatisticsCounters();
-  void CountDispatchCall() { m_uiDispatchCalls++; }
-  void CountDrawCall() { m_uiDrawCalls++; }
-
-private:
   friend class ezMemoryUtils;
-
-  // Statistic variables
-  ezUInt32 m_uiDispatchCalls = 0;
-  ezUInt32 m_uiDrawCalls = 0;
 
   enum class CommandEncoderType
   {
@@ -191,6 +185,7 @@ private:
   ezGALDevice& m_Device;
   ezGALCommandEncoderRenderState m_State;
   ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
+  ezGALCommandEncoderStats m_Stats;
 
   ezGALOcclusionHandle m_hPendingOcclusionQuery = {};
 };

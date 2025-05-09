@@ -3,6 +3,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SharedTextureSwapChain.h>
@@ -190,6 +191,15 @@ ezResult ezGALDevice::Shutdown()
     ezGALDevice::SetDefaultDevice(nullptr);
   }
 
+  EZ_ASSERT_DEBUG(m_uiShaders == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiVertexDeclarations == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiBlendStates == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiDepthStencilStates == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiRasterizerStates == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiGraphicsPipelines == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiComputePipelines == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiSamplerStates == 0, "Error in counting deduplicated GAL resources");
+
   return ShutdownPlatform();
 }
 
@@ -237,6 +247,9 @@ void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
     EZ_ASSERT_DEV(m_pCommandEncoder != nullptr, "You must have called ezGALDevice::BeginCommands before you can call ezGALDevice::EndCommands");
+    m_EncoderStats += m_pCommandEncoder->GetStats();
+    m_pCommandEncoder->ResetStats();
+
     m_pCommandEncoder = nullptr;
     EndCommandsPlatform(pCommandEncoder);
   }
@@ -267,6 +280,7 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
       }
 
       pBlendState->AddRef();
+      m_uiBlendStates++;
       return hBlendState;
     }
   }
@@ -278,6 +292,7 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
     EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
 
     pBlendState->AddRef();
+    m_uiBlendStates++;
 
     ezGALBlendStateHandle hBlendState(m_BlendStates.Insert(pBlendState));
     m_BlendStateTable.Insert(uiHash, hBlendState);
@@ -297,6 +312,7 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
   if (m_BlendStates.TryGetValue(hBlendState, pBlendState))
   {
     pBlendState->ReleaseRef();
+    m_uiBlendStates--;
 
     if (pBlendState->GetRefCount() == 0)
     {
@@ -327,6 +343,7 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
       }
 
       pDepthStencilState->AddRef();
+      m_uiDepthStencilStates++;
       return hDepthStencilState;
     }
   }
@@ -338,6 +355,7 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
     EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
 
     pDepthStencilState->AddRef();
+    m_uiDepthStencilStates++;
 
     ezGALDepthStencilStateHandle hDepthStencilState(m_DepthStencilStates.Insert(pDepthStencilState));
     m_DepthStencilStateTable.Insert(uiHash, hDepthStencilState);
@@ -357,6 +375,7 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
   if (m_DepthStencilStates.TryGetValue(hDepthStencilState, pDepthStencilState))
   {
     pDepthStencilState->ReleaseRef();
+    m_uiDepthStencilStates--;
 
     if (pDepthStencilState->GetRefCount() == 0)
     {
@@ -387,6 +406,7 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
       }
 
       pRasterizerState->AddRef();
+      m_uiRasterizerStates++;
       return hRasterizerState;
     }
   }
@@ -398,6 +418,7 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
     EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
 
     pRasterizerState->AddRef();
+    m_uiRasterizerStates++;
 
     ezGALRasterizerStateHandle hRasterizerState(m_RasterizerStates.Insert(pRasterizerState));
     m_RasterizerStateTable.Insert(uiHash, hRasterizerState);
@@ -417,6 +438,7 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
   if (m_RasterizerStates.TryGetValue(hRasterizerState, pRasterizerState))
   {
     pRasterizerState->ReleaseRef();
+    m_uiRasterizerStates--;
 
     if (pRasterizerState->GetRefCount() == 0)
     {
@@ -449,6 +471,7 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
       }
 
       pSamplerState->AddRef();
+      m_uiSamplerStates++;
       return hSamplerState;
     }
   }
@@ -460,6 +483,7 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
     EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
 
     pSamplerState->AddRef();
+    m_uiSamplerStates++;
 
     ezGALSamplerStateHandle hSamplerState(m_SamplerStates.Insert(pSamplerState));
     m_SamplerStateTable.Insert(uiHash, hSamplerState);
@@ -479,6 +503,7 @@ void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
   if (m_SamplerStates.TryGetValue(hSamplerState, pSamplerState))
   {
     pSamplerState->ReleaseRef();
+    m_uiSamplerStates--;
 
     if (pSamplerState->GetRefCount() == 0)
     {
@@ -495,7 +520,7 @@ ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraph
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  auto IncreaseReference = [&](const auto& idTable, auto handle, GALObjectType::Enum type)
+  auto IncreaseReference = [&](const auto& idTable, ezUInt32& ref_uiCount, auto handle, GALObjectType::Enum type)
   {
     auto pRes = idTable[handle];
     if (pRes->GetRefCount() == 0)
@@ -503,6 +528,7 @@ ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraph
       ReviveDeadObject(type, handle);
     }
     pRes->AddRef();
+    ref_uiCount++;
   };
 
   // Hash desc and return potential existing one (including inc. refcount)
@@ -515,17 +541,18 @@ ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraph
       if (pGraphicsPipeline->GetRefCount() == 0)
       {
         ReviveDeadObject(GALObjectType::GraphicsPipeline, hGraphicsPipeline);
-        IncreaseReference(m_Shaders, desc.m_hShader, GALObjectType::Shader);
-        IncreaseReference(m_RasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
-        IncreaseReference(m_BlendStates, desc.m_hBlendState, GALObjectType::BlendState);
-        IncreaseReference(m_DepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
+        IncreaseReference(m_Shaders, m_uiShaders, desc.m_hShader, GALObjectType::Shader);
+        IncreaseReference(m_RasterizerStates, m_uiRasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
+        IncreaseReference(m_BlendStates, m_uiBlendStates, desc.m_hBlendState, GALObjectType::BlendState);
+        IncreaseReference(m_DepthStencilStates, m_uiDepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
         if (!desc.m_hVertexDeclaration.IsInvalidated())
         {
-          IncreaseReference(m_VertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
+          IncreaseReference(m_VertexDeclarations, m_uiVertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
         }
       }
 
       pGraphicsPipeline->AddRef();
+      m_uiGraphicsPipelines++;
       return hGraphicsPipeline;
     }
   }
@@ -543,17 +570,18 @@ ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraph
     EZ_ASSERT_DEBUG(pGraphicsPipeline->GetDescription().CalculateHash() == uiHash, "GraphicsPipeline hash doesn't match");
 
     pGraphicsPipeline->AddRef();
+    m_uiGraphicsPipelines++;
 
     ezGALGraphicsPipelineHandle hGraphicsPipeline(m_GraphicsPipelines.Insert(pGraphicsPipeline));
     m_GraphicsPipelineTable.Insert(uiHash, hGraphicsPipeline);
 
-    IncreaseReference(m_Shaders, desc.m_hShader, GALObjectType::Shader);
-    IncreaseReference(m_RasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
-    IncreaseReference(m_BlendStates, desc.m_hBlendState, GALObjectType::BlendState);
-    IncreaseReference(m_DepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
+    IncreaseReference(m_Shaders, m_uiShaders, desc.m_hShader, GALObjectType::Shader);
+    IncreaseReference(m_RasterizerStates, m_uiRasterizerStates, desc.m_hRasterizerState, GALObjectType::RasterizerState);
+    IncreaseReference(m_BlendStates, m_uiBlendStates, desc.m_hBlendState, GALObjectType::BlendState);
+    IncreaseReference(m_DepthStencilStates, m_uiDepthStencilStates, desc.m_hDepthStencilState, GALObjectType::DepthStencilState);
     if (!desc.m_hVertexDeclaration.IsInvalidated())
     {
-      IncreaseReference(m_VertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
+      IncreaseReference(m_VertexDeclarations, m_uiVertexDeclarations, desc.m_hVertexDeclaration, GALObjectType::VertexDeclaration);
     }
 
     return hGraphicsPipeline;
@@ -571,6 +599,7 @@ void ezGALDevice::DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsP
   if (m_GraphicsPipelines.TryGetValue(hGraphicsPipeline, pGraphicsPipeline))
   {
     pGraphicsPipeline->ReleaseRef();
+    m_uiGraphicsPipelines--;
 
     if (pGraphicsPipeline->GetRefCount() == 0)
     {
@@ -598,6 +627,17 @@ ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALCompute
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
+  auto IncreaseReference = [&](const auto& idTable, ezUInt32& ref_uiCount, auto handle, GALObjectType::Enum type)
+  {
+    auto pRes = idTable[handle];
+    if (pRes->GetRefCount() == 0)
+    {
+      ReviveDeadObject(type, handle);
+    }
+    pRes->AddRef();
+    ref_uiCount++;
+  };
+
   // Hash desc and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = desc.CalculateHash();
   {
@@ -608,9 +648,11 @@ ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALCompute
       if (pComputePipeline->GetRefCount() == 0)
       {
         ReviveDeadObject(GALObjectType::ComputePipeline, hComputePipeline);
+        IncreaseReference(m_Shaders, m_uiShaders, desc.m_hShader, GALObjectType::Shader);
       }
 
       pComputePipeline->AddRef();
+      m_uiComputePipelines++;
       return hComputePipeline;
     }
   }
@@ -628,9 +670,11 @@ ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALCompute
     EZ_ASSERT_DEBUG(pComputePipeline->GetDescription().CalculateHash() == uiHash, "ComputePipeline hash doesn't match");
 
     pComputePipeline->AddRef();
+    m_uiComputePipelines++;
 
     ezGALComputePipelineHandle hComputePipeline(m_ComputePipelines.Insert(pComputePipeline));
     m_ComputePipelineTable.Insert(uiHash, hComputePipeline);
+    IncreaseReference(m_Shaders, m_uiShaders, desc.m_hShader, GALObjectType::Shader);
 
     return hComputePipeline;
   }
@@ -647,10 +691,13 @@ void ezGALDevice::DestroyComputePipeline(ezGALComputePipelineHandle hComputePipe
   if (m_ComputePipelines.TryGetValue(hComputePipeline, pComputePipeline))
   {
     pComputePipeline->ReleaseRef();
+    m_uiComputePipelines--;
 
     if (pComputePipeline->GetRefCount() == 0)
     {
       AddDeadObject(GALObjectType::ComputePipeline, hComputePipeline);
+      const ezGALComputePipelineCreationDescription& desc = pComputePipeline->GetDescription();
+      DestroyShader(desc.m_hShader);
     }
   }
   else
@@ -694,6 +741,7 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
       }
 
       pShader->AddRef();
+      m_uiShaders++;
       return hShader;
     }
   }
@@ -705,6 +753,7 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
     EZ_ASSERT_DEBUG(pShader->GetDescription().CalculateHash() == uiHash, "Shader hash doesn't match");
 
     pShader->AddRef();
+    m_uiShaders++;
 
     ezGALShaderHandle hShader(m_Shaders.Insert(pShader));
     m_ShaderTable.Insert(uiHash, hShader);
@@ -724,6 +773,7 @@ void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
   if (m_Shaders.TryGetValue(hShader, pShader))
   {
     pShader->ReleaseRef();
+    m_uiShaders--;
 
     if (pShader->GetRefCount() == 0)
     {
@@ -1712,6 +1762,7 @@ ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVer
       }
 
       pVertexDeclaration->AddRef();
+      m_uiVertexDeclarations++;
       return hVertexDeclaration;
     }
   }
@@ -1721,6 +1772,7 @@ ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVer
   if (pVertexDeclaration != nullptr)
   {
     pVertexDeclaration->AddRef();
+    m_uiVertexDeclarations++;
 
     ezGALVertexDeclarationHandle hVertexDeclaration(m_VertexDeclarations.Insert(pVertexDeclaration));
     m_VertexDeclarationTable.Insert(uiHash, hVertexDeclaration);
@@ -1740,6 +1792,7 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
   if (m_VertexDeclarations.TryGetValue(hVertexDeclaration, pVertexDeclaration))
   {
     pVertexDeclaration->ReleaseRef();
+    m_uiVertexDeclarations--;
 
     if (pVertexDeclaration->GetRefCount() == 0)
     {
@@ -1863,6 +1916,8 @@ void ezGALDevice::EndFrame()
     EndFramePlatform(m_FrameSwapChains);
     m_FrameSwapChains.Clear();
     m_bBeginFrameCalled = false;
+    if (m_pCommandEncoder)
+      m_pCommandEncoder->ResetStats();
   }
 
   {
@@ -1870,6 +1925,40 @@ void ezGALDevice::EndFrame()
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::AfterEndFrame;
     s_Events.Broadcast(e);
+  }
+
+  {
+    m_EncoderStats.SetStatistics();
+    m_EncoderStats.Reset();
+    ezStats::SetStat("GalDevice/ShaderReferences", m_uiShaders);
+    ezStats::SetStat("GalDevice/VertexDeclarationReferences", m_uiVertexDeclarations);
+    ezStats::SetStat("GalDevice/BlendStateReferences", m_uiBlendStates);
+    ezStats::SetStat("GalDevice/DepthStencilStateReferences", m_uiDepthStencilStates);
+    ezStats::SetStat("GalDevice/RasterizerStateReferences", m_uiRasterizerStates);
+    ezStats::SetStat("GalDevice/GraphicsPipelineReferences", m_uiGraphicsPipelines);
+    ezStats::SetStat("GalDevice/ComputePipelineReferences", m_uiComputePipelines);
+    ezStats::SetStat("GalDevice/SamplerStateReferences", m_uiSamplerStates);
+
+    ezStats::SetStat("GalDevice/Shaders", m_Shaders.GetCount());
+    ezStats::SetStat("GalDevice/VertexDeclarations", m_VertexDeclarations.GetCount());
+    ezStats::SetStat("GalDevice/BlendStates", m_BlendStates.GetCount());
+    ezStats::SetStat("GalDevice/DepthStencilStates", m_DepthStencilStates.GetCount());
+    ezStats::SetStat("GalDevice/RasterizerStates", m_RasterizerStates.GetCount());
+    ezStats::SetStat("GalDevice/GraphicsPipelines", m_GraphicsPipelines.GetCount());
+    ezStats::SetStat("GalDevice/ComputePipelines", m_ComputePipelines.GetCount());
+    ezStats::SetStat("GalDevice/SamplerStates", m_SamplerStates.GetCount());
+
+    ezStats::SetStat("GalDevice/Buffers", m_Buffers.GetCount());
+    ezStats::SetStat("GalDevice/DynamicBuffers", m_DynamicBuffers.GetCount());
+    ezStats::SetStat("GalDevice/Textures", m_Textures.GetCount());
+    ezStats::SetStat("GalDevice/ReadbackBuffers", m_ReadbackBuffers.GetCount());
+    ezStats::SetStat("GalDevice/ReadbackTextures", m_ReadbackTextures.GetCount());
+    ezStats::SetStat("GalDevice/TextureResourceViews", m_TextureResourceViews.GetCount());
+    ezStats::SetStat("GalDevice/BufferResourceViews", m_BufferResourceViews.GetCount());
+    ezStats::SetStat("GalDevice/RenderTargetViews", m_RenderTargetViews.GetCount());
+    ezStats::SetStat("GalDevice/TextureUnorderedAccessViews", m_TextureUnorderedAccessViews.GetCount());
+    ezStats::SetStat("GalDevice/BufferUnorderedAccessViews", m_BufferUnorderedAccessViews.GetCount());
+    ezStats::SetStat("GalDevice/SwapChains", m_SwapChains.GetCount());
   }
 }
 

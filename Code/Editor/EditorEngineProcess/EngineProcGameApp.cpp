@@ -232,8 +232,15 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     else
     {
       EZ_PROFILE_SCOPE("WaitForMessages");
+      const ezUInt32 uiPreviousRedrawRequests = m_uiRedrawCountReceived;
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
+      // We need to tick the render loop after receiving messages to allow for GAL resources to be freed. Otherwise, an ezEditorProcessor process might never free memory unless it gets a job to render a thumbnail.
+      if (uiPreviousRedrawRequests == m_uiRedrawCountReceived && ezGALDevice::HasDefaultDevice())
+      {
+        RunOneFrame();
+        ezGALDevice::GetDefaultDevice()->WaitIdle();
+      }
     }
     return true;
   }
