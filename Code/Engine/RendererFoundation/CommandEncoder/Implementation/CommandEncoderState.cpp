@@ -63,4 +63,3 @@ void ezGALCommandEncoderStats::operator+=(const ezGALCommandEncoderStats& rhs)
     pDest[i] += pSource[i];
   }
 }
-

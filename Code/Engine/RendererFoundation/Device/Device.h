@@ -5,11 +5,11 @@
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 #include <RendererFoundation/Device/ReadbackLock.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
 class ezColor;
 
