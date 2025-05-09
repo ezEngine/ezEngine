@@ -1,5 +1,6 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
 
 void ezGALCommandEncoderRenderState::InvalidateState()

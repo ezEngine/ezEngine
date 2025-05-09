@@ -1,7 +1,6 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
