@@ -8,14 +8,14 @@
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>
 
-#include <Foundation/System/StackTracer.h>
-#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
+#include <Foundation/System/StackTracer.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

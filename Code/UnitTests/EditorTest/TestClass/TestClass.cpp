@@ -58,7 +58,7 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   EZ_PROFILE_SCOPE("AfterCoreSystemsStartup");
   // We override the user data dir to not pollute the editor settings.
   ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    // ezOSFile::GetUserDataFolder();
+  // ezOSFile::GetUserDataFolder();
   userDataDir.AppendPath(m_sTestName);
   userDataDir.MakeCleanPath();
 

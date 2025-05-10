@@ -41,7 +41,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   {
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
     {
-#if HAS_DLFCN
+#  if HAS_DLFCN
       Dl_info info{0};
       if (dladdr(trace[i], &info))
       {
@@ -56,11 +56,11 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
           continue;
         }
       }
-#endif
+#  endif
       ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "%s\n", ppSymbols[i]);
       printFunc(szBuffer);
     }
-#if HAS_DLFCN
+#  if HAS_DLFCN
     // Addr2line commands:
     printFunc("*** Run in terminal to resolve file and line callstack: ***");
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
@@ -74,7 +74,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       }
     }
   }
-#endif
+#  endif
   free(ppSymbols);
 
 #else
