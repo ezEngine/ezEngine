@@ -20,7 +20,7 @@ class ezEditorTestApplication : public ezApplication
 public:
   using SUPER = ezApplication;
 
-  ezEditorTestApplication();
+  ezEditorTestApplication(ezStringView sTestName);
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsShutdown() override;
   virtual void Run() override;
@@ -33,6 +33,7 @@ public:
 
 public:
   ezQtEditorApp* m_pEditorApp = nullptr;
+  ezString m_sTestName;
 };
 
 class ezEditorTest : public ezTestBaseClass

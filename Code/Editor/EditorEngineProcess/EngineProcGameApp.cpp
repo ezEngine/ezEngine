@@ -8,6 +8,8 @@
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/SystemInformation.h>
 
+#include <Foundation/System/StackTracer.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Core/Console/QuakeConsole.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
@@ -22,12 +24,16 @@
 #  include <shellscalingapi.h>
 #endif
 
+ezCommandLineOptionPath opt_OutputDir("_EditorEngineProcess", "-outputDir", "Output directory", "");
+ezCommandLineOptionString opt_LogName("_EditorEngineProcess", "-logName", "Log File Prefix", "LogEngine");
 
 // Will forward assert messages and crash handler messages to the log system and then to the editor.
 // Note that this is unsafe as in some crash situation allocating memory will not be possible but it's better to have some logs compared to none.
 void EditorPrintFunction(const char* szText)
 {
-  ezLog::Info("{}", szText);
+  ezStringBuilder sError = szText;
+  sError.Trim();
+  ezLog::Error("{}", sError.GetData());
 }
 
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
@@ -121,6 +127,13 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 bool ezEngineProcessGameApplication::EditorAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   ezLog::Error("*** Assertion ***:\nFile: \"{}\",\nLine: \"{}\",\nFunction: \"{}\",\nExpression: \"{}\",\nMessage: \"{}\"", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+  void* pBuffer[64];
+  ezArrayPtr<void*> tempTrace(pBuffer);
+  const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
+  ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &ezLog::Print);
+  ezLog::Flush();
+
   // Wait for flush of IPC messages
   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 
@@ -232,15 +245,8 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     else
     {
       EZ_PROFILE_SCOPE("WaitForMessages");
-      const ezUInt32 uiPreviousRedrawRequests = m_uiRedrawCountReceived;
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
-      // We need to tick the render loop after receiving messages to allow for GAL resources to be freed. Otherwise, an ezEditorProcessor process might never free memory unless it gets a job to render a thumbnail.
-      if (uiPreviousRedrawRequests == m_uiRedrawCountReceived && ezGALDevice::HasDefaultDevice())
-      {
-        RunOneFrame();
-        ezGALDevice::GetDefaultDevice()->WaitIdle();
-      }
     }
     return true;
   }
@@ -386,6 +392,19 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     else if (pMsg1->m_sWhatToDo == "ReloadAssetLUT")
     {
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
+    }
+    else if (pMsg1->m_sWhatToDo == "FreeGalResources")
+    {
+      ezRenderWorld::ClearMainViews();
+      RunOneFrame();
+      ezGALDevice::GetDefaultDevice()->WaitIdle();
+    }
+    else if (pMsg1->m_sWhatToDo == "FreeAllResources")
+    {
+      ezResourceManager::FreeAllUnusedResources();
+      ezRenderWorld::ClearMainViews();
+      RunOneFrame();
+      ezGALDevice::GetDefaultDevice()->WaitIdle();
     }
     else if (pMsg1->m_sWhatToDo == "ReloadResources")
     {
@@ -608,6 +627,11 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 {
   ezStringBuilder sAppDir = ">sdk/Data/Tools/EditorEngineProcess";
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
+  if (opt_OutputDir.IsOptionSpecified(nullptr))
+  {
+    sUserData = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  }
+
 
   // make sure these directories exist
   ezFileSystem::CreateDirectoryStructure(sAppDir).AssertSuccess();
@@ -624,9 +648,14 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 
   {
     // We need the file system before we can start the html logger.
+    ezStringBuilder sLogName = "LogEngine";
+    if (opt_LogName.IsOptionSpecified(nullptr))
+    {
+      sLogName = opt_LogName.GetOptionValue(ezCommandLineOption::LogMode::Never);
+    }
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
     ezStringBuilder sLogFile;
-    sLogFile.SetFormat(":appdata/Log_{0}.htm", uiProcessID);
+    sLogFile.SetFormat(":appdata/Logs/{0}_{1}.htm", sLogName, uiProcessID);
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }

@@ -136,6 +136,30 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
 
+  {
+    ezStringBuilder sRelativeData;
+    sRelativeData = ":APPDATA";
+
+    ezStringBuilder sAbsoluteData;
+    ezFileSystem::ResolvePath(sRelativeData, &sAbsoluteData, nullptr).AssertSuccess("Failed to resolve APPDATA dir!");
+
+    args << "-outputDir";
+    args << sAbsoluteData.GetData();
+    args << "-logName";
+
+    if (ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
+    {
+      tmp.SetFormat("LogEditorProcessor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      args << tmp.GetData();
+    }
+    else
+    {
+      tmp.SetFormat("LogEditor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      args << tmp.GetData();
+    }
+  }
+
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess.exe";
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)

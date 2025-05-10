@@ -132,6 +132,11 @@ public:
               // make sure the result message ends up in the log
               ezLog::Error("{}", msg.m_Status.m_sMessage);
             }
+
+            // As there is no game loop that would progress frames in the engine process as it only waits for messages, we have to forcefully destroy pending deletion in the GAL after each transform or the process might never free those resources if it doesn't get a thumbnail job to do which has to tick the render loop.
+            ezSimpleConfigMsgToEngine msg;
+            msg.m_sWhatToDo = "FreeGalResources";
+            ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
           }
           else if (state == ezAssetInfo::UpToDate)
           {
@@ -146,6 +151,13 @@ public:
         }
       }
       m_IPC.SendMessage(&msg);
+    }
+    else if (const ezFreeAllResourcesMsg* pMsg = ezDynamicCast<const ezFreeAllResourcesMsg*>(e.m_pMessage))
+    {
+      // We have no more jobs for this processor so let's tell the engine process to free up resources.
+      ezSimpleConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "FreeAllResources";
+      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
     }
   }
 

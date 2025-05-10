@@ -186,8 +186,13 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
 
         ezGALTextureUnorderedAccessViewCreationDescription descUAV;
         descUAV.m_hTexture = hTexture;
+        descUAV.m_OverrideViewType = ezGALTextureType::Texture2D;
         auto hUAV = s_pDevice->CreateUnorderedAccessView(descUAV);
-        s_TextureUAVs[{ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Unknown, false}] = hUAV;
+        s_TextureUAVs[{ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2D, false}] = hUAV;
+
+        descUAV.m_OverrideViewType = ezGALTextureType::Texture2DArray;
+        hUAV = s_pDevice->CreateUnorderedAccessView(descUAV);
+        s_TextureUAVs[{ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2DArray, false}] = hUAV;
       }
       {
         ezGALBufferCreationDescription desc;

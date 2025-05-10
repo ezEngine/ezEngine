@@ -29,4 +29,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAlloc
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFreeAllResourcesMsg, 1, ezRTTIDefaultAllocator<ezFreeAllResourcesMsg>)
+{
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

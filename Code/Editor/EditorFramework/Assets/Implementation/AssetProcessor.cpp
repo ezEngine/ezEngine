@@ -241,6 +241,16 @@ ezResult ezProcessTask::StartProcess()
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
   args << "-renderer";
   args << ezGameApplication::GetActiveRenderer().GetData(tmp);
+  {
+    ezStringBuilder sRelativeData;
+    sRelativeData = ":APPDATA";
+
+    ezStringBuilder sAbsoluteData;
+    ezFileSystem::ResolvePath(sRelativeData, &sAbsoluteData, nullptr).AssertSuccess("Failed to resolve APPDATA dir!");
+
+    args << "-outputDir";
+    args << sAbsoluteData.GetData();
+  }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char* EditorProcessorExecutable = "ezEditorProcessor.exe";
@@ -420,6 +430,13 @@ bool ezProcessTask::Tick(bool bStartNewWork)
           {
             m_AssetGuid = ezUuid();
             m_AssetPath.Clear();
+            if (m_pIPC->IsClientAlive() && m_pIPC->IsConnected())
+            {
+              // If we have nothing else to do, we might as well free some resource memory the process holds.
+              ezFreeAllResourcesMsg msg;
+              m_pIPC->SendMessage(&msg);
+            }
+
             return bStartNewWork; // call again if we should be looking for new work
           }
 

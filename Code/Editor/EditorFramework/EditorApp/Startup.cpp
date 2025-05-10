@@ -353,7 +353,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     EZ_PROFILE_SCOPE("Logging");
     ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
     ezStringBuilder sLogFile;
-    sLogFile.SetFormat(":appdata/Log_{0}.htm", iApplicationID);
+    if (m_StartupFlags.IsSet(StartupFlags::Background))
+      sLogFile.SetFormat(":appdata/Logs/LogEditorProcessor_{0}.htm", iApplicationID);
+    else
+      sLogFile.SetFormat(":appdata/Logs/LogEditor_{0}.htm", iApplicationID);
+
     m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);

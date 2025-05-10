@@ -18,12 +18,13 @@
 #include <Texture/Image/ImageUtils.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezEditorTestApplication::ezEditorTestApplication()
+ezEditorTestApplication::ezEditorTestApplication(ezStringView sTestName)
   : ezApplication("ezEditor")
 {
   EnableMemoryLeakReporting(true);
 
   m_pEditorApp = new ezQtEditorApp;
+  m_sTestName = sTestName;
 }
 
 ezResult ezEditorTestApplication::BeforeCoreSystemsStartup()
@@ -56,8 +57,9 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
 {
   EZ_PROFILE_SCOPE("AfterCoreSystemsStartup");
   // We override the user data dir to not pollute the editor settings.
-  ezStringBuilder userDataDir = ezOSFile::GetUserDataFolder();
-  userDataDir.AppendPath("ezEngine Project", "EditorTest");
+  ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    // ezOSFile::GetUserDataFolder();
+  userDataDir.AppendPath(m_sTestName);
   userDataDir.MakeCleanPath();
 
   ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
@@ -89,7 +91,7 @@ ezEditorTest::~ezEditorTest() = default;
 
 ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
-  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication);
+  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication, GetTestName());
 
   m_CommandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
   EZ_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");

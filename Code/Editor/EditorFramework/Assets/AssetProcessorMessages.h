@@ -28,3 +28,8 @@ public:
   ezTransformStatus m_Status;
   mutable ezDynamicArray<ezLogEntry> m_LogEntries;
 };
+
+class EZ_EDITORFRAMEWORK_DLL ezFreeAllResourcesMsg : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezFreeAllResourcesMsg, ezProcessMessage);
+};
