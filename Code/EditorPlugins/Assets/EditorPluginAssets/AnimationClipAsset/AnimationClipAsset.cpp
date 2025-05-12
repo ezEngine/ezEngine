@@ -34,7 +34,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
-    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezTemporaryAttribute(), new ezContainerAttribute(false, false, false)),
+    EZ_MEMBER_PROPERTY("AdjustScale", m_fAnimationPositionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f), new ezGroupAttribute("Adjustments")),
+    EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezTemporaryAttribute(), new ezContainerAttribute(false, false, false), new ezGroupAttribute("Infos")),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -138,6 +139,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
   opt.m_sAnimationToImport = pProp->m_sAnimationClipToExtract;
   opt.m_uiFirstAnimKeyframe = pProp->m_uiFirstFrame;
   opt.m_uiNumAnimKeyframes = pProp->m_uiNumFrames;
+  opt.m_fAnimationPositionScale = pProp->m_fAnimationPositionScale;
 
   const ezResult res = pImporter->Import(opt);
 

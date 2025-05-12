@@ -113,6 +113,14 @@ namespace ezModelImporter2
         {
           orgRawAnim.tracks[channelIdx].translations[i].time = (float)(pChannel->mPositionKeys[i].mTime * fOneDivTicksPerSec);
           ai2ozz(pChannel->mPositionKeys[i].mValue, orgRawAnim.tracks[channelIdx].translations[i].value);
+
+          // sometimes animation clips use a different scale than the actual animated mesh
+          // which just means people exported their data inconsistently
+          // allow users to adjust the scale of animation clips, to fix this
+          auto& pos = orgRawAnim.tracks[channelIdx].translations[i].value;
+          pos.x *= m_Options.m_fAnimationPositionScale;
+          pos.y *= m_Options.m_fAnimationPositionScale;
+          pos.z *= m_Options.m_fAnimationPositionScale;
         }
         for (ezUInt32 i = 0; i < pChannel->mNumRotationKeys; ++i)
         {
@@ -236,39 +244,48 @@ namespace ezModelImporter2
         {
           auto keys = pAnimOut->GetPositionKeyframes(*pJointInfo);
 
-          for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+          if (!keys.IsEmpty())
           {
-            keys[kf].m_fTimeInSec = track.translations[kf].time;
-            ozz2ez(track.translations[kf].value, keys[kf].m_Value);
-          }
+            for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+            {
+              keys[kf].m_fTimeInSec = track.translations[kf].time;
+              ozz2ez(track.translations[kf].value, keys[kf].m_Value);
+            }
 
-          fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+            fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+          }
         }
 
         // rotations
         {
           auto keys = pAnimOut->GetRotationKeyframes(*pJointInfo);
 
-          for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+          if (!keys.IsEmpty())
           {
-            keys[kf].m_fTimeInSec = track.rotations[kf].time;
-            ozz2ez(track.rotations[kf].value, keys[kf].m_Value);
-          }
+            for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+            {
+              keys[kf].m_fTimeInSec = track.rotations[kf].time;
+              ozz2ez(track.rotations[kf].value, keys[kf].m_Value);
+            }
 
-          fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+            fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+          }
         }
 
         // scales
         {
           auto keys = pAnimOut->GetScaleKeyframes(*pJointInfo);
 
-          for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+          if (!keys.IsEmpty())
           {
-            keys[kf].m_fTimeInSec = track.scales[kf].time;
-            ozz2ez(track.scales[kf].value, keys[kf].m_Value);
-          }
+            for (ezUInt32 kf = 0; kf < keys.GetCount(); ++kf)
+            {
+              keys[kf].m_fTimeInSec = track.scales[kf].time;
+              ozz2ez(track.scales[kf].value, keys[kf].m_Value);
+            }
 
-          fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+            fMaxTimestamp = ezMath::Max<double>(fMaxTimestamp, keys[keys.GetCount() - 1].m_fTimeInSec);
+          }
         }
       }
 

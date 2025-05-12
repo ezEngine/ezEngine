@@ -62,6 +62,7 @@ public:
   ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
   ezVec3 m_vConstantRootMotion;
   float m_fConstantRootMotionLength = 0.0f;
+  float m_fAnimationPositionScale = 1.0f;
 
   ezEventTrackData m_EventTrack;
 

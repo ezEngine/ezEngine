@@ -52,6 +52,9 @@ namespace ezModelImporter2
     ezUInt8 m_uiMeshSimplification = 0;
     ezUInt8 m_uiMaxSimplificationError = 5;
     bool m_bAggressiveSimplification = false;
+
+    // Adjustments to deal with bad data:
+    float m_fAnimationPositionScale = 1.0f;
   };
 
   enum class PropertySemantic : ezInt8
