@@ -4,9 +4,9 @@
       "component": {
         "type": "git",
         "git": {
-          "Version": "2.4.1",
+          "Version": "3.2.1+",
           "repositoryUrl": "https://github.com/sammycage/lunasvg.git",
-          "commitHash": "4166d0cccfc059b39d5ecfc372524375e59448f9"
+          "commitHash": "84c71c543dde471e349a0fc33d9610a5e0a4eaf0"
         }
       }
     }

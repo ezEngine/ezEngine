@@ -1,15 +1,143 @@
 #include "lunasvg.h"
-#include "layoutcontext.h"
-#include "parser.h"
 #include "svgelement.h"
+#include "svgrenderstate.h"
 
-#include <fstream>
 #include <cstring>
+#include <fstream>
 #include <cmath>
+
+int lunasvg_version()
+{
+    return LUNASVG_VERSION;
+}
+
+const char* lunasvg_version_string()
+{
+    return LUNASVG_VERSION_STRING;
+}
+
+bool lunasvg_add_font_face_from_file(const char* family, bool bold, bool italic, const char* filename)
+{
+    return lunasvg::fontFaceCache()->addFontFace(family, bold, italic, lunasvg::FontFace(filename));
+}
+
+bool lunasvg_add_font_face_from_data(const char* family, bool bold, bool italic, const void* data, size_t length, lunasvg_destroy_func_t destroy_func, void* closure)
+{
+    return lunasvg::fontFaceCache()->addFontFace(family, bold, italic, lunasvg::FontFace(data, length, destroy_func, closure));
+}
 
 namespace lunasvg {
 
-Box::Box(double x, double y, double w, double h)
+Bitmap::Bitmap(int width, int height)
+    : m_surface(plutovg_surface_create(width, height))
+{
+}
+
+Bitmap::Bitmap(uint8_t* data, int width, int height, int stride)
+    : m_surface(plutovg_surface_create_for_data(data, width, height, stride))
+{
+}
+
+Bitmap::Bitmap(const Bitmap& bitmap)
+    : m_surface(plutovg_surface_reference(bitmap.surface()))
+{
+}
+
+Bitmap::Bitmap(Bitmap&& bitmap)
+    : m_surface(bitmap.release())
+{
+}
+
+Bitmap::~Bitmap()
+{
+    plutovg_surface_destroy(m_surface);
+}
+
+Bitmap& Bitmap::operator=(const Bitmap& bitmap)
+{
+    Bitmap(bitmap).swap(*this);
+    return *this;
+}
+
+void Bitmap::swap(Bitmap& bitmap)
+{
+    std::swap(m_surface, bitmap.m_surface);
+}
+
+uint8_t* Bitmap::data() const
+{
+    if(m_surface)
+        return plutovg_surface_get_data(m_surface);
+    return nullptr;
+}
+
+int Bitmap::width() const
+{
+    if(m_surface)
+        return plutovg_surface_get_width(m_surface);
+    return 0;
+}
+
+int Bitmap::height() const
+{
+    if(m_surface)
+        return plutovg_surface_get_height(m_surface);
+    return 0;
+}
+
+int Bitmap::stride() const
+{
+    if(m_surface)
+        return plutovg_surface_get_stride(m_surface);
+    return 0;
+}
+
+void Bitmap::clear(uint32_t value)
+{
+    if(m_surface == nullptr)
+        return;
+    plutovg_color_t color;
+    plutovg_color_init_rgba32(&color, value);
+    plutovg_surface_clear(m_surface, &color);
+}
+
+void Bitmap::convertToRGBA()
+{
+    if(m_surface == nullptr)
+        return;
+    auto data = plutovg_surface_get_data(m_surface);
+    auto width = plutovg_surface_get_width(m_surface);
+    auto height = plutovg_surface_get_height(m_surface);
+    auto stride = plutovg_surface_get_stride(m_surface);
+    plutovg_convert_argb_to_rgba(data, data, width, height, stride);
+}
+
+Bitmap& Bitmap::operator=(Bitmap&& bitmap)
+{
+    Bitmap(std::move(bitmap)).swap(*this);
+    return *this;
+}
+
+bool Bitmap::writeToPng(const std::string& filename) const
+{
+    if(m_surface)
+        return plutovg_surface_write_to_png(m_surface, filename.data());
+    return false;
+}
+
+bool Bitmap::writeToPng(lunasvg_write_func_t callback, void* closure) const
+{
+    if(m_surface)
+        return plutovg_surface_write_to_png_stream(m_surface, callback, closure);
+    return false;
+}
+
+plutovg_surface_t* Bitmap::release()
+{
+    return std::exchange(m_surface, nullptr);
+}
+
+Box::Box(float x, float y, float w, float h)
     : x(x), y(y), w(w), h(h)
 {
 }
@@ -27,88 +155,22 @@ Box& Box::transform(const Matrix &matrix)
 
 Box Box::transformed(const Matrix& matrix) const
 {
-    return Transform(matrix).map(*this);
+    return Transform(matrix).mapRect(*this);
 }
 
-Matrix::Matrix(double a, double b, double c, double d, double e, double f)
+Matrix::Matrix(float a, float b, float c, float d, float e, float f)
     : a(a), b(b), c(c), d(d), e(e), f(f)
 {
 }
 
+Matrix::Matrix(const plutovg_matrix_t& matrix)
+    : a(matrix.a), b(matrix.b), c(matrix.c), d(matrix.d), e(matrix.e), f(matrix.f)
+{
+}
+
 Matrix::Matrix(const Transform& transform)
-    : a(transform.m00), b(transform.m10), c(transform.m01), d(transform.m11), e(transform.m02), f(transform.m12)
+    : Matrix(transform.matrix())
 {
-}
-
-Matrix& Matrix::rotate(double angle)
-{
-    *this = rotated(angle) * *this;
-    return *this;
-}
-
-Matrix& Matrix::rotate(double angle, double cx, double cy)
-{
-    *this = rotated(angle, cx, cy) * *this;
-    return *this;
-}
-
-Matrix& Matrix::scale(double sx, double sy)
-{
-    *this = scaled(sx, sy) * *this;
-    return *this;
-}
-
-Matrix& Matrix::shear(double shx, double shy)
-{
-    *this = sheared(shx, shy) * *this;
-    return *this;
-}
-
-Matrix& Matrix::translate(double tx, double ty)
-{
-   *this = translated(tx, ty) * *this;
-    return *this;
-}
-
-Matrix& Matrix::transform(double _a, double _b, double _c, double _d, double _e, double _f)
-{
-    *this = Matrix{_a, _b, _c, _d, _e, _f} * *this;
-    return *this;
-}
-
-Matrix& Matrix::identity()
-{
-    *this = Matrix{1, 0, 0, 1, 0, 0};
-    return *this;
-}
-
-Matrix& Matrix::invert()
-{
-    *this = inverted();
-    return *this;
-}
-
-Matrix& Matrix::operator*=(const Matrix& matrix)
-{
-    *this = *this * matrix;
-    return *this; 
-}
-
-Matrix& Matrix::premultiply(const Matrix& matrix)
-{
-    *this = matrix * *this;
-    return *this; 
-}
-
-Matrix& Matrix::postmultiply(const Matrix& matrix)
-{
-    *this = *this * matrix;
-    return *this; 
-}
-
-Matrix Matrix::inverted() const
-{
-    return Transform(*this).inverted();
 }
 
 Matrix Matrix::operator*(const Matrix& matrix) const
@@ -116,262 +178,184 @@ Matrix Matrix::operator*(const Matrix& matrix) const
     return Transform(*this) * Transform(matrix);
 }
 
-Matrix Matrix::rotated(double angle)
+Matrix& Matrix::operator*=(const Matrix &matrix)
 {
-    return Transform::rotated(angle);
+    return (*this = *this * matrix);
 }
 
-Matrix Matrix::rotated(double angle, double cx, double cy)
+Matrix& Matrix::multiply(const Matrix& matrix)
 {
-    return Transform::rotated(angle, cx, cy);
+    return (*this *= matrix);
 }
 
-Matrix Matrix::scaled(double sx, double sy)
+Matrix& Matrix::scale(float sx, float sy)
 {
-    return Transform::scaled(sx, sy);
+    return multiply(scaled(sx, sy));
 }
 
-Matrix Matrix::sheared(double shx, double shy)
+Matrix& Matrix::translate(float tx, float ty)
 {
-    return Transform::sheared(shx, shy);
+    return multiply(translated(tx, ty));
 }
 
-Matrix Matrix::translated(double tx, double ty)
+Matrix& Matrix::rotate(float angle, float cx, float cy)
+{
+    return multiply(rotated(angle, cx, cy));
+}
+
+Matrix& Matrix::shear(float shx, float shy)
+{
+    return multiply(sheared(shx, shy));
+}
+
+Matrix Matrix::inverse() const
+{
+    return Transform(*this).inverse();
+}
+
+Matrix& Matrix::invert()
+{
+    return (*this = inverse());
+}
+
+void Matrix::reset()
+{
+    *this = Matrix(1, 0, 0, 1, 0, 0);
+}
+
+Matrix Matrix::translated(float tx, float ty)
 {
     return Transform::translated(tx, ty);
 }
 
-struct Bitmap::Impl {
-    Impl(std::uint8_t* data, std::uint32_t width, std::uint32_t height, std::uint32_t stride);
-    Impl(std::uint32_t width, std::uint32_t height);
+Matrix Matrix::scaled(float sx, float sy)
+{
+    return Transform::scaled(sx, sy);
+}
 
-    std::unique_ptr<std::uint8_t[]> ownData;
-    std::uint8_t* data;
-    std::uint32_t width;
-    std::uint32_t height;
-    std::uint32_t stride;
-};
+Matrix Matrix::rotated(float angle, float cx, float cy)
+{
+    return Transform::rotated(angle, cx, cy);
+}
 
-Bitmap::Impl::Impl(std::uint8_t* data, std::uint32_t width, std::uint32_t height, std::uint32_t stride)
-    : data(data), width(width), height(height), stride(stride)
+Matrix Matrix::sheared(float shx, float shy)
+{
+    return Transform::sheared(shx, shy);
+}
+
+Node::Node(SVGNode* node)
+    : m_node(node)
 {
 }
 
-Bitmap::Impl::Impl(std::uint32_t width, std::uint32_t height)
-    : ownData(new std::uint8_t[width*height*4]), data(nullptr), width(width), height(height), stride(width * 4)
+bool Node::isTextNode() const
+{
+    return m_node && m_node->isTextNode();
+}
+
+bool Node::isElement() const
+{
+    return m_node && m_node->isElement();
+}
+
+TextNode Node::toTextNode() const
+{
+    if(m_node && m_node->isTextNode())
+        return static_cast<SVGTextNode*>(m_node);
+    return TextNode();
+}
+
+Element Node::toElement() const
+{
+    if(m_node && m_node->isElement())
+        return static_cast<SVGElement*>(m_node);
+    return Element();
+}
+
+Element Node::parentElement() const
+{
+    if(m_node)
+        return m_node->parentElement();
+    return Element();
+}
+
+TextNode::TextNode(SVGTextNode* text)
+    : Node(text)
 {
 }
 
-Bitmap::Bitmap()
+const std::string& TextNode::data() const
 {
+    if(m_node)
+        return text()->data();
+    return emptyString;
 }
 
-Bitmap::Bitmap(std::uint8_t* data, std::uint32_t width, std::uint32_t height, std::uint32_t stride)
-    : m_impl(new Impl(data, width, height, stride))
+void TextNode::setData(const std::string& data)
 {
-}
-
-Bitmap::Bitmap(std::uint32_t width, std::uint32_t height)
-    : m_impl(new Impl(width, height))
-{
-}
-
-void Bitmap::reset(std::uint8_t* data, std::uint32_t width, std::uint32_t height, std::uint32_t stride)
-{
-    m_impl.reset(new Impl(data, width, height, stride));
-}
-
-void Bitmap::reset(std::uint32_t width, std::uint32_t height)
-{
-    m_impl.reset(new Impl(width, height));
-}
-
-std::uint8_t* Bitmap::data() const
-{
-    if(m_impl == nullptr)
-        return nullptr;
-    if(m_impl->data == nullptr)
-        return m_impl->ownData.get();
-    return m_impl->data;
-}
-
-std::uint32_t Bitmap::width() const
-{
-    return m_impl ? m_impl->width : 0;
-}
-
-std::uint32_t Bitmap::height() const
-{
-    return m_impl ? m_impl->height : 0;
-}
-
-std::uint32_t Bitmap::stride() const
-{
-    return m_impl ? m_impl->stride : 0;
-}
-
-void Bitmap::clear(std::uint32_t color)
-{
-    auto r = (color >> 24) & 0xFF;
-    auto g = (color >> 16) & 0xFF;
-    auto b = (color >> 8) & 0xFF;
-    auto a = (color >> 0) & 0xFF;
-
-    auto pr = (r * a) / 255;
-    auto pg = (g * a) / 255;
-    auto pb = (b * a) / 255;
-
-    auto width = this->width();
-    auto height = this->height();
-    auto stride = this->stride();
-    auto rowData = this->data();
-
-    for(std::uint32_t y = 0; y < height; y++) {
-        auto data = rowData;
-        for(std::uint32_t x = 0; x < width; x++) {
-            data[0] = static_cast<std::uint8_t>(pb);
-            data[1] = static_cast<std::uint8_t>(pg);
-            data[2] = static_cast<std::uint8_t>(pr);
-            data[3] = static_cast<std::uint8_t>(a);
-            data += 4;
-        }
-
-        rowData += stride;
+    if(m_node) {
+        text()->setData(data);
     }
 }
 
-void Bitmap::convert(int ri, int gi, int bi, int ai, bool unpremultiply)
+SVGTextNode* TextNode::text() const
 {
-    auto width = this->width();
-    auto height = this->height();
-    auto stride = this->stride();
-    auto rowData = this->data();
-
-    for(std::uint32_t y = 0; y < height; y++) {
-        auto data = rowData;
-        for(std::uint32_t x = 0; x < width; x++) {
-            auto b = data[0];
-            auto g = data[1];
-            auto r = data[2];
-            auto a = data[3];
-
-            if(unpremultiply && a != 0) {
-                r = (r * 255) / a;
-                g = (g * 255) / a;
-                b = (b * 255) / a;
-            }
-
-            data[ri] = r;
-            data[gi] = g;
-            data[bi] = b;
-            data[ai] = a;
-            data += 4;
-        }
-
-        rowData += stride;
-    }
+    return static_cast<SVGTextNode*>(m_node);
 }
 
-DomElement::DomElement(Element* element)
-    : m_element(element)
+Element::Element(SVGElement* element)
+    : Node(element)
 {
 }
 
-void DomElement::setAttribute(const std::string& name, const std::string& value)
+bool Element::hasAttribute(const std::string& name) const
 {
-    if(m_element) {
-        auto id = propertyid(name);
-        if(id != PropertyID::Unknown) {
-            m_element->set(id, value, 0x1000);
-        }
-    }
-}
-
-std::string DomElement::getAttribute(const std::string& name) const
-{
-    if(m_element) {
-        auto id = propertyid(name);
-        if(id != PropertyID::Unknown) {
-            return m_element->get(id);
-        }
-    }
-
-    return std::string();
-}
-
-void DomElement::removeAttribute(const std::string& name)
-{
-    setAttribute(name, std::string());
-}
-
-bool DomElement::hasAttribute(const std::string& name) const
-{
-    if(m_element) {
-        auto id = propertyid(name);
-        if(id != PropertyID::Unknown) {
-            return m_element->has(id);
-        }
-    }
-
+    if(m_node)
+        return element()->hasAttribute(name);
     return false;
 }
 
-Box DomElement::getBBox() const
+const std::string& Element::getAttribute(const std::string& name) const
 {
-    if(m_element && m_element->box())
-        return m_element->box()->strokeBoundingBox();
-    return Box();
+    if(m_node)
+        return element()->getAttribute(name);
+    return emptyString;
 }
 
-Matrix DomElement::getLocalTransform() const
+void Element::setAttribute(const std::string& name, const std::string& value)
 {
-    if(m_element && m_element->box())
-        return m_element->box()->localTransform();
-    return Matrix();
-}
-
-Matrix DomElement::getAbsoluteTransform() const
-{
-    if(m_element == nullptr || !m_element->box())
-        return Matrix();
-    auto transform = m_element->box()->localTransform();
-    for(auto currentElement = m_element->parent(); currentElement; currentElement = currentElement->parent()) {
-        if(auto box = currentElement->box()) {
-            transform.postmultiply(box->localTransform());
-        }
+    if(m_node) {
+        element()->setAttribute(name, value);
     }
-
-    return transform;
 }
 
-void DomElement::render(Bitmap bitmap, const Matrix& matrix) const
+void Element::render(Bitmap& bitmap, const Matrix& matrix) const
 {
-    if(m_element == nullptr || !m_element->box())
+    if(m_node == nullptr || bitmap.isNull())
         return;
-    RenderState state(nullptr, RenderMode::Display);
-    state.canvas = Canvas::create(bitmap.data(), bitmap.width(), bitmap.height(), bitmap.stride());
-    state.transform = Transform(matrix);
-    m_element->box()->render(state);
+    auto canvas = Canvas::create(bitmap);
+    SVGRenderState state(nullptr, nullptr, matrix, SVGRenderMode::Painting, canvas);
+    element(true)->render(state);
 }
 
-Bitmap DomElement::renderToBitmap(std::uint32_t width, std::uint32_t height, std::uint32_t backgroundColor) const
+Bitmap Element::renderToBitmap(int width, int height, uint32_t backgroundColor) const
 {
-    if(m_element == nullptr || !m_element->box())
+    if(m_node == nullptr)
         return Bitmap();
-    auto elementBounds = m_element->box()->map(m_element->box()->strokeBoundingBox());
-    if(elementBounds.empty())
+    auto elementBounds = element(true)->localTransform().mapRect(element()->paintBoundingBox());
+    if(elementBounds.isEmpty())
         return Bitmap();
-    if(width == 0 && height == 0) {
-        width = static_cast<std::uint32_t>(std::ceil(elementBounds.w));
-        height = static_cast<std::uint32_t>(std::ceil(elementBounds.h));
-    } else if(width != 0 && height == 0) {
-        height = static_cast<std::uint32_t>(std::ceil(width * elementBounds.h / elementBounds.w));
-    } else if(height != 0 && width == 0) {
-        width = static_cast<std::uint32_t>(std::ceil(height * elementBounds.w / elementBounds.h));
+    if(width <= 0 && height <= 0) {
+        width = static_cast<int>(std::ceil(elementBounds.w));
+        height = static_cast<int>(std::ceil(elementBounds.h));
+    } else if(width > 0 && height <= 0) {
+        height = static_cast<int>(std::ceil(width * elementBounds.h / elementBounds.w));
+    } else if(height > 0 && width <= 0) {
+        width = static_cast<int>(std::ceil(height * elementBounds.w / elementBounds.h));
     }
 
-    const auto xScale = width / elementBounds.w;
-    const auto yScale = height / elementBounds.h;
+    auto xScale = width / elementBounds.w;
+    auto yScale = height / elementBounds.h;
 
     Matrix matrix(xScale, 0, 0, yScale, -elementBounds.x * xScale, -elementBounds.y * yScale);
     Bitmap bitmap(width, height);
@@ -380,17 +364,67 @@ Bitmap DomElement::renderToBitmap(std::uint32_t width, std::uint32_t height, std
     return bitmap;
 }
 
+Matrix Element::getLocalMatrix() const
+{
+    if(m_node)
+        return element(true)->localTransform();
+    return Matrix();
+}
+
+Matrix Element::getGlobalMatrix() const
+{
+    if(m_node == nullptr)
+        return Matrix();
+    auto transform = element(true)->localTransform();
+    for(auto parent = element()->parentElement(); parent; parent = parent->parentElement())
+        transform.postMultiply(parent->localTransform());
+    return transform;
+}
+
+Box Element::getLocalBoundingBox() const
+{
+    return getBoundingBox().transformed(getLocalMatrix());
+}
+
+Box Element::getGlobalBoundingBox() const
+{
+    return getBoundingBox().transformed(getGlobalMatrix());
+}
+
+Box Element::getBoundingBox() const
+{
+    if(m_node)
+        return element(true)->paintBoundingBox();
+    return Box();
+}
+
+NodeList Element::children() const
+{
+    if(m_node == nullptr)
+        return NodeList();
+    NodeList children;
+    for(const auto& child : element()->children())
+        children.push_back(child.get());
+    return children;
+}
+
+SVGElement* Element::element(bool layout) const
+{
+    auto element = static_cast<SVGElement*>(m_node);
+    if(element && layout)
+        element->rootElement()->updateLayout();
+    return element;
+}
+
 std::unique_ptr<Document> Document::loadFromFile(const std::string& filename)
 {
     std::ifstream fs;
     fs.open(filename);
     if(!fs.is_open())
         return nullptr;
-
     std::string content;
     std::getline(fs, content, '\0');
     fs.close();
-
     return loadFromData(content);
 }
 
@@ -399,109 +433,92 @@ std::unique_ptr<Document> Document::loadFromData(const std::string& string)
     return loadFromData(string.data(), string.size());
 }
 
-std::unique_ptr<Document> Document::loadFromData(const char* data, std::size_t size)
-{
-    std::unique_ptr<Document> document(new Document);
-    if(!document->parse(data, size))
-        return nullptr;
-    document->updateLayout();
-    return document;
-}
-
 std::unique_ptr<Document> Document::loadFromData(const char* data)
 {
     return loadFromData(data, std::strlen(data));
 }
 
-void Document::setMatrix(const Matrix& matrix)
+std::unique_ptr<Document> Document::loadFromData(const char* data, size_t length)
 {
-    if(m_rootBox) {
-        Box bbox(0, 0, m_rootBox->width, m_rootBox->height);
-        bbox.transform(matrix);
-        m_rootBox->width = bbox.w;
-        m_rootBox->height = bbox.h;
-        m_rootBox->transform = Transform(matrix);
-    }
+    std::unique_ptr<Document> document(new Document);
+    if(!document->parse(data, length))
+        return nullptr;
+    return document;
 }
 
-Matrix Document::matrix() const
+float Document::width() const
 {
-    if(m_rootBox == nullptr)
-        return Matrix();
-    return m_rootBox->transform;
+    return m_rootElement->updateLayout()->intrinsicWidth();
 }
 
-Box Document::box() const
+float Document::height() const
 {
-    if(m_rootBox == nullptr)
-        return Box();
-    return m_rootBox->map(m_rootBox->strokeBoundingBox());
+    return m_rootElement->updateLayout()->intrinsicHeight();
 }
 
-double Document::width() const
+Box Document::boundingBox() const
 {
-    if(m_rootBox == nullptr)
-        return 0.0;
-    return m_rootBox->width;
+    return m_rootElement->updateLayout()->localTransform().mapRect(m_rootElement->paintBoundingBox());
 }
 
-double Document::height() const
+void Document::updateLayout()
 {
-    if(m_rootBox == nullptr)
-        return 0.0;
-    return m_rootBox->height;
+    m_rootElement->updateLayout();
 }
 
-void Document::render(Bitmap bitmap, const Matrix& matrix) const
+void Document::forceLayout()
 {
-    if(m_rootBox == nullptr)
+    m_rootElement->forceLayout();
+}
+
+void Document::render(Bitmap& bitmap, const Matrix& matrix) const
+{
+    if(bitmap.isNull())
         return;
-    RenderState state(nullptr, RenderMode::Display);
-    state.canvas = Canvas::create(bitmap.data(), bitmap.width(), bitmap.height(), bitmap.stride());
-    state.transform = Transform(matrix);
-    m_rootBox->render(state);
+    auto canvas = Canvas::create(bitmap);
+    SVGRenderState state(nullptr, nullptr, matrix, SVGRenderMode::Painting, canvas);
+    m_rootElement->updateLayout()->render(state);
 }
 
-Bitmap Document::renderToBitmap(std::uint32_t width, std::uint32_t height, std::uint32_t backgroundColor) const
+Bitmap Document::renderToBitmap(int width, int height, uint32_t backgroundColor) const
 {
-    if(m_rootBox == nullptr || m_rootBox->width == 0.0 || m_rootBox->height == 0.0)
+    auto intrinsicWidth = m_rootElement->updateLayout()->intrinsicWidth();
+    auto intrinsicHeight = m_rootElement->intrinsicHeight();
+    if(intrinsicWidth == 0.f || intrinsicHeight == 0.f)
         return Bitmap();
-    if(width == 0 && height == 0) {
-        width = static_cast<std::uint32_t>(std::ceil(m_rootBox->width));
-        height = static_cast<std::uint32_t>(std::ceil(m_rootBox->height));
-    } else if(width != 0 && height == 0) {
-        height = static_cast<std::uint32_t>(std::ceil(width * m_rootBox->height / m_rootBox->width));
-    } else if(height != 0 && width == 0) {
-        width = static_cast<std::uint32_t>(std::ceil(height * m_rootBox->width / m_rootBox->height));
+    if(width <= 0 && height <= 0) {
+        width = static_cast<int>(std::ceil(intrinsicWidth));
+        height = static_cast<int>(std::ceil(intrinsicHeight));
+    } else if(width > 0 && height <= 0) {
+        height = static_cast<int>(std::ceil(width * intrinsicHeight / intrinsicWidth));
+    } else if(height > 0 && width <= 0) {
+        width = static_cast<int>(std::ceil(height * intrinsicWidth / intrinsicHeight));
     }
 
-    Matrix matrix(width / m_rootBox->width, 0, 0, height / m_rootBox->height, 0, 0);
+    auto xScale = width / intrinsicWidth;
+    auto yScale = height / intrinsicHeight;
+
+    Matrix matrix(xScale, 0, 0, yScale, 0, 0);
     Bitmap bitmap(width, height);
     bitmap.clear(backgroundColor);
     render(bitmap, matrix);
     return bitmap;
 }
 
-void Document::updateLayout()
+Element Document::getElementById(const std::string& id) const
 {
-    m_rootBox = m_rootElement->layoutTree(this);
+    return m_rootElement->getElementById(id);
 }
 
-DomElement Document::getElementById(const std::string& id) const
-{
-    auto it = m_idCache.find(id);
-    if(it == m_idCache.end())
-        return nullptr;
-    return it->second;
-}
-
-DomElement Document::rootElement() const
+Element Document::documentElement() const
 {
     return m_rootElement.get();
 }
 
 Document::Document(Document&&) = default;
-Document::~Document() = default;
+Document& Document::operator=(Document&&) = default;
+
 Document::Document() = default;
+Document::~Document() = default;
 
 } // namespace lunasvg
