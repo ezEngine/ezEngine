@@ -68,7 +68,7 @@ RenderManager::~RenderManager()
 	ReleaseAllTextures();
 }
 
-void RenderManager::PrepareRender()
+void RenderManager::PrepareRender(Vector2i dimensions)
 {
 #ifdef RMLUI_DEBUG
 	const RenderState default_state;
@@ -77,6 +77,8 @@ void RenderManager::PrepareRender()
 	RMLUI_ASSERT(state.transform == default_state.transform);
 	RMLUI_ASSERTMSG(render_stack.empty(), "Unbalanced render stack detected, ensure every PushLayer call has a corresponding call to PopLayer.");
 #endif
+
+	SetViewport(dimensions);
 }
 
 void RenderManager::SetViewport(Vector2i dimensions)
@@ -102,7 +104,7 @@ Texture RenderManager::LoadTexture(const String& source, const String& document_
 	else
 		GetSystemInterface()->JoinPath(path, StringUtilities::Replace(document_path, '|', ':'), source);
 
-	return Texture(this, texture_database->file_database.LoadTexture(render_interface, path));
+	return Texture(this, texture_database->file_database.InsertTexture(path));
 }
 
 CallbackTexture RenderManager::MakeCallbackTexture(CallbackTextureFunction callback)
@@ -236,6 +238,8 @@ CompiledGeometryHandle RenderManager::GetCompiledGeometryHandle(StableVectorInde
 void RenderManager::Render(const Geometry& geometry, Vector2f translation, Texture texture, const CompiledShader& shader)
 {
 	RMLUI_ASSERT(geometry);
+	RMLUI_ASSERTMSG(translation == translation.Round(), "RenderManager::Render expects translation to be rounded");
+
 	if (geometry.render_manager != this || (shader && shader.render_manager != this) || (texture && texture.render_manager != this))
 	{
 		RMLUI_ERRORMSG("Trying to render geometry with resources constructed in different render managers.");

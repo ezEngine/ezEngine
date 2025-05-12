@@ -49,36 +49,6 @@
 
 namespace Rml {
 
-// Builds and sets the box for an element.
-static void SetBox(Element* element)
-{
-	Element* parent = element->GetParentNode();
-	RMLUI_ASSERT(parent != nullptr);
-
-	Vector2f containing_block = parent->GetBox().GetSize();
-	containing_block.x -= parent->GetElementScroll()->GetScrollbarSize(ElementScroll::VERTICAL);
-	containing_block.y -= parent->GetElementScroll()->GetScrollbarSize(ElementScroll::HORIZONTAL);
-
-	Box box;
-	LayoutDetails::BuildBox(box, containing_block, element);
-
-	if (element->GetComputedValues().height().type != Style::Height::Auto)
-		box.SetContent(Vector2f(box.GetSize().x, containing_block.y));
-
-	element->SetBox(box);
-}
-
-// Positions an element relative to an offset parent.
-static void SetElementOffset(Element* element, Vector2f offset)
-{
-	Vector2f relative_offset = element->GetParentNode()->GetBox().GetPosition(BoxArea::Content);
-	relative_offset += offset;
-	relative_offset.x += element->GetBox().GetEdge(BoxArea::Margin, BoxEdge::Left);
-	relative_offset.y += element->GetBox().GetEdge(BoxArea::Margin, BoxEdge::Top);
-
-	element->SetOffset(relative_offset, element->GetParentNode());
-}
-
 Element* ElementUtilities::GetElementById(Element* root_element, const String& id)
 {
 	// Breadth first search on elements for the corresponding id
@@ -217,7 +187,7 @@ bool ElementUtilities::GetClippingRegion(Element* element, Rectanglei& out_clip_
 				{
 					Geometry* clip_geometry = clipping_element->GetElementBackgroundBorder()->GetClipGeometry(clipping_element, clip_area);
 					const ClipMaskOperation clip_operation = (out_clip_mask_list->empty() ? ClipMaskOperation::Set : ClipMaskOperation::Intersect);
-					const Vector2f absolute_offset = clipping_element->GetAbsoluteOffset(BoxArea::Border);
+					const Vector2f absolute_offset = clipping_element->GetAbsoluteOffset(BoxArea::Border).Round();
 					out_clip_mask_list->push_back(ClipMaskGeometry{clip_operation, clip_geometry, absolute_offset, transform});
 				}
 
@@ -231,8 +201,8 @@ bool ElementUtilities::GetClippingRegion(Element* element, Rectanglei& out_clip_
 			if (has_clipping_content && !disable_scissor_clipping)
 			{
 				// Shrink the scissor region to the element's client area.
-				Vector2f element_offset = clipping_element->GetAbsoluteOffset(clip_area);
-				Vector2f element_size = clipping_element->GetBox().GetSize(clip_area);
+				Vector2f element_offset = clipping_element->GetAbsoluteOffset(clip_area).Round();
+				Vector2f element_size = clipping_element->GetRenderBox(clip_area).GetFillSize();
 				Rectanglef element_region = Rectanglef::FromPositionSize(element_offset, element_size);
 
 				clip_region = element_region.IntersectIfValid(clip_region);
@@ -384,23 +354,35 @@ void ElementUtilities::BuildBox(Box& box, Vector2f containing_block, Element* el
 bool ElementUtilities::PositionElement(Element* element, Vector2f offset, PositionAnchor anchor)
 {
 	Element* parent = element->GetParentNode();
-	if (parent == nullptr)
+	if (!parent)
 		return false;
 
-	SetBox(element);
+	const Box& parent_box = parent->GetBox();
+	Vector2f containing_block = parent_box.GetSize();
+	containing_block.x -= parent->GetElementScroll()->GetScrollbarSize(ElementScroll::VERTICAL);
+	containing_block.y -= parent->GetElementScroll()->GetScrollbarSize(ElementScroll::HORIZONTAL);
 
-	Vector2f containing_block = element->GetParentNode()->GetBox().GetSize(BoxArea::Content);
-	Vector2f element_block = element->GetBox().GetSize(BoxArea::Margin);
+	Box box;
+	LayoutDetails::BuildBox(box, containing_block, element);
+	if (box.GetSize().y < 0.f)
+		box.SetContent(Vector2f(box.GetSize().x, containing_block.y));
+	element->SetBox(box);
 
+	Vector2f element_block = box.GetSize(BoxArea::Margin);
 	Vector2f resolved_offset = offset;
 
 	if (anchor & RIGHT)
 		resolved_offset.x = containing_block.x - (element_block.x + offset.x);
-
 	if (anchor & BOTTOM)
 		resolved_offset.y = containing_block.y - (element_block.y + offset.y);
 
-	SetElementOffset(element, resolved_offset);
+	// Position element relative to its parent.
+	Vector2f relative_offset = parent_box.GetPosition(BoxArea::Content);
+	relative_offset += resolved_offset;
+	relative_offset.x += box.GetEdge(BoxArea::Margin, BoxEdge::Left);
+	relative_offset.y += box.GetEdge(BoxArea::Margin, BoxEdge::Top);
+
+	element->SetOffset(relative_offset, parent);
 
 	return true;
 }

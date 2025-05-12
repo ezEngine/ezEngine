@@ -149,11 +149,11 @@ Vector2i Context::GetDimensions() const
 	return dimensions;
 }
 
-void Context::SetDensityIndependentPixelRatio(float _density_independent_pixel_ratio)
+void Context::SetDensityIndependentPixelRatio(float dp_ratio)
 {
-	if (density_independent_pixel_ratio != _density_independent_pixel_ratio)
+	if (density_independent_pixel_ratio != dp_ratio)
 	{
-		density_independent_pixel_ratio = _density_independent_pixel_ratio;
+		density_independent_pixel_ratio = dp_ratio;
 
 		for (int i = 0; i < root->GetNumChildren(true); ++i)
 		{
@@ -216,7 +216,7 @@ bool Context::Render()
 {
 	RMLUI_ZoneScoped;
 
-	render_manager->PrepareRender();
+	render_manager->PrepareRender(dimensions);
 
 	root->Render();
 
@@ -992,6 +992,13 @@ bool Context::OnFocusChange(Element* new_focus, bool focus_visible)
 	// If the current focus is modal and the new focus is cannot receive focus from modal, deny the request.
 	if (old_document && old_document->IsModal() && (!new_document || !(new_document->IsModal() || new_document->IsFocusableFromModal())))
 		return false;
+
+	// If the document of the new focus has been closed, deny the request.
+	if (std::find_if(unloaded_documents.begin(), unloaded_documents.end(),
+			[&](const auto& unloaded_document) { return unloaded_document.get() == new_document; }) != unloaded_documents.end())
+	{
+		return false;
+	}
 
 	// Build the old chains
 	Element* element = old_focus;

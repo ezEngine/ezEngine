@@ -237,9 +237,6 @@ p
 
 h1
 {
-	margin-left: 0.4em;
-	margin-bottom: 0.4em;
-
 	text-align: left;
 	font-size: 16dp;
 	font-weight: bold;
