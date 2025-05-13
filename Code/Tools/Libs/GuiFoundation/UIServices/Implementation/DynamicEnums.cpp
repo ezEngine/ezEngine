@@ -34,6 +34,12 @@ ezStringView ezDynamicEnum::GetValueName(ezInt32 iValue) const
   return it.Value();
 }
 
+void ezDynamicEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
+{
+  m_sEditCommand = sCmd;
+  m_EditCommandValue = value;
+}
+
 ezDynamicEnum& ezDynamicEnum::GetDynamicEnum(const char* szEnumName)
 {
   return s_DynamicEnums[szEnumName];

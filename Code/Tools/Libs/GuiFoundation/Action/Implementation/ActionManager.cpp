@@ -62,7 +62,7 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
 
   auto it = s_CategoryPathToActions.FindOrAdd(pDesc->m_sCategoryPath);
   it.Value().m_Actions.Insert(hType);
-  it.Value().m_ActionNameToHandle[pDesc->m_sActionName.GetData()] = hType;
+  it.Value().m_ActionNameToHandle[pDesc->m_sActionName] = hType;
 
   {
     Event msg;
@@ -112,39 +112,39 @@ const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator ezActionManager:
   return s_ActionTable.GetIterator();
 }
 
-ezActionDescriptorHandle ezActionManager::GetActionHandle(const char* szCategoryPath, const char* szActionName)
+ezActionDescriptorHandle ezActionManager::GetActionHandle(ezStringView sCategoryPath, ezStringView sActionName)
 {
   ezActionDescriptorHandle hAction;
-  auto it = s_CategoryPathToActions.Find(szCategoryPath);
+  auto it = s_CategoryPathToActions.Find(sCategoryPath);
   if (!it.IsValid())
     return hAction;
 
-  it.Value().m_ActionNameToHandle.TryGetValue(szActionName, hAction);
+  it.Value().m_ActionNameToHandle.TryGetValue(sActionName, hAction);
 
   return hAction;
 }
 
-ezString ezActionManager::FindActionCategory(const char* szActionName)
+ezString ezActionManager::FindActionCategory(ezStringView sActionName)
 {
   for (auto itCat : s_CategoryPathToActions)
   {
-    if (itCat.Value().m_ActionNameToHandle.Contains(szActionName))
+    if (itCat.Value().m_ActionNameToHandle.Contains(sActionName))
       return itCat.Key();
   }
 
   return ezString();
 }
 
-ezResult ezActionManager::ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
+ezResult ezActionManager::ExecuteAction(ezStringView sCategory0, ezStringView sActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
 {
-  ezString sCategory = szCategory;
+  ezStringBuilder sCategory = sCategory0;
 
-  if (szCategory == nullptr)
+  if (sCategory.IsEmpty())
   {
-    sCategory = FindActionCategory(szActionName);
+    sCategory = FindActionCategory(sActionName);
   }
 
-  auto hAction = ezActionManager::GetActionHandle(sCategory, szActionName);
+  auto hAction = ezActionManager::GetActionHandle(sCategory, sActionName);
 
   if (hAction.IsInvalidated())
     return EZ_FAILURE;

@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezQtDynamicStringEnumPropertyWidget::ezQtDynamicStringEnumPropertyWidget()
@@ -43,7 +44,11 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
     m_pWidget->addItem(QString::fromUtf8(val.GetData()));
   }
 
-  if (!m_pEnum->GetStorageFile().IsEmpty())
+  if (!m_pEnum->GetEditCommand().IsEmpty())
+  {
+    m_pWidget->addItem("< Edit Values... >", QString("<cmd>"));
+  }
+  else if (!m_pEnum->GetStorageFile().IsEmpty())
   {
     m_pWidget->addItem("< Edit Values... >", QString("<edit>"));
   }
@@ -67,6 +72,16 @@ void ezQtDynamicStringEnumPropertyWidget::InternalSetValue(const ezVariant& valu
 
 void ezQtDynamicStringEnumPropertyWidget::on_CurrentEnum_changed(int iEnum)
 {
+  if (m_pWidget->currentData() == QString("<cmd>"))
+  {
+    iEnum = m_iLastIndex;
+    m_pWidget->setCurrentIndex(iEnum);
+
+    ezActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), m_pEnum->GetEditCommandValue()).AssertSuccess();
+
+    return;
+  }
+
   if (m_pWidget->currentData() == QString("<edit>"))
   {
     ezQtEditDynamicEnumsDlg dlg(m_pEnum, this);

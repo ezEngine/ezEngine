@@ -71,6 +71,12 @@ void ezDynamicStringEnum::SortValues()
   m_ValidValues.Sort();
 }
 
+void ezDynamicStringEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
+{
+  m_sEditCommand = sCmd;
+  m_EditCommandValue = value;
+}
+
 void ezDynamicStringEnum::ReadFromStorage()
 {
   Clear();

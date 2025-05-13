@@ -5,6 +5,7 @@
 
 class QHBoxLayout;
 class QComboBox;
+class ezDynamicEnum;
 
 /// *** Asset Browser ***
 
@@ -26,4 +27,6 @@ protected:
 protected:
   QComboBox* m_pWidget;
   QHBoxLayout* m_pLayout;
+  ezDynamicEnum* m_pEnum = nullptr;
+  ezInt32 m_iLastIndex = -1;
 };
