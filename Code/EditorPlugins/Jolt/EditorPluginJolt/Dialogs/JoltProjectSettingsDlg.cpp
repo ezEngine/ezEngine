@@ -202,10 +202,10 @@ ezResult ezQtJoltProjectSettingsDlg::Load()
   return EZ_SUCCESS;
 }
 
-static void AddWeightCfg(ezWeightCategoryConfig& cfg, ezStringView sName, float fMass, ezStringView sDesc)
+static void AddWeightCfg(ezWeightCategoryConfig& ref_cfg, ezStringView sName, float fMass, ezStringView sDesc)
 {
-  ezUInt8 idx = cfg.GetFreeKey();
-  auto& e = cfg.m_Categories[idx];
+  ezUInt8 idx = ref_cfg.GetFreeKey();
+  auto& e = ref_cfg.m_Categories[idx];
   e.m_sName.Assign(sName);
   e.m_fMass = fMass;
   e.m_sDescription = sDesc;

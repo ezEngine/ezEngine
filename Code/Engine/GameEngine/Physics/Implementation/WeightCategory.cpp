@@ -1,5 +1,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Physics/WeightCategory.h>
 
