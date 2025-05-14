@@ -1,8 +1,9 @@
 # Variable 'task.MSBuild.status' was defined in the Variables tab
-trigger:
-  branches:
-    include:
-    - dev
+trigger: none
+#trigger:
+#  branches:
+#    include:
+#    - dev
 resources:
   repositories:
   - repository: self
