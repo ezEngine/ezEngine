@@ -176,6 +176,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandLocalToModelPose final : pu
 /// * ezAnimPoseGeneratorCommandTwoBoneIK
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnimPoseGeneratorCommandModelPose
 {
+  float m_fDebugVisScale = 0.0f;                                ///< If >0, debug visualization will be rendered.
   ezVec3 m_vTargetPosition;                                     ///< The position for the bone to point at. Must be in model space of the skeleton, ie even the m_RootTransform must have been removed.
   ezUInt16 m_uiJointIdx;                                        ///< The index of the joint to aim.
   ezUInt16 m_uiRecalcModelPoseToJointIdx = ezInvalidJointIndex; ///< Optimization hint to prevent unnecessary recalculation of model poses for joints that get updated later again.
@@ -193,6 +194,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnim
 /// * ezAnimPoseGeneratorCommandTwoBoneIK
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ezAnimPoseGeneratorCommandModelPose
 {
+  float m_fDebugVisScale = 0.0f;                                ///< If >0, debug visualization will be rendered.
   ezVec3 m_vTargetPosition;                                     ///< The position for the 'end' joint to try to reach. Must be in model space of the skeleton, ie even the m_RootTransform must have been removed.
   ezUInt16 m_uiJointIdxStart;                                   ///< Index of the top joint in a chain of three joints. The IK result may freely rotate around this joint into any (unnatural direction).
   ezUInt16 m_uiJointIdxMiddle;                                  ///< Index of the middle joint in a chain of three joints. The IK result will bend at this joint around the joint local mid-axis.

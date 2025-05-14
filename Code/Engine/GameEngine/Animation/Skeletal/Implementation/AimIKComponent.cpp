@@ -23,6 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("DebugVisScale", GetDebugVisScale, SetDebugVisScale)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_ENUM_MEMBER_PROPERTY("ForwardVector", ezBasisAxis, m_ForwardVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpVector", ezBasisAxis, m_UpVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
     EZ_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
@@ -34,7 +35,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
-      new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveZ, 0.5f),
   }
   EZ_END_ATTRIBUTES;
 
@@ -75,6 +75,18 @@ void ezAimIKComponent::SetPoleVectorReference(const char* szReference)
   m_hPoleVector = resolver(szReference, GetHandle(), "PoleVector");
 }
 
+void ezAimIKComponent::SetDebugVisScale(float fScale)
+{
+  // allow scales from 0.05f to 10.0f
+  // map them to range 0 to 200
+  m_uiDebugVisScale = static_cast<ezUInt8>(ezMath::Clamp(ezMath::RoundToInt(fScale * 20.0f), 0, 200));
+}
+
+float ezAimIKComponent::GetDebugVisScale() const
+{
+  return m_uiDebugVisScale / 20.0f;
+}
+
 void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -102,7 +114,7 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
-  if (m_fWeight <= 0.0f)
+  if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
     return;
 
   const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
@@ -137,6 +149,7 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
       continue;
 
     auto& cmdIk = msg.m_pGenerator->AllocCommandAimIK();
+    cmdIk.m_fDebugVisScale = GetDebugVisScale();
     cmdIk.m_uiJointIdx = m_Joints[i].m_uiJointIdx;
     cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
     cmdIk.m_vTargetPosition = localTarget.m_vPosition;

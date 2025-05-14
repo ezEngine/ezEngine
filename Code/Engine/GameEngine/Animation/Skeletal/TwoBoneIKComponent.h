@@ -41,12 +41,17 @@ public:
   ezHashedString m_sJointEnd;                           // [ property ] Third joint in the chain. This one tries to reach the target position.
   ezEnum<ezBasisAxis> m_MidAxis;                        // [ property ] The axis of the middle joint around which to bend.
 
+  void SetDebugVisScale(float fScale);                  // [ property ] Scale for debug visualizations. 0 to disable.
+  float GetDebugVisScale() const;
+
   // currently these are not exposed, to reduce the number of parameters to fiddle with
   // float m_fSoften = 1.0f;
   // ezAngle m_TwistAngle;
 
 protected:
   void OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const; // [ msg handler ]
+
+  ezUInt8 m_uiDebugVisScale = 0;
 
   mutable ezUInt16 m_uiJointIdxStart = 0;
   mutable ezUInt16 m_uiJointIdxMiddle = 0;

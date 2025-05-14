@@ -6,6 +6,7 @@
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/blending_job.h>
 #include <ozz/animation/runtime/ik_aim_job.h>
@@ -245,6 +246,7 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
   if (m_FinalCommand == 0)
     return;
 
+  EZ_PROFILE_SCOPE("GenerateAnimPose");
   Validate();
 
   Execute(GetCommand(m_FinalCommand));
@@ -548,6 +550,9 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
   ozz::math::SimdQuaternion correction;
   bool bReached = false;
 
+  const ezVec3 vPoleOrigin = pJoint->GetTranslationVector();
+  const ezVec3 vPoleVectorDir = (cmd.m_vPoleVector - vPoleOrigin).GetNormalized();
+
   // patch the local poses
   {
     ozz::animation::IKAimJob job;
@@ -555,7 +560,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
     job.target = ozz::math::simd_float4::Load3PtrU(cmd.m_vTargetPosition.GetData());
     job.forward = ozz::math::simd_float4::Load3PtrU(cmd.m_vForwardVector.GetData());
     job.up = ozz::math::simd_float4::Load3PtrU(cmd.m_vUpVector.GetData());
-    job.pole_vector = ozz::math::simd_float4::Load3PtrU(cmd.m_vPoleVector.GetData());
+    job.pole_vector = ozz::math::simd_float4::Load3PtrU(vPoleVectorDir.GetData());
     job.joint_correction = &correction;
     job.joint = reinterpret_cast<const ozz::math::Float4x4*>(pJoint);
     job.reached = &bReached;
@@ -576,6 +581,60 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
     job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     EZ_ASSERT_DEBUG(job.Validate(), "");
     job.Run();
+  }
+
+  if (cmd.m_fDebugVisScale > 0.0f && m_pTargetGameObject)
+  {
+    const float fScale = cmd.m_fDebugVisScale;
+
+    ezMat4 mOff = ezMat4::MakeIdentity();
+    const ezTransform tObj = m_pTargetGameObject->GetGlobalTransform();
+    const ezTransform& tRoot = m_pSkeleton->GetDescriptor().m_RootTransform;
+
+    const ezMat4 mToGlobal = tObj.GetAsMat4() * tRoot.GetAsMat4();
+    const ezTransform tToGlobal = tObj * tRoot;
+    const ezTransform tPoleArrow = ezTransform::MakeGlobalTransform(tToGlobal, ezTransform(vPoleOrigin));
+
+    // Target position
+    {
+      ezDebugRenderer::DrawLineSphere(m_pTargetGameObject->GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(cmd.m_vTargetPosition, fScale * 0.05f), bReached ? ezColor::GreenYellow : ezColor::DarkOliveGreen, tToGlobal);
+    }
+
+    // pole vector
+    {
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.5f, ezColor::MediumVioletRed, tPoleArrow, vPoleVectorDir);
+      ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVector, fScale * 0.15f, ezColor::MediumVioletRed, tToGlobal);
+    }
+
+    const ezMat4 mJointAxis = mToGlobal * *pJoint;
+
+    // Joint coordinate system
+    {
+      mOff.SetTranslationVector(ezVec3(-0.15f * fScale, 0, 0));
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Red, ezTransform((mJointAxis * mOff).GetTranslationVector()), mJointAxis.TransformDirection(ezVec3::MakeAxisX()));
+
+      mOff.SetTranslationVector(ezVec3(0, -0.15f * fScale, 0));
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Green, ezTransform((mJointAxis * mOff).GetTranslationVector()), mJointAxis.TransformDirection(ezVec3::MakeAxisY()));
+
+      mOff.SetTranslationVector(ezVec3(0, 0, -0.15f * fScale));
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Blue, ezTransform((mJointAxis * mOff).GetTranslationVector()), mJointAxis.TransformDirection(ezVec3::MakeAxisZ()));
+    }
+
+    // Joint Up axis
+    {
+      mOff.SetTranslationVector(-cmd.m_vUpVector * 0.17f * fScale);
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.34f, ezColor::LightGoldenRodYellow, ezTransform((mJointAxis * mOff).GetTranslationVector()), mJointAxis.TransformDirection(cmd.m_vUpVector));
+
+      ezQuat qTilt = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), cmd.m_vUpVector);
+      mOff.SetTranslationVector(-cmd.m_vUpVector * 0.15f * fScale);
+      mOff.SetRotationalPart(qTilt.GetAsMat3());
+      ezDebugRenderer::DrawCylinder(m_pTargetGameObject->GetWorld(), fScale * 0.01f, fScale * 0.001f, fScale * 0.3f, ezColor::MakeZero(), ezColor::LightGoldenRodYellow, mJointAxis * mOff);
+    }
+
+    // Joint Forward axis
+    {
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::GreenYellow, ezTransform(mJointAxis.GetTranslationVector()), mJointAxis.TransformDirection(cmd.m_vForwardVector));
+    }
   }
 }
 
@@ -628,6 +687,9 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
   ozz::math::SimdQuaternion correctionStart, correctionMiddle;
   bool bReached = false;
 
+  const ezVec3 vPoleOrigin = ezMath::Lerp(pJointStart->GetTranslationVector(), cmd.m_vTargetPosition, 0.5f);
+  const ezVec3 vPoleVectorDir = (cmd.m_vPoleVector - vPoleOrigin).GetNormalized();
+
   // patch the local poses
   {
     ozz::animation::IKTwoBoneJob job;
@@ -640,7 +702,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
     job.start_joint_correction = &correctionStart;
     job.mid_joint_correction = &correctionMiddle;
     job.mid_axis = ozz::math::simd_float4::Load3PtrU(cmd.m_vMidAxis.GetData());
-    job.pole_vector = ozz::math::simd_float4::Load3PtrU(cmd.m_vPoleVector.GetData());
+    job.pole_vector = ozz::math::simd_float4::Load3PtrU(vPoleVectorDir.GetData());
     job.soften = cmd.m_fSoften;
     job.twist_angle = cmd.m_TwistAngle.GetRadian();
     EZ_ASSERT_DEBUG(job.Validate(), "");
@@ -661,6 +723,61 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
     job.skeleton = &m_pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     EZ_ASSERT_DEBUG(job.Validate(), "");
     job.Run();
+
+
+    if (m_pTargetGameObject && cmd.m_fDebugVisScale > 0.0f)
+    {
+      const float fScale = cmd.m_fDebugVisScale;
+
+      ezMat4 mOff = ezMat4::MakeIdentity();
+      const ezTransform tObj = m_pTargetGameObject->GetGlobalTransform();
+      const ezTransform& tRoot = m_pSkeleton->GetDescriptor().m_RootTransform;
+
+      const ezMat4 mToGlobal = tObj.GetAsMat4() * tRoot.GetAsMat4();
+      const ezTransform tToGlobal = tObj * tRoot;
+      const ezTransform tPoleArrow = ezTransform::MakeGlobalTransform(tToGlobal, ezTransform(vPoleOrigin));
+
+      // Target position
+      {
+        ezDebugRenderer::DrawLineSphere(m_pTargetGameObject->GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(cmd.m_vTargetPosition, fScale * 0.05f), bReached ? ezColor::GreenYellow : ezColor::DarkOliveGreen, tToGlobal);
+      }
+
+      // Start joint
+      {
+        ezDebugRenderer::DrawLineSphere(m_pTargetGameObject->GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(pJointStart->GetTranslationVector(), fScale * 0.1f), ezColor::LightCoral, tToGlobal);
+      }
+
+      // pole vector
+      {
+        ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.5f, ezColor::MediumVioletRed, tPoleArrow, vPoleVectorDir);
+        ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVector, fScale * 0.15f, ezColor::MediumVioletRed, tToGlobal);
+      }
+
+      const ezMat4 mMidAxis = mToGlobal * *pJointMiddle;
+
+      // Mid coordinate system
+      {
+        mOff.SetTranslationVector(ezVec3(-0.15f * fScale, 0, 0));
+        ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Red, ezTransform((mMidAxis * mOff).GetTranslationVector()), mMidAxis.TransformDirection(ezVec3::MakeAxisX()));
+
+        mOff.SetTranslationVector(ezVec3(0, -0.15f * fScale, 0));
+        ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Green, ezTransform((mMidAxis * mOff).GetTranslationVector()), mMidAxis.TransformDirection(ezVec3::MakeAxisY()));
+
+        mOff.SetTranslationVector(ezVec3(0, 0, -0.15f * fScale));
+        ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.3f, ezColor::Blue, ezTransform((mMidAxis * mOff).GetTranslationVector()), mMidAxis.TransformDirection(ezVec3::MakeAxisZ()));
+      }
+
+      // Mid axis
+      {
+        // mOff.SetTranslationVector(-cmd.m_vMidAxis * 0.17f * fScale);
+        // ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.34f, ezColor::LightGoldenRodYellow, ezTransform((mMidAxis * mOff).GetTranslationVector()), mMidAxis.TransformDirection(cmd.m_vMidAxis));
+
+        ezQuat qTilt = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), cmd.m_vMidAxis);
+        mOff.SetTranslationVector(-cmd.m_vMidAxis * 0.15f * fScale);
+        mOff.SetRotationalPart(qTilt.GetAsMat3());
+        ezDebugRenderer::DrawCylinder(m_pTargetGameObject->GetWorld(), fScale * 0.01f, fScale * 0.001f, fScale * 0.3f, ezColor::MakeZero(), ezColor::LightGoldenRodYellow, mMidAxis * mOff);
+      }
+    }
   }
 }
 
