@@ -18,6 +18,7 @@ private:
   {
     GameObjectReferences,
     DefaultValues,
+    AssetBrowerModel,
   };
 
   virtual void SetupSubTests() override;
@@ -27,6 +28,7 @@ private:
 
   ezTestAppRun GameObjectReferencesTest();
   ezTestAppRun DefaultValuesTest();
+  ezTestAppRun AssetBrowerModelTest();
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;

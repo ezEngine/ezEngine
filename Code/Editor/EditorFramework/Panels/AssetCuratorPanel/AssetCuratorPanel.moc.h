@@ -45,7 +45,7 @@ private:
   void LogWriter(const ezLoggingEventData& e);
   void UpdateIssueInfo();
 
-  ezQtAssetBrowserModel* m_pModel;
+  QSharedPointer<ezQtAssetBrowserModel> m_pModel;
   ezQtAssetCuratorFilter* m_pFilter;
   QPersistentModelIndex m_SelectedIndex;
 };

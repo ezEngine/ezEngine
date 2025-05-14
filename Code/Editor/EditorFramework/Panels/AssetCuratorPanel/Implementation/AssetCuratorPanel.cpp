@@ -82,18 +82,19 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
-  m_pFilter = new ezQtAssetCuratorFilter(this);
-  m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
+  m_pFilter =  new ezQtAssetCuratorFilter(this);
+  m_pModel = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
+  m_pModel->Initialize();
   m_pModel->SetIconMode(false);
 
   TransformLog->ShowControls(false);
 
-  ListAssets->setModel(m_pModel);
+  ListAssets->setModel(m_pModel.data());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   EZ_VERIFY(
     connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
+  EZ_VERIFY(connect(m_pModel.data(), &QAbstractItemModel::dataChanged, this,
               [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
               {
                 if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
@@ -103,7 +104,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
               }),
     "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
+  EZ_VERIFY(connect(m_pModel.data(), &QAbstractItemModel::modelReset, this,
               [this]()
               {
                 m_SelectedIndex = QPersistentModelIndex();

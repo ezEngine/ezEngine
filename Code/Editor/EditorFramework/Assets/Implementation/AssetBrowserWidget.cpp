@@ -32,12 +32,13 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   TreeFolderFilter->SetFilter(m_pFilter);
 
-  m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
+  m_pModel = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
+  m_pModel->Initialize();
   SearchWidget->setPlaceholderText("Search Assets");
 
   IconSizeSlider->setValue(50);
 
-  ListAssets->setModel(m_pModel);
+  ListAssets->setModel(m_pModel.data());
   ListAssets->SetIconScale(IconSizeSlider->value());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   ListAssets->setDragEnabled(true);
@@ -67,8 +68,8 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   EZ_VERIFY(connect(m_pFilter, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pFilter, SIGNAL(FilterChanged()), this, SLOT(OnFilterChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &ezQtAssetBrowserModel::editingFinished, this, &ezQtAssetBrowserWidget::OnFileEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel.data(), SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel.data(), &ezQtAssetBrowserModel::editingFinished, this, &ezQtAssetBrowserWidget::OnFileEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
 
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(OnAssetSelectionCurrentChanged(const QModelIndex&, const QModelIndex&))) != nullptr, "signal/slot connection failed");

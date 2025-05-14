@@ -1,6 +1,8 @@
 #include <EditorTest/EditorTestPCH.h>
 
+#include "EditorFramework/Assets/AssetBrowserWidget.moc.h"
 #include "Misc.h"
+#include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
@@ -22,6 +24,7 @@ void ezEditorTestMisc::SetupSubTests()
 {
   AddSubTest("GameObject References", SubTests::GameObjectReferences);
   AddSubTest("Default Values", SubTests::DefaultValues);
+  AddSubTest("Asset Browser Model", SubTests::AssetBrowerModel);
 }
 
 ezResult ezEditorTestMisc::InitializeTest()
@@ -60,6 +63,9 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
 
     case SubTests::DefaultValues:
       return DefaultValuesTest();
+
+    case SubTests::AssetBrowerModel:
+      return AssetBrowerModelTest();
   }
 
   // const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
@@ -264,5 +270,141 @@ ezTestAppRun ezEditorTestMisc::DefaultValuesTest()
         }
       } });
 
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezEditorTestMisc::AssetBrowerModelTest()
+{
+  ezQtAssetBrowserWidget* pDialog = new ezQtAssetBrowserWidget(QApplication::activeWindow());
+  pDialog->SetMode(ezQtAssetBrowserWidget::Mode::Browser);
+  pDialog->show();
+  ProcessEvents();
+  ezQtAssetBrowserFilter* pFilter = pDialog->GetAssetBrowserFilter();
+  ezQtAssetBrowserModel* pModel = pDialog->GetAssetBrowserModel();
+  pFilter->SetPathFilter("EditorTest/Meshes");
+  pFilter->SetShowNonImportableFiles(false);
+  pFilter->SetShowFiles(true);
+  ProcessEvents();
+
+  // Importable asset found:
+  {
+    EZ_TEST_INT(pModel->rowCount(), 1);
+    QModelIndex index = pModel->index(0, 0);
+    QString relativePath = pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+    EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/Cube.obj");
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)pModel->data(index, ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    EZ_TEST_INT(itemType.GetValue(), ezAssetBrowserItemFlags::File);
+    const bool bImportable = index.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+    EZ_TEST_BOOL(bImportable);
+  }
+
+  // Import (manually) into mesh.ezMeshAsset
+  ezUuid guid;
+  {
+    ezStringBuilder sName = m_sProjectPath;
+    sName.AppendPath("Meshes", "mesh.ezMeshAsset");
+    ezAssetDocument* pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->CreateDocument(sName, ezDocumentFlags::Default));
+    ezDocumentObject* pMeshAsset = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
+    ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
+    pAcc->StartTransaction("Edit Mesh");
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
+    pAcc->FinishTransaction();
+    EZ_TEST_STATUS(pDoc->SaveDocument());
+    guid = pDoc->GetGuid();
+    pDoc->GetDocumentManager()->CloseDocument(pDoc);
+  }
+
+  // Wait for changes
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    ProcessEvents();
+    if (pModel->rowCount() == 2)
+    {
+      QModelIndex index2 = pModel->index(1, 0);
+      ezUuid guid2 = pModel->data(index2, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+      if (guid2 == guid)
+        break;
+    }
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+  }
+  // Check new asset
+  if (EZ_TEST_INT(pModel->rowCount(), 2))
+  {
+    QModelIndex index2 = pModel->index(1, 0);
+    ezUuid guid2 = index2.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    EZ_TEST_BOOL(guid2 == guid);
+    QString relativePath = index2.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+    EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/mesh.ezMeshAsset");
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index2.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    EZ_TEST_BOOL(itemType == ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset);
+    const bool bImportable = index2.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+    EZ_TEST_BOOL(!bImportable);
+  }
+
+  // Rename Cobe.obj to zzz.obj, moving it to the back of the list and making the asset invalid
+  {
+    QModelIndex index = pModel->index(0, 0);
+    QString absolutePath = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+
+    EZ_TEST_BOOL(pModel->setData(index, QString("zzz"), Qt::EditRole));
+  }
+
+  // Wait for changes
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    ProcessEvents();
+    if (pModel->rowCount() == 2)
+    {
+      QModelIndex index2 = pModel->index(1, 0);
+      QString sName = index2.data(Qt::EditRole).toString();
+
+      if (sName.toUtf8().data() == "zzz"_ezsv)
+        break;
+    }
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+  }
+
+  // Check renamed file
+  {
+    QModelIndex index = pModel->index(1, 0);
+    QString relativePath = pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+
+    EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/zzz.obj");
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)pModel->data(index, ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    EZ_TEST_INT(itemType.GetValue(), ezAssetBrowserItemFlags::File);
+    const bool bImportable = index.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+    EZ_TEST_BOOL(bImportable);
+  }
+
+  // Check asset
+  {
+    QModelIndex index = pModel->index(0, 0);
+    ezUuid guid2 = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    EZ_TEST_BOOL(guid2 == guid);
+    QString relativePath = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+    EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/mesh.ezMeshAsset");
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    EZ_TEST_BOOL(itemType == ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset);
+    const bool bImportable = index.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+    EZ_TEST_BOOL(!bImportable);
+  }
+
+  // Wait for transform state of asset to change
+  ezAssetInfo::TransformState state = ezAssetInfo::Unknown;
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    ProcessEvents();
+
+    QModelIndex index = pModel->index(0, 0);
+    state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
+    if (state == ezAssetInfo::TransformState::MissingTransformDependency)
+        break;
+
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+  }
+  EZ_TEST_BOOL(state == ezAssetInfo::TransformState::MissingTransformDependency);
+  pDialog->hide();
+  delete pDialog;
+  ProcessEvents();
   return ezTestAppRun::Quit;
 }

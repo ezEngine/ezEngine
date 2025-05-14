@@ -84,6 +84,14 @@ ezTestAppRun ezTestSetup::RunTests()
     qApp->setProperty("Shared", QVariant::fromValue((int)1));
     qApp->setApplicationName(pTestFramework->GetTestName());
     ezQtTestGUI::SetDarkTheme();
+    // Locale fixes required by various third party libraries like RmlGui.
+    QLocale::setDefault(QLocale::C);
+    const char* locales[] = {"C.UTF-8", "C.utf8", "UTF-8"};
+    for (const char* szLocale : locales)
+    {
+      if (setlocale(LC_ALL, szLocale) != nullptr)
+        break;
+    }
   }
 
   // Create main window

@@ -191,9 +191,14 @@ void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
     m_iArgc = iArgc;
     m_pQtApplication = new QApplication(m_iArgc, pArgv);
     m_pQtApplication->setProperty("Shared", QVariant::fromValue((int)1));
-    QFont font = m_pQtApplication->font();
-    // font.setPixelSize(11);
-    m_pQtApplication->setFont(font);
+    // Locale fixes required by various third party libraries like RmlGui.
+    QLocale::setDefault(QLocale::C);
+    const char* locales[] = {"C.UTF-8", "C.utf8", "UTF-8"};
+    for (const char* szLocale : locales)
+    {
+      if (setlocale(LC_ALL, szLocale) != nullptr)
+        break;
+    }
   }
 }
 

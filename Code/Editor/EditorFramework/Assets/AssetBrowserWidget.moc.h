@@ -13,7 +13,7 @@ class ezQtAssetBrowserModel;
 struct ezAssetCuratorEvent;
 class ezQtAssetBrowserModel;
 
-class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 public:
@@ -42,8 +42,8 @@ public:
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
 
-  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
-  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
+  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel.data(); }
+  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel.data(); }
   ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
   const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
@@ -111,7 +111,7 @@ private:
   Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;
   ezString m_sAllTypesFilter;
-  ezQtAssetBrowserModel* m_pModel = nullptr;
+  QSharedPointer<ezQtAssetBrowserModel> m_pModel = nullptr;
   ezQtAssetBrowserFilter* m_pFilter = nullptr;
 
   /// \brief After creating a new asset and renaming it, we want to open it as well.
