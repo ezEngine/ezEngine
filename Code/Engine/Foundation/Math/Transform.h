@@ -44,7 +44,7 @@ public:
 
 
   /// \brief Initializes the transform from the given position, rotation and scale.
-  ezTransformTemplate(const ezVec3Template<Type>& vPosition,
+  explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,
     const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(),
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
