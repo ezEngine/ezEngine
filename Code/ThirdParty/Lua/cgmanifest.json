@@ -5,8 +5,8 @@
         "type": "other",
         "Other": {
           "Name": "Lua",
-          "Version": "5.4.3",
-          "DownloadUrl": "http://www.lua.org/ftp/lua-5.4.3.tar.gz"
+          "Version": "5.4.7",
+          "DownloadUrl": "https://lua.org/ftp/lua-5.4.7.tar.gz"
         }
       }
     }
