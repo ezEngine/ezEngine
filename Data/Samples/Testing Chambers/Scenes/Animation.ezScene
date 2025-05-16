@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9942389368597704355,5056955079846159374}}
-		u4 %Hash{7595289955297497158}
+		u4 %Hash{3757202231197291369}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -1177,6 +1177,33 @@ o
 }
 o
 {
+	Uuid %id{u4{15585152030287313567,4713440268876946992}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{7}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		u3 %Detail{16}
+		b %GenerateCollision{1}
+		s %Material{""}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x40CFEE3E}
+		f %SizeNegY{0x1834D13E}
+		f %SizeNegZ{0}
+		f %SizePosX{0}
+		f %SizePosY{0}
+		f %SizePosZ{0xB298813E}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
+	}
+}
+o
+{
 	Uuid %id{u4{12446998220966304432,4725756725585964220}}
 	s %t{"ezIkJointEntry"}
 	u3 %v{1}
@@ -2085,6 +2112,32 @@ o
 		s %Surface{""}
 		u1 %WeightCategory{2}
 		f %WeightScale{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{6521597831341792181,5118744972148740375}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15585152030287313567,4713440268876946992}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x812D8C41,0x53BC67C0,0xA153003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -3555,6 +3608,7 @@ o
 			Uuid{u4{15037760848481524851,10424170512998875107}}
 			Uuid{u4{9100624317223647185,14852326413817054859}}
 			Uuid{u4{2272012078140721228,11188395476371872998}}
+			Uuid{u4{6521597831341792181,5118744972148740375}}
 		}
 		Uuid %Settings{u4{12518859769286275017,4712398715231436096}}
 	}
@@ -5039,8 +5093,8 @@ o
 			Uuid{u4{1846461540992550963,10616975205519339539}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0CA8F93E,0x578289BE,0xE8FBCA3F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x8514DE3E,0xF0920EBE,0xDC60A83E}}
+		Quat %LocalRotation{f{0,0,0x000000B3,0x0200803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -5305,12 +5359,12 @@ o
 		VarArray %Children{}
 		VarArray %Components{}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x20AD853E,0x0240603F,0x4AF4CB3F}}
+		Vec3 %LocalPosition{f{0x57A37E3F,0x9FC9643F,0x9610E13F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Right Pole"}
+		s %Name{"Arm Pole Vector"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -5491,7 +5545,7 @@ o
 			Uuid{u4{8140834410134313045,10661889054977572792}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xB973A63F,0xCC868E3E,0xCEE1F33F}}
+		Vec3 %LocalPosition{f{0xEF23703F,0xC086573E,0xE8EFCC3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -5819,10 +5873,10 @@ o
 	{
 		b %Active{1}
 		f %DebugVisScale{0x0000803F}
-		HashedString %JointEnd{s{"Hand.L"}}
-		HashedString %JointMiddle{s{"LowerArm.L"}}
-		HashedString %JointStart{s{"UpperArm.L"}}
-		s %MidAxis{"ezBasisAxis::PositiveX"}
+		HashedString %JointEnd{s{"Foot.L"}}
+		HashedString %JointMiddle{s{"LowerLeg.L"}}
+		HashedString %JointStart{s{"UpperLeg.L"}}
+		s %MidAxis{"ezBasisAxis::NegativeX"}
 		s %PoleVector{"{ ed29f0f5-f667-de52-f1d8-c2eeacf196e2 }"}
 		f %Weight{0x0000803F}
 	}
@@ -6097,12 +6151,12 @@ o
 			Uuid{u4{8242244129450578490,10116002617627873328}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x35408E41,0x118F60C0,0x73E4383F}}
+		Vec3 %LocalPosition{f{0x3BFF8C41,0xC61F58C0,0xA741003F}}
 		Quat %LocalRotation{f{0,0,0xBD57503F,0x5EC214BF}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"Pete IK"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -7360,12 +7414,12 @@ o
 		VarArray %Children{}
 		VarArray %Components{}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x60ACD83D,0x85848CBF,0xBA01CA3F}}
+		Vec3 %LocalPosition{f{0xA8BF3D3F,0x700FBEBD,0x0850803F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Left Pole"}
+		s %Name{"Foot Pole Vector"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}

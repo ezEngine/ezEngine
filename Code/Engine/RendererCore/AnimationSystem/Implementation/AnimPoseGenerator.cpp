@@ -623,10 +623,8 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
 
     // Joint Up axis
     {
-      ezQuat qTilt = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), cmd.m_vUpVector);
-      mOff.SetTranslationVector(-cmd.m_vUpVector * 0.15f * fScale);
-      mOff.SetRotationalPart(qTilt.GetAsMat3());
-      ezDebugRenderer::DrawCylinder(m_pTargetGameObject->GetWorld(), fScale * 0.01f, fScale * 0.001f, fScale * 0.3f, ezColor::MakeZero(), ezColorScheme::LightUI(ezColorScheme::Gray), mJointAxis * mOff);
+      mOff.SetTranslationVector(-cmd.m_vUpVector * 0.17f * fScale);
+      ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.34f, ezColorScheme::LightUI(ezColorScheme::Yellow), ezTransform((mJointAxis * mOff).GetTranslationVector()), mJointAxis.TransformDirection(cmd.m_vUpVector));
     }
 
     // Joint Forward axis
