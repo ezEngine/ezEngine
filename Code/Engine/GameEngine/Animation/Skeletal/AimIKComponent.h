@@ -52,6 +52,8 @@ public:
   float m_fWeight = 1.0f;                                       // [ property ] Factor between 0 and 1 for how much to apply the IK.
   ezHybridArray<ezIkJointEntry, 2> m_Joints;                    // [ property ] A list of joints to apply the aim IK to. If multiple joints along a chain are used, set a weight of less than 1 for the first joints and a factor of 1 for the last joint, to distribute gradual aiming along the chain.
 
+  bool m_bInversePoleVector = false;                            // [ property ] If true, the pole-vector will point away from the given position, not towards it.
+
   void SetDebugVisScale(float fScale);                          // [ property ] Scale for debug visualizations. 0 to disable.
   float GetDebugVisScale() const;
 

@@ -552,7 +552,12 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
   bool bReached = false;
 
   const ezVec3 vPoleOrigin = pJoint->GetTranslationVector();
-  const ezVec3 vPoleVectorDir = (cmd.m_vPoleVector - vPoleOrigin).GetNormalized();
+  ezVec3 vPoleVectorDir = (cmd.m_vPoleVectorPosition - vPoleOrigin).GetNormalized();
+
+  if (cmd.m_bInversePoleVector)
+  {
+    vPoleVectorDir = -vPoleVectorDir;
+  }
 
   // patch the local poses
   {
@@ -604,7 +609,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandAimIK& cmd)
     // pole vector
     {
       ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.5f, ezColorScheme::LightUI(ezColorScheme::Cyan), tPoleArrow, vPoleVectorDir);
-      ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVector, fScale * 0.15f, ezColorScheme::LightUI(ezColorScheme::Cyan), tToGlobal);
+      ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVectorPosition, fScale * 0.15f, ezColorScheme::LightUI(ezColorScheme::Cyan), tToGlobal);
     }
 
     const ezMat4 mJointAxis = mToGlobal * *pJoint;
@@ -684,7 +689,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
   bool bReached = false;
 
   const ezVec3 vPoleOrigin = ezMath::Lerp(pJointStart->GetTranslationVector(), cmd.m_vTargetPosition, 0.5f);
-  const ezVec3 vPoleVectorDir = (cmd.m_vPoleVector - vPoleOrigin).GetNormalized();
+  const ezVec3 vPoleVectorDir = (cmd.m_vPoleVectorPosition - vPoleOrigin).GetNormalized();
 
   // patch the local poses
   {
@@ -746,7 +751,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandTwoBoneIK& cmd)
       // pole vector
       {
         ezDebugRenderer::DrawArrow(m_pTargetGameObject->GetWorld(), fScale * 0.5f, ezColorScheme::LightUI(ezColorScheme::Cyan), tPoleArrow, vPoleVectorDir);
-        ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVector, fScale * 0.15f, ezColorScheme::LightUI(ezColorScheme::Cyan), tToGlobal);
+        ezDebugRenderer::DrawCross(m_pTargetGameObject->GetWorld(), cmd.m_vPoleVectorPosition, fScale * 0.15f, ezColorScheme::LightUI(ezColorScheme::Cyan), tToGlobal);
       }
 
       const ezMat4 mMidAxis = mToGlobal * *pJointMiddle;

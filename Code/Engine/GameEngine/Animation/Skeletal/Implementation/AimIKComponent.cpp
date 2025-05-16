@@ -19,7 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIkJointEntry, ezNoBase, 1, ezRTTIDefaultAllocat
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -27,6 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 1, ezComponentMode::Dynamic);
     EZ_ENUM_MEMBER_PROPERTY("ForwardVector", ezBasisAxis, m_ForwardVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpVector", ezBasisAxis, m_UpVector)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
     EZ_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_MEMBER_PROPERTY("InversePoleVector", m_bInversePoleVector),
     EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
   }
@@ -97,12 +98,14 @@ void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_UpVector;
   inout_stream.WriteGameObjectHandle(m_hPoleVector);
   s.WriteArray(m_Joints).AssertSuccess();
+
+  s << m_bInversePoleVector;
 }
 
 void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fWeight;
@@ -110,11 +113,16 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_UpVector;
   m_hPoleVector = inout_stream.ReadGameObjectHandle();
   s.ReadArray(m_Joints).AssertSuccess();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bInversePoleVector;
+  }
 }
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
-  if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
+  if ((m_fWeight <= 0.0f && m_uiDebugVisScale == 0) || m_Joints.IsEmpty())
     return;
 
   const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
@@ -156,7 +164,8 @@ void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration
     cmdIk.m_fWeight = m_fWeight * m_Joints[i].m_fWeight;
     cmdIk.m_vForwardVector = ezBasisAxis::GetBasisVector(m_ForwardVector);
     cmdIk.m_vUpVector = ezBasisAxis::GetBasisVector(m_UpVector);
-    cmdIk.m_vPoleVector = vPoleVectorPos;
+    cmdIk.m_vPoleVectorPosition = vPoleVectorPos;
+    cmdIk.m_bInversePoleVector = m_bInversePoleVector;
 
     // in theory one could limit which joints get their model poses updated,
     // but in practice this doesn't work unless we know that they are definitely just in one straight line (not the case for spines)

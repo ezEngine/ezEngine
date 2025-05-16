@@ -143,7 +143,7 @@ void ezTwoBoneIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGenera
     cmdIk.m_uiJointIdxEnd = m_uiJointIdxEnd;
     cmdIk.m_Inputs.PushBack(msg.m_pGenerator->GetFinalCommand());
     cmdIk.m_vTargetPosition = localTarget.m_vPosition;
-    cmdIk.m_vPoleVector = vPoleVectorPos;
+    cmdIk.m_vPoleVectorPosition = vPoleVectorPos;
     cmdIk.m_vMidAxis = ezBasisAxis::GetBasisVector(m_MidAxis);
     cmdIk.m_fWeight = m_fWeight;
     cmdIk.m_fSoften = 1.0f;                   // m_fSoften;

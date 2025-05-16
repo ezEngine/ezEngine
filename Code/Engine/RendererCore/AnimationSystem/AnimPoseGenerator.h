@@ -183,7 +183,8 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnim
   float m_fWeight = 1.0f;                                       ///< Factor between 0 and 1 for how much to apply the IK.
   ezVec3 m_vForwardVector = ezVec3::MakeAxisX();                ///< The local joint direction that should aim at the target. Typically there is a convention to use +X, +Y or +Z.
   ezVec3 m_vUpVector = ezVec3::MakeAxisZ();                     ///< The local joint direction that should point towards the pole vector. Must be orthogonal to the forward vector.
-  ezVec3 m_vPoleVector = ezVec3::MakeAxisY();                   ///< In the same space as the target position, a position that the up vector of the joint should (roughly) point towards. Used to have bones point into the right direction, for example to make an elbow point properly sideways.
+  ezVec3 m_vPoleVectorPosition = ezVec3::MakeAxisY();           ///< In the same space as the target position, a position that the up vector of the joint should (roughly) point towards. Used to have bones point into the right direction, for example to make an elbow point properly sideways.
+  bool m_bInversePoleVector = false;                            ///< If true, the pole vector direction will point away from the pole vector position, rather than towards it. Useful in an aim IK chain to have all bones point away from a central point.
 };
 
 /// \brief Accepts a single input in model space and applies two-bone IK (inverse kinematics) on it. Updates the model pose in place.
@@ -201,7 +202,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ez
   ezUInt16 m_uiJointIdxEnd;                                     ///< Index of the end joint that is supposed to reach the target.
   ezUInt16 m_uiRecalcModelPoseToJointIdx = ezInvalidJointIndex; ///< Optimization hint to prevent unnecessary recalculation of model poses for joints that get updated later again.
   ezVec3 m_vMidAxis = ezVec3::MakeAxisZ();                      ///< The local joint direction around which to bend the middle joint. Typically there is a convention to use +X, +Y or +Z to bend around.
-  ezVec3 m_vPoleVector = ezVec3::MakeAxisY();                   ///< In the same space as the target position, a position that the middle joint should (roughly) point towards. Used to have bones point into the right direction, for example to make a knee point properly forwards.
+  ezVec3 m_vPoleVectorPosition = ezVec3::MakeAxisY();           ///< In the same space as the target position, a position that the middle joint should (roughly) point towards. Used to have bones point into the right direction, for example to make a knee point properly forwards.
   float m_fWeight = 1.0f;                                       ///< Factor between 0 and 1 for how much to apply the IK.
   float m_fSoften = 1.0f;                                       ///< Factor between 0 and 1. See OZZ for details.
   ezAngle m_TwistAngle;                                         ///< After IK how much to rotate the chain. Seems to be redundant with the pole vector. See OZZ for details.
