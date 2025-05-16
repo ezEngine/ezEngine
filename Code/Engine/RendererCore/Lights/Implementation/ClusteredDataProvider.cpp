@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererCore/Decals/Implementation/DecalManager.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
@@ -72,7 +73,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     m_hShadowSampler = pDevice->CreateSamplerState(desc);
   }
 
-  m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
+  m_hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
 
   {
     ezGALSamplerStateCreationDescription desc;
@@ -114,6 +115,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 
   pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
   pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
+  pRenderContext->BindBuffer("perDecalAtlasDataBuffer", pDevice->GetDefaultResourceView(ezDecalManager::GetDecalAtlasDataBufferForRendering()));
   pRenderContext->BindBuffer("perPerReflectionProbeDataBuffer", pDevice->GetDefaultResourceView(m_hReflectionProbeDataBuffer));
   pRenderContext->BindBuffer("perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
   pRenderContext->BindBuffer("clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
@@ -126,6 +128,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
   pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
   pRenderContext->BindTexture2D("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
+  pRenderContext->BindTexture2D("DecalRuntimeAtlasTexture", pDevice->GetDefaultResourceView(ezDecalManager::GetRuntimeDecalAtlasTexture()));
   pRenderContext->BindSamplerState("DecalAtlasSampler", m_hDecalAtlasSampler);
 
   pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);

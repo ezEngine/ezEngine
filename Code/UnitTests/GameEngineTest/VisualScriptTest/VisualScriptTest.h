@@ -36,8 +36,6 @@ protected:
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
-  void RunBuiltinsTest();
-
   ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication* m_pOwnApplication = nullptr;
 

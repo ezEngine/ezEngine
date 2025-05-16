@@ -15,18 +15,36 @@ public:
   /// \brief Deallocates all data.
   void Clear();
 
+  struct AllocateFlags
+  {
+    using StorageType = ezUInt32;
+
+    enum Enum
+    {
+      None,
+      ZeroFill = EZ_BIT(0),
+
+      Default = None
+    };
+
+    struct Bits
+    {
+      StorageType ZeroFill : 1;
+    };
+  };
+
   /// \brief Allocates a single or multiple elements and returns the offset to the first element.
   /// This offset is used to identify the allocation and should also be used in a shader to read the data from the buffer.
   ///
   /// The user data can be used to store additional information, typically the owner of the allocation, like e.g. a component handle.
   template <typename U>
-  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1)
+  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None)
   {
     static_assert(sizeof(U) <= sizeof(ezUInt64), "userData is too large");
     ezUInt64 uiUserData = 0;
     *reinterpret_cast<U*>(&uiUserData) = userData;
 
-    return Allocate(uiUserData, uiCount);
+    return Allocate(uiUserData, uiCount, allocateFlags);
   }
 
   /// \brief Removes an allocation at the given offset. The offset must have been returned by Allocate.
@@ -77,7 +95,7 @@ private:
   void Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName);
   void Deinitialize();
 
-  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount);
+  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags);
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
 
   void Resize(ezUInt32 uiNewSize);
@@ -112,3 +130,5 @@ private:
   ezString m_sDebugName;
 #endif
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezGALDynamicBuffer::AllocateFlags);

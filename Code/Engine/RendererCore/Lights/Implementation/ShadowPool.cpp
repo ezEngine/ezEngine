@@ -12,6 +12,7 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -42,7 +43,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool cvar_RenderingShadowsShowPoolStats("Rendering.Shadows.ShowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+ezCVarBool cvar_RenderingShadowsShowAtlasTexture("Rendering.Shadows.ShowAtlasTexture", false, ezCVarFlags::Default, "Display the shadow atlas texture");
 ezCVarBool cvar_RenderingShadowsVisCascadeBounds("Rendering.Shadows.VisCascadeBounds", false, ezCVarFlags::Default, "Visualizes the bounding volumes of shadow cascades");
 #endif
 
@@ -103,103 +104,10 @@ struct SortedShadowData
 
 static ezDynamicArray<SortedShadowData> s_SortedShadowData;
 
-struct AtlasCell
+static float ShadowMapScaleFromScreenSpaceSize(float fScreenSpaceSize)
 {
-  EZ_DECLARE_POD_TYPE();
-
-  EZ_ALWAYS_INLINE AtlasCell()
-    : m_Rect(0, 0, 0, 0)
-  {
-    m_uiChildIndices[0] = m_uiChildIndices[1] = m_uiChildIndices[2] = m_uiChildIndices[3] = 0xFFFF;
-    m_uiDataIndex = ezInvalidIndex;
-  }
-
-  EZ_ALWAYS_INLINE bool IsLeaf() const
-  {
-    return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF && m_uiChildIndices[3] == 0xFFFF;
-  }
-
-  ezRectU32 m_Rect;
-  ezUInt16 m_uiChildIndices[4];
-  ezUInt32 m_uiDataIndex;
-};
-
-static ezDeque<AtlasCell> s_AtlasCells;
-
-static AtlasCell* Insert(AtlasCell* pCell, ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
-{
-  if (!pCell->IsLeaf())
-  {
-    for (ezUInt32 i = 0; i < 4; ++i)
-    {
-      AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[i]];
-      if (AtlasCell* pNewCell = Insert(pChildCell, uiShadowMapSize, uiDataIndex))
-      {
-        return pNewCell;
-      }
-    }
-
-    return nullptr;
-  }
-  else
-  {
-    if (pCell->m_uiDataIndex != ezInvalidIndex)
-      return nullptr;
-
-    if (pCell->m_Rect.width < uiShadowMapSize || pCell->m_Rect.height < uiShadowMapSize)
-      return nullptr;
-
-    if (pCell->m_Rect.width == uiShadowMapSize && pCell->m_Rect.height == uiShadowMapSize)
-    {
-      pCell->m_uiDataIndex = uiDataIndex;
-      return pCell;
-    }
-
-    // Split
-    ezUInt32 x = pCell->m_Rect.x;
-    ezUInt32 y = pCell->m_Rect.y;
-    ezUInt32 w = pCell->m_Rect.width / 2;
-    ezUInt32 h = pCell->m_Rect.height / 2;
-
-    ezUInt32 uiCellIndex = s_AtlasCells.GetCount();
-    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y, w, h);
-    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y, w, h);
-    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y + h, w, h);
-    s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y + h, w, h);
-
-    for (ezUInt32 i = 0; i < 4; ++i)
-    {
-      pCell->m_uiChildIndices[i] = static_cast<ezUInt16>(uiCellIndex + i);
-    }
-
-    AtlasCell* pChildCell = &s_AtlasCells[pCell->m_uiChildIndices[0]];
-    return Insert(pChildCell, uiShadowMapSize, uiDataIndex);
-  }
-}
-
-static ezUInt8 s_uiWarnCounter = 0;
-
-static ezRectU32 FindAtlasRect(ezUInt32 uiShadowMapSize, ezUInt32 uiDataIndex)
-{
-  EZ_ASSERT_DEBUG(ezMath::IsPowerOf2(uiShadowMapSize), "Size must be power of 2");
-
-  AtlasCell* pCell = Insert(&s_AtlasCells[0], uiShadowMapSize, uiDataIndex);
-  if (pCell != nullptr)
-  {
-    EZ_ASSERT_DEBUG(pCell->IsLeaf() && pCell->m_uiDataIndex == uiDataIndex, "Implementation error");
-    return pCell->m_Rect;
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (s_uiWarnCounter == 0)
-  {
-    ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
-  }
-
-  ++s_uiWarnCounter; // rely on integer overflow to reach 0 again
-#endif
-
-  return ezRectU32(0, 0, 0, 0);
+  const float fClampedShadowMapScale = ezMath::Clamp(ezMath::Pow(fScreenSpaceSize * 0.5f, cvar_RenderingShadowsScaleMappingExponent), s_fMinRelativeShadowMapSize, 1.0f);
+  return fClampedShadowMapScale;
 }
 
 static float AddSafeBorder(ezAngle fov, float fPenumbraSize)
@@ -250,16 +158,11 @@ struct ezShadowPool::Data
       ezRenderWorld::DeleteView(shadowView.m_hView);
     }
 
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    if (!m_hShadowAtlasTexture.IsInvalidated())
-    {
-      pDevice->DestroyTexture(m_hShadowAtlasTexture);
-      m_hShadowAtlasTexture.Invalidate();
-    }
+    m_TextureAtlas.Deinitialize();
 
     if (!m_hShadowDataBuffer.IsInvalidated())
     {
-      pDevice->DestroyBuffer(m_hShadowDataBuffer);
+      ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hShadowDataBuffer);
       m_hShadowDataBuffer.Invalidate();
     }
   }
@@ -271,7 +174,7 @@ struct ezShadowPool::Data
 
   void CreateShadowAtlasTexture()
   {
-    if (m_hShadowAtlasTexture.IsInvalidated())
+    if (m_TextureAtlas.IsInitialized() == false)
     {
       // use the current CVar values to initialize the values
       ezUInt32 uiAtlas = cvar_RenderingShadowsAtlasSize;
@@ -301,12 +204,13 @@ struct ezShadowPool::Data
         uiMin = cvar_RenderingShadowsMinShadowMapSize.GetValue(ezCVarValue::DelayedSync);
 
       // make sure the values are valid
-      uiAtlas = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiAtlas), 512u, 8192u);
       uiMax = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiMax), 64u, 2048u);
       uiMin = ezMath::Clamp(ezMath::PowerOfTwo_Floor(uiMin), 8u, 512u);
 
-      uiMax = ezMath::Min(uiMax, uiAtlas);
+      uiMax = ezMath::Max(uiMin, uiMax);
       uiMin = ezMath::Min(uiMin, uiMax);
+
+      uiAtlas = ezMath::Clamp(static_cast<ezUInt32>(ezMath::RoundToMultiple(double(uiAtlas), uiMax)), uiMax, 8192u);
 
       // write back the clamped values, so that everyone sees the valid values
       cvar_RenderingShadowsAtlasSize = uiAtlas;
@@ -321,7 +225,7 @@ struct ezShadowPool::Data
       ezGALTextureCreationDescription desc;
       desc.SetAsRenderTarget(cvar_RenderingShadowsAtlasSize, cvar_RenderingShadowsAtlasSize, ezGALResourceFormat::D16);
 
-      m_hShadowAtlasTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(desc);
+      m_TextureAtlas.Initialize(desc).AssertSuccess("Failed to initialize shadow atlas");
 
       s_fMinRelativeShadowMapSize = (cvar_RenderingShadowsMinShadowMapSize - 1.0f) / cvar_RenderingShadowsMaxShadowMapSize;
     }
@@ -352,7 +256,7 @@ struct ezShadowPool::Data
     pView->SetCameraUsageHint(ezCameraUsageHint::Shadow);
 
     ezGALRenderTargets renderTargets;
-    renderTargets.m_hDSTarget = m_hShadowAtlasTexture;
+    renderTargets.m_hDSTarget = m_TextureAtlas.GetTexture();
     pView->SetRenderTargets(renderTargets);
 
     EZ_ASSERT_DEV(m_ShadowViewsMutex.IsLocked(), "m_ShadowViewsMutex must be locked at this point.");
@@ -451,7 +355,7 @@ struct ezShadowPool::Data
   ezDynamicArray<ezVec4, ezAlignedAllocatorWrapper> m_PackedShadowData[2];
   ezUInt32 m_uiUsedPackedShadowData = 0; // in 16 bytes steps (sizeof(ezVec4))
 
-  ezGALTextureHandle m_hShadowAtlasTexture;
+  ezDynamicTextureAtlas m_TextureAtlas;
   ezGALBufferHandle m_hShadowDataBuffer;
 };
 
@@ -471,7 +375,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   }
 
   float fMaxReferenceSize = ezMath::Max(pReferenceView->GetViewport().width, pReferenceView->GetViewport().height);
-  float fShadowMapScale = fMaxReferenceSize / cvar_RenderingShadowsMaxShadowMapSize;
+  float fShadowMapScale = ezMath::Clamp(fMaxReferenceSize / cvar_RenderingShadowsMaxShadowMapSize, s_fMinRelativeShadowMapSize, 10.0f);
 
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pDirLight, pReferenceView, fShadowMapScale, sizeof(ezDirShadowData), pData))
@@ -528,7 +432,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     {
       if (pOwner->GetName().IsEmpty())
       {
-        tmp.Set("DirLight", viewNames[i]);
+        tmp.Set("Dir", viewNames[i]);
       }
       else
       {
@@ -619,7 +523,8 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
-  const float fShadowMapScale = fScreenSpaceSize * 0.5f;
+  // point lights use a lot of atlas space thus we half the scale
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize) * 0.5f;
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pPointLight, nullptr, fShadowMapScale, sizeof(ezPointShadowData), pData))
   {
@@ -671,7 +576,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
     {
       if (pOwner->GetName().IsEmpty())
       {
-        tmp.Set("PointLight", viewNames[i]);
+        tmp.Set("Point", viewNames[i]);
       }
       else
       {
@@ -705,7 +610,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
 
-  const float fShadowMapScale = fScreenSpaceSize * 0.5f;
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize);
   ShadowData* pData = nullptr;
   if (s_pData->GetDataForExtraction(pSpotLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
   {
@@ -725,7 +630,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     if (pOwner->GetName().IsEmpty())
     {
-      pView->SetName("SpotLight"_ezsv);
+      pView->SetName("Spot"_ezsv);
     }
     else
     {
@@ -761,7 +666,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 // static
 ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 {
-  return s_pData->m_hShadowAtlasTexture;
+  return s_pData->m_TextureAtlas.GetTexture();
 }
 
 // static
@@ -818,35 +723,16 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
     auto& sorted = s_SortedShadowData.ExpandAndGetRef();
     sorted.m_uiIndex = uiShadowDataIndex;
-    sorted.m_fShadowMapScale = shadowData.m_uiType == LIGHT_TYPE_DIR ? 100.0f : ezMath::Min(shadowData.m_fShadowMapScale, 10.0f);
+    sorted.m_fShadowMapScale = shadowData.m_fShadowMapScale;
   }
 
   s_SortedShadowData.Sort();
 
   // Prepare atlas
-  s_AtlasCells.Clear();
-  s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(0, 0, cvar_RenderingShadowsAtlasSize, cvar_RenderingShadowsAtlasSize);
+  s_pData->m_TextureAtlas.Clear();
 
   float fAtlasInvWidth = 1.0f / cvar_RenderingShadowsAtlasSize;
   float fAtlasInvHeight = 1.0f / cvar_RenderingShadowsAtlasSize;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezUInt32 uiTotalAtlasSize = cvar_RenderingShadowsAtlasSize * cvar_RenderingShadowsAtlasSize;
-  ezUInt32 uiUsedAtlasSize = 0;
-
-  ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
-  if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
-  {
-    debugContext = ezDebugRendererContext(pView->GetHandle());
-  }
-
-  if (cvar_RenderingShadowsShowPoolStats)
-  {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "0ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "1ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
-  }
-
-#endif
 
   for (auto& sorted : s_SortedShadowData)
   {
@@ -854,20 +740,10 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
     auto& shadowData = s_pData->m_ShadowData[uiShadowDataIndex];
 
     ezUInt32 uiMaxShadowMapSize = cvar_RenderingShadowsMaxShadowMapSize;
-    float fMinRelativeShadowMapSize = s_fMinRelativeShadowMapSize;
-
-    // point lights use a lot of atlas space thus we cut the shadow map size in half
-    if (shadowData.m_uiType == LIGHT_TYPE_POINT)
-    {
-      uiMaxShadowMapSize /= 2;
-      fMinRelativeShadowMapSize *= 2.0f;
-    }
-
-    const float fClampedShadowMapScale = ezMath::Clamp(ezMath::Pow(shadowData.m_fShadowMapScale, cvar_RenderingShadowsScaleMappingExponent), fMinRelativeShadowMapSize, 1.0f);
-    const ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(uiMaxShadowMapSize * fClampedShadowMapScale));
+    const ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(uiMaxShadowMapSize * ezMath::Saturate(shadowData.m_fShadowMapScale)));
 
     ezHybridArray<ezView*, 8> shadowViews;
-    ezHybridArray<ezRectU32, 8> atlasRects;
+    ezHybridArray<ezRectU16, 8> atlasRects;
 
     // Fill atlas
     for (ezUInt32 uiViewIndex = 0; uiViewIndex < shadowData.m_Views.GetCount(); ++uiViewIndex)
@@ -878,19 +754,25 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
       EZ_ASSERT_DEV(pShadowView != nullptr, "Implementation error");
 
-      ezRectU32 atlasRect = FindAtlasRect(uiShadowMapSize, uiShadowDataIndex);
+      ezRectU16 atlasRect = ezRectU16::MakeZero();
+      auto allocationId = s_pData->m_TextureAtlas.Allocate(uiShadowMapSize, uiShadowMapSize, pShadowView->GetName(), &atlasRect);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      if (allocationId.IsInvalidated())
+      {
+        static ezUInt8 s_uiWarnCounter = 0;
+        if (s_uiWarnCounter == 0)
+        {
+          ezLog::Warning("Shadow Pool is full. Not enough space for a {0}x{0} shadow map. The light will have no shadow.", uiShadowMapSize);
+        }
+
+        ++s_uiWarnCounter; // rely on integer overflow to reach 0 again
+      }
+#endif
+
       atlasRects.PushBack(atlasRect);
 
       pShadowView->SetViewport(ezRectFloat((float)atlasRect.x, (float)atlasRect.y, (float)atlasRect.width, (float)atlasRect.height));
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      if (cvar_RenderingShadowsShowPoolStats)
-      {
-        ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "1ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
-
-        uiUsedAtlasSize += atlasRect.width * atlasRect.height;
-      }
-#endif
     }
 
     // Fill shadow data
@@ -927,7 +809,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         ezUInt32 uiAtlasScaleOffsetIndex = GET_ATLAS_SCALE_OFFSET_INDEX(shadowData.m_uiPackedDataOffset, uiViewIndex);
         ezVec4& atlasScaleOffset = packedShadowData[uiAtlasScaleOffsetIndex];
 
-        ezRectU32 atlasRect = atlasRects[uiViewIndex];
+        const ezRectU16& atlasRect = atlasRects[uiViewIndex];
         if (atlasRect.HasNonZeroArea())
         {
           ezVec2 scale = ezVec2(atlasRect.width * fAtlasInvWidth, atlasRect.height * fAtlasInvHeight);
@@ -1027,7 +909,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         ezUInt32 uiMatrixIndex = GET_WORLD_TO_LIGHT_MATRIX_INDEX(shadowData.m_uiPackedDataOffset, uiViewIndex);
         ezMat4& worldToLightMatrix = *reinterpret_cast<ezMat4*>(&packedShadowData[uiMatrixIndex]);
 
-        ezRectU32 atlasRect = atlasRects[uiViewIndex];
+        const ezRectU16& atlasRect = atlasRects[uiViewIndex];
         if (atlasRect.HasNonZeroArea())
         {
           ezVec2 scale = ezVec2(atlasRect.width * fAtlasInvWidth, atlasRect.height * fAtlasInvHeight);
@@ -1071,11 +953,20 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (cvar_RenderingShadowsShowPoolStats)
+  if (cvar_RenderingShadowsShowAtlasTexture)
   {
-    const float fUtil = (float)uiUsedAtlasSize / uiTotalAtlasSize;
+    ezDebugRendererContext debugContext(ezWorld::GetWorld(0));
+    float viewWidth = 1920;
+    float viewHeight = 1080;
 
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "0ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0f * fUtil, 2)), ezMath::Lerp(ezColor::LimeGreen, ezColor::Red, fUtil));
+    if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView))
+    {
+      debugContext = ezDebugRendererContext(pView->GetHandle());
+      viewWidth = pView->GetViewport().width;
+      viewHeight = pView->GetViewport().height;
+    }
+
+    s_pData->m_TextureAtlas.DebugDraw(debugContext, viewWidth, viewHeight);
   }
 #endif
 
@@ -1088,7 +979,7 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
     return;
 
-  if (s_pData->m_hShadowAtlasTexture.IsInvalidated() || s_pData->m_hShadowDataBuffer.IsInvalidated())
+  if (s_pData->m_TextureAtlas.IsInitialized() == false || s_pData->m_hShadowDataBuffer.IsInvalidated())
     return;
 
   if (cvar_RenderingShadowsAtlasSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMinShadowMapSize.HasDelayedSyncValueChanged() || cvar_RenderingShadowsMaxShadowMapSize.HasDelayedSyncValueChanged() || s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter())
@@ -1098,25 +989,29 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Shadow Atlas");
-
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(s_pData->m_hShadowAtlasTexture));
-  renderingSetup.SetClearDepth();
-
-  pCommandEncoder->BeginRendering(renderingSetup);
-
-  ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
-  auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
-  if (!packedShadowData.IsEmpty())
+  auto rtv = pDevice->GetDefaultRenderTargetView(s_pData->m_TextureAtlas.GetTexture());
+  if (rtv.IsInvalidated() == false)
   {
-    EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
+    ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Shadow Atlas");
 
-    pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
+    ezGALRenderingSetup renderingSetup;
+    renderingSetup.SetDepthStencilTarget(rtv);
+    renderingSetup.SetClearDepth();
+
+    pCommandEncoder->BeginRendering(renderingSetup);
+
+    ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+    auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
+    if (!packedShadowData.IsEmpty())
+    {
+      EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
+
+      pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
+    }
+
+    pCommandEncoder->EndRendering();
+    pDevice->EndCommands(pCommandEncoder);
   }
-
-  pCommandEncoder->EndRendering();
-  pDevice->EndCommands(pCommandEncoder);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);

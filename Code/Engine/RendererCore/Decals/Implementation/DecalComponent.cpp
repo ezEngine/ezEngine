@@ -11,20 +11,11 @@
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
+#include <RendererCore/Decals/Implementation/DecalManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
-
-ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
-{
-}
-
-void ezDecalComponentManager::Initialize()
-{
-  m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
-}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -198,7 +189,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   float fAspectRatio = 1.0f;
 
   {
-    auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+    auto hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
@@ -207,7 +198,8 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
-      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
+      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
     }
   }
 
@@ -396,7 +388,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
   const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
 
-  auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+  auto hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
   ezVec4 baseAtlasScaleOffset = ezVec4(0.5f);
   ezVec4 normalAtlasScaleOffset = ezVec4(0.5f);
   ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
@@ -429,7 +421,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
       ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
 
-      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
+      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
     }
   }
 

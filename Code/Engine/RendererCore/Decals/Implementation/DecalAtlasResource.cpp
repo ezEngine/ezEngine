@@ -65,11 +65,6 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 {
 }
 
-ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
-{
-  return ezResourceManager::LoadResource<ezDecalAtlasResource>("{ ProjectDecalAtlas }");
-}
-
 ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

@@ -26,9 +26,9 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT1(invSqrAttRadius);
 
   UINT1(spotOrFillParams); // spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
-  UINT1(projectorAtlasOffset); // xy as 16 bit floats
-  UINT1(projectorAtlasScale); // xy as 16 bit floats
   FLOAT1(specularMultiplier);
+  UINT1(cookieParams0); // x: cookie index, y: cookie right dir z as 16 bit float
+  UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
@@ -120,6 +120,18 @@ struct EZ_SHADER_STRUCT ezPerDecalData
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else // C++
   static_assert(sizeof(ezPerDecalData) == 96);
+#endif
+
+struct ezPerDecalAtlasData
+{
+  UINT1(scale);
+  UINT1(offset);
+};
+
+#if EZ_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<ezPerDecalAtlasData> perDecalAtlasDataBuffer;
+#else // C++
+  static_assert(sizeof(ezPerDecalAtlasData) == 8);
 #endif
 
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)

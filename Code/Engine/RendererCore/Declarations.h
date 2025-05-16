@@ -19,6 +19,7 @@ using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPe
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
 using ezDecalAtlasResourceHandle = ezTypedResourceHandle<class ezDecalAtlasResource>;
+using ezDecalId = ezGenericId<16, 8>;
 
 struct EZ_RENDERERCORE_DLL ezPermutationVar
 {

@@ -19,8 +19,7 @@
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
-
+struct ezGlobalConstants;
 struct ezRenderWorldRenderEvent;
 
 //////////////////////////////////////////////////////////////////////////
@@ -201,6 +200,7 @@ public:
 
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
+  void SetGlobalAndWorldTimeConstants(ezTime worldTime);
 
   /// \brief Sets the texture filter mode that is used by default for texture resources.
   ///

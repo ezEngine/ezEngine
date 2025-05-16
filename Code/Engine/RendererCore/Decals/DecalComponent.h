@@ -11,17 +11,7 @@ struct ezMsgComponentInternalTrigger;
 struct ezMsgOnlyApplyToObject;
 struct ezMsgSetColor;
 
-class EZ_RENDERERCORE_DLL ezDecalComponentManager final : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
-{
-public:
-  ezDecalComponentManager(ezWorld* pWorld);
-
-  virtual void Initialize() override;
-
-private:
-  friend class ezDecalComponent;
-  ezDecalAtlasResourceHandle m_hDecalAtlas;
-};
+using ezDecalComponentManager = ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 {

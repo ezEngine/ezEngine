@@ -1,0 +1,38 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[MATERIALPARAMETER]
+
+Texture2D BaseTexture;
+
+[RENDERSTATE]
+
+#include <Shaders/Decals/DecalState.h>
+
+[VERTEXSHADER]
+
+#include <Shaders/Decals/DecalVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Decals/DecalPixelShader.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float3 GetBaseColor()
+{
+  return BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
+}
+
+float GetOpacity()
+{
+  return BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
+}

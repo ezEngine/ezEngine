@@ -14,6 +14,8 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Resources/BufferPool.h>
+#include <RendererFoundation/Resources/ResourceView.h>
+#include <RendererFoundation/Shader/Types.h>
 
 ezCVarFloat cvar_DebugTextScale("Debug.TextScale", 1.0f, ezCVarFlags::Save, "Global scale for debug text");
 
@@ -1647,7 +1649,11 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
   {
     for (auto itTex = pData->m_texTriangle3DVertices.GetIterator(); itTex.IsValid(); ++itTex)
     {
-      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
+      auto hTextureView = itTex.Key();
+      const auto format = pDevice->GetResourceView(hTextureView)->GetResource()->GetDescription().m_Format;
+      const bool bMonochrome = ezGALResourceFormat::GetChannelCount(format) == 1;
+
+      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", hTextureView);
 
       const auto& verts = itTex.Value();
 
@@ -1657,6 +1663,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
         CreateVertexBuffer(BufferType::TexTriangles3D, sizeof(TexVertex));
 
         renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MONOCHROME", bMonochrome ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
         renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
 
         const TexVertex* pTriangleData = verts.GetData();
@@ -1899,34 +1906,6 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
-  // 2D Lines
-  {
-    ezUInt32 uiNumLineVertices = pData->m_line2DVertices.GetCount();
-    if (uiNumLineVertices != 0)
-    {
-      CreateVertexBuffer(BufferType::Lines2D, sizeof(Vertex));
-
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-
-      const Vertex* pLineData = pData->m_line2DVertices.GetData();
-      while (uiNumLineVertices > 0)
-      {
-        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Lines2D].GetNewBuffer();
-        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
-        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
-        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-
-        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
-
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-
-        uiNumLineVertices -= uiNumLineVerticesInBatch;
-        pLineData += LINE_VERTICES_PER_BATCH;
-      }
-    }
-  }
-
   // 2D Rectangles
   {
     ezUInt32 uiNum2DVertices = pData->m_triangle2DVertices.GetCount();
@@ -1959,7 +1938,11 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
   {
     for (auto itTex = pData->m_texTriangle2DVertices.GetIterator(); itTex.IsValid(); ++itTex)
     {
-      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
+      auto hTextureView = itTex.Key();
+      const auto format = pDevice->GetResourceView(hTextureView)->GetResource()->GetDescription().m_Format;
+      const bool bMonochrome = ezGALResourceFormat::GetChannelCount(format) == 1;
+
+      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", hTextureView);
 
       const auto& verts = itTex.Value();
 
@@ -1969,6 +1952,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
         CreateVertexBuffer(BufferType::TexTriangles2D, sizeof(TexVertex));
 
         renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MONOCHROME", bMonochrome ? ezTempHashedString("TRUE") : ezTempHashedString("FALSE"));
         renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
 
         const TexVertex* pTriangleData = verts.GetData();
@@ -1986,6 +1970,34 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
           uiNum2DVertices -= uiNum2DVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
         }
+      }
+    }
+  }
+
+  // 2D Lines
+  {
+    ezUInt32 uiNumLineVertices = pData->m_line2DVertices.GetCount();
+    if (uiNumLineVertices != 0)
+    {
+      CreateVertexBuffer(BufferType::Lines2D, sizeof(Vertex));
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+
+      const Vertex* pLineData = pData->m_line2DVertices.GetData();
+      while (uiNumLineVertices > 0)
+      {
+        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Lines2D].GetNewBuffer();
+        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
+        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
+        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+        renderViewContext.m_pRenderContext->BindMeshBuffer(hBuffer, ezGALBufferHandle(), &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+        uiNumLineVertices -= uiNumLineVerticesInBatch;
+        pLineData += LINE_VERTICES_PER_BATCH;
       }
     }
   }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererCore/Lights/LightComponent.h>
-#include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 using ezSpotLightComponentManager = ezComponentManager<class ezSpotLightComponent, ezBlockStorageType::Compact>;
@@ -15,7 +14,7 @@ public:
   float m_fRange;
   ezAngle m_InnerSpotAngle;
   ezAngle m_OuterSpotAngle;
-  // ezTexture2DResourceHandle m_hProjectedTexture;
+  ezDecalId m_CookieId;
 };
 
 /// \brief Adds a spotlight to the scene, optionally casting shadows.
@@ -61,14 +60,14 @@ public:
   ezAngle GetInnerSpotAngle() const;         // [ property ]
 
   /// \brief Sets the outer angle of the spotlight's cone. The light will fade out between the inner and outer angle.
-  void SetOuterSpotAngle(ezAngle spotAngle); // [ property ]
-  ezAngle GetOuterSpotAngle() const;         // [ property ]
+  void SetOuterSpotAngle(ezAngle spotAngle);                               // [ property ]
+  ezAngle GetOuterSpotAngle() const;                                       // [ property ]
 
-  // void SetProjectedTextureFile(const char* szFile); // [ property ]
-  // const char* GetProjectedTextureFile() const;      // [ property ]
+  void SetCookie(const ezTexture2DResourceHandle& hCookie);                // [ property ]
+  const ezTexture2DResourceHandle& GetCookie() const { return m_hCookie; } // [ property ]
 
-  // void SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture);
-  // const ezTexture2DResourceHandle& GetProjectedTexture() const;
+  // adds SetCookieFile() and GetCookieFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Cookie, m_hCookie, SetCookie);
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -81,7 +80,7 @@ protected:
   ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
   ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
 
-  // ezTexture2DResourceHandle m_hProjectedTexture;
+  ezTexture2DResourceHandle m_hCookie;
 };
 
 /// \brief A special visualizer attribute for spot lights

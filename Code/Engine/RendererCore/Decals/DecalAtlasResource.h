@@ -24,9 +24,6 @@ class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
 public:
   ezDecalAtlasResource();
 
-  /// \brief Returns the one global decal atlas resource
-  static ezDecalAtlasResourceHandle GetDecalAtlasResource();
-
   const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }
   const ezTexture2DResourceHandle& GetORMTexture() const { return m_hORM; }

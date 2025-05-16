@@ -17,6 +17,7 @@ SamplerComparisonState ShadowSampler;
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
 Texture2D DecalAtlasORMTexture;
+Texture2D DecalRuntimeAtlasTexture;
 SamplerState DecalAtlasSampler;
 
 TextureCubeArray ReflectionSpecularTexture;
@@ -310,6 +311,31 @@ float CalculateShadowTerm(float3 worldPosition, float3 vertexNormal, float3 ligh
   return 1.0f;
 }
 
+float3 SampleLightCookie(ezPerLightData lightData, float3 worldPosition)
+{
+  uint cookieParams0 = lightData.cookieParams0;
+  uint cookieParams1 = lightData.cookieParams1;
+
+  ezPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[cookieParams0 & 0x7FFF];
+  if (atlasData.scale != 0)
+  {
+    float3 forwardDir = -GetLightDirection(lightData);
+    float3 rightDir = float3(RG16FToFloat2(cookieParams1), f16tof32(cookieParams0 >> 16));
+    float3 upDir = cross(rightDir, forwardDir);
+
+    // Transform to cookie space
+    float3 localPos = worldPosition - lightData.position;
+    localPos = float3(dot(localPos, rightDir), dot(localPos, upDir), dot(localPos, forwardDir));
+    localPos.xy /= localPos.z;
+
+    float2 uv = localPos.xy * RG16FToFloat2(atlasData.scale) + RG16FToFloat2(atlasData.offset);
+
+    return DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, uv, 0).rgb;
+  }
+
+  return 1;
+}
+
 // Frostbite course notes
 float computeDistanceBaseRoughness(float distIntersectionToShadedPoint, float distIntersectionToProbeCenter, float linearRoughness)
 {
@@ -575,6 +601,11 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
         attenuation *= lightData.intensity;
         float3 lightColor = GetLightColor(lightData);
+
+        if (lightData.cookieParams0 != 0)
+        {
+          lightColor *= SampleLightCookie(lightData, matData.worldPosition);
+        }
 
         // debug cascade or point face selection
 #if 0

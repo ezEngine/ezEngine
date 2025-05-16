@@ -127,6 +127,9 @@ public:
   /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
   ValueType& GetValueUnchecked(const IndexType index);
 
+  /// \brief Returns the id of the entry at the given index. Does bounds checks in debug builds but does not check for stale access.
+  IdType GetIdUnchecked(const IndexType index) const;
+
   /// \brief Returns if the table contains an entry corresponding to the given id.
   bool Contains(const IdType id) const; // [tested]
 

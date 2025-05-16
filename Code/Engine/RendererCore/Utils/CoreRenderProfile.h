@@ -15,8 +15,6 @@ public:
   ezUInt32 m_uiShadowAtlasTextureSize = 4096;
   ezUInt32 m_uiMaxShadowMapSize = 1024;
   ezUInt32 m_uiMinShadowMapSize = 64;
-};
 
-EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsAtlasSize;
-EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsMaxShadowMapSize;
-EZ_RENDERERCORE_DLL extern ezCVarInt cvar_RenderingShadowsMinShadowMapSize;
+  ezUInt32 m_uiRuntimeDecalAtlasTextureSize = 3072;
+};

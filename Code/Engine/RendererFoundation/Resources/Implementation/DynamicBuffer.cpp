@@ -79,7 +79,7 @@ void ezGALDynamicBuffer::Clear()
   m_DirtyRange.Reset();
 }
 
-ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
+ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags)
 {
   EZ_LOCK(m_Mutex);
 
@@ -120,6 +120,14 @@ ezUInt32 ezGALDynamicBuffer::Allocate(ezUInt64 uiUserData, ezUInt32 uiCount)
   }
 
   m_Allocations.Insert(uiOffset, Allocation{uiUserData, uiCount});
+
+  if (allocateFlags.IsSet(AllocateFlags::ZeroFill))
+  {
+    ezUInt32 uiDummyCount = 0;
+    auto data = MapForWriting(uiOffset, uiDummyCount);
+    ezMemoryUtils::ZeroFill(data.GetPtr(), data.GetCount());
+  }
+
   return uiOffset;
 }
 

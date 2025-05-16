@@ -192,6 +192,17 @@ namespace
     const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
     const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
     out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
+
+    if (!pSpotLightRenderData->m_CookieId.IsInvalidated())
+    {
+      const float fScale = 1.0f / ezMath::Max(0.001f, ezMath::Tan(pSpotLightRenderData->m_OuterSpotAngle * 0.5f));
+      const ezVec3 cookieRightDir = pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(0, fScale, 0);
+
+      // Set bit 15 as marker bit to indicate that we have a cookie.
+      // The shader checks for cookieParams0 != 0 which would not work in case the cookie id is 0 and rightDir.z is 0 as well.
+      out_perLightData.cookieParams0 = (pSpotLightRenderData->m_CookieId.m_InstanceIndex & 0x7FFF) | (1 << 15) | (ezFloat16(cookieRightDir.z).GetRawData() << 16);
+      out_perLightData.cookieParams1 = ezShaderUtils::Float2ToRG16F(cookieRightDir.GetAsVec2());
+    }
   }
 
   void FillDirLightData(ezPerLightData& out_perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)

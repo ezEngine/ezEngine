@@ -331,6 +331,13 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(c
 }
 
 template <typename IdType, typename ValueType>
+EZ_FORCE_INLINE IdType ezIdTableBase<IdType, ValueType>::GetIdUnchecked(const IndexType index) const
+{
+  EZ_ASSERT_DEBUG(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
+  return m_pEntries[index].id;
+}
+
+template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::Contains(const IdType id) const
 {
   const IndexType index = id.m_InstanceIndex;
