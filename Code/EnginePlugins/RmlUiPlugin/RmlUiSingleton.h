@@ -36,10 +36,10 @@ public:
 
   bool AnyContextWantsInput();
 
-  ezResult LoadDocumentFromResource(ezRmlUiContext& context, const ezRmlUiResourceHandle& hResource);
-  ezResult LoadDocumentFromString(ezRmlUiContext& context, const ezStringView& sContent);
+  ezResult LoadDocumentFromResource(ezRmlUiContext& ref_context, const ezRmlUiResourceHandle& hResource);
+  ezResult LoadDocumentFromString(ezRmlUiContext& ref_context, const ezStringView& sContent);
 
-  void UnloadDocument(ezRmlUiContext& context);
+  void UnloadDocument(ezRmlUiContext& ref_context);
 
   void ClearCaches();
 

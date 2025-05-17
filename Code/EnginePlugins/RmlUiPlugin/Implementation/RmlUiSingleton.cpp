@@ -166,9 +166,9 @@ bool ezRmlUi::AnyContextWantsInput()
   return false;
 }
 
-ezResult ezRmlUi::LoadDocumentFromResource(ezRmlUiContext& context, const ezRmlUiResourceHandle& hResource)
+ezResult ezRmlUi::LoadDocumentFromResource(ezRmlUiContext& ref_context, const ezRmlUiResourceHandle& hResource)
 {
-  UnloadDocument(context);
+  UnloadDocument(ref_context);
 
   if (hResource.IsValid())
   {
@@ -178,16 +178,16 @@ ezResult ezRmlUi::LoadDocumentFromResource(ezRmlUiContext& context, const ezRmlU
       // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
       EZ_LOCK(m_pData->m_ContextsMutex);
 
-      context.LoadDocument(pResource->GetRmlFile().GetData());
+      ref_context.LoadDocument(pResource->GetRmlFile().GetData());
     }
   }
 
-  return context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& context, const ezStringView& sContent)
+ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& ref_context, const ezStringView& sContent)
 {
-  UnloadDocument(context);
+  UnloadDocument(ref_context);
 
   if (!sContent.IsEmpty())
   {
@@ -196,20 +196,20 @@ ezResult ezRmlUi::LoadDocumentFromString(ezRmlUiContext& context, const ezString
     // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
     EZ_LOCK(m_pData->m_ContextsMutex);
 
-    context.LoadDocumentFromMemory(sRmlContent);
+    ref_context.LoadDocumentFromMemory(sRmlContent);
   }
 
-  return context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ref_context.HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-void ezRmlUi::UnloadDocument(ezRmlUiContext& context)
+void ezRmlUi::UnloadDocument(ezRmlUiContext& ref_context)
 {
-  if (context.HasDocument())
+  if (ref_context.HasDocument())
   {
     // RmlUi is not thread safe, so we need to make that we only load/unload one document at a time.
     EZ_LOCK(m_pData->m_ContextsMutex);
 
-    static_cast<Rml::Context&>(context).UnloadDocument(context.GetDocument(0));
+    static_cast<Rml::Context&>(ref_context).UnloadDocument(ref_context.GetDocument(0));
   }
 }
 
