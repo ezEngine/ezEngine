@@ -29,6 +29,8 @@ public:
   void UnloadDocument();
   ezResult ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
 
+  bool HasDocument() { return GetNumDocuments() > 0; }
+
   void ShowDocument();
   void HideDocument();
 
@@ -47,8 +49,6 @@ public:
   void Update();
 
 private:
-  bool HasDocument() { return GetNumDocuments() > 0; }
-
   friend class ezRmlUi;
   void ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture);
 

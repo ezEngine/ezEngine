@@ -5,6 +5,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Implementation/RenderInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 
 namespace
 {
@@ -29,46 +30,22 @@ ezRmlUiContext::~ezRmlUiContext() = default;
 
 ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  UnloadDocument();
-
-  if (hResource.IsValid())
-  {
-    ezResourceLock<ezRmlUiResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
-    if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
-    {
-      LoadDocument(pResource->GetRmlFile().GetData());
-    }
-  }
-
-  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ezRmlUi::GetSingleton()->LoadDocumentFromResource(*this, hResource);
 }
 
 ezResult ezRmlUiContext::LoadDocumentFromString(const ezStringView& sContent)
 {
-  UnloadDocument();
-
-  if (!sContent.IsEmpty())
-  {
-    Rml::String sRmlContent = Rml::String(sContent.GetStartPointer(), sContent.GetElementCount());
-
-    LoadDocumentFromMemory(sRmlContent);
-  }
-
-  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ezRmlUi::GetSingleton()->LoadDocumentFromString(*this, sContent);
 }
 
 void ezRmlUiContext::UnloadDocument()
 {
-  if (HasDocument())
-  {
-    Rml::Context::UnloadDocument(GetDocument(0));
-  }
+  ezRmlUi::GetSingleton()->UnloadDocument(*this);
 }
 
 ezResult ezRmlUiContext::ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  Rml::Factory::ClearStyleSheetCache();
-  Rml::Factory::ClearTemplateCache();
+  ezRmlUi::GetSingleton()->ClearCaches();
 
   EZ_SUCCEED_OR_RETURN(LoadDocumentFromResource(hResource));
 
