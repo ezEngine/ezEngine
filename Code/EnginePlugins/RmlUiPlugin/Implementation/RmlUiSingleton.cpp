@@ -5,6 +5,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Implementation/EventListener.h>
 #include <RmlUiPlugin/Implementation/FileInterface.h>
 #include <RmlUiPlugin/Implementation/RenderInterface.h>
