@@ -398,7 +398,7 @@ ezTestAppRun ezEditorTestMisc::AssetBrowerModelTest()
     QModelIndex index = pModel->index(0, 0);
     state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
     if (state == ezAssetInfo::TransformState::MissingTransformDependency)
-        break;
+      break;
 
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }

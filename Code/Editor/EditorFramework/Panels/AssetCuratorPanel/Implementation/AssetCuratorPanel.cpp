@@ -82,7 +82,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
-  m_pFilter =  new ezQtAssetCuratorFilter(this);
+  m_pFilter = new ezQtAssetCuratorFilter(this);
   m_pModel = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
   m_pModel->Initialize();
   m_pModel->SetIconMode(false);

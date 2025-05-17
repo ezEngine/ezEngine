@@ -139,15 +139,13 @@ void ezQtAssetBrowserModel::Initialize()
       if (QSharedPointer<ezQtAssetBrowserModel> strong = pWeak.toStrongRef())
       {
         strong->FileSystemFileEventHandler(e);
-      }
-    });
+      } });
   m_FolderChangedSubscription = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler([pWeak](const ezFolderChangedEvent& e)
     {
       if (QSharedPointer<ezQtAssetBrowserModel> strong = pWeak.toStrongRef())
       {
         strong->FileSystemFolderEventHandler(e);
-      }
-    });
+      } });
   ezAssetDocumentGenerator::GetSupportsFileTypes(m_ImportExtensions);
 }
 
@@ -799,8 +797,8 @@ void ezQtAssetBrowserModel::FileSystemFileEventHandler(const ezFileChangedEvent&
 
   if (bFire)
   {
-    //QTimer::singleShot(500, [this]()
-    //  { QMetaObject::invokeMethod(this, "OnFileSystemUpdate", //Qt::ConnectionType::QueuedConnection); });
+    // QTimer::singleShot(500, [this]()
+    //   { QMetaObject::invokeMethod(this, "OnFileSystemUpdate", //Qt::ConnectionType::QueuedConnection); });
     QMetaObject::invokeMethod(this, "OnFileSystemUpdate", Qt::ConnectionType::QueuedConnection);
   }
 }
