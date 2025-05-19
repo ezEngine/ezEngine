@@ -174,7 +174,7 @@ private:
 
   void ApplyImpulses();
   void UpdateForces();
-  
+
   void UpdateConstraints();
 
   ezTime CalculateUpdateSteps();
@@ -262,7 +262,7 @@ private:
 
   ezMutex m_ImpulsesMutex;
   ezDeque<ezJoltImpulse> m_Impulses;
-  
+
   ezMutex m_ForcesMutex;
   ezIdTable<ezJoltForceId, ezJoltForce> m_Forces;
 };
