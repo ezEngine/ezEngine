@@ -921,12 +921,12 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
   if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
 
-  JPH::BodyID bodyId;
+  ezUInt32 uiBodyID = ezInvalidIndex;
 
   if (ref_msg.m_pInternalPhysicsActor != nullptr)
-    bodyId = JPH::BodyID(reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
+    uiBodyID = (ezUInt32) reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
   else
-    bodyId = m_pRagdoll->GetBodyID(0);
+    uiBodyID = m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber();
 
   ezVec3 vImp = ref_msg.m_vImpulse;
   const float fOrgImp = vImp.GetLength();
@@ -943,10 +943,7 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
 
-  if (pModule->GetJoltSystem()->GetBodyInterface().IsAdded(bodyId))
-  {
-    pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
-  }
+  pModule->AddImpulse(uiBodyID, vImp, ref_msg.m_vGlobalPosition);
 }
 
 void ezJoltRopeComponent::SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode)

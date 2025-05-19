@@ -618,6 +618,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     pTriggerManager->UpdateMovingTriggers();
   }
 
+  ApplyImpulses();
   UpdateConstraints();
 
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
@@ -1089,6 +1090,15 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
     pMesh->SetMaterialFile(vis.m_szMaterial);
     pMesh->SetColor(vis.m_Color);
   }
+}
+
+void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_vGlobalPosition = vGlobalPosition;
 }
 
 //////////////////////////////////////////////////////////////////

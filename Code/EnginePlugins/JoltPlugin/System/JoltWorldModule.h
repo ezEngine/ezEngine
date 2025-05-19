@@ -25,6 +25,14 @@ namespace JPH
   class GroupFilter;
 } // namespace JPH
 
+
+struct ezJoltImpulse
+{
+  ezUInt32 m_uiBodyID;
+  ezVec3 m_vImpulse;
+  ezVec3 m_vGlobalPosition;
+};
+
 class EZ_JOLTPLUGIN_DLL ezJoltWorldModule : public ezPhysicsWorldModuleInterface
 {
   EZ_DECLARE_WORLD_MODULE();
@@ -51,6 +59,10 @@ public:
   void SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity);
   virtual ezVec3 GetGravity() const override { return ezVec3(0, 0, -10); }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
+
+
+  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
 
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
@@ -140,6 +152,8 @@ private:
   void UpdateSettingsCfg();
   void ApplySettingsCfg();
 
+  void ApplyImpulses();
+
   void UpdateConstraints();
 
   ezTime CalculateUpdateSteps();
@@ -224,6 +238,9 @@ private:
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+
+  ezMutex m_ImpulsesMutex;
+  ezDeque<ezJoltImpulse> m_Impulses;
 };
 
 /// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry

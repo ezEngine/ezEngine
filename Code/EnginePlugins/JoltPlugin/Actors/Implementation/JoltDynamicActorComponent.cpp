@@ -491,13 +491,7 @@ void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_ms
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
-  auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  const JPH::BodyID bodyId(m_uiJoltBodyID);
-
-  if (pBodies->IsAdded(bodyId))
-  {
-    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vImpulse), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
-  }
+  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(m_uiJoltBodyID, ref_msg.m_vImpulse, ref_msg.m_vGlobalPosition);
 }
 
 float ezJoltDynamicActorComponent::GetMass() const
