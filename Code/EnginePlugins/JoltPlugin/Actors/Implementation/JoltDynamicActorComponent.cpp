@@ -92,7 +92,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 6, ezComponentMode::Dynamic
       EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
       EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
       EZ_MEMBER_PROPERTY("AllowSleeping", m_bAllowSleeping)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory"), new ezDefaultValueAttribute(250)),
+      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
       EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
       EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_ACCESSOR_PROPERTY("Density", GetWeightValue, SetWeightValue_Density)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),

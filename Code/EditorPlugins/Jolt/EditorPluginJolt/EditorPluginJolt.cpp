@@ -102,8 +102,13 @@ void UpdateCollisionLayerDynamicEnumValues()
 void UpdateWeightCategoryDynamicEnumValues()
 {
   auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategory");
+  auto& cfeNC = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategoryNoCustom");
+
   cfe.Clear();
   cfe.SetEditCommand("Jolt.Settings.Project", "WeightCategories");
+
+  cfeNC.Clear();
+  cfeNC.SetEditCommand("Jolt.Settings.Project", "WeightCategories");
 
   ezWeightCategoryConfig cfg;
   if (cfg.Load().Succeeded())
@@ -111,8 +116,11 @@ void UpdateWeightCategoryDynamicEnumValues()
     for (const auto it : cfg.m_Categories)
     {
       cfe.SetValueAndName(it.key, it.value.m_sName.GetView());
+      cfeNC.SetValueAndName(it.key, it.value.m_sName.GetView());
     }
   }
+
+  cfeNC.SetValueAndName(0, "<Default>");
 
   cfe.SetValueAndName(0, "<Default>");
   cfe.SetValueAndName(1, "<Custom Mass>");

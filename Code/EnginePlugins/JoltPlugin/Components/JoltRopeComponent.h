@@ -153,7 +153,9 @@ private:
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
 
-  float m_fTotalMass = 1.0f;
+  ezUInt8 m_uiWeightCategory = 0;                                 // [ property ]
+  float m_fWeightScale = 1.0f;                                    // [ property ]
+
   float m_fMaxForcePerFrame = 0.0f;
   float m_fBendStiffness = 0.0f;
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
@@ -167,7 +169,6 @@ private:
   JPH::Constraint* m_pConstraintAnchor2 = nullptr;
   ezUInt32 m_uiAnchor1BodyID = ezInvalidIndex;
   ezUInt32 m_uiAnchor2BodyID = ezInvalidIndex;
-
 
 private:
   const char* DummyGetter() const { return nullptr; }

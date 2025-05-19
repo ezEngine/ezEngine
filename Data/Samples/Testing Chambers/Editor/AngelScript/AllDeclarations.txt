@@ -1989,9 +1989,9 @@ float ezJoltRagdollComponent::get_OwnerVelocityScale() const
 float ezJoltRagdollComponent::get_StiffnessFactor() const
 float ezJoltRopeComponent::get_BendStiffness() const
 float ezJoltRopeComponent::get_GravityFactor() const
-float ezJoltRopeComponent::get_Mass() const
 float ezJoltRopeComponent::get_Slack() const
 float ezJoltRopeComponent::get_Thickness() const
+float ezJoltRopeComponent::get_WeightScale() const
 float ezJoltSettingsComponent::get_FixedFrameRate() const
 float ezJoltSettingsComponent::get_SleepVelocityThreshold() const
 float ezJoltShapeCapsuleComponent::get_Height() const
@@ -2231,6 +2231,7 @@ uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
+uint8 ezJoltRopeComponent::get_WeightCategory() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
 uint8 ezProjectileComponent::get_CollisionLayer() const
 uint8 ezRaycastComponent::get_CollisionLayerEndPoint() const
@@ -2653,7 +2654,6 @@ void ezJoltRopeComponent::set_BendStiffness(float)
 void ezJoltRopeComponent::set_CollisionLayer(uint8)
 void ezJoltRopeComponent::set_ContinuousCollisionDetection(bool)
 void ezJoltRopeComponent::set_GravityFactor(float)
-void ezJoltRopeComponent::set_Mass(float)
 void ezJoltRopeComponent::set_MaxBend(ezAngle)
 void ezJoltRopeComponent::set_MaxTwist(ezAngle)
 void ezJoltRopeComponent::set_Pieces(uint16)
@@ -2661,6 +2661,8 @@ void ezJoltRopeComponent::set_SelfCollision(bool)
 void ezJoltRopeComponent::set_Slack(float)
 void ezJoltRopeComponent::set_Surface(ezStringView)
 void ezJoltRopeComponent::set_Thickness(float)
+void ezJoltRopeComponent::set_WeightCategory(uint8)
+void ezJoltRopeComponent::set_WeightScale(float)
 void ezJoltSettingsComponent::set_CharacterGravity(ezVec3)
 void ezJoltSettingsComponent::set_FixedFrameRate(float)
 void ezJoltSettingsComponent::set_MaxBodies(uint)

@@ -81,8 +81,10 @@ public:
   ezAngle GetMaxClimbingSlope() const { return m_MaxClimbingSlope; } // [ property ]
 
   /// \brief The mass with which the character will push down on objects that it is standing on.
-  void SetMass(float fMass);                // [ property ]
   float GetMass() const { return m_fMass; } // [ property ]
+
+  ezUInt8 m_uiWeightCategory = 0;           // [ property ]
+  float m_fWeightScale = 1.0f;              // [ property ]
 
   /// \brief The strength with which the character will push against objects that it is running into.
   void SetStrength(float fStrength);                        // [ property ]

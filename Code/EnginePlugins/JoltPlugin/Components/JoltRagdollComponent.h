@@ -111,8 +111,8 @@ public:
   /// \brief How easily the joints move. Note that scaling the ragdoll up or down affects the forces and thus stiffness needs to be adjusted as well.
   float m_fStiffnessFactor = 1.0f; // [ property ]
 
-  /// \brief The total weight of the ragdoll. It is distributed across the individual shapes.
-  float m_fMass = 50.0f; // [ property ]
+  ezUInt8 m_uiWeightCategory = 0;  // [ property ]
+  float m_fWeightScale = 1.0f;     // [ property ]
 
   /// \brief Sets with which pose the ragdoll should start simulating.
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
@@ -207,7 +207,7 @@ protected:
   JPH::Shape* CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const ezSkeletonResourceGeometry& geo, const ezJoltMaterial* pJoltMaterial, const ezQuat& qBoneDirAdjustment, const ezTransform& skeletonRootTransform, ezTransform& out_shapeTransform, float fObjectScale);
   void CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezSkeletonJoint& thisLimbJoint, const ezSkeletonResource& skeletonResource, float fObjectScale);
   virtual void ApplyPartInitialVelocity();
-  void ApplyBodyMass();
+  void ApplyBodyMass(float fMass);
   void ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse);
 
   ezSkeletonResourceHandle m_hSkeleton;

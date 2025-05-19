@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14862950645315497606,4688600984674379026}}
-		u4 %Hash{48083237478279974}
+		u4 %Hash{6123322366027333832}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -101,11 +101,12 @@ o
 {
 	Uuid %id{u4{5987304748951372635,1196326797012003276}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Chain without Gravity"}
 		f %Value0{0}
 		f %Value1{0}
@@ -233,6 +234,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -337,6 +339,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -545,6 +548,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -557,6 +561,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -835,7 +840,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -872,6 +876,7 @@ o
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -1028,7 +1033,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -1173,7 +1177,7 @@ o
 {
 	Uuid %id{u4{17191368741227304604,4617909606238972179}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1185,7 +1189,6 @@ o
 		u1 %CollisionLayer{0}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{32}
@@ -1193,13 +1196,15 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{3232928649039309719,4627206841638147266}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1211,7 +1216,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -1219,6 +1223,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1243,7 +1249,7 @@ o
 {
 	Uuid %id{u4{1763654990473469827,4630084223759154125}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1255,7 +1261,6 @@ o
 		u1 %CollisionLayer{0}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -1263,6 +1268,8 @@ o
 		f %Slack{0xCDCCCCBD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1363,7 +1370,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C03F}
@@ -1493,7 +1499,7 @@ o
 {
 	Uuid %id{u4{6907862970024890505,4706104695240143361}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1505,7 +1511,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{1}
 		f %GravityFactor{0xCDCCCC3D}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A863F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{24}
@@ -1513,6 +1518,8 @@ o
 		f %Slack{0x8FC2F5BD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3E}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1546,7 +1553,7 @@ o
 {
 	Uuid %id{u4{9415610651480209592,4748637258191700095}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -1564,17 +1571,20 @@ o
 		s %OnContact{"ezOnJoltContact::ImpactReactions|ezOnJoltContact::SlideReactions"}
 		b %StartAsleep{0}
 		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		u1 %WeightCategory{1}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{12574701405410362246,4749584369611660858}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Chained Rigid Bodies"}
 		f %Value0{0}
 		f %Value1{0}
@@ -1592,17 +1602,19 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
 {
 	Uuid %id{u4{15561668086667800984,4759543659055686395}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Free Rope"}
 		f %Value0{0}
 		f %Value1{0}
@@ -1641,7 +1653,7 @@ o
 {
 	Uuid %id{u4{10130500189473893274,4787204511351854228}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1653,7 +1665,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -1661,6 +1672,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1722,7 +1735,7 @@ o
 {
 	Uuid %id{u4{8489785163824854682,4794702376341614174}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -1740,17 +1753,20 @@ o
 		s %OnContact{"ezOnJoltContact::ImpactReactions|ezOnJoltContact::SlideReactions"}
 		b %StartAsleep{0}
 		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{3923441655507528868,4800108997545438041}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Rope with default settings"}
 		f %Value0{0}
 		f %Value1{0}
@@ -1762,7 +1778,7 @@ o
 {
 	Uuid %id{u4{9604635328921065887,4829712121501058821}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1774,7 +1790,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{8}
@@ -1782,6 +1797,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1803,7 +1820,7 @@ o
 {
 	Uuid %id{u4{8419773509413204638,4838814085902250164}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1815,7 +1832,6 @@ o
 		u1 %CollisionLayer{0}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0xC2B8323E}}
 		Angle %MaxTwist{f{0xC2B8B23D}}
 		u2 %Pieces{8}
@@ -1823,6 +1839,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -1921,7 +1939,7 @@ o
 {
 	Uuid %id{u4{674297047910187165,4861007435524026411}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1933,7 +1951,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -1941,13 +1958,15 @@ o
 		f %Slack{0xCDCC0CBF}
 		s %Surface{""}
 		f %Thickness{0xCDCCCC3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{11479793422840620472,4867931037732627530}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -1959,7 +1978,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -1967,6 +1985,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2106,7 +2126,7 @@ o
 {
 	Uuid %id{u4{10269711492906492342,4904972553865878163}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2118,7 +2138,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -2126,6 +2145,8 @@ o
 		f %Slack{0x9A99993E}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0xCDCCCC3D}
 	}
 }
 o
@@ -2208,7 +2229,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::RampPosX"}
 		f %SizeNegX{0x00000040}
@@ -2236,7 +2256,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C342}
@@ -2418,11 +2437,12 @@ o
 {
 	Uuid %id{u4{5841696702640483495,5002377230718074066}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Ropes affected by wind"}
 		f %Value0{0}
 		f %Value1{0}
@@ -2452,7 +2472,7 @@ o
 {
 	Uuid %id{u4{12926184881946760862,5025859474560722838}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2463,9 +2483,11 @@ o
 		ColorGamma %LightColor{u1{149,0,255,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00000040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -2484,11 +2506,12 @@ o
 {
 	Uuid %id{u4{14436298415261227918,5039981819643309784}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Grab Items with 'E'"}
 		f %Value0{0}
 		f %Value1{0}
@@ -2500,7 +2523,7 @@ o
 {
 	Uuid %id{u4{2598302417975506053,5045996026560235493}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2512,7 +2535,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x00002041}
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -2520,6 +2542,8 @@ o
 		f %Slack{0xAE47E1BF}
 		s %Surface{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 		f %Thickness{0x0000803E}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2554,7 +2578,7 @@ o
 {
 	Uuid %id{u4{3789868910864195472,5056940346402914973}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2566,7 +2590,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -2574,6 +2597,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2589,7 +2614,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C842}
@@ -2635,7 +2659,7 @@ o
 {
 	Uuid %id{u4{11110387720128311970,5086028552173161213}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2647,7 +2671,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -2655,13 +2678,15 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{3047231475353276808,5086351416527620627}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2673,7 +2698,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0xDB0FC93F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{32}
@@ -2681,6 +2705,8 @@ o
 		f %Slack{0x0AD7A33D}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2723,7 +2749,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{6}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::StairsPosX"}
 		f %SizeNegX{0x00000040}
@@ -2742,7 +2767,7 @@ o
 {
 	Uuid %id{u4{18069690609047258007,5095433047736164404}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2754,7 +2779,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -2762,13 +2786,15 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{10298720866984957614,5098289318383271045}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -2786,6 +2812,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2844,7 +2872,7 @@ o
 {
 	Uuid %id{u4{13922599536130006196,5135398386289590069}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -2862,6 +2890,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		u1 %WeightCategory{1}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -2980,7 +3010,7 @@ o
 {
 	Uuid %id{u4{15570232393420370607,5198591062891664563}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -2992,7 +3022,6 @@ o
 		u1 %CollisionLayer{0}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x00004842}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{12}
@@ -3000,6 +3029,8 @@ o
 		f %Slack{0x9A99993E}
 		s %Surface{""}
 		f %Thickness{0xCDCCCC3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x00002041}
 	}
 }
 o
@@ -3015,7 +3046,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x00004040}
@@ -3243,7 +3273,7 @@ o
 {
 	Uuid %id{u4{12156269486853664690,5285034696991568629}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -3261,6 +3291,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3394,11 +3426,12 @@ o
 {
 	Uuid %id{u4{4848657563431112893,5362814115751336495}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Non-Physical Ropes"}
 		f %Value0{0}
 		f %Value1{0}
@@ -3410,7 +3443,7 @@ o
 {
 	Uuid %id{u4{16314546698808546988,5365023824354663351}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3422,7 +3455,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -3430,6 +3462,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3456,7 +3490,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00001441}
@@ -3475,7 +3508,7 @@ o
 {
 	Uuid %id{u4{18044195777582061493,5396915646633366711}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3487,7 +3520,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -3495,6 +3527,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3545,7 +3579,7 @@ o
 {
 	Uuid %id{u4{5943817124829772446,5405057823500281635}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -3563,6 +3597,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3618,7 +3654,7 @@ o
 {
 	Uuid %id{u4{3264387284450233252,5411646305687376859}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3630,7 +3666,6 @@ o
 		u1 %CollisionLayer{0}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{6}
@@ -3638,6 +3673,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3739,7 +3776,7 @@ o
 {
 	Uuid %id{u4{8623935236909481098,5458648504614900452}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -3751,7 +3788,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{0}
 		f %GravityFactor{0x0000803F}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A063F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{16}
@@ -3759,6 +3795,8 @@ o
 		f %Slack{0}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3D}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -3774,7 +3812,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000E040}
@@ -3832,6 +3869,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -3847,7 +3885,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x0000803F}
@@ -3866,11 +3903,12 @@ o
 {
 	Uuid %id{u4{6686703591225657246,5508134440894674747}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Heavy Chain"}
 		f %Value0{0}
 		f %Value1{0}
@@ -3910,11 +3948,12 @@ o
 {
 	Uuid %id{u4{5014899831183125138,5534252706117483282}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"No Gravity"}
 		f %Value0{0}
 		f %Value1{0}
@@ -3991,7 +4030,7 @@ o
 {
 	Uuid %id{u4{5715107424367488669,5546485350460847077}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -4009,6 +4048,8 @@ o
 		s %OnContact{"ezOnJoltContact::ImpactReactions|ezOnJoltContact::SlideReactions"}
 		b %StartAsleep{0}
 		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -4125,11 +4166,12 @@ o
 {
 	Uuid %id{u4{10095033118829206702,5592390403053896749}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Hanging Rigid Body"}
 		f %Value0{0}
 		f %Value1{0}
@@ -4205,7 +4247,7 @@ o
 {
 	Uuid %id{u4{7654037049288522677,5626111171945071707}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -4223,6 +4265,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -4337,7 +4381,7 @@ o
 {
 	Uuid %id{u4{11985673679250219688,5668051017497868503}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -4355,6 +4399,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
+		u1 %WeightCategory{1}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -4372,7 +4418,7 @@ o
 {
 	Uuid %id{u4{931183747810746524,5672940026395823913}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -4390,6 +4436,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -4407,7 +4455,7 @@ o
 {
 	Uuid %id{u4{13101029946977709459,5682576643020986475}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -4425,6 +4473,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -4644,11 +4694,12 @@ o
 {
 	Uuid %id{u4{2656131569979381472,6715128871950359765}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Chain without Gravity"}
 		f %Value0{0}
 		f %Value1{0}
@@ -4928,6 +4979,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -4968,6 +5020,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5000,6 +5053,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5073,6 +5127,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5264,6 +5319,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5276,6 +5332,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5403,6 +5460,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5494,7 +5552,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -5582,11 +5639,12 @@ o
 {
 	Uuid %id{u4{1961775200355394107,9368910059549771195}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Chained Rigid Bodies"}
 		f %Value0{0}
 		f %Value1{0}
@@ -5626,7 +5684,7 @@ o
 {
 	Uuid %id{u4{10661842051010710804,9420844052561732786}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -5638,7 +5696,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{1}
 		f %GravityFactor{0xCDCCCC3D}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A863F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{24}
@@ -5646,6 +5703,8 @@ o
 		f %Slack{0x8FC2F5BD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3E}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -5658,6 +5717,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5708,6 +5768,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5791,6 +5852,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5803,6 +5865,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5920,6 +5983,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -5977,7 +6041,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000803F}
@@ -6090,6 +6153,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6118,6 +6182,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6223,7 +6288,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000E040}
@@ -6302,13 +6366,14 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
 {
 	Uuid %id{u4{9697796205815592745,10119797180821871060}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -6326,6 +6391,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -6554,6 +6621,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6569,7 +6637,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C342}
@@ -6624,7 +6691,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x00004040}
@@ -6649,6 +6715,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -6727,7 +6794,7 @@ o
 {
 	Uuid %id{u4{16855009027963529758,10397316000342575900}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -6745,6 +6812,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -6803,7 +6872,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000003F}
@@ -7045,7 +7113,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Column"}
 		f %SizeNegX{0x00004040}
@@ -7171,7 +7238,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000E040}
@@ -7622,6 +7688,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7634,6 +7701,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7731,6 +7799,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -7844,6 +7913,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8052,11 +8122,12 @@ o
 {
 	Uuid %id{u4{2233325667965552336,14928331513399965467}}
 	s %t{"ezDebugTextComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		ColorGamma %Color{u1{255,255,255,255}}
+		f %MaxDistance{0x00002041}
 		s %Text{"Chain without Gravity"}
 		f %Value0{0}
 		f %Value1{0}
@@ -8068,7 +8139,7 @@ o
 {
 	Uuid %id{u4{7330668872038719641,14939646127500089275}}
 	s %t{"ezJoltRopeComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -8080,7 +8151,6 @@ o
 		u1 %CollisionLayer{10}
 		b %ContinuousCollisionDetection{1}
 		f %GravityFactor{0xCDCCCC3D}
-		f %Mass{0x0000803F}
 		Angle %MaxBend{f{0x920A863F}}
 		Angle %MaxTwist{f{0x920A863E}}
 		u2 %Pieces{24}
@@ -8088,6 +8158,8 @@ o
 		f %Slack{0x8FC2F5BD}
 		s %Surface{""}
 		f %Thickness{0xCDCC4C3E}
+		u1 %WeightCategory{0}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -8176,6 +8248,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8357,6 +8430,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8615,6 +8689,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8638,6 +8713,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -8654,7 +8730,7 @@ o
 {
 	Uuid %id{u4{6366623026843601582,15638599255760227549}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -8672,6 +8748,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -8753,7 +8831,7 @@ o
 {
 	Uuid %id{u4{13523835848991538595,15916118075280932389}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -8771,6 +8849,8 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
+		u1 %WeightCategory{2}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -8835,7 +8915,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000003F}
@@ -9182,7 +9261,7 @@ o
 			Uuid{u4{3317155902268536827,7351146080094075981}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddAngularImpulse"}
+		s %Name{"ClearForce"}
 		Uuid %ReturnValue{u4{18148104322014540262,3265107824057576881}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -9216,8 +9295,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"LinearDamping"}
-		s %Type{"float"}
+		s %Name{"Surface"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -9229,7 +9308,7 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vForce"}
+			s{"vImpulse"}
 		}
 		VarArray %ArgTypes
 		{
@@ -9252,6 +9331,17 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezManipulatorAttribute"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14577501464617939479,663953549434933319}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000003F}
+		f %Min{0x0AD7233C}
 	}
 }
 o
@@ -9294,12 +9384,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{3160739349305478700,12083380575820389054}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ContinuousCollisionDetection"}
-		s %Type{"bool"}
+		s %Name{"LinearDamping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -9393,6 +9486,17 @@ o
 }
 o
 {
+	Uuid %id{u4{17973159294001926154,1700716095694786250}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezTime"}
+	}
+}
+o
+{
 	Uuid %id{u4{9931255121386353222,1735357391505972683}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -9457,6 +9561,16 @@ o
 }
 o
 {
+	Uuid %id{u4{8194247370423982146,2213079108385304325}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
+	}
+}
+o
+{
 	Uuid %id{u4{15501499876559131010,2215366623898344174}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -9506,8 +9620,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -9530,11 +9644,13 @@ o
 o
 {
 	Uuid %id{u4{8232490663378900183,2456372885331647684}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -9545,7 +9661,7 @@ o
 	p
 	{
 		Angle %Max{f{0xDB0FC93F}}
-		Angle %Min{f{0xD3023739}}
+		Angle %Min{f{0xC2B8B23D}}
 	}
 }
 o
@@ -9638,7 +9754,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -9745,19 +9861,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDebugTextComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
 	Uuid %id{u4{10410885489792813498,3493566296382582107}}
-	s %t{"ezAssetBrowserAttribute"}
+	s %t{"ezSuffixAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DependencyFlags{"ezDependencyFlags::Package"}
-		s %Filter{";CompatibleAsset_Surface;"}
-		s %RequiredTag{""}
+		s %Suffix{" kg"}
 	}
 }
 o
@@ -9807,12 +9921,22 @@ o
 }
 o
 {
-	Uuid %id{u4{9085939981889508946,4612025930380880638}}
+	Uuid %id{u4{12464945594110225707,4271584272217573724}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{9085939981889508946,4612025930380880638}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000C842}
 	}
 }
 o
@@ -9826,7 +9950,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CustomCenterOfMass"}
+		s %Name{"ContinuousCollisionDetection"}
 		s %Type{"bool"}
 	}
 }
@@ -9890,12 +10014,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{8194247370423982146,2213079108385304325}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
-		s %Name{"OnContact"}
-		s %Type{"ezOnJoltContact"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"AngularDamping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -9912,7 +10039,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"AngularDamping"}
+		s %Name{"GravityFactor"}
 		s %Type{"float"}
 	}
 }
@@ -9936,13 +10063,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{3240919835524322626,7037271324324607233}}
-			Uuid{u4{10776157438560845779,7399018349984319246}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Mass"}
-		s %Type{"float"}
+		s %Name{"WeightCategory"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -9952,7 +10078,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000C842}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -9985,6 +10111,21 @@ o
 }
 o
 {
+	Uuid %id{u4{14128538209533939269,5886534555741111701}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CustomCenterOfMass"}
+		s %Type{"bool"}
+	}
+}
+o
+{
 	Uuid %id{u4{18034554435641662065,5926314326618781946}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -10005,7 +10146,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3D}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -10034,10 +10175,14 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vForce"}
+			s{"forceID"}
+			s{"duration"}
+			s{"force"}
 		}
 		VarArray %ArgTypes
 		{
+			u1{0}
+			u1{0}
 			u1{0}
 		}
 	}
@@ -10075,20 +10220,20 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CollisionLayer"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
 {
-	Uuid %id{u4{12505397452943612473,6330002652460205516}}
-	s %t{"ezClampValueAttribute"}
+	Uuid %id{u4{8491298434312728184,6553663891802997140}}
+	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
 	p
 	{
-		Invalid %Max{}
-		f %Min{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -10170,13 +10315,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5696291075948113408,13866683565462195332}}
-			Uuid{u4{6423791324633952655,10691671962079739058}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"MaxBend"}
-		s %Type{"ezAngle"}
+		s %Name{"BendStiffness"}
+		s %Type{"float"}
 	}
 }
 o
@@ -10211,11 +10355,11 @@ o
 o
 {
 	Uuid %id{u4{3240919835524322626,7037271324324607233}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		s %DynamicEnum{"PhysicsWeightCategoryNoCustom"}
 	}
 }
 o
@@ -10295,7 +10439,7 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vImpulse"}
+			s{"forceID"}
 		}
 		VarArray %ArgTypes
 		{
@@ -10318,17 +10462,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{10776157438560845779,7399018349984319246}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Max{0x00007A44}
-		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -10367,9 +10500,11 @@ o
 			Uuid{u4{1584760291040431190,5108429992959750376}}
 			Uuid{u4{18115423731678040207,4639548822328574800}}
 			Uuid{u4{64892077413024703,9720385624882528333}}
+			Uuid{u4{14128538209533939269,5886534555741111701}}
+			Uuid{u4{3225422539751733703,15467635098152158757}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -10403,8 +10538,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -10422,7 +10557,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"MaxTwist"}
+		s %Name{"MaxBend"}
 		s %Type{"ezAngle"}
 	}
 }
@@ -10453,13 +10588,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5174688543944173796,11006358172461919564}}
-			Uuid{u4{12505397452943612473,6330002652460205516}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Mass"}
-		s %Type{"float"}
+		s %Name{"WeightCategory"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -10472,11 +10606,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{10809853399261641418,11069527722904038239}}
+			Uuid{u4{14577501464617939479,663953549434933319}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"BendStiffness"}
+		s %Name{"Thickness"}
 		s %Type{"float"}
 	}
 }
@@ -10588,7 +10723,7 @@ o
 			Uuid{u4{5683086205581634420,2448255893199881040}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddLinearImpulse"}
+		s %Name{"AddAngularImpulse"}
 		Uuid %ReturnValue{u4{12476024009156659430,18058972465083403801}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -10669,9 +10804,9 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterOfMass"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Name{"OnContact"}
+		s %Type{"ezOnJoltContact"}
 	}
 }
 o
@@ -10740,7 +10875,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Density"}
+		s %Name{"WeightScale"}
 		s %Type{"float"}
 	}
 }
@@ -10765,11 +10900,12 @@ o
 o
 {
 	Uuid %id{u4{2640979303495452127,10236220907327507948}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg/m^3"}
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -10782,12 +10918,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{1013055150721314076,11057269169383961059}}
+			Uuid{u4{15462143740018397156,10661531863886839798}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CollisionLayer"}
-		s %Type{"ezUInt8"}
+		s %Name{"MaxTwist"}
+		s %Type{"ezAngle"}
 	}
 }
 o
@@ -10827,13 +10964,13 @@ o
 }
 o
 {
-	Uuid %id{u4{6423791324633952655,10691671962079739058}}
+	Uuid %id{u4{15462143740018397156,10661531863886839798}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
 		Angle %Max{f{0xDB0FC93F}}
-		Angle %Min{f{0xC2B8B23D}}
+		Angle %Min{f{0xD3023739}}
 	}
 }
 o
@@ -10914,9 +11051,10 @@ o
 			Uuid{u4{13398468563298231829,15916118221755839123}}
 			Uuid{u4{11592133269813949299,13333689648928775541}}
 			Uuid{u4{17159689098669079995,12015238388123838369}}
+			Uuid{u4{2881795810666299980,18065001352305667847}}
 		}
 		s %TypeName{"ezJoltRopeComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -10950,11 +11088,11 @@ o
 o
 {
 	Uuid %id{u4{5174688543944173796,11006358172461919564}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg"}
+		s %DynamicEnum{"PhysicsWeightCategory"}
 	}
 }
 o
@@ -10970,22 +11108,21 @@ o
 o
 {
 	Uuid %id{u4{1013055150721314076,11057269169383961059}}
-	s %t{"ezDynamicEnumAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DynamicEnum{"PhysicsCollisionLayer"}
+		Angle %Value{f{0x920A063F}}
 	}
 }
 o
 {
 	Uuid %id{u4{10809853399261641418,11069527722904038239}}
-	s %t{"ezClampValueAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		Invalid %Max{}
-		f %Min{0}
+		f %Value{0xCDCC4C3D}
 	}
 }
 o
@@ -11052,13 +11189,11 @@ o
 o
 {
 	Uuid %id{u4{17948159011374355986,11382184313350616930}}
-	s %t{"ezAssetBrowserAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DependencyFlags{"ezDependencyFlags::Package"}
-		s %Filter{";CompatibleAsset_Surface;"}
-		s %RequiredTag{""}
+		s %DynamicEnum{"PhysicsCollisionLayer"}
 	}
 }
 o
@@ -11105,11 +11240,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{9085939981889508946,4612025930380880638}}
+			Uuid{u4{2320744731005053446,12779131164882326863}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GravityFactor"}
+		s %Name{"Density"}
 		s %Type{"float"}
 	}
 }
@@ -11164,7 +11300,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -11178,7 +11314,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ContinuousCollisionDetection"}
+		s %Name{"SelfCollision"}
 		s %Type{"bool"}
 	}
 }
@@ -11197,6 +11333,27 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSettingsComponent"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16126476217112687227,12082329460007564955}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Invalid %Max{}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3160739349305478700,12083380575820389054}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
 	}
 }
 o
@@ -11269,11 +11426,13 @@ o
 o
 {
 	Uuid %id{u4{13089390310185430570,12343839125406874403}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -11335,6 +11494,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezOnJoltContact::RollXReactions"}
 		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{2320744731005053446,12779131164882326863}}
+	s %t{"ezSuffixAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Suffix{" kg/m^3"}
 	}
 }
 o
@@ -11449,12 +11618,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{12464945594110225707,4271584272217573724}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"SelfCollision"}
-		s %Type{"bool"}
+		s %Name{"GravityFactor"}
+		s %Type{"float"}
 	}
 }
 o
@@ -11467,11 +11639,12 @@ o
 o
 {
 	Uuid %id{u4{5696291075948113408,13866683565462195332}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0x920A063F}}
+		Invalid %Max{}
+		f %Min{0}
 	}
 }
 o
@@ -11481,8 +11654,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{""}
-		s %Type{""}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -11533,7 +11706,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -11552,7 +11725,7 @@ o
 			Uuid{u4{8848366910655626142,348363795862216714}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddLinearForce"}
+		s %Name{"AddLinearImpulse"}
 		Uuid %ReturnValue{u4{10916935353549710630,2962763290225888874}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -11693,12 +11866,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{10410885489792813498,3493566296382582107}}
+			Uuid{u4{16126476217112687227,12082329460007564955}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
-		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Mass"}
+		s %Type{"float"}
 	}
 }
 o
@@ -11711,13 +11885,15 @@ o
 		VarArray %Arguments
 		{
 			Uuid{u4{878044963436546334,8122785390929912541}}
+			Uuid{u4{17973159294001926154,1700716095694786250}}
+			Uuid{u4{8491298434312728184,6553663891802997140}}
 		}
 		VarArray %Attributes
 		{
 			Uuid{u4{6818841624920768409,6243926554597233956}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddAngularForce"}
+		s %Name{"AddOrUpdateForce"}
 		Uuid %ReturnValue{u4{4903960154749262079,14218359138397949918}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -11730,6 +11906,21 @@ o
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{3225422539751733703,15467635098152158757}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CenterOfMass"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -11756,8 +11947,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GravityFactor"}
-		s %Type{"float"}
+		s %Name{"Surface"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -11792,8 +11983,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Max{0x0000003F}
-		f %Min{0x0AD7233C}
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -11809,9 +12000,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"CollisionMesh"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -12109,7 +12300,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Thickness"}
+		s %Name{"WeightScale"}
 		s %Type{"float"}
 	}
 }
@@ -12122,6 +12313,21 @@ o
 	{
 		s %Flags{""}
 		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2881795810666299980,18065001352305667847}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ContinuousCollisionDetection"}
+		s %Type{"bool"}
 	}
 }
 o

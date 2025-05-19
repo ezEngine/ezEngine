@@ -18,13 +18,14 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltCharacterDebugFlags, 1)
 EZ_BITFLAGS_CONSTANTS(ezJoltCharacterDebugFlags::PrintState, ezJoltCharacterDebugFlags::VisShape, ezJoltCharacterDebugFlags::VisContacts,  ezJoltCharacterDebugFlags::VisCasts, ezJoltCharacterDebugFlags::VisGroundContact, ezJoltCharacterDebugFlags::VisFootCheck)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("PresenceCollisionLayer", m_uiPresenceCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(0.1f, 10000.0f)),
+      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategoryNoCustom")),
+      EZ_MEMBER_PROPERTY("WeightScale", m_fWeightScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
     EZ_ACCESSOR_PROPERTY("Strength", GetStrength, SetStrength)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("MaxClimbingSlope", GetMaxClimbingSlope, SetMaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(40))),
     EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezJoltCharacterDebugFlags , m_DebugFlags),
@@ -61,7 +62,8 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 
   s << m_uiCollisionLayer;
   s << m_uiPresenceCollisionLayer;
-  s << m_fMass;
+  s << m_fWeightScale;
+  s << m_uiWeightCategory;
   s << m_fStrength;
   s << m_MaxClimbingSlope;
 }
@@ -69,14 +71,25 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_DebugFlags;
 
   s >> m_uiCollisionLayer;
   s >> m_uiPresenceCollisionLayer;
-  s >> m_fMass;
+
+  s >> m_fWeightScale;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_uiWeightCategory;
+  }
+  else
+  {
+    m_fWeightScale = 1.0f;
+  }
+
   s >> m_fStrength;
   s >> m_MaxClimbingSlope;
 }
@@ -105,6 +118,20 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
+  m_fMass = 50.0f; // default value
+  if (m_uiWeightCategory != 0)
+  {
+    auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
+    const ezUInt32 idx = cat.Find(m_uiWeightCategory);
+    if (idx != ezInvalidIndex)
+    {
+      m_fMass = cat.GetValue(idx).m_fMass;
+    }
+  }
+
+  // allow to scale even the default value
+  m_fMass = ezMath::Clamp(m_fMass * m_fWeightScale, 1.0f, 1000.0f);
+
   JPH::CharacterVirtualSettings opt;
   opt.mUp = JPH::Vec3::sAxisZ();
   opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius());
@@ -130,16 +157,6 @@ void ezJoltCharacterControllerComponent::SetMaxClimbingSlope(ezAngle slope)
   if (m_pCharacter)
   {
     m_pCharacter->SetMaxSlopeAngle(m_MaxClimbingSlope.GetRadian());
-  }
-}
-
-void ezJoltCharacterControllerComponent::SetMass(float fMass)
-{
-  m_fMass = fMass;
-
-  if (m_pCharacter)
-  {
-    m_pCharacter->SetMass(m_fMass);
   }
 }
 
