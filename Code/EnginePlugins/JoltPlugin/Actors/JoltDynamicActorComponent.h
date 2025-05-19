@@ -58,11 +58,6 @@ public:
   /// An impulse is a force that is applied only once, e.g. a sudden push.
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
 
-  /// \brief Adds a physics force to this body at the given location.
-  ///
-  /// A force is something that applies a constant push, for example wind that blows on an object over a longer duration.
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg); // [ message ]
-
   /// \brief Turns the actor into a 'kinematic' actor.
   ///
   /// If an actor is kinematic, it isn't fully simulated anymore, meaning forces do not affect it further.
@@ -119,14 +114,8 @@ public:
   void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
   bool GetUseCustomCoM() const { return GetUserFlag(0); } // [ property ]
 
-  /// \brief Adds a linear force to the center-of-mass of this actor. Unless there are other constraints, this would push the object, but not introduce any rotation.
-  void AddLinearForce(const ezVec3& vForce); // [ scriptable ]
-
   /// \brief Adds a linear impulse to the center-of-mass of this actor. Unless there are other constraints, this would push the object, but not introduce any rotation.
   void AddLinearImpulse(const ezVec3& vImpulse); // [ scriptable ]
-
-  /// \brief Adds an angular force to the center-of-mass of this actor. Unless there are other constraints, this would make the object rotate, but not move away.
-  void AddAngularForce(const ezVec3& vForce); // [ scriptable ]
 
   /// \brief Adds an angular impulse to the center-of-mass of this actor. Unless there are other constraints, this would make the object rotate, but not move away.
   void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
@@ -144,6 +133,20 @@ public:
   /// For kinematic actors this function will return 0.
   float GetMass() const;
 
+  /// \brief Adds a force that will be applied to this actor every frame for the given duration.
+  ///
+  /// Returns a force ID. Pass in an invalid ID (such as 0) to create a new force.
+  /// If an existing force shall be updated, pass in the ID that was returned last time.
+  ///
+  /// Once the duration has elapsed and no update was done to reset the duration, the force is automatically removed.
+  /// If a force ID of such a force is used again, it will be ignored and a new force is created instead,
+  /// so just always store the returned ID, to replaced force IDs that became invalid.
+  ///
+  /// If this is called multiple times with invalid force IDs, multiple forces are created to act on the body.
+  ezUInt32 AddOrUpdateForce(ezUInt32 uiForceID, ezTime duration, const ezVec3& vForce);
+
+  /// \brief Removes the force with the given ID. Does nothing, if the ID is invalid.
+  void ClearForce(ezUInt32 uiForceID);
 
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;

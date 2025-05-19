@@ -12,11 +12,12 @@ class ScriptObject : ezAngelScriptClass
     float AlertDistance = 15;
     float ApproachDistance = 10;
     float AttackDistance = 1.5;
-    float RollForce = 200;
+    float RollForce = 40;
     float Health = 20;
-
+    
     private ezGameObjectHandle _player;
     private BallMineState _state = BallMineState::Init;
+    private uint32 _forceID = 0;
  
     void OnSimulationStarted()
     {
@@ -67,7 +68,7 @@ class ScriptObject : ezAngelScriptClass
                     diffPos.Normalize();
                     diffPos *= RollForce;
 
-                    actor.AddLinearForce(diffPos);
+                    _forceID = actor.AddOrUpdateForce(_forceID, ezTime::Seconds(0.5), diffPos);
                 }
             }
             else if (distToPlayer <= AlertDistance)

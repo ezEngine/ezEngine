@@ -110,10 +110,10 @@ public:
   bool Remove(const IdType id, ValueType* out_pOldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
-  bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
+  [[nodiscard]] bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the pointer to the corresponding value to out_pValue.
-  bool TryGetValue(const IdType id, ValueType*& out_pValue) const; // [tested]
+  [[nodiscard]] bool TryGetValue(const IdType id, ValueType*& out_pValue) const; // [tested]
 
   /// \brief Returns the value to the given id. Does bounds checks in debug builds.
   const ValueType& operator[](const IdType id) const; // [tested]

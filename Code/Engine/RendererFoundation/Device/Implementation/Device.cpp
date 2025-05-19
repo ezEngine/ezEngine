@@ -1861,10 +1861,9 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 void ezGALDevice::EnqueueFrameSwapChain(ezGALSwapChainHandle hSwapChain)
 {
   EZ_ASSERT_DEV(!m_bBeginFrameCalled, "EnqueueFrameSwapChain must be called before or during ezGALDeviceEvent::BeforeBeginFrame");
+
   ezGALSwapChain* pSwapChain = nullptr;
-  m_SwapChains.TryGetValue(hSwapChain, pSwapChain);
-  if (pSwapChain != nullptr)
-    // EZ_ASSERT_DEBUG(pSwapChain != nullptr, "");
+  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
     m_FrameSwapChains.PushBack(pSwapChain);
 }
 

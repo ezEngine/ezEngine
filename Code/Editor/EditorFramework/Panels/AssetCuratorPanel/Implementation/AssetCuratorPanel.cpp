@@ -83,18 +83,18 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
-  m_pModel = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
-  m_pModel->Initialize();
-  m_pModel->SetIconMode(false);
+  m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
+  m_Model->Initialize();
+  m_Model->SetIconMode(false);
 
   TransformLog->ShowControls(false);
 
-  ListAssets->setModel(m_pModel.data());
+  ListAssets->setModel(m_Model.data());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   EZ_VERIFY(
     connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel.data(), &QAbstractItemModel::dataChanged, this,
+  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::dataChanged, this,
               [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
               {
                 if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
@@ -104,7 +104,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
               }),
     "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel.data(), &QAbstractItemModel::modelReset, this,
+  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::modelReset, this,
               [this]()
               {
                 m_SelectedIndex = QPersistentModelIndex();
@@ -130,7 +130,7 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
 
 void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
-  QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+  QString sAbsPath = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
 }
@@ -138,7 +138,7 @@ void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
 {
   m_pFilter->SetFilterTransitive(!checked);
-  m_pModel->resetModel();
+  m_Model->resetModel();
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
@@ -156,7 +156,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return;
   }
 
-  ezUuid assetGuid = m_pModel->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+  ezUuid assetGuid = m_Model->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
   auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (pSubAsset == nullptr)
   {

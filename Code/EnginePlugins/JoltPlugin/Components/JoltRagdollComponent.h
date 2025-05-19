@@ -12,7 +12,6 @@ class ezJoltMaterial;
 struct ezMsgRetrieveBoneState;
 struct ezMsgAnimationPoseUpdated;
 struct ezMsgPhysicsAddImpulse;
-struct ezMsgPhysicsAddForce;
 struct ezSkeletonResourceGeometry;
 
 namespace JPH
@@ -120,12 +119,6 @@ public:
 
   /// \brief Applies a force to a specific part of the ragdoll.
   void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
-
-  /// \brief Applies an impulse to a specific part of the ragdoll.
-  ///
-  /// If this is called before the ragdoll becomes active, it is added to the 'initial impulse' (see SetInitialImpulse()).
-  /// Once the ragdoll is activated, this initial impulse is applied to the closest body part.
-  void OnMsgPhysicsAddForce(ezMsgPhysicsAddForce& ref_msg); // [ msg handler ]
 
   /// \brief Call this function BEFORE activating the ragdoll component to specify an impulse that shall be applied to the closest body part when it activates.
   ///

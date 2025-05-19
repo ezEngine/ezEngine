@@ -4,6 +4,7 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <JoltPlugin/Declarations.h>
 #include <JoltPlugin/JoltPluginDLL.h>
@@ -25,13 +26,21 @@ namespace JPH
   class GroupFilter;
 } // namespace JPH
 
-
 struct ezJoltImpulse
 {
   ezUInt32 m_uiBodyID;
   ezVec3 m_vImpulse;
   ezVec3 m_vGlobalPosition;
 };
+
+struct ezJoltForce
+{
+  ezUInt32 m_uiBodyID;
+  ezTime m_tDisable;
+  ezVec3 m_vForce;
+};
+
+using ezJoltForceId = ezGenericId<24, 8>;
 
 class EZ_JOLTPLUGIN_DLL ezJoltWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -60,9 +69,20 @@ public:
   virtual ezVec3 GetGravity() const override { return ezVec3(0, 0, -10); }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
-
   /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
   void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
+
+  /// \brief Creates a force that acts upon the given Jolt body for a limited time.
+  ///
+  /// The force is applied every frame. It can be updated by calling this function again with a previously returned force ID.
+  /// Once the duration is elapsed without an update, the force is removed.
+  ///
+  /// If an invalid ID is passed in, a new force is created and a valid ID is returned.
+  /// If a valid ID is passed in, the existing force gets updated, and the same ID is returned.
+  ezJoltForceId AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce);
+
+  /// \brief Removes a previously added force. See AddOrUpdateForce().
+  void ClearForce(ezJoltForceId id);
 
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
@@ -153,7 +173,8 @@ private:
   void ApplySettingsCfg();
 
   void ApplyImpulses();
-
+  void UpdateForces();
+  
   void UpdateConstraints();
 
   ezTime CalculateUpdateSteps();
@@ -241,6 +262,9 @@ private:
 
   ezMutex m_ImpulsesMutex;
   ezDeque<ezJoltImpulse> m_Impulses;
+  
+  ezMutex m_ForcesMutex;
+  ezIdTable<ezJoltForceId, ezJoltForce> m_Forces;
 };
 
 /// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry

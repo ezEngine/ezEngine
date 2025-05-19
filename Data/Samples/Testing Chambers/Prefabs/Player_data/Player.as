@@ -396,7 +396,7 @@ class Player : ezAngelScriptClass
             rbCamActor.LinearDamping = 0.7;
             rbCamActor.AngularDamping = 0.9;
             rbCamActor.CollisionLayer = ezPhysics::GetCollisionLayerByName("Default");
-            rbCamActor.AddAngularForce(10 * ezVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator()));
+            rbCamActor.AddAngularImpulse(10 * ezVec3::MakeRandomPointInSphere(GetWorld().GetRandomNumberGenerator()));
 
             cameraObj.SetParent(rbCam.GetHandle());
          }

@@ -4,7 +4,7 @@
 #include <JoltPlugin/JoltPluginDLL.h>
 
 struct ezMsgPhysicsAddImpulse;
-struct ezMsgPhysicsAddForce;
+
 namespace JPH
 {
   class Constraint;
@@ -117,9 +117,6 @@ public:
 
   /// \brief Sets the anchor 2 reference.
   void SetAnchor2(ezGameObjectHandle hActor);
-
-  /// \brief Adds a force (like wind) to the rope.
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
 
   /// \brief Adds an impulse (like an impact) to the rope.
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);

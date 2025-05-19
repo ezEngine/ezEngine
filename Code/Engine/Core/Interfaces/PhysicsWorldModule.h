@@ -113,19 +113,6 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
   void* m_pInternalPhysicsActor = nullptr;
 };
 
-/// \brief Used to apply a physical force on the object
-struct EZ_CORE_DLL ezMsgPhysicsAddForce : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddForce, ezMessage);
-
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vForce;
-
-  // Physics-engine specific information, may be available or not.
-  void* m_pInternalPhysicsShape = nullptr;
-  void* m_pInternalPhysicsActor = nullptr;
-};
-
 struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezEventMessage);

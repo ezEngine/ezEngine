@@ -29,18 +29,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocato
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddForce);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddForce, 1, ezRTTIDefaultAllocator<ezMsgPhysicsAddForce>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
-    EZ_MEMBER_PROPERTY("Force", m_vForce),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsJointBroke);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsJointBroke, 1, ezRTTIDefaultAllocator<ezMsgPhysicsJointBroke>)
 {

@@ -54,7 +54,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 3, ezComponentMode::Dynamic)
     EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
       EZ_MESSAGE_HANDLER(ezJoltMsgDisconnectConstraints, OnJoltMsgDisconnectConstraints),
     }
@@ -906,41 +905,6 @@ void ezJoltRopeComponent::SetAnchor1(ezGameObjectHandle hActor)
 void ezJoltRopeComponent::SetAnchor2(ezGameObjectHandle hActor)
 {
   m_hAnchor2 = hActor;
-}
-
-void ezJoltRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
-{
-  if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
-    return;
-
-  JPH::BodyID bodyId;
-
-  if (ref_msg.m_pInternalPhysicsActor != nullptr)
-    bodyId = JPH::BodyID(reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
-  else
-    bodyId = m_pRagdoll->GetBodyID(0);
-
-
-  ezVec3 vImp = ref_msg.m_vForce;
-  const float fOrgImp = vImp.GetLength();
-
-  if (fOrgImp > g_fMaxForce)
-  {
-    vImp.SetLength(g_fMaxForce).IgnoreResult();
-    m_fMaxForcePerFrame -= g_fMaxForce;
-  }
-  else
-  {
-    m_fMaxForcePerFrame -= fOrgImp;
-  }
-
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  auto pBodies = &pModule->GetJoltSystem()->GetBodyInterface();
-
-  if (pBodies->IsAdded(bodyId))
-  {
-    pModule->GetJoltSystem()->GetBodyInterface().AddForce(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
-  }
 }
 
 void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)

@@ -8,6 +8,7 @@ bool T[]::opEquals(const T[]&in) const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathCorridor() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathLine() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathState() const
+bool ezAimIKComponent::get_InversePoleVector() const
 bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::opEquals(const ezAngle&in) const
@@ -1121,7 +1122,6 @@ ezMessage@ ezMsgObjectGrabbed::opImplCast()
 ezMessage@ ezMsgOnlyApplyToObject::opImplCast()
 ezMessage@ ezMsgParentChanged::opImplCast()
 ezMessage@ ezMsgPathChanged::opImplCast()
-ezMessage@ ezMsgPhysicsAddForce::opImplCast()
 ezMessage@ ezMsgPhysicsAddImpulse::opImplCast()
 ezMessage@ ezMsgPhysicsJointBroke::opImplCast()
 ezMessage@ ezMsgQueryAnimationSkeleton::opImplCast()
@@ -1175,7 +1175,6 @@ ezMsgOnlyApplyToObject@ ezMessage::opCast()
 ezMsgParentChanged@ ezMessage::opCast()
 ezMsgPathChanged@ ezEventMessage::opCast()
 ezMsgPathChanged@ ezMessage::opCast()
-ezMsgPhysicsAddForce@ ezMessage::opCast()
 ezMsgPhysicsAddImpulse@ ezMessage::opCast()
 ezMsgPhysicsJointBroke@ ezEventMessage::opCast()
 ezMsgPhysicsJointBroke@ ezMessage::opCast()
@@ -1708,8 +1707,6 @@ ezVec3 ezMath::Lerp(ezVec3 from, ezVec3 to, float factor)
 ezVec3 ezMsgApplyRootMotion::get_Translation() const
 ezVec3 ezMsgDamage::get_GlobalPosition() const
 ezVec3 ezMsgDamage::get_ImpactDirection() const
-ezVec3 ezMsgPhysicsAddForce::get_Force() const
-ezVec3 ezMsgPhysicsAddForce::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_Impulse() const
 ezVec3 ezOccluderComponent::get_Extents() const
@@ -1868,6 +1865,7 @@ float ezAiNavigationComponent::get_FallHeight() const
 float ezAiNavigationComponent::get_FootRadius() const
 float ezAiNavigationComponent::get_ReachedDistance() const
 float ezAiNavigationComponent::get_Speed() const
+float ezAimIKComponent::get_DebugVisScale() const
 float ezAimIKComponent::get_Weight() const
 float ezAmbientLightComponent::get_Intensity() const
 float ezAngle::DegToRad(float fDegree)
@@ -1973,6 +1971,7 @@ float ezJoltDynamicActorComponent::get_Density() const
 float ezJoltDynamicActorComponent::get_GravityFactor() const
 float ezJoltDynamicActorComponent::get_LinearDamping() const
 float ezJoltDynamicActorComponent::get_Mass() const
+float ezJoltDynamicActorComponent::get_WeightScale() const
 float ezJoltGrabObjectComponent::get_BreakDistance() const
 float ezJoltGrabObjectComponent::get_CastRadius() const
 float ezJoltGrabObjectComponent::get_GrabAnyObjectWithSize() const
@@ -2111,6 +2110,7 @@ float ezThirdPersonViewComponent::get_ZoomOutSpeed() const
 float ezTime::AsFloatInSeconds() const
 float ezTransform::GetMaxScale() const
 float ezTransformComponent::get_Speed() const
+float ezTwoBoneIKComponent::get_DebugVisScale() const
 float ezTwoBoneIKComponent::get_Weight() const
 float ezVec2::Dot(const ezVec2&in) const
 float ezVec2::GetDistanceTo(const ezVec2&in rhs) const
@@ -2191,6 +2191,7 @@ uint ezGameObject::GetChildCount()
 uint ezGameObject::GetStableRandomSeed()
 uint ezGreyBoxComponent::get_Detail() const
 uint ezJoltActorComponent::GetObjectFilterID() const
+uint ezJoltDynamicActorComponent::AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force)
 uint ezJoltHitboxComponent::GetObjectFilterID() const
 uint ezJoltRagdollComponent::GetObjectFilterID() const
 uint ezJoltSettingsComponent::get_MaxBodies() const
@@ -2229,6 +2230,7 @@ uint8 ezJoltActorComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
+uint8 ezJoltDynamicActorComponent::get_WeightCategory() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_WeightCategory() const
@@ -2268,7 +2270,9 @@ void ezAiNavigationComponent::set_NavmeshConfig(ezHashedString)
 void ezAiNavigationComponent::set_PathSearchConfig(ezHashedString)
 void ezAiNavigationComponent::set_ReachedDistance(float)
 void ezAiNavigationComponent::set_Speed(float)
+void ezAimIKComponent::set_DebugVisScale(float)
 void ezAimIKComponent::set_ForwardVector(ezBasisAxis)
+void ezAimIKComponent::set_InversePoleVector(bool)
 void ezAimIKComponent::set_UpVector(ezBasisAxis)
 void ezAimIKComponent::set_Weight(float)
 void ezAmbientLightComponent::set_BottomColor(ezColorGammaUB)
@@ -2598,10 +2602,9 @@ void ezJoltDistanceConstraintComponent::set_Damping(float)
 void ezJoltDistanceConstraintComponent::set_Frequency(float)
 void ezJoltDistanceConstraintComponent::set_MaxDistance(float)
 void ezJoltDistanceConstraintComponent::set_MinDistance(float)
-void ezJoltDynamicActorComponent::AddAngularForce(ezVec3 vForce)
 void ezJoltDynamicActorComponent::AddAngularImpulse(ezVec3 vImpulse)
-void ezJoltDynamicActorComponent::AddLinearForce(ezVec3 vForce)
 void ezJoltDynamicActorComponent::AddLinearImpulse(ezVec3 vImpulse)
+void ezJoltDynamicActorComponent::ClearForce(uint forceID)
 void ezJoltDynamicActorComponent::set_AllowSleeping(bool)
 void ezJoltDynamicActorComponent::set_AngularDamping(float)
 void ezJoltDynamicActorComponent::set_CenterOfMass(ezVec3)
@@ -2615,6 +2618,8 @@ void ezJoltDynamicActorComponent::set_Mass(float)
 void ezJoltDynamicActorComponent::set_OnContact(ezOnJoltContact)
 void ezJoltDynamicActorComponent::set_StartAsleep(bool)
 void ezJoltDynamicActorComponent::set_Surface(ezStringView)
+void ezJoltDynamicActorComponent::set_WeightCategory(uint8)
+void ezJoltDynamicActorComponent::set_WeightScale(float)
 void ezJoltGrabObjectComponent::BreakObjectGrab()
 void ezJoltGrabObjectComponent::DropGrabbedObject()
 void ezJoltGrabObjectComponent::ThrowGrabbedObject(ezVec3 Direction)
@@ -2795,8 +2800,6 @@ void ezMsgMoveCharacterController::set_StrafeRight(double)
 void ezMsgObjectGrabbed::set_GotGrabbed(bool)
 void ezMsgObjectGrabbed::set_GrabbedBy(ezGameObjectHandle)
 void ezMsgOnlyApplyToObject::set_Object(ezGameObjectHandle)
-void ezMsgPhysicsAddForce::set_Force(ezVec3)
-void ezMsgPhysicsAddForce::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_Impulse(ezVec3)
 void ezMsgPhysicsAddImpulse::set_ObjectFilterID(uint)
@@ -3120,6 +3123,7 @@ void ezTransformComponent::set_Running(bool)
 void ezTransformComponent::set_Speed(float)
 void ezTriggerDelayModifierComponent::set_ActivationDelay(ezTime)
 void ezTriggerDelayModifierComponent::set_DeactivationDelay(ezTime)
+void ezTwoBoneIKComponent::set_DebugVisScale(float)
 void ezTwoBoneIKComponent::set_JointEnd(ezHashedString)
 void ezTwoBoneIKComponent::set_JointMiddle(ezHashedString)
 void ezTwoBoneIKComponent::set_JointStart(ezHashedString)

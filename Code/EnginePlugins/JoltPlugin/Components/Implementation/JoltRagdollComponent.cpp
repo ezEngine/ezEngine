@@ -65,7 +65,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 3, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
-    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, OnMsgPhysicsAddForce),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -383,19 +382,6 @@ void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_
   // TODO: normalize by number of limbs
   const ezUInt32 uiBodyId = reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
   GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(uiBodyId, ref_msg.m_vImpulse, ref_msg.m_vGlobalPosition);
-}
-
-void ezJoltRagdollComponent::OnMsgPhysicsAddForce(ezMsgPhysicsAddForce& ref_msg)
-{
-  if (!HasCreatedLimbs())
-    return;
-
-  JPH::BodyID bodyId = JPH::BodyID(reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
-  if (!bodyId.IsInvalid())
-  {
-    auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-    pBodies->AddForce(bodyId, ezJoltConversionUtils::ToVec3(ref_msg.m_vForce), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
-  }
 }
 
 void ezJoltRagdollComponent::SetInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength)

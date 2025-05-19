@@ -41,7 +41,8 @@ EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHa
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ReturnType* pObject = nullptr;
-  IdTable.TryGetValue(hHandle, pObject);
+  bool _1 = IdTable.TryGetValue(hHandle, pObject);
+  EZ_IGNORE_UNUSED(_1);
   return pObject;
 }
 

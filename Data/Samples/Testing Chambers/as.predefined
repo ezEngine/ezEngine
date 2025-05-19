@@ -1323,7 +1323,6 @@ class ezWorld
 class ezMessage
 {
   ezMsgPhysicsAddImpulse@ opCast();
-  ezMsgPhysicsAddForce@ opCast();
   ezMsgPhysicsJointBroke@ opCast();
   ezMsgObjectGrabbed@ opCast();
   ezMsgReleaseObjectGrab@ opCast();
@@ -1946,9 +1945,11 @@ class ezSliderComponent : ezTransformComponent
 
 class ezAimIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezBasisAxis ForwardVector;
   ezBasisAxis UpVector;
   ezString PoleVector;
+  bool InversePoleVector;
   float Weight;
 }
 
@@ -2005,6 +2006,7 @@ class ezSimpleAnimationComponent : ezComponent
 
 class ezTwoBoneIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezHashedString JointStart;
   ezHashedString JointMiddle;
   ezHashedString JointEnd;
@@ -2500,13 +2502,15 @@ class ezJoltActorComponent : ezComponent
 
 class ezJoltDynamicActorComponent : ezJoltActorComponent
 {
-  void AddLinearForce(ezVec3 vForce);
   void AddLinearImpulse(ezVec3 vImpulse);
-  void AddAngularForce(ezVec3 vForce);
   void AddAngularImpulse(ezVec3 vImpulse);
+  uint AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force);
+  void ClearForce(uint forceID);
   bool Kinematic;
   bool StartAsleep;
   bool AllowSleeping;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Density;
   ezStringView Surface;
@@ -2865,12 +2869,6 @@ class ezMsgPhysicsAddImpulse : ezMessage
   ezVec3 GlobalPosition;
   ezVec3 Impulse;
   uint32 ObjectFilterID;
-}
-
-class ezMsgPhysicsAddForce : ezMessage
-{
-  ezVec3 GlobalPosition;
-  ezVec3 Force;
 }
 
 class ezEventMessage : ezMessage

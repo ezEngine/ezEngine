@@ -124,6 +124,7 @@ Data3
 DeactivationDelay
 DebugFlags
 DebugShowPoints
+DebugVisScale
 Deceleration
 DeepPink
 DeepSkyBlue
@@ -171,7 +172,6 @@ Flags
 FloralWhite
 FollowMode
 FootRadius
-Force
 ForceTargetParentless
 ForestGreen
 ForwardToBlackboard
@@ -224,6 +224,7 @@ InputAction
 InputSet
 InstantiateAsChildren
 Intensity
+InversePoleVector
 InverseTonemap
 InvisibleUpdateRate
 Ivory
@@ -611,6 +612,8 @@ WalkSpeedRunning
 WalkSpeedStanding
 WalkSurfaceInteraction
 Weight
+WeightCategory
+WeightScale
 Wheat
 White
 WhiteSmoke

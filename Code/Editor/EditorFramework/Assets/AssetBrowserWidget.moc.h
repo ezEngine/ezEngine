@@ -42,8 +42,8 @@ public:
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
 
-  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel.data(); }
-  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel.data(); }
+  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_Model.data(); }
+  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_Model.data(); }
   ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
   const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
@@ -111,7 +111,7 @@ private:
   Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;
   ezString m_sAllTypesFilter;
-  QSharedPointer<ezQtAssetBrowserModel> m_pModel = nullptr;
+  QSharedPointer<ezQtAssetBrowserModel> m_Model;
   ezQtAssetBrowserFilter* m_pFilter = nullptr;
 
   /// \brief After creating a new asset and renaming it, we want to open it as well.

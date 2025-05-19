@@ -1,10 +1,9 @@
 Abs
-AddAngularForce
 AddAngularImpulse
 AddChild
 AddInitialImpulse
-AddLinearForce
 AddLinearImpulse
+AddOrUpdateForce
 Append
 AppendFormat
 AppendPath
@@ -27,6 +26,7 @@ ChangeVerticalRotation
 ChopAwayFirstCharacterAscii
 ChopAwayFirstCharacterUtf8
 Clear
+ClearForce
 CompClamp
 CompDiv
 CompMax

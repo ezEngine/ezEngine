@@ -390,6 +390,70 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
   }
 }
 
+ezJoltForceId ezJoltWorldModule::AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce)
+{
+  EZ_LOCK(m_ForcesMutex);
+
+  ezJoltForce* pForce;
+  if (m_Forces.TryGetValue(forceId, pForce))
+  {
+    pForce->m_tDisable = GetWorld()->GetClock().GetAccumulatedTime() + duration;
+    pForce->m_vForce = vForce;
+    return forceId;
+  }
+  else
+  {
+    ezJoltForce force;
+    force.m_uiBodyID = uiBodyID;
+    force.m_tDisable = GetWorld()->GetClock().GetAccumulatedTime() + duration;
+    force.m_vForce = vForce;
+
+    return m_Forces.Insert(force);
+  }
+}
+
+void ezJoltWorldModule::ClearForce(ezJoltForceId id)
+{
+  EZ_LOCK(m_ForcesMutex);
+  m_Forces.Remove(id);
+}
+
+void ezJoltWorldModule::UpdateForces()
+{
+  if (m_Forces.IsEmpty())
+    return;
+
+  EZ_LOCK(m_ForcesMutex);
+
+  ezHybridArray<ezJoltForceId, 32> forcesToRemove;
+
+  auto* pBodies = &m_pSystem->GetBodyInterface();
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+
+  for (auto it = m_Forces.GetIterator(); it.IsValid(); ++it)
+  {
+    ezJoltForce& force = it.Value();
+
+    if (force.m_tDisable < tNow)
+    {
+      forcesToRemove.PushBack(it.Id());
+      continue;
+    }
+
+    const JPH::BodyID bodyId(force.m_uiBodyID);
+
+    if (!pBodies->IsAdded(bodyId))
+      continue;
+
+    pBodies->AddForce(bodyId, ezJoltConversionUtils::ToVec3(force.m_vForce));
+  }
+
+  for (ezJoltForceId id : forcesToRemove)
+  {
+    m_Forces.Remove(id);
+  }
+}
+
 ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
 {
   return ezJoltCore::GetCollisionFilterConfig().GetFilterGroupByName(sName);
@@ -619,6 +683,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
   }
 
   ApplyImpulses();
+  UpdateForces();
   UpdateConstraints();
 
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
