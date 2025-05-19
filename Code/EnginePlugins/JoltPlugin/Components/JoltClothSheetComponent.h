@@ -153,6 +153,9 @@ public:
   /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
+  ezUInt8 m_uiWeightCategory = 0; // [ property ]
+  float m_fWeightValue = 1.0f;    // [ property ]
+
   /// \brief Adjusts how strongly gravity affects the soft body.
   float m_fGravityFactor = 1.0f; // [ property ]
 
@@ -182,6 +185,10 @@ private:
   void SetupCloth();
   void RemoveBody();
   void UpdateBodyBounds();
+
+  float GetWeightValue() const { return m_fWeightValue; }
+  void SetWeightValue_Scale(float fValue);
+  void SetWeightValue_Mass(float fValue);
 
   ezVec2 m_vSize = ezVec2(1.0f, 1.0f);
   ezVec2 m_vTextureScale = ezVec2(1.0f);

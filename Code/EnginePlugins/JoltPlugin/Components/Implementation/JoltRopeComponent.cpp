@@ -39,8 +39,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 3, ezComponentMode::Dynamic)
       EZ_ENUM_ACCESSOR_PROPERTY("Anchor2Constraint", ezJoltRopeAnchorConstraintMode, GetAnchor2ConstraintMode, SetAnchor2ConstraintMode),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(2, 64)),
       EZ_MEMBER_PROPERTY("Slack", m_fSlack)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
-      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategoryNoCustom")),
-      EZ_MEMBER_PROPERTY("WeightScale", m_fWeightScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
+      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+      EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
       EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   ezVariant())),
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(90))),
@@ -69,6 +70,22 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezJoltRopeComponent::ezJoltRopeComponent() = default;
 ezJoltRopeComponent::~ezJoltRopeComponent() = default;
+
+void ezJoltRopeComponent::SetWeightValue_Scale(float fValue)
+{
+  if (m_uiWeightCategory >= 10)
+    return;
+
+  m_fWeightValue = fValue;
+}
+
+void ezJoltRopeComponent::SetWeightValue_Mass(float fValue)
+{
+  if (m_uiWeightCategory != 1) // Custom Mass
+    return;
+
+  m_fWeightValue = fValue;
+}
 
 void ezJoltRopeComponent::SetSurfaceFile(ezStringView sFile)
 {
@@ -106,7 +123,7 @@ void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_MaxBend;
   s << m_MaxTwist;
   s << m_fBendStiffness;
-  s << m_fWeightScale;
+  s << m_fWeightValue;
   s << m_uiWeightCategory;
   s << m_fSlack;
   s << m_bCCD;
@@ -148,7 +165,7 @@ void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_MaxTwist;
   s >> m_fBendStiffness;
 
-  s >> m_fWeightScale;
+  s >> m_fWeightValue;
 
   if (uiVersion >= 3)
   {
@@ -156,7 +173,7 @@ void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
   else
   {
-    m_fWeightScale = 1.0f;
+    m_fWeightValue = 1.0f;
   }
 
   s >> m_fSlack;
@@ -242,21 +259,26 @@ void ezJoltRopeComponent::CreateRope()
   opt->mSkeleton->GetJoints().resize(numPieces);
   opt->mParts.resize(numPieces);
 
-  float fTotalMass = 5.0f; // default value
+  float fInitialMass = 5.0f;     // default value
   if (m_uiWeightCategory != 0)
   {
-    auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
-    const ezUInt32 idx = cat.Find(m_uiWeightCategory);
-    if (idx != ezInvalidIndex)
+    if (m_uiWeightCategory == 1) // Custom Mass
     {
-      fTotalMass = cat.GetValue(idx).m_fMass;
+      fInitialMass = m_fWeightValue;
+    }
+    else
+    {
+      auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
+      const ezUInt32 idx = cat.Find(m_uiWeightCategory);
+      if (idx != ezInvalidIndex)
+      {
+        fInitialMass = cat.GetValue(idx).m_fMass;
+        fInitialMass = ezMath::Clamp(fInitialMass * m_fWeightValue, 1.0f, 1000.0f);
+      }
     }
   }
 
-  // allow to scale even the default value
-  fTotalMass = ezMath::Clamp(fTotalMass * m_fWeightScale, 1.0f, 1000.0f);
-
-  const float fPieceMass = fTotalMass / numPieces;
+  const float fPieceMass = fInitialMass / numPieces;
 
   ezStringBuilder name;
 
@@ -1033,6 +1055,5 @@ void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
     itActor.Key()->Update();
   }
 }
-
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRopeComponent);

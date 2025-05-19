@@ -8,6 +8,7 @@ bool T[]::opEquals(const T[]&in) const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathCorridor() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathLine() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathState() const
+bool ezAimIKComponent::get_InversePoleVector() const
 bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::opEquals(const ezAngle&in) const
@@ -22,9 +23,6 @@ bool ezBoxReflectionProbeComponent::get_BoxProjection() const
 bool ezCVar::GetBoolValue(ezStringView Name)
 bool ezCVar::GetValue_asBool(ezStringView Name)
 bool ezCameraComponent::get_ShowStats() const
-bool ezCharacterControllerComponent::IsCrouching()
-bool ezCharacterControllerComponent::IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight)
-bool ezCharacterControllerComponent::IsTouchingGround()
 bool ezClock::GetPaused() const
 bool ezCollectionComponent::get_RegisterNames() const
 bool ezColor::IsEqualRGB(const ezColor&in, float fEpsilon) const
@@ -152,6 +150,7 @@ bool ezPhysics::SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, e
 bool ezPhysics::SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3))
 bool ezPowerConnectorComponent::IsAttached() const
 bool ezPowerConnectorComponent::IsConnected() const
+bool ezPrefabReferenceComponent::get_ShowShapeIcons() const
 bool ezProjectileComponent::get_SpawnPrefabOnStatic() const
 bool ezPropertyAnimComponent::get_Playing() const
 bool ezQuat::IsEqualRotation(const ezQuat&in, float fEpsilon = 0.00001) const
@@ -177,6 +176,7 @@ bool ezRmlUiCanvas2DComponent::get_PassInput() const
 bool ezRopeRenderComponent::get_Subdivide() const
 bool ezSceneTransitionComponent::get_RelativeSpawnPosition() const
 bool ezScriptComponent::GetScriptVariable_asBool(ezHashedString Name) const
+bool ezScriptComponent::get_UpdateOnlyWhenSimulating() const
 bool ezSensorComponent::get_ShowDebugInfo() const
 bool ezSensorComponent::get_TestVisibility() const
 bool ezSimpleAnimationComponent::get_EnableIK() const
@@ -391,6 +391,8 @@ ezAngle ezSpawnBoxComponent::get_MaxTiltZ() const
 ezAngle ezSpawnComponent::get_Deviation() const
 ezAngle ezSpotLightComponent::get_InnerSpotAngle() const
 ezAngle ezSpotLightComponent::get_OuterSpotAngle() const
+ezAngle ezThirdPersonViewComponent::get_MaxUpRotation() const
+ezAngle ezThirdPersonViewComponent::get_MinUpRotation() const
 ezAngle ezVolumeComponent::GetValue_asAngle(ezTempHashedString Name) const
 ezAngle ezWindVolumeConeComponent::get_Angle() const
 ezAnimatedMeshComponent@ ezComponent::opCast()
@@ -448,7 +450,6 @@ ezCameraUsageHint::MainView
 ezCameraUsageHint::None
 ezCameraUsageHint::RenderTarget
 ezCameraUsageHint::Thumbnail
-ezCharacterControllerComponent@ ezComponent::opCast()
 ezClock@ ezClock::GetGlobalClock()
 ezClock@ ezWorld::GetClock()
 ezClothSheetComponent@ ezComponent::opCast()
@@ -679,7 +680,6 @@ ezComponent@ ezCameraComponent::opImplCast()
 ezComponent@ ezCameraShakeComponent::opImplCast()
 ezComponent@ ezCameraShakeVolumeComponent::opImplCast()
 ezComponent@ ezCameraShakeVolumeSphereComponent::opImplCast()
-ezComponent@ ezCharacterControllerComponent::opImplCast()
 ezComponent@ ezClothSheetComponent::opImplCast()
 ezComponent@ ezCollectionComponent::opImplCast()
 ezComponent@ ezColorAnimationComponent::opImplCast()
@@ -793,6 +793,7 @@ ezComponent@ ezSpotLightComponent::opImplCast()
 ezComponent@ ezSpriteComponent::opImplCast()
 ezComponent@ ezStageSpaceComponent::opImplCast()
 ezComponent@ ezStateMachineComponent::opImplCast()
+ezComponent@ ezThirdPersonViewComponent::opImplCast()
 ezComponent@ ezTimedDeathComponent::opImplCast()
 ezComponent@ ezTransformComponent::opImplCast()
 ezComponent@ ezTriggerDelayModifierComponent::opImplCast()
@@ -1096,6 +1097,7 @@ ezMessage@ ezMsgComponentsChanged::opImplCast()
 ezMessage@ ezMsgDamage::opImplCast()
 ezMessage@ ezMsgDeleteGameObject::opImplCast()
 ezMessage@ ezMsgDeliverAngelScriptMsg::opImplCast()
+ezMessage@ ezMsgExport::opImplCast()
 ezMessage@ ezMsgExtractGeometry::opImplCast()
 ezMessage@ ezMsgExtractOccluderData::opImplCast()
 ezMessage@ ezMsgExtractRenderData::opImplCast()
@@ -1108,7 +1110,6 @@ ezMessage@ ezMsgObjectGrabbed::opImplCast()
 ezMessage@ ezMsgOnlyApplyToObject::opImplCast()
 ezMessage@ ezMsgParentChanged::opImplCast()
 ezMessage@ ezMsgPathChanged::opImplCast()
-ezMessage@ ezMsgPhysicsAddForce::opImplCast()
 ezMessage@ ezMsgPhysicsAddImpulse::opImplCast()
 ezMessage@ ezMsgPhysicsJointBroke::opImplCast()
 ezMessage@ ezMsgQueryAnimationSkeleton::opImplCast()
@@ -1144,6 +1145,7 @@ ezMsgDamage@ ezEventMessage::opCast()
 ezMsgDamage@ ezMessage::opCast()
 ezMsgDeleteGameObject@ ezMessage::opCast()
 ezMsgDeliverAngelScriptMsg@ ezMessage::opCast()
+ezMsgExport@ ezMessage::opCast()
 ezMsgExtractGeometry@ ezMessage::opCast()
 ezMsgExtractOccluderData@ ezMessage::opCast()
 ezMsgExtractRenderData@ ezMessage::opCast()
@@ -1160,7 +1162,6 @@ ezMsgOnlyApplyToObject@ ezMessage::opCast()
 ezMsgParentChanged@ ezMessage::opCast()
 ezMsgPathChanged@ ezEventMessage::opCast()
 ezMsgPathChanged@ ezMessage::opCast()
-ezMsgPhysicsAddForce@ ezMessage::opCast()
 ezMsgPhysicsAddImpulse@ ezMessage::opCast()
 ezMsgPhysicsJointBroke@ ezEventMessage::opCast()
 ezMsgPhysicsJointBroke@ ezMessage::opCast()
@@ -1421,6 +1422,8 @@ ezString ezLocalBlackboardComponent::get_BlackboardName() const
 ezString ezMarkerComponent::get_Marker() const
 ezString ezMsgBlackboardEntryChanged::get_Name() const
 ezString ezMsgDamage::get_HitObjectName() const
+ezString ezMsgExport::get_DocumentGuid() const
+ezString ezMsgExport::get_DocumentType() const
 ezString ezMsgInputActionTriggered::get_InputAction() const
 ezString ezMsgSetFloatParameter::get_Name() const
 ezString ezMsgStateMachineStateChanged::get_NewStateName() const
@@ -1435,6 +1438,7 @@ ezString ezSensorComponent::get_SpatialCategory() const
 ezString ezSkeletonComponent::get_BonesToHighlight() const
 ezString ezStateMachineComponent::get_BlackboardName() const
 ezString ezStateMachineComponent::get_InitialState() const
+ezString ezThirdPersonViewComponent::get_TargetObject() const
 ezString ezTwoBoneIKComponent::get_PoleVector() const
 ezString ezVolumeComponent::GetValue_asString(ezTempHashedString Name) const
 ezString ezVolumeComponent::get_Type() const
@@ -1505,6 +1509,7 @@ ezStringView ezStringView::GetSubString(uint uiFirstCharacter, uint uiNumCharact
 ezStringView ezTimedDeathComponent::get_TimeoutPrefab() const
 ezStringView ezVolumeComponent::get_Template() const
 ezStringView ezWorld::GetName()
+ezThirdPersonViewComponent@ ezComponent::opCast()
 ezTime ezBlackboardComponent::GetEntryValue_asTime(ezString Name) const
 ezTime ezCVar::GetValue_asTime(ezStringView Name)
 ezTime ezCameraComponent::get_ShutterTime() const
@@ -1658,8 +1663,6 @@ ezVec3 ezMath::Lerp(ezVec3 from, ezVec3 to, float factor)
 ezVec3 ezMsgApplyRootMotion::get_Translation() const
 ezVec3 ezMsgDamage::get_GlobalPosition() const
 ezVec3 ezMsgDamage::get_ImpactDirection() const
-ezVec3 ezMsgPhysicsAddForce::get_Force() const
-ezVec3 ezMsgPhysicsAddForce::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_Impulse() const
 ezVec3 ezOccluderComponent::get_Extents() const
@@ -1675,6 +1678,8 @@ ezVec3 ezResetTransformComponent::get_LocalPosition() const
 ezVec3 ezResetTransformComponent::get_LocalScaling() const
 ezVec3 ezScriptComponent::GetScriptVariable_asVec3(ezHashedString Name) const
 ezVec3 ezSpawnBoxComponent::get_HalfExtents() const
+ezVec3 ezThirdPersonViewComponent::get_TargetOffsetHigh() const
+ezVec3 ezThirdPersonViewComponent::get_TargetOffsetLow() const
 ezVec3 ezTransform::TransformDirection(const ezVec3&in vDirection) const
 ezVec3 ezTransform::TransformPosition(const ezVec3&in vPosition) const
 ezVec3 ezTransform::opMul(const ezVec3&in) const
@@ -1814,6 +1819,7 @@ float ezAiNavigationComponent::get_FallHeight() const
 float ezAiNavigationComponent::get_FootRadius() const
 float ezAiNavigationComponent::get_ReachedDistance() const
 float ezAiNavigationComponent::get_Speed() const
+float ezAimIKComponent::get_DebugVisScale() const
 float ezAimIKComponent::get_Weight() const
 float ezAmbientLightComponent::get_Intensity() const
 float ezAngle::DegToRad(float fDegree)
@@ -1890,9 +1896,12 @@ float ezHeightfieldComponent::get_Height() const
 float ezInputComponent::GetCurrentInputState(ezString InputAction, bool OnlyKeyPressed) const
 float ezJoltCharacterControllerComponent::get_Mass() const
 float ezJoltCharacterControllerComponent::get_Strength() const
+float ezJoltCharacterControllerComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_Damping() const
 float ezJoltClothSheetComponent::get_GravityFactor() const
+float ezJoltClothSheetComponent::get_Mass() const
 float ezJoltClothSheetComponent::get_Thickness() const
+float ezJoltClothSheetComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_WindInfluence() const
 float ezJoltConstraintComponent::get_BreakForce() const
 float ezJoltConstraintComponent::get_BreakTorque() const
@@ -1919,6 +1928,7 @@ float ezJoltDynamicActorComponent::get_Density() const
 float ezJoltDynamicActorComponent::get_GravityFactor() const
 float ezJoltDynamicActorComponent::get_LinearDamping() const
 float ezJoltDynamicActorComponent::get_Mass() const
+float ezJoltDynamicActorComponent::get_WeightScale() const
 float ezJoltGrabObjectComponent::get_BreakDistance() const
 float ezJoltGrabObjectComponent::get_CastRadius() const
 float ezJoltGrabObjectComponent::get_GrabAnyObjectWithSize() const
@@ -1933,11 +1943,13 @@ float ezJoltRagdollComponent::get_GravityFactor() const
 float ezJoltRagdollComponent::get_Mass() const
 float ezJoltRagdollComponent::get_OwnerVelocityScale() const
 float ezJoltRagdollComponent::get_StiffnessFactor() const
+float ezJoltRagdollComponent::get_WeightScale() const
 float ezJoltRopeComponent::get_BendStiffness() const
 float ezJoltRopeComponent::get_GravityFactor() const
 float ezJoltRopeComponent::get_Mass() const
 float ezJoltRopeComponent::get_Slack() const
 float ezJoltRopeComponent::get_Thickness() const
+float ezJoltRopeComponent::get_WeightScale() const
 float ezJoltSettingsComponent::get_FixedFrameRate() const
 float ezJoltSettingsComponent::get_SleepVelocityThreshold() const
 float ezJoltShapeCapsuleComponent::get_Height() const
@@ -2043,9 +2055,17 @@ float ezSpotLightComponent::get_ShadowFadeOutRange() const
 float ezSpriteComponent::get_AspectRatio() const
 float ezSpriteComponent::get_MaxScreenSize() const
 float ezSpriteComponent::get_Size() const
+float ezThirdPersonViewComponent::get_MaxDistance() const
+float ezThirdPersonViewComponent::get_MaxDistanceDown() const
+float ezThirdPersonViewComponent::get_MaxDistanceUp() const
+float ezThirdPersonViewComponent::get_MinDistance() const
+float ezThirdPersonViewComponent::get_SweepWidth() const
+float ezThirdPersonViewComponent::get_ZoomInSpeed() const
+float ezThirdPersonViewComponent::get_ZoomOutSpeed() const
 float ezTime::AsFloatInSeconds() const
 float ezTransform::GetMaxScale() const
 float ezTransformComponent::get_Speed() const
+float ezTwoBoneIKComponent::get_DebugVisScale() const
 float ezTwoBoneIKComponent::get_Weight() const
 float ezVec2::Dot(const ezVec2&in) const
 float ezVec2::GetDistanceTo(const ezVec2&in rhs) const
@@ -2126,6 +2146,7 @@ uint ezGameObject::GetChildCount()
 uint ezGameObject::GetStableRandomSeed()
 uint ezGreyBoxComponent::get_Detail() const
 uint ezJoltActorComponent::GetObjectFilterID() const
+uint ezJoltDynamicActorComponent::AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force)
 uint ezJoltHitboxComponent::GetObjectFilterID() const
 uint ezJoltRagdollComponent::GetObjectFilterID() const
 uint ezJoltSettingsComponent::get_MaxBodies() const
@@ -2162,13 +2183,19 @@ uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezJoltActorComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
+uint8 ezJoltCharacterControllerComponent::get_WeightCategory() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
+uint8 ezJoltClothSheetComponent::get_WeightCategory() const
+uint8 ezJoltDynamicActorComponent::get_WeightCategory() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
+uint8 ezJoltRagdollComponent::get_WeightCategory() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
+uint8 ezJoltRopeComponent::get_WeightCategory() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
 uint8 ezProjectileComponent::get_CollisionLayer() const
 uint8 ezRaycastComponent::get_CollisionLayerEndPoint() const
 uint8 ezSensorComponent::get_CollisionLayer() const
+uint8 ezThirdPersonViewComponent::get_CollisionLayer() const
 void T[]::Clear()
 void T[]::InsertAt(uint index, const T&in value)
 void T[]::InsertRangeAt(uint index, const T[]&inout arr)
@@ -2200,7 +2227,9 @@ void ezAiNavigationComponent::set_NavmeshConfig(ezHashedString)
 void ezAiNavigationComponent::set_PathSearchConfig(ezHashedString)
 void ezAiNavigationComponent::set_ReachedDistance(float)
 void ezAiNavigationComponent::set_Speed(float)
+void ezAimIKComponent::set_DebugVisScale(float)
 void ezAimIKComponent::set_ForwardVector(ezBasisAxis)
+void ezAimIKComponent::set_InversePoleVector(bool)
 void ezAimIKComponent::set_UpVector(ezBasisAxis)
 void ezAimIKComponent::set_Weight(float)
 void ezAmbientLightComponent::set_BottomColor(ezColorGammaUB)
@@ -2267,8 +2296,6 @@ void ezCameraShakeVolumeComponent::set_BurstDuration(ezTime)
 void ezCameraShakeVolumeComponent::set_OnFinishedAction(ezOnComponentFinishedAction)
 void ezCameraShakeVolumeComponent::set_Strength(float)
 void ezCameraShakeVolumeSphereComponent::set_Radius(float)
-void ezCharacterControllerComponent::RawMove(ezVec3 moveDeltaGlobal)
-void ezCharacterControllerComponent::TeleportCharacter(ezVec3 globalFootPosition)
 void ezClock::SetPaused(bool)
 void ezClock::SetSpeed(double)
 void ezClothSheetComponent::set_Color(ezColor)
@@ -2302,6 +2329,7 @@ void ezColorAnimationComponent::set_RandomStartOffset(bool)
 void ezColorAnimationComponent::set_SetColorMode(ezSetColorMode)
 void ezColorGammaUB::opAssign(const ezColor&in)
 void ezComponent::Deinitialize()
+void ezComponent::DeleteComponent()
 void ezComponent::Initialize()
 void ezComponent::OnActivated()
 void ezComponent::OnDeactivated()
@@ -2424,8 +2452,10 @@ void ezGameObject::SetGlobalKey(const ezHashedString&in sKey)
 void ezGameObject::SetGlobalKey(ezStringView sKey)
 void ezGameObject::SetGlobalPosition(const ezVec3&in)
 void ezGameObject::SetGlobalRotation(const ezQuat&in)
+void ezGameObject::SetGlobalRotationToLookAt(const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1))
 void ezGameObject::SetGlobalScaling(const ezVec3&in)
 void ezGameObject::SetGlobalTransform(const ezTransform&in)
+void ezGameObject::SetGlobalTransformToLookAt(const ezVec3&in vOwnPosition, const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1))
 void ezGameObject::SetLocalPosition(const ezVec3&in)
 void ezGameObject::SetLocalRotation(const ezQuat&in)
 void ezGameObject::SetLocalScaling(const ezVec3&in)
@@ -2489,20 +2519,30 @@ void ezJoltCharacterControllerComponent::set_Mass(float)
 void ezJoltCharacterControllerComponent::set_MaxClimbingSlope(ezAngle)
 void ezJoltCharacterControllerComponent::set_PresenceCollisionLayer(uint8)
 void ezJoltCharacterControllerComponent::set_Strength(float)
+void ezJoltCharacterControllerComponent::set_WeightCategory(uint8)
+void ezJoltCharacterControllerComponent::set_WeightScale(float)
 void ezJoltClothSheetComponent::set_CollisionLayer(uint8)
 void ezJoltClothSheetComponent::set_Color(ezColor)
 void ezJoltClothSheetComponent::set_Damping(float)
 void ezJoltClothSheetComponent::set_Flags(ezJoltClothSheetFlags)
 void ezJoltClothSheetComponent::set_GravityFactor(float)
+void ezJoltClothSheetComponent::set_Mass(float)
 void ezJoltClothSheetComponent::set_Material(ezStringView)
 void ezJoltClothSheetComponent::set_Size(ezVec2)
 void ezJoltClothSheetComponent::set_TextureScale(ezVec2)
 void ezJoltClothSheetComponent::set_Thickness(float)
+void ezJoltClothSheetComponent::set_WeightCategory(uint8)
+void ezJoltClothSheetComponent::set_WeightScale(float)
 void ezJoltClothSheetComponent::set_WindInfluence(float)
 void ezJoltConeConstraintComponent::set_ConeAngle(ezAngle)
 void ezJoltConstraintComponent::set_BreakForce(float)
 void ezJoltConstraintComponent::set_BreakTorque(float)
 void ezJoltConstraintComponent::set_PairCollision(bool)
+void ezJoltDefaultCharacterComponent::Crouch()
+void ezJoltDefaultCharacterComponent::Jump()
+void ezJoltDefaultCharacterComponent::Move(float Forward, float Right)
+void ezJoltDefaultCharacterComponent::RotateZ(float Amount)
+void ezJoltDefaultCharacterComponent::Run()
 void ezJoltDefaultCharacterComponent::TeleportCharacter(ezVec3 globalFootPosition)
 void ezJoltDefaultCharacterComponent::set_AirFriction(float)
 void ezJoltDefaultCharacterComponent::set_AirSpeed(float)
@@ -2524,10 +2564,9 @@ void ezJoltDistanceConstraintComponent::set_Damping(float)
 void ezJoltDistanceConstraintComponent::set_Frequency(float)
 void ezJoltDistanceConstraintComponent::set_MaxDistance(float)
 void ezJoltDistanceConstraintComponent::set_MinDistance(float)
-void ezJoltDynamicActorComponent::AddAngularForce(ezVec3 vForce)
 void ezJoltDynamicActorComponent::AddAngularImpulse(ezVec3 vImpulse)
-void ezJoltDynamicActorComponent::AddLinearForce(ezVec3 vForce)
 void ezJoltDynamicActorComponent::AddLinearImpulse(ezVec3 vImpulse)
+void ezJoltDynamicActorComponent::ClearForce(uint forceID)
 void ezJoltDynamicActorComponent::set_AllowSleeping(bool)
 void ezJoltDynamicActorComponent::set_AngularDamping(float)
 void ezJoltDynamicActorComponent::set_CenterOfMass(ezVec3)
@@ -2541,6 +2580,8 @@ void ezJoltDynamicActorComponent::set_Mass(float)
 void ezJoltDynamicActorComponent::set_OnContact(ezOnJoltContact)
 void ezJoltDynamicActorComponent::set_StartAsleep(bool)
 void ezJoltDynamicActorComponent::set_Surface(ezStringView)
+void ezJoltDynamicActorComponent::set_WeightCategory(uint8)
+void ezJoltDynamicActorComponent::set_WeightScale(float)
 void ezJoltGrabObjectComponent::BreakObjectGrab()
 void ezJoltGrabObjectComponent::DropGrabbedObject()
 void ezJoltGrabObjectComponent::ThrowGrabbedObject(ezVec3 Direction)
@@ -2574,6 +2615,8 @@ void ezJoltRagdollComponent::set_OwnerVelocityScale(float)
 void ezJoltRagdollComponent::set_SelfCollision(bool)
 void ezJoltRagdollComponent::set_StartMode(ezJoltRagdollStartMode)
 void ezJoltRagdollComponent::set_StiffnessFactor(float)
+void ezJoltRagdollComponent::set_WeightCategory(uint8)
+void ezJoltRagdollComponent::set_WeightScale(float)
 void ezJoltRopeComponent::set_Anchor1Constraint(ezJoltRopeAnchorConstraintMode)
 void ezJoltRopeComponent::set_Anchor2Constraint(ezJoltRopeAnchorConstraintMode)
 void ezJoltRopeComponent::set_BendStiffness(float)
@@ -2588,6 +2631,8 @@ void ezJoltRopeComponent::set_SelfCollision(bool)
 void ezJoltRopeComponent::set_Slack(float)
 void ezJoltRopeComponent::set_Surface(ezStringView)
 void ezJoltRopeComponent::set_Thickness(float)
+void ezJoltRopeComponent::set_WeightCategory(uint8)
+void ezJoltRopeComponent::set_WeightScale(float)
 void ezJoltSettingsComponent::set_CharacterGravity(ezVec3)
 void ezJoltSettingsComponent::set_FixedFrameRate(float)
 void ezJoltSettingsComponent::set_MaxBodies(uint)
@@ -2701,6 +2746,8 @@ void ezMsgDamage::set_Damage(double)
 void ezMsgDamage::set_GlobalPosition(ezVec3)
 void ezMsgDamage::set_HitObjectName(ezString)
 void ezMsgDamage::set_ImpactDirection(ezVec3)
+void ezMsgExport::set_DocumentGuid(ezString)
+void ezMsgExport::set_DocumentType(ezString)
 void ezMsgGenericEvent::set_Message(ezHashedString)
 void ezMsgInputActionTriggered::set_KeyPressValue(float)
 void ezMsgInputActionTriggered::set_TriggerState(ezTriggerState)
@@ -2716,8 +2763,6 @@ void ezMsgMoveCharacterController::set_StrafeRight(double)
 void ezMsgObjectGrabbed::set_GotGrabbed(bool)
 void ezMsgObjectGrabbed::set_GrabbedBy(ezGameObjectHandle)
 void ezMsgOnlyApplyToObject::set_Object(ezGameObjectHandle)
-void ezMsgPhysicsAddForce::set_Force(ezVec3)
-void ezMsgPhysicsAddForce::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_Impulse(ezVec3)
 void ezMsgPhysicsAddImpulse::set_ObjectFilterID(uint)
@@ -2763,6 +2808,7 @@ void ezPointLightComponent::set_ShadowFadeOutRange(float)
 void ezPowerConnectorComponent::Detach()
 void ezPowerConnectorComponent::set_Output(uint16)
 void ezPrefabReferenceComponent::set_Prefab(ezStringView)
+void ezPrefabReferenceComponent::set_ShowShapeIcons(bool)
 void ezPrefabs::SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation)
 void ezPrefabs::SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation)
 void ezProjectileComponent::set_CollisionLayer(uint8)
@@ -2846,9 +2892,9 @@ void ezSceneTransitionComponent::set_SpawnPoint(ezHashedString)
 void ezSceneTransitionComponent::set_TargetScene(ezHashedString)
 void ezScriptComponent::BroadcastEventMsg(const ezEventMessage&in msg)
 void ezScriptComponent::SetScriptVariable(ezHashedString Name, ?&in Value)
-void ezScriptComponent::SetUpdateInterval(ezTime interval)
 void ezScriptComponent::set_ScriptClass(ezStringView)
 void ezScriptComponent::set_UpdateInterval(ezTime)
+void ezScriptComponent::set_UpdateOnlyWhenSimulating(bool)
 void ezSensorComponent::set_CollisionLayer(uint8)
 void ezSensorComponent::set_Color(ezColorGammaUB)
 void ezSensorComponent::set_ShowDebugInfo(bool)
@@ -2998,6 +3044,19 @@ void ezStringView::opAssign(const ezStringBuilder&in)
 void ezTempHashedString::Clear()
 void ezTempHashedString::opAssign(const ezHashedString&in)
 void ezTempHashedString::opAssign(ezStringView)
+void ezThirdPersonViewComponent::RotateUp(ezAngle angle)
+void ezThirdPersonViewComponent::set_CollisionLayer(uint8)
+void ezThirdPersonViewComponent::set_MaxDistance(float)
+void ezThirdPersonViewComponent::set_MaxDistanceDown(float)
+void ezThirdPersonViewComponent::set_MaxDistanceUp(float)
+void ezThirdPersonViewComponent::set_MaxUpRotation(ezAngle)
+void ezThirdPersonViewComponent::set_MinDistance(float)
+void ezThirdPersonViewComponent::set_MinUpRotation(ezAngle)
+void ezThirdPersonViewComponent::set_SweepWidth(float)
+void ezThirdPersonViewComponent::set_TargetOffsetHigh(ezVec3)
+void ezThirdPersonViewComponent::set_TargetOffsetLow(ezVec3)
+void ezThirdPersonViewComponent::set_ZoomInSpeed(float)
+void ezThirdPersonViewComponent::set_ZoomOutSpeed(float)
 void ezTime::opAddAssign(const ezTime&in)
 void ezTime::opDivAssign(double)
 void ezTime::opMulAssign(double)
@@ -3017,6 +3076,7 @@ void ezTransformComponent::set_Running(bool)
 void ezTransformComponent::set_Speed(float)
 void ezTriggerDelayModifierComponent::set_ActivationDelay(ezTime)
 void ezTriggerDelayModifierComponent::set_DeactivationDelay(ezTime)
+void ezTwoBoneIKComponent::set_DebugVisScale(float)
 void ezTwoBoneIKComponent::set_JointEnd(ezHashedString)
 void ezTwoBoneIKComponent::set_JointMiddle(ezHashedString)
 void ezTwoBoneIKComponent::set_JointStart(ezHashedString)

@@ -1,10 +1,9 @@
 Abs
-AddAngularForce
 AddAngularImpulse
 AddChild
 AddInitialImpulse
-AddLinearForce
 AddLinearImpulse
+AddOrUpdateForce
 Append
 AppendFormat
 AppendPath
@@ -27,6 +26,7 @@ ChangeVerticalRotation
 ChopAwayFirstCharacterAscii
 ChopAwayFirstCharacterUtf8
 Clear
+ClearForce
 CompClamp
 CompDiv
 CompMax
@@ -43,7 +43,9 @@ ContainsUniformScale
 CreateComponent
 CreateObject
 CrossRH
+Crouch
 Deinitialize
+DeleteComponent
 DeleteObjectDelayed
 Detach
 DetachChild
@@ -216,7 +218,6 @@ IsActiveAndSimulating
 IsAttached
 IsConnected
 IsCrouching
-IsDestinationUnobstructed
 IsDirectionForwards
 IsDynamic
 IsEffectActive
@@ -244,17 +245,18 @@ IsRootedPath
 IsSlidingOnGround
 IsStandingOnGround
 IsStatic
-IsTouchingGround
 IsValid
 IsValidComponent
 IsValidObject
 IsZero
 IsZeroOrNegative
 IsZeroOrPositive
+Jump
 MakeCleanPath
 MakeDynamic
 MakeOrthogonalTo
 MakeStatic
+Move
 Normalize
 NormalizeRange
 NormalizeToLdrRange
@@ -273,7 +275,6 @@ PostMessageRecursive
 Prepend
 PrependFormat
 PushBack
-RawMove
 ReconstructFromMat3
 ReconstructFromMat4
 RecreatePhysicsShapes
@@ -284,6 +285,9 @@ ReplaceAll_NoCase
 Reserve
 Reverse
 Rotate
+RotateUp
+RotateZ
+Run
 ScaleRGB
 ScaleRGBA
 ScheduleSpawn
@@ -302,8 +306,10 @@ SetFormat
 SetGlobalKey
 SetGlobalPosition
 SetGlobalRotation
+SetGlobalRotationToLookAt
 SetGlobalScaling
 SetGlobalTransform
+SetGlobalTransformToLookAt
 SetIdentity
 SetInitialImpulse
 SetJointTypeOverride
@@ -324,7 +330,6 @@ SetStableRandomSeed
 SetState
 SetTargetPosition
 SetTeamID
-SetUpdateInterval
 SetValue
 SetVerticalRotation
 SetZero

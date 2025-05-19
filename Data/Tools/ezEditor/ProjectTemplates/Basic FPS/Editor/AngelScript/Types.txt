@@ -25,7 +25,6 @@ ezCameraShakeComponent
 ezCameraShakeVolumeComponent
 ezCameraShakeVolumeSphereComponent
 ezCameraUsageHint
-ezCharacterControllerComponent
 ezClock
 ezClothSheetComponent
 ezClothSheetFlags
@@ -139,6 +138,7 @@ ezMsgComponentsChanged
 ezMsgDamage
 ezMsgDeleteGameObject
 ezMsgDeliverAngelScriptMsg
+ezMsgExport
 ezMsgExtractGeometry
 ezMsgExtractOccluderData
 ezMsgExtractRenderData
@@ -151,7 +151,6 @@ ezMsgObjectGrabbed
 ezMsgOnlyApplyToObject
 ezMsgParentChanged
 ezMsgPathChanged
-ezMsgPhysicsAddForce
 ezMsgPhysicsAddImpulse
 ezMsgPhysicsJointBroke
 ezMsgQueryAnimationSkeleton
@@ -237,6 +236,7 @@ ezString
 ezStringBuilder
 ezStringView
 ezTempHashedString
+ezThirdPersonViewComponent
 ezTime
 ezTimedDeathComponent
 ezTransform

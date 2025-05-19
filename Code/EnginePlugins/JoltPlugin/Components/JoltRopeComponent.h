@@ -106,6 +106,9 @@ public:
   /// How much each rope segment may twist.
   ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
+  ezUInt8 m_uiWeightCategory = 0;                   // [ property ]
+  float m_fWeightValue = 1.0f;                      // [ property ]
+
   /// \brief Sets the anchor 1 references by object GUID.
   void SetAnchor1Reference(const char* szReference); // [ property ]
 
@@ -142,6 +145,10 @@ private:
   JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
+  float GetWeightValue() const { return m_fWeightValue; }
+  void SetWeightValue_Scale(float fValue);
+  void SetWeightValue_Mass(float fValue);
+
   ezSurfaceResourceHandle m_hSurface;
 
   ezGameObjectHandle m_hAnchor1;
@@ -149,9 +156,6 @@ private:
 
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
-
-  ezUInt8 m_uiWeightCategory = 0;                                 // [ property ]
-  float m_fWeightScale = 1.0f;                                    // [ property ]
 
   float m_fMaxForcePerFrame = 0.0f;
   float m_fBendStiffness = 0.0f;

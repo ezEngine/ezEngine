@@ -1942,9 +1942,12 @@ float ezHeightfieldComponent::get_Height() const
 float ezInputComponent::GetCurrentInputState(ezString InputAction, bool OnlyKeyPressed) const
 float ezJoltCharacterControllerComponent::get_Mass() const
 float ezJoltCharacterControllerComponent::get_Strength() const
+float ezJoltCharacterControllerComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_Damping() const
 float ezJoltClothSheetComponent::get_GravityFactor() const
+float ezJoltClothSheetComponent::get_Mass() const
 float ezJoltClothSheetComponent::get_Thickness() const
+float ezJoltClothSheetComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_WindInfluence() const
 float ezJoltConstraintComponent::get_BreakForce() const
 float ezJoltConstraintComponent::get_BreakTorque() const
@@ -1986,8 +1989,10 @@ float ezJoltRagdollComponent::get_GravityFactor() const
 float ezJoltRagdollComponent::get_Mass() const
 float ezJoltRagdollComponent::get_OwnerVelocityScale() const
 float ezJoltRagdollComponent::get_StiffnessFactor() const
+float ezJoltRagdollComponent::get_WeightScale() const
 float ezJoltRopeComponent::get_BendStiffness() const
 float ezJoltRopeComponent::get_GravityFactor() const
+float ezJoltRopeComponent::get_Mass() const
 float ezJoltRopeComponent::get_Slack() const
 float ezJoltRopeComponent::get_Thickness() const
 float ezJoltRopeComponent::get_WeightScale() const
@@ -2229,9 +2234,12 @@ uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezJoltActorComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
+uint8 ezJoltCharacterControllerComponent::get_WeightCategory() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
+uint8 ezJoltClothSheetComponent::get_WeightCategory() const
 uint8 ezJoltDynamicActorComponent::get_WeightCategory() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
+uint8 ezJoltRagdollComponent::get_WeightCategory() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_WeightCategory() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
@@ -2562,15 +2570,20 @@ void ezJoltCharacterControllerComponent::set_Mass(float)
 void ezJoltCharacterControllerComponent::set_MaxClimbingSlope(ezAngle)
 void ezJoltCharacterControllerComponent::set_PresenceCollisionLayer(uint8)
 void ezJoltCharacterControllerComponent::set_Strength(float)
+void ezJoltCharacterControllerComponent::set_WeightCategory(uint8)
+void ezJoltCharacterControllerComponent::set_WeightScale(float)
 void ezJoltClothSheetComponent::set_CollisionLayer(uint8)
 void ezJoltClothSheetComponent::set_Color(ezColor)
 void ezJoltClothSheetComponent::set_Damping(float)
 void ezJoltClothSheetComponent::set_Flags(ezJoltClothSheetFlags)
 void ezJoltClothSheetComponent::set_GravityFactor(float)
+void ezJoltClothSheetComponent::set_Mass(float)
 void ezJoltClothSheetComponent::set_Material(ezStringView)
 void ezJoltClothSheetComponent::set_Size(ezVec2)
 void ezJoltClothSheetComponent::set_TextureScale(ezVec2)
 void ezJoltClothSheetComponent::set_Thickness(float)
+void ezJoltClothSheetComponent::set_WeightCategory(uint8)
+void ezJoltClothSheetComponent::set_WeightScale(float)
 void ezJoltClothSheetComponent::set_WindInfluence(float)
 void ezJoltConeConstraintComponent::set_ConeAngle(ezAngle)
 void ezJoltConstraintComponent::set_BreakForce(float)
@@ -2653,12 +2666,15 @@ void ezJoltRagdollComponent::set_OwnerVelocityScale(float)
 void ezJoltRagdollComponent::set_SelfCollision(bool)
 void ezJoltRagdollComponent::set_StartMode(ezJoltRagdollStartMode)
 void ezJoltRagdollComponent::set_StiffnessFactor(float)
+void ezJoltRagdollComponent::set_WeightCategory(uint8)
+void ezJoltRagdollComponent::set_WeightScale(float)
 void ezJoltRopeComponent::set_Anchor1Constraint(ezJoltRopeAnchorConstraintMode)
 void ezJoltRopeComponent::set_Anchor2Constraint(ezJoltRopeAnchorConstraintMode)
 void ezJoltRopeComponent::set_BendStiffness(float)
 void ezJoltRopeComponent::set_CollisionLayer(uint8)
 void ezJoltRopeComponent::set_ContinuousCollisionDetection(bool)
 void ezJoltRopeComponent::set_GravityFactor(float)
+void ezJoltRopeComponent::set_Mass(float)
 void ezJoltRopeComponent::set_MaxBend(ezAngle)
 void ezJoltRopeComponent::set_MaxTwist(ezAngle)
 void ezJoltRopeComponent::set_Pieces(uint16)

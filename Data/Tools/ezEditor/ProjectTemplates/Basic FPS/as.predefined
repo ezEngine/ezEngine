@@ -1074,6 +1074,8 @@ class ezGameObject
   ezVec3 GetGlobalDirForwards() const;
   ezVec3 GetGlobalDirRight() const;
   ezVec3 GetGlobalDirUp() const;
+  void SetGlobalRotationToLookAt(const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
+  void SetGlobalTransformToLookAt(const ezVec3&in vOwnPosition, const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
   ezVec3 GetLinearVelocity() const;
   ezVec3 GetAngularVelocity() const;
   void UpdateGlobalTransform();
@@ -1114,6 +1116,7 @@ class ezComponent
   ezGameObject@ GetOwner() const;
   ezWorld@ GetWorld() const;
   uint GetUniqueID() const;
+  void DeleteComponent();
   void Initialize();
   void Deinitialize();
   void OnActivated();
@@ -1200,7 +1203,6 @@ class ezComponent
   ezSpawnComponent@ opCast();
   ezTimedDeathComponent@ opCast();
   ezTriggerDelayModifierComponent@ opCast();
-  ezCharacterControllerComponent@ opCast();
   ezStateMachineComponent@ opCast();
   ezVolumeComponent@ opCast();
   ezVolumeSphereComponent@ opCast();
@@ -1218,6 +1220,7 @@ class ezComponent
   ezFmodListenerComponent@ opCast();
   ezCreatureCrawlComponent@ opCast();
   ezMoveToComponent@ opCast();
+  ezThirdPersonViewComponent@ opCast();
   ezLineToComponent@ opCast();
   ezCameraShakeComponent@ opCast();
   ezCameraShakeVolumeComponent@ opCast();
@@ -1302,7 +1305,6 @@ class ezWorld
 class ezMessage
 {
   ezMsgPhysicsAddImpulse@ opCast();
-  ezMsgPhysicsAddForce@ opCast();
   ezMsgPhysicsJointBroke@ opCast();
   ezMsgObjectGrabbed@ opCast();
   ezMsgReleaseObjectGrab@ opCast();
@@ -1341,6 +1343,7 @@ class ezMessage
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
+  ezMsgExport@ opCast();
   ezMsgMoveCharacterController@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
   ezMsgDeliverAngelScriptMsg@ opCast();
@@ -1418,6 +1421,7 @@ class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
 class ezPrefabReferenceComponent : ezComponent
 {
   ezStringView Prefab;
+  bool ShowShapeIcons;
 }
 
 class ezScriptComponent : ezEventMessageHandlerComponent
@@ -1436,8 +1440,8 @@ class ezScriptComponent : ezEventMessageHandlerComponent
   ezString GetScriptVariable_asString(ezHashedString Name) const;
   ezGameObjectHandle GetScriptVariable_asGameObjectHandle(ezHashedString Name) const;
   ezComponentHandle GetScriptVariable_asComponentHandle(ezHashedString Name) const;
-  void SetUpdateInterval(ezTime interval);
   ezTime UpdateInterval;
+  bool UpdateOnlyWhenSimulating;
   ezStringView ScriptClass;
   void BroadcastEventMsg(const ezEventMessage&in msg);
 }
@@ -1918,9 +1922,11 @@ class ezSliderComponent : ezTransformComponent
 
 class ezAimIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezBasisAxis ForwardVector;
   ezBasisAxis UpVector;
   ezString PoleVector;
+  bool InversePoleVector;
   float Weight;
 }
 
@@ -1977,6 +1983,7 @@ class ezSimpleAnimationComponent : ezComponent
 
 class ezTwoBoneIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezHashedString JointStart;
   ezHashedString JointMiddle;
   ezHashedString JointEnd;
@@ -2162,15 +2169,6 @@ class ezTriggerDelayModifierComponent : ezComponent
   ezTime DeactivationDelay;
 }
 
-class ezCharacterControllerComponent : ezComponent
-{
-  void RawMove(ezVec3 moveDeltaGlobal);
-  void TeleportCharacter(ezVec3 globalFootPosition);
-  bool IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight);
-  bool IsTouchingGround();
-  bool IsCrouching();
-}
-
 class ezStateMachineComponent : ezComponent
 {
   bool SetState(ezStringView Name);
@@ -2326,6 +2324,24 @@ class ezMoveToComponent : ezComponent
   float TranslationDeceleration;
 }
 
+class ezThirdPersonViewComponent : ezComponent
+{
+  void RotateUp(ezAngle angle);
+  ezString TargetObject;
+  ezVec3 TargetOffsetHigh;
+  ezVec3 TargetOffsetLow;
+  float MinDistance;
+  float MaxDistance;
+  float MaxDistanceUp;
+  float MaxDistanceDown;
+  ezAngle MinUpRotation;
+  ezAngle MaxUpRotation;
+  uint8 CollisionLayer;
+  float SweepWidth;
+  float ZoomInSpeed;
+  float ZoomOutSpeed;
+}
+
 class ezLineToComponent : ezComponent
 {
   ezString Target;
@@ -2463,13 +2479,15 @@ class ezJoltActorComponent : ezComponent
 
 class ezJoltDynamicActorComponent : ezJoltActorComponent
 {
-  void AddLinearForce(ezVec3 vForce);
   void AddLinearImpulse(ezVec3 vImpulse);
-  void AddAngularForce(ezVec3 vForce);
   void AddAngularImpulse(ezVec3 vImpulse);
+  uint AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force);
+  void ClearForce(uint forceID);
   bool Kinematic;
   bool StartAsleep;
   bool AllowSleeping;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Density;
   ezStringView Surface;
@@ -2503,6 +2521,8 @@ class ezJoltCharacterControllerComponent : ezComponent
 {
   uint8 CollisionLayer;
   uint8 PresenceCollisionLayer;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Strength;
   ezAngle MaxClimbingSlope;
@@ -2517,6 +2537,11 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
   bool IsSlidingOnGround() const;
   bool IsInAir() const;
   bool IsCrouching() const;
+  void Jump();
+  void Run();
+  void Crouch();
+  void RotateZ(float Amount);
+  void Move(float Forward, float Right);
   float ShapeRadius;
   float CrouchHeight;
   float StandHeight;
@@ -2540,6 +2565,9 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
 class ezJoltClothSheetComponent : ezRenderComponent
 {
   ezVec2 Size;
+  uint8 WeightCategory;
+  float WeightScale;
+  float Mass;
   uint8 CollisionLayer;
   float WindInfluence;
   float GravityFactor;
@@ -2568,6 +2596,8 @@ class ezJoltRagdollComponent : ezComponent
   bool SelfCollision;
   ezJoltRagdollStartMode StartMode;
   float GravityFactor;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float StiffnessFactor;
   float OwnerVelocityScale;
@@ -2584,6 +2614,8 @@ class ezJoltRopeComponent : ezComponent
   ezJoltRopeAnchorConstraintMode Anchor2Constraint;
   uint16 Pieces;
   float Slack;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Thickness;
   float BendStiffness;
@@ -2778,12 +2810,6 @@ class ezMsgPhysicsAddImpulse : ezMessage
   ezVec3 GlobalPosition;
   ezVec3 Impulse;
   uint32 ObjectFilterID;
-}
-
-class ezMsgPhysicsAddForce : ezMessage
-{
-  ezVec3 GlobalPosition;
-  ezVec3 Force;
 }
 
 class ezEventMessage : ezMessage
@@ -2982,6 +3008,12 @@ class ezMsgDamage : ezEventMessage
   ezString HitObjectName;
   ezVec3 GlobalPosition;
   ezVec3 ImpactDirection;
+}
+
+class ezMsgExport : ezMessage
+{
+  ezString DocumentType;
+  ezString DocumentGuid;
 }
 
 class ezMsgMoveCharacterController : ezMessage

@@ -83,6 +83,7 @@ Data2
 Data3
 DeactivationDelay
 DebugShowPoints
+DebugVisScale
 Deceleration
 DeepPink
 DeepSkyBlue
@@ -121,7 +122,6 @@ FireBrick
 Flags
 FloralWhite
 FollowMode
-Force
 ForestGreen
 ForwardToBlackboard
 ForwardVector
@@ -164,6 +164,7 @@ InnerSpotAngle
 InputAction
 InputSet
 Intensity
+InversePoleVector
 InverseTonemap
 InvisibleUpdateRate
 Ivory

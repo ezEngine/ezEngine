@@ -2544,6 +2544,8 @@ class ezJoltCharacterControllerComponent : ezComponent
 {
   uint8 CollisionLayer;
   uint8 PresenceCollisionLayer;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Strength;
   ezAngle MaxClimbingSlope;
@@ -2586,6 +2588,9 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
 class ezJoltClothSheetComponent : ezRenderComponent
 {
   ezVec2 Size;
+  uint8 WeightCategory;
+  float WeightScale;
+  float Mass;
   uint8 CollisionLayer;
   float WindInfluence;
   float GravityFactor;
@@ -2614,6 +2619,8 @@ class ezJoltRagdollComponent : ezComponent
   bool SelfCollision;
   ezJoltRagdollStartMode StartMode;
   float GravityFactor;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float StiffnessFactor;
   float OwnerVelocityScale;
@@ -2632,6 +2639,7 @@ class ezJoltRopeComponent : ezComponent
   float Slack;
   uint8 WeightCategory;
   float WeightScale;
+  float Mass;
   float Thickness;
   float BendStiffness;
   ezAngle MaxBend;

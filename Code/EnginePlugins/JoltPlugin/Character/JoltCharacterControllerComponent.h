@@ -84,7 +84,7 @@ public:
   float GetMass() const { return m_fMass; } // [ property ]
 
   ezUInt8 m_uiWeightCategory = 0;           // [ property ]
-  float m_fWeightScale = 1.0f;              // [ property ]
+  float m_fWeightValue = 1.0f;              // [ property ]
 
   /// \brief The strength with which the character will push against objects that it is running into.
   void SetStrength(float fStrength);                        // [ property ]
@@ -94,6 +94,10 @@ private:
   ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(45); // [ property ]
   float m_fMass = 70.0f;                                    // [ property ]
   float m_fStrength = 500.0f;                               // [ property ]
+
+  float GetWeightValue() const { return m_fWeightValue; }
+  void SetWeightValue_Scale(float fValue);
+  void SetWeightValue_Mass(float fValue);
 
 protected:
   /// \brief Returns the time delta to use for updating the character. This may differ from the world delta.

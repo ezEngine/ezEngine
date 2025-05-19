@@ -21,6 +21,10 @@ void UpdateWeightCategoryDynamicEnumValues();
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezRagdollComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezCharacterControllerComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezRopeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezClothSheetComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin()
 {
@@ -57,11 +61,19 @@ void OnLoadPlugin()
 
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezDynamicActorComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezRagdollComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCharacterControllerComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezRopeComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezClothSheetComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
 {
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezDynamicActorComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezRagdollComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCharacterControllerComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezRopeComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezClothSheetComponent_PropertyMetaStateEventHandler);
 
   ezJoltActions::UnregisterActions();
   ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
@@ -101,8 +113,8 @@ void UpdateCollisionLayerDynamicEnumValues()
 
 void UpdateWeightCategoryDynamicEnumValues()
 {
-  auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategory");
-  auto& cfeNC = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategoryNoCustom");
+  auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategoryWithDensity");
+  auto& cfeNC = ezDynamicEnum::GetDynamicEnum("PhysicsWeightCategory");
 
   cfe.Clear();
   cfe.SetEditCommand("Jolt.Settings.Project", "WeightCategories");
@@ -121,6 +133,7 @@ void UpdateWeightCategoryDynamicEnumValues()
   }
 
   cfeNC.SetValueAndName(0, "<Default>");
+  cfeNC.SetValueAndName(1, "<Custom Mass>");
 
   cfe.SetValueAndName(0, "<Default>");
   cfe.SetValueAndName(1, "<Custom Mass>");
@@ -145,14 +158,8 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void ezJoltWeightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltDynamicActorComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
-
-  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
-    return;
-
   auto& props = *e.m_pPropertyStates;
 
   const ezInt32 iCategory = e.m_pObject->GetTypeAccessor().GetValue("WeightCategory").ConvertTo<ezInt32>();
@@ -179,6 +186,62 @@ void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEv
     props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }
+
+void ezDynamicActorComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltDynamicActorComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  ezJoltWeightComponent_PropertyMetaStateEventHandler(e);
+}
+
+void ezRagdollComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltRagdollComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  ezJoltWeightComponent_PropertyMetaStateEventHandler(e);
+}
+
+void ezCharacterControllerComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltCharacterControllerComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  ezJoltWeightComponent_PropertyMetaStateEventHandler(e);
+}
+
+void ezRopeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltRopeComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  ezJoltWeightComponent_PropertyMetaStateEventHandler(e);
+}
+
+void ezClothSheetComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezJoltClothSheetComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  ezJoltWeightComponent_PropertyMetaStateEventHandler(e);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
