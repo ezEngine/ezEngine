@@ -1101,6 +1101,42 @@ void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, co
   imp.m_vGlobalPosition = vGlobalPosition;
 }
 
+void ezJoltWorldModule::ApplyImpulses()
+{
+  if (m_Impulses.IsEmpty())
+    return;
+
+  auto* pBodies = &m_pSystem->GetBodyInterface();
+  ezHybridArray<ezJoltImpulse, 64> retain;
+
+  EZ_LOCK(m_ImpulsesMutex);
+
+  for (ezUInt32 i = 0; i < m_Impulses.GetCount(); ++i)
+  {
+    auto& imp = m_Impulses[i];
+
+    const JPH::BodyID bodyId(imp.m_uiBodyID);
+
+    if (bodyId.IsInvalid())
+      continue;
+
+    if (!pBodies->IsAdded(bodyId))
+    {
+      retain.PushBack(imp);
+      continue;
+    }
+
+    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse), ezJoltConversionUtils::ToVec3(imp.m_vGlobalPosition));
+  }
+
+  m_Impulses.Clear();
+
+  for (auto& imp : retain)
+  {
+    m_Impulses.PushBack(imp);
+  }
+}
+
 //////////////////////////////////////////////////////////////////
 
 // clang-format off
