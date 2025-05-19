@@ -336,7 +336,7 @@ ezTestAppRun ezEditorTestMisc::AssetBrowerModelTest()
     QString relativePath = index2.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
     EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/mesh.ezMeshAsset");
     const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index2.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-    EZ_TEST_BOOL(itemType == ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset);
+    EZ_TEST_BOOL(itemType == (ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset));
     const bool bImportable = index2.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
     EZ_TEST_BOOL(!bImportable);
   }
@@ -384,7 +384,7 @@ ezTestAppRun ezEditorTestMisc::AssetBrowerModelTest()
     QString relativePath = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
     EZ_TEST_STRING(relativePath.toUtf8().data(), "EditorTest/Meshes/mesh.ezMeshAsset");
     const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-    EZ_TEST_BOOL(itemType == ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset);
+    EZ_TEST_BOOL(itemType == (ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Asset));
     const bool bImportable = index.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
     EZ_TEST_BOOL(!bImportable);
   }

@@ -797,8 +797,6 @@ void ezQtAssetBrowserModel::FileSystemFileEventHandler(const ezFileChangedEvent&
 
   if (bFire)
   {
-    // QTimer::singleShot(500, [this]()
-    //   { QMetaObject::invokeMethod(this, "OnFileSystemUpdate", //Qt::ConnectionType::QueuedConnection); });
     QMetaObject::invokeMethod(this, "OnFileSystemUpdate", Qt::ConnectionType::QueuedConnection);
   }
 }
