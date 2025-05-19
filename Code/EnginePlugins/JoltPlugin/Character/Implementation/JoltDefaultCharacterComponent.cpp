@@ -370,6 +370,14 @@ void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
     m_vVelocityLateral.SetZero();
 }
 
+void ezJoltDefaultCharacterComponent::ClampUpVelocity()
+{
+  const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
+  const ezVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
+
+  m_fVelocityUp = ezMath::Min(m_fVelocityUp, vVelocity.z);
+}
+
 void ezJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& contact, const Config& cfg)
 {
   if (cfg.m_sGroundInteraction.IsEmpty())
@@ -699,6 +707,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   else
   {
     ClampLateralVelocity();
+    ClampUpVelocity();
   }
 
   m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;

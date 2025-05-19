@@ -179,6 +179,7 @@ protected:
 
   void StoreLateralVelocity();
   void ClampLateralVelocity();
+  void ClampUpVelocity();
   void MoveHeadObject();
   void DebugVisualizations();
 
