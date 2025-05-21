@@ -32,6 +32,7 @@ GetCollisionLayerByName
 GetFloatValue
 GetGlobalClock
 GetGravity
+GetImpulseTypeByName
 GetIntValue
 GetResolution
 GetScriptOwnerComponent
@@ -52,6 +53,7 @@ GetValue_asTime
 GetValue_asVec2
 GetValue_asVec3
 GetValue_asVec4
+GetWeightCategoryByName
 Hours
 Info
 IsEqual

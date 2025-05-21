@@ -44,7 +44,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 3, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 4, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -52,8 +52,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 3, ezComponentMode::Dynamic)
     EZ_ENUM_ACCESSOR_PROPERTY("StartMode", ezJoltRagdollStartMode, GetStartMode, SetStartMode),
     EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-    EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
+    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+    EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("StiffnessFactor", m_fStiffnessFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("OwnerVelocityScale", m_fOwnerVelocityScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("CenterPosition", m_vCenterPosition),
@@ -140,6 +140,7 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
+
   s << m_StartMode;
   s << m_fGravityFactor;
   s << m_bSelfCollision;
@@ -147,8 +148,9 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_fCenterVelocity;
   s << m_fCenterAngularVelocity;
   s << m_vCenterPosition;
-  s << m_fWeightValue;
   s << m_uiWeightCategory;
+  s << (float)m_fWeightScale;
+  s << (float)m_fWeightMass;
   s << m_fStiffnessFactor;
 }
 
@@ -158,7 +160,8 @@ void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  if (uiVersion < 2)
+  EZ_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
+  if (uiVersion < 4)
     return;
 
   s >> m_StartMode;
@@ -168,16 +171,16 @@ void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fCenterVelocity;
   s >> m_fCenterAngularVelocity;
   s >> m_vCenterPosition;
+  s >> m_uiWeightCategory;
 
-  s >> m_fWeightValue;
+  {
+    float f;
 
-  if (uiVersion >= 3)
-  {
-    s >> m_uiWeightCategory;
-  }
-  else
-  {
-    m_fWeightValue = 1.0f;
+    s >> f;
+    m_fWeightScale = f;
+
+    s >> f;
+    m_fWeightMass = f;
   }
 
   s >> m_fStiffnessFactor;
@@ -372,17 +375,19 @@ void ezJoltRagdollComponent::SetStartMode(ezEnum<ezJoltRagdollStartMode> mode)
 
 void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg)
 {
+  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
+
   if (!HasCreatedLimbs())
   {
     m_vInitialImpulsePosition += ref_msg.m_vGlobalPosition;
-    m_vInitialImpulseDirection += ref_msg.m_vImpulse;
+    m_vInitialImpulseDirection += ref_msg.m_vImpulse * fImpulse;
     m_uiNumInitialImpulses++;
     return;
   }
 
   // TODO: normalize by number of limbs
   const ezUInt32 uiBodyId = reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF;
-  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(uiBodyId, ref_msg.m_vImpulse, ref_msg.m_vGlobalPosition);
+  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(uiBodyId, ref_msg.m_vImpulse * fImpulse, ref_msg.m_vGlobalPosition);
 }
 
 void ezJoltRagdollComponent::SetInitialImpulse(const ezVec3& vPosition, const ezVec3& vDirectionAndStrength)
@@ -613,24 +618,7 @@ void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated
   CreateAllLimbs(*pSkeletonResource.GetPointer(), pose, worldModule, fObjectScale);
 
   {
-    float fInitialMass = 50.0f;    // default value
-    if (m_uiWeightCategory != 0)
-    {
-      if (m_uiWeightCategory == 1) // Custom Mass
-      {
-        fInitialMass = m_fWeightValue;
-      }
-      else
-      {
-        auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
-        const ezUInt32 idx = cat.Find(m_uiWeightCategory);
-        if (idx != ezInvalidIndex)
-        {
-          fInitialMass = cat.GetValue(idx).m_fMass;
-          fInitialMass = ezMath::Clamp(fInitialMass * m_fWeightValue, 1.0f, 1000.0f);
-        }
-      }
-    }
+    const float fInitialMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 50.0f, m_fWeightMass, m_fWeightScale);
 
     ApplyBodyMass(fInitialMass);
   }
@@ -749,22 +737,6 @@ void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule,
   {
     pJoltSystem->GetBodyInterface().AddImpulse(closestBody, ezJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
   }
-}
-
-void ezJoltRagdollComponent::SetWeightValue_Scale(float fValue)
-{
-  if (m_uiWeightCategory >= 10)
-    return;
-
-  m_fWeightValue = fValue;
-}
-
-void ezJoltRagdollComponent::SetWeightValue_Mass(float fValue)
-{
-  if (m_uiWeightCategory != 1) // Custom Mass
-    return;
-
-  m_fWeightValue = fValue;
 }
 
 void ezJoltRagdollComponent::ApplyBodyMass(float fMass)

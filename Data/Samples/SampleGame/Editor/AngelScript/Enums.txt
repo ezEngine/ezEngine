@@ -18,6 +18,7 @@ CancelPreload
 Center
 Character
 ClearEntireBlackboard
+Cloth
 Column
 Continuing
 Cross

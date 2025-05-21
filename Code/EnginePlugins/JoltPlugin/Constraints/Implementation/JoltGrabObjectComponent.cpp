@@ -31,7 +31,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 2, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(GrabNearbyObject),
     EZ_SCRIPT_FUNCTION_PROPERTY(HasObjectGrabbed),
     EZ_SCRIPT_FUNCTION_PROPERTY(DropGrabbedObject),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject, In, "Direction"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject, In, "vDirection", In, "uiImpulseType")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(0))),
     EZ_SCRIPT_FUNCTION_PROPERTY(BreakObjectGrab),
   }
   EZ_END_FUNCTIONS;
@@ -209,7 +209,7 @@ void ezJoltGrabObjectComponent::DropGrabbedObject()
   ReleaseGrabbedObject();
 }
 
-void ezJoltGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir)
+void ezJoltGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType)
 {
   ezComponentHandle hActor = m_hGrabbedActor;
   ReleaseGrabbedObject();
@@ -217,9 +217,7 @@ void ezJoltGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir)
   ezJoltDynamicActorComponent* pActor;
   if (GetWorld()->TryGetComponent(hActor, pActor))
   {
-    // TODO: normalize impulse with object mass (?)
-
-    pActor->AddLinearImpulse(GetOwner()->GetGlobalRotation() * vRelativeDir);
+    pActor->AddLinearImpulse(GetOwner()->GetGlobalRotation() * vRelativeDir, uiImpulseType);
   }
 }
 

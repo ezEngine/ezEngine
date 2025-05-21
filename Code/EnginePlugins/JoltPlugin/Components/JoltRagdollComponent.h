@@ -111,7 +111,8 @@ public:
   float m_fStiffnessFactor = 1.0f; // [ property ]
 
   ezUInt8 m_uiWeightCategory = 0;  // [ property ]
-  float m_fWeightValue = 1.0f;     // [ property ]
+  ezFloat16 m_fWeightScale = 1.0f; // [ property ]
+  ezFloat16 m_fWeightMass = 50.0f; // [ property ]
 
   /// \brief Sets with which pose the ragdoll should start simulating.
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
@@ -203,9 +204,10 @@ protected:
   void ApplyBodyMass(float fMass);
   void ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse);
 
-  float GetWeightValue() const { return m_fWeightValue; }
-  void SetWeightValue_Scale(float fValue);
-  void SetWeightValue_Mass(float fValue);
+  float GetWeight_Scale() const { return m_fWeightScale; }
+  float GetWeight_Mass() const { return m_fWeightMass; }
+  void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
+  void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezDynamicArray<ezMat4> m_CurrentLimbTransforms;

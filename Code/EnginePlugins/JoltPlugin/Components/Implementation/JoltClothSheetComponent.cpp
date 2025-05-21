@@ -50,15 +50,12 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltClothSheetFlags, 1)
   EZ_ENUM_CONSTANT(ezJoltClothSheetFlags::FixedEdgeLeft),
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 4, ezComponentMode::Static)
   {
     EZ_BEGIN_PROPERTIES
     {
       EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.5f, 0.5f))),
       EZ_ACCESSOR_PROPERTY("Segments", GetSegments, SetSegments)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(16, 16)), new ezClampValueAttribute(ezVec2U32(2, 2), ezVec2U32(64, 64))),
-      //EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-      //EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-      //EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 100.0f)),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -86,22 +83,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezJoltClothSheetComponent::ezJoltClothSheetComponent() = default;
 ezJoltClothSheetComponent::~ezJoltClothSheetComponent() = default;
-
-void ezJoltClothSheetComponent::SetWeightValue_Scale(float fValue)
-{
-  if (m_uiWeightCategory >= 10)
-    return;
-
-  m_fWeightValue = fValue;
-}
-
-void ezJoltClothSheetComponent::SetWeightValue_Mass(float fValue)
-{
-  if (m_uiWeightCategory != 1) // Custom Mass
-    return;
-
-  m_fWeightValue = fValue;
-}
 
 void ezJoltClothSheetComponent::SetSize(ezVec2 vVal)
 {
@@ -131,14 +112,17 @@ void ezJoltClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_vTextureScale;
   s << m_Color;
   s << m_fThickness;
-  s << m_uiWeightCategory;
-  s << m_fWeightValue;
 }
 
 void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  EZ_ASSERT_DEBUG(uiVersion >= 4, "Outdated version, please re-transform asset.");
+  if (uiVersion < 4)
+    return;
+
   auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
@@ -151,17 +135,7 @@ void ezJoltClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream
   s >> m_hMaterial;
   s >> m_vTextureScale;
   s >> m_Color;
-
-  if (uiVersion >= 2)
-  {
-    s >> m_fThickness;
-  }
-
-  if (uiVersion >= 3)
-  {
-    s >> m_uiWeightCategory;
-    s >> m_fWeightValue;
-  }
+  s >> m_fThickness;
 }
 
 void ezJoltClothSheetComponent::OnActivated()
@@ -326,24 +300,7 @@ void ezJoltClothSheetComponent::SetupCloth()
   {
     RemoveBody();
 
-    float fPerVertexMass = 1.0f;   // default value
-    if (m_uiWeightCategory != 0)
-    {
-      if (m_uiWeightCategory == 1) // Custom Mass
-      {
-        fPerVertexMass = m_fWeightValue;
-      }
-      else
-      {
-        auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
-        const ezUInt32 idx = cat.Find(m_uiWeightCategory);
-        if (idx != ezInvalidIndex)
-        {
-          fPerVertexMass = cat.GetValue(idx).m_fMass;
-          fPerVertexMass = ezMath::Clamp(fPerVertexMass * m_fWeightValue, 0.1f, 100.0f);
-        }
-      }
-    }
+    float fPerVertexMass = 1.0f; // default value
 
     ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
     auto* pSystem = pModule->GetJoltSystem();

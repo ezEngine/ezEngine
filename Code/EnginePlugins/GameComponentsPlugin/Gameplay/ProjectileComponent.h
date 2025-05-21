@@ -40,6 +40,9 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
   /// \brief Which interaction should be triggered. See ezSurfaceResource.
   ezString m_sInteraction;
 
+  /// \brief Which impulse type to use.
+  ezUInt8 m_uiImpulseType = 0;
+
   /// \brief The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
 
@@ -81,7 +84,7 @@ public:
   /// If 0, the projectile is not affected by gravity.
   float m_fGravityMultiplier; // [ property ]
 
-  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static
+  // If true the death prefab will be spawned when the velocity goes under the threshold to be considered static
   bool m_bSpawnPrefabOnStatic; // [ property ]
 
   /// Defines which other physics objects the projectile will collide with.

@@ -22,6 +22,7 @@
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
+#include <GameEngine/Physics/ImpulseType.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
@@ -110,6 +111,8 @@ void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
 void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
@@ -224,6 +227,8 @@ void OnLoadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
@@ -237,6 +242,8 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
 
 
   ezSelectionActions::UnregisterActions();
@@ -384,5 +391,39 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
     props["FadeOutStart"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SplitModeWeight"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["NearPlaneOffset"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+}
+
+void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezAreaDamageComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
+
+  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  {
+    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+}
+
+void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezProjectileSurfaceInteraction");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
+
+  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  {
+    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }

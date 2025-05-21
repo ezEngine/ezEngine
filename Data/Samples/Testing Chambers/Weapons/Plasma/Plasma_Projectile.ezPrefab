@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3164501351321007789,5751316033902908514}}
-		u4 %Hash{17457840096253545414}
+		u4 %Hash{7183872169629258226}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15132986221782125580,7231411748225102780}}
@@ -47,19 +47,22 @@ o
 {
 	Uuid %id{u4{4870318711964225011,187665149307420373}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{71,222,54,255}}
 		f %PenumbraSize{0x0AD7233C}
 		f %Range{0x00008040}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -67,7 +70,7 @@ o
 {
 	Uuid %id{u4{17688389450013681389,412527366710962082}}
 	s %t{"ezProjectileComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
@@ -94,6 +97,7 @@ o
 	{
 		f %Damage{0x00002041}
 		f %Impulse{0x0000F041}
+		u1 %ImpulseType{11}
 		s %Interaction{"Plasma_Impact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
 		s %Surface{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
@@ -168,6 +172,21 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{15829205864096637718,291835124268648879}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Damage"}
+		s %Type{"float"}
+	}
+}
 o
 {
 	Uuid %id{u4{10715278664816906141,418644933343316392}}
@@ -296,12 +315,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{4402694282426380851,5734592608289173440}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Impulse"}
-		s %Type{"float"}
+		s %Name{"ImpulseType"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -372,6 +394,7 @@ o
 			Uuid{u4{15125895940633212239,5311695144385135805}}
 			Uuid{u4{12658236571470163545,3187001981423077763}}
 			Uuid{u4{15505174225075693732,10606512505685665718}}
+			Uuid{u4{15829205864096637718,291835124268648879}}
 		}
 		s %TypeName{"ezProjectileSurfaceInteraction"}
 		u3 %TypeVersion{3}
@@ -448,6 +471,16 @@ o
 }
 o
 {
+	Uuid %id{u4{4402694282426380851,5734592608289173440}}
+	s %t{"ezDynamicEnumAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DynamicEnum{"PhysicsImpulseType"}
+	}
+}
+o
+{
 	Uuid %id{u4{13191156576213894601,5861892948208209101}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -459,9 +492,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"OnDeathPrefab"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -716,7 +749,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Damage"}
+		s %Name{"Impulse"}
 		s %Type{"float"}
 	}
 }
@@ -745,9 +778,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"FallbackSurface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -807,7 +840,7 @@ o
 			Uuid{u4{2688992068326177481,3019386516385584709}}
 		}
 		s %TypeName{"ezProjectileComponent"}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{7}
 	}
 }
 o
@@ -842,7 +875,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -985,9 +1018,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -1004,7 +1037,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

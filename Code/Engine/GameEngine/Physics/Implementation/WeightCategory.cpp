@@ -7,33 +7,32 @@
 ezWeightCategoryConfig::ezWeightCategoryConfig() = default;
 ezWeightCategoryConfig::~ezWeightCategoryConfig() = default;
 
-ezUInt8 ezWeightCategoryConfig::FindByName(ezStringView sName) const
+ezUInt8 ezWeightCategoryConfig::FindByName(ezTempHashedString sName) const
 {
-  const ezTempHashedString sNameH(sName);
   m_Categories.Sort();
 
   for (ezUInt32 idx = 0; idx < m_Categories.GetCount(); ++idx)
   {
     const auto& item = m_Categories.GetValue(idx);
-    if (item.m_sName == sNameH)
+    if (item.m_sName == sName)
     {
       return m_Categories.GetKey(idx);
     }
   }
 
-  return 255; // invalid
+  return InvalidKey;
 }
 
 ezUInt8 ezWeightCategoryConfig::GetFreeKey() const
 {
   m_Categories.Sort();
-  for (ezUInt8 idx = 10; idx < 250; ++idx)
+  for (ezUInt8 idx = FirstValidKey; idx < 250; ++idx)
   {
     if (!m_Categories.Contains(idx))
       return idx;
   }
 
-  return 255; // invalid
+  return InvalidKey;
 }
 
 ezResult ezWeightCategoryConfig::Save(ezStringView sFile /*= s_sConfigFile*/) const
@@ -106,4 +105,26 @@ void ezWeightCategoryConfig::Load(ezStreamReader& inout_stream)
   }
 
   m_Categories.Sort();
+}
+
+float ezWeightCategoryConfig::GetMassForWeightCategory(ezUInt8 uiWeightCategory, float fDefaultMass, float fCustomMass, float fWeightScale, float fMinMass, float fMaxMass) const
+{
+  if (uiWeightCategory == ezWeightCategoryConfig::DefaultValueKey)
+    return fDefaultMass;
+
+  if (uiWeightCategory == ezWeightCategoryConfig::CustomMassKey)
+    return fCustomMass;
+
+  if (uiWeightCategory == ezWeightCategoryConfig::CustomDensityKey)
+    return 0.0f; // use zero mass, to calculate it from density instead
+
+  auto& cat = m_Categories;
+  ezUInt32 idx = cat.Find(uiWeightCategory);
+
+  if (idx != ezInvalidIndex)
+  {
+    return ezMath::Clamp(cat.GetValue(idx).m_fMass * fWeightScale, fMinMass, fMaxMass);
+  }
+
+  return fDefaultMass;
 }

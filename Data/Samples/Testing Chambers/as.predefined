@@ -286,6 +286,7 @@ enum ezPhysicsShapeType
   Character = 16,
   Ragdoll = 32,
   Rope = 64,
+  Cloth = 128,
 }
 
 enum ezClothSheetFlags
@@ -2397,6 +2398,7 @@ class ezAreaDamageComponent : ezComponent
   float Radius;
   uint8 CollisionLayer;
   float Damage;
+  uint8 ImpulseType;
   float Impulse;
 }
 
@@ -2502,10 +2504,10 @@ class ezJoltActorComponent : ezComponent
 
 class ezJoltDynamicActorComponent : ezJoltActorComponent
 {
-  void AddLinearImpulse(ezVec3 vImpulse);
-  void AddAngularImpulse(ezVec3 vImpulse);
-  uint AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force);
-  void ClearForce(uint forceID);
+  void AddLinearImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0);
+  void AddAngularImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0);
+  uint AddOrUpdateForce(uint uiForceID, ezTime duration, ezVec3 vForce);
+  void ClearForce(uint uiForceID);
   bool Kinematic;
   bool StartAsleep;
   bool AllowSleeping;
@@ -2588,9 +2590,6 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
 class ezJoltClothSheetComponent : ezRenderComponent
 {
   ezVec2 Size;
-  uint8 WeightCategory;
-  float WeightScale;
-  float Mass;
   uint8 CollisionLayer;
   float WindInfluence;
   float GravityFactor;
@@ -2706,7 +2705,7 @@ class ezJoltGrabObjectComponent : ezComponent
   bool GrabNearbyObject();
   bool HasObjectGrabbed() const;
   void DropGrabbedObject();
-  void ThrowGrabbedObject(ezVec3 Direction);
+  void ThrowGrabbedObject(ezVec3 vDirection, uint8 uiImpulseType = 0);
   void BreakObjectGrab();
   float MaxGrabPointDistance;
   float CastRadius;
@@ -3370,6 +3369,8 @@ namespace ezPhysics
 {
   ezVec3 GetGravity();
   uint8 GetCollisionLayerByName(ezStringView Name);
+  uint8 GetWeightCategoryByName(ezStringView Name);
+  uint8 GetImpulseTypeByName(ezStringView Name);
   bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
   bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
   bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));

@@ -18,15 +18,15 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltCharacterDebugFlags, 1)
 EZ_BITFLAGS_CONSTANTS(ezJoltCharacterDebugFlags::PrintState, ezJoltCharacterDebugFlags::VisShape, ezJoltCharacterDebugFlags::VisContacts,  ezJoltCharacterDebugFlags::VisCasts, ezJoltCharacterDebugFlags::VisGroundContact, ezJoltCharacterDebugFlags::VisFootCheck)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("PresenceCollisionLayer", m_uiPresenceCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-    EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
+    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+    EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
     EZ_ACCESSOR_PROPERTY("Strength", GetStrength, SetStrength)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("MaxClimbingSlope", GetMaxClimbingSlope, SetMaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(40))),
     EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezJoltCharacterDebugFlags , m_DebugFlags),
@@ -63,8 +63,9 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 
   s << m_uiCollisionLayer;
   s << m_uiPresenceCollisionLayer;
-  s << m_fWeightValue;
   s << m_uiWeightCategory;
+  s << m_fWeightMass;
+  s << m_fWeightScale;
   s << m_fStrength;
   s << m_MaxClimbingSlope;
 }
@@ -75,22 +76,16 @@ void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& ino
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  s >> m_DebugFlags;
+  EZ_ASSERT_DEBUG(uiVersion >= 3, "Outdated version, please re-transform asset.");
+  if (uiVersion < 3)
+    return;
 
+  s >> m_DebugFlags;
   s >> m_uiCollisionLayer;
   s >> m_uiPresenceCollisionLayer;
-
-  s >> m_fWeightValue;
-
-  if (uiVersion >= 2)
-  {
-    s >> m_uiWeightCategory;
-  }
-  else
-  {
-    m_fWeightValue = 1.0f;
-  }
-
+  s >> m_uiWeightCategory;
+  s >> m_fWeightMass;
+  s >> m_fWeightScale;
   s >> m_fStrength;
   s >> m_MaxClimbingSlope;
 }
@@ -119,24 +114,7 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
-  m_fMass = 50.0f;               // default value
-  if (m_uiWeightCategory != 0)
-  {
-    if (m_uiWeightCategory == 1) // Custom Mass
-    {
-      m_fMass = m_fWeightValue;
-    }
-    else
-    {
-      auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
-      const ezUInt32 idx = cat.Find(m_uiWeightCategory);
-      if (idx != ezInvalidIndex)
-      {
-        m_fMass = cat.GetValue(idx).m_fMass;
-        m_fMass = ezMath::Clamp(m_fMass * m_fWeightValue, 1.0f, 1000.0f);
-      }
-    }
-  }
+  m_fMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 50.0f, m_fWeightMass, m_fWeightScale);
 
   JPH::CharacterVirtualSettings opt;
   opt.mUp = JPH::Vec3::sAxisZ();
@@ -505,22 +483,6 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
   const float tDiff = deltaTime.AsFloatInSeconds();
 
   pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized(), tDiff);
-}
-
-void ezJoltCharacterControllerComponent::SetWeightValue_Scale(float fValue)
-{
-  if (m_uiWeightCategory >= 10)
-    return;
-
-  m_fWeightValue = fValue;
-}
-
-void ezJoltCharacterControllerComponent::SetWeightValue_Mass(float fValue)
-{
-  if (m_uiWeightCategory != 1) // Custom Mass
-    return;
-
-  m_fWeightValue = fValue;
 }
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltCharacterControllerComponent);

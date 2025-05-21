@@ -25,6 +25,16 @@ public:
   /// Returns ezInvalidIndex if no such collision layer exists.
   virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
 
+  /// \brief Searches for a weight category with the given name and returns its key.
+  ///
+  /// Returns ezWeightCategoryConfig::InvalidKey if no such category exists.
+  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const = 0;
+
+  /// \brief Searches for an impulse type with the given name and returns its key.
+  ///
+  /// Returns ezImpulseTypeConfig::InvalidKey if no such category exists.
+  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const = 0;
+
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
   virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const = 0;
@@ -106,6 +116,7 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
+  ezUInt8 m_uiImpulseType = 0;
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
 
   // Physics-engine specific information, may be available or not.

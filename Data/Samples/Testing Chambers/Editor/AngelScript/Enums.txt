@@ -19,6 +19,7 @@ CancelPreload
 Center
 Character
 ClearEntireBlackboard
+Cloth
 Column
 Cone
 Continuing

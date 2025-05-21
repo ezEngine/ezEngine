@@ -107,7 +107,8 @@ public:
   ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
   ezUInt8 m_uiWeightCategory = 0;                   // [ property ]
-  float m_fWeightValue = 1.0f;                      // [ property ]
+  ezFloat16 m_fWeightScale = 1.0f;                  // [ property ]
+  ezFloat16 m_fWeightMass = 5.0f;                   // [ property ]
 
   /// \brief Sets the anchor 1 references by object GUID.
   void SetAnchor1Reference(const char* szReference); // [ property ]
@@ -145,9 +146,10 @@ private:
   JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
-  float GetWeightValue() const { return m_fWeightValue; }
-  void SetWeightValue_Scale(float fValue);
-  void SetWeightValue_Mass(float fValue);
+  float GetWeight_Scale() const { return m_fWeightScale; }
+  float GetWeight_Mass() const { return m_fWeightMass; }
+  void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
+  void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
 
   ezSurfaceResourceHandle m_hSurface;
 

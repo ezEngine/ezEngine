@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13918724973595959441,4979792077250811378}}
-		u4 %Hash{12135074508092600182}
+		u4 %Hash{3735989814795056386}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1313677731837154645,5403377995709497763}}
@@ -50,21 +50,22 @@ o
 		Time %BurstDuration{d{0x9A9999999999C93F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
 		f %Radius{0xF628BC40}
-		b %ReverseDirection{0}
 		s %Strength{"ezWindStrength::WeakShockwave"}
+		f %StrengthFactor{0x0000803F}
 	}
 }
 o
 {
 	Uuid %id{u4{12185400331321211798,5052727092473934259}}
 	s %t{"ezAreaDamageComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		f %Damage{0x00002041}
 		f %Impulse{0x0000C842}
+		u1 %ImpulseType{13}
 		b %OnCreation{1}
 		f %Radius{0x0000A040}
 	}
@@ -137,6 +138,7 @@ o
 	p
 	{
 		b %Active{1}
+		b %NoGlobalPitch{0}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
@@ -169,11 +171,11 @@ Types
 o
 {
 	Uuid %id{u4{15858265208272805148,67320715378545131}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000C842}
+		s %DynamicEnum{"PhysicsImpulseType"}
 	}
 }
 o
@@ -273,9 +275,10 @@ o
 			Uuid{u4{9905924063358785985,2812474704378206940}}
 			Uuid{u4{15959279051140621726,10303933102846590241}}
 			Uuid{u4{10013304162435146442,3481539498483412294}}
+			Uuid{u4{11461100681406093659,6562238249043422792}}
 		}
 		s %TypeName{"ezAreaDamageComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -361,7 +364,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -378,8 +381,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Impulse"}
-		s %Type{"float"}
+		s %Name{"ImpulseType"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -435,6 +438,24 @@ o
 	p
 	{
 		f %Value{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{11461100681406093659,6562238249043422792}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{14969825557490401778,14008295961415643452}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Impulse"}
+		s %Type{"float"}
 	}
 }
 o
@@ -765,6 +786,16 @@ o
 	{
 		s %Flags{""}
 		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14969825557490401778,14008295961415643452}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000C842}
 	}
 }
 o

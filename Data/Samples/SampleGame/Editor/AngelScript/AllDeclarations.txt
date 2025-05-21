@@ -953,6 +953,7 @@ ezPathNodeTangentMode ezPathNodeComponent::get_Tangent2() const
 ezPathNodeTangentMode::Auto
 ezPathNodeTangentMode::Linear
 ezPhysicsShapeType::Character
+ezPhysicsShapeType::Cloth
 ezPhysicsShapeType::Dynamic
 ezPhysicsShapeType::Query
 ezPhysicsShapeType::Ragdoll
@@ -1716,6 +1717,8 @@ uint16 ezSpawnBoxComponent::get_MinSpawnCount() const
 uint16 ezSpawnBoxComponent::get_SpawnCountRange() const
 uint64 ezParticleComponent::get_RandomSeed() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
+uint8 ezPhysics::GetImpulseTypeByName(ezStringView Name)
+uint8 ezPhysics::GetWeightCategoryByName(ezStringView Name)
 uint8 ezSensorComponent::get_CollisionLayer() const
 void DebugRenderComponent::SetRandomColor()
 void DebugRenderComponent::set_Color(ezColor)

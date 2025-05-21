@@ -1226,6 +1226,7 @@ ezPathNodeTangentMode::Linear
 ezPhysicsShapeType ezProjectileComponent::get_ShapeTypesToHit() const
 ezPhysicsShapeType ezRaycastComponent::get_ShapeTypesToHit() const
 ezPhysicsShapeType::Character
+ezPhysicsShapeType::Cloth
 ezPhysicsShapeType::Dynamic
 ezPhysicsShapeType::Query
 ezPhysicsShapeType::Ragdoll
@@ -1899,9 +1900,7 @@ float ezJoltCharacterControllerComponent::get_Strength() const
 float ezJoltCharacterControllerComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_Damping() const
 float ezJoltClothSheetComponent::get_GravityFactor() const
-float ezJoltClothSheetComponent::get_Mass() const
 float ezJoltClothSheetComponent::get_Thickness() const
-float ezJoltClothSheetComponent::get_WeightScale() const
 float ezJoltClothSheetComponent::get_WindInfluence() const
 float ezJoltConstraintComponent::get_BreakForce() const
 float ezJoltConstraintComponent::get_BreakTorque() const
@@ -2146,7 +2145,7 @@ uint ezGameObject::GetChildCount()
 uint ezGameObject::GetStableRandomSeed()
 uint ezGreyBoxComponent::get_Detail() const
 uint ezJoltActorComponent::GetObjectFilterID() const
-uint ezJoltDynamicActorComponent::AddOrUpdateForce(uint forceID, ezTime duration, ezVec3 force)
+uint ezJoltDynamicActorComponent::AddOrUpdateForce(uint uiForceID, ezTime duration, ezVec3 vForce)
 uint ezJoltHitboxComponent::GetObjectFilterID() const
 uint ezJoltRagdollComponent::GetObjectFilterID() const
 uint ezJoltSettingsComponent::get_MaxBodies() const
@@ -2178,6 +2177,7 @@ uint16 ezSpawnBoxComponent::get_MinSpawnCount() const
 uint16 ezSpawnBoxComponent::get_SpawnCountRange() const
 uint64 ezParticleComponent::get_RandomSeed() const
 uint8 ezAreaDamageComponent::get_CollisionLayer() const
+uint8 ezAreaDamageComponent::get_ImpulseType() const
 uint8 ezFmodEventComponent::get_OcclusionCollisionLayer() const
 uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezJoltActorComponent::get_CollisionLayer() const
@@ -2185,13 +2185,14 @@ uint8 ezJoltCharacterControllerComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_WeightCategory() const
 uint8 ezJoltClothSheetComponent::get_CollisionLayer() const
-uint8 ezJoltClothSheetComponent::get_WeightCategory() const
 uint8 ezJoltDynamicActorComponent::get_WeightCategory() const
 uint8 ezJoltGrabObjectComponent::get_CollisionLayer() const
 uint8 ezJoltRagdollComponent::get_WeightCategory() const
 uint8 ezJoltRopeComponent::get_CollisionLayer() const
 uint8 ezJoltRopeComponent::get_WeightCategory() const
 uint8 ezPhysics::GetCollisionLayerByName(ezStringView Name)
+uint8 ezPhysics::GetImpulseTypeByName(ezStringView Name)
+uint8 ezPhysics::GetWeightCategoryByName(ezStringView Name)
 uint8 ezProjectileComponent::get_CollisionLayer() const
 uint8 ezRaycastComponent::get_CollisionLayerEndPoint() const
 uint8 ezSensorComponent::get_CollisionLayer() const
@@ -2250,6 +2251,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 void ezAreaDamageComponent::set_CollisionLayer(uint8)
 void ezAreaDamageComponent::set_Damage(float)
 void ezAreaDamageComponent::set_Impulse(float)
+void ezAreaDamageComponent::set_ImpulseType(uint8)
 void ezAreaDamageComponent::set_OnCreation(bool)
 void ezAreaDamageComponent::set_Radius(float)
 void ezBakedProbesComponent::set_ShowDebugOverlay(bool)
@@ -2526,13 +2528,10 @@ void ezJoltClothSheetComponent::set_Color(ezColor)
 void ezJoltClothSheetComponent::set_Damping(float)
 void ezJoltClothSheetComponent::set_Flags(ezJoltClothSheetFlags)
 void ezJoltClothSheetComponent::set_GravityFactor(float)
-void ezJoltClothSheetComponent::set_Mass(float)
 void ezJoltClothSheetComponent::set_Material(ezStringView)
 void ezJoltClothSheetComponent::set_Size(ezVec2)
 void ezJoltClothSheetComponent::set_TextureScale(ezVec2)
 void ezJoltClothSheetComponent::set_Thickness(float)
-void ezJoltClothSheetComponent::set_WeightCategory(uint8)
-void ezJoltClothSheetComponent::set_WeightScale(float)
 void ezJoltClothSheetComponent::set_WindInfluence(float)
 void ezJoltConeConstraintComponent::set_ConeAngle(ezAngle)
 void ezJoltConstraintComponent::set_BreakForce(float)
@@ -2564,9 +2563,9 @@ void ezJoltDistanceConstraintComponent::set_Damping(float)
 void ezJoltDistanceConstraintComponent::set_Frequency(float)
 void ezJoltDistanceConstraintComponent::set_MaxDistance(float)
 void ezJoltDistanceConstraintComponent::set_MinDistance(float)
-void ezJoltDynamicActorComponent::AddAngularImpulse(ezVec3 vImpulse)
-void ezJoltDynamicActorComponent::AddLinearImpulse(ezVec3 vImpulse)
-void ezJoltDynamicActorComponent::ClearForce(uint forceID)
+void ezJoltDynamicActorComponent::AddAngularImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0)
+void ezJoltDynamicActorComponent::AddLinearImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0)
+void ezJoltDynamicActorComponent::ClearForce(uint uiForceID)
 void ezJoltDynamicActorComponent::set_AllowSleeping(bool)
 void ezJoltDynamicActorComponent::set_AngularDamping(float)
 void ezJoltDynamicActorComponent::set_CenterOfMass(ezVec3)
@@ -2584,7 +2583,7 @@ void ezJoltDynamicActorComponent::set_WeightCategory(uint8)
 void ezJoltDynamicActorComponent::set_WeightScale(float)
 void ezJoltGrabObjectComponent::BreakObjectGrab()
 void ezJoltGrabObjectComponent::DropGrabbedObject()
-void ezJoltGrabObjectComponent::ThrowGrabbedObject(ezVec3 Direction)
+void ezJoltGrabObjectComponent::ThrowGrabbedObject(ezVec3 vDirection, uint8 uiImpulseType = 0)
 void ezJoltGrabObjectComponent::set_BreakDistance(float)
 void ezJoltGrabObjectComponent::set_CastRadius(float)
 void ezJoltGrabObjectComponent::set_CollisionLayer(uint8)

@@ -212,6 +212,7 @@ IgnoreOwnerRotation
 Image
 ImpactDirection
 Impulse
+ImpulseType
 IndianRed
 Indigo
 InfluenceScale

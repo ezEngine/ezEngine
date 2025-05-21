@@ -14,6 +14,8 @@ public:
   static ezVec3 GetGravity(ezWorld* pWorld);
 
   static ezUInt8 GetCollisionLayerByName(ezWorld* pWorld, ezStringView sLayerName);
+  static ezUInt8 GetWeightCategoryByName(ezWorld* pWorld, ezStringView sCategoryName);
+  static ezUInt8 GetImpulseTypeByName(ezWorld* pWorld, ezStringView sImpulseTypeName);
 
   static bool Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreObjectID = ezInvalidIndex);
 

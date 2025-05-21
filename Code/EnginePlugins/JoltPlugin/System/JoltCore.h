@@ -4,6 +4,7 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/Physics/CollisionFilter.h>
+#include <GameEngine/Physics/ImpulseType.h>
 #include <GameEngine/Physics/WeightCategory.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
@@ -31,6 +32,7 @@ public:
 
   static const ezCollisionFilterConfig& GetCollisionFilterConfig();
   static const ezWeightCategoryConfig& GetWeightCategoryConfig();
+  static const ezImpulseTypeConfig& GetImpulseTypeConfig();
 
   static void ReloadConfigs();
 
@@ -50,6 +52,7 @@ private:
 
   static void LoadCollisionFilters();
   static void LoadWeightCategories();
+  static void LoadImpulseTypes();
 
   static ezJoltMaterial* s_pDefaultMaterial;
 
@@ -61,4 +64,5 @@ private:
 
   static ezCollisionFilterConfig s_CollisionFilterConfig;
   static ezWeightCategoryConfig s_WeightCategoryConfig;
+  static ezImpulseTypeConfig s_ImpulseTypeConfig;
 };

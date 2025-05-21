@@ -8,6 +8,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameComponentsPlugin/Gameplay/ProjectileComponent.h>
 #include <GameEngine/Messages/DamageMessage.h>
+#include <GameEngine/Physics/ImpulseType.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 2)
@@ -25,6 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
     EZ_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
+    EZ_MEMBER_PROPERTY("ImpulseType", m_uiImpulseType)->AddAttributes(new ezDynamicEnumAttribute("PhysicsImpulseType")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
     EZ_MEMBER_PROPERTY("Damage", m_fDamage),
   }
@@ -32,7 +34,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 6, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 7, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -133,16 +135,22 @@ void ezProjectileComponent::Update()
           ezGameObject* pObject = nullptr;
 
           // apply a physical impulse
-          if (interaction.m_fImpulse > 0.0f)
+          if (interaction.m_uiImpulseType >= ezImpulseTypeConfig::FirstValidKey || (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey && interaction.m_fImpulse > 0.0f))
           {
             if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
             {
               ezMsgPhysicsAddImpulse msg;
+              msg.m_uiImpulseType = interaction.m_uiImpulseType;
               msg.m_vGlobalPosition = castResult.m_vPosition;
-              msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
+              msg.m_vImpulse = vCurDirection;
               msg.m_uiObjectFilterID = castResult.m_uiObjectFilterID;
               msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
               msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
+
+              if (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey)
+              {
+                msg.m_vImpulse *= interaction.m_fImpulse;
+              }
 
               pObject->SendMessage(msg);
             }
@@ -277,6 +285,9 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
     // Version 4
     s << ia.m_fDamage;
+
+    // Version 7
+    s << ia.m_uiImpulseType;
   }
 
   // Version 5
@@ -325,6 +336,11 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
     if (uiVersion >= 4)
     {
       s >> ia.m_fDamage;
+    }
+
+    if (uiVersion >= 7)
+    {
+      s >> ia.m_uiImpulseType;
     }
   }
 

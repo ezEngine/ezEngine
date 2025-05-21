@@ -32,6 +32,15 @@ struct ezJoltImpulse
   ezUInt32 m_uiBodyID;
   ezVec3 m_vImpulse;
   ezVec3 m_vGlobalPosition;
+
+  enum class Type : ezUInt8
+  {
+    Center,
+    AtGlobalPos,
+    Angular
+  };
+
+  Type m_Type;
 };
 
 struct ezJoltForce
@@ -73,6 +82,12 @@ public:
   /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
   void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
 
+  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+
+  /// \brief Queues an angular impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+
   /// \brief Creates a force that acts upon the given Jolt body for a limited time.
   ///
   /// The force is applied every frame. It can be updated by calling this function again with a previously returned force ID.
@@ -90,6 +105,8 @@ public:
   //
 
   virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const override;
+  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const override;
+  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const override;
 
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10343536139760208028,4918522812857774060}}
-		u4 %Hash{2043130906963059063}
+		u4 %Hash{7450488882142228836}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{969519408616889768,7780583395582206609}}
@@ -26,7 +26,6 @@ o
 		}
 		VarArray %References
 		{
-			s{"{ 8c47e187-4fa1-4663-994d-81f9ec623ec6 }"}
 			s{"{ c227019a-92d3-4bf5-b391-9320e11ca7ff }"}
 		}
 		s %Tags{""}
@@ -76,7 +75,7 @@ o
 {
 	Uuid %id{u4{8489513246936585151,4718684787518078863}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
@@ -94,6 +93,8 @@ o
 		s %OnContact{"ezOnJoltContact::ImpactReactions|ezOnJoltContact::SlideReactions|ezOnJoltContact::RollZReactions"}
 		b %StartAsleep{0}
 		s %Surface{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+		u1 %WeightCategory{10}
+		f %WeightScale{0x0000803F}
 	}
 }
 o
@@ -115,7 +116,7 @@ o
 {
 	Uuid %id{u4{14580120829472630150,4980344317043993712}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -127,6 +128,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ 8c47e187-4fa1-4663-994d-81f9ec623ec6 }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -263,7 +265,7 @@ o
 			Uuid{u4{3317155902268536827,7351146080094075981}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddAngularImpulse"}
+		s %Name{"ClearForce"}
 		Uuid %ReturnValue{u4{18148104322014540262,3265107824057576881}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -297,8 +299,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"LinearDamping"}
-		s %Type{"float"}
+		s %Name{"Surface"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -310,7 +312,7 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vForce"}
+			s{"vImpulse"}
 		}
 		VarArray %ArgTypes
 		{
@@ -342,12 +344,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{3160739349305478700,12083380575820389054}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ContinuousCollisionDetection"}
-		s %Type{"bool"}
+		s %Name{"LinearDamping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -387,6 +392,17 @@ o
 }
 o
 {
+	Uuid %id{u4{17973159294001926154,1700716095694786250}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezTime"}
+	}
+}
+o
+{
 	Uuid %id{u4{16062387228877738411,1995890044582742863}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -402,6 +418,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Radius"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{8194247370423982146,2213079108385304325}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
 	}
 }
 o
@@ -438,8 +464,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -462,11 +488,13 @@ o
 o
 {
 	Uuid %id{u4{8232490663378900183,2456372885331647684}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{";CompatibleAsset_Surface;"}
+		s %RequiredTag{""}
 	}
 }
 o
@@ -504,7 +532,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -566,19 +594,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
 	Uuid %id{u4{10410885489792813498,3493566296382582107}}
-	s %t{"ezAssetBrowserAttribute"}
+	s %t{"ezSuffixAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DependencyFlags{"ezDependencyFlags::Package"}
-		s %Filter{";CompatibleAsset_Surface;"}
-		s %RequiredTag{""}
+		s %Suffix{" kg"}
 	}
 }
 o
@@ -605,7 +631,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		f %Value{0x0000C842}
 	}
 }
 o
@@ -619,7 +645,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CustomCenterOfMass"}
+		s %Name{"ContinuousCollisionDetection"}
 		s %Type{"bool"}
 	}
 }
@@ -662,12 +688,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{8194247370423982146,2213079108385304325}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
-		s %Name{"OnContact"}
-		s %Type{"ezOnJoltContact"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"AngularDamping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -684,7 +713,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"AngularDamping"}
+		s %Name{"GravityFactor"}
 		s %Type{"float"}
 	}
 }
@@ -695,7 +724,22 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000C842}
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{14128538209533939269,5886534555741111701}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CustomCenterOfMass"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -724,10 +768,14 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vForce"}
+			s{"forceID"}
+			s{"duration"}
+			s{"force"}
 		}
 		VarArray %ArgTypes
 		{
+			u1{0}
+			u1{0}
 			u1{0}
 		}
 	}
@@ -754,13 +802,13 @@ o
 }
 o
 {
-	Uuid %id{u4{12505397452943612473,6330002652460205516}}
-	s %t{"ezClampValueAttribute"}
+	Uuid %id{u4{8491298434312728184,6553663891802997140}}
+	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
 	p
 	{
-		Invalid %Max{}
-		f %Min{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -868,7 +916,7 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"vImpulse"}
+			s{"forceID"}
 		}
 		VarArray %ArgTypes
 		{
@@ -929,9 +977,11 @@ o
 			Uuid{u4{1584760291040431190,5108429992959750376}}
 			Uuid{u4{18115423731678040207,4639548822328574800}}
 			Uuid{u4{64892077413024703,9720385624882528333}}
+			Uuid{u4{14128538209533939269,5886534555741111701}}
+			Uuid{u4{3225422539751733703,15467635098152158757}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -941,8 +991,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -955,13 +1005,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{5174688543944173796,11006358172461919564}}
-			Uuid{u4{12505397452943612473,6330002652460205516}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Mass"}
-		s %Type{"float"}
+		s %Name{"WeightCategory"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -1065,7 +1114,7 @@ o
 			Uuid{u4{5683086205581634420,2448255893199881040}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddLinearImpulse"}
+		s %Name{"AddAngularImpulse"}
 		Uuid %ReturnValue{u4{12476024009156659430,18058972465083403801}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -1114,9 +1163,9 @@ o
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterOfMass"}
-		s %Type{"ezVec3"}
+		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Name{"OnContact"}
+		s %Type{"ezOnJoltContact"}
 	}
 }
 o
@@ -1151,7 +1200,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Density"}
+		s %Name{"WeightScale"}
 		s %Type{"float"}
 	}
 }
@@ -1176,11 +1225,23 @@ o
 o
 {
 	Uuid %id{u4{2640979303495452127,10236220907327507948}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg/m^3"}
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
+	}
+}
+o
+{
+	Uuid %id{u4{17428361656925232623,10471658109279759505}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00401C46}
+		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -1224,11 +1285,11 @@ o
 o
 {
 	Uuid %id{u4{5174688543944173796,11006358172461919564}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg"}
+		s %DynamicEnum{"PhysicsWeightCategoryWithDensity"}
 	}
 }
 o
@@ -1258,11 +1319,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{9085939981889508946,4612025930380880638}}
+			Uuid{u4{2320744731005053446,12779131164882326863}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GravityFactor"}
+		s %Name{"Density"}
 		s %Type{"float"}
 	}
 }
@@ -1286,6 +1348,26 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{16126476217112687227,12082329460007564955}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{3160739349305478700,12083380575820389054}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
 	}
 }
 o
@@ -1363,6 +1445,16 @@ o
 }
 o
 {
+	Uuid %id{u4{2320744731005053446,12779131164882326863}}
+	s %t{"ezSuffixAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Suffix{" kg/m^3"}
+	}
+}
+o
+{
 	Uuid %id{u4{9604010176759229512,12868035041842190965}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1385,8 +1477,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Flags{""}
-		s %Type{""}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
@@ -1405,7 +1497,7 @@ o
 			Uuid{u4{8848366910655626142,348363795862216714}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddLinearForce"}
+		s %Name{"AddLinearImpulse"}
 		Uuid %ReturnValue{u4{10916935353549710630,2962763290225888874}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -1480,12 +1572,14 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{10410885489792813498,3493566296382582107}}
+			Uuid{u4{16126476217112687227,12082329460007564955}}
+			Uuid{u4{17428361656925232623,10471658109279759505}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Surface"}
-		s %Type{"ezStringView"}
+		s %Name{"Mass"}
+		s %Type{"float"}
 	}
 }
 o
@@ -1498,13 +1592,15 @@ o
 		VarArray %Arguments
 		{
 			Uuid{u4{878044963436546334,8122785390929912541}}
+			Uuid{u4{17973159294001926154,1700716095694786250}}
+			Uuid{u4{8491298434312728184,6553663891802997140}}
 		}
 		VarArray %Attributes
 		{
 			Uuid{u4{6818841624920768409,6243926554597233956}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
-		s %Name{"AddAngularForce"}
+		s %Name{"AddOrUpdateForce"}
 		Uuid %ReturnValue{u4{4903960154749262079,14218359138397949918}}
 		s %Type{"ezFunctionType::Member"}
 	}
@@ -1517,6 +1613,21 @@ o
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{3225422539751733703,15467635098152158757}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CenterOfMass"}
+		s %Type{"ezVec3"}
 	}
 }
 o

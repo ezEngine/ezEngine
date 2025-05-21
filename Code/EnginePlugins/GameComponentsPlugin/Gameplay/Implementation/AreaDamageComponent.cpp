@@ -6,9 +6,10 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameComponentsPlugin/Gameplay/AreaDamageComponent.h>
 #include <GameEngine/Messages/DamageMessage.h>
+#include <GameEngine/Physics/ImpulseType.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -16,6 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Damage", m_fDamage)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
+    EZ_MEMBER_PROPERTY("ImpulseType", m_uiImpulseType)->AddAttributes(new ezDynamicEnumAttribute("PhysicsImpulseType")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse)->AddAttributes(new ezDefaultValueAttribute(100.0f)),
   }
   EZ_END_PROPERTIES;
@@ -88,15 +90,20 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         const float fScale = 1.0f - ezMath::Min(fDistance * fInvRadius, 1.0f);
 
         // apply a physical impulse
-        if (m_fImpulse != 0.0f)
+        if (m_uiImpulseType >= ezImpulseTypeConfig::FirstValidKey || (m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey && m_fImpulse != 0.0f))
         {
           ezMsgPhysicsAddImpulse msg;
+          msg.m_uiImpulseType = m_uiImpulseType;
           msg.m_vGlobalPosition = vTargetPos;
-          msg.m_vImpulse = vDirToTarget * m_fImpulse * fScale;
+          msg.m_vImpulse = vDirToTarget * fScale;
           msg.m_uiObjectFilterID = hit.m_uiObjectFilterID;
           msg.m_pInternalPhysicsShape = hit.m_pInternalPhysicsShape;
           msg.m_pInternalPhysicsActor = hit.m_pInternalPhysicsActor;
 
+          if (m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey)
+          {
+            msg.m_vImpulse *= m_fImpulse;
+          }
 
           pObject->SendMessage(msg);
         }
@@ -144,19 +151,26 @@ void ezAreaDamageComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fRadius;
   s << m_uiCollisionLayer;
   s << m_fDamage;
+  s << m_uiImpulseType;
   s << m_fImpulse;
 }
 
 void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_bTriggerOnCreation;
   s >> m_fRadius;
   s >> m_uiCollisionLayer;
   s >> m_fDamage;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_uiImpulseType;
+  }
+
   s >> m_fImpulse;
 }
 

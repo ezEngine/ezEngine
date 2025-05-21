@@ -85,7 +85,7 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 6, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 7, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -93,9 +93,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 6, ezComponentMode::Dynamic
       EZ_MEMBER_PROPERTY("StartAsleep", m_bStartAsleep),
       EZ_MEMBER_PROPERTY("AllowSleeping", m_bAllowSleeping)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategoryWithDensity")),
-      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-      EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.1f, 10000.0f)),
-      EZ_ACCESSOR_PROPERTY("Density", GetWeightValue, SetWeightValue_Density)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
+      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+      EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.1f, 10000.0f)),
+      EZ_ACCESSOR_PROPERTY("Density", GetWeight_Density, SetWeight_Density)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
@@ -108,15 +108,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 6, ezComponentMode::Dynamic
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-      EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
+      EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddLinearImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(AddLinearImpulse, In, "vImpulse"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(AddAngularImpulse, In, "vImpulse"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(AddOrUpdateForce, In, "forceID", In, "duration", In, "force"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ClearForce, In, "forceID"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddLinearImpulse, In, "vImpulse", In, "uiImpulseType")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(0))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddAngularImpulse, In, "vImpulse", In, "uiImpulseType")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(0))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddOrUpdateForce, In, "uiForceID", In, "duration", In, "vForce"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ClearForce, In, "uiForceID"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -145,8 +145,6 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_bCCD;
   s << m_fLinearDamping;
   s << m_fAngularDamping;
-  s << m_fWeightValue;
-  s << m_fWeightValue; // dummy placeholder
   s << m_fGravityFactor;
   s << m_hSurface;
   s << m_OnContact;
@@ -154,9 +152,10 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_vCenterOfMass;
   s << m_bStartAsleep;
   s << m_bAllowSleeping;
-
-  // version 5
   s << m_uiWeightCategory;
+  s << (float)m_fWeightScale;
+  s << (float)m_fWeightMass;
+  s << (float)m_fWeightDensity;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -164,22 +163,20 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
   SUPER::DeserializeComponent(inout_stream);
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = inout_stream.GetStream();
+  EZ_ASSERT_DEBUG(uiVersion >= 7, "Outdated version, please re-transform asset.");
+  if (uiVersion < 7)
+    return;
 
-  float fInitialMass = 0.0f;
-  float fDensity = 1.0f;
+  auto& s = inout_stream.GetStream();
 
   s >> m_bKinematic;
   s >> m_bCCD;
   s >> m_fLinearDamping;
   s >> m_fAngularDamping;
-  s >> fDensity;
-  s >> fInitialMass;
   s >> m_fGravityFactor;
   s >> m_hSurface;
   s >> m_OnContact;
 
-  if (uiVersion >= 2)
   {
     bool com;
     s >> com;
@@ -187,33 +184,19 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
     s >> m_vCenterOfMass;
   }
 
-  if (uiVersion >= 3)
-  {
-    s >> m_bStartAsleep;
-  }
+  s >> m_bStartAsleep;
+  s >> m_bAllowSleeping;
 
-  if (uiVersion >= 4)
   {
-    s >> m_bAllowSleeping;
-  }
-
-  if (uiVersion >= 5)
-  {
+    float f;
     s >> m_uiWeightCategory;
-    m_fWeightValue = fDensity;
-  }
-  else
-  {
-    if (fInitialMass > 0.0f)
-    {
-      m_uiWeightCategory = 1; // Custom Mass
-      m_fWeightValue = fInitialMass;
-    }
-    else
-    {
-      m_uiWeightCategory = 2; // Custom Density
-      m_fWeightValue = fDensity;
-    }
+
+    s >> f;
+    m_fWeightScale = f;
+    s >> f;
+    m_fWeightMass = f;
+    s >> f;
+    m_fWeightDensity = f;
   }
 }
 
@@ -298,7 +281,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
 
   JPH::BodyCreationSettings bodyCfg;
 
-  if (CreateShape(&bodyCfg, m_fWeightValue, pMaterial).Failed())
+  if (CreateShape(&bodyCfg, m_fWeightDensity, pMaterial).Failed())
   {
     ezLog::Error("Jolt dynamic actor component '{}' has no valid shape.", GetOwner()->GetName());
     return;
@@ -311,28 +294,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
   pUserData->Init(this);
 
-  float fInitialMass = 10.0f;    // default value
-  if (m_uiWeightCategory != 0)
-  {
-    if (m_uiWeightCategory == 1) // Custom Mass
-    {
-      fInitialMass = m_fWeightValue;
-    }
-    else if (m_uiWeightCategory == 2) // Custom Density
-    {
-      fInitialMass = 0.0f;
-    }
-    else
-    {
-      auto& cat = ezJoltCore::GetWeightCategoryConfig().m_Categories;
-      ezUInt32 idx = cat.Find(m_uiWeightCategory);
-      if (idx != ezInvalidIndex)
-      {
-        fInitialMass = cat.GetValue(idx).m_fMass;
-        fInitialMass = ezMath::Clamp(fInitialMass * m_fWeightValue, 1.0f, 1000.0f);
-      }
-    }
-  }
+  const float fInitialMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 10.0f, m_fWeightMass, m_fWeightScale);
 
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
@@ -405,32 +367,24 @@ void ezJoltDynamicActorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse)
+void ezJoltDynamicActorComponent::AddLinearImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType)
 {
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
-  auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  const JPH::BodyID bodyId(m_uiJoltBodyID);
+  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(uiImpulseType, m_uiWeightCategory);
 
-  if (pBodies->IsAdded(bodyId))
-  {
-    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImpulse));
-  }
+  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(m_uiJoltBodyID, vImpulse * fImpulse);
 }
 
-void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
+void ezJoltDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType)
 {
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
-  auto pBodies = &GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem()->GetBodyInterface();
-  const JPH::BodyID bodyId(m_uiJoltBodyID);
+  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(uiImpulseType, m_uiWeightCategory);
 
-  if (pBodies->IsAdded(bodyId))
-  {
-    pBodies->AddAngularImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImpulse));
-  }
+  GetWorld()->GetModule<ezJoltWorldModule>()->AddTorque(m_uiJoltBodyID, vImpulse * fImpulse);
 }
 
 void ezJoltDynamicActorComponent::AddConstraint(ezComponentHandle hComponent)
@@ -443,12 +397,14 @@ void ezJoltDynamicActorComponent::RemoveConstraint(ezComponentHandle hComponent)
   m_Constraints.RemoveAndSwap(hComponent);
 }
 
-void ezJoltDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
+void ezJoltDynamicActorComponent::AddLinearImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_bKinematic || m_uiJoltBodyID == ezInvalidIndex)
     return;
 
-  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(m_uiJoltBodyID, ref_msg.m_vImpulse, ref_msg.m_vGlobalPosition);
+  const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
+
+  GetWorld()->GetModule<ezJoltWorldModule>()->AddImpulse(m_uiJoltBodyID, ref_msg.m_vImpulse * fImpulse, ref_msg.m_vGlobalPosition);
 }
 
 float ezJoltDynamicActorComponent::GetMass() const
@@ -494,30 +450,6 @@ const ezJoltMaterial* ezJoltDynamicActorComponent::GetJoltMaterial() const
   }
 
   return nullptr;
-}
-
-void ezJoltDynamicActorComponent::SetWeightValue_Scale(float fValue)
-{
-  if (m_uiWeightCategory >= 10)
-    return;
-
-  m_fWeightValue = fValue;
-}
-
-void ezJoltDynamicActorComponent::SetWeightValue_Mass(float fValue)
-{
-  if (m_uiWeightCategory != 1) // Custom Mass
-    return;
-
-  m_fWeightValue = fValue;
-}
-
-void ezJoltDynamicActorComponent::SetWeightValue_Density(float fValue)
-{
-  if (m_uiWeightCategory != 2) // Custom Density
-    return;
-
-  m_fWeightValue = fValue;
 }
 
 void ezJoltDynamicActorComponent::SetSurfaceFile(ezStringView sFile)

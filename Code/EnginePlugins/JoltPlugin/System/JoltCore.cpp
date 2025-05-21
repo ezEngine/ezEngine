@@ -42,6 +42,7 @@ ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
 ezCollisionFilterConfig ezJoltCore::s_CollisionFilterConfig;
 ezWeightCategoryConfig ezJoltCore::s_WeightCategoryConfig;
+ezImpulseTypeConfig ezJoltCore::s_ImpulseTypeConfig;
 
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
@@ -147,10 +148,16 @@ const ezWeightCategoryConfig& ezJoltCore::GetWeightCategoryConfig()
   return s_WeightCategoryConfig;
 }
 
+const ezImpulseTypeConfig& ezJoltCore::GetImpulseTypeConfig()
+{
+  return s_ImpulseTypeConfig;
+}
+
 void ezJoltCore::ReloadConfigs()
 {
   LoadCollisionFilters();
   LoadWeightCategories();
+  LoadImpulseTypes();
 }
 
 void ezJoltCore::LoadCollisionFilters()
@@ -175,6 +182,16 @@ void ezJoltCore::LoadWeightCategories()
   if (s_WeightCategoryConfig.Load().Failed())
   {
     ezLog::Info("Weight category config file could not be found ('{}').", ezWeightCategoryConfig::s_sConfigFile);
+  }
+}
+
+void ezJoltCore::LoadImpulseTypes()
+{
+  EZ_LOG_BLOCK("ezJoltCore::LoadImpulseTypes");
+
+  if (s_ImpulseTypeConfig.Load().Failed())
+  {
+    ezLog::Info("Impulse Types config file could not be found ('{}').", ezImpulseTypeConfig::s_sConfigFile);
   }
 }
 

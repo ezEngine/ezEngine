@@ -12,6 +12,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Physics, ezNoBase, 1, ezRT
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGravity, In, "World"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionLayerByName, In, "World", In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetWeightCategoryByName, In, "World", In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetImpulseTypeByName, In, "World", In, "Name"),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Raycast, Out, "HitPosition", Out, "HitNormal", Out, "HitObject", In, "World", In, "Start", In, "Direction", In, "CollisionLayer", In, "ShapeTypes", In, "IgnoreObjectID")->AddAttributes(
       new ezFunctionArgumentAttributes(6, new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -72,6 +74,26 @@ ezUInt8 ezScriptExtensionClass_Physics::GetCollisionLayerByName(ezWorld* pWorld,
   }
 
   return 0;
+}
+
+ezUInt8 ezScriptExtensionClass_Physics::GetWeightCategoryByName(ezWorld* pWorld, ezStringView sCategoryName)
+{
+  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  {
+    return static_cast<ezUInt8>(pInterface->GetWeightCategoryByName(sCategoryName));
+  }
+
+  return 255;
+}
+
+ezUInt8 ezScriptExtensionClass_Physics::GetImpulseTypeByName(ezWorld* pWorld, ezStringView sImpulseTypeName)
+{
+  if (ezPhysicsWorldModuleInterface* pInterface = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
+  {
+    return static_cast<ezUInt8>(pInterface->GetImpulseTypeByName(sImpulseTypeName));
+  }
+
+  return 255;
 }
 
 bool ezScriptExtensionClass_Physics::Raycast(ezVec3& out_vHitPosition, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitObject, ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vDirection, ezUInt8 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes /*= ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic*/, ezUInt32 uiIgnoreObjectID)

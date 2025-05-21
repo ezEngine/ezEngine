@@ -80,24 +80,24 @@ public:
   void SetMaxClimbingSlope(ezAngle slope);                           // [ property ]
   ezAngle GetMaxClimbingSlope() const { return m_MaxClimbingSlope; } // [ property ]
 
-  /// \brief The mass with which the character will push down on objects that it is standing on.
-  float GetMass() const { return m_fMass; } // [ property ]
-
-  ezUInt8 m_uiWeightCategory = 0;           // [ property ]
-  float m_fWeightValue = 1.0f;              // [ property ]
+  ezUInt8 m_uiWeightCategory = 0;                                    // [ property ]
+  float m_fWeightMass = 50.0f;                                       // [ property ]
+  float m_fWeightScale = 1.0f;                                       // [ property ]
 
   /// \brief The strength with which the character will push against objects that it is running into.
   void SetStrength(float fStrength);                        // [ property ]
   float GetStrength() const { return m_fStrength; }         // [ property ]
 
+  float GetMass() const { return m_fMass; }
+
 private:
   ezAngle m_MaxClimbingSlope = ezAngle::MakeFromDegree(45); // [ property ]
-  float m_fMass = 70.0f;                                    // [ property ]
   float m_fStrength = 500.0f;                               // [ property ]
 
-  float GetWeightValue() const { return m_fWeightValue; }
-  void SetWeightValue_Scale(float fValue);
-  void SetWeightValue_Mass(float fValue);
+  float GetWeight_Mass() const { return m_fWeightMass; }
+  float GetWeight_Scale() const { return m_fWeightScale; }
+  void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
+  void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
 
 protected:
   /// \brief Returns the time delta to use for updating the character. This may differ from the world delta.
@@ -179,6 +179,7 @@ private:
 
   void Update(ezTime deltaTime);
 
+  float m_fMass = 50.0f;
   float m_fUpdateTimeDelta = 0.1f;
   float m_fInverseUpdateTimeDelta = 1.0f;
   JPH::CharacterVirtual* m_pCharacter = nullptr;

@@ -17,6 +17,7 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 void UpdateWeightCategoryDynamicEnumValues();
+void UpdateImpulseTypeDynamicEnumValues();
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
@@ -132,12 +133,32 @@ void UpdateWeightCategoryDynamicEnumValues()
     }
   }
 
-  cfeNC.SetValueAndName(0, "<Default>");
-  cfeNC.SetValueAndName(1, "<Custom Mass>");
+  cfeNC.SetValueAndName(ezWeightCategoryConfig::DefaultValueKey, "<Default>");
+  cfeNC.SetValueAndName(ezWeightCategoryConfig::CustomMassKey, "<Custom Mass>");
 
-  cfe.SetValueAndName(0, "<Default>");
-  cfe.SetValueAndName(1, "<Custom Mass>");
-  cfe.SetValueAndName(2, "<Custom Density>");
+  cfe.SetValueAndName(ezWeightCategoryConfig::DefaultValueKey, "<Default>");
+  cfe.SetValueAndName(ezWeightCategoryConfig::CustomMassKey, "<Custom Mass>");
+  cfe.SetValueAndName(ezWeightCategoryConfig::CustomDensityKey, "<Custom Density>");
+}
+
+void UpdateImpulseTypeDynamicEnumValues()
+{
+  auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsImpulseType");
+
+  cfe.Clear();
+  cfe.SetEditCommand("Jolt.Settings.Project", "ImpulseTypes");
+
+  ezImpulseTypeConfig cfg;
+  if (cfg.Load().Succeeded())
+  {
+    for (const auto it : cfg.m_Types)
+    {
+      cfe.SetValueAndName(it.key, it.value.m_sName.GetView());
+    }
+  }
+
+  cfe.SetValueAndName(ezImpulseTypeConfig::CustomValueKey, "<Custom Value>");
+  cfe.SetValueAndName(ezImpulseTypeConfig::NoValueKey, "<None>");
 }
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
@@ -152,6 +173,7 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
     ezQtJoltProjectSettingsDlg::EnsureConfigFileExists();
     UpdateCollisionLayerDynamicEnumValues();
     UpdateWeightCategoryDynamicEnumValues();
+    UpdateImpulseTypeDynamicEnumValues();
   }
 }
 
@@ -164,18 +186,18 @@ void ezJoltWeightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 
   const ezInt32 iCategory = e.m_pObject->GetTypeAccessor().GetValue("WeightCategory").ConvertTo<ezInt32>();
 
-  if (iCategory == 0) // Default
+  if (iCategory == ezWeightCategoryConfig::DefaultValueKey)
   {
     props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
     props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
     props["Density"].m_Visibility = ezPropertyUiState::Invisible;
   }
-  else if (iCategory == 1) // Custom Mass
+  else if (iCategory == ezWeightCategoryConfig::CustomMassKey)
   {
     props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
     props["Density"].m_Visibility = ezPropertyUiState::Invisible;
   }
-  else if (iCategory == 2) // Custom Density
+  else if (iCategory == ezWeightCategoryConfig::CustomDensityKey)
   {
     props["WeightScale"].m_Visibility = ezPropertyUiState::Invisible;
     props["Mass"].m_Visibility = ezPropertyUiState::Invisible;
@@ -309,11 +331,11 @@ public:
 
     if (fMass != 0.0f)
     {
-      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(1)); // Custom Mass
+      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(ezWeightCategoryConfig::CustomMassKey));
     }
     else
     {
-      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(2)); // Custom Density
+      pNode->AddProperty("WeightCategory", static_cast<ezUInt8>(ezWeightCategoryConfig::CustomDensityKey));
     }
   }
 };

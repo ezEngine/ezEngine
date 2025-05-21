@@ -211,6 +211,7 @@ ISO
 IgnoreOwnerRotation
 ImpactDirection
 Impulse
+ImpulseType
 IndianRed
 Indigo
 InfluenceScale

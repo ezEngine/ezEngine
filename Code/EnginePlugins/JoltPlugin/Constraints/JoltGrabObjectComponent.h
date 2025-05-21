@@ -63,7 +63,7 @@ public:
   void DropGrabbedObject(); // [ scriptable ]
 
   /// \brief Throws the held object away.
-  void ThrowGrabbedObject(const ezVec3& vRelativeDir); // [ scriptable ]
+  void ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// \brief Similar to DropGrabbedObject() but additionally posts the event message ezMsgPhysicsJointBroke.
   ///

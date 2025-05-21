@@ -469,6 +469,16 @@ ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
   return ezJoltCore::GetCollisionFilterConfig().GetFilterGroupByName(sName);
 }
 
+ezUInt8 ezJoltWorldModule::GetWeightCategoryByName(ezStringView sName) const
+{
+  return ezJoltCore::GetWeightCategoryConfig().FindByName(ezTempHashedString(sName));
+}
+
+ezUInt8 ezJoltWorldModule::GetImpulseTypeByName(ezStringView sName) const
+{
+  return ezJoltCore::GetImpulseTypeConfig().FindByName(ezTempHashedString(sName));
+}
+
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
 {
   ezJoltStaticActorComponent* pActor = nullptr;
@@ -1167,6 +1177,24 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
   }
 }
 
+void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_Type = ezJoltImpulse::Type::Center;
+}
+
+void ezJoltWorldModule::AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_Type = ezJoltImpulse::Type::Angular;
+}
+
 void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition)
 {
   EZ_LOCK(m_ImpulsesMutex);
@@ -1174,6 +1202,7 @@ void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, co
   imp.m_uiBodyID = uiBodyID;
   imp.m_vImpulse = vImpulse;
   imp.m_vGlobalPosition = vGlobalPosition;
+  imp.m_Type = ezJoltImpulse::Type::AtGlobalPos;
 }
 
 void ezJoltWorldModule::ApplyImpulses()
@@ -1201,7 +1230,18 @@ void ezJoltWorldModule::ApplyImpulses()
       continue;
     }
 
-    pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse), ezJoltConversionUtils::ToVec3(imp.m_vGlobalPosition));
+    switch (imp.m_Type)
+    {
+      case ezJoltImpulse::Type::AtGlobalPos:
+        pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse), ezJoltConversionUtils::ToVec3(imp.m_vGlobalPosition));
+        break;
+      case ezJoltImpulse::Type::Center:
+        pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse));
+        break;
+      case ezJoltImpulse::Type::Angular:
+        pBodies->AddTorque(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse));
+        break;
+    }
   }
 
   m_Impulses.Clear();

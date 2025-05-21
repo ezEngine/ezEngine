@@ -291,6 +291,7 @@ enum ezPhysicsShapeType
   Character = 16,
   Ragdoll = 32,
   Rope = 64,
+  Cloth = 128,
 }
 
 enum ezDebugTextHAlign
@@ -2621,6 +2622,8 @@ namespace ezPhysics
 {
   ezVec3 GetGravity();
   uint8 GetCollisionLayerByName(ezStringView Name);
+  uint8 GetWeightCategoryByName(ezStringView Name);
+  uint8 GetImpulseTypeByName(ezStringView Name);
   bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
   bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
   bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));

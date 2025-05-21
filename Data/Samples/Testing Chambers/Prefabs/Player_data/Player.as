@@ -322,10 +322,9 @@ class Player : ezAngelScriptClass
 
                 if (grabComp.HasObjectGrabbed())
                 {
-                    ezVec3 dir(0.75, 0, 0);
-                    dir *= 30;
+                    ezVec3 dir(1.0, 0, 0);
 
-                    grabComp.ThrowGrabbedObject(dir);
+                    grabComp.ThrowGrabbedObject(dir, ezPhysics::GetImpulseTypeByName("Throw Object"));
 
                     SwitchToWeapon(eHolsteredWeapon);
                 }

@@ -43,7 +43,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 2, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScene2Document, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScene2Document, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
