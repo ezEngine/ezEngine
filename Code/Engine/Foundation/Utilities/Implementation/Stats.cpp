@@ -2,6 +2,10 @@
 
 #include <Foundation/Utilities/Stats.h>
 
+#if TRACY_ENABLE
+#  include <tracy/tracy/Tracy.hpp>
+#endif
+
 ezMutex ezStats::s_Mutex;
 ezStats::MapType ezStats::s_Stats;
 ezStats::ezEventStats ezStats::s_StatsEvents;
@@ -42,4 +46,11 @@ void ezStats::SetStat(ezStringView sStatName, const ezVariant& value)
   e.m_NewStatValue = value;
 
   s_StatsEvents.Broadcast(e);
+
+#if TRACY_ENABLE
+  if (value.IsNumber())
+  {
+    TracyPlot(it.Key().GetData(), value.ConvertTo<double>());
+  }
+#endif
 }
