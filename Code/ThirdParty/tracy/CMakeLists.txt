@@ -4,7 +4,7 @@ ez_requires(EZ_3RDPARTY_TRACY_SUPPORT)
 
 find_package(Threads)
 
-ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp)
+ez_create_target(LIBRARY TracyClient NO_EZ_PREFIX NO_UNITY MANUAL_SOURCE_FILES TracyClient.cpp init.cmake)
 
 target_compile_definitions(TracyClient PUBLIC BUILDSYSTEM_ENABLE_TRACY_SUPPORT)
 
