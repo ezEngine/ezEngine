@@ -308,7 +308,7 @@ struct ThreadHandleWrapper
 static inline void CpuId( uint32_t* regs, uint32_t leaf )
 {
     memset(regs, 0, sizeof(uint32_t) * 4);
-#if defined _WIN32
+#if defined _MSC_VER
     __cpuidex( (int*)regs, leaf, 0 );
 #else
     __get_cpuid( leaf, regs, regs+1, regs+2, regs+3 );
@@ -3474,7 +3474,22 @@ bool Profiler::HandleServerQuery()
         }
         else
         {
-            SendString( ptr, GetThreadName( (uint32_t)ptr ), QueueType::ThreadName );
+            auto t = GetThreadNameData( (uint32_t)ptr );
+            if( t )
+            {
+                SendString( ptr, t->name, QueueType::ThreadName );
+                if( t->groupHint != 0 )
+                {
+                    TracyLfqPrepare( QueueType::ThreadGroupHint );
+                    MemWrite( &item->threadGroupHint.thread, (uint32_t)ptr );
+                    MemWrite( &item->threadGroupHint.groupHint, t->groupHint );
+                    TracyLfqCommit;
+                }
+            }
+            else
+            {
+                SendString( ptr, GetThreadName( (uint32_t)ptr ), QueueType::ThreadName );
+            }
         }
         break;
     case ServerQuerySourceLocation:
@@ -3712,6 +3727,7 @@ void Profiler::ReportTopology()
     struct CpuData
     {
         uint32_t package;
+        uint32_t die;
         uint32_t core;
         uint32_t thread;
     };
@@ -3741,6 +3757,7 @@ void Profiler::ReportTopology()
     const uint32_t numcpus = sysinfo.dwNumberOfProcessors;
 
     auto cpuData = (CpuData*)tracy_malloc( sizeof( CpuData ) * numcpus );
+    memset( cpuData, 0, sizeof( CpuData ) * numcpus );
     for( uint32_t i=0; i<numcpus; i++ ) cpuData[i].thread = i;
 
     int idx = 0;
@@ -3785,6 +3802,7 @@ void Profiler::ReportTopology()
 
         TracyLfqPrepare( QueueType::CpuTopology );
         MemWrite( &item->cpuTopology.package, data.package );
+        MemWrite( &item->cpuTopology.die, data.die );
         MemWrite( &item->cpuTopology.core, data.core );
         MemWrite( &item->cpuTopology.thread, data.thread );
 
@@ -3834,6 +3852,7 @@ void Profiler::ReportTopology()
 
         TracyLfqPrepare( QueueType::CpuTopology );
         MemWrite( &item->cpuTopology.package, data.package );
+        MemWrite( &item->cpuTopology.die, data.die );
         MemWrite( &item->cpuTopology.core, data.core );
         MemWrite( &item->cpuTopology.thread, data.thread );
 
@@ -4709,7 +4728,7 @@ TRACY_API int ___tracy_connected( void )
 }
 
 #ifdef TRACY_FIBERS
-TRACY_API void ___tracy_fiber_enter( const char* fiber ){ tracy::Profiler::EnterFiber( fiber ); }
+TRACY_API void ___tracy_fiber_enter( const char* fiber ){ tracy::Profiler::EnterFiber( fiber, 0 ); }
 TRACY_API void ___tracy_fiber_leave( void ){ tracy::Profiler::LeaveFiber(); }
 #endif
 
