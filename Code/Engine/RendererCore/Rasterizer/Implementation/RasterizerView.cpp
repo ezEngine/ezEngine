@@ -79,8 +79,6 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 
   for (const Instance& inst : m_Instances)
   {
-    EZ_PROFILE_SCOPE("RasterizeOneObject");
-
     ApplyModelViewProjectionMatrix(inst.m_Transform);
 
     bool bNeedsClipping;

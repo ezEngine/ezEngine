@@ -863,8 +863,6 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
 
 void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindObjectsInSphere");
-
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
 
   const ezSimdBBox simdBox = ezSimdBBox::MakeFromCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
@@ -879,8 +877,6 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
 
 void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindObjectsInBox");
-
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
   ezInternal::QueryHelper::ShapeQueryData<ezSimdBBox> queryData = {simdBox, callback};
