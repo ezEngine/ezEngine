@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Implementation/Task.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Lock.h>
