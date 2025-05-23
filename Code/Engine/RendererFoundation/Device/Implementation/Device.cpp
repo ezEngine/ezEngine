@@ -1899,6 +1899,8 @@ void ezGALDevice::BeginFrame(const ezUInt64 uiAppFrame)
 
 void ezGALDevice::EndFrame()
 {
+  EZ_PROFILE_SCOPE("ezGALDevice::EndFrame");
+
   {
     ezGALDeviceEvent e;
     e.m_pDevice = this;

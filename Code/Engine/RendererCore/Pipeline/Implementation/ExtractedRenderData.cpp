@@ -21,7 +21,7 @@ void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
 
 void ezExtractedRenderData::SortAndBatch()
 {
-  EZ_PROFILE_SCOPE("SortAndBatch");
+  EZ_PROFILE_SCOPE("ezExtractedRenderData::SortAndBatch");
 
   struct RenderDataComparer
   {
@@ -40,6 +40,8 @@ void ezExtractedRenderData::SortAndBatch()
   {
     if (dataPerCategory.m_SortableRenderData.IsEmpty())
       continue;
+
+    EZ_PROFILE_SCOPE("SortCategory");
 
     auto& data = dataPerCategory.m_SortableRenderData;
 

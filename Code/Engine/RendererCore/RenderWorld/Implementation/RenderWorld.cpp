@@ -623,7 +623,7 @@ void ezRenderWorld::BeginFrame()
 
 void ezRenderWorld::EndFrame()
 {
-  EZ_PROFILE_SCOPE("EndFrame");
+  EZ_PROFILE_SCOPE("ezRenderWorld::EndFrame");
   ezGALDevice::GetDefaultDevice()->EndFrame();
 
   ++s_uiFrameCounter;

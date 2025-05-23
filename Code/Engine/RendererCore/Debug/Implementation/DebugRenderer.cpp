@@ -1462,6 +1462,8 @@ void ezDebugRenderer::SetTextScale(float fScale)
 // static
 void ezDebugRenderer::RenderWorldSpace(const ezRenderViewContext& renderViewContext)
 {
+  EZ_PROFILE_SCOPE("ezDebugRenderer::RenderWorldSpace");
+
   if (renderViewContext.m_pWorldDebugContext != nullptr)
   {
     RenderInternalWorldSpace(*renderViewContext.m_pWorldDebugContext, renderViewContext);
@@ -1780,6 +1782,8 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
 // static
 void ezDebugRenderer::RenderScreenSpace(const ezRenderViewContext& renderViewContext)
 {
+  EZ_PROFILE_SCOPE("ezDebugRenderer::RenderScreenSpace");
+
   if (renderViewContext.m_pWorldDebugContext != nullptr)
   {
     RenderInternalScreenSpace(*renderViewContext.m_pWorldDebugContext, renderViewContext);

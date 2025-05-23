@@ -247,7 +247,7 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
   if (m_FinalCommand == 0)
     return;
 
-  EZ_PROFILE_SCOPE("GenerateAnimPose");
+  EZ_PROFILE_SCOPE("ezAnimPoseGenerator::UpdatePose");
   Validate();
 
   Execute(GetCommand(m_FinalCommand));

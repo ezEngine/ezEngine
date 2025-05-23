@@ -925,6 +925,8 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     return;
   }
 
+  EZ_PROFILE_SCOPE("ezRenderPipeline::ExtractData");
+
   m_uiLastExtractionFrame = ezRenderWorld::GetFrameCounter();
 
   // Determine visible objects
@@ -999,7 +1001,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 {
-  EZ_PROFILE_SCOPE("Visibility Culling");
+  EZ_PROFILE_SCOPE("ezRenderPipeline::FindVisibleObjects");
 
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
@@ -1217,6 +1219,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     ezUInt32 uiCurrentLastUsageIdx = 0;
     for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
     {
+      EZ_PROFILE_SCOPE("RenderPass");
+
       auto& pPass = m_Passes[i];
       ezLogBlock passBlock("Render Pass", pPass->GetName());
 

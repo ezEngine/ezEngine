@@ -793,6 +793,8 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
 void ezRenderContext::ResetContextState()
 {
+  EZ_PROFILE_SCOPE("ezRenderContext::ResetContextState");
+
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
 
   m_hActiveShader.Invalidate();

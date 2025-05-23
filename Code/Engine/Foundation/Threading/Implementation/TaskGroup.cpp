@@ -12,6 +12,7 @@ void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
   if (m_uiGroupCounter != group.m_uiGroupCounter)
     return;
 
+  EZ_PROFILE_SCOPE("ezTaskGroup::WaitForFinish");
   EZ_LOCK(m_CondVarGroupFinished);
 
   while (m_uiGroupCounter == group.m_uiGroupCounter)

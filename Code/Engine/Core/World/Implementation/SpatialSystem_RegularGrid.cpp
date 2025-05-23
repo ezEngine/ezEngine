@@ -863,7 +863,7 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
 
 void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("FindObjectsInSphere");
+  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindObjectsInSphere");
 
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
 
@@ -879,7 +879,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
 
 void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("FindObjectsInBox");
+  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindObjectsInBox");
 
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
@@ -893,7 +893,7 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
 
 void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const
 {
-  EZ_PROFILE_SCOPE("FindVisibleObjects");
+  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindVisibleObjects");
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;

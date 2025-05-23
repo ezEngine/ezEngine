@@ -691,7 +691,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
 
 void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE_SCOPE("FetchResults");
+  EZ_PROFILE_SCOPE("ezJoltWorldModule::FetchResults");
 
   {
     EZ_PROFILE_SCOPE("Wait for Simulate Task");
@@ -812,7 +812,7 @@ void ezJoltWorldModule::Simulate()
   if (m_UpdateSteps.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("Physics Simulation");
+  EZ_PROFILE_SCOPE("ezJoltWorldModule::Simulate");
 
   ezTime tDelta = m_UpdateSteps[0];
   ezUInt32 uiSteps = 1;

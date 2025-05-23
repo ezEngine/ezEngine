@@ -144,6 +144,8 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
 
 void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const
 {
+  EZ_PROFILE_SCOPE("ezExtractor::ExtractRenderData");
+
   auto AddRenderDataFromMessage = [&](const ezMsgExtractRenderData& msg) {
     if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     {

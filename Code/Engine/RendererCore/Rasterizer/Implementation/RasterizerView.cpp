@@ -36,7 +36,7 @@ void ezRasterizerView::BeginScene()
 {
   EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
 
-  EZ_PROFILE_SCOPE("Clear");
+  EZ_PROFILE_SCOPE("ezRasterizerView::BeginScene");
 
   m_pRasterizer->clear();
   m_bAnyOccludersRasterized = false;
@@ -44,7 +44,7 @@ void ezRasterizerView::BeginScene()
 
 void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) const
 {
-  EZ_PROFILE_SCOPE("Occlusion::ReadFrame");
+  EZ_PROFILE_SCOPE("ezRasterizerView::ReadBackFrame");
 
   EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
   EZ_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
@@ -57,7 +57,7 @@ void ezRasterizerView::EndScene()
   if (m_Instances.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("RasterizeScene");
+  EZ_PROFILE_SCOPE("ezRasterizerView::EndScene");
 
   SortObjectsFrontToBack();
 
@@ -75,10 +75,12 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 {
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
-  EZ_PROFILE_SCOPE("RasterizeObjects");
+  EZ_PROFILE_SCOPE("ezRasterizerView::RasterizeObjects");
 
   for (const Instance& inst : m_Instances)
   {
+    EZ_PROFILE_SCOPE("RasterizeOneObject");
+
     ApplyModelViewProjectionMatrix(inst.m_Transform);
 
     bool bNeedsClipping;
@@ -123,7 +125,7 @@ void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTr
 void ezRasterizerView::SortObjectsFrontToBack()
 {
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  EZ_PROFILE_SCOPE("SortObjects");
+  EZ_PROFILE_SCOPE("ezRasterizerView::SortObjectsFrontToBack");
 
   const ezVec3 camPos = m_pCamera->GetCenterPosition();
 
@@ -159,7 +161,7 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 
 ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
 {
-  EZ_PROFILE_SCOPE("Occlusion::GetViewFromPool");
+  EZ_PROFILE_SCOPE("ezRasterizerViewPool::GetRasterizerView");
 
   EZ_LOCK(m_Mutex);
 
@@ -204,7 +206,7 @@ void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
   if (pView == nullptr)
     return;
 
-  EZ_PROFILE_SCOPE("Occlusion::ReturnViewToPool");
+  EZ_PROFILE_SCOPE("ezRasterizerViewPool::ReturnRasterizerView");
 
   pView->SetCamera(nullptr);
 
