@@ -34,8 +34,10 @@
 #if BLEND_MODE == BLEND_MODE_TRANSPARENT && RENDER_PASS == RENDER_PASS_DEPTH_ONLY
 #  define USE_ALPHA_TEST
 #  define USE_DITHERING
-#  if defined(MSAA) && MSAA == TRUE
-#    define WRITE_COVERAGE
+#  if defined(MSAA)
+#    if MSAA == TRUE
+#      define WRITE_COVERAGE
+#    endif
 #  endif
 #endif
 
