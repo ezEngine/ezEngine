@@ -72,38 +72,6 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
   opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  // Allow running with just -project (compile all shaders in project)
-  if (m_sShaderFiles.IsEmpty() && !m_sAppProjectPath.IsEmpty())
-  {
-    // Find all .ezShader files in the project directory and subdirectories
-    ezDynamicArray<ezString> foundShaders;
-    ezFileSystemIterator fsIt;
-    for (fsIt.StartSearch(m_sAppProjectPath, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
-    {
-      if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
-      {
-        ezStringBuilder relPath;
-        fsIt.GetStats().GetFullPath(relPath);
-        if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
-        {
-          foundShaders.PushBack(relPath);
-        }
-      }
-    }
-    // Join all found shaders into m_sShaderFiles (semicolon separated)
-    ezStringBuilder tmp;
-    for (ezUInt32 i = 0; i < foundShaders.GetCount(); ++i)
-    {
-      tmp.AppendWithSeparator(";", foundShaders[i]);
-    }
-
-    m_sShaderFiles = tmp;
-
-    ezLog::Info("Discovered {} shaders in project.", foundShaders.GetCount());
-  }
-  // If still empty, error out
-  EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "No shaders found to compile. Use -shader or -project.");
-
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
   for (ezUInt32 pv = 0; pv < pvs; ++pv)
@@ -251,52 +219,61 @@ void ezShaderCompilerApplication::Run()
 {
   PrintConfig();
 
-  ezStringBuilder files = m_sShaderFiles;
-
   ezDynamicArray<ezString> shadersToCompile;
 
+  ezStringBuilder files = m_sShaderFiles;
+
   ezDynamicArray<ezStringView> allFiles;
+  if (m_sShaderFiles.IsEmpty())
+  {
+    ezStringBuilder sPath, sPath2;
+    for (ezUInt32 dirIdx = 0; dirIdx < ezFileSystem::GetNumDataDirectories(); ++dirIdx)
+    {
+      sPath = ezFileSystem::GetDataDirectory(dirIdx)->GetDataDirectoryPath();
+
+      if (sPath.IsEmpty())
+        continue;
+
+      if (ezFileSystem::ResolveSpecialDirectory(sPath, sPath2).Failed())
+        continue;
+
+      files.AppendWithSeparator(";", sPath2);
+    }
+  }
+
   files.Split(false, allFiles, ";");
 
   for (const ezStringView& shader : allFiles)
   {
     ezStringBuilder file = shader;
-    ezStringBuilder relPath;
+    ezStringBuilder relPath, absPath;
 
-    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Succeeded())
+    if (ezFileSystem::ResolvePath(file, &absPath, &relPath).Succeeded())
     {
-      shadersToCompile.PushBack(relPath);
-    }
-    else
-    {
-      if (ezPathUtils::IsRelativePath(file))
+      if (absPath.HasExtension("ezShader"))
       {
-        file.Prepend(m_sAppProjectPath, "/");
+        shadersToCompile.PushBack(relPath);
       }
-
-      file.TrimWordEnd("*");
-      file.MakeCleanPath();
-
-      if (ezOSFile::ExistsDirectory(file))
+      else if (ezOSFile::ExistsDirectory(absPath))
       {
         ezFileSystemIterator fsIt;
-        for (fsIt.StartSearch(file, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+        for (fsIt.StartSearch(absPath, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
         {
           if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
           {
             fsIt.GetStats().GetFullPath(relPath);
 
-            if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
+            if (relPath.MakeRelativeTo(absPath).Succeeded())
             {
               shadersToCompile.PushBack(relPath);
             }
           }
         }
       }
-      else
-      {
-        ezLog::Error("Could not resolve path to shader '{0}'", file);
-      }
+    }
+    else
+    {
+      ezLog::Error("Couldn't resolve path '{0}'", file);
     }
   }
 
