@@ -121,8 +121,13 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 
   ezLog::Info("Shader has {0} permutations", uiMaxPerms);
 
+  bool bContinue = true;
+
   ezTaskSystem::ParallelForIndexed(0, uiMaxPerms, [&](ezUInt32 idx, ezUInt32 num)
     {
+      if (!bContinue)
+        return;
+
       ezHybridArray<ezPermutationVar, 16> PermVars;
 
       for (ezUInt32 perm = idx; perm < num; ++perm)
@@ -133,10 +138,19 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
         m_PermutationGenerator.GetPermutation(perm, PermVars);
         ezShaderCompiler sc;
         if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
-          return /*EZ_FAILURE*/;
+        {
+          bContinue = false;
+          return;
+        }
       }
       //
     });
+
+  if (!bContinue)
+  {
+    ezLog::Error("Failed to compile shader '{0}'", sShaderFile);
+    return EZ_FAILURE;
+  }
 
   ezLog::Success("Compiled Shader '{0}'", sShaderFile);
   return EZ_SUCCESS;
