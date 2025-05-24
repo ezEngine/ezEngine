@@ -68,14 +68,40 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
   auto cmd = ezCommandLineUtils::GetGlobalInstance();
 
   m_sShaderFiles = opt_Shader.GetOptionValue(ezCommandLineOption::LogMode::Always);
-  EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "Shader file has not been specified. Use the -shader command followed by a path");
-
   m_sAppProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
-  EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "Project directory has not been specified. Use the -project command followed by a path");
-
   m_sPlatforms = opt_Platform.GetOptionValue(ezCommandLineOption::LogMode::Always);
-
   opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  // Allow running with just -project (compile all shaders in project)
+  if (m_sShaderFiles.IsEmpty() && !m_sAppProjectPath.IsEmpty())
+  {
+    // Find all .ezShader files in the project directory and subdirectories
+    ezDynamicArray<ezString> foundShaders;
+    ezFileSystemIterator fsIt;
+    for (fsIt.StartSearch(m_sAppProjectPath, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+    {
+      if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
+      {
+        ezStringBuilder relPath;
+        fsIt.GetStats().GetFullPath(relPath);
+        if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
+        {
+          foundShaders.PushBack(relPath);
+        }
+      }
+    }
+    // Join all found shaders into m_sShaderFiles (semicolon separated)
+    m_sShaderFiles.Clear();
+    for (ezUInt32 i = 0; i < foundShaders.GetCount(); ++i)
+    {
+      if (i > 0)
+        m_sShaderFiles.Append(";");
+      m_sShaderFiles.Append(foundShaders[i]);
+    }
+    ezLog::Info("Discovered {0} shaders in project.", foundShaders.GetCount());
+  }
+  // If still empty, error out
+  EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "No shaders found to compile. Use -shader or -project.");
 
   const ezUInt32 pvs = cmd->GetStringOptionArguments("-perm");
 
