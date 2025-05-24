@@ -91,14 +91,15 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
       }
     }
     // Join all found shaders into m_sShaderFiles (semicolon separated)
-    m_sShaderFiles.Clear();
+    ezStringBuilder tmp;
     for (ezUInt32 i = 0; i < foundShaders.GetCount(); ++i)
     {
-      if (i > 0)
-        m_sShaderFiles.Append(";");
-      m_sShaderFiles.Append(foundShaders[i]);
+      tmp.AppendWithSeparator(";", foundShaders[i]);
     }
-    ezLog::Info("Discovered {0} shaders in project.", foundShaders.GetCount());
+
+    m_sShaderFiles = tmp;
+
+    ezLog::Info("Discovered {} shaders in project.", foundShaders.GetCount());
   }
   // If still empty, error out
   EZ_ASSERT_ALWAYS(!m_sShaderFiles.IsEmpty(), "No shaders found to compile. Use -shader or -project.");
