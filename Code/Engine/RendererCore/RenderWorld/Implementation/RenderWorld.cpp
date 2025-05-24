@@ -838,6 +838,7 @@ void ezRenderWorld::OnEngineShutdown()
   }
 
   s_Views.Clear();
+  s_CameraConfigs.Clear();
 }
 
 void ezRenderWorld::BeginModifyCameraConfigs()
