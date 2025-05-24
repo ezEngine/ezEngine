@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -98,6 +99,8 @@ namespace
 
 ezResult ezShaderCompiler::FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::FileOpen");
+
   if (sAbsoluteFile == "ShaderRenderState")
   {
     const ezString& sData = m_ShaderData.m_StateSource;
@@ -183,6 +186,8 @@ void ezShaderCompiler::ShaderCompileMsg(ezRemoteMessage& msg)
 
 ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::CompileShaderPermutationForPlatforms");
+
   if (ezRemoteToolingInterface* pTooling = ezSingletonRegistry::GetSingletonInstance<ezRemoteToolingInterface>())
   {
     auto pNet = pTooling->GetRemoteInterface();
@@ -354,6 +359,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
 
 ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::RunShaderCompiler");
   EZ_LOG_BLOCK(pLog, "Compiling Shader", sFile);
 
   ezStringBuilder sProcessed[ezGALShaderStage::ENUM_COUNT];
@@ -619,6 +625,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
 void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramData& spd, ezLogInterface* pLog)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::WriteFailedShaderSource");
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (spd.m_uiSourceHash[stage] != 0 && spd.m_bWriteToDisk[stage])

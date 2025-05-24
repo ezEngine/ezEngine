@@ -2,6 +2,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -109,26 +110,33 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 
 ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompilerApplication::CompileShader");
   EZ_LOG_BLOCK("Compiling Shader", sShaderFile);
 
   if (ExtractPermutationVarValues(sShaderFile).Failed())
     return EZ_FAILURE;
 
-  ezHybridArray<ezPermutationVar, 16> PermVars;
 
   const ezUInt32 uiMaxPerms = m_PermutationGenerator.GetPermutationCount();
 
   ezLog::Info("Shader has {0} permutations", uiMaxPerms);
 
-  for (ezUInt32 perm = 0; perm < uiMaxPerms; ++perm)
-  {
-    EZ_LOG_BLOCK("Compiling Permutation");
+  ezTaskSystem::ParallelForIndexed(0, uiMaxPerms, [&](ezUInt32 idx, ezUInt32 num)
+    {
+      ezHybridArray<ezPermutationVar, 16> PermVars;
 
-    m_PermutationGenerator.GetPermutation(perm, PermVars);
-    ezShaderCompiler sc;
-    if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
-      return EZ_FAILURE;
-  }
+      for (ezUInt32 perm = idx; perm < num; ++perm)
+      {
+        EZ_PROFILE_SCOPE("CompilePermutation");
+        EZ_LOG_BLOCK("Compiling Permutation");
+
+        m_PermutationGenerator.GetPermutation(perm, PermVars);
+        ezShaderCompiler sc;
+        if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
+          return /*EZ_FAILURE*/;
+      }
+      //
+    });
 
   ezLog::Success("Compiled Shader '{0}'", sShaderFile);
   return EZ_SUCCESS;
@@ -136,6 +144,8 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 
 ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView sShaderFile)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompilerApplication::ExtractPermutationVarValues");
+
   m_PermutationGenerator.Clear();
 
   ezFileReader shaderFile;
@@ -218,6 +228,8 @@ void ezShaderCompilerApplication::PrintConfig()
 void ezShaderCompilerApplication::Run()
 {
   PrintConfig();
+
+  EZ_LOG_BLOCK("Compile All Shaders");
 
   ezDynamicArray<ezString> shadersToCompile;
 
