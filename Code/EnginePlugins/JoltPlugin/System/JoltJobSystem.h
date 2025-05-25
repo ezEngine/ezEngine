@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Threading/TaskSystem.h>
 #include <Jolt/Core/FixedSizeFreeList.h>
 #include <Jolt/Core/JobSystemWithBarrier.h>
 
