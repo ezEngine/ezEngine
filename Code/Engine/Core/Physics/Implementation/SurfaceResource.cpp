@@ -22,6 +22,11 @@ ezSurfaceResource::ezSurfaceResource()
 
 ezSurfaceResource::~ezSurfaceResource()
 {
+  ezSurfaceResourceEvent e;
+  e.m_pSurface = this;
+  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
+  s_Events.Broadcast(e);
+
   EZ_ASSERT_DEV(m_pPhysicsMaterialPhysX == nullptr, "Physics material has not been cleaned up properly");
   EZ_ASSERT_DEV(m_pPhysicsMaterialJolt == nullptr, "Physics material has not been cleaned up properly");
 }
@@ -34,11 +39,6 @@ ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
-
-  ezSurfaceResourceEvent e;
-  e.m_pSurface = this;
-  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
-  s_Events.Broadcast(e);
 
   return res;
 }

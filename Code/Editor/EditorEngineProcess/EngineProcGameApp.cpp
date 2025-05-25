@@ -370,7 +370,15 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     const ezRTTI* pType = ezResourceManager::FindResourceForAssetType(pMsg1->m_sResourceType);
     if (auto hResource = ezResourceManager::GetExistingResourceByType(pType, pMsg1->m_sResourceID); hResource.IsValid())
     {
+      // reload existing resources
       ezResourceManager::ReloadResource(pType, hResource, false);
+
+      // ReloadResource() only makes sure to UNLOAD a resource, but if it isn't directly polled for, it won't get LOADED again
+      // for most resource types this is fine, but some types need to get LOADED again to set up data that sticks around even while they are unloaded
+      // specifically this happens for ezSurfaceResource, because that signals to the physics engine to set up materials,
+      // which stick around even if the surface resource gets unloaded
+      // this is an editor specific issue, and we only do this here to guarantee an up-to-date representation while editing
+      ezResourceManager::PreloadResource(hResource);
     }
   }
   else if (const auto* pMsg1 = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))

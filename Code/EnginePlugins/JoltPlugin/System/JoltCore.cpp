@@ -239,13 +239,23 @@ void ezJoltCore::SurfaceResourceEventHandler(const ezSurfaceResourceEvent& e)
   {
     const auto& desc = e.m_pSurface->GetDescriptor();
 
-    auto pNewMaterial = new ezJoltMaterial;
-    pNewMaterial->AddRef();
-    pNewMaterial->m_pSurface = e.m_pSurface;
-    pNewMaterial->m_fRestitution = desc.m_fPhysicsRestitution;
-    pNewMaterial->m_fFriction = ezMath::Lerp(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, 0.5f);
+    ezJoltMaterial* pJoltMat = static_cast<ezJoltMaterial*>(e.m_pSurface->m_pPhysicsMaterialJolt);
 
-    e.m_pSurface->m_pPhysicsMaterialJolt = pNewMaterial;
+    if (pJoltMat == nullptr)
+    {
+      pJoltMat = new ezJoltMaterial;
+      pJoltMat->AddRef();
+      pJoltMat->m_pSurface = e.m_pSurface;
+    }
+    else
+    {
+      EZ_ASSERT_DEV(pJoltMat->m_pSurface == e.m_pSurface, "Invalid surface");
+    }
+
+    pJoltMat->m_fRestitution = desc.m_fPhysicsRestitution;
+    pJoltMat->m_fFriction = ezMath::Lerp(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, 0.5f);
+
+    e.m_pSurface->m_pPhysicsMaterialJolt = pJoltMat;
   }
   else if (e.m_Type == ezSurfaceResourceEvent::Type::Destroyed)
   {

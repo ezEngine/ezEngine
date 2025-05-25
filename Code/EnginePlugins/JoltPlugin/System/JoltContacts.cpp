@@ -62,14 +62,27 @@ void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& b
 {
   // compute per-material friction and restitution
   {
-    const ezJoltMaterial* pMat0 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1));
-    const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2));
 
-    if (pMat0 && pMat1)
+    float fRes0 = 0.2f;
+    float fRes1 = 0.2f;
+
+    float fFri0 = 0.5f;
+    float fFri1 = 0.5f;
+
+    if (const ezJoltMaterial* pMat0 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1)))
     {
-      ref_settings.mCombinedRestitution = ezMath::Max(pMat0->m_fRestitution, pMat1->m_fRestitution);
-      ref_settings.mCombinedFriction = ezMath::Sqrt(pMat0->m_fFriction * pMat1->m_fFriction);
+      fRes0 = pMat0->m_fRestitution;
+      fFri0 = pMat0->m_fFriction;
     }
+
+    if (const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2)))
+    {
+      fRes1 = pMat1->m_fRestitution;
+      fFri1 = pMat1->m_fFriction;
+    }
+
+    ref_settings.mCombinedRestitution = ezMath::Max(fRes0, fRes1);
+    ref_settings.mCombinedFriction = ezMath::Sqrt(fFri0 * fFri1);
   }
 
   m_ContactEvents.m_pWorld = m_pWorld;
