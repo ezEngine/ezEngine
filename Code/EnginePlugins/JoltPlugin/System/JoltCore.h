@@ -20,7 +20,7 @@ namespace JPH
 class EZ_JOLTPLUGIN_DLL ezJoltCore
 {
 public:
-  static JPH::JobSystem* GetJoltJobSystem() { return s_pJobSystem.get(); }
+  static JPH::JobSystem* GetJoltJobSystem() { return s_pJobSystem.Borrow(); }
   static const ezJoltMaterial* GetDefaultMaterial() { return s_pDefaultMaterial; }
 
   static void DebugDraw(ezWorld* pWorld);
@@ -52,7 +52,7 @@ private:
   static void LoadWeightCategories();
 
   static ezJoltMaterial* s_pDefaultMaterial;
-  static std::unique_ptr<JPH::JobSystem> s_pJobSystem;
+  static ezUniquePtr<JPH::JobSystem> s_pJobSystem;
 
   static ezUniquePtr<ezProxyAllocator> s_pAllocator;
   static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;

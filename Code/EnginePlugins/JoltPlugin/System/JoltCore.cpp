@@ -12,6 +12,7 @@
 #include <JoltPlugin/Shapes/Implementation/JoltCustomShapeInfo.h>
 #include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltDebugRenderer.h>
+#include <JoltPlugin/System/JoltJobSystem.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <stdarg.h>
 
@@ -35,7 +36,7 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
 ezJoltMaterial* ezJoltCore::s_pDefaultMaterial = nullptr;
-std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
+ezUniquePtr<JPH::JobSystem> ezJoltCore::s_pJobSystem;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
 ezCollisionFilterConfig ezJoltCore::s_CollisionFilterConfig;
@@ -171,8 +172,7 @@ void ezJoltCore::Startup()
 
   ezJoltCustomShapeInfo::sRegister();
 
-  // TODO: custom job system
-  s_pJobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
+  s_pJobSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezJoltJobSystem, JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers);
 
   s_pDefaultMaterial = new ezJoltMaterial;
   s_pDefaultMaterial->AddRef();
