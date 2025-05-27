@@ -95,5 +95,5 @@ public:
 class ezJoltSoftBodyContactListener : public JPH::SoftBodyContactListener
 {
 public:
-  virtual JPH::SoftBodyValidateResult OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& settings) override;
+  virtual JPH::SoftBodyValidateResult OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& ref_settings) override;
 };
