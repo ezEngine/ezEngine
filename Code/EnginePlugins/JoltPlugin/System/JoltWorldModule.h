@@ -14,6 +14,7 @@
 
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
+class ezJoltSoftBodyContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
 class ezView;
@@ -147,6 +148,11 @@ public:
     return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
   }
 
+  ezJoltSoftBodyContactListener* GetSoftBodyContactListener()
+  {
+    return reinterpret_cast<ezJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
+  }
+
   void CheckBreakableConstraints();
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
@@ -244,6 +250,7 @@ private:
   ezJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
 
   void* m_pContactListener = nullptr;
+  void* m_pSoftBodyContactListener = nullptr;
   void* m_pActivationListener = nullptr;
   ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
   ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;

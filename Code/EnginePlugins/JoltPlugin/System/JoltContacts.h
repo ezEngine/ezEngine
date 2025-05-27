@@ -2,6 +2,7 @@
 
 #include <Core/World/Declarations.h>
 #include <Physics/Collision/ContactListener.h>
+#include <Physics/SoftBody/SoftBodyContactListener.h>
 
 class ezWorld;
 class ezJoltTriggerComponent;
@@ -89,4 +90,10 @@ public:
   bool ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id);
 
   void DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBody2id);
+};
+
+class ezJoltSoftBodyContactListener : public JPH::SoftBodyContactListener
+{
+public:
+  virtual JPH::SoftBodyValidateResult OnSoftBodyContactValidate(const JPH::Body& inSoftBody, const JPH::Body& inOtherBody, JPH::SoftBodyContactSettings& ioSettings) override;
 };

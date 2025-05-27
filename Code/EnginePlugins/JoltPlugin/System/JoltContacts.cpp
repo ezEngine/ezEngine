@@ -85,8 +85,6 @@ void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& b
     ezBitflags<ezOnJoltContact> CombinedContactFlags;
     CombinedContactFlags.SetValue(ContactFlags0.GetValue() | ContactFlags1.GetValue());
 
-    // bSendContactReport = bSendContactReport || CombinedContactFlags.IsSet(ezOnJoltContact::SendReportMsg);
-
     if (CombinedContactFlags.IsAnySet(ezOnJoltContact::AllReactions))
     {
       ezVec3 vAvgPos(0);
@@ -120,11 +118,6 @@ void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& b
       }
     }
   }
-
-  //   if (bSendContactReport)
-  //   {
-  //     SendContactReport(pairHeader, pairs, nbPairs);
-  //   }
 }
 
 bool ezJoltContactListener::ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id)
@@ -604,5 +597,14 @@ void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0,
   }
 }
 
+JPH::SoftBodyValidateResult ezJoltSoftBodyContactListener::OnSoftBodyContactValidate(const JPH::Body& inSoftBody, const JPH::Body& inOtherBody, JPH::SoftBodyContactSettings& ioSettings)
+{
+  // give the rigid body "infinite mass" -> soft bodies can't push them
+  // so the interaction is always one sided
+  ioSettings.mInvMassScale2 = 0.0f;
+  ioSettings.mInvInertiaScale2 = 0.0f;
+
+  return JPH::SoftBodyValidateResult::AcceptContact;
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltContacts);

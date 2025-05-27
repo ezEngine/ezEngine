@@ -140,6 +140,10 @@ void ezJoltWorldModule::Deinitialize()
   EZ_DEFAULT_DELETE(pContactListener);
   m_pContactListener = nullptr;
 
+  ezJoltSoftBodyContactListener* pSoftBodyContactListener = reinterpret_cast<ezJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
+  EZ_DEFAULT_DELETE(pSoftBodyContactListener);
+  m_pSoftBodyContactListener = nullptr;
+
   m_pGroupFilter->Release();
   m_pGroupFilter = nullptr;
 
@@ -278,6 +282,12 @@ void ezJoltWorldModule::Initialize()
     pListener->m_pWorld = GetWorld();
     m_pContactListener = pListener;
     m_pSystem->SetContactListener(pListener);
+  }
+
+  {
+    ezJoltSoftBodyContactListener* pListener = EZ_DEFAULT_NEW(ezJoltSoftBodyContactListener);
+    m_pSoftBodyContactListener = pListener;
+    m_pSystem->SetSoftBodyContactListener(pListener);
   }
 
   {

@@ -56,9 +56,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltClothSheetComponent, 3, ezComponentMode::Static)
     {
       EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0.5f, 0.5f))),
       EZ_ACCESSOR_PROPERTY("Segments", GetSegments, SetSegments)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(16, 16)), new ezClampValueAttribute(ezVec2U32(2, 2), ezVec2U32(64, 64))),
-      EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
-      EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
-      EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.1f, 1000.0f)),
+      //EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
+      //EZ_ACCESSOR_PROPERTY("WeightScale", GetWeightValue, SetWeightValue_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+      //EZ_ACCESSOR_PROPERTY("Mass", GetWeightValue, SetWeightValue_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 100.0f)),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_MEMBER_PROPERTY("GravityFactor", m_fGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -176,13 +176,12 @@ void ezJoltClothSheetComponent::OnSimulationStarted()
   SetupCloth();
 }
 
-static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vSegments, ezVec2 vSpacing, ezBitflags<ezJoltClothSheetFlags> flags, float fMass)
+static JPH::Ref<JPH::SoftBodySharedSettings> CreateCloth(ezVec2U32 vSegments, ezVec2 vSpacing, ezBitflags<ezJoltClothSheetFlags> flags, float fPerVertexMass)
 {
   // Create settings
   JPH::SoftBodySharedSettings* settings = new JPH::SoftBodySharedSettings;
 
-  const float fMassPerVertex = fMass; // / (vSegments.x * vSegments.y); // this creates too much instability
-  const float fInvVtxMass = 1.0f / fMassPerVertex;
+  const float fInvVtxMass = 1.0f / fPerVertexMass;
 
   for (ezUInt32 y = 0; y < vSegments.y; ++y)
   {
@@ -319,12 +318,12 @@ void ezJoltClothSheetComponent::SetupCloth()
   {
     RemoveBody();
 
-    float fInitialMass = 10.0f;    // default value
+    float fPerVertexMass = 1.0f;   // default value
     if (m_uiWeightCategory != 0)
     {
       if (m_uiWeightCategory == 1) // Custom Mass
       {
-        fInitialMass = m_fWeightValue;
+        fPerVertexMass = m_fWeightValue;
       }
       else
       {
@@ -332,13 +331,13 @@ void ezJoltClothSheetComponent::SetupCloth()
         const ezUInt32 idx = cat.Find(m_uiWeightCategory);
         if (idx != ezInvalidIndex)
         {
-          fInitialMass = cat.GetValue(idx).m_fMass;
-          fInitialMass = ezMath::Clamp(fInitialMass * m_fWeightValue, 1.0f, 1000.0f);
+          fPerVertexMass = cat.GetValue(idx).m_fMass;
+          fPerVertexMass = ezMath::Clamp(fPerVertexMass * m_fWeightValue, 0.1f, 100.0f);
         }
       }
     }
 
-    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vSegments, m_vSize.CompDiv(ezVec2(static_cast<float>(m_vSegments.x - 1), static_cast<float>(m_vSegments.y - 1))), m_Flags, fInitialMass);
+    JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vSegments, m_vSize.CompDiv(ezVec2(static_cast<float>(m_vSegments.x - 1), static_cast<float>(m_vSegments.y - 1))), m_Flags, fPerVertexMass);
 
     settings->mVertexRadius = m_fThickness;
 
