@@ -597,12 +597,12 @@ void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0,
   }
 }
 
-JPH::SoftBodyValidateResult ezJoltSoftBodyContactListener::OnSoftBodyContactValidate(const JPH::Body& inSoftBody, const JPH::Body& inOtherBody, JPH::SoftBodyContactSettings& ioSettings)
+JPH::SoftBodyValidateResult ezJoltSoftBodyContactListener::OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& settings)
 {
   // give the rigid body "infinite mass" -> soft bodies can't push them
   // so the interaction is always one sided
-  ioSettings.mInvMassScale2 = 0.0f;
-  ioSettings.mInvInertiaScale2 = 0.0f;
+  settings.mInvMassScale2 = 0.0f;
+  settings.mInvInertiaScale2 = 0.0f;
 
   return JPH::SoftBodyValidateResult::AcceptContact;
 }
