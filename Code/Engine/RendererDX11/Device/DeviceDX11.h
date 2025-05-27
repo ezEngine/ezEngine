@@ -199,6 +199,7 @@ private:
 
   TempResource CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame = ezUInt64(-1));
   TempResource CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  void MapTempResource(TempResource& tempResource);
   void UnmapTempResource(TempResource& tempResource);
   void FreeTempResources(ezUInt64 uiFrame);
 
@@ -238,6 +239,8 @@ private:
   ezUInt64 m_uiSafeFrame = 0;
   ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
+  bool m_bSupportsAlwaysMappedTempResources = true;
+
   struct UsedTempResource
   {
     EZ_DECLARE_POD_TYPE();
@@ -253,6 +256,8 @@ private:
   struct PendingCopy
   {
     TempResource m_SourceResource = {};
+    ezByteArrayPtr m_SourceData; // Used in case always mapped temp resources are not supported
+    
     ID3D11Resource* m_pDestResource = nullptr;
     ezUInt32 m_uiDestSubResource = 0;
     ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();

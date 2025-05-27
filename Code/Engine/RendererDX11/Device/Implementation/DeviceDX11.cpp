@@ -210,10 +210,12 @@ retry:
     return EZ_FAILURE;
   }
 
-
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
         { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
+
+  // RenderDoc cannot handle buffers that are mapped in a different frame than the current one
+  m_bSupportsAlwaysMappedTempResources = GetModuleHandleA("renderdoc.dll") == nullptr;
 
   return EZ_SUCCESS;
 }
@@ -760,12 +762,20 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
   const ezUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
 
   auto& copy = m_PendingCopies.ExpandAndGetRef();
-  copy.m_SourceResource = CopyToTempBuffer(sourceData, m_uiFrameCounter + 1);
+  if (m_bSupportsAlwaysMappedTempResources)
+  {
+    copy.m_SourceResource = CopyToTempBuffer(sourceData, m_uiFrameCounter + 1);
+  }
+  else
+  {
+    copy.m_SourceData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.GetCount());
+    copy.m_SourceData.CopyFrom(sourceData);
+  }
   copy.m_pDestResource = pBufferDX11->GetDXBuffer();
   copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
 
   const bool bWholeBuffer = uiDestOffset == 0 && copy.m_SourceResource.m_uiRowPitch == uiDestBufferSize;
-  copy.m_vSourceSize = bWholeBuffer ? ezVec3U32(ezInvalidIndex) : ezVec3U32(sourceData.GetCount(), 1, 1);
+  copy.m_vSourceSize = ezVec3U32(bWholeBuffer ? ezInvalidIndex : sourceData.GetCount(), 1, 1);
 }
 
 void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
@@ -1213,6 +1223,11 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArray
   }
   else
   {
+    if (!m_bSupportsAlwaysMappedTempResources)
+    {
+      MapTempResource(tempResource);
+    }
+
     EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
     memcpy(tempResource.m_pData, sourceData.GetPtr(), sourceData.GetCount());
   }
@@ -1315,6 +1330,20 @@ ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSyst
   return tempResource;
 }
 
+void ezGALDeviceDX11::MapTempResource(TempResource& tempResource)
+{
+  EZ_ASSERT_DEBUG(tempResource.m_pData == nullptr, "Must NOT be mapped at this point");
+
+  D3D11_MAPPED_SUBRESOURCE mapped;
+  HRESULT hRes = m_pImmediateContext->Map(tempResource.m_pResource, 0, D3D11_MAP_WRITE, 0, &mapped);
+  EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+  EZ_IGNORE_UNUSED(hRes);
+
+  tempResource.m_pData = mapped.pData;
+  tempResource.m_uiRowPitch = mapped.RowPitch;
+  tempResource.m_uiDepthPitch = mapped.DepthPitch;
+}
+
 void ezGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
 {
   if (tempResource.m_pData != nullptr)
@@ -1343,16 +1372,13 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
           it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<TempResource>(&m_Allocator));
         }
 
-        D3D11_MAPPED_SUBRESOURCE mapped;
-        HRESULT hRes = m_pImmediateContext->Map(usedTempResource.m_pResource, 0, D3D11_MAP_WRITE, 0, &mapped);
-        EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
-        EZ_IGNORE_UNUSED(hRes);
-
-        auto& tempResources = it.Value().ExpandAndGetRef();
-        tempResources.m_pResource = usedTempResource.m_pResource;
-        tempResources.m_pData = mapped.pData;
-        tempResources.m_uiRowPitch = mapped.RowPitch;
-        tempResources.m_uiDepthPitch = mapped.DepthPitch;
+        auto& tempResource = it.Value().ExpandAndGetRef();
+        tempResource.m_pResource = usedTempResource.m_pResource;
+        
+        if (m_bSupportsAlwaysMappedTempResources)
+        {
+          MapTempResource(tempResource);
+        }
 
         usedTempResources.RemoveAtAndSwap(i);
       }
@@ -1370,16 +1396,22 @@ void ezGALDeviceDX11::ProcessPendingCopies()
 
   for (auto& copy : m_PendingCopies)
   {
-    UnmapTempResource(copy.m_SourceResource);
+    TempResource tempResource = copy.m_SourceResource;
 
-    if (copy.m_vSourceSize == ezVec3U32(ezInvalidIndex))
+    if (!m_bSupportsAlwaysMappedTempResources)
     {
-      m_pImmediateContext->CopyResource(copy.m_pDestResource, copy.m_SourceResource.m_pResource);
+      tempResource = CopyToTempBuffer(copy.m_SourceData, m_uiFrameCounter);
+    }
+    UnmapTempResource(tempResource);
+
+    if (copy.m_vSourceSize.x == ezInvalidIndex)
+    {
+      m_pImmediateContext->CopyResource(copy.m_pDestResource, tempResource.m_pResource);
     }
     else
     {
       D3D11_BOX srcBox = {0, 0, 0, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z};
-      m_pImmediateContext->CopySubresourceRegion(copy.m_pDestResource, copy.m_uiDestSubResource, copy.m_vDestPoint.x, copy.m_vDestPoint.y, copy.m_vDestPoint.z, copy.m_SourceResource.m_pResource, 0, &srcBox);
+      m_pImmediateContext->CopySubresourceRegion(copy.m_pDestResource, copy.m_uiDestSubResource, copy.m_vDestPoint.x, copy.m_vDestPoint.y, copy.m_vDestPoint.z, tempResource.m_pResource, 0, &srcBox);
     }
   }
   m_PendingCopies.Clear();
