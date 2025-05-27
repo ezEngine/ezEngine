@@ -1374,7 +1374,7 @@ void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
 
         auto& tempResource = it.Value().ExpandAndGetRef();
         tempResource.m_pResource = usedTempResource.m_pResource;
-        
+
         if (m_bSupportsAlwaysMappedTempResources)
         {
           MapTempResource(tempResource);

@@ -257,7 +257,7 @@ private:
   {
     TempResource m_SourceResource = {};
     ezByteArrayPtr m_SourceData; // Used in case always mapped temp resources are not supported
-    
+
     ID3D11Resource* m_pDestResource = nullptr;
     ezUInt32 m_uiDestSubResource = 0;
     ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();
