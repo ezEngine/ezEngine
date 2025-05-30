@@ -11,7 +11,7 @@ o
 		s %AssetType{"Material"}
 		VarArray %Dependencies
 		{
-			s{":app/VisualShader/DefaultMaterial.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
 			s{":app/VisualShader/Inputs.ddl"}
 		}
 		Uuid %DocumentID{u4{7497886876168176540,4811734990989520338}}

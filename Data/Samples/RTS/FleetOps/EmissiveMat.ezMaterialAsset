@@ -11,7 +11,7 @@ o
 		s %AssetType{"Material"}
 		VarArray %Dependencies
 		{
-			s{":app/VisualShader/DefaultMaterial.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
 			s{":app/VisualShader/Inputs.ddl"}
 			s{":app/VisualShader/Math_Basic.ddl"}
 			s{":app/VisualShader/Parameters.ddl"}

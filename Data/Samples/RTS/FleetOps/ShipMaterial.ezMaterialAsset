@@ -12,7 +12,7 @@ o
 		VarArray %Dependencies
 		{
 			s{":app/VisualShader/Conversions.ddl"}
-			s{":app/VisualShader/DefaultMaterial.ddl"}
+			s{":app/VisualShader/Output_Material.ddl"}
 			s{":app/VisualShader/Inputs.ddl"}
 			s{":app/VisualShader/Math.ddl"}
 			s{":app/VisualShader/Math_Basic.ddl"}
