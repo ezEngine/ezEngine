@@ -22,6 +22,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), c_MaxSpotAngle), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f))),
     EZ_ACCESSOR_PROPERTY("ShadowFadeOutRange", GetShadowFadeOutRange, SetShadowFadeOutRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
     EZ_RESOURCE_ACCESSOR_PROPERTY("Cookie", GetCookie, SetCookie)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Material", GetMaterial, SetMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "Decal")),
+    EZ_ACCESSOR_PROPERTY("MaterialResolution", GetMaterialResolution, SetMaterialResolution)->AddAttributes(new ezClampValueAttribute(16, 1024), new ezDefaultValueAttribute(512)),
+    EZ_ACCESSOR_PROPERTY("MaterialUpdateInterval", GetMaterialUpdateInterval, SetMaterialUpdateInterval)->AddAttributes(new ezClampValueAttribute(0.0, 10.0), new ezDefaultValueAttribute(0.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -115,6 +118,30 @@ void ezSpotLightComponent::SetCookie(const ezTexture2DResourceHandle& hCookie)
   }
 }
 
+void ezSpotLightComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial)
+{
+  if (m_hMaterial != hMaterial)
+  {
+    m_hMaterial = hMaterial;
+
+    InvalidateCachedRenderData();
+  }
+}
+
+void ezSpotLightComponent::SetMaterialResolution(ezUInt32 uiResolution)
+{
+  m_uiMaterialResolution = ezMath::Clamp(uiResolution, 16u, 1024u);
+
+  // No need to invalidate cached render data, render data is not cached if a material is used.
+}
+
+void ezSpotLightComponent::SetMaterialUpdateInterval(ezTime updateInterval)
+{
+  m_fMaterialUpdateInterval = ezMath::Clamp(updateInterval.AsFloatInSeconds(), 0.0f, 10.0f);
+
+  // No need to invalidate cached render data, render data is not cached if a material is used.
+}
+
 void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
@@ -146,9 +173,15 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
 
-  if (m_hCookie.IsValid())
+  // Spotlight bounds tend to be way larger than the projected area thus times 0.5
+  const float fScreenSpaceSizeForCookie = fScreenSpaceSize * 0.5f;
+  if (m_hMaterial.IsValid())
   {
-    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hCookie, fScreenSpaceSize, msg.m_pView);
+    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hMaterial, m_uiMaterialResolution, ezTime::MakeFromSeconds(m_fMaterialUpdateInterval), fScreenSpaceSizeForCookie, msg.m_pView);
+  }
+  else if (m_hCookie.IsValid())
+  {
+    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hCookie, fScreenSpaceSizeForCookie, msg.m_pView);
   }
 
   if (m_bCastShadows && fShadowFadeOut > 0.0f)
@@ -162,7 +195,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 
-  ezRenderData::Caching::Enum caching = (m_bCastShadows || m_hCookie.IsValid()) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = (m_bCastShadows || m_hCookie.IsValid() || m_hMaterial.IsValid()) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 

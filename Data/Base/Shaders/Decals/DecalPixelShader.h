@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Decals/DecalInterpolator.h>
 
 float3 GetBaseColor();

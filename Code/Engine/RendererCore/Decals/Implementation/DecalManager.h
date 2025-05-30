@@ -9,6 +9,7 @@ class EZ_RENDERERCORE_DLL ezDecalManager
 {
 public:
   static ezDecalId GetOrAddRuntimeDecal(ezTexture2DResourceHandle hTexture, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove = ezTime::MakeFromSeconds(1));
+  static ezDecalId GetOrAddRuntimeDecal(ezMaterialResourceHandle hMaterial, ezUInt32 uiResolution, ezTime updateInterval, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove = ezTime::MakeFromSeconds(1));
   static void RemoveRuntimeDecal(ezDecalId decalId);
 
   static ezDecalAtlasResourceHandle GetBakedDecalAtlas();

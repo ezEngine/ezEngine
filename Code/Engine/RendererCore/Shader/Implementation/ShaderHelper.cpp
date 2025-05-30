@@ -60,6 +60,7 @@ namespace ezShaderHelper
           const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPointer(), m_Sections[s2].m_szSectionStart);
 
           m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
+          m_Sections[s].m_Content.Trim(" \t\r\n");
         }
       }
     }

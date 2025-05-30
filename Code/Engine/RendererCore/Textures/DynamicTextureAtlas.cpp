@@ -182,6 +182,7 @@ void ezDynamicTextureAtlas::Deallocate(AllocationId& allocationId)
 
   EZ_ASSERT_DEV(pNode->GetType() == NodeType::Allocation, "Implementation error");
   pNode->m_uiType = NodeType::Free;
+  pNode->m_sName.Clear();
 
   while (true)
   {

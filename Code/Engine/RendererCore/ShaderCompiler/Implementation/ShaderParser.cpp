@@ -783,9 +783,6 @@ ezStatus ParseMaterialConstants(const TokenStream& tokens, ezUInt32& ref_uiCurTo
     }
   }
 
-  if (ref_materialConstantBufferLayout.m_Constants.IsEmpty())
-    return ezStatus(ezFmt("Failed to parse shader constants: no constants found"));
-
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -804,7 +801,7 @@ ezStatus ezShaderParser::ParseMaterialConstantsSection(ezStringView sMaterialCon
 
   out_pMaterialConstantBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
   const ezStatus res = ParseMaterialConstants(tokens, uiCurToken, *out_pMaterialConstantBufferLayout);
-  if (res.Failed())
+  if (res.Failed() || out_pMaterialConstantBufferLayout->m_Constants.IsEmpty())
   {
     out_pMaterialConstantBufferLayout = nullptr;
     return res;

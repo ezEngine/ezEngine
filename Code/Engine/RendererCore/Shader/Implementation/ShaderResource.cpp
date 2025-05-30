@@ -63,7 +63,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
   ezStringView sShader = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstLine);
   if (!sShader.IsEmpty())
   {
-    if (ezShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded())
+    if (ezShaderParser::ParseMaterialConstantsSection(sShader, m_pLayout).Succeeded() && m_pLayout != nullptr)
     {
       ezShaderParser::LayoutMaterialConstants(*m_pLayout, ezGALDevice::GetDefaultDevice()->GetCapabilities().m_materialBufferLayout);
     }

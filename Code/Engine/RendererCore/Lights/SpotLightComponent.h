@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Foundation/Math/Float16.h>
 #include <RendererCore/Lights/LightComponent.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 using ezSpotLightComponentManager = ezComponentManager<class ezSpotLightComponent, ezBlockStorageType::Compact>;
@@ -69,6 +71,18 @@ public:
   // adds SetCookieFile() and GetCookieFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Cookie, m_hCookie, SetCookie);
 
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial);                // [ property ]
+  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; } // [ property ]
+
+  // adds SetMaterialFile() and GetMaterialFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Material, m_hMaterial, SetMaterial);
+
+  void SetMaterialResolution(ezUInt32 uiResolution);                                                      // [ property ]
+  ezUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                               // [ property ]
+
+  void SetMaterialUpdateInterval(ezTime updateInterval);                                                  // [ property ]
+  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_fMaterialUpdateInterval); } // [ property ]
+
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   ezBoundingSphere CalculateBoundingSphere(const ezTransform& t, float fRange) const;
@@ -79,6 +93,10 @@ protected:
 
   ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
   ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
+
+  ezUInt16 m_uiMaterialResolution = 512;
+  ezFloat16 m_fMaterialUpdateInterval = 0.0f;
+  ezMaterialResourceHandle m_hMaterial;
 
   ezTexture2DResourceHandle m_hCookie;
 };

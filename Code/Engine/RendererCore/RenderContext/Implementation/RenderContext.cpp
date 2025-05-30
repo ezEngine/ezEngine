@@ -669,6 +669,8 @@ ezResult ezRenderContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThre
 
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
+  EZ_ASSERT_DEBUG(m_bRendering || m_bCompute, "Must be either in a rendering or compute scope");
+
   // First apply material state since this can modify all other states.
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MaterialBindingChanged))
   {

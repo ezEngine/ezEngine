@@ -330,7 +330,8 @@ float3 SampleLightCookie(ezPerLightData lightData, float3 worldPosition)
 
     float2 uv = localPos.xy * RG16FToFloat2(atlasData.scale) + RG16FToFloat2(atlasData.offset);
 
-    return DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, uv, 0).rgb;
+    float4 cookie = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, uv, 0);
+    return cookie.rgb * cookie.a;
   }
 
   return 1;
