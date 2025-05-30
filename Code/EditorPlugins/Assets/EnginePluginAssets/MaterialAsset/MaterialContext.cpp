@@ -46,22 +46,38 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       auto pWorld = m_pWorld;
       EZ_LOCK(pWorld->GetWriteMarker());
 
-      ezMeshComponent* pMesh;
-      if (pWorld->TryGetComponent(m_hMeshComponent, pMesh))
+      ezGameObject* pMeshObject = nullptr;
+      if (pWorld->TryGetObject(m_hMeshObject, pMeshObject))
+      {
+        switch (m_PreviewModel)
+        {
+          case ezMaterialContext::PreviewModel::Ball:
+            pMeshObject->SetLocalUniformScaling(1.0f);
+            break;
+          case ezMaterialContext::PreviewModel::Sphere:
+          case ezMaterialContext::PreviewModel::Box:
+          case ezMaterialContext::PreviewModel::Plane:
+            pMeshObject->SetLocalUniformScaling(0.1f);
+            break;
+        }
+      }
+
+      ezMeshComponent* pMeshComp = nullptr;
+      if (pWorld->TryGetComponent(m_hMeshComponent, pMeshComp))
       {
         switch (m_PreviewModel)
         {
           case PreviewModel::Ball:
-            pMesh->SetMesh(m_hBallMesh);
+            pMeshComp->SetMesh(m_hBallMesh);
             break;
           case PreviewModel::Sphere:
-            pMesh->SetMesh(m_hSphereMesh);
+            pMeshComp->SetMesh(m_hSphereMesh);
             break;
           case PreviewModel::Box:
-            pMesh->SetMesh(m_hBoxMesh);
+            pMeshComp->SetMesh(m_hBoxMesh);
             break;
           case PreviewModel::Plane:
-            pMesh->SetMesh(m_hPlaneMesh);
+            pMeshComp->SetMesh(m_hPlaneMesh);
             break;
         }
       }
@@ -91,7 +107,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
-        geom.AddStackedSphere(0.1f, 64, 64, opt);
+        geom.AddStackedSphere(1.0f, 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -136,7 +152,7 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        geom.AddBox(ezVec3(0.12f), true, opt);
+        geom.AddBox(ezVec3(1.5f), true, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -181,7 +197,7 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90));
-        geom.AddRect(ezVec2(0.2f), 64, 64, opt);
+        geom.AddRect(ezVec2(2.0f), 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
@@ -221,7 +237,7 @@ void ezMaterialContext::OnInitialize()
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
-    pWorld->CreateObject(obj, pObj);
+    m_hMeshObject = pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
     m_hMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);
