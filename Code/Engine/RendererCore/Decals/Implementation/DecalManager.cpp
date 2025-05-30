@@ -227,7 +227,7 @@ struct ezDecalManager::Data
     m_RuntimeAtlas.Initialize(desc).AssertSuccess("Failed to initialize runtime decal atlas");
 
     {
-      m_hSimpleCopyMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ c542b3fa-0c24-4bac-97b7-e481f66f18f1 }"); // SimpleCopyDecal.ezMaterialAsset
+      m_hSimpleCopyMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ c542b3fa-0c24-4bac-97b7-e481f66f18f1 }"); // DecalCopy.ezMaterialAsset
     }
 
     const char* szBufferResourceName = "DecalPlaneMeshBuffer";
