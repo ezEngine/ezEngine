@@ -13,7 +13,8 @@ struct PS_GLOBALS
 };
 static PS_GLOBALS G;
 
-float4 main(PS_IN Input) : SV_Target
+float4 main(PS_IN Input)
+  : SV_Target
 {
   G.Input = Input;
 

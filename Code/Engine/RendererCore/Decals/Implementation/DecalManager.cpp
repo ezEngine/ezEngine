@@ -91,8 +91,8 @@ struct DecalInfo
 
   ezVec2U32 CalculateScaledSize() const
   {
-    const float fScreenSpaceSize = ezMath::Clamp(ezMath::Pow(m_fMaxScreenSpaceSize, 1.5f), 0.01f, 1.0f);    
-    const ezUInt32 uiWidth = ezMath::Clamp(static_cast<ezUInt32>(m_uiMaxWidth *fScreenSpaceSize), s_uiMinDecalSize, s_uiMaxDecalSize);
+    const float fScreenSpaceSize = ezMath::Clamp(ezMath::Pow(m_fMaxScreenSpaceSize, 1.5f), 0.01f, 1.0f);
+    const ezUInt32 uiWidth = ezMath::Clamp(static_cast<ezUInt32>(m_uiMaxWidth * fScreenSpaceSize), s_uiMinDecalSize, s_uiMaxDecalSize);
     const ezUInt32 uiHeight = ezMath::Clamp(static_cast<ezUInt32>(m_uiMaxHeight * fScreenSpaceSize), s_uiMinDecalSize, s_uiMaxDecalSize);
 
     const ezUInt32 uiWidthAlign = uiWidth < 32 ? 16 : 32;
@@ -536,7 +536,7 @@ void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
     // Reset data
     decalInfo.m_NextUpdateTime = ezTime::Now() + ezTime::MakeFromSeconds(decalInfo.m_fUpdateInterval);
-    decalInfo.m_fUpdateInterval = ezTime::MakeFromHours(3600).AsFloatInSeconds();    
+    decalInfo.m_fUpdateInterval = ezTime::MakeFromHours(3600).AsFloatInSeconds();
     decalInfo.m_fMaxScreenSpaceSize = 0.0f;
 
     if (decalInfo.m_hTexture.IsValid() == false)

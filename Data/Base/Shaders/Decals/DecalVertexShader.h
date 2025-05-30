@@ -9,7 +9,7 @@ VS_OUT FillVertexData(VS_IN Input)
 
   VS_OUT Output;
   Output.Position = float4(objectPosition, 1.0);
-  
+
   Output.TexCoord0 = objectPosition.xy * float2(0.5, -0.5) + 0.5;
 
   return Output;
