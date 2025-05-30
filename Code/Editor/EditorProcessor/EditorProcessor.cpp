@@ -25,6 +25,7 @@ Example:\n\
   -transform Default\n\
 ",
   "");
+ezCommandLineOptionBool opt_Compile("_EditorProcessor", "-compile", "If specified, the C++ project will be generated and compiled.", false);
 
 class ezEditorProcessorApplication : public ezApplication
 {
@@ -180,8 +181,9 @@ public:
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
     const ezString sTransformProfile = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bCompile = opt_Compile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
     const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave;
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile;
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
     const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
     ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
@@ -189,7 +191,7 @@ public:
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!sTransformProfile.IsEmpty())
+    if (!sTransformProfile.IsEmpty() || bCompile)
     {
       if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
       {
@@ -198,7 +200,7 @@ public:
         return;
       }
 
-      // before we transform any assets, make sure the C++ code is properly built
+      // before we transform any assets or if specifically asked, make sure the C++ code is built
       {
         ezCppSettings cppSettings;
         if (cppSettings.Load().Succeeded())
@@ -214,39 +216,49 @@ public:
         }
       }
 
-      bool bTransform = true;
+      if (!sTransformProfile.IsEmpty())
+      {
+        bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
-        {
-        if (!bTransform)
-          return;
-
-        bTransform = false;
-
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
-
-        if (uiPlatform == ezInvalidIndex)
-        {
-          ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
-        }
-        else
-        {
-          ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
-          if (status.Failed())
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
           {
-            status.LogFailure();
-            SetReturnCode(1);
+          if (!bTransform)
+            return;
+
+          bTransform = false;
+
+          const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
+
+          if (uiPlatform == ezInvalidIndex)
+          {
+            ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
+          }
+          else
+          {
+            ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            if (status.Failed())
+            {
+              status.LogFailure();
+              SetReturnCode(1);
+            }
+
+            if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+            {
+              ezActionContext context;
+              ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+            }
           }
 
-          if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+          QApplication::quit(); });
+      }
+      else
+      {
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
           {
-            ezActionContext context;
-            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
-          }
-        }
-
-        QApplication::quit(); });
-
+          QApplication::quit(); 
+          });
+      }
+      
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       if (iReturnCode != 0)
         SetReturnCode(iReturnCode);
