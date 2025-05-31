@@ -806,13 +806,49 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
   ezUInt32 uiBufferSize = desc.m_uiTotalSize;
   if (initialData.GetCount() > 0 && uiBufferSize != initialData.GetCount())
   {
-    ezLog::Error("Trying to create a buffer with invalid initial data!");
-    return ezGALBufferHandle();
+    ezLog::Error("Trying to create a buffer with invalid initial data.");
+    return {};
   }
 
-  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient) && !initialData.IsEmpty())
   {
-    EZ_ASSERT_DEBUG(initialData.IsEmpty(), "Transient buffers cannot have initial data");
+    ezLog::Error("Transient buffers cannot have initial data.");
+    return {};
+  }
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::IndexBuffer) && desc.m_uiStructSize != 2 && desc.m_uiStructSize != 4)
+  {
+    ezLog::Error("IndexBuffer struct size must be either 2 or 4 but {} is set.", desc.m_uiStructSize);
+  }
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer) && desc.m_Format == ezGALResourceFormat::Invalid)
+  {
+    ezLog::Error("Texel buffers must have a valid m_Format set.");
+    return {};
+  }
+  if (!desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer) && desc.m_Format != ezGALResourceFormat::Invalid)
+  {
+    ezLog::Error("m_Format is only allowed if TexelBuffer flag is set.");
+    return {};
+  }
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer) && (desc.m_uiTotalSize % (ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8)) != 0)
+  {
+    ezLog::Error("TexelBuffer with format {} must have a size multiple of {}, but size is {}.", (ezUInt32)desc.m_Format, ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8, desc.m_uiTotalSize);
+    return {};
+  }
+
+  if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::IndexBuffer) && desc.m_uiStructSize == 0)
+  {
+    ezLog::Error("m_uiStructSize must be != 0 if StructuredBuffer, IndexBuffer or VertexBuffer flag is set.");
+    return {};
+  }
+  if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer) && (desc.m_uiTotalSize % desc.m_uiStructSize) != 0)
+  {
+    ezLog::Error("StructuredBuffer must have a size multiple of m_uiStructSize {}, but size is {}.", desc.m_uiStructSize, desc.m_uiTotalSize);
+    return {};
+  }
+  if (!m_Capabilities.m_bSupportsTexelBuffer && desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer))
+  {
+    ezLog::Error("TexelBuffer flag is not supported on this platform.");
+    return {};
   }
 
   /// \todo Platform independent validation (buffer type supported)
@@ -833,15 +869,27 @@ ezGALBufferHandle ezGALDevice::FinalizeBufferInternal(const ezGALBufferCreationD
     // Create default resource view
     if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource))
     {
-      if (desc.m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
+      if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer) && desc.m_Format != ezGALResourceFormat::Invalid)
       {
         ezGALBufferResourceViewCreationDescription viewDesc;
         viewDesc.m_hBuffer = hBuffer;
-        viewDesc.m_uiFirstElement = 0;
-        viewDesc.m_uiNumElements = (desc.m_uiStructSize != 0) ? (desc.m_uiTotalSize / desc.m_uiStructSize) : desc.m_uiTotalSize;
         viewDesc.m_Format = desc.m_Format;
-
-        pBuffer->m_hDefaultResourceView = CreateResourceView(viewDesc);
+        viewDesc.m_ResourceType = ezGALShaderResourceType::TexelBuffer;
+        pBuffer->m_hDefaultTexelBufferView = CreateResourceView(viewDesc);
+      }
+      if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
+      {
+        ezGALBufferResourceViewCreationDescription viewDesc;
+        viewDesc.m_hBuffer = hBuffer;
+        viewDesc.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
+        pBuffer->m_hDefaultStructuredBufferView = CreateResourceView(viewDesc);
+      }
+      if (desc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer))
+      {
+        ezGALBufferResourceViewCreationDescription viewDesc;
+        viewDesc.m_hBuffer = hBuffer;
+        viewDesc.m_ResourceType = ezGALShaderResourceType::ByteAddressBuffer;
+        pBuffer->m_hDefaultByteAddressBufferView = CreateResourceView(viewDesc);
       }
     }
     return hBuffer;
@@ -1303,14 +1351,51 @@ ezGALTextureResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureH
   return ezGALTextureResourceViewHandle();
 }
 
-ezGALBufferResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALBufferHandle hBuffer)
+ezGALBufferResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALBufferHandle hBuffer, ezEnum<ezGALShaderResourceType> slotType)
 {
   if (const ezGALBuffer* pBuffer = GetBuffer(hBuffer))
   {
-    return pBuffer->m_hDefaultResourceView;
+    if (slotType == ezGALShaderResourceType::Unknown)
+    {
+      const ezBitflags<ezGALBufferUsageFlags> srvFlags = pBuffer->GetDescription().m_BufferFlags & (ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer);
+      const ezUInt32 uiSrvFlagsCount = ezMath::CountBits(static_cast<ezUInt32>(srvFlags.GetValue()));
+      if (uiSrvFlagsCount != 1)
+      {
+        ezLog::Error("GetDefaultResourceView failed: slotType is ambiguous as there are {} SRV types possible on the buffer. Explicitly set the slotType.", uiSrvFlagsCount);
+        return {};
+      }
+      if (srvFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer))
+        slotType = ezGALShaderResourceType::TexelBuffer;
+      else if (srvFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
+        slotType = ezGALShaderResourceType::StructuredBuffer;
+      else if (srvFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer))
+        slotType = ezGALShaderResourceType::ByteAddressBuffer;
+    }
+
+    ezGALBufferResourceViewHandle hView;
+    switch (slotType)
+    {
+      case ezGALShaderResourceType::TexelBuffer:
+        hView = pBuffer->m_hDefaultTexelBufferView;
+        break;
+      case ezGALShaderResourceType::StructuredBuffer:
+        hView = pBuffer->m_hDefaultStructuredBufferView;
+        break;
+      case ezGALShaderResourceType::ByteAddressBuffer:
+        hView = pBuffer->m_hDefaultByteAddressBufferView;
+        break;
+      default:
+        ezLog::Error("GetDefaultResourceView failed: slotType of {} is invalid. Must be TexelBuffer, StructuredBuffer, ByteAddressBuffer.", (ezUInt32)slotType);
+        return {};
+    }
+    if (hView.IsInvalidated())
+    {
+      ezLog::Error("GetDefaultResourceView failed: handle is invalid.");
+    }
+    return hView;
   }
 
-  return ezGALBufferResourceViewHandle();
+  return {};
 }
 
 ezGALTextureResourceViewHandle ezGALDevice::CreateResourceView(const ezGALTextureResourceViewCreationDescription& desc)
@@ -1328,17 +1413,6 @@ ezGALTextureResourceViewHandle ezGALDevice::CreateResourceView(const ezGALTextur
     return ezGALTextureResourceViewHandle();
   }
 
-  // Hash desc and return potential existing one
-  ezUInt32 uiHash = desc.CalculateHash();
-
-  {
-    ezGALTextureResourceViewHandle hResourceView;
-    if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
-    {
-      return hResourceView;
-    }
-  }
-
   const ezEnum<ezGALTextureType> type = desc.m_OverrideViewType != ezGALTextureType::Invalid ? desc.m_OverrideViewType : pResource->GetDescription().m_Type;
   if (type != ezGALTextureType::Texture2DArray && type != ezGALTextureType::TextureCubeArray)
   {
@@ -1349,88 +1423,175 @@ ezGALTextureResourceViewHandle ezGALDevice::CreateResourceView(const ezGALTextur
     }
   }
 
-  ezGALTextureResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
-
-  if (pResourceView != nullptr)
-  {
-    ezGALTextureResourceViewHandle hResourceView(m_TextureResourceViews.Insert(pResourceView));
-    pResource->m_ResourceViews.Insert(uiHash, hResourceView);
-
+  // Hash desc and return potential existing one
+  const ezUInt32 uiHash = desc.CalculateHash();
+  if (auto hResourceView = TryGetView<ezGALTextureResourceViewHandle, ezGALTextureResourceView>(uiHash, m_TextureResourceViews, pResource->m_ResourceViews); !hResourceView.IsInvalidated())
     return hResourceView;
-  }
 
-  return ezGALTextureResourceViewHandle();
+  ezGALTextureResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
+  return InsertView<ezGALTextureResourceViewHandle, ezGALTextureResourceView>(uiHash, pResourceView, m_TextureResourceViews, pResource->m_ResourceViews);
 }
 
-ezGALBufferResourceViewHandle ezGALDevice::CreateResourceView(const ezGALBufferResourceViewCreationDescription& desc)
+ezGALBufferResourceViewHandle ezGALDevice::CreateResourceView(ezGALBufferResourceViewCreationDescription desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALBuffer* pResource = nullptr;
-
   if (!desc.m_hBuffer.IsInvalidated())
     pResource = Get<BufferTable, ezGALBuffer>(desc.m_hBuffer, m_Buffers);
 
   if (pResource == nullptr)
   {
-    ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
-    return ezGALBufferResourceViewHandle();
+    ezLog::Error("No valid buffer handle given for resource view creation.");
+    return {};
   }
-
-  // Hash desc and return potential existing one
-  ezUInt32 uiHash = desc.CalculateHash();
-
+  const ezGALBufferCreationDescription& bufferDesc = pResource->GetDescription();
+  const ezBitflags<ezGALBufferUsageFlags> flags = bufferDesc.m_BufferFlags;
+  if (!flags.IsSet(ezGALBufferUsageFlags::ShaderResource))
   {
-    ezGALBufferResourceViewHandle hResourceView;
-    if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
+    ezLog::Error("Resource view creation failed as buffer does not have ShaderResource flag set.");
+    return {};
+  }
+  if (desc.m_uiByteCount == 0)
+  {
+    desc.m_uiByteCount = bufferDesc.m_uiTotalSize - desc.m_uiByteOffset;
+  }
+  if (desc.m_ResourceType == ezGALShaderResourceType::Unknown)
+  {
+    const ezBitflags<ezGALBufferUsageFlags> srvFlags = flags & (ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer);
+    const ezUInt32 uiSrvFlagsCount = ezMath::CountBits(static_cast<ezUInt32>(srvFlags.GetValue()));
+    if (uiSrvFlagsCount != 1)
     {
-      return hResourceView;
+      ezLog::Error("Resource view creation failed as m_ResourceType == Unknown but there are {} SRV flags set, making the SRV ambiguous. Explicitly set the desired resource type to TexelBuffer, StructuredBuffer or ByteAddressBuffer.", uiSrvFlagsCount);
+      return {};
+    }
+    if (srvFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::TexelBuffer;
+    else if (srvFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
+    else if (srvFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::ByteAddressBuffer;
+  }
+  switch (desc.m_ResourceType)
+  {
+    case ezGALShaderResourceType::TexelBuffer:
+    case ezGALShaderResourceType::StructuredBuffer:
+    case ezGALShaderResourceType::ByteAddressBuffer:
+      break;
+    default:
+    {
+      ezLog::Error("Resource view creation failed as the resource type of {} is not supported. It must be TexelBuffer, StructuredBuffer or ByteAddressBuffer.", (ezUInt32)desc.m_ResourceType.GetValue());
+      return {};
     }
   }
 
-  ezGALBufferResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
-
-  if (pResourceView != nullptr)
+  ezUInt32 uiBytesPerElement = 4; // ByteAddress must be multiple of 4
+  if (desc.m_ResourceType == ezGALShaderResourceType::StructuredBuffer)
   {
-    ezGALBufferResourceViewHandle hResourceView(m_BufferResourceViews.Insert(pResourceView));
-    pResource->m_ResourceViews.Insert(uiHash, hResourceView);
+    uiBytesPerElement = bufferDesc.m_uiStructSize;
+  }
+  else if (desc.m_ResourceType == ezGALShaderResourceType::TexelBuffer)
+  {
+    desc.m_Format = desc.m_Format == ezGALResourceFormat::Invalid ? bufferDesc.m_Format : desc.m_Format;
+    if (desc.m_Format == ezGALResourceFormat::Invalid)
+    {
+      ezLog::Error("m_Format must be set if m_ResourceType == TexelBuffer");
+      return {};
+    }
+    uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
+  }
+  else if (desc.m_Format != ezGALResourceFormat::Invalid)
+  {
+    ezLog::Error("m_Format must not be set if m_ResourceType != TexelBuffer");
+    return {};
+  }
+
+  if ((desc.m_uiByteOffset % uiBytesPerElement) != 0)
+  {
+    ezLog::Error("m_uiByteOffset {} is not a multiple of the element size {}", desc.m_uiByteOffset, uiBytesPerElement);
+    return {};
+  }
+  if ((desc.m_uiByteCount % uiBytesPerElement) != 0)
+  {
+    ezLog::Error("m_uiByteCount {} is not a multiple of the element size {}", desc.m_uiByteCount, uiBytesPerElement);
+    return {};
+  }
+
+
+  if (desc.m_uiByteOffset >= bufferDesc.m_uiTotalSize)
+  {
+    ezLog::Error("m_uiByteOffset {} is too big for the buffer of size {}", desc.m_uiByteOffset, bufferDesc.m_uiTotalSize);
+    return {};
+  }
+  if (desc.m_uiByteOffset + desc.m_uiByteCount > bufferDesc.m_uiTotalSize)
+  {
+    ezLog::Error("m_uiByteOffset {} + m_uiByteCount {} = {} is too big for the buffer of size {}", desc.m_uiByteOffset, desc.m_uiByteCount, desc.m_uiByteOffset + desc.m_uiByteCount, bufferDesc.m_uiTotalSize);
+    return {};
+  }
+
+  // Hash desc and return potential existing one
+  const ezUInt32 uiHash = desc.CalculateHash();
+  if (auto hResourceView = TryGetView<ezGALBufferResourceViewHandle, ezGALBufferResourceView>(uiHash, m_BufferResourceViews, pResource->m_ResourceViews); !hResourceView.IsInvalidated())
+    return hResourceView;
+
+  ezGALBufferResourceView* pResourceView = CreateResourceViewPlatform(pResource, desc);
+  return InsertView<ezGALBufferResourceViewHandle, ezGALBufferResourceView>(uiHash, pResourceView, m_BufferResourceViews, pResource->m_ResourceViews);
+}
+
+template <typename Handle, typename View, typename ViewTable, typename CacheTable>
+Handle ezGALDevice::TryGetView(ezUInt32 uiHash, ViewTable& viewTable, CacheTable& cacheTable)
+{
+  Handle hView;
+  if (cacheTable.TryGetValue(uiHash, hView))
+  {
+    View* pView = nullptr;
+    EZ_VERIFY(viewTable.TryGetValue(hView, pView), "Implementation error");
+    pView->AddRef();
+    return hView;
+  }
+  return {};
+}
+
+template <typename Handle, typename View, typename ViewTable, typename CacheTable>
+Handle ezGALDevice::InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTable, CacheTable& cacheTable)
+{
+  if (pView != nullptr)
+  {
+    Handle hResourceView(viewTable.Insert(pView));
+    cacheTable.Insert(uiHash, hResourceView);
 
     return hResourceView;
   }
 
-  return ezGALBufferResourceViewHandle();
+  return Handle();
+}
+
+template <typename View, typename Handle, typename ViewTable>
+void ezGALDevice::DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+  View* pView = nullptr;
+  if (table.TryGetValue(hView, pView))
+  {
+    if (pView->ReleaseRef() == 0)
+    {
+      AddDeadObject((GALObjectType::Enum)galObjectType, hView);
+    }
+  }
+  else
+  {
+    ezLog::Warning("DestroyView called on invalid handle (double free?)");
+  }
 }
 
 void ezGALDevice::DestroyResourceView(ezGALTextureResourceViewHandle hResourceView)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALTextureResourceView* pResourceView = nullptr;
-
-  if (m_TextureResourceViews.TryGetValue(hResourceView, pResourceView))
-  {
-    AddDeadObject(GALObjectType::TextureResourceView, hResourceView);
-  }
-  else
-  {
-    ezLog::Warning("DestroyResourceView called on invalid handle (double free?)");
-  }
+  DestroyView<ezGALTextureResourceView>(hResourceView, m_TextureResourceViews, GALObjectType::TextureResourceView);
 }
 
 void ezGALDevice::DestroyResourceView(ezGALBufferResourceViewHandle hResourceView)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALBufferResourceView* pResourceView = nullptr;
-
-  if (m_BufferResourceViews.TryGetValue(hResourceView, pResourceView))
-  {
-    AddDeadObject(GALObjectType::BufferResourceView, hResourceView);
-  }
-  else
-  {
-    ezLog::Warning("DestroyResourceView called on invalid handle (double free?)");
-  }
+  DestroyView<ezGALBufferResourceView>(hResourceView, m_BufferResourceViews, GALObjectType::BufferResourceView);
 }
 
 ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTextureHandle hTexture)
@@ -1473,47 +1634,18 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
     return ezGALRenderTargetViewHandle();
   }
 
-  // Hash
-  /// \todo Platform independent validation
-
   // Hash desc and return potential existing one
-  ezUInt32 uiHash = desc.CalculateHash();
-
-  {
-    ezGALRenderTargetViewHandle hRenderTargetView;
-    if (pTexture->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
-    {
-      return hRenderTargetView;
-    }
-  }
+  const ezUInt32 uiHash = desc.CalculateHash();
+  if (auto hRenderTarget = TryGetView<ezGALRenderTargetViewHandle, ezGALRenderTargetView>(uiHash, m_RenderTargetViews, pTexture->m_RenderTargetViews); !hRenderTarget.IsInvalidated())
+    return hRenderTarget;
 
   ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pTexture, desc);
-
-  if (pRenderTargetView != nullptr)
-  {
-    ezGALRenderTargetViewHandle hRenderTargetView(m_RenderTargetViews.Insert(pRenderTargetView));
-    pTexture->m_RenderTargetViews.Insert(uiHash, hRenderTargetView);
-
-    return hRenderTargetView;
-  }
-
-  return ezGALRenderTargetViewHandle();
+  return InsertView<ezGALRenderTargetViewHandle, ezGALRenderTargetView>(uiHash, pRenderTargetView, m_RenderTargetViews, pTexture->m_RenderTargetViews);
 }
 
 void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALRenderTargetView* pRenderTargetView = nullptr;
-
-  if (m_RenderTargetViews.TryGetValue(hRenderTargetView, pRenderTargetView))
-  {
-    AddDeadObject(GALObjectType::RenderTargetView, hRenderTargetView);
-  }
-  else
-  {
-    ezLog::Warning("DestroyRenderTargetView called on invalid handle (double free?)");
-  }
+  DestroyView<ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews, GALObjectType::RenderTargetView);
 }
 
 ezGALTextureUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALTextureUnorderedAccessViewCreationDescription& desc)
@@ -1559,30 +1691,15 @@ ezGALTextureUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(con
   }
 
   // Hash desc and return potential existing one
-  ezUInt32 uiHash = desc.CalculateHash();
-
-  {
-    ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView;
-    if (pTexture->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
-    {
-      return hUnorderedAccessView;
-    }
-  }
+  const ezUInt32 uiHash = desc.CalculateHash();
+  if (auto hUnorderedAccessView = TryGetView<ezGALTextureUnorderedAccessViewHandle, ezGALTextureUnorderedAccessView>(uiHash, m_TextureUnorderedAccessViews, pTexture->m_UnorderedAccessViews); !hUnorderedAccessView.IsInvalidated())
+    return hUnorderedAccessView;
 
   ezGALTextureUnorderedAccessView* pUnorderedAccessView = CreateUnorderedAccessViewPlatform(pTexture, desc);
-
-  if (pUnorderedAccessView != nullptr)
-  {
-    ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView(m_TextureUnorderedAccessViews.Insert(pUnorderedAccessView));
-    pTexture->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
-
-    return hUnorderedAccessView;
-  }
-
-  return ezGALTextureUnorderedAccessViewHandle();
+  return InsertView<ezGALTextureUnorderedAccessViewHandle, ezGALTextureUnorderedAccessView>(uiHash, pUnorderedAccessView, m_TextureUnorderedAccessViews, pTexture->m_UnorderedAccessViews);
 }
 
-ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(const ezGALBufferUnorderedAccessViewCreationDescription& desc)
+ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(ezGALBufferUnorderedAccessViewCreationDescription desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -1596,78 +1713,108 @@ ezGALBufferUnorderedAccessViewHandle ezGALDevice::CreateUnorderedAccessView(cons
   if (pBuffer == nullptr)
   {
     ezLog::Error("No valid buffer handle given for unordered access view creation!");
-    return ezGALBufferUnorderedAccessViewHandle();
+    return {};
   }
 
-  // Some platform independent validation.
+  const ezGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
+  const ezBitflags<ezGALBufferUsageFlags> flags = bufferDesc.m_BufferFlags;
+  if (!flags.IsSet(ezGALBufferUsageFlags::UnorderedAccess))
   {
+    ezLog::Error("UAV creation failed as buffer does not have UnorderedAccess flag set.");
+    return {};
+  }
+  if (desc.m_uiByteCount == 0)
+  {
+    desc.m_uiByteCount = bufferDesc.m_uiTotalSize - desc.m_uiByteOffset;
+  }
+  if (desc.m_ResourceType == ezGALShaderResourceType::Unknown)
+  {
+    const ezBitflags<ezGALBufferUsageFlags> srvFlags = flags & (ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer);
+    const ezUInt32 uiSrvFlagsCount = ezMath::CountBits(static_cast<ezUInt32>(srvFlags.GetValue()));
+    if (uiSrvFlagsCount != 1)
+    {
+      ezLog::Error("UAV creation failed as m_ResourceType == Unknown but there are {} UAV flags set, making the UAV ambiguous. Explicitly set the desired resource type to TexelBufferRW, StructuredBufferRW or ByteAddressBufferRW.", uiSrvFlagsCount);
+      return {};
+    }
+    if (srvFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::TexelBufferRW;
+    else if (srvFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
+    else if (srvFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer))
+      desc.m_ResourceType = ezGALShaderResourceType::ByteAddressBufferRW;
+  }
+  switch (desc.m_ResourceType)
+  {
+    case ezGALShaderResourceType::TexelBufferRW:
+    case ezGALShaderResourceType::StructuredBufferRW:
+    case ezGALShaderResourceType::ByteAddressBufferRW:
+      break;
+    default:
+    {
+      ezLog::Error("Resource view creation failed as the resource type of {} is not supported. It must be TexelBufferRW, StructuredBufferRW or ByteAddressBufferRW.", (ezUInt32)desc.m_ResourceType.GetValue());
+      return {};
+    }
+  }
+
+  ezUInt32 uiBytesPerElement = 4; // ByteAddress must be multiple of 4
+  if (desc.m_ResourceType == ezGALShaderResourceType::StructuredBufferRW)
+  {
+    uiBytesPerElement = bufferDesc.m_uiStructSize;
+  }
+  else if (desc.m_ResourceType == ezGALShaderResourceType::TexelBufferRW)
+  {
+    desc.m_Format = desc.m_Format == ezGALResourceFormat::Invalid ? bufferDesc.m_Format : desc.m_Format;
     if (desc.m_Format == ezGALResourceFormat::Invalid)
     {
-      ezLog::Error("Invalid resource format is not allowed for buffer unordered access views!");
-      return ezGALBufferUnorderedAccessViewHandle();
+      ezLog::Error("m_Format must be set if m_ResourceType == TexelBuffer");
+      return {};
     }
-
-    if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && desc.m_bRawView)
-    {
-      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-      return ezGALBufferUnorderedAccessViewHandle();
-    }
+    uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
+  }
+  else if (desc.m_Format != ezGALResourceFormat::Invalid)
+  {
+    ezLog::Error("m_Format must not be set if m_ResourceType != TexelBuffer");
+    return {};
   }
 
+  if ((desc.m_uiByteOffset % uiBytesPerElement) != 0)
+  {
+    ezLog::Error("m_uiByteOffset {} is not a multiple of the element size {}", desc.m_uiByteOffset, uiBytesPerElement);
+    return {};
+  }
+  if ((desc.m_uiByteCount % uiBytesPerElement) != 0)
+  {
+    ezLog::Error("m_uiByteCount {} is not a multiple of the element size {}", desc.m_uiByteCount, uiBytesPerElement);
+    return {};
+  }
+
+  if (desc.m_uiByteOffset >= bufferDesc.m_uiTotalSize)
+  {
+    ezLog::Error("m_uiByteOffset {} is too big for the buffer of size {}", desc.m_uiByteOffset, bufferDesc.m_uiTotalSize);
+    return {};
+  }
+  if (desc.m_uiByteOffset + desc.m_uiByteCount > bufferDesc.m_uiTotalSize)
+  {
+    ezLog::Error("m_uiByteOffset {} + m_uiByteCount {} = {} is too big for the buffer of size {}", desc.m_uiByteOffset, desc.m_uiByteCount, desc.m_uiByteOffset + desc.m_uiByteCount, bufferDesc.m_uiTotalSize);
+    return {};
+  }
   // Hash desc and return potential existing one
-  ezUInt32 uiHash = desc.CalculateHash();
-
-  {
-    ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView;
-    if (pBuffer->m_UnorderedAccessViews.TryGetValue(uiHash, hUnorderedAccessView))
-    {
-      return hUnorderedAccessView;
-    }
-  }
-
-  ezGALBufferUnorderedAccessView* pUnorderedAccessViewView = CreateUnorderedAccessViewPlatform(pBuffer, desc);
-
-  if (pUnorderedAccessViewView != nullptr)
-  {
-    ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView(m_BufferUnorderedAccessViews.Insert(pUnorderedAccessViewView));
-    pBuffer->m_UnorderedAccessViews.Insert(uiHash, hUnorderedAccessView);
-
+  const ezUInt32 uiHash = desc.CalculateHash();
+  if (auto hUnorderedAccessView = TryGetView<ezGALBufferUnorderedAccessViewHandle, ezGALBufferUnorderedAccessView>(uiHash, m_BufferUnorderedAccessViews, pBuffer->m_UnorderedAccessViews); !hUnorderedAccessView.IsInvalidated())
     return hUnorderedAccessView;
-  }
 
-  return ezGALBufferUnorderedAccessViewHandle();
+  ezGALBufferUnorderedAccessView* pUnorderedAccessView = CreateUnorderedAccessViewPlatform(pBuffer, desc);
+  return InsertView<ezGALBufferUnorderedAccessViewHandle, ezGALBufferUnorderedAccessView>(uiHash, pUnorderedAccessView, m_BufferUnorderedAccessViews, pBuffer->m_UnorderedAccessViews);
 }
 
 void ezGALDevice::DestroyUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALTextureUnorderedAccessView* pUnorderedAccesssView = nullptr;
-
-  if (m_TextureUnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
-  {
-    AddDeadObject(GALObjectType::TextureUnorderedAccessView, hUnorderedAccessViewHandle);
-  }
-  else
-  {
-    ezLog::Warning("DestroyUnorderedAccessView called on invalid handle (double free?)");
-  }
+  DestroyView<ezGALTextureUnorderedAccessView>(hUnorderedAccessViewHandle, m_TextureUnorderedAccessViews, GALObjectType::TextureUnorderedAccessView);
 }
 
 void ezGALDevice::DestroyUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle)
 {
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  ezGALBufferUnorderedAccessView* pUnorderedAccesssView = nullptr;
-
-  if (m_BufferUnorderedAccessViews.TryGetValue(hUnorderedAccessViewHandle, pUnorderedAccesssView))
-  {
-    AddDeadObject(GALObjectType::BufferUnorderedAccessView, hUnorderedAccessViewHandle);
-  }
-  else
-  {
-    ezLog::Warning("DestroyUnorderedAccessView called on invalid handle (double free?)");
-  }
+  DestroyView<ezGALBufferUnorderedAccessView>(hUnorderedAccessViewHandle, m_BufferUnorderedAccessViews, GALObjectType::BufferUnorderedAccessView);
 }
 
 ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction& func)
@@ -2063,7 +2210,10 @@ void ezGALDevice::DestroyViews(ezGALBuffer* pResource)
     DestroyResourceViewPlatform(pResourceView);
   }
   pResource->m_ResourceViews.Clear();
-  pResource->m_hDefaultResourceView.Invalidate();
+
+  pResource->m_hDefaultTexelBufferView.Invalidate();
+  pResource->m_hDefaultStructuredBufferView.Invalidate();
+  pResource->m_hDefaultByteAddressBufferView.Invalidate();
 
   for (auto it = pResource->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
   {

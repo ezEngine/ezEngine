@@ -11,10 +11,7 @@
 
 void ezRendererTestReadback::SetupSubTests()
 {
-  ezStartup::StartupCoreSystems();
-  SetupRenderer().AssertSuccess();
-
-  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
 
   m_TestableFormats.Clear();
   for (ezUInt32 i = 1; i < ezGALResourceFormat::ENUM_COUNT; i++)
@@ -45,9 +42,6 @@ void ezRendererTestReadback::SetupSubTests()
     m_TestableFormatStrings.PushBack(sFormat);
     AddSubTest(m_TestableFormatStrings.PeekBack(), format);
   }
-
-  ShutdownRenderer();
-  ezStartup::ShutdownCoreSystems();
 }
 
 ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)

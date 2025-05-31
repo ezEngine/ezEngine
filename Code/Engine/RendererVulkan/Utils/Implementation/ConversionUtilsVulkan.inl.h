@@ -370,14 +370,18 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
       return vk::DescriptorType::eUniformTexelBuffer;
     case ezGALShaderResourceType::StructuredBuffer:
       return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::ByteAddressBuffer:
+      return vk::DescriptorType::eStorageBuffer;
     case ezGALShaderResourceType::TextureRW:
       return vk::DescriptorType::eStorageImage;
     case ezGALShaderResourceType::TexelBufferRW:
       return vk::DescriptorType::eStorageTexelBuffer;
     case ezGALShaderResourceType::StructuredBufferRW:
       return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::ByteAddressBufferRW:
+      return vk::DescriptorType::eStorageBuffer;
   }
-
+  EZ_REPORT_FAILURE("Unknown resource type: {}", (int)type);
   return vk::DescriptorType::eMutableVALVE;
 }
 

@@ -123,53 +123,50 @@ ezGALBufferUnorderedAccessViewDX11::~ezGALBufferUnorderedAccessViewDX11() = defa
 
 ezResult ezGALBufferUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALBuffer* pBuffer = nullptr;
-  if (!m_Description.m_hBuffer.IsInvalidated())
-    pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
-
-  if (pBuffer == nullptr)
-  {
-    ezLog::Error("No valid buffer handle given for unordered access view creation!");
-    return EZ_FAILURE;
-  }
-
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_Format;
-
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
-
-  DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
-  if (ezGALResourceFormat::IsDepthFormat(ViewFormat))
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eDepthOnlyType;
-  }
-  else
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
-  }
-
-  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
-  {
-    ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
-    return EZ_FAILURE;
-  }
+  const ezGALBuffer* pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
+  ID3D11Resource* pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
+  const ezGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
 
   D3D11_UNORDERED_ACCESS_VIEW_DESC DXUAVDesc;
-  DXUAVDesc.Format = DXViewFormat;
-
-  ID3D11Resource* pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
-
-  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
-    DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
-
+  DXUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
   DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
-  DXUAVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
-  DXUAVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
   DXUAVDesc.Buffer.Flags = 0;
-  if (m_Description.m_bRawView)
-    DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_RAW;
-  // #TODO_VULKAN Append / counter buffers can't easily be implemented in Vulkan on top of the same buffer infrastructure. So it's best to make these their own resource type similar to shared textures.
-  // if (m_Description.m_bAppend)
-  //  DXUAVDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
+  switch (m_Description.m_ResourceType)
+  {
+    case ezGALShaderResourceType::TexelBufferRW:
+    {
+      const ezGALResourceFormat::Enum viewFormat = m_Description.m_Format;
+      const auto& formatInfo = pDXDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
+      const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
+
+      DXUAVDesc.Buffer.FirstElement = m_Description.m_uiByteOffset / uiBytesPerElement;
+      DXUAVDesc.Buffer.NumElements = m_Description.m_uiByteCount / uiBytesPerElement;
+      DXUAVDesc.Format = ezGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
+      if (DXUAVDesc.Format == DXGI_FORMAT_UNKNOWN)
+      {
+        ezLog::Error("Couldn't get valid DXGI format for unordered access view! ({0})", viewFormat);
+        return EZ_FAILURE;
+      }
+    }
+    break;
+    case ezGALShaderResourceType::StructuredBufferRW:
+    {
+      DXUAVDesc.Buffer.FirstElement = m_Description.m_uiByteOffset / bufferDesc.m_uiStructSize;
+      DXUAVDesc.Buffer.NumElements = m_Description.m_uiByteCount / bufferDesc.m_uiStructSize;
+    }
+    break;
+    case ezGALShaderResourceType::ByteAddressBufferRW:
+    {
+      DXUAVDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+      DXUAVDesc.Buffer.FirstElement = m_Description.m_uiByteOffset / 4;
+      DXUAVDesc.Buffer.NumElements = m_Description.m_uiByteCount / 4;
+      DXUAVDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+    }
+    break;
+    default:
+      EZ_REPORT_FAILURE("Unsupported resource type: {}", (ezUInt32)m_Description.m_ResourceType);
+  }
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &m_pDXUnorderedAccessView)))
   {

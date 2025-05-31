@@ -58,7 +58,7 @@ namespace
     s_NameToDescriptorTable.Insert("TextureCubeArray"_ezsv, ezGALShaderResourceType::Texture);
     s_NameToDescriptorTable.Insert("Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
     s_NameToDescriptorTable.Insert("StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
-    s_NameToDescriptorTable.Insert("ByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+    s_NameToDescriptorTable.Insert("ByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBuffer);
     s_NameToDescriptorTable.Insert("RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWTexture2D"_ezsv, ezGALShaderResourceType::TextureRW);
@@ -66,7 +66,7 @@ namespace
     s_NameToDescriptorTable.Insert("RWTexture3D"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
     s_NameToDescriptorTable.Insert("RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-    s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBufferRW);
     s_NameToDescriptorTable.Insert("AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
     s_NameToDescriptorTable.Insert("ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
 

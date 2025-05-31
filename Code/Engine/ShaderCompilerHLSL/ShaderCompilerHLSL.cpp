@@ -189,13 +189,13 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_BYTEADDRESS)
-      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::ByteAddressBuffer;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
       shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWBYTEADDRESS)
-      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
+      shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::ByteAddressBufferRW;
 
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_APPEND_STRUCTURED)
       shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
@@ -536,10 +536,12 @@ inline ezBitflags<DX11ResourceCategory> DX11ResourceCategory::MakeFromShaderDesc
     case ezGALShaderResourceType::Texture:
     case ezGALShaderResourceType::TexelBuffer:
     case ezGALShaderResourceType::StructuredBuffer:
+    case ezGALShaderResourceType::ByteAddressBuffer:
       return DX11ResourceCategory::SRV;
     case ezGALShaderResourceType::TextureRW:
     case ezGALShaderResourceType::TexelBufferRW:
     case ezGALShaderResourceType::StructuredBufferRW:
+    case ezGALShaderResourceType::ByteAddressBufferRW:
       return DX11ResourceCategory::UAV;
     case ezGALShaderResourceType::TextureAndSampler:
       return DX11ResourceCategory::SRV | DX11ResourceCategory::Sampler;

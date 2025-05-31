@@ -1,0 +1,72 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include "../../../Base/Shaders/Common/Platforms.h"
+#include "../../../Base/Shaders/Common/ConstantBufferMacros.h"
+
+struct EZ_SHADER_STRUCT ezTestShaderData
+{
+  FLOAT4(InstanceColor);
+  TRANSFORM(InstanceTransform);
+};
+
+ByteAddressBuffer instancingData;
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+};
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 LoadVec4(uint vec4Offset)
+{
+  uint byteOffset = vec4Offset * 16;
+  return float4(
+    asfloat(instancingData.Load(byteOffset)),
+    asfloat(instancingData.Load(byteOffset + 4)),
+    asfloat(instancingData.Load(byteOffset + 8)),
+    asfloat(instancingData.Load(byteOffset + 12)));
+}
+
+VS_OUT main(VS_IN Input, uint InstanceID : SV_InstanceID)
+{
+  ezTestShaderData instanceData;
+  instanceData.InstanceColor = LoadVec4(InstanceID * 4);
+  instanceData.InstanceTransform.r0 =  LoadVec4(InstanceID * 4 + 1);
+  instanceData.InstanceTransform.r1 =  LoadVec4(InstanceID * 4 + 2);
+  instanceData.InstanceTransform.r2 =  LoadVec4(InstanceID * 4 + 3);
+  
+  float4x4 transformMatrix = TransformToMatrix(instanceData.InstanceTransform);
+  VS_OUT RetVal;
+  RetVal.Position = mul(transformMatrix, float4(Input.Position, 1.0f));
+  RetVal.Color = instanceData.InstanceColor;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return a.Color;
+}
+

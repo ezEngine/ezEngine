@@ -151,6 +151,22 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
   return EZ_SUCCESS;
 }
 
+const ezGALDeviceCapabilities& ezGraphicsTest::GetDeviceCapabilities()
+{
+  static ezGALDeviceCapabilities* pCaps = nullptr;
+  if (pCaps == nullptr)
+  {
+    pCaps = EZ_NEW(ezStaticsAllocatorWrapper::GetAllocator(), ezGALDeviceCapabilities);
+    ezStartup::StartupCoreSystems();
+    SetupRenderer().AssertSuccess();
+    const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+    *pCaps = caps;
+    ShutdownRenderer();
+    ezStartup::ShutdownCoreSystems();
+  }
+  return *pCaps;
+}
+
 ezResult ezGraphicsTest::SetupRenderer()
 {
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::CreateRenderer(m_pDevice));

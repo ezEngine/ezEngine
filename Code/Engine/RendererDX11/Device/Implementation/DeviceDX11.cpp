@@ -515,6 +515,17 @@ void ezGALDeviceDX11::DestroyShaderPlatform(ezGALShader* pShader)
 
 ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
 {
+  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::StructuredBuffer))
+  {
+    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and StructuredBuffer set");
+    return nullptr;
+  }
+  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::ConstantBuffer))
+  {
+    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and ConstantBuffer set");
+    return nullptr;
+  }
+
   ezGALBufferDX11* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferDX11, Description);
 
   if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
@@ -1007,6 +1018,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(adapterDesc.SharedSystemMemory);
     m_Capabilities.m_bHardwareAccelerated = (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
     m_Capabilities.m_bSupportsTexelBuffer = true;
+    m_Capabilities.m_bSupportsMultipleSRVTypes = false;
     m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
 

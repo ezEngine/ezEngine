@@ -11,6 +11,31 @@
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestPushConstants.h>
 
 
+void ezRendererTestPipelineStates::SetupSubTests()
+{
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
+
+  AddSubTest("01 - MostBasicShader", SubTests::ST_MostBasicShader);
+  AddSubTest("02 - ViewportScissor", SubTests::ST_ViewportScissor);
+  AddSubTest("03 - VertexBuffer", SubTests::ST_VertexBuffer);
+  AddSubTest("04 - IndexBuffer", SubTests::ST_IndexBuffer);
+  AddSubTest("05 - ConstantBuffer", SubTests::ST_ConstantBuffer);
+  AddSubTest("06 - StructuredBuffer", SubTests::ST_StructuredBuffer);
+  if (caps.m_bSupportsTexelBuffer)
+  {
+    AddSubTest("06b - TexelBuffer", SubTests::ST_TexelBuffer);
+  }
+  AddSubTest("06c - ByteAddressBuffer", SubTests::ST_ByteAddressBuffer);
+  AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
+  AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
+  AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
+  AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
+  AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
+  AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
+  AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
+  AddSubTest("14 - CustomVertexStreams", SubTests::ST_CustomVertexStreams);
+}
+
 ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 {
   {
@@ -34,7 +59,6 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hNDCPositionOnlyShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/NDCPositionOnly.ezShader");
   m_hConstantBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ConstantBuffer.ezShader");
   m_hPushConstantsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/PushConstants.ezShader");
-  m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Instancing.ezShader");
   m_hCustomVertexStreamShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CustomVertexStreams.ezShader");
 
   {
@@ -71,29 +95,81 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
   m_hTestColorsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestColors>();
   m_hTestPositionsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPositions>();
 
-  if (iIdentifier == SubTests::ST_StructuredBuffer)
+  if (iIdentifier == SubTests::ST_StructuredBuffer || iIdentifier == SubTests::ST_TexelBuffer || iIdentifier == SubTests::ST_ByteAddressBuffer)
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezTestShaderData);
-    desc.m_uiTotalSize = 16 * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    ezGALShaderResourceType::Enum slotType;
+    desc.m_uiTotalSize = 16 * sizeof(ezTestShaderData);
     desc.m_ResourceAccess.m_bImmutable = false;
+    switch (iIdentifier)
+    {
+      case SubTests::ST_StructuredBuffer:
+        desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+        desc.m_uiStructSize = sizeof(ezTestShaderData);
+        m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/InstancingStructuredBuffer.ezShader");
+        m_hCopyBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CopyStructuredBuffer.ezShader");
+        slotType = ezGALShaderResourceType::StructuredBuffer;
+        break;
+      case SubTests::ST_TexelBuffer:
+        desc.m_Format = ezGALResourceFormat::RGBAFloat;
+        desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
+        m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/InstancingTexelBuffer.ezShader");
+        m_hCopyBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CopyTexelBuffer.ezShader");
+        slotType = ezGALShaderResourceType::TexelBuffer;
+        break;
+      default:
+      case SubTests::ST_ByteAddressBuffer:
+        desc.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::ShaderResource;
+        m_hInstancingShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/InstancingByteAddressBuffer.ezShader");
+        m_hCopyBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CopyByteAddressBuffer.ezShader");
+        slotType = ezGALShaderResourceType::ByteAddressBuffer;
+        break;
+    }
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.
     ezHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
-    desc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;
-    m_hInstancingDataTransient = m_pDevice->CreateBuffer(desc);
+    // Create another transient variant of the buffer. If supported, this will extend support to all SRV types.
+    ezGALBufferCreationDescription transientDesc = desc;
+    transientDesc.m_BufferFlags |= ezGALBufferUsageFlags::Transient;
+    if (m_pDevice->GetCapabilities().m_bSupportsMultipleSRVTypes)
+    {
+      transientDesc.m_BufferFlags |= ezGALBufferUsageFlags::StructuredBuffer;
+      transientDesc.m_uiStructSize = sizeof(ezTestShaderData);
+      transientDesc.m_BufferFlags |= ezGALBufferUsageFlags::ByteAddressBuffer;
+      if (m_pDevice->GetCapabilities().m_bSupportsTexelBuffer)
+      {
+        transientDesc.m_BufferFlags |= ezGALBufferUsageFlags::TexelBuffer;
+        transientDesc.m_Format = ezGALResourceFormat::RGBAFloat;
+      }
+    }
+    m_hInstancingDataTransient = m_pDevice->CreateBuffer(transientDesc);
 
+    // Views into main buffer
     ezGALBufferResourceViewCreationDescription viewDesc;
+    viewDesc.m_ResourceType = slotType;
     viewDesc.m_hBuffer = m_hInstancingData;
-    viewDesc.m_uiFirstElement = 8;
-    viewDesc.m_uiNumElements = 4;
+    viewDesc.m_uiByteOffset = 8 * sizeof(ezTestShaderData);
+    viewDesc.m_uiByteCount = 4 * sizeof(ezTestShaderData);
     m_hInstancingDataView_8_4 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiFirstElement = 12;
+    viewDesc.m_uiByteOffset = 12 * sizeof(ezTestShaderData);
     m_hInstancingDataView_12_4 = m_pDevice->CreateResourceView(viewDesc);
+
+    // UAV variant and views
+    ezGALBufferCreationDescription uavDesc = desc;
+    uavDesc.m_uiTotalSize = 8 * sizeof(ezTestShaderData);
+    uavDesc.m_BufferFlags |= ezGALBufferUsageFlags::UnorderedAccess;
+    m_hInstancingDataUAV = m_pDevice->CreateBuffer(uavDesc);
+
+    ezGALBufferUnorderedAccessViewCreationDescription uavViewDesc;
+    uavViewDesc.m_hBuffer = m_hInstancingDataUAV;
+    uavViewDesc.m_uiByteCount = 4 * sizeof(ezTestShaderData);
+    uavViewDesc.m_uiByteOffset = 0;
+    m_hInstancingDataUavView_0_4 = m_pDevice->CreateUnorderedAccessView(uavViewDesc);
+    uavViewDesc.m_uiByteOffset = 4 * sizeof(ezTestShaderData);
+    m_hInstancingDataUavView_4_4 = m_pDevice->CreateUnorderedAccessView(uavViewDesc);
   }
 
 
@@ -260,11 +336,14 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
       break;
     case SubTests::ST_StructuredBuffer:
+    case SubTests::ST_TexelBuffer:
+    case SubTests::ST_ByteAddressBuffer:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_InitialData);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient1);
       m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_Transient2);
+      m_ImgCompFrames.PushBack(ImageCaptureFrames::StructuredBuffer_UAV);
       break;
     case SubTests::ST_GenerateMipMaps:
     case SubTests::ST_Texture2D:
@@ -311,6 +390,7 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hConstantBufferShader.Invalidate();
   m_hPushConstantsShader.Invalidate();
   m_hInstancingShader.Invalidate();
+  m_hCopyBufferShader.Invalidate();
   m_hCustomVertexStreamShader.Invalidate();
 
   m_hTestPerFrameConstantBuffer.Invalidate();
@@ -327,8 +407,15 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyBuffer(m_hInstancingDataTransient);
     m_hInstancingDataTransient.Invalidate();
   }
+  if (!m_hInstancingDataUAV.IsInvalidated())
+  {
+    m_pDevice->DestroyBuffer(m_hInstancingDataUAV);
+    m_hInstancingDataUAV.Invalidate();
+  }
   m_hInstancingDataView_8_4.Invalidate();
   m_hInstancingDataView_12_4.Invalidate();
+  m_hInstancingDataUavView_0_4.Invalidate();
+  m_hInstancingDataUavView_4_4.Invalidate();
 
   if (!m_hInstancingDataCustomVertexStream.IsInvalidated())
   {
@@ -369,7 +456,7 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
 
-  if (iIdentifier == SubTests::ST_StructuredBuffer)
+  if (iIdentifier == SubTests::ST_StructuredBuffer || iIdentifier == SubTests::ST_TexelBuffer || iIdentifier == SubTests::ST_ByteAddressBuffer)
   {
     StructuredBufferTestUpload();
   }
@@ -394,7 +481,13 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
       ConstantBufferTest();
       break;
     case SubTests::ST_StructuredBuffer:
-      StructuredBufferTest();
+      StructuredBufferTest(ezGALShaderResourceType::StructuredBuffer);
+      break;
+    case SubTests::ST_TexelBuffer:
+      StructuredBufferTest(ezGALShaderResourceType::TexelBuffer);
+      break;
+    case SubTests::ST_ByteAddressBuffer:
+      StructuredBufferTest(ezGALShaderResourceType::ByteAddressBuffer);
       break;
     case SubTests::ST_Texture2D:
       Texture2D();
@@ -440,6 +533,19 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
     return ezTestAppRun::Quit;
   }
   return ezTestAppRun::Continue;
+}
+
+void ezRendererTestPipelineStates::MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
+{
+  if (subTest.m_iSubTestIdentifier == ST_ByteAddressBuffer || subTest.m_iSubTestIdentifier == ST_TexelBuffer)
+  {
+    out_sString.SetFormat("{0}_{1}_{2}", szTestName, GetSubTestName(ST_StructuredBuffer), ezArgI(uiImageNumber, 3, true));
+    out_sString.ReplaceAll(" ", "_");
+  }
+  else
+  {
+    ezGraphicsTest::MapImageNumberToString(szTestName, subTest, uiImageNumber, out_sString);
+  }
 }
 
 void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
@@ -648,13 +754,30 @@ void ezRendererTestPipelineStates::StructuredBufferTestUpload()
   }
 }
 
-void ezRendererTestPipelineStates::StructuredBufferTest()
+void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType::Enum bufferType)
 {
   BeginCommands("InstancingTest");
   {
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
-
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+
+    if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UAV)
+    {
+      pContext->BeginCompute("ComputeCopyData");
+
+      pContext->BindShader(m_hCopyBufferShader);
+      // Copy [12, 17] to the front (green)
+      pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
+      pContext->BindUAV("instancingTarget", m_hInstancingDataUavView_0_4);
+      pContext->Dispatch(4, 1, 1).AssertSuccess();
+      // Copy [8, 11] to the back (red)
+      pContext->BindBuffer("instancingData", m_hInstancingDataView_12_4);
+      pContext->BindUAV("instancingTarget", m_hInstancingDataUavView_4_4);
+      pContext->Dispatch(4, 1, 1).AssertSuccess();
+
+      pContext->EndCompute();
+    }
+
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     {
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
@@ -681,7 +804,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
         {
           pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, i * sizeof(ezTestShaderData), instanceData.GetArrayPtr().GetSubArray(i, 1).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         }
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient));
+        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient, bufferType));
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
@@ -690,7 +813,12 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
         ezRendererTestUtils::FillStructuredBuffer(instanceData);
         // Update with one single update call for the first 8 elements matching the initial state.
         pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient));
+        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient, bufferType));
+        pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
+      }
+      else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UAV)
+      {
+        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataUAV));
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
     }

@@ -1251,6 +1251,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           }
           break;
           case ezGALShaderResourceType::StructuredBuffer:
+          case ezGALShaderResourceType::ByteAddressBuffer:
           {
             const ezGALBufferResourceViewVulkan* pResourceView = GetBufferResourceView(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pResourceView != nullptr, "No SRV bound at '{}'", mapping.m_sName.GetView());
@@ -1274,6 +1275,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
           }
           break;
           case ezGALShaderResourceType::StructuredBufferRW:
+          case ezGALShaderResourceType::ByteAddressBufferRW:
           {
             const ezGALBufferUnorderedAccessViewVulkan* pUAV = GetBufferUAV(resources, mapping);
             EZ_VULKAN_CHECK_STATE(pUAV != nullptr, "No UAV bound at '{}'", mapping.m_sName.GetView());

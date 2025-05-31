@@ -19,7 +19,9 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
 protected:
-  ezGALBufferResourceViewHandle m_hDefaultResourceView;
+  ezGALBufferResourceViewHandle m_hDefaultTexelBufferView;
+  ezGALBufferResourceViewHandle m_hDefaultStructuredBufferView;
+  ezGALBufferResourceViewHandle m_hDefaultByteAddressBufferView;
   ezHashTable<ezUInt32, ezGALBufferResourceViewHandle> m_ResourceViews;
   ezHashTable<ezUInt32, ezGALBufferUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };

@@ -18,6 +18,8 @@ private:
     ST_IndexBuffer,
     ST_ConstantBuffer,
     ST_StructuredBuffer,
+    ST_TexelBuffer,
+    ST_ByteAddressBuffer,
     ST_Texture2D,
     ST_Texture2DArray,
     ST_GenerateMipMaps,
@@ -36,32 +38,17 @@ private:
     StructuredBuffer_UpdateForNextFrame2 = 7,
     StructuredBuffer_Transient1 = 8,
     StructuredBuffer_Transient2 = 9,
+    StructuredBuffer_UAV = 10,
     CustomVertexStreams_Offsets = 6,
     Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
   };
 
-  virtual void SetupSubTests() override
-  {
-    AddSubTest("01 - MostBasicShader", SubTests::ST_MostBasicShader);
-    AddSubTest("02 - ViewportScissor", SubTests::ST_ViewportScissor);
-    AddSubTest("03 - VertexBuffer", SubTests::ST_VertexBuffer);
-    AddSubTest("04 - IndexBuffer", SubTests::ST_IndexBuffer);
-    AddSubTest("05 - ConstantBuffer", SubTests::ST_ConstantBuffer);
-    AddSubTest("06 - StructuredBuffer", SubTests::ST_StructuredBuffer);
-    AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
-    AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
-    AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
-    AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
-    AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
-    AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
-    AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
-    AddSubTest("14 - CustomVertexStreams", SubTests::ST_CustomVertexStreams);
-  }
-
+  virtual void SetupSubTests() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
-
+  virtual void MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const override;
+  
   void RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor = ezColor::CornflowerBlue, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
 
   void MostBasicTriangleTest();
@@ -70,7 +57,7 @@ private:
   void IndexBufferTest();
   void ConstantBufferTest();
   void StructuredBufferTestUpload();
-  void StructuredBufferTest();
+  void StructuredBufferTest(ezGALShaderResourceType::Enum bufferType);
   void Texture2D();
   void Texture2DArray();
   void GenerateMipMaps();
@@ -86,6 +73,7 @@ private:
   ezShaderResourceHandle m_hConstantBufferShader;
   ezShaderResourceHandle m_hPushConstantsShader;
   ezShaderResourceHandle m_hInstancingShader;
+  ezShaderResourceHandle m_hCopyBufferShader;
   ezShaderResourceHandle m_hCustomVertexStreamShader;
 
   ezMeshBufferResourceHandle m_hTriangleMesh;
@@ -97,8 +85,11 @@ private:
 
   ezGALBufferHandle m_hInstancingData;
   ezGALBufferHandle m_hInstancingDataTransient;
+  ezGALBufferHandle m_hInstancingDataUAV;
   ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
   ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
+  ezGALBufferUnorderedAccessViewHandle m_hInstancingDataUavView_0_4;
+  ezGALBufferUnorderedAccessViewHandle m_hInstancingDataUavView_4_4;
 
   ezGALBufferHandle m_hInstancingDataCustomVertexStream;
   ezHybridArray<ezVertexStreamInfo, 4> m_CustomVertexStreams;

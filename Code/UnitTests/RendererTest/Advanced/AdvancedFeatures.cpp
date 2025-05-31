@@ -16,9 +16,7 @@
 
 void ezRendererTestAdvancedFeatures::SetupSubTests()
 {
-  ezStartup::StartupCoreSystems();
-  SetupRenderer().AssertSuccess();
-  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
 
   AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
   if (caps.m_bSupportsVSRenderTargetArrayIndex)
@@ -43,9 +41,6 @@ void ezRendererTestAdvancedFeatures::SetupSubTests()
   AddSubTest("06 - FloatSampling", SubTests::ST_FloatSampling);
   AddSubTest("07 - ProxyTexture", SubTests::ST_ProxyTexture);
   AddSubTest("08 - Material", SubTests::ST_Material);
-
-  ShutdownRenderer();
-  ezStartup::ShutdownCoreSystems();
 }
 
 ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)

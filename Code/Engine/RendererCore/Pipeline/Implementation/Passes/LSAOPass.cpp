@@ -416,15 +416,13 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       ezGALBufferUnorderedAccessViewCreationDescription uavDesc;
       uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       uavDesc.m_Format = ezGALResourceFormat::RUInt;
-      uavDesc.m_uiFirstElement = 0;
-      uavDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
+      uavDesc.m_uiByteCount = imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32);
       m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
 
       ezGALBufferResourceViewCreationDescription srvDesc;
       srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
       srvDesc.m_Format = ezGALResourceFormat::RUInt;
-      srvDesc.m_uiFirstElement = 0;
-      srvDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
+      srvDesc.m_uiByteCount = imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32);
       m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
     }
 

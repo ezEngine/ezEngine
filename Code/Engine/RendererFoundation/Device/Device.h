@@ -99,12 +99,12 @@ public:
 
   // Resource views
   ezGALTextureResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
-  ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
+  ezGALBufferResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer, ezEnum<ezGALShaderResourceType> slotType = ezGALShaderResourceType::Unknown);
 
   ezGALTextureResourceViewHandle CreateResourceView(const ezGALTextureResourceViewCreationDescription& description);
   void DestroyResourceView(ezGALTextureResourceViewHandle hResourceView);
 
-  ezGALBufferResourceViewHandle CreateResourceView(const ezGALBufferResourceViewCreationDescription& description);
+  ezGALBufferResourceViewHandle CreateResourceView(ezGALBufferResourceViewCreationDescription description);
   void DestroyResourceView(ezGALBufferResourceViewHandle hResourceView);
 
   // Render target views
@@ -117,7 +117,7 @@ public:
   ezGALTextureUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALTextureUnorderedAccessViewCreationDescription& description);
   void DestroyUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView);
 
-  ezGALBufferUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALBufferUnorderedAccessViewCreationDescription& description);
+  ezGALBufferUnorderedAccessViewHandle CreateUnorderedAccessView(ezGALBufferUnorderedAccessViewCreationDescription description);
   void DestroyUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
 
   // Other rendering creation functions
@@ -280,6 +280,13 @@ protected:
 
   ezGALTextureHandle FinalizeTextureInternal(const ezGALTextureCreationDescription& desc, ezGALTexture* pTexture);
   ezGALBufferHandle FinalizeBufferInternal(const ezGALBufferCreationDescription& desc, ezGALBuffer* pBuffer);
+
+  template <typename Handle, typename View, typename ViewTable, typename CacheTable>
+  Handle TryGetView(ezUInt32 uiHash, ViewTable& viewTable, CacheTable& cacheTable);
+  template <typename Handle, typename View, typename ViewTable, typename CacheTable>
+  Handle InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTable, CacheTable& cacheTable);
+  template <typename View, typename Handle, typename ViewTable>
+  void DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType);
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;

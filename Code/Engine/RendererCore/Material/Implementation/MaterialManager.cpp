@@ -473,8 +473,6 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
 
         ezGALBufferResourceViewCreationDescription viewDesc;
         viewDesc.m_hBuffer = m_hStructuredBuffer;
-        viewDesc.m_uiFirstElement = 0;
-        viewDesc.m_uiNumElements = uiCapacity;
         m_hStructuredBufferView = ezGALDevice::GetDefaultDevice()->CreateResourceView(viewDesc);
       }
       break;
@@ -663,8 +661,6 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
 
         ezGALBufferResourceViewCreationDescription viewDesc;
         viewDesc.m_hBuffer = m_MaterialBuffers[id.m_InstanceIndex];
-        viewDesc.m_uiFirstElement = 0;
-        viewDesc.m_uiNumElements = 1;
         m_MaterialBufferViews[id.m_InstanceIndex] = ezGALDevice::GetDefaultDevice()->CreateResourceView(viewDesc);
       }
 

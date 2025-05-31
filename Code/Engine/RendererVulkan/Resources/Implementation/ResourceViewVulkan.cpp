@@ -110,46 +110,19 @@ ezGALBufferResourceViewVulkan::~ezGALBufferResourceViewVulkan() = default;
 ezResult ezGALBufferResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-
-  const ezGALBuffer* pBuffer = nullptr;
-  if (!m_Description.m_hBuffer.IsInvalidated())
-    pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
-
-  if (pBuffer == nullptr)
-  {
-    ezLog::Error("No valid buffer handle given for resource view creation!");
-    return EZ_FAILURE;
-  }
-
-  if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && m_Description.m_bRawView)
-  {
-    ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-    return EZ_FAILURE;
-  }
-
+  const ezGALBuffer* pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
   auto pParentBuffer = static_cast<const ezGALBufferVulkan*>(pBuffer);
-  if (pBuffer->GetDescription().m_BufferFlags.IsAnySet(ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ByteAddressBuffer))
-  {
-    m_resourceBufferInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
-    m_resourceBufferInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
-  }
-  else if (m_Description.m_bRawView)
-  {
-    m_resourceBufferInfo.offset = sizeof(ezUInt32) * m_Description.m_uiFirstElement;
-    m_resourceBufferInfo.range = sizeof(ezUInt32) * m_Description.m_uiNumElements;
-  }
-  else
-  {
-    ezGALResourceFormat::Enum viewFormat = m_Description.m_Format;
-    if (viewFormat == ezGALResourceFormat::Invalid)
-      viewFormat = ezGALResourceFormat::RUInt;
 
+  m_resourceBufferInfo.offset = m_Description.m_uiByteOffset;
+  m_resourceBufferInfo.range = m_Description.m_uiByteCount;
+
+  if (m_Description.m_ResourceType == ezGALShaderResourceType::TexelBuffer)
+  {
     vk::BufferViewCreateInfo viewCreateInfo;
     viewCreateInfo.buffer = pParentBuffer->GetVkBuffer();
-    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
-    viewCreateInfo.offset = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiFirstElement;
-    viewCreateInfo.range = pBuffer->GetDescription().m_uiStructSize * m_Description.m_uiNumElements;
-
+    viewCreateInfo.offset = m_Description.m_uiByteOffset;
+    viewCreateInfo.range = m_Description.m_uiByteCount;
+    viewCreateInfo.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_format;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createBufferView(&viewCreateInfo, nullptr, &m_bufferView));
   }
 

@@ -194,11 +194,11 @@ struct ezGALResourceAccess
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiTotalSize = 0;                                          // Total size in bytes
-  ezUInt32 m_uiStructSize = 0;                                         // Struct or texel size in bytes
+  ezUInt32 m_uiTotalSize = 0;           ///< Total size in bytes. Must always be set > 0.
+  ezUInt32 m_uiStructSize = 0;          ///< Struct, Index or Vertex size in bytes. Only valid if StructuredBuffer, VertexBuffer or IndexBuffer flag is set.
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid; // Only relevant for TexelBuffer to create default views
+  ezEnum<ezGALResourceFormat> m_Format; ///< Only relevant for TexelBuffer to create the default view.
 };
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
@@ -239,10 +239,10 @@ struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezG
 struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
 {
   ezGALBufferHandle m_hBuffer;
-  ezUInt32 m_uiFirstElement = 0;
-  ezUInt32 m_uiNumElements = 0;
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
-  bool m_bRawView = false;
+  ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
+  ezUInt32 m_uiByteCount = 0;                     ///< If 0, this maps to the rest of the buffer.
+  ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBuffer, StructuredBuffer, ByteAddressBuffer. Can be Unknown if the target buffer only supports one of these types.
+  ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBuffer.
 };
 
 struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALRenderTargetViewCreationDescription>
@@ -273,10 +273,10 @@ struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStr
 struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>
 {
   ezGALBufferHandle m_hBuffer;
-  ezUInt32 m_uiFirstElement = 0;
-  ezUInt32 m_uiNumElements = 0;
-  ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
-  bool m_bRawView = false;
+  ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
+  ezUInt32 m_uiByteCount = 0;                     ///< If 0, this maps to the rest of the buffer.
+  ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBufferRW, StructuredBufferRW, ByteAddressBufferRW. Can be Unknown if the target buffer only supports one of these types.
+  ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBufferRW.
 };
 
 /// \brief Type for important GAL events.

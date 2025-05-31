@@ -158,59 +158,51 @@ ezGALBufferResourceViewDX11::~ezGALBufferResourceViewDX11() = default;
 
 ezResult ezGALBufferResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALBuffer* pBuffer = nullptr;
-  if (!m_Description.m_hBuffer.IsInvalidated())
-    pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
-
-  if (pBuffer == nullptr)
-  {
-    ezLog::Error("No valid buffer handle given for resource view creation!");
-    return EZ_FAILURE;
-  }
-
-  ezGALResourceFormat::Enum ViewFormat = m_Description.m_Format;
-
-  if (ViewFormat == ezGALResourceFormat::Invalid)
-    ViewFormat = ezGALResourceFormat::RUInt;
-
-  if (!pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer) && m_Description.m_bRawView)
-  {
-    ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
-    return EZ_FAILURE;
-  }
-
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
-
-  DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
-  if (ezGALResourceFormat::IsDepthFormat(ViewFormat))
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eDepthOnlyType;
-  }
-  else
-  {
-    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
-  }
-
-  if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
-  {
-    ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", ViewFormat);
-    return EZ_FAILURE;
-  }
+  const ezGALBuffer* pBuffer = pDevice->GetBuffer(m_Description.m_hBuffer);
+  ID3D11Resource* pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
+  const ezGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
 
   D3D11_SHADER_RESOURCE_VIEW_DESC DXSRVDesc;
-  DXSRVDesc.Format = DXViewFormat;
+  DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
+  DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+  DXSRVDesc.BufferEx.Flags = 0;
 
-  ID3D11Resource* pDXResource = nullptr;
+  switch (m_Description.m_ResourceType)
+  {
+    case ezGALShaderResourceType::TexelBuffer:
+    {
+      const ezGALResourceFormat::Enum viewFormat = m_Description.m_Format;
+      const auto& formatInfo = pDXDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
+      const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
 
-  pDXResource = static_cast<const ezGALBufferDX11*>(pBuffer)->GetDXBuffer();
-
-  if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer))
-    DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
-
-  DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-  DXSRVDesc.BufferEx.FirstElement = DXSRVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
-  DXSRVDesc.BufferEx.NumElements = DXSRVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
-  DXSRVDesc.BufferEx.Flags = m_Description.m_bRawView ? D3D11_BUFFEREX_SRV_FLAG_RAW : 0;
+      DXSRVDesc.BufferEx.FirstElement = m_Description.m_uiByteOffset / uiBytesPerElement;
+      DXSRVDesc.BufferEx.NumElements = m_Description.m_uiByteCount / uiBytesPerElement;
+      DXSRVDesc.Format = ezGALResourceFormat::IsDepthFormat(viewFormat) ? formatInfo.m_eDepthOnlyType : formatInfo.m_eResourceViewType;
+      if (DXSRVDesc.Format == DXGI_FORMAT_UNKNOWN)
+      {
+        ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", viewFormat);
+        return EZ_FAILURE;
+      }
+    }
+    break;
+    case ezGALShaderResourceType::StructuredBuffer:
+    {
+      DXSRVDesc.BufferEx.FirstElement = m_Description.m_uiByteOffset / bufferDesc.m_uiStructSize;
+      DXSRVDesc.BufferEx.NumElements = m_Description.m_uiByteCount / bufferDesc.m_uiStructSize;
+    }
+    break;
+    case ezGALShaderResourceType::ByteAddressBuffer:
+    {
+      DXSRVDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+      DXSRVDesc.BufferEx.FirstElement = m_Description.m_uiByteOffset / 4;
+      DXSRVDesc.BufferEx.NumElements = m_Description.m_uiByteCount / 4;
+      DXSRVDesc.BufferEx.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+    }
+    break;
+    default:
+      EZ_REPORT_FAILURE("Unsupported resource type: {}", (ezUInt32)m_Description.m_ResourceType);
+  }
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &m_pDXResourceView)))
   {

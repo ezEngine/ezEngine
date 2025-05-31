@@ -157,8 +157,9 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_uiStructSize = sizeof(ezUInt32);
+        desc.m_uiStructSize = 0;
         desc.m_uiTotalSize = 1024;
+        desc.m_Format = ezGALResourceFormat::RUInt;
         desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);
@@ -196,8 +197,9 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
       }
       {
         ezGALBufferCreationDescription desc;
-        desc.m_uiStructSize = sizeof(ezUInt32);
+        desc.m_uiStructSize = 0;
         desc.m_uiTotalSize = 1024;
+        desc.m_Format = ezGALResourceFormat::RUInt;
         desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
         desc.m_ResourceAccess.m_bImmutable = false;
         ezGALBufferHandle hBuffer = s_pDevice->CreateBuffer(desc);

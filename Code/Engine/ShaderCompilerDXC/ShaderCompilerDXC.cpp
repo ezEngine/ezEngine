@@ -588,10 +588,15 @@ ezResult ezShaderCompilerDXC::FillSRVResourceBinding(ezShaderResourceBinding& bi
 {
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER)
   {
-    if (info.type_description->op == SpvOp::SpvOpTypeStruct)
+    if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.StructuredBuffer"))
     {
       binding.m_pLayout = ReflectStructuredBufferLayout(info.name, info.block);
       binding.m_ResourceType = ezGALShaderResourceType::StructuredBuffer;
+      return EZ_SUCCESS;
+    }
+    else if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.ByteAddressBuffer"))
+    {
+      binding.m_ResourceType = ezGALShaderResourceType::ByteAddressBuffer;
       return EZ_SUCCESS;
     }
   }
@@ -650,21 +655,37 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderResourceBinding& bi
 
   if (info.descriptor_type == SpvReflectDescriptorType::SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER)
   {
-    if (info.image.dim == SpvDim::SpvDimBuffer)
+    if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.RWStructuredBuffer"))
     {
       binding.m_pLayout = ReflectStructuredBufferLayout(info.name, info.block);
       binding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
       return EZ_SUCCESS;
     }
-    else if (info.image.dim == SpvDim::SpvDim1D)
+    else if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.RWByteAddressBuffer"))
     {
+      binding.m_ResourceType = ezGALShaderResourceType::ByteAddressBufferRW;
+      return EZ_SUCCESS;
+    }
+    else if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.AppendStructuredBuffer"))
+    {
+      //#TODO_VULKAN AppendStructuredBuffer support
       binding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
       return EZ_SUCCESS;
     }
-
-    ezLog::Error("Resource '{}': Unsupported storage buffer UAV type.", info.name);
-    return EZ_FAILURE;
+    else if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.ConsumeStructuredBuffer"))
+    {
+      // #TODO_VULKAN ConsumeStructuredBuffer support
+      binding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
+      return EZ_SUCCESS;
+    }
+    else if (info.image.dim == SpvDim::SpvDim1D)
+    {
+      // #TODO_VULKAN AppendStructuredBuffer / ConsumeStructuredBuffer counter support
+      binding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
+      return EZ_SUCCESS;
+    }
   }
+
   ezLog::Error("Resource '{}': Unsupported UAV type.", info.name);
   return EZ_FAILURE;
 }

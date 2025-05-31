@@ -43,6 +43,7 @@ protected:
   ezSizeU32 GetResolution() const;
 
 protected:
+  const ezGALDeviceCapabilities& GetDeviceCapabilities();
   ezResult SetupRenderer();
   void ShutdownRenderer();
 

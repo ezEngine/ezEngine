@@ -26,6 +26,7 @@ private:
     ST_IndexBuffer,
     ST_TexelBuffer,
     ST_StructuredBuffer,
+    ST_ByteAddressBuffer,
   };
 
   virtual void SetupSubTests() override;

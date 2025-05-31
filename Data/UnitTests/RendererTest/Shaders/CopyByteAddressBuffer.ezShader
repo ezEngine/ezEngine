@@ -1,0 +1,19 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+ByteAddressBuffer instancingData;
+RWByteAddressBuffer instancingTarget;
+
+[numthreads(1, 1, 1)]
+void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
+{
+  uint byteOffset = groupID.x * 64; 
+  for (uint i = 0; i < 64; ++i)
+  {
+    instancingTarget.Store(byteOffset + i, instancingData.Load(byteOffset + i));
+  }
+}

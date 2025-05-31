@@ -11,21 +11,16 @@
 
 void ezRendererTestReadbackBuffer::SetupSubTests()
 {
-  ezStartup::StartupCoreSystems();
-  SetupRenderer().AssertSuccess();
-
-  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
 
   AddSubTest("VertexBuffer", SubTests::ST_VertexBuffer);
   AddSubTest("IndexBuffer", SubTests::ST_IndexBuffer);
-  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsTexelBuffer)
+  if (caps.m_bSupportsTexelBuffer)
   {
     AddSubTest("TexelBuffer", SubTests::ST_TexelBuffer);
   }
   AddSubTest("StructuredBuffer", SubTests::ST_StructuredBuffer);
-
-  ShutdownRenderer();
-  ezStartup::ShutdownCoreSystems();
+  AddSubTest("ByteAddressBuffer", SubTests::ST_ByteAddressBuffer);
 }
 
 ezResult ezRendererTestReadbackBuffer::InitializeSubTest(ezInt32 iIdentifier)
@@ -79,8 +74,8 @@ ezResult ezRendererTestReadbackBuffer::InitializeSubTest(ezInt32 iIdentifier)
       m_BufferData = data.GetByteArrayPtr();
 
       ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = sizeof(ezUInt32);
-      desc.m_uiTotalSize = 128 * desc.m_uiStructSize;
+      desc.m_uiStructSize = 0;
+      desc.m_uiTotalSize = 128 * ezGALResourceFormat::GetBitsPerElement(ezGALResourceFormat::RGBAUByteNormalized) / 8;
       desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
       desc.m_ResourceAccess.m_bImmutable = false;
@@ -102,6 +97,25 @@ ezResult ezRendererTestReadbackBuffer::InitializeSubTest(ezInt32 iIdentifier)
       desc.m_uiStructSize = sizeof(ezColor);
       desc.m_uiTotalSize = 128 * desc.m_uiStructSize;
       desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_ResourceAccess.m_bImmutable = false;
+      m_hBufferReadback = m_pDevice->CreateBuffer(desc, m_BufferData.GetByteArrayPtr());
+      EZ_ASSERT_DEBUG(!m_hBufferReadback.IsInvalidated(), "Failed to create buffer");
+    }
+    break;
+    case ST_ByteAddressBuffer:
+    {
+      ezDynamicArray<ezUInt8> data;
+      data.SetCountUninitialized(128);
+      for (ezUInt8 i = 0; i < 128; i++)
+      {
+        data[i] = i;
+      }
+      m_BufferData = data.GetByteArrayPtr();
+
+      ezGALBufferCreationDescription desc;
+      desc.m_uiStructSize = 0;
+      desc.m_uiTotalSize = 128 * sizeof(ezUInt8);
+      desc.m_BufferFlags = ezGALBufferUsageFlags::ByteAddressBuffer | ezGALBufferUsageFlags::ShaderResource;
       desc.m_ResourceAccess.m_bImmutable = false;
       m_hBufferReadback = m_pDevice->CreateBuffer(desc, m_BufferData.GetByteArrayPtr());
       EZ_ASSERT_DEBUG(!m_hBufferReadback.IsInvalidated(), "Failed to create buffer");

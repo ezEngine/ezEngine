@@ -111,7 +111,7 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
         CheckBinding("RES_Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
       }
       CheckBinding("RES_StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
-      CheckBinding("RES_ByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+      CheckBinding("RES_ByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBuffer);
 
       // CheckBinding("RES_RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1D);
       // CheckBinding("RES_RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1DArray);
@@ -123,7 +123,7 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
         CheckBinding("RES_RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
       }
       CheckBinding("RES_RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-      CheckBinding("RES_RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+      CheckBinding("RES_RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBufferRW);
 
       CheckBinding("RES_AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
       CheckBinding("RES_ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);

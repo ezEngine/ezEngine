@@ -12,35 +12,39 @@ struct ezGALShaderResourceType
   {
     Unknown = 0,
     /// Texture sampler (ezGALSamplerStateHandle). HLSL: SamplerState, SamplerComparisonState
-    Sampler,
+    Sampler = 1,
 
     /// Read-only struct (ezGALBufferHandle). HLSL: cbuffer, ConstantBuffer
-    ConstantBuffer,
+    ConstantBuffer = 2,
     // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
-    PushConstants,
+    PushConstants = 3,
 
     /// \name Shader Resource Views (SRVs). These are set via ezGALTextureResourceViewHandle / ezGALBufferResourceViewHandle.
     ///@{
 
     /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
-    Texture,
+    Texture = 4,
     /// Read-only texture view with attached sampler. When set, ezGALShaderTextureType is also set. HLSL: Name sampler the same as texture with _AutoSampler appended.
-    TextureAndSampler,
+    TextureAndSampler = 5,
     /// Read-only texel buffer. It's like a 1D texture. HLSL: Buffer
-    TexelBuffer,
-    /// Read-only array of structs. HLSL: StructuredBuffer<T>, ByteAddressBuffer.
-    StructuredBuffer,
+    TexelBuffer = 6,
+    /// Read-only array of structs. HLSL: StructuredBuffer<T>
+    StructuredBuffer = 7,
+    /// Read-only array of bytes. HLSL: ByteAddressBuffer
+    ByteAddressBuffer = 11,
 
     ///@}
     /// \name Unordered Access Views (UAVs). These are set via ezGALTextureUnorderedAccessViewHandle / ezGALBufferUnorderedAccessViewHandle.
     ///@{
 
     /// Read-write texture view. When set, ezGALShaderTextureType is also set. HLSL: RWTexture*
-    TextureRW,
+    TextureRW = 8,
     /// Read-write texel buffer. It's like a 1D texture. HLSL: RWBuffer
-    TexelBufferRW,
-    /// Read-write array of structs. HLSL: RWStructuredBuffer<T>, RWByteAddressBuffer, AppendStructuredBuffer, ConsumeStructuredBuffer
-    StructuredBufferRW,
+    TexelBufferRW = 9,
+    /// Read-write array of structs. HLSL: RWStructuredBuffer<T>, AppendStructuredBuffer, ConsumeStructuredBuffer
+    StructuredBufferRW = 10,
+    /// Read-write array of bytes. HLSL: RWByteAddressBuffer
+    ByteAddressBufferRW = 12,
 
     ///@}
 

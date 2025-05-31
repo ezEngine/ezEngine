@@ -12,11 +12,13 @@ inline ezBitflags<ezGALShaderResourceCategory> ezGALShaderResourceCategory::Make
       return ezGALShaderResourceCategory::TextureSRV;
     case ezGALShaderResourceType::TexelBuffer:
     case ezGALShaderResourceType::StructuredBuffer:
+    case ezGALShaderResourceType::ByteAddressBuffer:
       return ezGALShaderResourceCategory::BufferSRV;
     case ezGALShaderResourceType::TextureRW:
       return ezGALShaderResourceCategory::TextureUAV;
     case ezGALShaderResourceType::TexelBufferRW:
     case ezGALShaderResourceType::StructuredBufferRW:
+    case ezGALShaderResourceType::ByteAddressBufferRW:
       return ezGALShaderResourceCategory::BufferUAV;
     case ezGALShaderResourceType::TextureAndSampler:
       return ezGALShaderResourceCategory::TextureSRV | ezGALShaderResourceCategory::Sampler;
