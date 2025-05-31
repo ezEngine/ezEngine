@@ -1,11 +1,11 @@
 #include <EditorTest/EditorTestPCH.h>
 
 #include "EditorProcessorTest.h"
-#include <Foundation/System/Process.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/System/Process.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <TestFramework/Framework/TestFramework.h>
 
 static ezEditorTestEditorProcessor s_EditorTestEditorProcessor;
@@ -55,11 +55,11 @@ ezString ezEditorTestEditorProcessor::GetEditorProcessorPath() const
   ezStringBuilder path;
   // Get the directory where EditorTest.exe is located
   path = ezOSFile::GetApplicationDirectory();
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    path.AppendPath("ezEditorProcessor.exe");
-  #else
-    path.AppendPath("ezEditorProcessor");
-  #endif;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  path.AppendPath("ezEditorProcessor.exe");
+#else
+  path.AppendPath("ezEditorProcessor");
+#endif;
   return path;
 }
 
@@ -106,20 +106,20 @@ ezResult ezEditorTestEditorProcessor::PrepareCompile(ezStringBuilder& dllPath, e
 {
   // Delete any existing build artifacts
   dllPath = ezOSFile::GetApplicationDirectory();
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    dllPath.AppendPath("PacManPlugin.dll");
-  #else
-    dllPath.AppendPath("PacManPlugin.so");
-  #endif
-  
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  dllPath.AppendPath("PacManPlugin.dll");
+#else
+  dllPath.AppendPath("PacManPlugin.so");
+#endif
+
   bundlePath = ezOSFile::GetApplicationDirectory();
   bundlePath.AppendPath("PacManPlugin.ezPluginBundle");
 
   ezOSFile::DeleteFile(dllPath).IgnoreResult();
   ezOSFile::DeleteFile(bundlePath).IgnoreResult();
 
-  if(!EZ_TEST_BOOL(!ezOSFile::ExistsFile(dllPath)) ||
-     !EZ_TEST_BOOL(!ezOSFile::ExistsFile(bundlePath)))
+  if (!EZ_TEST_BOOL(!ezOSFile::ExistsFile(dllPath)) ||
+      !EZ_TEST_BOOL(!ezOSFile::ExistsFile(bundlePath)))
   {
     EZ_TEST_FAILURE("Failed to delete existing build artifacts", "DLL or bundle file still exists");
     return EZ_FAILURE;
@@ -135,7 +135,7 @@ ezTestAppRun ezEditorTestEditorProcessor::TestCompileOnly()
     return ezTestAppRun::Quit;
 
   ezStringBuilder dllPath, bundlePath;
-  if(PrepareCompile(dllPath, bundlePath).Failed())
+  if (PrepareCompile(dllPath, bundlePath).Failed())
     return ezTestAppRun::Quit;
 
 
@@ -167,14 +167,14 @@ ezTestAppRun ezEditorTestEditorProcessor::TestCompileAndTransform()
 
   if (ezOSFile::ExistsDirectory(assetCachePath))
   {
-    if(!EZ_TEST_BOOL_MSG(ezOSFile::DeleteFolder(assetCachePath).Succeeded(), "Failed to delete AssetCache folder"))
+    if (!EZ_TEST_BOOL_MSG(ezOSFile::DeleteFolder(assetCachePath).Succeeded(), "Failed to delete AssetCache folder"))
     {
-        return ezTestAppRun::Quit;
+      return ezTestAppRun::Quit;
     }
   }
 
   ezStringBuilder dllPath, bundlePath;
-  if(PrepareCompile(dllPath, bundlePath).Failed())
+  if (PrepareCompile(dllPath, bundlePath).Failed())
     return ezTestAppRun::Quit;
 
 

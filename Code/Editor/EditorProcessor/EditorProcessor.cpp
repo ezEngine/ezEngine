@@ -254,11 +254,9 @@ public:
       else
       {
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
-          {
-          QApplication::quit(); 
-          });
+          { QApplication::quit(); });
       }
-      
+
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       if (iReturnCode != 0)
         SetReturnCode(iReturnCode);
