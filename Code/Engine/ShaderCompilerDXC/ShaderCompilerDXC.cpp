@@ -668,7 +668,7 @@ ezResult ezShaderCompilerDXC::FillUAVResourceBinding(ezShaderResourceBinding& bi
     }
     else if (info.type_description->op == SpvOp::SpvOpTypeStruct && ezStringUtils::StartsWith(info.type_description->type_name, "type.AppendStructuredBuffer"))
     {
-      //#TODO_VULKAN AppendStructuredBuffer support
+      // #TODO_VULKAN AppendStructuredBuffer support
       binding.m_ResourceType = ezGALShaderResourceType::StructuredBufferRW;
       return EZ_SUCCESS;
     }
