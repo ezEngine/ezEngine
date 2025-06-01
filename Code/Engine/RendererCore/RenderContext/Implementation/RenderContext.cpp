@@ -21,8 +21,6 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/State/PipelineCache.h>
 
-#include <Shaders/Common/GlobalConstants.h>
-
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
 ezGALCommandEncoder* ezRenderContext::s_pCommandEncoder = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;

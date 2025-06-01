@@ -19,7 +19,8 @@
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
-struct ezGlobalConstants;
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
+
 struct ezRenderWorldRenderEvent;
 
 //////////////////////////////////////////////////////////////////////////
