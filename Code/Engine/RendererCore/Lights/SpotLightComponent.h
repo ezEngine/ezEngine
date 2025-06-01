@@ -77,11 +77,11 @@ public:
   // adds SetMaterialFile() and GetMaterialFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Material, m_hMaterial, SetMaterial);
 
-  void SetMaterialResolution(ezUInt32 uiResolution);                                                      // [ property ]
-  ezUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                               // [ property ]
+  void SetMaterialResolution(ezUInt32 uiResolution);                                                     // [ property ]
+  ezUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                              // [ property ]
 
-  void SetMaterialUpdateInterval(ezTime updateInterval);                                                  // [ property ]
-  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_MaterialUpdateInterval); }  // [ property ]
+  void SetMaterialUpdateInterval(ezTime updateInterval);                                                 // [ property ]
+  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_MaterialUpdateInterval); } // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
