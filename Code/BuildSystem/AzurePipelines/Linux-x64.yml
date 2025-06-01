@@ -18,7 +18,7 @@ jobs:
   - task: AzureKeyVault@1
     displayName: 'Azure Key Vault: ezKeys'
     inputs:
-      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
       KeyVaultName: ezKeys
       SecretsFilter: AzureFunctionKey
   - task: PowerShell@2
