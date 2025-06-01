@@ -269,41 +269,50 @@ void ezShaderCompilerApplication::Run()
 
   files.Split(false, allFiles, ";");
 
+  ezUInt32 uiErrors = 0;
   for (const ezStringView& shader : allFiles)
   {
     ezStringBuilder file = shader;
-    ezStringBuilder relPath, absPath;
+    ezStringBuilder relPath;
 
-    if (ezFileSystem::ResolvePath(file, &absPath, &relPath).Succeeded())
+    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Succeeded())
     {
-      if (absPath.HasExtension("ezShader"))
+      shadersToCompile.PushBack(relPath);
+    }
+    else
+    {
+      if (ezPathUtils::IsRelativePath(file))
       {
-        shadersToCompile.PushBack(relPath);
+        file.Prepend(m_sAppProjectPath, "/");
       }
-      else if (ezOSFile::ExistsDirectory(absPath))
+
+      file.TrimWordEnd("*");
+      file.MakeCleanPath();
+
+      if (ezOSFile::ExistsDirectory(file))
       {
         ezFileSystemIterator fsIt;
-        for (fsIt.StartSearch(absPath, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+        for (fsIt.StartSearch(file, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
         {
           if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
           {
             fsIt.GetStats().GetFullPath(relPath);
 
-            if (relPath.MakeRelativeTo(absPath).Succeeded())
+            if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
             {
               shadersToCompile.PushBack(relPath);
             }
           }
         }
       }
-    }
-    else
-    {
-      ezLog::Error("Couldn't resolve path '{0}'", file);
+      else
+      {
+        ezLog::Error("Could not resolve path to shader '{0}'", file);
+        ++uiErrors;
+      }
     }
   }
 
-  ezUInt32 uiErrors = 0;
   for (const auto& shader : shadersToCompile)
   {
     if (CompileShader(shader).Failed())

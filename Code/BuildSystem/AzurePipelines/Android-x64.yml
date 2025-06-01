@@ -63,8 +63,11 @@ jobs:
       script: |
         cd $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64
         ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
+        if %ERRORLEVEL% NEQ 0 exit 1
         ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
+        if %ERRORLEVEL% NEQ 0 exit 1
         ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
+        if %ERRORLEVEL% NEQ 0 exit 1
 
   - task: CMake@1
     displayName: CMake android-x64-dev
