@@ -15,7 +15,7 @@ jobs:
     vmImage: 'windows-2022'
   steps:
   - checkout: none
-  - task: AzureKeyVault@1
+  - task: AzureKeyVault@2
     displayName: 'Azure Key Vault: ezKeys'
     inputs:
       ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
@@ -53,7 +53,7 @@ jobs:
             git clean -dfx
             Copy-Item -Path $pathA -Destination $pathB
         }
-  - task: AzureKeyVault@1
+  - task: AzureKeyVault@2
     displayName: 'Azure Key Vault: ezKeys'
     inputs:
       ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
