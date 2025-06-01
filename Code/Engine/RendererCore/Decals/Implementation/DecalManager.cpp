@@ -164,7 +164,7 @@ struct SortedDecal
     if (m_fScore != other.m_fScore)
       return m_fScore > other.m_fScore; // Descending order
 
-    return m_uiIndex < m_uiIndex;
+    return m_uiIndex < other.m_uiIndex;
   }
 };
 
