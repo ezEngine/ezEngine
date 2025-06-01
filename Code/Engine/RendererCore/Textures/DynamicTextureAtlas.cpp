@@ -169,16 +169,16 @@ ezDynamicTextureAtlas::AllocationId ezDynamicTextureAtlas::Allocate(ezUInt32 uiW
   return allocationId;
 }
 
-void ezDynamicTextureAtlas::Deallocate(AllocationId& allocationId)
+void ezDynamicTextureAtlas::Deallocate(AllocationId& ref_allocationId)
 {
   Node* pNode = nullptr;
-  if (!m_Nodes.TryGetValue(allocationId, pNode))
+  if (!m_Nodes.TryGetValue(ref_allocationId, pNode))
   {
-    allocationId.Invalidate();
+    ref_allocationId.Invalidate();
     return;
   }
 
-  ezUInt16 uiNodeIndex = allocationId.m_InstanceIndex;
+  ezUInt16 uiNodeIndex = ref_allocationId.m_InstanceIndex;
 
   EZ_ASSERT_DEV(pNode->GetType() == NodeType::Allocation, "Implementation error");
   pNode->m_uiType = NodeType::Free;
@@ -242,7 +242,7 @@ void ezDynamicTextureAtlas::Deallocate(AllocationId& allocationId)
   CheckTree();
 #endif
 
-  allocationId.Invalidate();
+  ref_allocationId.Invalidate();
 }
 
 void ezDynamicTextureAtlas::Clear()

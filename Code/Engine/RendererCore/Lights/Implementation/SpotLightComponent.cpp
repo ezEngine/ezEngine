@@ -137,7 +137,7 @@ void ezSpotLightComponent::SetMaterialResolution(ezUInt32 uiResolution)
 
 void ezSpotLightComponent::SetMaterialUpdateInterval(ezTime updateInterval)
 {
-  m_fMaterialUpdateInterval = ezMath::Clamp(updateInterval.AsFloatInSeconds(), 0.0f, 10.0f);
+  m_MaterialUpdateInterval = ezMath::Clamp(updateInterval.AsFloatInSeconds(), 0.0f, 10.0f);
 
   // No need to invalidate cached render data, render data is not cached if a material is used.
 }
@@ -177,7 +177,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   const float fScreenSpaceSizeForCookie = fScreenSpaceSize * 0.5f;
   if (m_hMaterial.IsValid())
   {
-    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hMaterial, m_uiMaterialResolution, ezTime::MakeFromSeconds(m_fMaterialUpdateInterval), fScreenSpaceSizeForCookie, msg.m_pView);
+    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hMaterial, m_uiMaterialResolution, ezTime::MakeFromSeconds(m_MaterialUpdateInterval), fScreenSpaceSizeForCookie, msg.m_pView);
   }
   else if (m_hCookie.IsValid())
   {

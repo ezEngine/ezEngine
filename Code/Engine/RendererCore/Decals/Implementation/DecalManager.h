@@ -4,6 +4,7 @@
 
 struct ezRenderWorldExtractionEvent;
 struct ezRenderWorldRenderEvent;
+class ezView;
 
 class EZ_RENDERERCORE_DLL ezDecalManager
 {

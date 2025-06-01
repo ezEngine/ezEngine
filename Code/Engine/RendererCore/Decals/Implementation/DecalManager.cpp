@@ -2,12 +2,15 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Graphics/Geometry.h>
+#include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/Implementation/DecalManager.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>

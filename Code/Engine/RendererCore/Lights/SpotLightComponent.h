@@ -81,7 +81,7 @@ public:
   ezUInt32 GetMaterialResolution() const { return m_uiMaterialResolution; }                               // [ property ]
 
   void SetMaterialUpdateInterval(ezTime updateInterval);                                                  // [ property ]
-  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_fMaterialUpdateInterval); } // [ property ]
+  ezTime GetMaterialUpdateInterval() const { return ezTime::MakeFromSeconds(m_MaterialUpdateInterval); }  // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -95,7 +95,7 @@ protected:
   ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
 
   ezUInt16 m_uiMaterialResolution = 512;
-  ezFloat16 m_fMaterialUpdateInterval = 0.0f;
+  ezFloat16 m_MaterialUpdateInterval = 0.0f;
   ezMaterialResourceHandle m_hMaterial;
 
   ezTexture2DResourceHandle m_hCookie;

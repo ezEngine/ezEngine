@@ -17,7 +17,7 @@ public:
   bool IsInitialized() const { return m_hTexture.IsInvalidated() == false; }
 
   AllocationId Allocate(ezUInt32 uiWidth, ezUInt32 uiHeight, ezStringView sName, ezRectU16* out_pRect = nullptr);
-  void Deallocate(AllocationId& allocation);
+  void Deallocate(AllocationId& ref_allocationId);
 
   void Clear();
 
