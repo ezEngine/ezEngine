@@ -99,7 +99,6 @@ SamplerState PointClampSampler;
 // Constant Buffer
 // cbuffer PerFrame defined in SHADER block
 
-
 // SRV
 //Texture1D RES_Texture1D;
 //Texture1DArray RES_Texture1DArray;
