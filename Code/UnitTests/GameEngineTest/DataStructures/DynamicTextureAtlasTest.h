@@ -34,5 +34,5 @@ private:
   ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication* m_pOwnApplication = nullptr;
 
-  ezDynamicTextureAtlas m_textureAtlas;
+  ezDynamicTextureAtlas m_TextureAtlas;
 };
