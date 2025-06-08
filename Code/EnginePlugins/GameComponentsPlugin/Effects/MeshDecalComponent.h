@@ -1,0 +1,75 @@
+#pragma once
+
+#include <Core/World/World.h>
+#include <GameComponentsPlugin/GameComponentsDLL.h>
+#include <RendererCore/Declarations.h>
+
+struct ezMsgExtractRenderData;
+
+struct EZ_GAMECOMPONENTS_DLL ezMeshDecalDescription
+{
+  ezUInt16 m_uiIndex = 0;
+  ezTexture2DResourceHandle m_hBaseColorTexture;
+
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezMeshDecalDescription);
+
+////////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMECOMPONENTS_DLL ezMeshDecalComponentManager final : public ezComponentManager<class ezMeshDecalComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezMeshDecalComponentManager(ezWorld* pWorld);
+  ~ezMeshDecalComponentManager();
+
+  void Initialize() override;
+
+private:
+  void UpdateDecalVisibility(const ezWorldModule::UpdateContext& context);
+
+  friend class ezMeshDecalComponent;
+  void RegisterDecalUsage(const ezTexture2DResourceHandle& hDecal);
+  void UnregisterDecalUsage(const ezTexture2DResourceHandle& hDecal);
+  void UpdateMaxScreenSpaceSize(const ezTexture2DResourceHandle& hDecal, float fMaxScreenSpaceSize) const;
+
+  struct DecalUsageInfo
+  {
+    ezAtomicInteger32 m_iRefCount = 0;
+    mutable ezAtomicInteger32 m_iMaxScreenSpaceSize = 0;
+  };
+
+  ezHashTable<ezTexture2DResourceHandle, DecalUsageInfo> m_DecalUsageInfos;
+};
+
+class EZ_GAMECOMPONENTS_DLL ezMeshDecalComponent final : public ezComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezMeshDecalComponent, ezComponent, ezMeshDecalComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+private:
+  ezUInt32 Decals_GetCount() const;
+  const ezMeshDecalDescription& Decals_Get(ezUInt32 uiIndex) const;
+  void Decals_Set(ezUInt32 uiIndex, const ezMeshDecalDescription& desc);
+  void Decals_Insert(ezUInt32 uiIndex, const ezMeshDecalDescription& desc);
+  void Decals_Remove(ezUInt32 uiIndex);
+
+  void UpdateDecalIds();
+  
+  ezSmallArray<ezMeshDecalDescription, 2> m_DecalDescs;
+  ezSmallArray<ezTexture2DResourceHandle, 2> m_ActiveRuntimeDecals;
+};

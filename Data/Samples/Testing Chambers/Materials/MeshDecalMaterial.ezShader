@@ -1,0 +1,147 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE = SHADING_MODE_LIT
+SHADING_QUALITY = SHADING_QUALITY_NORMAL
+TWO_SIDED = FALSE
+FLIP_WINDING
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+float MaskThreshold @Default(0.25);
+float DepthBias @Default(1.0);
+
+Color BaseColor @Default(Color(1, 1, 1));
+
+Texture2D AlphaTexture;
+float AlphaContrast;
+
+[MATERIALCONSTANTS]
+
+COLOR4F(BaseColor);
+FLOAT1(MaskThreshold);
+FLOAT1(DepthBias);
+FLOAT1(AlphaContrast);
+
+[MATERIALCONFIG]
+
+#include <Shaders/Materials/MaterialConfig.h>
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+//#define USE_COLOR0
+
+[VERTEXSHADER]
+
+#define USE_VERTEX_DEPTH_BIAS
+#define CUSTOM_INTERPOLATOR float2 TexCoordAlpha : TEXCOORD_ALPHA;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+#include <Shaders/Common/LightData.h>
+
+float GetVertexDepthBias()
+{
+  return -DepthBias;
+}
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+
+  Output.TexCoordAlpha = Output.TexCoord0;
+
+  uint innerIndex = clamp(uint(Input.TexCoord0.x), 0, 1);
+  uint outerIndex = clamp(uint(Input.TexCoord0.y), 0, 3);
+
+  uint customData = asuint(GetInstanceData().CustomData[outerIndex]);
+  uint decalIndex = (customData >> (innerIndex * 16)) & 0xFFFF;
+
+  ezPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[decalIndex];
+  if (decalIndex == 0xFFFF || atlasData.scale == 0)
+  {
+    // Invalid decal -> cull
+    Output.Position.z = 2 * Output.Position.w;
+  }
+  else
+  {
+    // The decal atlas assumes input uvs to be in [-1, 1] range but mesh uvs are in [0, 1] range.
+    float2 uvs = frac(Input.TexCoord0.xy) * 2.0 - 1.0;
+    Output.TexCoord0 = uvs * RG16FToFloat2(atlasData.scale) + RG16FToFloat2(atlasData.offset);
+  }
+
+  return Output;
+}
+
+[PIXELSHADER]
+
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_MATERIAL_OCCLUSION
+#define USE_FOG
+#define CUSTOM_INTERPOLATOR float2 TexCoordAlpha : TEXCOORD_ALPHA;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D AlphaTexture;
+SamplerState AlphaTexture_AutoSampler;
+
+float3 GetNormal()
+{
+  return G.Input.Normal;
+}
+
+float3 GetBaseColor()
+{
+  float3 color = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, G.Input.TexCoord0.xy, 0).rgb;
+  color *= BaseColor.rgb * GetInstanceData().Color.rgb;
+  return color;
+}
+
+float GetMetallic()
+{
+  return 0.0;
+}
+
+float GetReflectance()
+{
+  return 0.5;
+}
+
+float GetRoughness()
+{
+  return 0.9;
+}
+
+float GetOpacity()
+{
+  float alpha = AlphaTexture.Sample(AlphaTexture_AutoSampler, G.Input.TexCoordAlpha.xy).r;
+  alpha = AdjustContrast(alpha, AlphaContrast);
+
+  float opacity = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, G.Input.TexCoord0.xy, 0).a;
+  opacity *= alpha * BaseColor.a * GetInstanceData().Color.a;
+  
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - MaskThreshold;
+  #else
+    return opacity;
+  #endif
+}
+
+float GetOcclusion()
+{
+  return 1.0;
+}

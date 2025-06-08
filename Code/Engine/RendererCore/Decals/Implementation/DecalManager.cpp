@@ -94,12 +94,12 @@ struct DecalInfo
 
   ezVec2U32 CalculateScaledSize() const
   {
-    const float fScreenSpaceSize = ezMath::Clamp(ezMath::Pow(m_fMaxScreenSpaceSize, 1.5f), 0.01f, 1.0f);
+    const float fScreenSpaceSize = ezMath::Clamp(ezMath::Pow(m_fMaxScreenSpaceSize, 1.2f), 0.01f, 1.0f);
     const ezUInt32 uiWidth = ezMath::Clamp(static_cast<ezUInt32>(m_uiMaxWidth * fScreenSpaceSize), s_uiMinDecalSize, s_uiMaxDecalSize);
     const ezUInt32 uiHeight = ezMath::Clamp(static_cast<ezUInt32>(m_uiMaxHeight * fScreenSpaceSize), s_uiMinDecalSize, s_uiMaxDecalSize);
 
-    const ezUInt32 uiWidthAlign = uiWidth < 32 ? 16 : 32;
-    const ezUInt32 uiHeightAlign = uiHeight < 32 ? 16 : 32;
+    const ezUInt32 uiWidthAlign = uiWidth < 64 ? 16 : 64;
+    const ezUInt32 uiHeightAlign = uiHeight < 64 ? 16 : 64;
     return ezVec2U32(ezMemoryUtils::AlignSize(uiWidth, uiWidthAlign), ezMemoryUtils::AlignSize(uiHeight, uiHeightAlign));
   }
 
@@ -120,21 +120,22 @@ struct DecalInfo
     m_fMaxScreenSpaceSize = ezMath::Max(m_fMaxScreenSpaceSize, fScreenSpaceSize);
     m_AutoRemoveTime = ezTime::Now() + inactiveTimeBeforeAutoRemove;
 
-    if (pReferenceView->GetCameraUsageHint() == ezCameraUsageHint::MainView || pReferenceView->GetCameraUsageHint() == ezCameraUsageHint::EditorView || m_WorldTime.IsZero())
+    if (pReferenceView != nullptr && pReferenceView->GetWorld() != nullptr)
     {
-      if (const ezWorld* pWorld = pReferenceView->GetWorld())
+      const bool bIsMainView = pReferenceView->GetCameraUsageHint() == ezCameraUsageHint::MainView || pReferenceView->GetCameraUsageHint() == ezCameraUsageHint::EditorView;
+      if (bIsMainView || m_WorldTime.IsZero())
       {
-        m_WorldTime = pWorld->GetClock().GetAccumulatedTime();
+        m_WorldTime = pReferenceView->GetWorld()->GetClock().GetAccumulatedTime();
       }
     }
   }
 
-  EZ_ALWAYS_INLINE static ezUInt64 GetKey(ezTexture2DResourceHandle hTexture)
+  EZ_ALWAYS_INLINE static ezUInt64 GetKey(const ezTexture2DResourceHandle& hTexture)
   {
     return hTexture.GetResourceIDHash();
   }
 
-  EZ_ALWAYS_INLINE static ezUInt64 GetKey(ezMaterialResourceHandle hMaterial)
+  EZ_ALWAYS_INLINE static ezUInt64 GetKey(const ezMaterialResourceHandle& hMaterial)
   {
     return hMaterial.GetResourceIDHash();
   }
@@ -269,13 +270,13 @@ struct ezDecalManager::Data
 ezDecalManager::Data* ezDecalManager::s_pData = nullptr;
 
 // static
-ezDecalId ezDecalManager::GetOrAddRuntimeDecal(ezTexture2DResourceHandle hTexture, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove /*= ezTime::MakeFromSeconds(1)*/)
+ezDecalId ezDecalManager::GetOrAddRuntimeDecal(const ezTexture2DResourceHandle& hTexture, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove /*= ezTime::MakeFromSeconds(1)*/)
 {
   s_pData->EnsureResourceCreated();
 
-  EZ_LOCK(s_pData->m_Mutex);
+  const ezUInt64 uiKey = DecalInfo::GetKey(hTexture);
 
-  ezUInt64 uiKey = DecalInfo::GetKey(hTexture);
+  EZ_LOCK(s_pData->m_Mutex);
 
   bool bExisted = false;
   ezUInt32& uiIndex = s_pData->m_DecalKeyToInfoIndex.FindOrAdd(uiKey, &bExisted);
@@ -311,13 +312,13 @@ ezDecalId ezDecalManager::GetOrAddRuntimeDecal(ezTexture2DResourceHandle hTextur
   return ezDecalId(uiIndex, decalInfo.m_uiGeneration);
 }
 
-ezDecalId ezDecalManager::GetOrAddRuntimeDecal(ezMaterialResourceHandle hMaterial, ezUInt32 uiResolution, ezTime updateInterval, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove)
+ezDecalId ezDecalManager::GetOrAddRuntimeDecal(const ezMaterialResourceHandle& hMaterial, ezUInt32 uiResolution, ezTime updateInterval, float fScreenSpaceSize, const ezView* pReferenceView, ezTime inactiveTimeBeforeAutoRemove)
 {
   s_pData->EnsureResourceCreated();
 
-  EZ_LOCK(s_pData->m_Mutex);
+  const ezUInt64 uiKey = DecalInfo::GetKey(hMaterial);
 
-  ezUInt64 uiKey = DecalInfo::GetKey(hMaterial);
+  EZ_LOCK(s_pData->m_Mutex);
 
   bool bExisted = false;
   ezUInt32& uiIndex = s_pData->m_DecalKeyToInfoIndex.FindOrAdd(uiKey, &bExisted);
@@ -459,7 +460,10 @@ void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
       if (now > decalInfo.m_AutoRemoveTime)
       {
-        RemoveRuntimeDecal(ezDecalId(decalInfo.m_uiAtlasDataOffset, decalInfo.m_uiGeneration));
+        if (decalInfo.m_atlasAllocationId.IsInvalidated() == false)
+        {
+          s_pData->m_RuntimeAtlas.Deallocate(decalInfo.m_atlasAllocationId);
+        }
       }
       else
       {
@@ -483,6 +487,11 @@ void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
         if (bShouldUpdate)
         {
           s_pData->m_SortedDecals.PushBack({decalInfo.m_uiAtlasDataOffset, decalInfo.CalculateScore(now)});
+        }
+        else
+        {
+          // Reset screen space size so it can be recalculated next frame
+          decalInfo.m_fMaxScreenSpaceSize = 0.0f;
         }
       }
     }
