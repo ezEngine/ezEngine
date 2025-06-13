@@ -1452,7 +1452,7 @@ ezGALBufferResourceViewHandle ezGALDevice::CreateResourceView(ezGALBufferResourc
     ezLog::Error("Resource view creation failed as buffer does not have ShaderResource flag set.");
     return {};
   }
-  if (desc.m_uiByteCount == 0)
+  if (desc.m_uiByteCount == EZ_GAL_WHOLE_SIZE)
   {
     desc.m_uiByteCount = bufferDesc.m_uiTotalSize - desc.m_uiByteOffset;
   }

@@ -240,7 +240,7 @@ struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGA
 {
   ezGALBufferHandle m_hBuffer;
   ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
-  ezUInt32 m_uiByteCount = 0;                     ///< If 0, this maps to the rest of the buffer.
+  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE;     ///< If EZ_GAL_WHOLE_SIZE, this maps to the rest of the buffer.
   ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBuffer, StructuredBuffer, ByteAddressBuffer. Can be Unknown if the target buffer only supports one of these types.
   ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBuffer.
 };
@@ -274,7 +274,7 @@ struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStru
 {
   ezGALBufferHandle m_hBuffer;
   ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
-  ezUInt32 m_uiByteCount = 0;                     ///< If 0, this maps to the rest of the buffer.
+  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE;     ///< If EZ_GAL_WHOLE_SIZE, this maps to the rest of the buffer.
   ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBufferRW, StructuredBufferRW, ByteAddressBufferRW. Can be Unknown if the target buffer only supports one of these types.
   ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBufferRW.
 };

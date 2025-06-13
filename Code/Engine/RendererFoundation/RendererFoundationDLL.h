@@ -26,6 +26,8 @@
 #define EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
 
+#define EZ_GAL_WHOLE_SIZE 0xFFFFFFFF
+
 // Forward declarations
 
 struct ezGALDeviceCreationDescription;
