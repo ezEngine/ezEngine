@@ -17,6 +17,7 @@ jobs:
     name: Default
     demands:
     - Agent.OS -equals Linux
+    - GPU
 
   steps:
   - checkout: self

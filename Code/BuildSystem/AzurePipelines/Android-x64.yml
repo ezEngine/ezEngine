@@ -17,6 +17,7 @@ jobs:
     demands:
     - Agent.OS -equals Windows_NT
     - EMULATOR
+    - GPU
   steps:
   - checkout: self
     submodules: true

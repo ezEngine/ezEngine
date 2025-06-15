@@ -39,6 +39,7 @@ jobs:
     name: Default
     demands:
     - Agent.OS -equals Windows_NT
+    - GPU
   steps:
   - checkout: self
     submodules: true
