@@ -211,6 +211,8 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
 
       vk::ImportSemaphoreFdInfoKHR importSemaphoreInfo{m_SharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_hSharedHandle.m_hSemaphore)};
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.importSemaphoreFdKHR(&importSemaphoreInfo, m_pDevice->GetDispatchContext()));
+      // Spec: "Importing a semaphore payload from a file descriptor transfers ownership of the file descriptor from the application to the Vulkan implementation. The application must not perform any operations on the file descriptor after a successful import."
+      m_hSharedHandle.m_hSemaphore = 0;
 
       // Create Image
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_image));
@@ -230,8 +232,11 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       m_allocInfo.m_offset = 0;
       m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
       m_allocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
+      // Spec: "Importing memory from a file descriptor transfers ownership of the file descriptor from the application to the Vulkan implementation. The application must not perform any operations on the file descriptor after a successful import. "
+      m_hSharedHandle.m_hSharedTexture = 0;
 
       device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
+
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       if (m_hSharedHandle.m_hSharedTexture == 0 || m_hSharedHandle.m_hSemaphore == 0)
       {
@@ -353,6 +358,7 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
   auto res = SUPER::DeInitPlatform(pDevice);
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) && defined(SYS_pidfd_getfd)
+  // These are only needed if init failed before importing the semaphore, which would have transferred ownership.
   if (m_hSharedHandle.m_hSharedTexture != 0)
   {
     pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_hSharedHandle.m_hSharedTexture), nullptr});
@@ -360,6 +366,7 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   if (m_hSharedHandle.m_hSemaphore != 0)
   {
+
     pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_hSharedHandle.m_hSemaphore), nullptr});
     m_hSharedHandle.m_hSemaphore = 0;
   }

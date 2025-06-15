@@ -59,6 +59,21 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
     return EZ_FAILURE;
   }
 
+  struct stat stats = {};
+  if (fstat(fd, &stats) != 0)
+  {
+    ezLog::Error("Failed to stat file {}, error {}", szFile, ezArgErrno(errno));
+    close(fd);
+    return EZ_FAILURE;
+  }
+
+  // Prevent opening of directories
+  if ((stats.st_mode & S_IFMT) == S_IFDIR)
+  {
+    close(fd);
+    return EZ_FAILURE;
+  }
+
   const int iSharedMode = (FileShareMode == ezFileShareMode::Exclusive) ? LOCK_EX : LOCK_SH;
   const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
   ezInt32 iRetries = m_bRetryOnSharingViolation ? 20 : 1;

@@ -589,6 +589,10 @@ ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode 
     {
       *out_iExitCode = WEXITSTATUS(childStatus);
     }
+    else if (WIFSIGNALED(childStatus))
+    {
+      *out_iExitCode = WTERMSIG(childStatus);
+    }
     else
     {
       *out_iExitCode = -1;
@@ -655,31 +659,42 @@ ezResult ezProcess::ResumeSuspended()
 
 ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 {
-  int childStatus = 0;
-  EZ_SCOPE_EXIT(m_pImpl->StopStreamWatcher());
+  if (m_pImpl->m_exitCodeAvailable)
+  {
+    return EZ_SUCCESS;
+  }
 
   if (timeout.IsZero())
   {
-    if (waitpid(m_pImpl->m_childPid, &childStatus, 0) < 0)
+    int childStatus = 0;
+    int waitResult = waitpid(m_pImpl->m_childPid, &childStatus, 0);
+    if (waitResult > 0)
     {
-      return EZ_FAILURE;
+      m_iExitCode = WEXITSTATUS(childStatus);
+      m_pImpl->m_exitCodeAvailable = true;
+
+      m_pImpl->StopStreamWatcher();
+
+      return EZ_SUCCESS;
     }
+    return EZ_FAILURE;
   }
   else
   {
-    int waitResult = 0;
     ezTime startWait = ezTime::Now();
     while (true)
     {
-      waitResult = waitpid(m_pImpl->m_childPid, &childStatus, WNOHANG);
-      if (waitResult < 0)
+      const ezProcessState state = GetState();
+      switch (state)
       {
-        return EZ_FAILURE;
+        case ezProcessState::NotStarted:
+          return EZ_FAILURE;
+        case ezProcessState::Running:
+          break;
+        case ezProcessState::Finished:
+          return EZ_SUCCESS;
       }
-      if (waitResult > 0)
-      {
-        break;
-      }
+
       ezTime timeSpent = ezTime::Now() - startWait;
       if (timeSpent > timeout)
       {
@@ -688,17 +703,6 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
       ezThreadUtils::Sleep(ezMath::Min(ezTime::MakeFromMilliseconds(100.0), timeout - timeSpent));
     }
   }
-
-  if (WIFEXITED(childStatus))
-  {
-    m_iExitCode = WEXITSTATUS(childStatus);
-  }
-  else
-  {
-    m_iExitCode = -1;
-  }
-  m_pImpl->m_exitCodeAvailable = true;
-
   return EZ_SUCCESS;
 }
 

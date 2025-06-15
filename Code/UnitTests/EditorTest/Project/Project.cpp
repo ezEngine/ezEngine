@@ -36,6 +36,14 @@ ezResult ezEditorTestProject::InitializeTest()
 
 ezResult ezEditorTestProject::DeInitializeTest()
 {
+  if (!m_sProjectPath.IsEmpty())
+  {
+    // The build results take up vast amounts of memory and prolong test result upload.
+    ezStringBuilder buildOutput = m_sProjectPath;
+    buildOutput.AppendPath("CppSource", "Build");
+    ezOSFile::DeleteFolder(buildOutput).IgnoreResult();
+  }
+
   // For profiling the doc creation.
   // SafeProfilingData();
   if (SUPER::DeInitializeTest().Failed())

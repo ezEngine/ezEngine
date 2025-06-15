@@ -354,7 +354,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
   m_pWorld->Clear();
 
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
-
+  ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"); // FullbrightWhite
   ezInt32 dim = 15;
 
   for (ezInt32 z = -dim; z <= dim; ++z)
@@ -371,7 +371,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 
         ezMeshComponent* pMesh;
         m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
-
+        pMesh->SetMaterial(0, hMaterial);
         pMesh->SetMesh(hMesh);
       }
     }
@@ -415,7 +415,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
   ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
-
+  ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"); // FullbrightWhite
   // Skybox
   {
     ezGameObjectDesc go;
@@ -448,7 +448,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
           ezMeshComponent* pMesh;
           m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
-
+          pMesh->SetMaterial(0, hMaterial);
           pMesh->SetMesh(hMesh);
         }
       }

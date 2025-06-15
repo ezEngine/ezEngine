@@ -4,7 +4,10 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/System/StackTracer.h>
 
 #include <Foundation/Math/Math.h>
-
+#if __has_include(<cxxabi.h>)
+#  include <cxxabi.h>
+#  define HAS_CXXABI 1
+#endif
 #if __has_include(<execinfo.h>)
 #  include <execinfo.h>
 #  define HAS_EXECINFO 1
@@ -41,7 +44,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   {
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
     {
-#  if HAS_DLFCN
+#  if HAS_DLFCN && HAS_CXXABI
       Dl_info info{0};
       if (dladdr(trace[i], &info))
       {

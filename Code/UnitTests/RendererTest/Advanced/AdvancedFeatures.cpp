@@ -294,6 +294,12 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     while (!m_pChannel->IsConnected())
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+      if (m_pOffscreenProcess->GetState() == ezProcessState::Finished)
+      {
+        ezUInt32 uiExitCode = m_pOffscreenProcess->GetExitCode();
+        ezLog::Error("Process exited prematurely with code: {}", uiExitCode);
+        return EZ_FAILURE;
+      }
     }
 
     ezOffscreenTest_OpenMsg msg;

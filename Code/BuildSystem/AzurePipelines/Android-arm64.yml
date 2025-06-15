@@ -1,22 +1,23 @@
-# Variable 'task.MSBuild.status' was defined in the Variables tab
 trigger:
   branches:
     include:
     - dev
+
 resources:
   repositories:
   - repository: self
     type: git
     ref: dev
+
 jobs:
-- job: Job_1
+- job: Android_arm64
   displayName: Android-arm64
   timeoutInMinutes: 180
   pool:
     name: Default
     demands:
-    - Agent.OS -equals Windows_NT
-    - EMULATOR
+    - Agent.OS -equals Linux
+
   steps:
   - checkout: self
     submodules: true
@@ -39,28 +40,32 @@ jobs:
         }
         
   - task: CMake@1
-    displayName: CMake vs2022x64
+    displayName: CMake linux-clang-dev
     inputs:
       cwd: $(System.DefaultWorkingDirectory)
-      cmakeArgs: --preset vs2022x64
+      cmakeArgs: --preset linux-clang-dev
 
   - task: CMake@1
-    displayName: CMake build vs2022x64
+    displayName: CMake build linux-clang-dev
     inputs:
-      cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
+      cwd: $(System.DefaultWorkingDirectory)/Workspace/linux-clang-dev
       cmakeArgs: --build . --target ShaderCompiler --config dev
 
-  - task: CmdLine@2
+  - task: PowerShell@2
     displayName: Compile Shaders
     inputs:
+      targetType: inline
+      errorActionPreference: 'stop'
+      failOnStderr: true
       script: |
-        cd $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
-        if %ERRORLEVEL% NEQ 0 exit 1
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
-        if %ERRORLEVEL% NEQ 0 exit 1
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
-        if %ERRORLEVEL% NEQ 0 exit 1
+        Set-StrictMode -Version Latest   
+        cd $(System.DefaultWorkingDirectory)/Output/Bin/LinuxNinjaClangDev64
+        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
+        if ($LASTEXITCODE -ne 0) { throw "Error compiling Base shaders" }
+        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
+        if ($LASTEXITCODE -ne 0) { throw "Error compiling UnitTests shaders" }
+        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
+        if ($LASTEXITCODE -ne 0) { throw "Error compiling ShaderExplorer shaders" }
 
   - task: CMake@1
     displayName: CMake android-arm64-dev
@@ -68,10 +73,9 @@ jobs:
       cwd: $(System.DefaultWorkingDirectory)
       cmakeArgs: --preset android-arm64-dev
 
-  - task: CmdLine@2
+  - task: PowerShell@2
     displayName: Build
     inputs:
-      script: |
-        cd $(System.DefaultWorkingDirectory)/Workspace/android-arm64-dev
-        ninja
+      targetType: inline
+      script: ninja -C Workspace/android-arm64-dev
 ...

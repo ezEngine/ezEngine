@@ -189,17 +189,23 @@ public:
     ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
     ezQtUiServices::SetHeadless(true);
 
+    QCoreApplication::sendPostedEvents();
+    qApp->processEvents();
+
+    EZ_SCOPE_EXIT(ezQtEditorApp::GetSingleton()->ShutdownEditor(); RequestApplicationQuit(););
+
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+    // Project is opened by StartupEditor
+    if (!sProject.IsEmpty() && !ezToolsProject::IsProjectOpen())
+    {
+      ezLog::Error("Failed to open project: {}", sProject);
+      SetReturnCode(2);
+      return;
+    }
 
     if (!sTransformProfile.IsEmpty() || bCompile)
     {
-      if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
-      {
-        SetReturnCode(2);
-        RequestApplicationQuit();
-        return;
-      }
-
       // before we transform any assets or if specifically asked, make sure the C++ code is built
       {
         ezCppSettings cppSettings;
@@ -208,7 +214,6 @@ public:
           if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
           {
             SetReturnCode(3);
-            RequestApplicationQuit();
             return;
           }
 
@@ -263,8 +268,6 @@ public:
     }
     else if (opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
-
       ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
         {
         ezAssetCurator::GetSingleton()->ResaveAllAssets("");
@@ -287,8 +290,6 @@ public:
       if (res.Succeeded())
       {
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorProcessorApplication::EventHandlerIPC, this));
-
-        ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
           {
           static bool bRecursionBlock = false;
@@ -311,9 +312,6 @@ public:
         ezLog::Error("Failed to connect with host process");
       }
     }
-
-    ezQtEditorApp::GetSingleton()->ShutdownEditor();
-    RequestApplicationQuit();
   }
 
 private:

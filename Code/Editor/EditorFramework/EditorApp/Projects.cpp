@@ -47,7 +47,9 @@ ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= f
 
 void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 {
-  CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
+  // Don't try to execute a queued project open if we have already shutdown the editor.
+  if (m_bIsRunning)
+    CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)

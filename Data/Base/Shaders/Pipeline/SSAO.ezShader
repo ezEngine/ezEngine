@@ -197,6 +197,12 @@ float4 main(PS_IN Input) : SV_Target
     float occlusionX = occlusion - deltaX.x * (m.x * 2 - 1);
     float occlusionY = occlusion - deltaY.x * (m.y * 2 - 1);
 
+    // Workaround for AMD Radeon 680M (RADV REMBRANDT). At least in Mesa 25.0.7 the driver produces wrong code here.
+    // If you plot deltaX.xy it contains no NaNs, but if you plot only deltaX.x or deltaX.y it starts producing random NaN splotches.
+    // This only happens in spots at the border to the sky (far plane).
+    if (isnan(occlusionX) || isnan(occlusionY))
+      return float4(occlusion, linearCenterDepth, 0, 1);
+
     float2 weight;
 
     const float depthContrast = 2;

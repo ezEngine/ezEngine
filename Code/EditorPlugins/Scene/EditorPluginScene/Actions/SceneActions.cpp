@@ -499,7 +499,7 @@ void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
   {
     sPlayerApp.Prepend("./");
   }
-#endif()
+#endif
   QProcess::startDetached(QString::fromUtf8(sPlayerApp.GetData()), arguments, QCoreApplication::applicationDirPath());
 }
 

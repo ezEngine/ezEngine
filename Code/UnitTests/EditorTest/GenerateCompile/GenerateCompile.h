@@ -16,7 +16,9 @@ public:
 private:
   enum SubTests
   {
-    GenerateAndCompile,
+    ST_GenerateAndCompile,
+    ST_EditorProcessorCompileOnly,
+    ST_EditorProcessorCompileAndTransform
   };
 
   virtual void SetupSubTests() override;
@@ -26,6 +28,14 @@ private:
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
+
+  ezStatus PrepareCompile(ezStringBuilder& dllPath, ezStringBuilder& bundlePath);
+  ezString GetEditorProcessorPath() const;
+  ezStatus RunEditorProcessor(const ezDynamicArray<ezString>& arguments);
+
+  ezStatus GenerateAndCompile();
+  ezStatus EditorProcessorCompileOnly();
+  ezStatus EditorProcessorCompileAndTransform();
 
   ezDocument* m_pDocument = nullptr;
 };
