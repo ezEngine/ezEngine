@@ -1,4 +1,9 @@
-# Variable 'task.MSBuild.status' was defined in the Variables tab
+parameters:
+  - name: uploadCaches
+    displayName: 'Upload Caches'
+    type: boolean
+    default: false
+
 trigger:
   branches:
     include:
@@ -207,22 +212,26 @@ jobs:
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\Test
       ArtifactName: TestResults
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: Bin'
     condition: failed()
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\Bin
       ArtifactName: Bin
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: AssetCache'
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
-      ArtifactName: AssetCache
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: ShaderCache'
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      PathtoPublish: $(System.DefaultWorkingDirectory)\Output\ShaderCache
-      ArtifactName: ShaderCache
+
+  - ${{ if eq(parameters.uploadCaches, true) }}:
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: AssetCache'
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
+        ArtifactName: AssetCache
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: ShaderCache'
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        PathtoPublish: $(System.DefaultWorkingDirectory)\Output\ShaderCache
+        ArtifactName: ShaderCache
 ...
