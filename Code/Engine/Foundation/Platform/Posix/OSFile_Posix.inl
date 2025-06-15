@@ -62,7 +62,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   struct stat stats = {};
   if (fstat(fd, &stats) != 0)
   {
-    ezLog::Error("Failed to stat file {}, error {}", szFile, ezArgErrno(errno));
+    ezLog::Error("Failed to stat file {}, error {}", szFile, errno);
     close(fd);
     return EZ_FAILURE;
   }
