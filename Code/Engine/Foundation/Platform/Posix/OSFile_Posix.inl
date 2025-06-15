@@ -84,7 +84,6 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
     if (iRetries == 0 || errorCode != EWOULDBLOCK)
     {
       // error, could not get a lock
-      ezLog::Error("Failed to get a {} lock for file {}, error {}", (FileShareMode == ezFileShareMode::Exclusive) ? "Exculsive" : "Shared", szFile, errno);
       close(fd);
       return EZ_FAILURE;
     }
@@ -168,7 +167,6 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
   {
     if (fwrite(pBuffer, 1, uiBatchBytes, m_FileData.m_pFileHandle) != uiBatchBytes)
     {
-      ezLog::Error("fwrite 1GB failed for '{}'", m_sFileName);
       return EZ_FAILURE;
     }
 
@@ -182,7 +180,6 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
 
     if (fwrite(pBuffer, 1, uiBytes32, m_FileData.m_pFileHandle) != uiBytes)
     {
-      ezLog::Error("fwrite failed for '{}'", m_sFileName);
       return EZ_FAILURE;
     }
   }
