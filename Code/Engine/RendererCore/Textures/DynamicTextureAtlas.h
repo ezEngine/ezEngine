@@ -24,7 +24,7 @@ public:
   ezGALTextureHandle GetTexture() const { return m_hTexture; }
   ezRectU16 GetAllocationRect(AllocationId id) const;
 
-  void DebugDraw(const ezDebugRendererContext& debugContext, float fViewWidth, float fViewHeight) const;
+  void DebugDraw(const ezDebugRendererContext& debugContext, float fViewWidth, float fViewHeight, bool bBlackOutFreeAreas = true) const;
 
 private:
   struct NodeType
@@ -65,7 +65,6 @@ private:
 
   ezGALTextureHandle m_hTexture;
   ezUInt32 m_uiAlignment = 0;
-
 
   struct Node
   {

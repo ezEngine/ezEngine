@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererFoundation/Device/Device.h>
@@ -263,7 +264,7 @@ ezRectU16 ezDynamicTextureAtlas::GetAllocationRect(AllocationId id) const
   return ezRectU16();
 }
 
-void ezDynamicTextureAtlas::DebugDraw(const ezDebugRendererContext& debugContext, float fViewWidth, float fViewHeight) const
+void ezDynamicTextureAtlas::DebugDraw(const ezDebugRendererContext& debugContext, float fViewWidth, float fViewHeight, bool bBlackOutFreeAreas /*= true*/) const
 {
   if (m_hTexture.IsInvalidated())
     return;
@@ -292,6 +293,11 @@ void ezDynamicTextureAtlas::DebugDraw(const ezDebugRendererContext& debugContext
       ezMath::Round(node.m_Rect.width * fScale) - 1.0f,
       ezMath::Round(node.m_Rect.height * fScale) - 1.0f);
     ezDebugRenderer::Draw2DLineRectangle(debugContext, nodeRect, 0.0f, color);
+
+    if (bBlackOutFreeAreas && node.GetType() == NodeType::Free)
+    {
+      ezDebugRenderer::Draw2DRectangle(debugContext, nodeRect, 0.0f, ezColor::Black, ezResourceManager::LoadResource<ezTexture2DResource>("White.color"));
+    }
 
     if (node.GetType() == NodeType::Allocation)
     {

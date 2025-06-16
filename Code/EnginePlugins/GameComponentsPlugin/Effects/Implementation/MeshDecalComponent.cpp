@@ -72,7 +72,7 @@ void ezMeshDecalComponentManager::UpdateDecalVisibility(const ezWorldModule::Upd
     const float fScreenSpaceSize = ezMath::ColorShortToFloat(usageInfo.m_iMaxScreenSpaceSize);
     ezDecalManager::GetOrAddRuntimeDecal(it.Key(), fScreenSpaceSize, nullptr);
 
-    usageInfo.m_iMaxScreenSpaceSize = ezMath::ColorFloatToShort(0.01f);
+    usageInfo.m_iMaxScreenSpaceSize = 0;
   }
 }
 
