@@ -19,30 +19,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezMeshDecalDescription);
 
 ////////////////////////////////////////////////////////////////////////////
 
-class EZ_GAMECOMPONENTS_DLL ezMeshDecalComponentManager final : public ezComponentManager<class ezMeshDecalComponent, ezBlockStorageType::Compact>
-{
-public:
-  ezMeshDecalComponentManager(ezWorld* pWorld);
-  ~ezMeshDecalComponentManager();
-
-  void Initialize() override;
-
-private:
-  void UpdateDecalVisibility(const ezWorldModule::UpdateContext& context);
-
-  friend class ezMeshDecalComponent;
-  void RegisterDecalUsage(const ezTexture2DResourceHandle& hDecal);
-  void UnregisterDecalUsage(const ezTexture2DResourceHandle& hDecal);
-  void UpdateMaxScreenSpaceSize(const ezTexture2DResourceHandle& hDecal, float fMaxScreenSpaceSize) const;
-
-  struct DecalUsageInfo
-  {
-    ezAtomicInteger32 m_iRefCount = 0;
-    mutable ezAtomicInteger32 m_iMaxScreenSpaceSize = 0;
-  };
-
-  ezHashTable<ezTexture2DResourceHandle, DecalUsageInfo> m_DecalUsageInfos;
-};
+using ezMeshDecalComponentManager = ezComponentManager<class ezMeshDecalComponent, ezBlockStorageType::Compact>;
 
 class EZ_GAMECOMPONENTS_DLL ezMeshDecalComponent final : public ezComponent
 {
@@ -68,8 +45,9 @@ private:
   void Decals_Insert(ezUInt32 uiIndex, const ezMeshDecalDescription& desc);
   void Decals_Remove(ezUInt32 uiIndex);
 
-  void UpdateDecalIds();
+  void UpdateDecals();
+  void DeleteDecals();
   
   ezSmallArray<ezMeshDecalDescription, 2> m_DecalDescs;
-  ezSmallArray<ezTexture2DResourceHandle, 2> m_ActiveRuntimeDecals;
+  ezSmallArray<ezDecalId, 2> m_DecalIds;
 };

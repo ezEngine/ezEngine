@@ -13,7 +13,7 @@ constexpr ezAngle c_MaxSpotAngle = ezAngle::MakeFromDegree(160.0f);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -46,6 +46,65 @@ EZ_END_COMPONENT_TYPE
 
 ezSpotLightComponent::ezSpotLightComponent() = default;
 ezSpotLightComponent::~ezSpotLightComponent() = default;
+
+void ezSpotLightComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  UpdateCookie();
+}
+
+void ezSpotLightComponent::OnDeactivated()
+{
+  DeleteCookie();
+}
+
+void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+{
+  SUPER::SerializeComponent(inout_stream);
+
+  ezStreamWriter& s = inout_stream.GetStream();
+
+  s << m_fRange;
+  s << m_fShadowFadeOutRange;
+  s << m_InnerSpotAngle;
+  s << m_OuterSpotAngle;
+  s << m_uiMaterialResolution;
+  s << m_MaterialUpdateInterval;
+  s << m_hMaterial;
+  s << m_hCookie;
+}
+
+void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
+{
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
+
+  ezTexture2DResourceHandle m_hProjectedTexture;
+
+  s >> m_fRange;
+  if (uiVersion >= 3)
+  {
+    s >> m_fShadowFadeOutRange;
+  }
+  s >> m_InnerSpotAngle;
+  s >> m_OuterSpotAngle;
+
+  if (uiVersion >= 4)
+  {
+    s >> m_uiMaterialResolution;
+    s >> m_MaterialUpdateInterval;
+    s >> m_hMaterial;
+    s >> m_hCookie;
+  }
+  else
+  {
+    ezStringBuilder temp;
+    s >> temp;
+    SetCookieFile(temp);
+  }
+}
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
@@ -114,6 +173,7 @@ void ezSpotLightComponent::SetCookie(const ezTexture2DResourceHandle& hCookie)
   {
     m_hCookie = hCookie;
 
+    UpdateCookie();
     InvalidateCachedRenderData();
   }
 }
@@ -124,6 +184,7 @@ void ezSpotLightComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial
   {
     m_hMaterial = hMaterial;
 
+    UpdateCookie();
     InvalidateCachedRenderData();
   }
 }
@@ -132,6 +193,7 @@ void ezSpotLightComponent::SetMaterialResolution(ezUInt32 uiResolution)
 {
   m_uiMaterialResolution = ezMath::Clamp(uiResolution, 16u, 1024u);
 
+  UpdateCookie();
   // No need to invalidate cached render data, render data is not cached if a material is used.
 }
 
@@ -139,6 +201,7 @@ void ezSpotLightComponent::SetMaterialUpdateInterval(ezTime updateInterval)
 {
   m_MaterialUpdateInterval = ezMath::Clamp(updateInterval.AsFloatInSeconds(), 0.0f, 10.0f);
 
+  UpdateCookie();
   // No need to invalidate cached render data, render data is not cached if a material is used.
 }
 
@@ -172,18 +235,16 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->m_fRange = m_fEffectiveRange;
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
+  pRenderData->m_CookieId = m_CookieId;
 
-  // Spotlight bounds tend to be way larger than the projected area thus times 0.5
-  const float fScreenSpaceSizeForCookie = fScreenSpaceSize * 0.5f;
-  if (m_hMaterial.IsValid())
+  if (m_CookieId.IsInvalidated() == false)
   {
-    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hMaterial, m_uiMaterialResolution, ezTime::MakeFromSeconds(m_MaterialUpdateInterval), fScreenSpaceSizeForCookie, msg.m_pView);
-  }
-  else if (m_hCookie.IsValid())
-  {
-    pRenderData->m_CookieId = ezDecalManager::GetOrAddRuntimeDecal(m_hCookie, fScreenSpaceSizeForCookie, msg.m_pView);
-  }
+    // Spotlight bounds tend to be way larger than the projected area thus times 0.5
+    const float fScreenSpaceSizeForCookie = fScreenSpaceSize * 0.5f;
 
+    ezDecalManager::MarkRuntimeDecalAsUsed(m_CookieId, fScreenSpaceSizeForCookie, msg.m_pView);
+  }
+  
   if (m_bCastShadows && fShadowFadeOut > 0.0f)
   {
     pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddSpotLight(this, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
@@ -195,42 +256,8 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 
-  ezRenderData::Caching::Enum caching = (m_bCastShadows || m_hCookie.IsValid() || m_hMaterial.IsValid()) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = (m_bCastShadows || m_CookieId.IsInvalidated() == false) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
-}
-
-void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
-{
-  SUPER::SerializeComponent(inout_stream);
-
-  ezStreamWriter& s = inout_stream.GetStream();
-
-  s << m_fRange;
-  s << m_fShadowFadeOutRange;
-  s << m_InnerSpotAngle;
-  s << m_OuterSpotAngle;
-  s << GetCookieFile();
-}
-
-void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
-{
-  SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = inout_stream.GetStream();
-
-  ezTexture2DResourceHandle m_hProjectedTexture;
-
-  s >> m_fRange;
-  if (uiVersion >= 3)
-  {
-    s >> m_fShadowFadeOutRange;
-  }
-  s >> m_InnerSpotAngle;
-  s >> m_OuterSpotAngle;
-
-  ezStringBuilder temp;
-  s >> temp;
-  SetCookieFile(temp);
 }
 
 ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform& t, float fRange) const
@@ -252,6 +279,28 @@ ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform
   }
 
   return res;
+}
+
+void ezSpotLightComponent::UpdateCookie()
+{
+  if (!IsActiveAndInitialized())
+    return;
+
+  DeleteCookie();
+
+  if (m_hMaterial.IsValid())
+  {
+    m_CookieId = ezDecalManager::GetOrCreateRuntimeDecal(m_hMaterial, m_uiMaterialResolution, ezTime::MakeFromSeconds(m_MaterialUpdateInterval));
+  }
+  else if (m_hCookie.IsValid())
+  {
+    m_CookieId = ezDecalManager::GetOrCreateRuntimeDecal(m_hCookie);
+  }
+}
+
+void ezSpotLightComponent::DeleteCookie()
+{
+  ezDecalManager::DeleteRuntimeDecal(m_CookieId);
 }
 
 //////////////////////////////////////////////////////////////////////////

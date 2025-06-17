@@ -3,8 +3,6 @@
 #include <GameComponentsPlugin/Effects/MeshDecalComponent.h>
 
 #include <Core/Messages/SetColorMessage.h>
-#include <Core/Messages/TriggerMessage.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Containers/ArrayMap.h>
@@ -12,7 +10,6 @@
 #include <RendererCore/Decals/Implementation/DecalManager.h>
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,70 +41,6 @@ ezResult ezMeshDecalDescription::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_hBaseColorTexture;
 
   return EZ_SUCCESS;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-ezMeshDecalComponentManager::ezMeshDecalComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezMeshDecalComponent, ezBlockStorageType::Compact>(pWorld)
-{
-}
-
-ezMeshDecalComponentManager::~ezMeshDecalComponentManager() = default;
-
-void ezMeshDecalComponentManager::Initialize()
-{
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezMeshDecalComponentManager::UpdateDecalVisibility, this);
-  desc.m_Phase = ezWorldUpdatePhase::Async;
-
-  this->RegisterUpdateFunction(desc);
-}
-
-void ezMeshDecalComponentManager::UpdateDecalVisibility(const ezWorldModule::UpdateContext& context)
-{
-  for (auto it = m_DecalUsageInfos.GetIterator(); it.IsValid(); ++it)
-  {
-    auto& usageInfo = it.Value();
-
-    const float fScreenSpaceSize = ezMath::ColorShortToFloat(usageInfo.m_iMaxScreenSpaceSize);
-    ezDecalManager::GetOrAddRuntimeDecal(it.Key(), fScreenSpaceSize, nullptr);
-
-    usageInfo.m_iMaxScreenSpaceSize = 0;
-  }
-}
-
-void ezMeshDecalComponentManager::RegisterDecalUsage(const ezTexture2DResourceHandle& hDecal)
-{
-  if (hDecal.IsValid())
-  {
-    DecalUsageInfo& usageInfo = m_DecalUsageInfos[hDecal];
-    usageInfo.m_iRefCount.Increment();
-  }
-}
-
-void ezMeshDecalComponentManager::UnregisterDecalUsage(const ezTexture2DResourceHandle& hDecal)
-{
-  if (hDecal.IsValid())
-  {
-    DecalUsageInfo& usageInfo = m_DecalUsageInfos[hDecal];
-    EZ_ASSERT_DEBUG(usageInfo.m_iRefCount > 0, "Unregistering a decal usage that was never registered.");
-    if (usageInfo.m_iRefCount.Decrement() == 0)
-    {
-      m_DecalUsageInfos.Remove(hDecal);
-    }
-  }
-}
-
-void ezMeshDecalComponentManager::UpdateMaxScreenSpaceSize(const ezTexture2DResourceHandle& hDecal, float fMaxScreenSpaceSize) const
-{
-  if (hDecal.IsValid())
-  {
-    if (const DecalUsageInfo* pUsageInfo = m_DecalUsageInfos.GetValue(hDecal))
-    {
-      int iMaxScreenSpaceSize = ezMath::ColorFloatToShort(fMaxScreenSpaceSize);
-      pUsageInfo->m_iMaxScreenSpaceSize.Max(iMaxScreenSpaceSize);
-    }
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -156,26 +89,14 @@ void ezMeshDecalComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  auto pManager = static_cast<ezMeshDecalComponentManager*>(GetOwningManager());
-  for (auto& desc : m_DecalDescs)
-  {
-    pManager->RegisterDecalUsage(desc.m_hBaseColorTexture);
-  }
-
-  UpdateDecalIds();
+  UpdateDecals();
 }
 
 void ezMeshDecalComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  auto pManager = static_cast<ezMeshDecalComponentManager*>(GetOwningManager());
-  for (auto& desc : m_DecalDescs)
-  {
-    pManager->UnregisterDecalUsage(desc.m_hBaseColorTexture);
-  }
-
-  m_ActiveRuntimeDecals.Clear();
+  DeleteDecals();
 }
 
 void ezMeshDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
@@ -185,10 +106,9 @@ void ezMeshDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   const float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(GetOwner()->GetGlobalBounds().GetSphere(), *msg.m_pView->GetCullingCamera());
 
-  auto pManager = static_cast<const ezMeshDecalComponentManager*>(GetOwningManager());
-  for (auto& hTexture : m_ActiveRuntimeDecals)
+  for (ezDecalId decalId : m_DecalIds)
   {
-    pManager->UpdateMaxScreenSpaceSize(hTexture, fScreenSpaceSize);
+    ezDecalManager::MarkRuntimeDecalAsUsed(decalId, fScreenSpaceSize, msg.m_pView);
   }
 }
 
@@ -204,42 +124,31 @@ const ezMeshDecalDescription& ezMeshDecalComponent::Decals_Get(ezUInt32 uiIndex)
 
 void ezMeshDecalComponent::Decals_Set(ezUInt32 uiIndex, const ezMeshDecalDescription& desc)
 {
-  auto pManager = static_cast<ezMeshDecalComponentManager*>(GetOwningManager());
-  pManager->UnregisterDecalUsage(m_DecalDescs[uiIndex].m_hBaseColorTexture);
-
   m_DecalDescs[uiIndex] = desc;
 
-  pManager->RegisterDecalUsage(desc.m_hBaseColorTexture);
-
-  UpdateDecalIds();
+  UpdateDecals();
 }
 
 void ezMeshDecalComponent::Decals_Insert(ezUInt32 uiIndex, const ezMeshDecalDescription& desc)
 {
-  auto pManager = static_cast<ezMeshDecalComponentManager*>(GetOwningManager());
-  pManager->RegisterDecalUsage(desc.m_hBaseColorTexture);
-
   m_DecalDescs.InsertAt(uiIndex, desc);
 
-  UpdateDecalIds();
+  UpdateDecals();
 }
 
 void ezMeshDecalComponent::Decals_Remove(ezUInt32 uiIndex)
 {
-  auto pManager = static_cast<ezMeshDecalComponentManager*>(GetOwningManager());
-  pManager->UnregisterDecalUsage(m_DecalDescs[uiIndex].m_hBaseColorTexture);
-
   m_DecalDescs.RemoveAtAndCopy(uiIndex);
 
-  UpdateDecalIds();
+  UpdateDecals();
 }
 
-void ezMeshDecalComponent::UpdateDecalIds()
+void ezMeshDecalComponent::UpdateDecals()
 {
   if (!IsActiveAndInitialized())
     return;
 
-  m_ActiveRuntimeDecals.Clear();
+  DeleteDecals();
 
   ezArrayMap<ezUInt32, ezTexture2DResourceHandle> indexToTexture(ezFrameAllocator::GetCurrentAllocator());
   indexToTexture.Reserve(m_DecalDescs.GetCount());
@@ -265,18 +174,18 @@ void ezMeshDecalComponent::UpdateDecalIds()
 
     const ezUInt32 uiLowerBound = indexToTexture.LowerBound(i);
     const ezUInt32 uiUpperBound = ezMath::Min(indexToTexture.UpperBound(i), indexToTexture.GetCount());
-    
+
     if (uiLowerBound != ezInvalidIndex && uiUpperBound > uiLowerBound)
     {
       const ezUInt32 uiIndex = RandomIndex(uiLowerBound, uiUpperBound);
       auto& hTexture = indexToTexture.GetValue(uiIndex);
       if (hTexture.IsValid())
       {
-        ezDecalId decalId = ezDecalManager::GetOrAddRuntimeDecal(hTexture, 0.0f, nullptr);
+        ezDecalId decalId = ezDecalManager::GetOrCreateRuntimeDecal(hTexture);
         decalIndices[i] = decalId.m_InstanceIndex;
 
-        if (!m_ActiveRuntimeDecals.Contains(hTexture))
-          m_ActiveRuntimeDecals.PushBack(hTexture);
+        if (!m_DecalIds.Contains(decalId))
+          m_DecalIds.PushBack(decalId);
       }
     }
   }
@@ -289,4 +198,14 @@ void ezMeshDecalComponent::UpdateDecalIds()
   msg.m_fData3 = pDecalIndicesAsFloat[3];
 
   GetOwner()->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
+}
+
+void ezMeshDecalComponent::DeleteDecals()
+{
+  for (ezDecalId decalId : m_DecalIds)
+  {
+    ezDecalManager::DeleteRuntimeDecal(decalId);
+  }
+
+  m_DecalIds.Clear();
 }

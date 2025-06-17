@@ -28,6 +28,9 @@ class EZ_RENDERERCORE_DLL ezSpotLightComponent : public ezLightComponent
   // ezComponent
 
 public:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -87,6 +90,9 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   ezBoundingSphere CalculateBoundingSphere(const ezTransform& t, float fRange) const;
 
+  void UpdateCookie();
+  void DeleteCookie();
+
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
   float m_fShadowFadeOutRange = 0.0f;
@@ -99,6 +105,8 @@ protected:
   ezMaterialResourceHandle m_hMaterial;
 
   ezTexture2DResourceHandle m_hCookie;
+
+  ezDecalId m_CookieId;
 };
 
 /// \brief A special visualizer attribute for spot lights
