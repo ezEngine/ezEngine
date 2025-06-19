@@ -120,7 +120,6 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
   m_pCurrentFrame = &m_pendingFrames.ExpandAndGetRef();
   m_pCurrentFrame->m_uiFrameCounter = uiCurrentFrame;
   m_pCurrentFrame->m_uiNextIndex = 0;
-  m_pCurrentFrame->m_pools.PushBack(GetFreePool());
 
   // Get results
   for (FramePool& framePool : m_pendingFrames)
@@ -138,16 +137,19 @@ void ezQueryPoolVulkan::Pool::BeginFrame(vk::CommandBuffer commandBuffer, ezUInt
       {
         bAllCompleted = false;
         ezUInt32 uiQueryCount = m_uiPoolSize;
-        if (i + 1 == m_pendingFrames[0].m_pools.GetCount())
+        // The last pool may not be full, so we only query the number of queries that were actually used.
+        const bool bLastPool = i + 1 == framePool.m_pools.GetCount();
+        const ezUInt64 uiPoolEndIndex = m_uiPoolSize * (i + 1);
+        const bool bPoolFull = framePool.m_uiNextIndex >= uiPoolEndIndex;
+        if (bLastPool && !bPoolFull)
           uiQueryCount = framePool.m_uiNextIndex % m_uiPoolSize;
-        if (uiQueryCount > 0)
+
+        EZ_ASSERT_DEV(uiQueryCount != 0, "Query pools are created on demand, so they should never have zero queries in them!");
+        EZ_PROFILE_SCOPE("getQueryPoolResults");
+        vk::Result res = m_device.getQueryPoolResults(pPool->m_pool, 0, uiQueryCount, m_uiPoolSize * sizeof(ezUInt64), pPool->m_queryResults.GetData(), sizeof(ezUInt64), vk::QueryResultFlagBits::e64);
+        if (res == vk::Result::eSuccess)
         {
-          EZ_PROFILE_SCOPE("getQueryPoolResults");
-          vk::Result res = m_device.getQueryPoolResults(pPool->m_pool, 0, uiQueryCount, m_uiPoolSize * sizeof(ezUInt64), pPool->m_queryResults.GetData(), sizeof(ezUInt64), vk::QueryResultFlagBits::e64);
-          if (res == vk::Result::eSuccess)
-          {
-            pPool->m_bReady = true;
-          }
+          pPool->m_bReady = true;
         }
       }
     }

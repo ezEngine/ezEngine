@@ -109,7 +109,6 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
   {
     // Create new actor
     ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
-    m_pEditorWndActor = pActor.Borrow();
 
     ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
 
@@ -123,6 +122,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       else
       {
         ezLog::Error("Failed to create Editor Process View Window");
+        return;
       }
     }
 
@@ -136,6 +136,11 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
 
       pOutput->CreateSwapchain(desc);
+      if (pOutput->m_hSwapChain.IsInvalidated())
+      {
+        ezLog::Error("Failed to create swapchain for Editor Process View Window");
+        return;
+      }
 
       pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
     }
@@ -149,6 +154,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     }
 
     pActor->AddPlugin(std::move(pWindowPlugin));
+    m_pEditorWndActor = pActor.Borrow();
     ezActorManager::GetSingleton()->AddActor(std::move(pActor));
   }
 }
