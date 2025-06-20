@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Device/Device.h>
 
 ezDynamicTextureAtlas::ezDynamicTextureAtlas() = default;
