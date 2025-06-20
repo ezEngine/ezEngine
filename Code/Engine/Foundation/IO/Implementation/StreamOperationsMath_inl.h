@@ -16,15 +16,15 @@
 
 // ezFloat16
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezFloat16 fValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezFloat16 value)
 {
-  inout_stream.WriteWordValue(&fValue).AssertSuccess();
+  inout_stream.WriteWordValue(&value).AssertSuccess();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16& ref_fValue)
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16& ref_value)
 {
-  inout_stream.ReadWordValue(&ref_fValue).AssertSuccess();
+  inout_stream.ReadWordValue(&ref_value).AssertSuccess();
   return inout_stream;
 }
 
