@@ -33,7 +33,7 @@ private:
   void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
 
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  ezSharedPtr<ezShaderConstantBufferLayout> ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
   void Initialize();
   static ezGALResourceFormat::Enum GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc);
 

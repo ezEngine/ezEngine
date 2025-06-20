@@ -42,6 +42,8 @@
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
+#include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
+#include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -1088,6 +1090,49 @@ void ezGALDeviceVulkan::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerS
   EZ_DELETE(&m_Allocator, pVulkanSamplerState);
 }
 
+ezGALBindGroupLayout* ezGALDeviceVulkan::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)
+{
+  ezGALBindGroupLayoutVulkan* pVulkanBindGroupLayout = EZ_NEW(&m_Allocator, ezGALBindGroupLayoutVulkan, Description);
+
+  if (pVulkanBindGroupLayout->InitPlatform(this).Succeeded())
+  {
+    return pVulkanBindGroupLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pVulkanBindGroupLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceVulkan::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout)
+{
+  ezGALBindGroupLayoutVulkan* pVulkanBindGroupLayout = static_cast<ezGALBindGroupLayoutVulkan*>(pBindGroupLayout);
+  pVulkanBindGroupLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanBindGroupLayout);
+}
+
+ezGALPipelineLayout* ezGALDeviceVulkan::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
+{
+  ezGALPipelineLayoutVulkan* pVulkanPipelineLayout = EZ_NEW(&m_Allocator, ezGALPipelineLayoutVulkan, Description);
+
+  if (pVulkanPipelineLayout->InitPlatform(this).Succeeded())
+  {
+    return pVulkanPipelineLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pVulkanPipelineLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceVulkan::DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout)
+{
+  ezGALPipelineLayoutVulkan* pVulkanPipelineLayout = static_cast<ezGALPipelineLayoutVulkan*>(pPipelineLayout);
+  pVulkanPipelineLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanPipelineLayout);
+}
 
 // Resource creation functions
 
@@ -1905,6 +1950,12 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::ePipeline:
         m_device.destroyPipeline(reinterpret_cast<vk::Pipeline&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eDescriptorSetLayout:
+        m_device.destroyDescriptorSetLayout(reinterpret_cast<vk::DescriptorSetLayout&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::ePipelineLayout:
+        m_device.destroyPipelineLayout(reinterpret_cast<vk::PipelineLayout&>(deletion.m_pObject));
         break;
       default:
         EZ_REPORT_FAILURE("This object type is not implemented");

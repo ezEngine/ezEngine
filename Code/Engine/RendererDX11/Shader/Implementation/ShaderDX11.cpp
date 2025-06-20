@@ -51,7 +51,9 @@ void ezGALShaderDX11::SetDebugName(ezStringView sName) const
 
 ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 {
+  m_pDevice = pDevice;
   EZ_SUCCEED_OR_RETURN(CreateBindingMapping(true));
+  EZ_SUCCEED_OR_RETURN(CreateLayouts(pDevice, false));
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
   ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
@@ -122,9 +124,9 @@ ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
-  EZ_IGNORE_UNUSED(pDevice);
-
   DestroyBindingMapping();
+  DestroyLayouts(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pVertexShader);
   EZ_GAL_DX11_RELEASE(m_pHullShader);
   EZ_GAL_DX11_RELEASE(m_pDomainShader);

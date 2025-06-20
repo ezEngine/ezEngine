@@ -26,6 +26,8 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererDX11/Shader/BindGroupLayoutDX11.h>
+#include <RendererDX11/Shader/PipelineLayoutDX11.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
@@ -445,6 +447,50 @@ void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerSta
   ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
   pDX11SamplerState->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11SamplerState);
+}
+
+ezGALBindGroupLayout* ezGALDeviceDX11::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)
+{
+  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = EZ_NEW(&m_Allocator, ezGALBindGroupLayoutDX11, Description);
+
+  if (pDX11BindGroupLayout->InitPlatform(this).Succeeded())
+  {
+    return pDX11BindGroupLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout)
+{
+  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = static_cast<ezGALBindGroupLayoutDX11*>(pBindGroupLayout);
+  pDX11BindGroupLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+}
+
+ezGALPipelineLayout* ezGALDeviceDX11::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
+{
+  ezGALPipelineLayoutDX11* pDX11PipelineLayout = EZ_NEW(&m_Allocator, ezGALPipelineLayoutDX11, Description);
+
+  if (pDX11PipelineLayout->InitPlatform(this).Succeeded())
+  {
+    return pDX11PipelineLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout)
+{
+  ezGALPipelineLayoutDX11* pDX11PipelineLayout = static_cast<ezGALPipelineLayoutDX11*>(pPipelineLayout);
+  pDX11PipelineLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
 }
 
 ezGALGraphicsPipeline* ezGALDeviceDX11::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)

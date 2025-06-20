@@ -87,7 +87,7 @@ ezString ezEditorTestGenerateCompile::GetEditorProcessorPath() const
   path.AppendPath("ezEditorProcessor.exe");
 #else
   path.AppendPath("ezEditorProcessor");
-#endif;
+#endif
   return path;
 }
 

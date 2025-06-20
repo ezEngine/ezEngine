@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Foundation/Containers/HashTable.h>
@@ -49,6 +48,12 @@ public:
 
   ezGALSamplerStateHandle CreateSamplerState(const ezGALSamplerStateCreationDescription& description);
   void DestroySamplerState(ezGALSamplerStateHandle hSamplerState);
+
+  ezGALBindGroupLayoutHandle CreateBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& description);
+  void DestroyBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout);
+
+  ezGALPipelineLayoutHandle CreatePipelineLayout(const ezGALPipelineLayoutCreationDescription& description);
+  void DestroyPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout);
 
   ezGALGraphicsPipelineHandle CreateGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& description);
   void DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline);
@@ -221,6 +226,8 @@ public:
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
+  const ezGALBindGroupLayout* GetBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout) const;
+  const ezGALPipelineLayout* GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const;
   const ezGALGraphicsPipeline* GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const;
   const ezGALComputePipeline* GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const;
   const ezGALTextureResourceView* GetResourceView(ezGALTextureResourceViewHandle hResourceView) const;
@@ -288,6 +295,13 @@ protected:
   template <typename View, typename Handle, typename ViewTable>
   void DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType);
 
+  template <typename Handle, typename Resource, typename Table, typename CacheTable>
+  Handle TryGetHashedResource(ezUInt32 uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
+  template <typename Handle, typename Resource, typename Table, typename CacheTable>
+  Handle InsertHashedResource(ezUInt32 uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter);
+  template <typename Resource, typename Handle, typename Table>
+  void DestroyHashedResource(Handle hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
+
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;
 
@@ -308,6 +322,8 @@ protected:
   using BufferUnorderedAccessViewTable = ezIdTable<ezGALBufferUnorderedAccessViewHandle::IdType, ezGALBufferUnorderedAccessView*, ezLocalAllocatorWrapper>;
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
+  using BindGroupLayoutTable = ezIdTable<ezGALBindGroupLayoutHandle::IdType, ezGALBindGroupLayout*, ezLocalAllocatorWrapper>;
+  using PipelineLayoutTable = ezIdTable<ezGALPipelineLayoutHandle::IdType, ezGALPipelineLayout*, ezLocalAllocatorWrapper>;
   using GraphicsPipelineTable = ezIdTable<ezGALGraphicsPipelineHandle::IdType, ezGALGraphicsPipeline*, ezLocalAllocatorWrapper>;
   using ComputePipelineTable = ezIdTable<ezGALComputePipelineHandle::IdType, ezGALComputePipeline*, ezLocalAllocatorWrapper>;
 
@@ -316,9 +332,11 @@ protected:
   BlendStateTable m_BlendStates;
   DepthStencilStateTable m_DepthStencilStates;
   RasterizerStateTable m_RasterizerStates;
+  SamplerStateTable m_SamplerStates;
+  BindGroupLayoutTable m_BindGroupLayouts;
+  PipelineLayoutTable m_PipelineLayouts;
   GraphicsPipelineTable m_GraphicsPipelines;
   ComputePipelineTable m_ComputePipelines;
-  SamplerStateTable m_SamplerStates;
 
   BufferTable m_Buffers;
   DynamicBufferTable m_DynamicBuffers;
@@ -338,9 +356,11 @@ protected:
   ezHashTable<ezUInt32, ezGALBlendStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BlendStateTable;
   ezHashTable<ezUInt32, ezGALDepthStencilStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_DepthStencilStateTable;
   ezHashTable<ezUInt32, ezGALRasterizerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateTable;
+  ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
+  ezHashTable<ezUInt32, ezGALBindGroupLayoutHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BindGroupLayoutTable;
+  ezHashTable<ezUInt32, ezGALPipelineLayoutHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_PipelineLayoutTable;
   ezHashTable<ezUInt32, ezGALGraphicsPipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GraphicsPipelineTable;
   ezHashTable<ezUInt32, ezGALComputePipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ComputePipelineTable;
-  ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
 
   struct DeadObject
   {
@@ -393,6 +413,12 @@ protected:
 
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) = 0;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
+
+  virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
+  virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) = 0;
+  
+  virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) = 0;
+  virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) = 0;
 
   virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) = 0;
   virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) = 0;
@@ -482,9 +508,11 @@ private:
   ezUInt32 m_uiBlendStates = 0;
   ezUInt32 m_uiDepthStencilStates = 0;
   ezUInt32 m_uiRasterizerStates = 0;
+  ezUInt32 m_uiSamplerStates = 0;
+  ezUInt32 m_uiBindGroupLayouts = 0;
+  ezUInt32 m_uiPipelineLayouts = 0;
   ezUInt32 m_uiGraphicsPipelines = 0;
   ezUInt32 m_uiComputePipelines = 0;
-  ezUInt32 m_uiSamplerStates = 0;
   ezGALCommandEncoderStats m_EncoderStats;
 };
 

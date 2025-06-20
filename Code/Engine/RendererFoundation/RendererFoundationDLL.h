@@ -25,8 +25,9 @@
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
+#define EZ_GAL_MAX_SETS 4
 
-#define EZ_GAL_WHOLE_SIZE 0xFFFFFFFF
+#define EZ_GAL_WHOLE_SIZE 0xFFFFFFFFu
 
 // Forward declarations
 
@@ -46,7 +47,11 @@ struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
 struct ezGALTextureUnorderedAccessViewCreationDescription;
 struct ezGALBufferUnorderedAccessViewCreationDescription;
+struct ezGALBindGroupLayoutCreationDescription;
+struct ezGALPipelineLayoutCreationDescription;
 struct ezGALGraphicsPipelineCreationDescription;
+struct ezGALComputePipelineCreationDescription;
+
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -69,6 +74,8 @@ class ezGALTextureUnorderedAccessView;
 class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
 class ezGALCommandEncoder;
+class ezGALBindGroupLayout;
+class ezGALPipelineLayout;
 class ezGALGraphicsPipeline;
 class ezGALComputePipeline;
 
@@ -582,6 +589,21 @@ class ezGALComputePipelineHandle
 
   friend class ezGALDevice;
 };
+
+class ezGALBindGroupLayoutHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALPipelineLayoutHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
 
 using ezGALPoolHandle = ezGAL::ez20_44Id;
 using ezGALTimestampHandle = ezGALPoolHandle;

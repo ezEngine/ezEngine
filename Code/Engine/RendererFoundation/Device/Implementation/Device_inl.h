@@ -111,6 +111,16 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
+inline const ezGALBindGroupLayout* ezGALDevice::GetBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout) const
+{
+  return Get<BindGroupLayoutTable, ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts);
+}
+
+inline const ezGALPipelineLayout* ezGALDevice::GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const
+{
+  return Get<PipelineLayoutTable, ezGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts);
+}
+
 inline const ezGALGraphicsPipeline* ezGALDevice::GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const
 {
   return Get<GraphicsPipelineTable, ezGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);

@@ -235,7 +235,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
   pReflector->Release();
 }
 
-ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
+ezSharedPtr<ezShaderConstantBufferLayout> ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
 {
   D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
 
@@ -247,7 +247,7 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
   EZ_LOG_BLOCK("Constant Buffer Layout", shaderBufferDesc.Name);
   ezLog::Debug("Constant Buffer has {0} variables, Size is {1}", shaderBufferDesc.Variables, shaderBufferDesc.Size);
 
-  ezShaderConstantBufferLayout* pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
+  ezSharedPtr<ezShaderConstantBufferLayout> pLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
 
   pLayout->m_uiTotalSize = shaderBufferDesc.Size;
 

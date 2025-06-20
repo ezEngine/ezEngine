@@ -428,7 +428,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       }
     }
     ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pShader->GetPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pShader->GetVkPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
   }
 
   // Render

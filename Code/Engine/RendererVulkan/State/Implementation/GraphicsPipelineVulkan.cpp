@@ -108,7 +108,7 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
 
   vk::GraphicsPipelineCreateInfo pipe;
   pipe.renderPass = ezResourceCacheVulkan::RequestRenderPass(m_Description.m_RenderPass);
-  pipe.layout = pShader->GetPipelineLayout();
+  pipe.layout = pShader->GetVkPipelineLayout();
   pipe.stageCount = shader_stages.GetCount();
   pipe.pStages = shader_stages.GetData();
   pipe.pVertexInputState = pVertexCreateInfo;

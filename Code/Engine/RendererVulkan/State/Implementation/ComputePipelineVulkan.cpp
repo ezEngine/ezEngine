@@ -29,7 +29,7 @@ ezResult ezGALComputePipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   }
 
   vk::ComputePipelineCreateInfo pipe;
-  pipe.layout = pShader->GetPipelineLayout();
+  pipe.layout = pShader->GetVkPipelineLayout();
   {
     vk::ShaderModule shader = pShader->GetShader(ezGALShaderStage::ComputeShader);
     EZ_ASSERT_DEV(shader != nullptr, "No compute shader stage present in the bound shader");

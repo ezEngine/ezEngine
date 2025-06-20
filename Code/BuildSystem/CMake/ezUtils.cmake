@@ -628,15 +628,31 @@ function(ez_create_link SOURCE DEST_FOLDER DEST_NAME)
 		file(MAKE_DIRECTORY ${DEST_FOLDER})
 	endif()
 
+	# Set DESTINATION to the full path of the link.
+	set(DESTINATION "${DEST_FOLDER}/${DEST_NAME}")
+
 	# We re-create the link every time because it could become a dead link when shared between workspaces.
-	if(EXISTS "${DEST_FOLDER}/${DEST_NAME}")
-		file(REMOVE ${DEST_FOLDER}/${DEST_NAME})
+	if(EXISTS "${DESTINATION}")
+		file(REMOVE ${DESTINATION})
 	endif()
 
-	file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC)
+	file(CREATE_LINK ${SOURCE} ${DESTINATION} RESULT OUT_RESULT SYMBOLIC)
 
 	if (NOT ${OUT_RESULT} EQUAL 0)
-		message(FATAL_ERROR "Failed to run: file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC) \nRe-run with admin rights:\n${OUT_RESULT}")
+		if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+		    # On Windows, fall back to creation directory junctions as those don't require admin access.
+			file(TO_NATIVE_PATH ${SOURCE} SOURCE)
+			file(TO_NATIVE_PATH ${DESTINATION} DESTINATION)
+
+			execute_process(
+				COMMAND "cmd" "/C" "mklink" "/D" "/J" "${DESTINATION}" "${SOURCE}" RESULT_VARIABLE OUT_RESULT2
+			)
+			if(NOT OUT_RESULT2 EQUAL 0)
+				message(FATAL_ERROR "Could not create symlink '${DESTINATION}' pointing to '${SOURCE}': ${OUT_RESULT2}")
+			endif()
+		else()
+			message(FATAL_ERROR "Failed to run: file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC) \nRe-run with admin rights:\n${OUT_RESULT}")
+		endif()
 	endif ()
 endfunction()
 

@@ -15,6 +15,33 @@
 
 class ezWindowBase;
 
+/// \brief Bind group layout for a single set.
+/// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
+struct ezGALBindGroupLayoutCreationDescription
+{
+  ezUInt32 CalculateHash() const;
+
+  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings; ///< Must be sorted by m_iSlot. m_iSet must be the same for all bindings in this array.
+  ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
+};
+
+/// \brief Push constant info
+/// Used by ezGALPipelineLayoutCreationDescription.
+struct ezGALPushConstant
+{
+  ezUInt16 m_uiSize = 0;
+  ezUInt16 m_uiOffset = 0;
+  ezBitflags<ezGALShaderStageFlags> m_Stages;
+};
+
+/// \brief Pipeline layout.
+/// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
+struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
+{
+  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_SETS]; ///< One for each set used in the shader. SET_FRAME, SET_RENDER_PASS, SET_MATERIAL, SET_DRAW_CALL.
+  ezGALPushConstant m_PushConstants; ///< Only one push constant block is supported right now.
+};
+
 /// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
 /// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
 struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>

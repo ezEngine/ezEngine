@@ -19,9 +19,6 @@ vk::PipelineCache ezResourceCacheVulkan::s_pipelineCache;
 
 ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_renderPasses;
 ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_frameBuffers;
-ezHashTable<ezResourceCacheVulkan::PipelineLayoutDesc, vk::PipelineLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_pipelineLayouts;
-
-ezHashTable<ezGALShaderVulkan::DescriptorSetLayoutDesc, vk::DescriptorSetLayout, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_descriptorSetLayouts;
 
 // #define EZ_LOG_VULKAN_RESOURCES
 
@@ -115,20 +112,6 @@ void ezResourceCacheVulkan::DeInitialize()
   }
   s_frameBuffers.Clear();
   s_frameBuffers.Compact();
-
-  for (auto it : s_pipelineLayouts)
-  {
-    s_device.destroyPipelineLayout(it.Value(), nullptr);
-  }
-  s_pipelineLayouts.Clear();
-  s_pipelineLayouts.Compact();
-
-  for (auto it : s_descriptorSetLayouts)
-  {
-    s_device.destroyDescriptorSetLayout(it.Value(), nullptr);
-  }
-  s_descriptorSetLayouts.Clear();
-  s_descriptorSetLayouts.Compact();
 
   s_device = nullptr;
 }
@@ -273,55 +256,6 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
   return vkFrameBuffer;
 }
 
-vk::PipelineLayout ezResourceCacheVulkan::RequestPipelineLayout(const PipelineLayoutDesc& desc)
-{
-  if (const vk::PipelineLayout* pPipelineLayout = s_pipelineLayouts.GetValue(desc))
-  {
-    return *pPipelineLayout;
-  }
-
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating Pipeline Layout #{}", s_pipelineLayouts.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
-
-  vk::PipelineLayoutCreateInfo layoutInfo;
-  layoutInfo.setLayoutCount = desc.m_layout.GetCount();
-  layoutInfo.pSetLayouts = desc.m_layout.GetData();
-  if (desc.m_pushConstants.size != 0)
-  {
-    layoutInfo.pushConstantRangeCount = 1;
-    layoutInfo.pPushConstantRanges = &desc.m_pushConstants;
-  }
-
-  vk::PipelineLayout layout;
-  VK_ASSERT_DEBUG(s_device.createPipelineLayout(&layoutInfo, nullptr, &layout));
-
-  s_pipelineLayouts.Insert(desc, layout);
-  return layout;
-}
-
-vk::DescriptorSetLayout ezResourceCacheVulkan::RequestDescriptorSetLayout(const ezGALShaderVulkan::DescriptorSetLayoutDesc& desc)
-{
-  if (const vk::DescriptorSetLayout* pLayout = s_descriptorSetLayouts.GetValue(desc))
-  {
-    return *pLayout;
-  }
-
-#ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating Descriptor Set Layout #{}", s_descriptorSetLayouts.GetCount());
-#endif // EZ_LOG_VULKAN_RESOURCES
-
-  vk::DescriptorSetLayoutCreateInfo descriptorSetLayout;
-  descriptorSetLayout.bindingCount = desc.m_bindings.GetCount();
-  descriptorSetLayout.pBindings = desc.m_bindings.GetData();
-
-  vk::DescriptorSetLayout layout;
-  VK_ASSERT_DEBUG(s_device.createDescriptorSetLayout(&descriptorSetLayout, nullptr, &layout));
-
-  s_descriptorSetLayouts.Insert(desc, layout);
-  return layout;
-}
-
 ezResult ezResourceCacheVulkan::SavePipelineCache()
 {
   // Get physical device properties for cache validation
@@ -441,23 +375,6 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALRenderPassDescri
   return equal;
 }
 
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const ezGALShaderVulkan::DescriptorSetLayoutDesc& a, const ezGALShaderVulkan::DescriptorSetLayoutDesc& b)
-{
-  const ezUInt32 uiCount = a.m_bindings.GetCount();
-  if (uiCount != b.m_bindings.GetCount())
-    return false;
-
-  for (ezUInt32 i = 0; i < uiCount; i++)
-  {
-    const vk::DescriptorSetLayoutBinding& aB = a.m_bindings[i];
-    const vk::DescriptorSetLayoutBinding& bB = b.m_bindings[i];
-    if (aB.binding != bB.binding || aB.descriptorType != bB.descriptorType || aB.descriptorCount != bB.descriptorCount || aB.stageFlags != bB.stageFlags || aB.pImmutableSamplers != bB.pImmutableSamplers)
-      return false;
-  }
-  return true;
-}
-
-
 ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const FramebufferKey& key)
 {
   ezHashStreamWriter32 writer;
@@ -471,31 +388,3 @@ bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const FramebufferKey& a, co
   return a.m_renderPass == b.m_renderPass && a.m_frameBuffer == b.m_frameBuffer;
 }
 
-ezUInt32 ezResourceCacheVulkan::ResourceCacheHash::Hash(const PipelineLayoutDesc& desc)
-{
-  ezHashStreamWriter32 writer;
-  const ezUInt32 uiCount = desc.m_layout.GetCount();
-  writer << uiCount;
-  for (ezUInt32 i = 0; i < uiCount; ++i)
-  {
-    writer << desc.m_layout[i];
-  }
-  writer << desc.m_pushConstants.offset;
-  writer << desc.m_pushConstants.size;
-  writer << ezConversionUtilsVulkan::GetUnderlyingFlagsValue(desc.m_pushConstants.stageFlags);
-  return writer.GetHashValue();
-}
-
-bool ezResourceCacheVulkan::ResourceCacheHash::Equal(const PipelineLayoutDesc& a, const PipelineLayoutDesc& b)
-{
-  if (a.m_layout.GetCount() != b.m_layout.GetCount())
-    return false;
-
-  const ezUInt32 uiCount = a.m_layout.GetCount();
-  for (ezUInt32 i = 0; i < uiCount; ++i)
-  {
-    if (a.m_layout[i] != b.m_layout[i])
-      return false;
-  }
-  return a.m_pushConstants == b.m_pushConstants;
-}
