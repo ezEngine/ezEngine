@@ -53,7 +53,7 @@ private:
 
   void UpdateDecals();
   void DeleteDecals();
-  
+
   ezSmallArray<ezMeshDecalDescription, 2> m_DecalDescs;
   ezSmallArray<ezDecalId, 2> m_DecalIds;
 };

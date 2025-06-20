@@ -244,7 +244,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
     ezDecalManager::MarkRuntimeDecalAsUsed(m_CookieId, fScreenSpaceSizeForCookie, msg.m_pView);
   }
-  
+
   if (m_bCastShadows && fShadowFadeOut > 0.0f)
   {
     pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddSpotLight(this, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
