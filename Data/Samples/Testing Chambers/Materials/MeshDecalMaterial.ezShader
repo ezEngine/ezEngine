@@ -54,6 +54,7 @@ FLOAT1(AlphaContrast);
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include <Shaders/Common/LightData.h>
 
+// Use the depth bias to ensure decals are always rendered on top the surface.
 float GetVertexDepthBias()
 {
   return -DepthBias;
@@ -65,12 +66,15 @@ VS_OUT main(VS_IN Input)
 
   Output.TexCoordAlpha = Output.TexCoord0;
 
+  // First determine the slot index based on the integer part of the UVs. 
   uint innerIndex = clamp(uint(Input.TexCoord0.x), 0, 1);
   uint outerIndex = clamp(uint(Input.TexCoord0.y), 0, 3);
 
+  // Then fetch the decal index from the custom data of the instance.
   uint customData = asuint(GetInstanceData().CustomData[outerIndex]);
   uint decalIndex = (customData >> (innerIndex * 16)) & 0xFFFF;
 
+  // Finally fetch the atlas data for the decal index.
   ezPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[decalIndex];
   if (decalIndex == 0xFFFF || atlasData.scale == 0)
   {
