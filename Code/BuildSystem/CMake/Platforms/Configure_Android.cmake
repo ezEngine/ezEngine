@@ -70,6 +70,8 @@ endmacro()
 macro(ez_platformhook_find_vulkan)
 
 	# As we are cross compiling, CMake assumes every path to be located under the Android NDK root. This is not the case for external libraries like the Vulkan SDK, so we need to clear the sysroot and find root path.
+	set(backup_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
+	set(backup_CMAKE_SYSROOT ${CMAKE_SYSROOT})
 	set(CMAKE_FIND_ROOT_PATH "")
 	set(CMAKE_SYSROOT "")
 
@@ -142,6 +144,9 @@ macro(ez_platformhook_find_vulkan)
 			)
 		endif()
 	endif()
+
+	set(CMAKE_FIND_ROOT_PATH ${backup_CMAKE_FIND_ROOT_PATH})
+	set(CMAKE_SYSROOT ${backup_CMAKE_SYSROOT})
 
 	include(FindPackageHandleStandardArgs)
 	find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
