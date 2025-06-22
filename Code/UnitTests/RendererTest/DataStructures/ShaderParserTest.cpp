@@ -7,6 +7,7 @@
 #  include <RendererCore/Shader/ShaderPermutationResource.h>
 #  include <RendererCore/ShaderCompiler/ShaderManager.h>
 #  include <RendererCore/ShaderCompiler/ShaderParser.h>
+#  include <RendererFoundation/Shader/Shader.h>
 
 void CompareLayouts(const ezShaderConstantBufferLayout& layoutA, const ezShaderConstantBufferLayout& layoutB)
 {

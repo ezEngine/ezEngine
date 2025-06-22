@@ -150,7 +150,8 @@ ezKrautRenderer::TempTreeCB::TempTreeCB(ezRenderContext* pRenderContext)
   // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
 
-  pRenderContext->BindConstantBuffer("ezKrautTreeConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroup =  ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindBuffer("ezKrautTreeConstants", m_hConstantBuffer);
 }
 
 ezKrautRenderer::TempTreeCB::~TempTreeCB()

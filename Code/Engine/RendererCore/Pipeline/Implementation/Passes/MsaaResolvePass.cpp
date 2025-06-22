@@ -92,22 +92,12 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
     renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     if (!pDevice->GetCapabilities().m_bSupportsMultiSampledArrays)
     {
       EZ_ASSERT_DEV(pInput->m_Desc.m_uiArraySize == 1, "Stereo rendering is not supported.");
-
-      ezGALTextureResourceViewCreationDescription rvdesc;
-      rvdesc.m_hTexture = pInput->m_TextureHandle;
-      rvdesc.m_OverrideViewType = ezGALTextureType::Texture2D;
-
-      ezGALTextureResourceViewHandle hView = pDevice->CreateResourceView(rvdesc);
-
-      renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", hView);
     }
-    else
-    {
-      renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
-    }
+    bindGroup.BindTexture("DepthTexture", pInput->m_TextureHandle);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

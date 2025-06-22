@@ -77,18 +77,12 @@ void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     // Bind render target and viewport
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
-    // Setup input view and sampler
-    ezGALTextureResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinInputA.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hResourceViewA = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    rvcd.m_hTexture = inputs[m_PinInputB.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hResourceViewB = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("InputA", hResourceViewA);
-    renderViewContext.m_pRenderContext->BindTexture2D("InputB", hResourceViewB);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("InputA", inputs[m_PinInputA.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindTexture("InputB", inputs[m_PinInputB.m_uiInputIndex]->m_TextureHandle);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

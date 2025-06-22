@@ -1,16 +1,12 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
-#include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
-
-#include <Foundation/Profiling/Profiling.h>
 
 namespace
 {
@@ -193,16 +189,11 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulka
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, ezGALTextureRange range, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
-  EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
-}
-
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
-{
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
-  EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
+  vk::ImageSubresourceRange vkRange = ezConversionUtilsVulkan::GetSubresourceRange(pTexture->GetDescription().m_Format, range);
+  auto pTexture2 = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+  EnsureImageLayout(pTexture2, vkRange, dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)

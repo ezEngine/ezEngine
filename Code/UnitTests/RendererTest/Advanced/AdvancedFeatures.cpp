@@ -55,12 +55,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     desc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALMSAASampleCount::None);
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
-    ezGALTextureResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = m_hTexture2D;
-    viewDesc.m_uiMipLevelsToUse = 1;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
-    m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
-
+    m_Texture2DRange = {};
+    m_Texture2DRange.m_uiMipLevels = 1;
+    m_Texture2DRange.m_uiBaseMipLevel = 0;
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
@@ -78,17 +75,6 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     // Proxy texture
     m_hProxyTexture2D[0] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 0);
     m_hProxyTexture2D[1] = m_pDevice->CreateProxyTexture(m_hTexture2DArray, 1);
-
-    // Direct view
-    ezGALTextureResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = m_hTexture2DArray;
-    viewDesc.m_uiMipLevelsToUse = 1;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
-    viewDesc.m_OverrideViewType = ezGALTextureType::Texture2D;
-    viewDesc.m_uiArraySize = 1;
-    m_hTexture2DArrayView[0] = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiFirstArraySlice = 1;
-    m_hTexture2DArrayView[1] = m_pDevice->CreateResourceView(viewDesc);
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
@@ -146,14 +132,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hTexture2D = m_pDevice->CreateTexture(desc);
 
-    ezGALTextureResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = m_hTexture2D;
-    viewDesc.m_uiMipLevelsToUse = 1;
-    viewDesc.m_uiMostDetailedMipLevel = 4;
-    viewDesc.m_uiFirstArraySlice = 0;
-    viewDesc.m_uiArraySize = 1;
-    viewDesc.m_OverrideViewType = ezGALTextureType::Texture2D;
-    m_hTexture2DView = m_pDevice->CreateResourceView(viewDesc);
+    m_Texture2DRange = {};
+    m_Texture2DRange.m_uiBaseMipLevel = 4;
+    m_Texture2DRange.m_uiMipLevels = 1;
+    m_Texture2DRange.m_uiBaseArraySlice = 0;
+    m_Texture2DRange.m_uiArraySlices = 1;
 
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColorCompute.ezShader");
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
@@ -417,8 +400,6 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
   }
   if (iIdentifier == ST_ProxyTexture)
   {
-    m_hTexture2DArrayView[0].Invalidate();
-    m_hTexture2DArrayView[1].Invalidate();
     for (ezUInt32 i = 0; i < 2; i++)
     {
       if (!m_hProxyTexture2D[i].IsInvalidated())
@@ -446,8 +427,6 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
     m_pDevice->DestroyTexture(m_hTexture2DArray);
     m_hTexture2DArray.Invalidate();
   }
-
-  m_hTexture2DView.Invalidate();
 
   DestroyWindow();
   EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
@@ -540,14 +519,14 @@ void ezRendererTestAdvancedFeatures::ReadRenderTarget()
   BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DView);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, m_Texture2DRange);
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DView);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, m_Texture2DRange);
   }
   EndCommands();
 }
@@ -583,8 +562,9 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   BeginCommands("FloatSampling");
   {
-    ezRenderContext::GetDefaultInstance()->BindSamplerState("DepthSampler", m_hDepthSamplerState);
-    ezRenderContext::GetDefaultInstance()->BindTexture2D("DepthTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindSampler("DepthSampler", m_hDepthSamplerState);
+    bindGroup.BindTexture("DepthTexture", m_hTexture2DArray);
 
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     {
@@ -635,14 +615,14 @@ void ezRendererTestAdvancedFeatures::ProxyTexture()
   BeginCommands("Texture2DProxy");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hProxyTexture2D[0]));
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hProxyTexture2D[0]);
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_pDevice->GetDefaultResourceView(m_hProxyTexture2D[1]));
+    RenderCube(viewport, mMVP, 0, m_hProxyTexture2D[1]);
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DArrayView[0]);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {0, 1, 0, 1});
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DArrayView[1]);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 0, 1});
   }
   EndCommands();
 }
@@ -665,7 +645,8 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mMVP;
     ocb->m_Color = ezColor(1, 1, 1, 1);
-    ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(0xFFFFFFFF, 0, 2).IgnoreResult();
 
@@ -680,7 +661,8 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-    ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DArray));
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindTexture("DiffuseTexture", m_hTexture2DArray);
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
@@ -726,18 +708,15 @@ void ezRendererTestAdvancedFeatures::Compute()
     ezRenderContext::GetDefaultInstance()->BeginCompute("Compute");
     {
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
 
-      ezGALTextureUnorderedAccessViewHandle hFilterOutput;
-      {
-        ezGALTextureUnorderedAccessViewCreationDescription desc;
-        desc.m_hTexture = m_hTexture2D;
-        desc.m_uiMipLevelToUse = 4;
-        desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
-        desc.m_uiFirstArraySlice = 0;
-        desc.m_uiArraySize = 2;
-        hFilterOutput = m_pDevice->CreateUnorderedAccessView(desc);
-      }
-      ezRenderContext::GetDefaultInstance()->BindUAV("OutputTexture", hFilterOutput);
+      ezGALTextureRange textureRange;
+      textureRange.m_uiBaseMipLevel = 4;
+      textureRange.m_uiMipLevels = 1;
+      textureRange.m_uiBaseArraySlice = 0;
+      textureRange.m_uiArraySlices = 2;
+
+      bindGroup.BindTexture("OutputTexture", m_hTexture2D, textureRange);
 
       // The compute shader uses [numthreads(8, 8, 1)], so we need to compute how many of these groups we need to dispatch to fill the entire image.
       constexpr ezUInt32 uiThreadsX = 8;
@@ -762,7 +741,7 @@ void ezRendererTestAdvancedFeatures::Compute()
   {
     m_bCaptureImage = true;
     ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DView);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, m_Texture2DRange);
   }
   EndCommands();
 }
@@ -820,7 +799,8 @@ ezTestAppRun ezRendererTestAdvancedFeatures::Material()
       ocb->m_MVP = mMVP;
       ocb->m_Color = ezColor(1, 1, 1, 1);
 
-      ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
 
       ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
       ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
@@ -882,7 +862,8 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
 
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindTexture("DiffuseTexture", m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
       EndRendering();

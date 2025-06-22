@@ -127,7 +127,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     }
   }
 
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  bindGroup.BindBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
@@ -163,7 +164,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      bindGroup.BindTexture("ColorTexture", hInput);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
@@ -221,8 +222,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture2D("NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
-      renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      bindGroup.BindTexture("NextColorTexture", hNextInput);
+      bindGroup.BindTexture("ColorTexture", hInput);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();

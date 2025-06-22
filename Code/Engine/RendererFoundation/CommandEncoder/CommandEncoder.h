@@ -7,6 +7,7 @@
 
 struct ezGALRenderingSetup;
 struct ezGALDeviceEvent;
+struct ezGALBindGroupCreationDescription;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {
@@ -18,14 +19,11 @@ public:
 
   // State setting functions
 
-  void SetConstantBuffer(const ezShaderResourceBinding& binding, ezGALBufferHandle hBuffer);
-  void SetSamplerState(const ezShaderResourceBinding& binding, ezGALSamplerStateHandle hSamplerState);
-  void SetResourceView(const ezShaderResourceBinding& binding, ezGALTextureResourceViewHandle hResourceView);
-  void SetResourceView(const ezShaderResourceBinding& binding, ezGALBufferResourceViewHandle hResourceView);
-  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView);
-  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView);
+  /// \brief Sets a bind group to the given bind group index.
+  ///
+  /// Preferrably bindGroup should be created via ezBindGroupBuilder::CreateBindGroup. In debug, this function is very slow as it validates every ezGALBindGroupItem against the layout's ezShaderResourceBinding.
+  ezResult SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
-
 
   // GPU -> CPU query functions
 
@@ -54,14 +52,6 @@ public:
 
   // Update functions
 
-  /// Clears an unordered access view with a float value.
-  void ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues);
-  void ClearUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues);
-
-  /// Clears an unordered access view with an int value.
-  void ClearUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues);
-  void ClearUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues);
-
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
 
@@ -77,7 +67,7 @@ public:
   void ReadbackTexture(ezGALReadbackTextureHandle hDestination, ezGALTextureHandle hSource);
   void ReadbackBuffer(ezGALReadbackBufferHandle hDestination, ezGALBufferHandle hSource);
 
-  void GenerateMipMaps(ezGALTextureResourceViewHandle hResourceView);
+  void GenerateMipMaps(ezGALTextureHandle hTexture, ezGALTextureRange range);
 
   // Misc
 

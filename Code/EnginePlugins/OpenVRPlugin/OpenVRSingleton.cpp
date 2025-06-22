@@ -397,7 +397,7 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent
       EZ_PROFILE_AND_MARKER(pGALContext, "VR CompanionView");
 
       m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-      m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+      bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
       m_pRenderContext->BindShader(m_hCompanionShader);
 
       auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hCompanionRenderTarget);
@@ -411,8 +411,7 @@ void ezOpenVR::GameApplicationEventHandler(const ezGameApplicationExecutionEvent
       auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
       constants->TargetSize = targetSize;
 
-      ezGALTextureResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
-      m_pRenderContext->BindTexture2D("VRTexture", hInputView);
+      bindGroup.BindTexture("VRTexture", m_hColorRT);
       m_pRenderContext->DrawMeshBuffer();
     }
   }

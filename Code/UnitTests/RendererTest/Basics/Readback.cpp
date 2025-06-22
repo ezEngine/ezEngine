@@ -324,14 +324,15 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
     {
       ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-      RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hTexture2DReadback));
+      RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DReadback);
     }
     if (!m_bReadbackInProgress)
     {
       ezRectFloat viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
 
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
-      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DUpload));
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindTexture("DiffuseTexture", m_hTexture2DUpload);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
       EndRendering();
       CompareUploadImage();

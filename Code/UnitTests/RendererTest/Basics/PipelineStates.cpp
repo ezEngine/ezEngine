@@ -147,29 +147,11 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
     m_hInstancingDataTransient = m_pDevice->CreateBuffer(transientDesc);
 
-    // Views into main buffer
-    ezGALBufferResourceViewCreationDescription viewDesc;
-    viewDesc.m_ResourceType = slotType;
-    viewDesc.m_hBuffer = m_hInstancingData;
-    viewDesc.m_uiByteOffset = 8 * sizeof(ezTestShaderData);
-    viewDesc.m_uiByteCount = 4 * sizeof(ezTestShaderData);
-    m_hInstancingDataView_8_4 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiByteOffset = 12 * sizeof(ezTestShaderData);
-    m_hInstancingDataView_12_4 = m_pDevice->CreateResourceView(viewDesc);
-
-    // UAV variant and views
+    // UAV variant
     ezGALBufferCreationDescription uavDesc = desc;
     uavDesc.m_uiTotalSize = 8 * sizeof(ezTestShaderData);
     uavDesc.m_BufferFlags |= ezGALBufferUsageFlags::UnorderedAccess;
     m_hInstancingDataUAV = m_pDevice->CreateBuffer(uavDesc);
-
-    ezGALBufferUnorderedAccessViewCreationDescription uavViewDesc;
-    uavViewDesc.m_hBuffer = m_hInstancingDataUAV;
-    uavViewDesc.m_uiByteCount = 4 * sizeof(ezTestShaderData);
-    uavViewDesc.m_uiByteOffset = 0;
-    m_hInstancingDataUavView_0_4 = m_pDevice->CreateUnorderedAccessView(uavViewDesc);
-    uavViewDesc.m_uiByteOffset = 4 * sizeof(ezTestShaderData);
-    m_hInstancingDataUavView_4_4 = m_pDevice->CreateUnorderedAccessView(uavViewDesc);
   }
 
 
@@ -259,18 +241,6 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       memoryDesc.m_uiSlicePitch = static_cast<ezUInt32>(coloredMips.GetDepthPitch(m));
     }
     m_hTexture2D = m_pDevice->CreateTexture(desc, initialData);
-
-    ezGALTextureResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = m_hTexture2D;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
-    viewDesc.m_uiMipLevelsToUse = 1;
-    m_hTexture2D_Mip0 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiMostDetailedMipLevel = 1;
-    m_hTexture2D_Mip1 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiMostDetailedMipLevel = 2;
-    m_hTexture2D_Mip2 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiMostDetailedMipLevel = 3;
-    m_hTexture2D_Mip3 = m_pDevice->CreateResourceView(viewDesc);
   }
 
   {
@@ -301,21 +271,6 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       }
     }
     m_hTexture2DArray = m_pDevice->CreateTexture(desc, initialData);
-
-    ezGALTextureResourceViewCreationDescription viewDesc;
-    viewDesc.m_hTexture = m_hTexture2DArray;
-    viewDesc.m_uiMipLevelsToUse = 1;
-    viewDesc.m_uiFirstArraySlice = 0;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
-    m_hTexture2DArray_Layer0_Mip0 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiMostDetailedMipLevel = 1;
-    m_hTexture2DArray_Layer0_Mip1 = m_pDevice->CreateResourceView(viewDesc);
-
-    viewDesc.m_uiFirstArraySlice = 1;
-    viewDesc.m_uiMostDetailedMipLevel = 0;
-    m_hTexture2DArray_Layer1_Mip0 = m_pDevice->CreateResourceView(viewDesc);
-    viewDesc.m_uiMostDetailedMipLevel = 1;
-    m_hTexture2DArray_Layer1_Mip1 = m_pDevice->CreateResourceView(viewDesc);
   }
 
   switch (iIdentifier)
@@ -412,10 +367,6 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyBuffer(m_hInstancingDataUAV);
     m_hInstancingDataUAV.Invalidate();
   }
-  m_hInstancingDataView_8_4.Invalidate();
-  m_hInstancingDataView_12_4.Invalidate();
-  m_hInstancingDataUavView_0_4.Invalidate();
-  m_hInstancingDataUavView_4_4.Invalidate();
 
   if (!m_hInstancingDataCustomVertexStream.IsInvalidated())
   {
@@ -434,10 +385,6 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyTexture(m_hTexture2DArray);
     m_hTexture2DArray.Invalidate();
   }
-  m_hTexture2D_Mip0.Invalidate();
-  m_hTexture2D_Mip1.Invalidate();
-  m_hTexture2D_Mip2.Invalidate();
-  m_hTexture2D_Mip3.Invalidate();
   m_hShader.Invalidate();
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_queries); i++)
@@ -676,19 +623,47 @@ void ezRendererTestPipelineStates::SetsSlotsTest()
   auto constants = ezRenderContext::GetConstantBufferData<ezTestPerFrame>(m_hTestPerFrameConstantBuffer);
   constants->Time = 1.0f;
   ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
-  pContext->BindConstantBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
+  {
+    ezBindGroupBuilder& frameBindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_FRAME);
+    frameBindGroup.BindBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
+  }
+  auto renderCube = [&](ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange)
+  {
+    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+    {
+      ezBindGroupBuilder& drawCallBindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      drawCallBindGroup.BindTexture("DiffuseTexture", hTexture, textureRange);
+
+      ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ezShaderBindFlags::None);
+
+      ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
+      ocb->m_MVP = mMVP;
+      ocb->m_Color = ezColor(1, 1, 1, 1);
+
+      ezBindGroupBuilder& materialBindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
+      materialBindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
+
+      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
+      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+    }
+    EndRendering();
+    if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
+    {
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
+  };
 
   BeginCommands("SetsSlots");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    renderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(0, 1));
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    renderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(1, 1));
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    renderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(2, 1));
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+    renderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
   }
   EndCommands();
 }
@@ -703,8 +678,9 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
-      pContext->BindConstantBuffer("ezTestColors", m_hTestColorsConstantBuffer);
-      pContext->BindConstantBuffer("ezTestPositions", m_hTestPositionsConstantBuffer);
+      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
+      bindGroup.BindBuffer("ezTestColors", m_hTestColorsConstantBuffer);
+      bindGroup.BindBuffer("ezTestPositions", m_hTestPositionsConstantBuffer);
       pContext->BindShader(m_hConstantBufferShader);
       pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -766,12 +742,13 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
 
       pContext->BindShader(m_hCopyBufferShader);
       // Copy [12, 17] to the front (green)
-      pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
-      pContext->BindUAV("instancingTarget", m_hInstancingDataUavView_0_4);
+      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
+      bindGroup.BindBuffer("instancingData", m_hInstancingData);
+      bindGroup.BindBuffer("instancingTarget", m_hInstancingDataUAV, {0, 4 * sizeof(ezTestShaderData)});
       pContext->Dispatch(4, 1, 1).AssertSuccess();
       // Copy [8, 11] to the back (red)
-      pContext->BindBuffer("instancingData", m_hInstancingDataView_12_4);
-      pContext->BindUAV("instancingTarget", m_hInstancingDataUavView_4_4);
+      bindGroup.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
+      bindGroup.BindBuffer("instancingTarget", m_hInstancingDataUAV, {4 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
       pContext->Dispatch(4, 1, 1).AssertSuccess();
 
       pContext->EndCompute();
@@ -781,18 +758,18 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
     {
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
-
+      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
       if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
       {
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingData));
+        bindGroup.BindBuffer("instancingData", m_hInstancingData);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
       {
         // Use the second half of the buffer to render the 8 triangles using two draw calls.
-        pContext->BindBuffer("instancingData", m_hInstancingDataView_8_4);
+        bindGroup.BindBuffer("instancingData", m_hInstancingData, {8 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
-        pContext->BindBuffer("instancingData", m_hInstancingDataView_12_4);
+        bindGroup.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient1)
@@ -804,7 +781,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         {
           pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, i * sizeof(ezTestShaderData), instanceData.GetArrayPtr().GetSubArray(i, 1).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         }
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient, bufferType));
+        bindGroup.BindBuffer("instancingData", m_hInstancingDataTransient);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
@@ -813,12 +790,12 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         ezRendererTestUtils::FillStructuredBuffer(instanceData);
         // Update with one single update call for the first 8 elements matching the initial state.
         pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataTransient, bufferType));
+        bindGroup.BindBuffer("instancingData", m_hInstancingDataTransient);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UAV)
       {
-        pContext->BindBuffer("instancingData", m_pDevice->GetDefaultResourceView(m_hInstancingDataUAV));
+        bindGroup.BindBuffer("instancingData", m_hInstancingDataUAV);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
     }
@@ -845,14 +822,14 @@ void ezRendererTestPipelineStates::Texture2D()
   BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(0, 1));
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(1, 1));
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(2, 1));
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
   }
   EndCommands();
 }
@@ -871,14 +848,14 @@ void ezRendererTestPipelineStates::Texture2DArray()
   BeginCommands("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DArray_Layer0_Mip0);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DArray, {0, 1, 0, 1});
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer0_Mip1);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {0, 1, 1, 1});
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer1_Mip0);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 0, 1});
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer1_Mip1);
+    RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 1, 1});
   }
   EndCommands();
 }
@@ -896,16 +873,16 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   BeginCommands("GenerateMipMaps");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    m_pEncoder->GenerateMipMaps(m_pDevice->GetDefaultResourceView(m_hTexture2D));
+    m_pEncoder->GenerateMipMaps(m_hTexture2D, {});
 
-    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D_Mip0);
+    RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(0, 1));
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip1);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(1, 1));
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip2);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(2, 1));
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
-    RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
+    RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
   }
   EndCommands();
 }

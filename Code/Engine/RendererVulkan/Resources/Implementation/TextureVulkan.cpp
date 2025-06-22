@@ -43,6 +43,36 @@ vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
   return mask;
 }
 
+vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureRange textureRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+{
+  vk::DescriptorImageInfo imageInfo;
+  View view;
+  view.m_TextureRange = textureRange;
+  view.m_ResourceType = resourceType;
+  view.m_TextureType = textureType;
+  view.m_OverrideViewFormat = overrideViewFormat;
+
+  if (!m_TextureViews.TryGetValue(view, imageInfo))
+  {
+    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+
+    vk::ImageViewCreateInfo viewCreateInfo;
+    viewCreateInfo.image = m_image;
+    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType( textureType);
+    viewCreateInfo.format = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
+    viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(viewFormat, textureRange);
+    viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
+
+    VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &imageInfo.imageView));
+    imageInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(m_imageFormat);
+    if (resourceType == ezGALShaderResourceType::TextureRW)
+      imageInfo.imageLayout = vk::ImageLayout::eGeneral;
+    m_TextureViews.Insert(view, imageInfo);
+  }
+
+  return imageInfo;
+}
+
 ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
 {
@@ -248,6 +278,12 @@ ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
     m_allocInfo = {};
   }
   m_image = nullptr;
+
+  for (auto it : m_TextureViews)
+  {
+    pVulkanDevice->DeleteLater(it.Value().imageView);
+  }
+  m_TextureViews.Clear();
 
   return EZ_SUCCESS;
 }

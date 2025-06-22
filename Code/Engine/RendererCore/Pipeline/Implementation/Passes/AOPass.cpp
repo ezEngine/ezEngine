@@ -126,7 +126,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   // Find temp targets
   ezGALTextureHandle hzbTexture;
   ezHybridArray<ezVec2, 8> hzbSizes;
-  ezHybridArray<ezGALTextureResourceViewHandle, 8> hzbResourceViews;
+  ezHybridArray<ezGALTextureRange, 8> hzbResourceViews;
   ezHybridArray<ezGALRenderTargetViewHandle, 8> hzbRenderTargetViews;
 
   ezGALTextureHandle tempSSAOTexture;
@@ -154,13 +154,11 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       hzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
 
       {
-        ezGALTextureResourceViewCreationDescription desc;
-        desc.m_hTexture = hzbTexture;
-        desc.m_uiMostDetailedMipLevel = i;
-        desc.m_uiMipLevelsToUse = 1;
-        desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
-
-        hzbResourceViews.PushBack(pDevice->CreateResourceView(desc));
+        ezGALTextureRange desc;
+        desc.m_uiBaseMipLevel = i;
+        desc.m_uiMipLevels = 1;
+        desc.m_uiArraySlices = pOutput->m_Desc.m_uiArraySize;
+        hzbResourceViews.PushBack(desc);
       }
 
       {
@@ -182,17 +180,17 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
-      ezGALTextureResourceViewHandle hInputView;
+      ezGALTextureHandle hInputView = i == 0 ? pDepthInput->m_TextureHandle : hzbTexture;
       ezVec2 pixelSize;
+      ezGALTextureRange range;
 
       if (i == 0)
       {
-        hInputView = pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle);
         pixelSize = ezVec2(1.0f / uiWidth, 1.0f / uiHeight);
       }
       else
       {
-        hInputView = hzbResourceViews[i - 1];
+        range = hzbResourceViews[i - 1];
         pixelSize = ezVec2(1.0f).CompDiv(hzbSizes[i - 1]);
       }
 
@@ -208,11 +206,12 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       constants->FadeOutEnd = m_fFadeOutEnd;
       constants->LinearizeDepth = (i == 0);
 
-      renderViewContext.m_pRenderContext->BindConstantBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindBuffer("ezDownscaleDepthConstants", m_hDownscaleConstantBuffer);
       renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
 
-      renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", hInputView);
-      renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
+      bindGroup.BindTexture("DepthTexture", hInputView, range);
+      bindGroup.BindSampler("DepthSampler", m_hSSAOSamplerState);
 
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -246,14 +245,13 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempSSAOTexture));
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "SSAO", renderViewContext.m_pCamera->IsStereoscopic());
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
-
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
-    renderViewContext.m_pRenderContext->BindTexture2D("LowResDepthTexture", pDevice->GetDefaultResourceView(hzbTexture));
-    renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
-
-    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+    bindGroup.BindTexture("DepthTexture", pDepthInput->m_TextureHandle);
+    bindGroup.BindTexture("LowResDepthTexture", hzbTexture);
+    bindGroup.BindSampler("DepthSampler", m_hSSAOSamplerState);
+    bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -266,10 +264,10 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Blur", renderViewContext.m_pCamera->IsStereoscopic());
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
-
-    renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", pDevice->GetDefaultResourceView(tempSSAOTexture));
+    bindGroup.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+    bindGroup.BindTexture("SSAOTexture", tempSSAOTexture);
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 

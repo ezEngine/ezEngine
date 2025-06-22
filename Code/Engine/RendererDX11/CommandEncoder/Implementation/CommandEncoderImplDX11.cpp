@@ -9,9 +9,8 @@
 #include <RendererDX11/Resources/ReadbackBufferDX11.h>
 #include <RendererDX11/Resources/ReadbackTextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
-#include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
+#include <RendererDX11/Shader/BindGroupLayoutDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/ComputePipelineDX11.h>
@@ -112,7 +111,113 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)
+ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
+{
+  const ezGALBindGroupLayoutDX11* pLayout = static_cast<const ezGALBindGroupLayoutDX11*>(m_GALDeviceDX11.GetBindGroupLayout(bindGroup.m_hBindGroupLayout));
+  if (pLayout == nullptr)
+    return EZ_FAILURE;
+
+  ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+  const ezUInt32 uiBindings = bindings.GetCount();
+  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  {
+    const ezShaderResourceBinding& binding = bindings[i];
+    const ezGALBindGroupItem& item = bindGroup.m_BindGroupItems[i];
+
+    switch (binding.m_ResourceType)
+    {
+      case ezGALShaderResourceType::ConstantBuffer:
+      {
+        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+          pBuffer = nullptr;
+
+        SetConstantBuffer(binding, pBuffer);
+      }
+      break;
+      case ezGALShaderResourceType::Texture:
+      {
+        const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+          pTexture = nullptr;
+
+        if (pTexture != nullptr && UnsetUnorderedAccessViews(pTexture))
+        {
+          FlushDeferredStateChanges().IgnoreResult();
+        }
+
+        ID3D11ShaderResourceView* pResourceViewDX11 = pTexture != nullptr ? pTexture->GetSRV(item.m_Texture.m_TextureRange, item.m_Texture.m_OverrideViewFormat) : nullptr;
+
+        SetResourceView(binding, pTexture, pResourceViewDX11);
+      }
+      break;
+      case ezGALShaderResourceType::TextureRW:
+      {
+        const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+          pTexture = nullptr;
+
+        if (pTexture != nullptr && UnsetResourceViews(pTexture))
+        {
+          FlushDeferredStateChanges().IgnoreResult();
+        }
+
+        ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pTexture ? pTexture->GetUAV(item.m_Texture.m_TextureRange, item.m_Texture.m_OverrideViewFormat) : nullptr;
+        SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pTexture);
+      }
+      break;
+
+      case ezGALShaderResourceType::TexelBuffer:
+      case ezGALShaderResourceType::StructuredBuffer:
+      case ezGALShaderResourceType::ByteAddressBuffer:
+      {
+        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+          pBuffer = nullptr;
+
+        if (pBuffer != nullptr && UnsetUnorderedAccessViews(pBuffer))
+        {
+          FlushDeferredStateChanges().IgnoreResult();
+        }
+
+        ID3D11ShaderResourceView* pResourceViewDX11 = pBuffer != nullptr ? pBuffer->GetSRV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideViewFormat) : nullptr;
+
+        SetResourceView(binding, pBuffer, pResourceViewDX11);
+      }
+      break;
+
+      case ezGALShaderResourceType::TexelBufferRW:
+      case ezGALShaderResourceType::StructuredBufferRW:
+      case ezGALShaderResourceType::ByteAddressBufferRW:
+      {
+        const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+          pBuffer = nullptr;
+
+        if (pBuffer != nullptr && UnsetResourceViews(pBuffer))
+        {
+          FlushDeferredStateChanges().IgnoreResult();
+        }
+
+        ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pBuffer != nullptr ? pBuffer->GetUAV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideViewFormat) : nullptr;
+        SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pBuffer);
+      }
+      break;
+      case ezGALShaderResourceType::Sampler:
+      {
+        const ezGALSamplerStateDX11* pSampler = static_cast<const ezGALSamplerStateDX11*>(m_GALDeviceDX11.GetSamplerState(item.m_Sampler.m_hSampler));
+        SetSamplerState(binding, pSampler);
+      }
+      break;
+      case ezGALShaderResourceType::TextureAndSampler:
+      default:
+        break;
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+void ezGALCommandEncoderImplDX11::SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)
 {
   EZ_ASSERT_RELEASE(binding.m_iSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
 
@@ -126,7 +231,7 @@ void ezGALCommandEncoderImplDX11::SetConstantBufferPlatform(const ezShaderResour
     m_BoundConstantBuffersRange[stage].SetToIncludeValue(binding.m_iSlot);
 }
 
-void ezGALCommandEncoderImplDX11::SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState)
+void ezGALCommandEncoderImplDX11::SetSamplerState(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState)
 {
   EZ_ASSERT_RELEASE(binding.m_iSlot < EZ_GAL_MAX_SAMPLER_COUNT, "Sampler state slot index too big!");
 
@@ -142,29 +247,6 @@ void ezGALCommandEncoderImplDX11::SetSamplerStatePlatform(const ezShaderResource
   }
 }
 
-void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView)
-{
-  if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()->GetParentResource()))
-  {
-    FlushDeferredStateChanges().IgnoreResult();
-  }
-
-  ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALTextureResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
-
-  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource()->GetParentResource() : nullptr, pResourceViewDX11);
-}
-
-void ezGALCommandEncoderImplDX11::SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView)
-{
-  if (pResourceView != nullptr && UnsetUnorderedAccessViews(pResourceView->GetResource()))
-  {
-    FlushDeferredStateChanges().IgnoreResult();
-  }
-
-  ID3D11ShaderResourceView* pResourceViewDX11 = pResourceView != nullptr ? static_cast<const ezGALBufferResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
-
-  SetResourceView(binding, pResourceView != nullptr ? pResourceView->GetResource() : nullptr, pResourceViewDX11);
-}
 
 void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11)
 {
@@ -181,28 +263,6 @@ void ezGALCommandEncoderImplDX11::SetResourceView(const ezShaderResourceBinding&
       m_BoundShaderResourceViewsRange[stage].SetToIncludeValue(binding.m_iSlot);
     }
   }
-}
-
-void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView)
-{
-  if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()->GetParentResource()))
-  {
-    FlushDeferredStateChanges().IgnoreResult();
-  }
-
-  ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
-  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource()->GetParentResource() : nullptr);
-}
-
-void ezGALCommandEncoderImplDX11::SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView)
-{
-  if (pUnorderedAccessView != nullptr && UnsetResourceViews(pUnorderedAccessView->GetResource()))
-  {
-    FlushDeferredStateChanges().IgnoreResult();
-  }
-
-  ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pUnorderedAccessView != nullptr ? static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView)->GetDXResourceView() : nullptr;
-  SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pUnorderedAccessView != nullptr ? pUnorderedAccessView->GetResource() : nullptr);
 }
 
 void ezGALCommandEncoderImplDX11::SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource)
@@ -246,30 +306,6 @@ ezGALFenceHandle ezGALCommandEncoderImplDX11::InsertFencePlatform()
 }
 
 // Resource update functions
-
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues)
-{
-  const ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  m_pDXContext->ClearUnorderedAccessViewFloat(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
-}
-
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues)
-{
-  const ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  m_pDXContext->ClearUnorderedAccessViewFloat(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
-}
-
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues)
-{
-  const ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  m_pDXContext->ClearUnorderedAccessViewUint(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
-}
-
-void ezGALCommandEncoderImplDX11::ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues)
-{
-  const ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<const ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  m_pDXContext->ClearUnorderedAccessViewUint(pUnorderedAccessViewDX11->GetDXResourceView(), &vClearValues.x);
-}
 
 void ezGALCommandEncoderImplDX11::CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource)
 {
@@ -443,11 +479,17 @@ ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
   return ezMath::Max(1u, uiSize);
 }
 
-void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView)
+void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range)
 {
-  const ezGALTextureResourceViewDX11* pDXResourceView = static_cast<const ezGALTextureResourceViewDX11*>(pResourceView);
+  const ezGALTextureDX11* pDXResourceView = static_cast<const ezGALTextureDX11*>(pTexture);
+  ID3D11ShaderResourceView* pSRV = pDXResourceView->GetSRV(range, pTexture->GetDescription().m_Format);
+  if (!pSRV)
+  {
+    ezLog::Error("Failed to generate DX11 texture SRV for GenerateMipMapsPlatform");
+    return;
+  }
 
-  m_pDXContext->GenerateMips(pDXResourceView->GetDXResourceView());
+  m_pDXContext->GenerateMips(pSRV);
 }
 
 void ezGALCommandEncoderImplDX11::FlushPlatform()

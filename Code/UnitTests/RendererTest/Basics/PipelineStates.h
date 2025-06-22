@@ -86,24 +86,13 @@ private:
   ezGALBufferHandle m_hInstancingData;
   ezGALBufferHandle m_hInstancingDataTransient;
   ezGALBufferHandle m_hInstancingDataUAV;
-  ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
-  ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
-  ezGALBufferUnorderedAccessViewHandle m_hInstancingDataUavView_0_4;
-  ezGALBufferUnorderedAccessViewHandle m_hInstancingDataUavView_4_4;
 
   ezGALBufferHandle m_hInstancingDataCustomVertexStream;
   ezHybridArray<ezVertexStreamInfo, 4> m_CustomVertexStreams;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip1;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip2;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip3;
   ezGALTextureHandle m_hTexture2DArray;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
+
 
   // Timestamps / Occlusion Queries test
   ezInt32 m_iDelay = 0;

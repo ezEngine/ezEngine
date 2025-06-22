@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <RendererVulkan/RendererVulkanDLL.h>
@@ -6,25 +5,23 @@
 #include <Foundation/Types/Bitflags.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Pools/UniformBufferPoolVulkan.h>
-
 #include <vulkan/vulkan.hpp>
 
 class ezGALBlendStateVulkan;
 class ezGALBufferVulkan;
 class ezGALDepthStencilStateVulkan;
 class ezGALRasterizerStateVulkan;
-class ezGALTextureResourceViewVulkan;
 class ezGALBufferResourceViewVulkan;
 class ezGALSamplerStateVulkan;
 class ezGALShaderVulkan;
-class ezGALTextureUnorderedAccessViewVulkan;
-class ezGALBufferUnorderedAccessViewVulkan;
 class ezGALDeviceVulkan;
 class ezFenceQueueVulkan;
 class ezGALGraphicsPipelineVulkan;
 class ezGALComputePipelineVulkan;
+struct ezGALBindGroupCreationDescription;
 
 class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
 {
@@ -41,13 +38,7 @@ public:
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
-
-  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) override;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) override;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
+  virtual ezResult SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // GPU -> CPU query functions
@@ -59,12 +50,6 @@ public:
 
 
   // Resource update functions
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) override;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) override;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
@@ -81,7 +66,7 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) override;
+  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) override;
 
   void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
   void CopyImageToBuffer(const ezGALTextureVulkan* pSource, vk::Buffer destination);
@@ -135,23 +120,8 @@ public:
 
 
 private:
-  // Map resources from sets then slots to pointer.
-  struct SetResources
-  {
-    ezDynamicArray<const ezGALBufferVulkan*> m_pBoundConstantBuffers;
-    ezDynamicArray<const ezGALTextureResourceViewVulkan*> m_pBoundTextureResourceViews;
-    ezDynamicArray<const ezGALBufferResourceViewVulkan*> m_pBoundBufferResourceViews;
-    ezDynamicArray<const ezGALTextureUnorderedAccessViewVulkan*> m_pBoundTextureUnorderedAccessViews;
-    ezDynamicArray<const ezGALBufferUnorderedAccessViewVulkan*> m_pBoundBufferUnorderedAccessViews;
-    ezDynamicArray<const ezGALSamplerStateVulkan*> m_pBoundSamplerStates;
-  };
-
-private:
   ezResult FlushDeferredStateChanges();
-  const ezGALTextureResourceViewVulkan* GetTextureResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
-  const ezGALBufferResourceViewVulkan* GetBufferResourceView(const SetResources& resources, const ezShaderResourceBinding& mapping);
-  const ezGALTextureUnorderedAccessViewVulkan* GetTextureUAV(const SetResources& resources, const ezShaderResourceBinding& mapping);
-  const ezGALBufferUnorderedAccessViewVulkan* GetBufferUAV(const SetResources& resources, const ezShaderResourceBinding& mapping);
+  ezResult CreateDescriptorSet(ezUInt32 uiBindGroup);
 
 private:
   ezGALDeviceVulkan& m_GALDeviceVulkan;
@@ -195,14 +165,22 @@ private:
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  ezHybridArray<SetResources, 4> m_Resources;
+  struct BindGroupInfo
+  {
+    ezGALBindGroupCreationDescription m_Desc;
 
-  ezDeque<vk::DescriptorImageInfo> m_TextureAndSampler;
-  ezHybridArray<vk::WriteDescriptorSet, 16> m_DescriptorWrites;
-  ezHybridArray<vk::DescriptorSet, 4> m_DescriptorSets;
+    ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers;
+    ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
+
+  };
+  BindGroupInfo m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+
+  ezDynamicArray<vk::WriteDescriptorSet> m_DescriptorWrites;
+  ezDeque<vk::DescriptorImageInfo> m_DescriptorImageInfos;
+  ezDeque<vk::DescriptorBufferInfo> m_DescriptorBufferInfos;
+  ezDeque<vk::BufferView> m_DescriptorBufferViews;
+  ezHybridArray<vk::DescriptorSet, EZ_GAL_MAX_BIND_GROUPS> m_DescriptorSets;
 
   ezDynamicArray<ezUInt8> m_PushConstants;
-
-  ezDeque<vk::DescriptorBufferInfo> m_DynamicUniformBuffers;
   ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
 };

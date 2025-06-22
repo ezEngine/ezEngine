@@ -15,7 +15,8 @@ public:
 public:
   ID3D11Buffer* GetDXBuffer() const;
   DXGI_FORMAT GetIndexFormat() const;
-
+  ID3D11ShaderResourceView* GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+  ID3D11UnorderedAccessView* GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
@@ -28,8 +29,22 @@ protected:
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
+  ezGALDeviceDX11* m_pDevice = nullptr;
   ID3D11Buffer* m_pDXBuffer = nullptr;
   DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_UNKNOWN; // Only applicable for index buffers
+
+  // Views
+  struct View : ezHashableStruct<View>
+  {
+    ezGALBufferRange m_BufferRange;
+    ezEnum<ezGALShaderResourceType> m_ResourceType;
+    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+  };
+  mutable ezHashTable<View, ID3D11ShaderResourceView*, View> m_SRVs;
+  mutable ezHashTable<View, ID3D11UnorderedAccessView*, View> m_UAVs;
 };
 
 #include <RendererDX11/Resources/Implementation/BufferDX11_inl.h>

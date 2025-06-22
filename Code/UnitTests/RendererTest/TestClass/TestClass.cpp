@@ -371,11 +371,12 @@ void ezGraphicsTest::SetClipSpace()
   ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable(sClipSpaceFlipped, clipSpace == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
 }
 
-void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV)
+void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange)
 {
   ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
 
-  ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindTexture("DiffuseTexture", hTexture, textureRange);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
   EndRendering();
   if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
@@ -496,7 +497,8 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   ocb->m_MVP = mTransform;
   ocb->m_Color = color;
 
-  ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();

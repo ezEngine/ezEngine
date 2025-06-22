@@ -26,5 +26,4 @@ protected:
   bool m_bWriteDepth = true;
 
   ezTexture2DResourceHandle m_hWhiteTexture;
-  ezGALTextureResourceViewHandle m_hWhiteTextureView;
 };

@@ -8,6 +8,7 @@ class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;
 using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 using ezMeshBufferResourceHandle = ezTypedResourceHandle<class ezMeshBufferResource>;

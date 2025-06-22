@@ -31,19 +31,18 @@ private:
 
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;
-  ezGALTextureResourceViewHandle m_hScreenSRV;
 
   // Could use buffer, but access and organisation with texture is more straight forward.
   ezGALTextureHandle m_hHistogramTexture;
-  ezGALTextureUnorderedAccessViewHandle m_hHistogramUAV;
-  ezGALTextureResourceViewHandle m_hHistogramSRV;
 
   ezWindowBase* m_pWindow = nullptr;
   ezGALSwapChainHandle m_hSwapChain;
 
   ezShaderResourceHandle m_hScreenShader;
+  ezShaderResourceHandle m_hScreenCopyShader;
   ezShaderResourceHandle m_hHistogramDisplayShader;
   ezShaderResourceHandle m_hHistogramComputeShader;
+  ezShaderResourceHandle m_hHistogramClearShader;
 
   ezMeshBufferResourceHandle m_hHistogramQuadMeshBuffer;
 

@@ -62,7 +62,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
 
   // General capabilities
   bool m_bSupportsMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
-  bool m_bSupportsNoOverwriteBufferUpdate = false;
+  bool m_bSupportsMultipleBindGroups = false;
   ezEnum<ezGALBufferLayout> m_materialBufferLayout;
 
   // Draw related capabilities

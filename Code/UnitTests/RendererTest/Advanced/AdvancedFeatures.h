@@ -53,12 +53,11 @@ private:
   ezShaderResourceHandle m_hShader3;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALTextureResourceViewHandle m_hTexture2DView;
+  ezGALTextureRange m_Texture2DRange;
   ezGALTextureHandle m_hTexture2DArray;
 
   // Proxy texture test
   ezGALTextureHandle m_hProxyTexture2D[2];
-  ezGALTextureResourceViewHandle m_hTexture2DArrayView[2];
 
   // Float sampling test
   ezGALSamplerStateHandle m_hDepthSamplerState;

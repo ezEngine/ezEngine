@@ -24,13 +24,11 @@ void ezSimplifiedDataGPU::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
-  auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
+  ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
+  bindGroup.BindTexture("ReflectionSpecularTexture", ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
+  bindGroup.BindTexture("SkyIrradianceTexture", ezReflectionPool::GetSkyIrradianceTexture());
 
-  pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
-  pRenderContext->BindTexture2D("SkyIrradianceTexture", hSkyIrradianceTextureView);
-
-  pRenderContext->BindConstantBuffer("ezSimplifiedDataConstants", m_hConstantBuffer);
+  bindGroup.BindBuffer("ezSimplifiedDataConstants", m_hConstantBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////

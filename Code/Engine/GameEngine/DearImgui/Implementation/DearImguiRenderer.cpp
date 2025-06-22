@@ -164,7 +164,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
   pRenderContext->BindShader(m_hShader);
   const auto& textures = ezImgui::GetSingleton()->m_Textures;
   const ezUInt32 numTextures = textures.GetCount();
-
+  ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)
   {
     const ezImguiRenderData* pRenderData = it;
@@ -189,7 +189,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
       if (imGuiBatch.m_uiVertexCount > 0 && imGuiBatch.m_uiTextureID < numTextures)
       {
         pCommandEncoder->SetScissorRect(imGuiBatch.m_ScissorRect);
-        pRenderContext->BindTexture2D("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
+        bindGroup.BindTexture("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
         pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3).IgnoreResult();
       }
 

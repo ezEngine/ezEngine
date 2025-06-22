@@ -106,35 +106,30 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
 void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
 
-  auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowDataBuffer());
-  auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
+  bindGroup.BindBuffer("perLightDataBuffer", m_hLightDataBuffer);
+  bindGroup.BindBuffer("perDecalDataBuffer", m_hDecalDataBuffer);
+  bindGroup.BindBuffer("perDecalAtlasDataBuffer", ezDecalManager::GetDecalAtlasDataBufferForRendering());
+  bindGroup.BindBuffer("perPerReflectionProbeDataBuffer", m_hReflectionProbeDataBuffer);
+  bindGroup.BindBuffer("perClusterDataBuffer", m_hClusterDataBuffer);
+  bindGroup.BindBuffer("clusterItemBuffer", m_hClusterItemBuffer);
 
-  auto hReflectionSpecularTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
-  auto hSkyIrradianceTextureView = pDevice->GetDefaultResourceView(ezReflectionPool::GetSkyIrradianceTexture());
-
-  pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
-  pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
-  pRenderContext->BindBuffer("perDecalAtlasDataBuffer", pDevice->GetDefaultResourceView(ezDecalManager::GetDecalAtlasDataBufferForRendering()));
-  pRenderContext->BindBuffer("perPerReflectionProbeDataBuffer", pDevice->GetDefaultResourceView(m_hReflectionProbeDataBuffer));
-  pRenderContext->BindBuffer("perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
-  pRenderContext->BindBuffer("clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
-
-  pRenderContext->BindBuffer("shadowDataBuffer", hShadowDataBufferView);
-  pRenderContext->BindTexture2D("ShadowAtlasTexture", hShadowAtlasTextureView);
-  pRenderContext->BindSamplerState("ShadowSampler", m_hShadowSampler);
+  bindGroup.BindBuffer("shadowDataBuffer", ezShadowPool::GetShadowDataBuffer());
+  bindGroup.BindTexture("ShadowAtlasTexture", ezShadowPool::GetShadowAtlasTexture());
+  bindGroup.BindSampler("ShadowSampler", m_hShadowSampler);
 
   ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_hDecalAtlas, ezResourceAcquireMode::AllowLoadingFallback);
-  pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
-  pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
-  pRenderContext->BindTexture2D("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
-  pRenderContext->BindTexture2D("DecalRuntimeAtlasTexture", pDevice->GetDefaultResourceView(ezDecalManager::GetRuntimeDecalAtlasTexture()));
-  pRenderContext->BindSamplerState("DecalAtlasSampler", m_hDecalAtlasSampler);
+  bindGroup.BindTexture("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
+  bindGroup.BindTexture("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
+  bindGroup.BindTexture("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
+  bindGroup.BindTexture("DecalRuntimeAtlasTexture", ezDecalManager::GetRuntimeDecalAtlasTexture());
+  bindGroup.BindSampler("DecalAtlasSampler", m_hDecalAtlasSampler);
 
-  pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
-  pRenderContext->BindTexture2D("SkyIrradianceTexture", hSkyIrradianceTextureView);
+  bindGroup.BindTexture("ReflectionSpecularTexture", ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
+  bindGroup.BindTexture("SkyIrradianceTexture", ezReflectionPool::GetSkyIrradianceTexture());
 
-  pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
+  bindGroup.BindBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////

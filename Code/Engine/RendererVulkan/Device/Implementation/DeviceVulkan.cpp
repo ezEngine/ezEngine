@@ -30,10 +30,8 @@
 #include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
-#include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 #include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
@@ -851,7 +849,8 @@ ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreat
     return ezGALBufferHandle();
   }
 
-  return FinalizeBufferInternal(Description, pBuffer);
+  ezGALBufferHandle hBuffer(m_Buffers.Insert(pBuffer));
+  return hBuffer;
 }
 
 vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateForNextFrameCommands)
@@ -1286,46 +1285,6 @@ void ezGALDeviceVulkan::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pRe
   EZ_DELETE(&m_Allocator, pVulkanReadbackTexture);
 }
 
-ezGALTextureResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
-{
-  ezGALTextureResourceViewVulkan* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewVulkan, pResource, Description);
-
-  if (!pResourceView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pResourceView);
-    return nullptr;
-  }
-
-  return pResourceView;
-}
-
-void ezGALDeviceVulkan::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
-{
-  ezGALTextureResourceViewVulkan* pVulkanResourceView = static_cast<ezGALTextureResourceViewVulkan*>(pResourceView);
-  pVulkanResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pVulkanResourceView);
-}
-
-ezGALBufferResourceView* ezGALDeviceVulkan::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
-{
-  ezGALBufferResourceViewVulkan* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewVulkan, pResource, Description);
-
-  if (!pResourceView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pResourceView);
-    return nullptr;
-  }
-
-  return pResourceView;
-}
-
-void ezGALDeviceVulkan::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
-{
-  ezGALBufferResourceViewVulkan* pVulkanResourceView = static_cast<ezGALBufferResourceViewVulkan*>(pResourceView);
-  pVulkanResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pVulkanResourceView);
-}
-
 ezGALRenderTargetView* ezGALDeviceVulkan::CreateRenderTargetViewPlatform(
   ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
 {
@@ -1345,48 +1304,6 @@ void ezGALDeviceVulkan::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* p
   ezGALRenderTargetViewVulkan* pVulkanRenderTargetView = static_cast<ezGALRenderTargetViewVulkan*>(pRenderTargetView);
   pVulkanRenderTargetView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanRenderTargetView);
-}
-
-ezGALTextureUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
-  ezGALTexture* pTextureOfBuffer, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALTextureUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALTextureUnorderedAccessViewVulkan, pTextureOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALTextureUnorderedAccessViewVulkan* pUnorderedAccessViewVulkan = static_cast<ezGALTextureUnorderedAccessViewVulkan*>(pUnorderedAccessView);
-  pUnorderedAccessViewVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewVulkan);
-}
-
-ezGALBufferUnorderedAccessView* ezGALDeviceVulkan::CreateUnorderedAccessViewPlatform(
-  ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALBufferUnorderedAccessViewVulkan* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewVulkan, pBufferOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceVulkan::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALBufferUnorderedAccessViewVulkan* pUnorderedAccessViewVulkan = static_cast<ezGALBufferUnorderedAccessViewVulkan*>(pUnorderedAccessView);
-  pUnorderedAccessViewVulkan->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewVulkan);
 }
 
 // Other rendering creation functions
@@ -1729,7 +1646,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   }
 
   m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;
-  m_Capabilities.m_bSupportsNoOverwriteBufferUpdate = true; // TODO how to check
+  m_Capabilities.m_bSupportsMultipleBindGroups = true;
   m_Capabilities.m_materialBufferLayout = ezGALBufferLayout::Vulkan_Std430_relaxed;
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;

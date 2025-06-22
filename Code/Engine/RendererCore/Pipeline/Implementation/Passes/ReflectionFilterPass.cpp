@@ -93,7 +93,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 
   if (pInputCubemap->GetDescription().m_bAllowDynamicMipGeneration)
   {
-    renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(m_hInputCubemap, {});
   }
 
   {
@@ -106,23 +106,18 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
       ezUInt32 uiHeight = pFilteredSpecularOutput->m_Desc.m_uiHeight;
 
       auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "ReflectionFilter");
-      renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
-      renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+      bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
+      bindGroup.BindBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
       renderViewContext.m_pRenderContext->BindShader(m_hFilteredSpecularShader);
 
       for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        ezGALTextureUnorderedAccessViewHandle hFilterOutput;
-        {
-          ezGALTextureUnorderedAccessViewCreationDescription desc;
-          desc.m_hTexture = pFilteredSpecularOutput->m_TextureHandle;
-          desc.m_uiMipLevelToUse = uiMipMapIndex;
-          desc.m_uiFirstArraySlice = m_uiSpecularOutputIndex * 6;
-          desc.m_uiArraySize = 6;
-          desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
-          hFilterOutput = pDevice->CreateUnorderedAccessView(desc);
-        }
-        renderViewContext.m_pRenderContext->BindUAV("ReflectionOutput", hFilterOutput);
+        ezGALTextureRange textureRange;
+        textureRange.m_uiBaseMipLevel = uiMipMapIndex;
+        textureRange.m_uiBaseArraySlice = m_uiSpecularOutputIndex * 6;
+        textureRange.m_uiArraySlices = 6;
+        bindGroup.BindTexture("ReflectionOutput", pFilteredSpecularOutput->m_TextureHandle, textureRange);
         UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps, uiWidth, uiHeight);
 
         constexpr ezUInt32 uiThreadsX = 8;
@@ -143,20 +138,13 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   {
     auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "Irradiance");
 
-    ezGALTextureUnorderedAccessViewHandle hIrradianceOutput;
-    {
-      ezGALTextureUnorderedAccessViewCreationDescription desc;
-      desc.m_hTexture = pIrradianceOutput->m_TextureHandle;
-
-      hIrradianceOutput = pDevice->CreateUnorderedAccessView(desc);
-    }
-    renderViewContext.m_pRenderContext->BindUAV("IrradianceOutput", hIrradianceOutput);
-
-    renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("IrradianceOutput", pIrradianceOutput->m_TextureHandle);
+    bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
 
     UpdateIrradianceConstantBuffer();
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
+    bindGroup.BindBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
 
     renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult();

@@ -47,7 +47,8 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
 
   pRenderContext->BindShader(m_hShader);
-  pRenderContext->BindConstantBuffer("ezRmlUiBlitConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  bindGroup.BindBuffer("ezRmlUiBlitConstants", m_hConstantBuffer);
   pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::TriangleStrip, 2);
 
   const ezVec2 targetSize = ezVec2(renderViewContext.m_pViewData->m_ViewPortRect.width, renderViewContext.m_pViewData->m_ViewPortRect.height);
@@ -66,7 +67,7 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     pConstants->Scale = textureSize.CompMul(scale);
     pConstants->Offset = pRenderData->m_vOffset.CompMul(scale) + offset;
 
-    pRenderContext->BindTexture2D("BaseTexture", pDevice->GetDefaultResourceView(pRenderData->m_hTexture));
+    bindGroup.BindTexture("BaseTexture", pRenderData->m_hTexture);
 
     pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

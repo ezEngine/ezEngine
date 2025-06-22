@@ -107,6 +107,12 @@ ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
     m_allocInfo = {};
   }
 
+  for (auto it : m_TexelBufferViews)
+  {
+    m_pDeviceVulkan->DeleteLater(it.Value());
+  }
+  m_TexelBufferViews.Clear();
+
   m_resourceBufferInfo = vk::DescriptorBufferInfo();
 
   m_stages = {};
@@ -146,6 +152,32 @@ void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_sDebugName = szName;
   m_pDeviceVulkan->SetDebugName(szName, m_buffer, m_alloc);
+}
+
+vk::BufferView ezGALBufferVulkan::GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+{
+  vk::BufferView bufferView;
+
+  View view;
+  view.m_BufferRange = bufferRange;
+  view.m_OverrideViewFormat = overrideViewFormat;
+
+  if (!m_TexelBufferViews.TryGetValue(view, bufferView))
+  {
+    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+
+    vk::BufferViewCreateInfo viewCreateInfo;
+    viewCreateInfo.buffer = m_buffer;
+    viewCreateInfo.offset = bufferRange.m_uiByteOffset;
+    viewCreateInfo.range = bufferRange.m_uiByteCount;
+    if (viewCreateInfo.range == EZ_GAL_WHOLE_SIZE)
+      viewCreateInfo.range = VK_WHOLE_SIZE;
+    viewCreateInfo.format = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
+    VK_ASSERT_DEV(m_device.createBufferView(&viewCreateInfo, nullptr, &bufferView));
+    m_TexelBufferViews.Insert(view, bufferView);
+  }
+
+  return bufferView;
 }
 
 vk::DeviceSize ezGALBufferVulkan::GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage)

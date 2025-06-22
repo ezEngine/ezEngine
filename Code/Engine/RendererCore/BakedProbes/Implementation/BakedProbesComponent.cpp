@@ -432,7 +432,7 @@ void ezBakedProbesComponent::RenderDebugOverlay()
 
   ezRectFloat rectInPixel = ezRectFloat(10.0f, 10.0f, static_cast<float>(uiWidth), static_cast<float>(uiHeight));
 
-  ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hDebugViewTexture));
+  ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, m_hDebugViewTexture);
 }
 
 void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)

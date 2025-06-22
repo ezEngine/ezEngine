@@ -277,7 +277,7 @@ void ezDynamicTextureAtlas::DebugDraw(const ezDebugRendererContext& debugContext
   const float fScale = ezMath::Min((fViewWidth * 0.75f) / textureDesc.m_uiWidth, (fViewHeight * 0.5f) / textureDesc.m_uiHeight);
 
   const ezRectFloat atlasRect = ezRectFloat(fOffset, fOffset, ezMath::Round(textureDesc.m_uiWidth * fScale), ezMath::Round(textureDesc.m_uiHeight * fScale));
-  ezDebugRenderer::Draw2DRectangle(debugContext, atlasRect, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hTexture));
+  ezDebugRenderer::Draw2DRectangle(debugContext, atlasRect, 0.0f, ezColor::White, m_hTexture);
 
   double fUsedPixel = 0.0;
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)

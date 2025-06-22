@@ -25,9 +25,16 @@
 #define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
 #define EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
-#define EZ_GAL_MAX_SETS 4
+#define EZ_GAL_MAX_BIND_GROUPS 4
 
+#define EZ_GAL_ALL_MIP_LEVELS 0xFFu
+#define EZ_GAL_ALL_ARRAY_SLICES 0xFFFFu
 #define EZ_GAL_WHOLE_SIZE 0xFFFFFFFFu
+
+#define EZ_GAL_BIND_GROUP_FRAME 0
+#define EZ_GAL_BIND_GROUP_RENDER_PASS 1
+#define EZ_GAL_BIND_GROUP_MATERIAL 2
+#define EZ_GAL_BIND_GROUP_DRAW_CALL 3
 
 // Forward declarations
 
@@ -42,11 +49,7 @@ struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
 struct ezGALSamplerStateCreationDescription;
-struct ezGALTextureResourceViewCreationDescription;
-struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
-struct ezGALTextureUnorderedAccessViewCreationDescription;
-struct ezGALBufferUnorderedAccessViewCreationDescription;
 struct ezGALBindGroupLayoutCreationDescription;
 struct ezGALPipelineLayoutCreationDescription;
 struct ezGALGraphicsPipelineCreationDescription;
@@ -67,11 +70,7 @@ class ezGALBlendState;
 class ezGALRasterizerState;
 class ezGALVertexDeclaration;
 class ezGALSamplerState;
-class ezGALTextureResourceView;
-class ezGALBufferResourceView;
 class ezGALRenderTargetView;
-class ezGALTextureUnorderedAccessView;
-class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
 class ezGALCommandEncoder;
 class ezGALBindGroupLayout;
@@ -425,11 +424,30 @@ struct ezGALTextureSubresource
   ezUInt32 m_uiArraySlice = 0;
 };
 
+
 struct ezGALSystemMemoryDescription
 {
   ezConstByteBlobPtr m_pData;
   ezUInt32 m_uiRowPitch = 0;
   ezUInt32 m_uiSlicePitch = 0;
+};
+
+struct ezGALTextureRange
+{
+  static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
+  {
+    return {0, 1, uiBaseMipLevel, uiMipLevels};
+  }
+  ezUInt16 m_uiBaseArraySlice = 0;                    ///< Index of the first array slice to be used.
+  ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES; ///< Number of array slices to be used. If set to EZ_GAL_ALL_ARRAY_SLICES, the maximum number of allowed slices is used dependent on texture size and binding contraints.
+  ezUInt8 m_uiBaseMipLevel = 0;                       ///< The first mip level to be used.
+  ezUInt8 m_uiMipLevels = EZ_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to EZ_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
+};
+
+struct ezGALBufferRange
+{
+  ezUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
+  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless EZ_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
@@ -506,34 +524,6 @@ class ezGALReadbackBufferHandle
   friend class ezGALDevice;
 };
 
-class ezGALTextureResourceViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALTextureResourceViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALBufferResourceViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALBufferResourceViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALTextureUnorderedAccessViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALTextureUnorderedAccessViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALBufferUnorderedAccessViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALBufferUnorderedAccessViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
 class ezGALRenderTargetViewHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALRenderTargetViewHandle, ezGAL::ez18_14Id);
@@ -604,6 +594,12 @@ class ezGALPipelineLayoutHandle
   friend class ezGALDevice;
 };
 
+class ezGALBindGroupHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
 
 using ezGALPoolHandle = ezGAL::ez20_44Id;
 using ezGALTimestampHandle = ezGALPoolHandle;

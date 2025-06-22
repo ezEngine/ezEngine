@@ -1,6 +1,6 @@
-#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <RmlUiPlugin/Implementation/RenderInterface.h>
+
+#include <RmlUiPlugin/RmlUiPluginPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Math/Rect.h>
@@ -8,7 +8,9 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RmlUiPlugin/Implementation/RenderInterface.h>
 
 #include <RendererCore/../../../Data/Plugins/Shaders/RmlUiConstants.h>
 
@@ -402,7 +404,8 @@ namespace ezRmlUiInternal
     const ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::FourSamples;
 
     pRenderContext->BindShader(m_hShader);
-    pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
+    ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
     for (auto& pCommandBuffer : submittedCommandBuffers)
     {
@@ -445,7 +448,7 @@ namespace ezRmlUiInternal
 
             pRenderContext->BindMeshBuffer(cmd.m_CompiledGeometry.m_hVertexBuffer, cmd.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
-            pRenderContext->BindTexture2D("BaseTexture", pDevice->GetDefaultResourceView(cmd.m_hTexture));
+            bindGroup.BindTexture("BaseTexture", cmd.m_hTexture);
 
             pRenderContext->DrawMeshBuffer().IgnoreResult();
           }

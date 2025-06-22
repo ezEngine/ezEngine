@@ -163,11 +163,12 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   {
     EZ_PROFILE_SCOPE("Line Sweep");
     auto computeScope = renderViewContext.m_pRenderContext->BeginComputeScope(renderViewContext, "Line Sweep");
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
-    renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
-    renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
+    bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
+    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer,m_LineSweepOutputBufferRange);
 
     const ezUInt32 dispatchSize = m_uiNumSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_uiNumSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
     const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
@@ -197,11 +198,12 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
-    renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
-    renderViewContext.m_pRenderContext->BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputSRV);
+    bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
+    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer, m_LineSweepOutputBufferRange);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
@@ -229,10 +231,11 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
-    renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", pDevice->GetDefaultResourceView(tempTexture));
+    bindGroup.BindTexture("SSAOGatherOutput", tempTexture);
 
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
@@ -323,14 +326,6 @@ void ezLSAOPass::DestroyLineSweepData()
 {
   ezGALDevice* device = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hLineSweepOutputUAV.IsInvalidated())
-    device->DestroyUnorderedAccessView(m_hLineSweepOutputUAV);
-  m_hLineSweepOutputUAV.Invalidate();
-
-  if (!m_hLineSweepOutputSRV.IsInvalidated())
-    device->DestroyResourceView(m_hLineSweepOutputSRV);
-  m_hLineSweepOutputSRV.Invalidate();
-
   if (!m_hLineSweepOutputBuffer.IsInvalidated())
     device->DestroyBuffer(m_hLineSweepOutputBuffer);
   m_hLineSweepOutputBuffer.Invalidate();
@@ -410,20 +405,11 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_uiTotalSize = imageResolution.z * 2 * totalNumberOfSamples;
       bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
       bufferDesc.m_ResourceAccess.m_bImmutable = false;
+      bufferDesc.m_Format = ezGALResourceFormat::RUInt;
 
       m_hLineSweepOutputBuffer = device->CreateBuffer(bufferDesc);
 
-      ezGALBufferUnorderedAccessViewCreationDescription uavDesc;
-      uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      uavDesc.m_Format = ezGALResourceFormat::RUInt;
-      uavDesc.m_uiByteCount = imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32);
-      m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
-
-      ezGALBufferResourceViewCreationDescription srvDesc;
-      srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      srvDesc.m_Format = ezGALResourceFormat::RUInt;
-      srvDesc.m_uiByteCount = imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32);
-      m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
+      m_LineSweepOutputBufferRange = {0, static_cast<ezUInt32>(imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32))};
     }
 
     // Structured buffer per line.
@@ -435,8 +421,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
 
       m_hLineInfoBuffer = device->CreateBuffer(bufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(lineInstructions.GetData()), lineInstructions.GetCount() * sizeof(LineInstruction)));
-
-      m_hLineSweepInfoSRV = device->GetDefaultResourceView(m_hLineInfoBuffer);
     }
   }
 

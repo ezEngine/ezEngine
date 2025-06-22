@@ -4,24 +4,13 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezGALDevice;
-class ezGALTextureResourceView;
-class ezGALBufferResourceView;
-class ezGALTextureUnorderedAccessView;
-class ezGALBufferUnorderedAccessView;
 
-/// \brief Creates fallback resources in case the high-level renderer did not map a resource to a descriptor slot.
+/// \brief Creates fallback resources in case the high-level renderer did not map a resource to a binding slot.
 class EZ_RENDERERFOUNDATION_DLL ezGALRendererFallbackResources
 {
 public:
-  /// Returns a fallback resource for the given shader resource type.
-  /// \param descriptorType The shader resource descriptor for which a compatible fallback resource is requested.
-  /// \param textureType In case descriptorType is a texture, this specifies the texture type.
-  /// \param bDepth Whether the shader resource is using a depth sampler.
-  /// \return
-  static const ezGALTextureResourceView* GetFallbackTextureResourceView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType, bool bDepth);
-  static const ezGALBufferResourceView* GetFallbackBufferResourceView(ezGALShaderResourceType::Enum descriptorType);
-  static const ezGALTextureUnorderedAccessView* GetFallbackTextureUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType);
-  static const ezGALBufferUnorderedAccessView* GetFallbackBufferUnorderedAccessView(ezGALShaderResourceType::Enum descriptorType);
+  static const ezGALBufferHandle GetFallbackBuffer(ezEnum<ezGALShaderResourceType> resourceType);
+  static const ezGALTextureHandle GetFallbackTexture(ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, bool bDepth);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, FallbackResources)
@@ -49,10 +38,8 @@ private:
     static bool Equal(const ezEnum<ezGALShaderResourceType>& a, const ezEnum<ezGALShaderResourceType>& b);
   };
 
-  static ezHashTable<Key, ezGALTextureResourceViewHandle, KeyHash> s_TextureResourceViews;
-  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferResourceViewHandle, KeyHash> s_BufferResourceViews;
-  static ezHashTable<Key, ezGALTextureUnorderedAccessViewHandle, KeyHash> s_TextureUAVs;
-  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferUnorderedAccessViewHandle, KeyHash> s_BufferUAVs;
+  static ezHashTable<Key, ezGALTextureHandle, KeyHash> s_TextureResourceViews;
+  static ezHashTable<ezEnum<ezGALShaderResourceType>, ezGALBufferHandle, KeyHash> s_BufferResourceViews;
 
   static ezDynamicArray<ezGALBufferHandle> s_Buffers;
   static ezDynamicArray<ezGALTextureHandle> s_Textures;

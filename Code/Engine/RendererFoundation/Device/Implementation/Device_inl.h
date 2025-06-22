@@ -131,29 +131,9 @@ inline const ezGALComputePipeline* ezGALDevice::GetComputePipeline(ezGALComputeP
   return Get<ComputePipelineTable, ezGALComputePipeline>(hComputePipeline, m_ComputePipelines);
 }
 
-inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const
-{
-  return Get<TextureResourceViewTable, ezGALTextureResourceView>(hResourceView, m_TextureResourceViews);
-}
-
-inline const ezGALBufferResourceView* ezGALDevice::GetResourceView(ezGALBufferResourceViewHandle hResourceView) const
-{
-  return Get<BufferResourceViewTable, ezGALBufferResourceView>(hResourceView, m_BufferResourceViews);
-}
-
 inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
 {
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
-}
-
-inline const ezGALTextureUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const
-{
-  return Get<TextureUnorderedAccessViewTable, ezGALTextureUnorderedAccessView>(hUnorderedAccessView, m_TextureUnorderedAccessViews);
-}
-
-inline const ezGALBufferUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const
-{
-  return Get<BufferUnorderedAccessViewTable, ezGALBufferUnorderedAccessView>(hUnorderedAccessView, m_BufferUnorderedAccessViews);
 }
 
 // static

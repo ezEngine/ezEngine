@@ -100,28 +100,20 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    // Setup input view and sampler
-    ezGALTextureResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
     tempTextureDesc.m_bAllowShaderResourceView = true;
     tempTextureDesc.m_bAllowRenderTargetView = true;
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-    rvcd.m_hTexture = tempTexture;
-    ezGALTextureResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     ezGALRenderingSetup renderingSetup;
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
 
     // Horizontal
     {
@@ -129,7 +121,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
       ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
-      renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hBlurSourceInputView);
+      bindGroup.BindTexture("BlurSource", inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
 
@@ -139,7 +131,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
       ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
-      renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hTempTextureRView);
+      bindGroup.BindTexture("BlurSource", tempTexture);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
 

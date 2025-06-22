@@ -122,20 +122,8 @@ protected:
   virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) override;
   virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) override;
 
-  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) override;
-  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) override;
-
-  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) override;
-  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) override;
-
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
-
-  ezGALTextureUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
-
-  ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
 
   // Other rendering creation functions
 

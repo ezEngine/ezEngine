@@ -19,7 +19,6 @@ protected:
 public:
   ezArrayPtr<ezUInt8> GetRawDataForWriting();
   ezArrayPtr<const ezUInt8> GetRawDataForReading() const;
-  void MarkDirty() { m_bHasBeenModified = true; }
   void BeforeBeginFrame() { m_bStartOfFrame = true; }
 
   void UploadData(ezGALCommandEncoder* pCommandEncoder);

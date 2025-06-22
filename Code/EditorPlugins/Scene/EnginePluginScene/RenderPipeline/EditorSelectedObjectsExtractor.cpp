@@ -6,6 +6,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
 // clang-format off

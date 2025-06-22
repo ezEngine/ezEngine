@@ -21,6 +21,7 @@ ezGALSharedTextureDX11::~ezGALSharedTextureDX11() = default;
 ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  m_pDevice = pDXDevice;
 
   EZ_ASSERT_DEBUG(m_SharedType != ezGALSharedTextureType::None, "Shared texture must either be exported or imported");
   EZ_ASSERT_DEBUG(m_Description.m_Type == ezGALTextureType::Texture2DShared, "Shared texture must be of type ezGALTextureType::Texture2DShared");

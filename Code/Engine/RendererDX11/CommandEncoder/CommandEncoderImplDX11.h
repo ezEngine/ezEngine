@@ -5,6 +5,7 @@
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Shader/BindGroup.h>
 
 struct ID3D11DeviceChild;
 struct ID3D11DeviceContext;
@@ -18,6 +19,7 @@ struct ID3D11SamplerState;
 struct ID3D11Query;
 
 class ezGALDeviceDX11;
+struct ezGALBindGroupCreationDescription;
 
 class EZ_RENDERERDX11_DLL ezGALCommandEncoderImplDX11 final : public ezGALCommandEncoderCommonPlatformInterface
 {
@@ -29,13 +31,7 @@ public:
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
-
-  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) override;
-  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) override;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) override;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) override;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
+  virtual ezResult SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // GPU -> CPU query functions
@@ -47,13 +43,6 @@ public:
 
 
   // Resource update functions
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) override;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) override;
-
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
 
@@ -71,7 +60,7 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) override;
+  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) override;
 
   // Misc
 
@@ -129,6 +118,12 @@ private:
 
   bool UnsetResourceViews(const ezGALResourceBase* pResource);
   bool UnsetUnorderedAccessViews(const ezGALResourceBase* pResource);
+
+  void SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
+  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource);
+  void SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer);
+  void SetSamplerState(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState);
+
   ezResult FlushDeferredStateChanges();
 
   ezGALDeviceDX11& m_GALDeviceDX11;
@@ -169,7 +164,4 @@ private:
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
   ezHashSet<const ezGALBuffer*> m_AlreadyUpdatedTransientBuffers;
-
-  void SetResourceView(const ezShaderResourceBinding& binding, const ezGALResourceBase* pResource, ID3D11ShaderResourceView* pResourceViewDX11);
-  void SetUnorderedAccessView(const ezShaderResourceBinding& binding, ID3D11UnorderedAccessView* pUnorderedAccessViewDX11, const ezGALResourceBase* pResource);
 };

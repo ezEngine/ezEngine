@@ -1,3 +1,4 @@
+
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -15,6 +16,7 @@ ezGALTextureDX11::~ezGALTextureDX11() = default;
 ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  m_pDevice = pDXDevice;
 
   if (m_Description.m_pExisitingNativeObject != nullptr)
   {
@@ -225,11 +227,215 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
   }
 }
 
+ID3D11ShaderResourceView* ezGALTextureDX11::GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+{
+  ID3D11ShaderResourceView* pSRV = nullptr;
+  View view;
+  view.m_TextureRange = textureRange;
+  view.m_OverrideViewFormat = overrideViewFormat;
+
+  if (!m_SRVs.TryGetValue(view, pSRV))
+  {
+    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+    if (textureRange.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
+      textureRange.m_uiArraySlices = m_Description.m_uiArraySize;
+
+    DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
+    if (ezGALResourceFormat::IsDepthFormat(viewFormat))
+    {
+      DXViewFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eDepthOnlyType;
+    }
+    else
+    {
+      DXViewFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+    }
+
+    if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
+    {
+      ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", viewFormat);
+      return nullptr;
+    }
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC DXSRVDesc;
+    DXSRVDesc.Format = DXViewFormat;
+
+    ID3D11Resource* pDXResource = GetDXTexture();
+    const ezGALTextureCreationDescription& texDesc = GetDescription();
+
+    // DX11 does not care about view types matching the shader. It does care though about view types matching the resource.
+    const ezEnum<ezGALTextureType> type = texDesc.m_Type;
+    switch (type)
+    {
+      case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DShared:
+        EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && textureRange.m_uiBaseArraySlice == 0, "These options can only be used with array texture types.");
+
+        if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+        {
+          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+          DXSRVDesc.Texture2D.MostDetailedMip = textureRange.m_uiBaseMipLevel;
+          DXSRVDesc.Texture2D.MipLevels = textureRange.m_uiMipLevels;
+        }
+        else
+        {
+          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+        }
+        break;
+
+      case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DArray:
+
+        if (texDesc.m_SampleCount == ezGALMSAASampleCount::None)
+        {
+          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+          DXSRVDesc.Texture2DArray.MostDetailedMip = textureRange.m_uiBaseMipLevel;
+          DXSRVDesc.Texture2DArray.MipLevels = textureRange.m_uiMipLevels;
+          DXSRVDesc.Texture2DArray.FirstArraySlice = textureRange.m_uiBaseArraySlice;
+          DXSRVDesc.Texture2DArray.ArraySize = textureRange.m_uiArraySlices;
+        }
+        else
+        {
+          DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
+          DXSRVDesc.Texture2DMSArray.FirstArraySlice = textureRange.m_uiBaseArraySlice;
+          DXSRVDesc.Texture2DMSArray.ArraySize = textureRange.m_uiArraySlices;
+        }
+
+        break;
+
+      case ezGALTextureType::TextureCube:
+        EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && textureRange.m_uiBaseArraySlice == 0, "These options can only be used with array texture types.");
+
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+        DXSRVDesc.TextureCube.MostDetailedMip = textureRange.m_uiBaseMipLevel;
+        DXSRVDesc.TextureCube.MipLevels = textureRange.m_uiMipLevels;
+        break;
+
+      case ezGALTextureType::TextureCubeArray:
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
+        DXSRVDesc.TextureCubeArray.MostDetailedMip = textureRange.m_uiBaseMipLevel;
+        DXSRVDesc.TextureCubeArray.MipLevels = textureRange.m_uiMipLevels;
+        DXSRVDesc.TextureCubeArray.First2DArrayFace = textureRange.m_uiBaseArraySlice;
+        DXSRVDesc.TextureCubeArray.NumCubes = textureRange.m_uiArraySlices / 6;
+        break;
+
+      case ezGALTextureType::Texture3D:
+        EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && textureRange.m_uiBaseArraySlice == 0, "These options can only be used with array texture types.");
+
+        DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+        DXSRVDesc.Texture3D.MostDetailedMip = textureRange.m_uiBaseMipLevel;
+        DXSRVDesc.Texture3D.MipLevels = textureRange.m_uiMipLevels;
+        break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return nullptr;
+    }
+
+    if (FAILED(m_pDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &pSRV)))
+    {
+      return nullptr;
+    }
+
+    m_SRVs.Insert(view, pSRV);
+  }
+
+  return pSRV;
+}
+
+ID3D11UnorderedAccessView* ezGALTextureDX11::GetUAV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+{
+  ID3D11UnorderedAccessView* pUAV = nullptr;
+  View view;
+  view.m_TextureRange = textureRange;
+  view.m_OverrideViewFormat = overrideViewFormat;
+
+  if (!m_UAVs.TryGetValue(view, pUAV))
+  {
+    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+
+    DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
+    if (ezGALResourceFormat::IsDepthFormat(viewFormat))
+    {
+      DXViewFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eDepthOnlyType;
+    }
+    else
+    {
+      DXViewFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_eResourceViewType;
+    }
+
+    if (DXViewFormat == DXGI_FORMAT_UNKNOWN)
+    {
+      ezLog::Error("Couldn't get valid DXGI format for resource view! ({0})", viewFormat);
+      return nullptr;
+    }
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC DXUAVDesc;
+    DXUAVDesc.Format = DXViewFormat;
+
+    ID3D11Resource* pDXResource = GetDXTexture();
+    const ezGALTextureCreationDescription& texDesc = GetDescription();
+    EZ_IGNORE_UNUSED(texDesc);
+
+    // DX11 does not care about view types matching the shader. It does care though about view types matching the resource.
+    const ezEnum<ezGALTextureType> type = texDesc.m_Type;
+    switch (type)
+    {
+      case ezGALTextureType::Texture2D:
+      case ezGALTextureType::Texture2DShared:
+        EZ_ASSERT_DEV(texDesc.m_uiArraySize == 1 && textureRange.m_uiBaseArraySlice == 0, "These options can only be used with array texture types.");
+
+        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+        DXUAVDesc.Texture2D.MipSlice = textureRange.m_uiBaseMipLevel;
+        break;
+
+      case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DArray:
+      case ezGALTextureType::TextureCube:
+      case ezGALTextureType::TextureCubeArray:
+        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+        DXUAVDesc.Texture2DArray.MipSlice = textureRange.m_uiBaseMipLevel;
+        DXUAVDesc.Texture2DArray.FirstArraySlice = textureRange.m_uiBaseArraySlice;
+        DXUAVDesc.Texture2DArray.ArraySize = textureRange.m_uiArraySlices;
+        break;
+
+      case ezGALTextureType::Texture3D:
+        DXUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
+        DXUAVDesc.Texture3D.MipSlice = textureRange.m_uiBaseMipLevel;
+        DXUAVDesc.Texture3D.FirstWSlice = textureRange.m_uiBaseArraySlice;
+        DXUAVDesc.Texture3D.WSize = textureRange.m_uiArraySlices;
+        break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return nullptr;
+    }
+
+    if (FAILED(m_pDevice->GetDXDevice()->CreateUnorderedAccessView(pDXResource, &DXUAVDesc, &pUAV)))
+    {
+      return nullptr;
+    }
+
+    m_UAVs.Insert(view, pUAV);
+  }
+  return pUAV;
+}
+
 ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   EZ_IGNORE_UNUSED(pDevice);
 
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
+
+  for (auto it : m_SRVs)
+  {
+    EZ_GAL_DX11_RELEASE(it.Value());
+  }
+  m_SRVs.Clear();
+  for (auto it : m_UAVs)
+  {
+    EZ_GAL_DX11_RELEASE(it.Value());
+  }
+  m_UAVs.Clear();
   return EZ_SUCCESS;
 }
 

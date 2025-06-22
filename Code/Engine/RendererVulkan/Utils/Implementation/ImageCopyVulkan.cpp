@@ -2,15 +2,12 @@
 
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererFoundation/State/PipelineCache.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
-#include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>

@@ -33,10 +33,10 @@ public:
   static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);
   static vk::PresentModeKHR GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes);
   static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& desc);
-  static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc);
-  static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc);
   static vk::ImageSubresourceRange GetSubresourceRange(const vk::ImageSubresourceLayers& layers);
+  static vk::ImageSubresourceRange GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange);
   static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType);
+  static vk::ImageViewType GetImageViewType(ezEnum<ezGALShaderTextureType> texType);
   static vk::ImageViewType GetImageArrayViewType(ezEnum<ezGALTextureType> texType);
 
   static bool IsDepthFormat(vk::Format format);

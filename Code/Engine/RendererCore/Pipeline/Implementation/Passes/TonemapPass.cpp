@@ -156,22 +156,24 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->ContrastParams = ezVec4(a, b, m, 0.0f);
   }
 
-  ezGALTextureResourceViewHandle hBloomTextureView;
+  ezGALTextureHandle hBloomTextureView;
   auto pBloomInput = inputs[m_PinBloomInput.m_uiInputIndex];
   if (pBloomInput != nullptr)
   {
-    hBloomTextureView = pDevice->GetDefaultResourceView(pBloomInput->m_TextureHandle);
+    hBloomTextureView = pBloomInput->m_TextureHandle;
   }
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezTonemapConstants", m_hConstantBuffer);
+
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindBuffer("ezTonemapConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture2D("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
-  renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
-  renderViewContext.m_pRenderContext->BindTexture2D("SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle));
-  renderViewContext.m_pRenderContext->BindTexture2D("BloomTexture", hBloomTextureView);
-  renderViewContext.m_pRenderContext->BindTexture3D("Lut1Texture", luts[0]);
-  renderViewContext.m_pRenderContext->BindTexture3D("Lut2Texture", luts[1]);
+  bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
+  bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+  bindGroup.BindTexture("SceneColorTexture", pColorInput->m_TextureHandle);
+  bindGroup.BindTexture("BloomTexture", hBloomTextureView);
+  bindGroup.BindTexture("Lut1Texture", luts[0]);
+  bindGroup.BindTexture("Lut2Texture", luts[1]);
 
   ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);

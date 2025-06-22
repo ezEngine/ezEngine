@@ -106,8 +106,9 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   const bool bSupported = m_pDevice->GetCapabilities().m_FormatSupport[textureFormat].AreAllSet(ezGALResourceFormatSupport::Texture);
   if (bSupported)
   {
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureResourceId);
-    ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
+    bindGroup.BindTexture("DiffuseTexture", m_hTexture2D);
   }
   BeginRendering(ezColor::Black);
 
@@ -144,8 +145,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
   {
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("SharedData/Textures/Volume/ezLogo_Volume_A8_NoMips_D.dds");
   }
-
-  ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindTexture("DiffuseTexture", m_hTexture2D);
 
   BeginRendering(ezColor::Black);
 
@@ -231,7 +232,8 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
     m_hTextureCube = ezResourceManager::LoadResource<ezTextureCubeResource>("SharedData/Textures/Cubemap/ezLogo_Cube_RGB_Mips_D.dds");
   }
 
-  ezRenderContext::GetDefaultInstance()->BindTextureCube("DiffuseTexture", m_hTextureCube);
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindTexture("DiffuseTexture", m_hTextureCube);
 
   BeginRendering(ezColor::Black);
 

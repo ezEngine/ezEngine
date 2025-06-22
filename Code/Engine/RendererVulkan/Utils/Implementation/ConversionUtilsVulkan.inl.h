@@ -93,88 +93,6 @@ EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourc
   return range;
 }
 
-EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
-{
-  vk::ImageSubresourceRange range;
-
-  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (viewFormat == ezGALResourceFormat::D24S8)
-  {
-    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
-  }
-  range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
-  range.levelCount = ezMath::Min(viewDesc.m_uiMipLevelsToUse, texDesc.m_uiMipLevelCount - range.baseMipLevel);
-
-  const ezEnum<ezGALTextureType> type = viewDesc.m_OverrideViewType != ezGALTextureType::Invalid ? viewDesc.m_OverrideViewType : texDesc.m_Type;
-
-  switch (type)
-  {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::Texture2DProxy:
-    case ezGALTextureType::Texture2DShared:
-      range.layerCount = viewDesc.m_uiArraySize;
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      range.layerCount = viewDesc.m_uiArraySize * 6;
-      break;
-
-    case ezGALTextureType::Texture3D:
-      range.layerCount = 1;
-      break;
-
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-  return range;
-}
-
-
-EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
-{
-  vk::ImageSubresourceRange range;
-
-  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (viewFormat == ezGALResourceFormat::D24S8)
-  {
-    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
-  }
-
-  range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-  range.levelCount = 1;
-  range.layerCount = viewDesc.m_uiArraySize;
-
-  const ezEnum<ezGALTextureType> type = viewDesc.m_OverrideViewType != ezGALTextureType::Invalid ? viewDesc.m_OverrideViewType : texDesc.m_Type;
-
-  switch (type)
-  {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::Texture2DProxy:
-    case ezGALTextureType::Texture2DShared:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-
-    case ezGALTextureType::TextureCube:
-    case ezGALTextureType::TextureCubeArray:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-
-    case ezGALTextureType::Texture3D:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-  return range;
-}
-
 EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(
   const vk::ImageSubresourceLayers& layers)
 {
@@ -187,16 +105,31 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange)
+{
+  vk::ImageSubresourceRange range;
+  range.aspectMask = ezGALResourceFormat::IsDepthFormat(format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (format == ezGALResourceFormat::D24S8)
+  {
+    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+  }
+  range.baseMipLevel = textureRange.m_uiBaseMipLevel;
+  range.levelCount = textureRange.m_uiMipLevels;
+  range.baseArrayLayer = textureRange.m_uiBaseArraySlice;
+  range.layerCount = textureRange.m_uiArraySlices;
+  return range;
+}
+
 EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType)
 {
   switch (texType)
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DShared:
+    case ezGALTextureType::Texture2DProxy:
       return vk::ImageViewType::e2D;
 
     case ezGALTextureType::Texture2DArray:
-    case ezGALTextureType::Texture2DProxy:
       return vk::ImageViewType::e2DArray;
 
     case ezGALTextureType::TextureCube:
@@ -208,6 +141,31 @@ EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezE
     case ezGALTextureType::Texture3D:
       return vk::ImageViewType::e3D;
 
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::ImageViewType::e1D;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALShaderTextureType> texType)
+{
+  switch (texType)
+  {
+    case ezGALShaderTextureType::Texture2D:
+    case ezGALShaderTextureType::Texture2DMS:
+      return vk::ImageViewType::e2D;
+    case ezGALShaderTextureType::Texture2DArray:
+    case ezGALShaderTextureType::Texture2DMSArray:
+      return vk::ImageViewType::e2DArray;
+    case ezGALShaderTextureType::Texture3D:
+      return vk::ImageViewType::e3D;
+    case ezGALShaderTextureType::TextureCube:
+      return vk::ImageViewType::eCube;
+    case ezGALShaderTextureType::TextureCubeArray:
+      return vk::ImageViewType::eCubeArray;
+    case ezGALShaderTextureType::Texture1D:
+    case ezGALShaderTextureType::Texture1DArray:
+    case ezGALShaderTextureType::Unknown:
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return vk::ImageViewType::e1D;

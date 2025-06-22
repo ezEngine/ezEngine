@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
@@ -23,6 +24,7 @@ ezConstantBufferStorageBase::~ezConstantBufferStorageBase()
 ezArrayPtr<ezUInt8> ezConstantBufferStorageBase::GetRawDataForWriting()
 {
   m_bHasBeenModified = true;
+  ezRenderContext::MarktConstantBufferStorageModified(this);
   return m_Data;
 }
 

@@ -18,6 +18,7 @@ public:
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
   EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
   EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
+  vk::BufferView GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
   static vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
 
 protected:
@@ -48,6 +49,17 @@ protected:
 
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
   vk::Device m_device = {};
+
+  // Views
+  struct View : ezHashableStruct<View>
+  {
+    ezGALBufferRange m_BufferRange;
+    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+  };
+  mutable ezHashTable<View, vk::BufferView, View> m_TexelBufferViews;
 
   mutable ezString m_sDebugName;
 };

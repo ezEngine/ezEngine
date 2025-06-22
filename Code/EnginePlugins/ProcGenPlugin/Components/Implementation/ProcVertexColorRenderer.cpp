@@ -29,7 +29,8 @@ void ezProcVertexColorRenderer::SetAdditionalData(const ezRenderViewContext& ren
   auto pProcVertexColorRenderData = static_cast<const ezProcVertexColorRenderData*>(pRenderData);
   if (auto pVertexColorBuffer = pDevice->GetDynamicBuffer(pProcVertexColorRenderData->m_hVertexColorBuffer))
   {
-    pContext->BindBuffer("perInstanceVertexColors", pDevice->GetDefaultResourceView(pVertexColorBuffer->GetBufferForRendering()));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("perInstanceVertexColors", pVertexColorBuffer->GetBufferForRendering());
   }
 }
 

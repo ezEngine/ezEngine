@@ -84,16 +84,12 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     // Bind render target and viewport
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
-    // Setup input view and sampler
-    ezGALTextureResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hResourceView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("Input", hResourceView);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("Input", inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindBuffer("ezBlurConstants", m_hBlurCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

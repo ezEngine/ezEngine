@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/Math/Rect.h>
-#include <Foundation/Strings/String.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
@@ -11,13 +8,11 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Textures/Texture3DResource.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
+#include <RendererCore/RenderContext/BindGroupBuilder.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 
@@ -139,24 +134,7 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-
-  void BindTexture2D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-  void BindTexture3D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-  void BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-
-  /// Binds a read+write texture or buffer
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle);
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle);
-
-  void BindSamplerState(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
-
-  void BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferResourceViewHandle hResourceView);
-
-  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
-  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
+  ezBindGroupBuilder& GetBindGroup(ezUInt32 uiBindGroup = 0);
 
   /// \brief Sets push constants to the given data block.
   /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.
@@ -264,6 +242,7 @@ public:
   }
 
   static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorageBase*& out_pStorage);
+  static void MarktConstantBufferStorageModified(ezConstantBufferStorageBase* pDirtyStorage);
 
   template <typename T>
   EZ_FORCE_INLINE static T* GetConstantBufferData(ezConstantBufferStorageHandle hStorage)
@@ -318,37 +297,8 @@ private:
 
   ezGALGraphicsPipelineCreationDescription m_GraphicsPipeline;
   ezGALComputePipelineCreationDescription m_ComputePipeline;
-
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures2D;
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures3D;
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt64, ezGALTextureUnorderedAccessViewHandle> m_BoundTextureUAVs;
-
-  ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
-
-  ezHashTable<ezUInt64, ezGALBufferResourceViewHandle> m_BoundBuffer;
-  ezHashTable<ezUInt64, ezGALBufferUnorderedAccessViewHandle> m_BoundBufferUAVs;
-  ezGALSamplerStateHandle m_hFallbackSampler;
-
-  struct BoundConstantBuffer
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    BoundConstantBuffer() = default;
-    BoundConstantBuffer(ezGALBufferHandle hConstantBuffer)
-      : m_hConstantBuffer(hConstantBuffer)
-    {
-    }
-    BoundConstantBuffer(ezConstantBufferStorageHandle hConstantBufferStorage)
-      : m_hConstantBufferStorage(hConstantBufferStorage)
-    {
-    }
-
-    ezGALBufferHandle m_hConstantBuffer;
-    ezConstantBufferStorageHandle m_hConstantBufferStorage;
-  };
-
-  ezHashTable<ezUInt64, BoundConstantBuffer> m_BoundConstantBuffers;
+  ezBindGroupBuilder m_BindGroupBuilders[EZ_GAL_MAX_BIND_GROUPS];
+  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
   ezConstantBufferStorageHandle m_hPushConstantsStorage;
@@ -380,6 +330,7 @@ private:
   static ezMutex s_ConstantBufferStorageMutex;
   static ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> s_ConstantBufferStorageTable;
   static ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> s_FreeConstantBufferStorage;
+  static ezSet<ezConstantBufferStorageBase*> m_DirtyConstantBuffers;
 
 private: // Per Renderer States
   ezGALCommandEncoder* m_pGALCommandEncoder = nullptr;
@@ -394,9 +345,5 @@ private: // Per Renderer States
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
   void ApplyMaterialState();
-  void ApplyConstantBufferBindings(const ezGALShader* pShader);
-  void ApplyTextureBindings(const ezGALShader* pShader);
-  void ApplyUAVBindings(const ezGALShader* pShader);
-  void ApplySamplerBindings(const ezGALShader* pShader);
-  void ApplyBufferBindings(const ezGALShader* pShader);
+  ezResult ApplyBindGroup(const ezGALShader* pShader, ezUInt32 uiBindGroup);
 };

@@ -38,7 +38,7 @@ struct ezGALPushConstant
 /// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
 struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
 {
-  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_SETS]; ///< One for each set used in the shader. SET_FRAME, SET_RENDER_PASS, SET_MATERIAL, SET_DRAW_CALL.
+  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each set used in the shader. SET_FRAME, SET_RENDER_PASS, SET_MATERIAL, SET_DRAW_CALL.
   ezGALPushConstant m_PushConstants;                        ///< Only one push constant block is supported right now.
 };
 
@@ -236,7 +236,7 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   ezUInt32 m_uiHeight = 0;
   ezUInt32 m_uiDepth = 1;
   ezUInt32 m_uiMipLevelCount = 1;
-  ezUInt32 m_uiArraySize = 1;
+  ezUInt32 m_uiArraySize = 1; ///< In case of cube maps, the number of cubes instead of faces.
 
   ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
   ezEnum<ezGALMSAASampleCount> m_SampleCount = ezGALMSAASampleCount::None;
@@ -252,26 +252,6 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   void* m_pExisitingNativeObject = nullptr; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
 };
 
-struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezGALTextureResourceViewCreationDescription>
-{
-  ezGALTextureHandle m_hTexture;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
-  ezUInt32 m_uiMostDetailedMipLevel = 0;
-  ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
-  ezUInt32 m_uiFirstArraySlice = 0; // For cubemap array: index of first 2d slice to start with
-  ezUInt32 m_uiArraySize = 1;       // For cubemap array: number of cubemaps
-};
-
-struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
-{
-  ezGALBufferHandle m_hBuffer;
-  ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
-  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE;     ///< If EZ_GAL_WHOLE_SIZE, this maps to the rest of the buffer.
-  ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBuffer, StructuredBuffer, ByteAddressBuffer. Can be Unknown if the target buffer only supports one of these types.
-  ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBuffer.
-};
-
 struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALRenderTargetViewCreationDescription>
 {
   ezGALTextureHandle m_hTexture;
@@ -285,25 +265,6 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   ezUInt32 m_uiSliceCount = 1;
 
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
-};
-
-struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALTextureUnorderedAccessViewCreationDescription>
-{
-  ezGALTextureHandle m_hTexture;
-  ezUInt32 m_uiFirstArraySlice = 0; ///< First depth slice for 3D Textures.
-  ezUInt32 m_uiArraySize = 1;       ///< Number of depth slices for 3D textures.
-  ezUInt16 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
-};
-
-struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>
-{
-  ezGALBufferHandle m_hBuffer;
-  ezUInt32 m_uiByteOffset = 0;                    ///< Start of the view to the buffer. Must be multiple of the element size.
-  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE;     ///< If EZ_GAL_WHOLE_SIZE, this maps to the rest of the buffer.
-  ezEnum<ezGALShaderResourceType> m_ResourceType; ///< What kind of slot the view will be attached to. Must be one of: TexelBufferRW, StructuredBufferRW, ByteAddressBufferRW. Can be Unknown if the target buffer only supports one of these types.
-  ezEnum<ezGALResourceFormat> m_Format;           ///< Only used if m_ResourceType is TexelBufferRW.
 };
 
 /// \brief Type for important GAL events.

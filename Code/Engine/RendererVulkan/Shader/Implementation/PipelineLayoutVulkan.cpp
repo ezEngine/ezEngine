@@ -17,7 +17,7 @@ ezResult ezGALPipelineLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
 
   // There must always be at least one empty set.
   ezUInt32 uiMaxSets = 1;
-  for (ezUInt32 i = 1; i < EZ_GAL_MAX_SETS; ++i)
+  for (ezUInt32 i = 1; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
   {
     if (!m_Description.m_BindGroups[i].IsInvalidated())
     {
@@ -25,7 +25,7 @@ ezResult ezGALPipelineLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
     }
   }
 
-  ezHybridArray<vk::DescriptorSetLayout, EZ_GAL_MAX_SETS> descriptorSetLayouts;
+  ezHybridArray<vk::DescriptorSetLayout, EZ_GAL_MAX_BIND_GROUPS> descriptorSetLayouts;
   descriptorSetLayouts.SetCount(uiMaxSets);
   for (ezUInt32 i = 0; i < uiMaxSets; ++i)
   {

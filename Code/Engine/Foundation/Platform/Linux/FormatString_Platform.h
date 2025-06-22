@@ -13,3 +13,15 @@ struct ezArgErrno
 };
 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg);
+
+struct ezArgErrorCode
+{
+  inline explicit ezArgErrorCode(ezUInt32 uiErrorCode)
+    : m_ErrorCode(uiErrorCode)
+  {
+  }
+
+  ezUInt32 m_ErrorCode;
+};
+
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg);

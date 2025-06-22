@@ -63,7 +63,7 @@ void ezGALShader::DestroyBindingMapping()
 
 ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutableSamplers)
 {
-  ezGALBindGroupLayoutCreationDescription BindGroupLayoutDesc[EZ_GAL_MAX_SETS];
+  ezGALBindGroupLayoutCreationDescription BindGroupLayoutDesc[EZ_GAL_MAX_BIND_GROUPS];
   ezGALPipelineLayoutCreationDescription PipelineLayoutDesc;
 
   const ezGALImmutableSamplers::ImmutableSamplers& immutableSamplers = ezGALImmutableSamplers::GetImmutableSamplers();
@@ -82,9 +82,9 @@ ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutabl
       continue;
     }
 
-    if (binding.m_iSet >= EZ_GAL_MAX_SETS)
+    if (binding.m_iSet >= EZ_GAL_MAX_BIND_GROUPS)
     {
-      ezLog::Error("Binding set {} for shader resource '{}' is bigger than EZ_GAL_MAX_SETS.", binding.m_sName.GetData(), binding.m_iSet);
+      ezLog::Error("Binding set {} for shader resource '{}' is bigger than EZ_GAL_MAX_BIND_GROUPS.", binding.m_sName.GetData(), binding.m_iSet);
       return EZ_FAILURE;
     }
 
@@ -100,7 +100,7 @@ ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutabl
 
   // There must always be at least one empty set.
   ezUInt32 uiMaxSets = 1;
-  for (ezUInt32 uiSetIndex = 1; uiSetIndex < EZ_GAL_MAX_SETS; ++uiSetIndex)
+  for (ezUInt32 uiSetIndex = 1; uiSetIndex < EZ_GAL_MAX_BIND_GROUPS; ++uiSetIndex)
   {
     if (!BindGroupLayoutDesc[uiSetIndex].m_ResourceBindings.IsEmpty())
     {
@@ -138,7 +138,7 @@ void ezGALShader::DestroyLayouts(ezGALDevice* pDevice)
 
 ezArrayPtr<const ezShaderResourceBinding> ezGALShader::GetBindings(ezUInt32 uiSet) const
 {
-  EZ_ASSERT_DEBUG(uiSet < GetSetCount(), "Set index out of range.");
+  EZ_ASSERT_DEBUG(uiSet < GetBindGroupCount(), "Bind group index out of range.");
   return m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiSet])->GetDescription().m_ResourceBindings;
 }
 

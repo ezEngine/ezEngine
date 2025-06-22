@@ -1474,7 +1474,7 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
     pDevice->UpdateTextureForNextFrame(m_hOcclusionDebugViewTexture, sourceData);
   }
 
-  ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hOcclusionDebugViewTexture), ezVec2(1, -1));
+  ezDebugRenderer::Draw2DRectangle(view.GetHandle(), rectInPixel2, 0.0f, ezColor::White, m_hOcclusionDebugViewTexture, ezVec2(1, -1));
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

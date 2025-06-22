@@ -5,21 +5,16 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-
+#include <RendererFoundation/Descriptors/Descriptors.h>
 struct ezShaderResourceBinding;
 struct ezGALRenderingSetup;
+struct ezGALBindGroupCreationDescription;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderCommonPlatformInterface
 {
 public:
   // Resource binding functions
-
-  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) = 0;
-  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) = 0;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) = 0;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) = 0;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView) = 0;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) = 0;
+  virtual ezResult SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) = 0;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) = 0;
 
   // GPU -> CPU query functions
@@ -30,12 +25,6 @@ public:
   virtual ezGALFenceHandle InsertFencePlatform() = 0;
 
   // Resource update functions
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) = 0;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) = 0;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) = 0;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) = 0;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
@@ -52,7 +41,7 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) = 0;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) = 0;
+  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) = 0;
 
   // Misc
 

@@ -1,0 +1,36 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX = FALSE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthTestFunc = CompareFunc_Less
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+
+Texture2D Input;
+
+float4 main(PS_IN input) : SV_Target
+{
+  int mipLevel = 0;
+  int arrayIndex = 0;
+  float4 res = Input.Load(int4((int)input.Position.x, (int)input.Position.y, arrayIndex, mipLevel));
+  return res;
+}

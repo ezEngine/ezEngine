@@ -19,7 +19,7 @@ struct ezGALShaderResourceType
     // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
     PushConstants = 3,
 
-    /// \name Shader Resource Views (SRVs). These are set via ezGALTextureResourceViewHandle / ezGALBufferResourceViewHandle.
+    /// \name Shader Resource Views (SRVs).
     ///@{
 
     /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
@@ -34,7 +34,7 @@ struct ezGALShaderResourceType
     ByteAddressBuffer = 11,
 
     ///@}
-    /// \name Unordered Access Views (UAVs). These are set via ezGALTextureUnorderedAccessViewHandle / ezGALBufferUnorderedAccessViewHandle.
+    /// \name Unordered Access Views (UAVs).
     ///@{
 
     /// Read-write texture view. When set, ezGALShaderTextureType is also set. HLSL: RWTexture*
@@ -69,10 +69,10 @@ struct ezGALShaderResourceCategory
   {
     Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
     ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    TextureSRV = EZ_BIT(2),     //< Shader Resource Views (ezGALTextureResourceViewHandle).
-    BufferSRV = EZ_BIT(3),      //< Shader Resource Views (ezGALBufferResourceViewHandle).
-    TextureUAV = EZ_BIT(4),     //< Unordered Access Views (ezGALTextureUnorderedAccessViewHandle).
-    BufferUAV = EZ_BIT(5),      //< Unordered Access Views (ezGALBufferUnorderedAccessViewHandle).
+    TextureSRV = EZ_BIT(2),     //< Shader Resource Views
+    BufferSRV = EZ_BIT(3),      //< Shader Resource Views
+    TextureUAV = EZ_BIT(4),     //< Unordered Access Views
+    BufferUAV = EZ_BIT(5),      //< Unordered Access Views
     Default = 0
   };
 
@@ -112,6 +112,8 @@ struct ezGALShaderTextureType
   };
 
   static bool IsArray(ezGALShaderTextureType::Enum format);
+  static bool IsMSAA(ezGALShaderTextureType::Enum format);
+  static ezGALTextureType::Enum GetTextureType(ezGALShaderTextureType::Enum format);
 };
 
 /// \brief Defines a swap chain's present mode.

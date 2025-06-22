@@ -50,16 +50,13 @@ struct EZ_RENDERERCORE_DLL ezRenderContextFlags
   {
     None = 0,
     ShaderStateChanged = EZ_BIT(0),
-    TextureBindingChanged = EZ_BIT(1),
-    UAVBindingChanged = EZ_BIT(2),
-    SamplerBindingChanged = EZ_BIT(3),
-    BufferBindingChanged = EZ_BIT(4),
-    ConstantBufferBindingChanged = EZ_BIT(5),
+    BindGroupChanged = EZ_BIT(1),
+    BindGroupLayoutChanged = EZ_BIT(2),
     MeshBufferBindingChanged = EZ_BIT(6),
     MaterialBindingChanged = EZ_BIT(7),
     PipelineChanged = EZ_BIT(8),
 
-    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | UAVBindingChanged | SamplerBindingChanged | BufferBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged | PipelineChanged,
+    AllStatesInvalid = ShaderStateChanged | BindGroupChanged | BindGroupLayoutChanged | MeshBufferBindingChanged | PipelineChanged,
     Default = None
   };
 

@@ -41,3 +41,40 @@ inline bool ezGALShaderTextureType::IsArray(ezGALShaderTextureType::Enum format)
       return false;
   }
 }
+
+inline bool ezGALShaderTextureType::IsMSAA(ezGALShaderTextureType::Enum format)
+{
+  switch (format)
+  {
+    case ezGALShaderTextureType::Texture2DMS:
+    case ezGALShaderTextureType::Texture2DMSArray:
+      return true;
+    default:
+      return false;
+  }
+}
+
+inline ezGALTextureType::Enum ezGALShaderTextureType::GetTextureType(ezGALShaderTextureType::Enum format)
+{
+  switch (format)
+  {
+    case ezGALShaderTextureType::Texture2D:
+    case ezGALShaderTextureType::Texture2DMS:
+      return ezGALTextureType::Texture2D;
+    case ezGALShaderTextureType::Texture2DArray:
+    case ezGALShaderTextureType::Texture2DMSArray:
+      return ezGALTextureType::Texture2DArray;
+    case ezGALShaderTextureType::Texture3D:
+      return ezGALTextureType::Texture3D;
+    case ezGALShaderTextureType::TextureCube:
+      return ezGALTextureType::TextureCube;
+    case ezGALShaderTextureType::TextureCubeArray:
+      return ezGALTextureType::TextureCubeArray;
+    default:
+    case ezGALShaderTextureType::Unknown:
+    case ezGALShaderTextureType::Texture1D:
+    case ezGALShaderTextureType::Texture1DArray:
+      EZ_REPORT_FAILURE("Unknown shader texture type");
+      return ezGALTextureType::Invalid;
+  }
+}

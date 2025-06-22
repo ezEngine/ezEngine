@@ -66,7 +66,7 @@ vk::PipelineLayout ezGALShaderVulkan::GetVkPipelineLayout() const
 
 vk::DescriptorSetLayout ezGALShaderVulkan::GetDescriptorSetLayout(ezUInt32 uiSet) const
 {
-  EZ_ASSERT_DEBUG(uiSet < GetSetCount(), "Set index out of range.");
+  EZ_ASSERT_DEBUG(uiSet < GetBindGroupCount(), "Bind group index out of range.");
   return static_cast<const ezGALBindGroupLayoutVulkan*>(m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiSet]))->GetDescriptorSetLayout();
 }
 

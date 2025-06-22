@@ -10,11 +10,6 @@
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALTextureResourceViewVulkan;
-class ezGALBufferResourceViewVulkan;
-class ezGALTextureUnorderedAccessViewVulkan;
-class ezGALBufferUnorderedAccessViewVulkan;
-
 
 /// \brief
 class EZ_RENDERERVULKAN_DLL ezImageCopyVulkan

@@ -40,6 +40,8 @@ public:
   vk::ImageSubresourceRange GetFullRange() const;
   vk::ImageAspectFlags GetAspectMask() const;
 
+  vk::DescriptorImageInfo GetDescriptorImageInfo(ezGALTextureRange textureRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALShaderTextureType> textureType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
@@ -60,6 +62,19 @@ protected:
 
   ezVulkanAllocation m_alloc = nullptr;
   ezVulkanAllocationInfo m_allocInfo;
+
+  // Views
+  struct View : ezHashableStruct<View>
+  {
+    ezGALTextureRange m_TextureRange;
+    ezEnum<ezGALShaderResourceType> m_ResourceType;
+    ezEnum<ezGALShaderTextureType> m_TextureType;
+    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+  };
+  mutable ezHashTable<View, vk::DescriptorImageInfo, View> m_TextureViews;
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
 };

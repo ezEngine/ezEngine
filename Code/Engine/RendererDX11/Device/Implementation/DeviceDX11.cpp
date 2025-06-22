@@ -14,10 +14,8 @@
 #include <RendererDX11/Resources/ReadbackBufferDX11.h>
 #include <RendererDX11/Resources/ReadbackTextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
-#include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/BindGroupLayoutDX11.h>
 #include <RendererDX11/Shader/PipelineLayoutDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
@@ -216,9 +214,10 @@ retry:
     { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
         { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // RenderDoc cannot handle buffers that are mapped in a different frame than the current one
   m_bSupportsAlwaysMappedTempResources = GetModuleHandleA("renderdoc.dll") == nullptr;
-
+#endif
   return EZ_SUCCESS;
 }
 
@@ -672,46 +671,6 @@ void ezGALDeviceDX11::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pRead
   EZ_DELETE(&m_Allocator, pDX11ReadbackTexture);
 }
 
-ezGALTextureResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
-{
-  ezGALTextureResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewDX11, pResource, Description);
-
-  if (!pResourceView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pResourceView);
-    return nullptr;
-  }
-
-  return pResourceView;
-}
-
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
-{
-  ezGALTextureResourceViewDX11* pDX11ResourceView = static_cast<ezGALTextureResourceViewDX11*>(pResourceView);
-  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ResourceView);
-}
-
-ezGALBufferResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
-{
-  ezGALBufferResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewDX11, pResource, Description);
-
-  if (!pResourceView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pResourceView);
-    return nullptr;
-  }
-
-  return pResourceView;
-}
-
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
-{
-  ezGALBufferResourceViewDX11* pDX11ResourceView = static_cast<ezGALBufferResourceViewDX11*>(pResourceView);
-  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ResourceView);
-}
-
 ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
 {
   ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, pTexture, Description);
@@ -730,46 +689,6 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
   ezGALRenderTargetViewDX11* pDX11RenderTargetView = static_cast<ezGALRenderTargetViewDX11*>(pRenderTargetView);
   pDX11RenderTargetView->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
-}
-
-ezGALTextureUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALTexture* pTextureOfBuffer, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALTextureUnorderedAccessViewDX11, pTextureOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
-}
-
-ezGALBufferUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewDX11, pBufferOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
 }
 
 // Other rendering creation functions
@@ -1073,10 +992,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
-      m_Capabilities.m_bSupportsNoOverwriteBufferUpdate = true;
-      [[fallthrough]];
-
-    case D3D_FEATURE_LEVEL_11_0:
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = true;
@@ -1088,31 +1003,10 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       break;
 
       // not supported any longer
-
+      // case D3D_FEATURE_LEVEL_11_0:
       // case D3D_FEATURE_LEVEL_10_1:
       // case D3D_FEATURE_LEVEL_10_0:
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      //   m_Capabilities.m_bSupportsIndirectDraw = false;
-      //   m_Capabilities.m_bTextureArrays = true;
-      //   m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
-      //   break;
-
       // case D3D_FEATURE_LEVEL_9_3:
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = false;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      //   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      //   m_Capabilities.m_bSupportsIndirectDraw = false;
-      //   m_Capabilities.m_bTextureArrays = false;
-      //   m_Capabilities.m_bCubemapArrays = false;
-      //   break;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
