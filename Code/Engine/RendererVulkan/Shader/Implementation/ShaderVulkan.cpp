@@ -2,9 +2,9 @@
 
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
-#include <RendererVulkan/Shader/ShaderVulkan.h>
-#include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
+#include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
+#include <RendererVulkan/Shader/ShaderVulkan.h>
 
 ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Description)
   : ezGALShader(Description)

@@ -11,6 +11,7 @@ class ezGALBindGroupLayoutVulkan : public ezGALBindGroupLayout
 {
 public:
   inline vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
@@ -24,6 +25,4 @@ protected:
 
 private:
   vk::DescriptorSetLayout m_DescriptorSetLayout;
-
 };
-

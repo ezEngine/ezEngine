@@ -30,7 +30,6 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 private:
-
   vk::ShaderModule m_Shaders[ezGALShaderStage::ENUM_COUNT];
 };
 

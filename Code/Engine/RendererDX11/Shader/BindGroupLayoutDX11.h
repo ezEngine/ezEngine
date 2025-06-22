@@ -1,14 +1,13 @@
 
 #pragma once
 
+#include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Shader/BindGroupLayout.h>
-#include <RendererDX11/RendererDX11DLL.h>
 
 class ezGALBindGroupLayoutDX11 : public ezGALBindGroupLayout
 {
 public:
-
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
@@ -19,6 +18,4 @@ protected:
   ezGALBindGroupLayoutDX11(const ezGALBindGroupLayoutCreationDescription& Description);
 
   virtual ~ezGALBindGroupLayoutDX11();
-
 };
-

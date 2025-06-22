@@ -21,7 +21,7 @@ struct ezGALBindGroupLayoutCreationDescription
 {
   ezUInt32 CalculateHash() const;
 
-  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings; ///< Must be sorted by m_iSlot. m_iSet must be the same for all bindings in this array.
+  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iSet must be the same for all bindings in this array.
   ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
 };
 
@@ -39,7 +39,7 @@ struct ezGALPushConstant
 struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
 {
   ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_SETS]; ///< One for each set used in the shader. SET_FRAME, SET_RENDER_PASS, SET_MATERIAL, SET_DRAW_CALL.
-  ezGALPushConstant m_PushConstants; ///< Only one push constant block is supported right now.
+  ezGALPushConstant m_PushConstants;                        ///< Only one push constant block is supported right now.
 };
 
 /// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).

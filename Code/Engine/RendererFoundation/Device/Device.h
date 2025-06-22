@@ -416,7 +416,7 @@ protected:
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) = 0;
-  
+
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) = 0;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) = 0;
 

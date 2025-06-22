@@ -130,7 +130,7 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_BindGroupLayouts.IsEmpty())
       ezLog::Warning("{0} bind group layouts have not been cleaned up", m_BindGroupLayouts.GetCount());
-    
+
     if (!m_PipelineLayouts.IsEmpty())
       ezLog::Warning("{0} pipeline layouts have not been cleaned up", m_PipelineLayouts.GetCount());
 

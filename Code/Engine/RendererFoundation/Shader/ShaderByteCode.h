@@ -85,7 +85,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
   ezInt16 m_iSlot = -1;                                       //< The slot under which the resource needs to be bound in the set.
   ezUInt32 m_uiArraySize = 1;                                 //< Number of array elements. Only 1 is currently supported. 0 if bindless.
   ezHashedString m_sName;                                     //< Name under which a resource must be bound to fulfill this resource binding.
-  ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer, PushConstants, StructuredBuffer, StructuredBufferRW.
+  ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout;        //< Only valid if ezGALShaderResourceType is ConstantBuffer, PushConstants, StructuredBuffer, StructuredBufferRW.
 
   static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName);
 };

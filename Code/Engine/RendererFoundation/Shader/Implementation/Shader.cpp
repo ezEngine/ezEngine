@@ -5,10 +5,10 @@
 #include <Foundation/Logging/Log.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/ImmutableSamplers.h>
+#include <RendererFoundation/Shader/BindGroupLayout.h>
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererFoundation/Shader/Types.h>
-#include <RendererFoundation/Shader/BindGroupLayout.h>
 
 bool ezShaderMat3::TransposeShaderMatrices = false;
 

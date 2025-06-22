@@ -177,12 +177,11 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
     }
   }
   out_bindings.Sort([](const ezShaderResourceBinding& lhs, const ezShaderResourceBinding& rhs)
-  {
+    {
     if (lhs.m_iSet != rhs.m_iSet)
       return lhs.m_iSet < rhs.m_iSet;
 
-    return lhs.m_iSlot < rhs.m_iSlot;
-  });
+    return lhs.m_iSlot < rhs.m_iSlot; });
   return EZ_SUCCESS;
 }
 
