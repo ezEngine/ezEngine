@@ -187,20 +187,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
 
 ezGALShaderByteCode::ezGALShaderByteCode() = default;
 
-ezGALShaderByteCode::~ezGALShaderByteCode()
-{
-  for (auto& binding : m_ShaderResourceBindings)
-  {
-    if (binding.m_pLayout != nullptr)
-    {
-      ezShaderConstantBufferLayout* pLayout = binding.m_pLayout;
-      binding.m_pLayout = nullptr;
-
-      if (pLayout->GetRefCount() == 0)
-        EZ_DEFAULT_DELETE(pLayout);
-    }
-  }
-}
+ezGALShaderByteCode::~ezGALShaderByteCode() = default;
 
 bool ezShaderConstantBufferLayout::operator==(const ezShaderConstantBufferLayout& rhs) const
 {

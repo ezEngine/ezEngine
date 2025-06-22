@@ -78,7 +78,7 @@ ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutabl
       }
       PipelineLayoutDesc.m_PushConstants.m_Stages = binding.m_Stages;
       PipelineLayoutDesc.m_PushConstants.m_uiOffset = 0;
-      PipelineLayoutDesc.m_PushConstants.m_uiSize = binding.m_pLayout->m_uiTotalSize;
+      PipelineLayoutDesc.m_PushConstants.m_uiSize = (ezUInt16)binding.m_pLayout->m_uiTotalSize;
       continue;
     }
 
