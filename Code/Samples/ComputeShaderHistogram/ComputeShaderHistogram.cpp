@@ -33,14 +33,14 @@ void ezComputeShaderHistogramApp::Run()
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
 
-  #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
   m_bStuffChanged = false;
   m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
   if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
-  #endif
+#endif
 
   ezUInt32 uiWindowWidth = m_pWindow->GetClientAreaSize().width;
   ezUInt32 uiWindowHeight = m_pWindow->GetClientAreaSize().height;

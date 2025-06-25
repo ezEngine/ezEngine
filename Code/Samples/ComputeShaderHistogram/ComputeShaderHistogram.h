@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
-#include <Foundation/IO/DirectoryWatcher.h>
+#  include <Foundation/IO/DirectoryWatcher.h>
 #endif
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
