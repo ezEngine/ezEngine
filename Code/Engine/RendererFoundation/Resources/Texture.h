@@ -10,6 +10,7 @@ public:
   ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
   /// \brief Replaced EZ_GAL_ALL_MIP_LEVELS and EZ_GAL_ALL_ARRAY_SLICES with the correct upper bounds for this texture.
   ezGALTextureRange ClampRange(ezGALTextureRange range) const;
+
 protected:
   friend class ezGALDevice;
 

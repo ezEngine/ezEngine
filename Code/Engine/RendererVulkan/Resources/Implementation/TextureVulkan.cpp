@@ -58,7 +58,7 @@ vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureR
 
     vk::ImageViewCreateInfo viewCreateInfo;
     viewCreateInfo.image = m_image;
-    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType( textureType);
+    viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(textureType);
     viewCreateInfo.format = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
     viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(viewFormat, textureRange);
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;

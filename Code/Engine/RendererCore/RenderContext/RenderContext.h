@@ -4,6 +4,7 @@
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <RendererCore/RenderContext/BindGroupBuilder.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
@@ -12,7 +13,6 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
-#include <RendererCore/RenderContext/BindGroupBuilder.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 

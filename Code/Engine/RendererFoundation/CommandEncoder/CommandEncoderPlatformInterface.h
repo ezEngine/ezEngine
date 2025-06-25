@@ -3,9 +3,9 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Rect.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
 struct ezShaderResourceBinding;
 struct ezGALRenderingSetup;
 struct ezGALBindGroupCreationDescription;

@@ -171,7 +171,6 @@ private:
 
     ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers;
     ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
-
   };
   BindGroupInfo m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
 

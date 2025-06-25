@@ -1,5 +1,8 @@
 
-ezGALBindGroupItem::ezGALBindGroupItem() { m_Dummy[0] = {}; }
+ezGALBindGroupItem::ezGALBindGroupItem()
+{
+  m_Dummy[0] = {};
+}
 ezGALBindGroupItem::ezGALBindGroupItem(const ezGALBindGroupItem& rhs)
 {
   m_Flags = rhs.m_Flags;

@@ -136,10 +136,10 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
             {
               EZ_ASSERT_ALWAYS(range.m_uiArraySlices == 6, "m_uiArraySlices must be 6 for a cube texture binding");
             }
-           else
-           {
-             EZ_ASSERT_ALWAYS(range.m_uiArraySlices == 1, "m_uiArraySlices must be 1 for non array bindings");
-           }
+            else
+            {
+              EZ_ASSERT_ALWAYS(range.m_uiArraySlices == 1, "m_uiArraySlices must be 1 for non array bindings");
+            }
           }
 
           EZ_ASSERT_ALWAYS(ezGALShaderTextureType::IsMSAA(binding.m_TextureType) == (textureDesc.m_SampleCount != ezGALMSAASampleCount::None), "MSAA missmatch between texture and binding");

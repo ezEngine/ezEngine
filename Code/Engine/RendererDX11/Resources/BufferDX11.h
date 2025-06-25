@@ -17,6 +17,7 @@ public:
   DXGI_FORMAT GetIndexFormat() const;
   ID3D11ShaderResourceView* GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
   ID3D11UnorderedAccessView* GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;

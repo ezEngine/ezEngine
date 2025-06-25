@@ -168,7 +168,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
     bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
-    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer,m_LineSweepOutputBufferRange);
+    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer, m_LineSweepOutputBufferRange);
 
     const ezUInt32 dispatchSize = m_uiNumSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_uiNumSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
     const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;

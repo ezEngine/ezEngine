@@ -11,6 +11,7 @@ public:
   virtual const ezGALResourceBase* GetParentResource() const override;
   ezGALTextureHandle GetParentTextureHandle() const { return m_hParentTexture; }
   ezUInt32 GetSlice() const { return m_uiSlice; }
+
 protected:
   friend class ezGALDevice;
 
