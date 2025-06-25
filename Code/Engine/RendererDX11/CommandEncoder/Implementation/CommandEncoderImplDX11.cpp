@@ -113,6 +113,7 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
 
 ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
 {
+  EZ_IGNORE_UNUSED(uiBindGroup);
   const ezGALBindGroupLayoutDX11* pLayout = static_cast<const ezGALBindGroupLayoutDX11*>(m_GALDeviceDX11.GetBindGroupLayout(bindGroup.m_hBindGroupLayout));
   if (pLayout == nullptr)
     return EZ_FAILURE;

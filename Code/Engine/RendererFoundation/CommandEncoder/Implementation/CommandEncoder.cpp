@@ -158,9 +158,9 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
           EZ_ASSERT_ALWAYS(range.m_uiBaseMipLevel < textureDesc.m_uiMipLevelCount, "Base array slice is out of bounds");
           EZ_ASSERT_ALWAYS(range.m_uiMipLevels > 0, "Mip level count must be greater than 0");
           EZ_ASSERT_ALWAYS(range.m_uiArraySlices > 0, "Array slices must be greater than 0");
-          EZ_ASSERT_ALWAYS(range.m_uiMipLevels == EZ_GAL_ALL_MIP_LEVELS || range.m_uiBaseMipLevel + range.m_uiMipLevels <= textureDesc.m_uiMipLevelCount, "Mip level range is out of bounds");
+          EZ_ASSERT_ALWAYS(range.m_uiMipLevels == EZ_GAL_ALL_MIP_LEVELS || static_cast<ezUInt32>(range.m_uiBaseMipLevel) + range.m_uiMipLevels <= textureDesc.m_uiMipLevelCount, "Mip level range is out of bounds");
 
-          EZ_ASSERT_ALWAYS(range.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES || range.m_uiBaseArraySlice + range.m_uiArraySlices <= uiSlices, "Array slice range is out of bounds");
+          EZ_ASSERT_ALWAYS(range.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES || static_cast<ezUInt32>(range.m_uiBaseArraySlice) + range.m_uiArraySlices <= uiSlices, "Array slice range is out of bounds");
           EZ_ASSERT_ALWAYS(binding.m_TextureType != ezGALShaderTextureType::TextureCube || range.m_uiArraySlices == 6, "Cube textures must have 6 as array slices");
           EZ_ASSERT_ALWAYS(binding.m_TextureType != ezGALShaderTextureType::TextureCubeArray || (range.m_uiArraySlices % 6) == 0, "Cube array textures must have array slices that are multiple of 6");
         }

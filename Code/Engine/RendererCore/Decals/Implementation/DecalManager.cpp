@@ -12,9 +12,9 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
-
 #include <Shaders/Common/LightData.h>
 
 // clang-format off

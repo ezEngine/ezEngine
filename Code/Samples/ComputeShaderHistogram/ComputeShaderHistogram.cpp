@@ -33,12 +33,14 @@ void ezComputeShaderHistogramApp::Run()
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
 
+  #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
   m_bStuffChanged = false;
   m_pDirectoryWatcher->EnumerateChanges(ezMakeDelegate(&ezComputeShaderHistogramApp::OnFileChanged, this));
   if (m_bStuffChanged)
   {
     ezResourceManager::ReloadAllResources(false);
   }
+  #endif
 
   ezUInt32 uiWindowWidth = m_pWindow->GetClientAreaSize().width;
   ezUInt32 uiWindowHeight = m_pWindow->GetClientAreaSize().height;
@@ -155,10 +157,10 @@ void ezComputeShaderHistogramApp::Run()
 void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 {
   SUPER::AfterCoreSystemsStartup();
-
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
   m_pDirectoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
   EZ_VERIFY(m_pDirectoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories).Succeeded(), "Failed to watch project directory");
-
+#endif
   auto device = ezGALDevice::GetDefaultDevice();
 
   // Retrieve window and swapchain handle for rendering
@@ -283,7 +285,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     m_hHistogramQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
   }
 }
-
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 void ezComputeShaderHistogramApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
@@ -292,5 +294,5 @@ void ezComputeShaderHistogramApp::OnFileChanged(ezStringView sFilename, ezDirect
     m_bStuffChanged = true;
   }
 }
-
+#endif
 EZ_APPLICATION_ENTRY_POINT(ezComputeShaderHistogramApp);

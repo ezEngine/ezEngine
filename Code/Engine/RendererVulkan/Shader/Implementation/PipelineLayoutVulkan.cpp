@@ -3,6 +3,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 #include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezGALPipelineLayoutVulkan::ezGALPipelineLayoutVulkan(const ezGALPipelineLayoutCreationDescription& Description)
   : ezGALPipelineLayout(Description)

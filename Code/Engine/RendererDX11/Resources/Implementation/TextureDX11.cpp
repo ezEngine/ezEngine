@@ -238,7 +238,7 @@ ID3D11ShaderResourceView* ezGALTextureDX11::GetSRV(ezGALTextureRange textureRang
   {
     const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
     if (textureRange.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
-      textureRange.m_uiArraySlices = m_Description.m_uiArraySize;
+      textureRange.m_uiArraySlices = (ezUInt16)m_Description.m_uiArraySize;
 
     DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
     if (ezGALResourceFormat::IsDepthFormat(viewFormat))
