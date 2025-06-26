@@ -42,11 +42,11 @@ private:
   ezWindowBase* m_pWindow = nullptr;
   ezGALSwapChainHandle m_hSwapChain;
 
-  ezShaderResourceHandle m_hScreenShader;
-  ezShaderResourceHandle m_hScreenCopyShader;
-  ezShaderResourceHandle m_hHistogramDisplayShader;
-  ezShaderResourceHandle m_hHistogramComputeShader;
-  ezShaderResourceHandle m_hHistogramClearShader;
+  ezShaderResourceHandle m_hRenderScreenShader;
+  ezShaderResourceHandle m_hDisplayScreenShader;
+  ezShaderResourceHandle m_hClearHistogramShader;
+  ezShaderResourceHandle m_hComputeHistogramShader;
+  ezShaderResourceHandle m_hDisplayHistogramShader;
 
   ezMeshBufferResourceHandle m_hHistogramQuadMeshBuffer;
 
