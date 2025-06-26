@@ -14,7 +14,7 @@
 
 #include <RendererFoundation/Shader/BindGroupLayout.h>
 
-ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
+void ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
 {
   AssertRenderingThread();
 
@@ -48,7 +48,7 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
           EZ_ASSERT_ALWAYS(item.m_Flags.IsSet(ezGALBindGroupItemFlags::Buffer), "Item type does not match binding");
           const ezGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
           EZ_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
-          EZ_ASSERT_ALWAYS(item.m_Buffer.m_OverrideViewFormat == ezGALResourceFormat::Invalid, "m_OverrideViewFormat must be Invalid for constant buffers");
+          EZ_ASSERT_ALWAYS(item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for constant buffers");
           EZ_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteOffset == 0, "Byte offset for constant buffers not supported yet");
           EZ_ASSERT_ALWAYS(item.m_Buffer.m_BufferRange.m_uiByteCount == pBuffer->GetDescription().m_uiTotalSize, "Byte count for constant buffers not supported yet");
         }
@@ -65,7 +65,7 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
           const ezGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
           EZ_ASSERT_ALWAYS(pBuffer != nullptr, "Invalid buffer");
           const ezGALBufferCreationDescription& bufferDesc = pBuffer->GetDescription();
-          EZ_ASSERT_ALWAYS((binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::TexelBufferRW) || item.m_Buffer.m_OverrideViewFormat == ezGALResourceFormat::Invalid, "m_OverrideViewFormat must be Invalid for non-texel buffers");
+          EZ_ASSERT_ALWAYS((binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::TexelBufferRW) || item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid, "m_OverrideTexelBufferFormat must be Invalid for non-texel buffers");
           EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::TexelBuffer && binding.m_ResourceType != ezGALShaderResourceType::TexelBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::TexelBuffer), "TexelBuffer bindings are only supported on texel buffers");
           EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::StructuredBuffer && binding.m_ResourceType != ezGALShaderResourceType::StructuredBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::StructuredBuffer), "StructuredBuffer bindings are only supported on structured buffers");
           EZ_ASSERT_ALWAYS((binding.m_ResourceType != ezGALShaderResourceType::ByteAddressBuffer && binding.m_ResourceType != ezGALShaderResourceType::ByteAddressBufferRW) || bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ByteAddressBuffer), "ByteAddressBuffer bindings are only supported on byte address buffers");
@@ -86,7 +86,7 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
           }
           else if (binding.m_ResourceType == ezGALShaderResourceType::TexelBuffer || binding.m_ResourceType == ezGALShaderResourceType::TexelBufferRW)
           {
-            const ezGALResourceFormat::Enum viewFormat = item.m_Buffer.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? bufferDesc.m_Format : item.m_Buffer.m_OverrideViewFormat;
+            const ezGALResourceFormat::Enum viewFormat = item.m_Buffer.m_OverrideTexelBufferFormat == ezGALResourceFormat::Invalid ? bufferDesc.m_Format : item.m_Buffer.m_OverrideTexelBufferFormat;
             uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
           }
 
@@ -121,7 +121,15 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
           const ezGALTexture* pTexture = m_Device.GetTexture(item.m_Texture.m_hTexture);
           EZ_ASSERT_ALWAYS(pTexture != nullptr, "Invalid texture");
           const auto& textureDesc = pTexture->GetDescription();
-          // TODO item.m_Texture.m_OverrideViewFormat
+
+          if (item.m_Texture.m_OverrideViewFormat != ezGALResourceFormat::Invalid)
+          {
+            const ezEnum<ezGALResourceFormat> format = pTexture->GetDescription().m_Format;
+            const ezEnum<ezGALResourceFormat> overrideFormat = item.m_Texture.m_OverrideViewFormat;
+            EZ_ASSERT_ALWAYS(ezGALResourceFormat::GetBitsPerElement(format) == ezGALResourceFormat::GetBitsPerElement(overrideFormat), "Format override bits per element ({}) must match the same on the original format ({})", ezGALResourceFormat::GetBitsPerElement(overrideFormat), ezGALResourceFormat::GetBitsPerElement(format));
+            EZ_ASSERT_ALWAYS(ezGALResourceFormat::GetChannelCount(format) == ezGALResourceFormat::GetChannelCount(overrideFormat), "Format override channel count ({}) must match the same on the original format ({})", ezGALResourceFormat::GetChannelCount(overrideFormat), ezGALResourceFormat::GetChannelCount(format));
+          }
+          // TODO item.m_Texture.m_OverrideTexelBufferFormat
           if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
           {
             const ezGALSamplerState* pSampler = m_Device.GetSamplerState(item.m_Texture.m_hSampler);
@@ -174,7 +182,7 @@ ezResult ezGALCommandEncoder::SetBindGroup(ezUInt32 uiBindGroup, const ezGALBind
     }
   }
 #endif
-  return m_CommonImpl.SetBindGroupPlatform(uiBindGroup, bindGroup);
+  m_CommonImpl.SetBindGroupPlatform(uiBindGroup, bindGroup);
 }
 
 void ezGALCommandEncoder::SetPushConstants(ezArrayPtr<const ezUInt8> data)

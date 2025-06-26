@@ -934,7 +934,7 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   EZ_IGNORE_UNUSED(parentDesc);
   EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_Type == ezGALTextureType::Texture2DArray || parentDesc.m_Type == ezGALTextureType::TextureCubeArray, "Proxy textures can only be created for cubemaps or array textures.");
 
-  ezGALProxyTexture* pProxyTexture = EZ_NEW(&m_Allocator, ezGALProxyTexture, hParentTexture, *pParentTexture, uiSlice);
+  ezGALProxyTexture* pProxyTexture = EZ_NEW(&m_Allocator, ezGALProxyTexture, hParentTexture, *pParentTexture, (ezUInt16)uiSlice);
   ezGALTextureHandle hProxyTexture(m_Textures.Insert(pProxyTexture));
 
   // Create default render target view

@@ -17,7 +17,7 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
-  ezStringUtils::snprintf(szTmp, uiLength, "%i", arg.m_ErrorCode);
+  ezStringUtils::snprintf(szTmp, uiLength, "%u", arg.m_ErrorCode);
   return ezStringView(szTmp);
 }
 #endif

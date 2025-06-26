@@ -92,14 +92,14 @@ ezResult ezGALBufferDX11::CreateBufferDesc(const ezGALBufferCreationDescription&
   return EZ_SUCCESS;
 }
 
-ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
 {
   ID3D11ShaderResourceView* pSRV = nullptr;
 
   View view;
   view.m_BufferRange = bufferRange;
   view.m_ResourceType = resourceType;
-  view.m_OverrideViewFormat = overrideViewFormat;
+  view.m_OverrideTexelBufferFormat = overrideTexelBufferFormat;
 
   if (!m_SRVs.TryGetValue(view, pSRV))
   {
@@ -115,7 +115,7 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
     {
       case ezGALShaderResourceType::TexelBuffer:
       {
-        const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+        const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
         const auto& formatInfo = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
         const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;
@@ -158,13 +158,13 @@ ID3D11ShaderResourceView* ezGALBufferDX11::GetSRV(ezGALBufferRange bufferRange, 
   return pSRV;
 }
 
-ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
 {
   ID3D11UnorderedAccessView* pUAV = nullptr;
 
   View view;
   view.m_BufferRange = bufferRange;
-  view.m_OverrideViewFormat = overrideViewFormat;
+  view.m_OverrideTexelBufferFormat = overrideTexelBufferFormat;
 
   if (!m_UAVs.TryGetValue(view, pUAV))
   {
@@ -179,7 +179,7 @@ ID3D11UnorderedAccessView* ezGALBufferDX11::GetUAV(ezGALBufferRange bufferRange,
     {
       case ezGALShaderResourceType::TexelBufferRW:
       {
-        const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+        const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
         const auto& formatInfo = m_pDevice->GetFormatLookupTable().GetFormatInfo(viewFormat);
         const ezUInt32 uiBytesPerElement = ezGALResourceFormat::GetBitsPerElement(viewFormat) / 8;

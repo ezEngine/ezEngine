@@ -36,7 +36,7 @@ ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderC
 ezMutex ezRenderContext::s_ConstantBufferStorageMutex;
 ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> ezRenderContext::s_ConstantBufferStorageTable;
 ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> ezRenderContext::s_FreeConstantBufferStorage;
-ezSet<ezConstantBufferStorageBase*> ezRenderContext::m_DirtyConstantBuffers;
+ezSet<ezConstantBufferStorageBase*> ezRenderContext::s_DirtyConstantBuffers;
 
 namespace
 {
@@ -265,7 +265,7 @@ ezBindGroupBuilder& ezRenderContext::GetBindGroup(ezUInt32 uiBindGroup)
   return m_BindGroupBuilders[0];
 }
 
-void ezRenderContext::SetPushConstants(const ezTempHashedString& sSlotName, ezArrayPtr<const ezUInt8> data)
+void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<const ezUInt8> data)
 {
 
   if (!m_hPushConstantsStorage.IsInvalidated())
@@ -277,7 +277,7 @@ void ezRenderContext::SetPushConstants(const ezTempHashedString& sSlotName, ezAr
     {
       ezArrayPtr<ezUInt8> targetStorage = pStorage->GetRawDataForWriting();
       ezMemoryUtils::Copy(targetStorage.GetPtr(), data.GetPtr(), data.GetCount());
-      // #TODO: which bind group?
+      // #TODO: Once all shaders are migrated to use multiple bind groups, we need to decide where to put the fallback buffer for platforms that don't support push constants, e.g. DX11. Right now, everything ends up in slot 0, so this code is correct for now but it is also the worst place to put the push constants as that group should change the least and push constants should change the most.
       GetBindGroup().BindBuffer(sSlotName, m_hPushConstantsStorage);
     }
   }
@@ -615,6 +615,11 @@ void ezRenderContext::ResetContextState()
   m_pVertexDeclarationInfo = nullptr;
   m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
+
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
+  {
+    m_BindGroupBuilders[i].ResetBoundResources(ezGALDevice::GetDefaultDevice());
+  }
 }
 
 ezGlobalConstants& ezRenderContext::WriteGlobalConstants()
@@ -668,7 +673,7 @@ ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(ezUIn
   }
 
   out_pStorage = pStorage;
-  m_DirtyConstantBuffers.Insert(pStorage);
+  s_DirtyConstantBuffers.Insert(pStorage);
   return ezConstantBufferStorageHandle(s_ConstantBufferStorageTable.Insert(pStorage));
 }
 
@@ -684,7 +689,7 @@ void ezRenderContext::DeleteConstantBufferStorage(ezConstantBufferStorageHandle 
     return;
   }
   pStorage->BeforeBeginFrame();
-  m_DirtyConstantBuffers.Remove(pStorage);
+  s_DirtyConstantBuffers.Remove(pStorage);
 
   ezUInt32 uiSizeInBytes = pStorage->m_Data.GetCount();
 
@@ -708,7 +713,7 @@ bool ezRenderContext::TryGetConstantBufferStorage(ezConstantBufferStorageHandle 
 void ezRenderContext::MarktConstantBufferStorageModified(ezConstantBufferStorageBase* pDirtyStorage)
 {
   EZ_LOCK(s_ConstantBufferStorageMutex);
-  m_DirtyConstantBuffers.Insert(pDirtyStorage);
+  s_DirtyConstantBuffers.Insert(pDirtyStorage);
 }
 
 // static
@@ -838,7 +843,7 @@ void ezRenderContext::OnEngineShutdown()
     }
 
     s_FreeConstantBufferStorage.Clear();
-    m_DirtyConstantBuffers.Clear();
+    s_DirtyConstantBuffers.Clear();
   }
 }
 
@@ -865,7 +870,7 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
     for (auto it = s_ConstantBufferStorageTable.GetIterator(); it.IsValid(); ++it)
     {
       it.Value()->BeforeBeginFrame();
-      m_DirtyConstantBuffers.Insert(it.Value());
+      s_DirtyConstantBuffers.Insert(it.Value());
     }
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
@@ -963,12 +968,12 @@ void ezRenderContext::UploadConstants()
 {
   GetBindGroup().BindBuffer("ezGlobalConstants", m_hGlobalConstantBufferStorage);
 
-  for (auto it = m_DirtyConstantBuffers.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_DirtyConstantBuffers.GetIterator(); it.IsValid(); ++it)
   {
     ezConstantBufferStorageBase* pConstantBufferStorage = it.Key();
     pConstantBufferStorage->UploadData(m_pGALCommandEncoder);
   }
-  m_DirtyConstantBuffers.Clear();
+  s_DirtyConstantBuffers.Clear();
 }
 
 void ezRenderContext::SetShaderPermutationVariableInternal(const ezHashedString& sName, const ezHashedString& sValue)
@@ -1095,12 +1100,9 @@ ezResult ezRenderContext::ApplyBindGroup(const ezGALShader* pShader, ezUInt32 ui
   if (hLayout.IsInvalidated())
     return EZ_FAILURE;
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  if (m_BindGroupBuilders[uiBindGroup].CreateBindGroup(pDevice, hLayout, m_BindGroups[uiBindGroup]).Failed())
-    return EZ_FAILURE;
-
-  return m_pGALCommandEncoder->SetBindGroup(uiBindGroup, m_BindGroups[uiBindGroup]);
+  m_BindGroupBuilders[uiBindGroup].CreateBindGroup(hLayout, m_BindGroups[uiBindGroup]);
+  m_pGALCommandEncoder->SetBindGroup(uiBindGroup, m_BindGroups[uiBindGroup]);
+  return EZ_SUCCESS;
 }
 
 void ezRenderContext::SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter)

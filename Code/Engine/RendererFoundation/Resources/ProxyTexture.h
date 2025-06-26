@@ -10,12 +10,12 @@ public:
 
   virtual const ezGALResourceBase* GetParentResource() const override;
   ezGALTextureHandle GetParentTextureHandle() const { return m_hParentTexture; }
-  ezUInt32 GetSlice() const { return m_uiSlice; }
+  ezUInt16 GetSlice() const { return m_uiSlice; }
 
 protected:
   friend class ezGALDevice;
 
-  ezGALProxyTexture(ezGALTextureHandle hParentTexture, const ezGALTexture& parentTexture, ezUInt32 uiSlice);
+  ezGALProxyTexture(ezGALTextureHandle hParentTexture, const ezGALTexture& parentTexture, ezUInt16 uiSlice);
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
@@ -24,5 +24,5 @@ protected:
 
   ezGALTextureHandle m_hParentTexture;
   const ezGALTexture* m_pParentTexture;
-  ezUInt32 m_uiSlice = 0;
+  ezUInt16 m_uiSlice = 0;
 };

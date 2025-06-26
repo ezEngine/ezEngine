@@ -154,17 +154,17 @@ void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
   m_pDeviceVulkan->SetDebugName(szName, m_buffer, m_alloc);
 }
 
-vk::BufferView ezGALBufferVulkan::GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+vk::BufferView ezGALBufferVulkan::GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
 {
   vk::BufferView bufferView;
 
   View view;
   view.m_BufferRange = bufferRange;
-  view.m_OverrideViewFormat = overrideViewFormat;
+  view.m_OverrideTexelBufferFormat = overrideTexelBufferFormat;
 
   if (!m_TexelBufferViews.TryGetValue(view, bufferView))
   {
-    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+    const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
     vk::BufferViewCreateInfo viewCreateInfo;
     viewCreateInfo.buffer = m_buffer;

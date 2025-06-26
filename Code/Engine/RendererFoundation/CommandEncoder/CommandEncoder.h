@@ -19,10 +19,32 @@ public:
 
   // State setting functions
 
-  /// \brief Sets a bind group to the given bind group index.
+  /// \brief Sets a bind group to the given bind group index. Preferably, bindGroup should be created via ezBindGroupBuilder::CreateBindGroup.
   ///
-  /// Preferrably bindGroup should be created via ezBindGroupBuilder::CreateBindGroup. In debug, this function is very slow as it validates every ezGALBindGroupItem against the layout's ezShaderResourceBinding.
-  ezResult SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
+  /// This function binds a collection of resources (buffers, textures, samplers) to a specific bind group index. In debug builds, it performs extensive validation of each ezGALBindGroupItem against the layout's ezShaderResourceBinding to ensure:
+  ///
+  /// **General Validation:**
+  /// - Bind group layout matches the number of provided items
+  /// - All resource handles are valid (non-null)
+  ///
+  /// **Buffer Validation:**
+  /// - Buffer handles are valid and match expected binding types
+  /// - Constant buffers: No texel format override, zero offset, full buffer size
+  /// - Structured/Texel/ByteAddress buffers: Proper usage flags, correct element alignment
+  /// - Buffer ranges: Offset/size alignment with element boundaries, bounds checking
+  /// - Access permissions: SRV/UAV flags match buffer usage flags
+  ///
+  /// **Texture Validation:**
+  /// - Texture handles are valid with proper view format compatibility
+  /// - Array slice counts match binding requirements (e.g. 1 for non-arrays, multiple of 6 for cubes)
+  /// - MSAA sample counts match between texture and binding
+  /// - Access permissions: SRV/UAV flags match texture capabilities
+  /// - Texture ranges: Mip levels and array slices within bounds
+  /// - Make sure no proxy texture is present
+  ///
+  /// \param uiBindGroup The bind group slot index to set
+  /// \param bindGroup Description containing the layout and resource items to bind
+  void SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
 
   // GPU -> CPU query functions

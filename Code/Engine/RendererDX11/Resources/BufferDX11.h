@@ -15,8 +15,8 @@ public:
 public:
   ID3D11Buffer* GetDXBuffer() const;
   DXGI_FORMAT GetIndexFormat() const;
-  ID3D11ShaderResourceView* GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
-  ID3D11UnorderedAccessView* GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+  ID3D11ShaderResourceView* GetSRV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
+  ID3D11UnorderedAccessView* GetUAV(ezGALBufferRange bufferRange, ezEnum<ezGALShaderResourceType> resourceType, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
 
 protected:
   friend class ezGALDeviceDX11;
@@ -39,7 +39,7 @@ protected:
   {
     ezGALBufferRange m_BufferRange;
     ezEnum<ezGALShaderResourceType> m_ResourceType;
-    ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+    ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat;
 
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
     EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }

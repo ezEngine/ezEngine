@@ -111,13 +111,10 @@ void ezGALCommandEncoderImplDX11::SetShader(const ezGALShader* pShader)
   }
 }
 
-ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
+void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
 {
   EZ_IGNORE_UNUSED(uiBindGroup);
   const ezGALBindGroupLayoutDX11* pLayout = static_cast<const ezGALBindGroupLayoutDX11*>(m_GALDeviceDX11.GetBindGroupLayout(bindGroup.m_hBindGroupLayout));
-  if (pLayout == nullptr)
-    return EZ_FAILURE;
-
   ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
   const ezUInt32 uiBindings = bindings.GetCount();
   for (ezUInt32 i = 0; i < uiBindings; ++i)
@@ -181,7 +178,7 @@ ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup,
           FlushDeferredStateChanges().IgnoreResult();
         }
 
-        ID3D11ShaderResourceView* pResourceViewDX11 = pBuffer != nullptr ? pBuffer->GetSRV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideViewFormat) : nullptr;
+        ID3D11ShaderResourceView* pResourceViewDX11 = pBuffer != nullptr ? pBuffer->GetSRV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideTexelBufferFormat) : nullptr;
 
         SetResourceView(binding, pBuffer, pResourceViewDX11);
       }
@@ -200,7 +197,7 @@ ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup,
           FlushDeferredStateChanges().IgnoreResult();
         }
 
-        ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pBuffer != nullptr ? pBuffer->GetUAV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideViewFormat) : nullptr;
+        ID3D11UnorderedAccessView* pUnorderedAccessViewDX11 = pBuffer != nullptr ? pBuffer->GetUAV(item.m_Buffer.m_BufferRange, binding.m_ResourceType, item.m_Buffer.m_OverrideTexelBufferFormat) : nullptr;
         SetUnorderedAccessView(binding, pUnorderedAccessViewDX11, pBuffer);
       }
       break;
@@ -215,7 +212,6 @@ ezResult ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup,
         break;
     }
   }
-  return EZ_SUCCESS;
 }
 
 void ezGALCommandEncoderImplDX11::SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)

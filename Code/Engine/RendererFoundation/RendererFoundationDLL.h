@@ -417,14 +417,14 @@ struct ezGALAsyncResult
   };
 };
 
-// Basic structs
+/// \brief Used to define a texture sub-resource, i.e. a single slice.
 struct ezGALTextureSubresource
 {
   ezUInt32 m_uiMipLevel = 0;
   ezUInt32 m_uiArraySlice = 0;
 };
 
-
+/// \brief Helper to map linear system memory to a 2D texture sub-resource.
 struct ezGALSystemMemoryDescription
 {
   ezConstByteBlobPtr m_pData;
@@ -432,8 +432,11 @@ struct ezGALSystemMemoryDescription
   ezUInt32 m_uiSlicePitch = 0;
 };
 
+/// \brief Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
+/// Mainly used in ezBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
 struct ezGALTextureRange
 {
+  /// \brief Helper to just set mip levels without also having to set the array slice fields.
   static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
   {
     return {0, 1, uiBaseMipLevel, uiMipLevels};
@@ -444,6 +447,8 @@ struct ezGALTextureRange
   ezUInt8 m_uiMipLevels = EZ_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to EZ_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
 };
 
+/// \brief Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
+/// Mainly used in ezBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
 struct ezGALBufferRange
 {
   ezUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
@@ -580,6 +585,7 @@ class ezGALComputePipelineHandle
   friend class ezGALDevice;
 };
 
+/// \brief Handle to ezGALBindGroupLayout, created ia ezGALDevice::CreateBindGroupLayout
 class ezGALBindGroupLayoutHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
@@ -587,6 +593,7 @@ class ezGALBindGroupLayoutHandle
   friend class ezGALDevice;
 };
 
+/// \brief Handle to ezGALPipelineLayout, created ia ezGALDevice::CreatePipelineLayout
 class ezGALPipelineLayoutHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
@@ -594,6 +601,7 @@ class ezGALPipelineLayoutHandle
   friend class ezGALDevice;
 };
 
+/// \brief Handle to ezGALBindGroup, created ia ezGALDevice::CreateBindGroup
 class ezGALBindGroupHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);

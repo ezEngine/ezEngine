@@ -14,12 +14,14 @@
 /// \brief Sampler contents of ezGALBindGroupItem
 struct ezSamplerBindGroupItem
 {
+  EZ_DECLARE_POD_TYPE();
   ezGALSamplerStateHandle m_hSampler;
 };
 
 /// \brief Texture contents of ezGALBindGroupItem
 struct ezTextureBindGroupItem
 {
+  EZ_DECLARE_POD_TYPE();
   ezGALTextureHandle m_hTexture;
   ezGALSamplerStateHandle m_hSampler;               ///< Only used for slots of ezGALShaderResourceType::TextureAndSampler.
   ezGALTextureRange m_TextureRange;
@@ -29,9 +31,10 @@ struct ezTextureBindGroupItem
 /// \brief Buffer contents of ezGALBindGroupItem
 struct ezGALBufferBindGroupItem
 {
+  EZ_DECLARE_POD_TYPE();
   ezGALBufferHandle m_hBuffer;
   ezGALBufferRange m_BufferRange;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat; ///< Texel buffer only: Overrides the default view format defined in the buffer description.
+  ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat; ///< Texel buffer only: Overrides the default view format defined in the buffer description.
 };
 
 /// \brief Used by ezGALBindGroupItem to define its content.
@@ -72,7 +75,6 @@ struct ezGALBindGroupItem : public ezHashableStruct<ezGALBindGroupItem>
     ezSamplerBindGroupItem m_Sampler;
     ezTextureBindGroupItem m_Texture;
     ezGALBufferBindGroupItem m_Buffer;
-    ezUInt32 m_Dummy[4];
   };
 };
 

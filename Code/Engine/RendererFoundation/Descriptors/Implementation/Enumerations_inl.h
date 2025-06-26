@@ -70,10 +70,10 @@ inline ezGALTextureType::Enum ezGALShaderTextureType::GetTextureType(ezGALShader
       return ezGALTextureType::TextureCube;
     case ezGALShaderTextureType::TextureCubeArray:
       return ezGALTextureType::TextureCubeArray;
-    default:
     case ezGALShaderTextureType::Unknown:
     case ezGALShaderTextureType::Texture1D:
     case ezGALShaderTextureType::Texture1DArray:
+    default:
       EZ_REPORT_FAILURE("Unknown shader texture type");
       return ezGALTextureType::Invalid;
   }

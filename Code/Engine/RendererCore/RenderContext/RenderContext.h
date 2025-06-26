@@ -140,14 +140,14 @@ public:
   /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param data Data of the push constants. If more than 128 bytes, ezGALDeviceCapabilities::m_uiMaxPushConstantsSize should be checked to ensure the data block is not too big for the platform.
-  void SetPushConstants(const ezTempHashedString& sSlotName, ezArrayPtr<const ezUInt8> data);
+  void SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<const ezUInt8> data);
 
   /// Templated version of SetPushConstants.
   /// \tparam T Type of the push constants struct.
   /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param constants Instance of type T that contains the push constants.
   template <typename T>
-  EZ_ALWAYS_INLINE void SetPushConstants(const ezTempHashedString& sSlotName, const T& constants)
+  EZ_ALWAYS_INLINE void SetPushConstants(ezTempHashedString sSlotName, const T& constants)
   {
     SetPushConstants(sSlotName, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&constants), sizeof(T)));
   }
@@ -330,7 +330,7 @@ private:
   static ezMutex s_ConstantBufferStorageMutex;
   static ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> s_ConstantBufferStorageTable;
   static ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> s_FreeConstantBufferStorage;
-  static ezSet<ezConstantBufferStorageBase*> m_DirtyConstantBuffers;
+  static ezSet<ezConstantBufferStorageBase*> s_DirtyConstantBuffers;
 
 private: // Per Renderer States
   ezGALCommandEncoder* m_pGALCommandEncoder = nullptr;

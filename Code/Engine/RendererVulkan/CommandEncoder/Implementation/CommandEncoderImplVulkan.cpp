@@ -146,10 +146,9 @@ void ezGALCommandEncoderImplVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* c
 
 // State setting functions
 
-ezResult ezGALCommandEncoderImplVulkan::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
+void ezGALCommandEncoderImplVulkan::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
 {
   m_BindGroups[uiBindGroup].m_Desc = bindGroup;
-  return EZ_SUCCESS;
 }
 
 void ezGALCommandEncoderImplVulkan::SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data)
@@ -1161,7 +1160,7 @@ ezResult ezGALCommandEncoderImplVulkan::CreateDescriptorSet(ezUInt32 uiBindGroup
     vk::WriteDescriptorSet& write = m_DescriptorWrites.ExpandAndGetRef();
     write.dstArrayElement = 0;
     write.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(binding.m_ResourceType);
-    write.dstBinding = binding.m_iSlot; // #TODO_VULKAN this should be i + arrayIndex or something?
+    write.dstBinding = binding.m_iSlot;
     write.dstSet = m_DescriptorSets[uiBindGroup];
     write.descriptorCount = binding.m_uiArraySize;
     switch (binding.m_ResourceType)
@@ -1210,7 +1209,7 @@ ezResult ezGALCommandEncoderImplVulkan::CreateDescriptorSet(ezUInt32 uiBindGroup
         vk::BufferView& bufferView = m_DescriptorBufferViews.ExpandAndGetRef();
         write.pTexelBufferView = &bufferView;
         const ezGALBufferVulkan* pBuffer = static_cast<const ezGALBufferVulkan*>(m_GALDeviceVulkan.GetBuffer(item.m_Buffer.m_hBuffer));
-        bufferView = pBuffer->GetTexelBufferView(item.m_Buffer.m_BufferRange, item.m_Buffer.m_OverrideViewFormat);
+        bufferView = pBuffer->GetTexelBufferView(item.m_Buffer.m_BufferRange, item.m_Buffer.m_OverrideTexelBufferFormat);
       }
       break;
       case ezGALShaderResourceType::StructuredBuffer:

@@ -13,39 +13,44 @@ class EZ_RENDERERCORE_DLL ezBindGroupBuilder
 {
 public:
   ezBindGroupBuilder();
+
+  /// \brief Must be called before the builder can be used.
+  /// This should be called at the start of each frame to make sure no stale resources are referenced inside the builder.
+  /// \param pDevice The device used to validate resources in bind calls.
+  void ResetBoundResources(const ezGALDevice* pDevice);
+
   /// \brief Returns whether a Bind* call modified in internal state since the last CreateBindGroup call.
   bool IsModified() const { return m_bModified; }
 
   /// Binds a sampler to this bind group
   /// @param sSlotName The slot under which the sampler is to be bound.
   /// @param hSampler If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
-  void BindSampler(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSampler);
+  void BindSampler(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler);
 
   /// Binds a buffer to this bind group
   /// @param sSlotName The slot under which the buffer is to be bound.
   /// @param hBuffer If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
   /// @param bufferRange What part of the buffer should be bound. Default is entire buffer.
-  /// @param overrideViewFormat Texel Buffers only! Sets the format of the texel buffer. If invalid, default format of the buffer will be used.
-  void BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  /// @param overrideTexelBufferFormat Sets the format of the texel buffer. If invalid, default format of the buffer will be used.
+  void BindBuffer(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
 
   /// Binds a texture to this bind group
   /// @param sSlotName The slot under which the texture is to be bound.
   /// @param hTexture If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
   /// @param textureRange What part of the texture should be bound. Default is entire texture. Or as much as the target ezShaderResourceBinding allows for.
   /// @param overrideViewFormat If set, re-interprets the format of the texture. This can cause performance penalties. Only use it to e.g. read linear vs gamma space or other formats of same type and width.
-  void BindTexture(const ezTempHashedString& sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
 
   // Convenience functions:
-  void BindTexture(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
-  void BindTexture(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
-  void BindTexture(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
-  void BindBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hBuffer, ezGALBufferRange bufferRange = {}, ezGALResourceFormat::Enum overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindBuffer(ezTempHashedString sSlotName, ezConstantBufferStorageHandle hBuffer, ezGALBufferRange bufferRange = {}, ezGALResourceFormat::Enum overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
 
   /// Create a new bind group for the given layout.
-  /// @param pDevice The GAL device used for resource lookups.
   /// @param hBindGroupLayout The bind group layout for which to create the bind group.
-  /// @param out_BindGroup The resulting bind group. Will be undefined if EZ_FAILURE is returned.
-  ezResult CreateBindGroup(const ezGALDevice* pDevice, ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_BindGroup);
+  /// @param out_bindGroup The resulting bind group. Will be undefined if EZ_FAILURE is returned.
+  void CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_bindGroup);
 
 public:
   /// \brief Number of modifications of the hash tables each frame. Used for stats.
@@ -54,10 +59,11 @@ public:
   static ezUInt32 s_uiReads;
 
 private:
-  void RemoveItem(const ezTempHashedString& sSlotName, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container);
-  void InsertItem(const ezTempHashedString& sSlotName, const ezGALBindGroupItem& item, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container);
+  void RemoveItem(ezTempHashedString sSlotName, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container);
+  void InsertItem(ezTempHashedString sSlotName, const ezGALBindGroupItem& item, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container);
 
 private:
+  const ezGALDevice* m_pDevice = nullptr;
   bool m_bModified = true;
   ezGALSamplerStateHandle m_hDefaultSampler;
   ezHashTable<ezUInt64, ezGALBindGroupItem> m_BoundSamplers;

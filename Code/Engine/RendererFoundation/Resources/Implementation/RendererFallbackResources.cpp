@@ -67,8 +67,6 @@ void ezGALRendererFallbackResources::GALDeviceEventHandler(const ezGALDeviceEven
         desc.m_SampleCount = samples;
         desc.m_ResourceAccess.m_bImmutable = false;
         desc.m_bAllowRenderTargetView = bDepth;
-        desc.m_bAllowUAV = !bDepth && samples == ezGALMSAASampleCount::None;
-        desc.m_bAllowShaderResourceView = true;
         ezGALTextureHandle hTexture = s_pDevice->CreateTexture(desc);
         EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "Failed to create fallback resource");
         // Debug device not set yet.

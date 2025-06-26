@@ -38,7 +38,7 @@ public:
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
-  virtual ezResult SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
+  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // GPU -> CPU query functions

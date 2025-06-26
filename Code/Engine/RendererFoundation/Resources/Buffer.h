@@ -8,6 +8,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALResource<ezGALBufferCr
 {
 public:
   EZ_ALWAYS_INLINE ezUInt32 GetSize() const;
+  EZ_ALWAYS_INLINE ezGALBufferRange ClampRange(ezGALBufferRange range) const;
 
 protected:
   friend class ezGALDevice;
