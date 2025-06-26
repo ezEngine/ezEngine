@@ -220,7 +220,7 @@ constexpr ezUInt32 __tracyEzZoneColor(ezUInt64 uiHash)
 #  undef EZ_PROFILE_LIST_SCOPE
 #  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName)                                                               \
     ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION); \
-    EZ_TRACY_PROFILE_SCOPE(ScopeName);
+    EZ_TRACY_PROFILE_SCOPE(ListName);
 
 #  undef EZ_PROFILER_FRAME_MARKER
 #  define EZ_PROFILER_FRAME_MARKER() FrameMark

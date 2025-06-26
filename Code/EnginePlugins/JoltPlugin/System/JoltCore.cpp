@@ -26,7 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltSteppingMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezOnJoltContact, 1)
-  //EZ_BITFLAGS_CONSTANT(ezOnJoltContact::SendReportMsg),
+  // EZ_BITFLAGS_CONSTANT(ezOnJoltContact::SendContactMsg), // do not expose in the UI
   EZ_BITFLAGS_CONSTANT(ezOnJoltContact::ImpactReactions),
   EZ_BITFLAGS_CONSTANT(ezOnJoltContact::SlideReactions),
   EZ_BITFLAGS_CONSTANT(ezOnJoltContact::RollXReactions),

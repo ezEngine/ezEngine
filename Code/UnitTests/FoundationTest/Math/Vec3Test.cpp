@@ -602,4 +602,25 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetDegree() <= dev.GetDegree() + 1.0f);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviation")
+  {
+    EZ_TEST_VEC3(ezVec3T::MakeOrthogonalVector(ezVec3(1, 0, 0)), ezVec3T(0, 0, 1), 0.001f);
+    EZ_TEST_VEC3(ezVec3T::MakeOrthogonalVector(ezVec3(0, 1, 0)), ezVec3T(0, 0, -1), 0.001f);
+    EZ_TEST_VEC3(ezVec3T::MakeOrthogonalVector(ezVec3(0, 0, 1)), ezVec3T(-1, 0, 0), 0.001f);
+
+    ezVec3 dir;
+
+    dir.Set(1, 2, 3);
+    dir.Normalize();
+    EZ_TEST_FLOAT(dir.Dot(ezVec3T::MakeOrthogonalVector(dir)), 0.0f, 0.001f);
+
+    dir.Set(1, 0, -2);
+    dir.Normalize();
+    EZ_TEST_FLOAT(dir.Dot(ezVec3T::MakeOrthogonalVector(dir)), 0.0f, 0.001f);
+
+    dir.Set(-1, 2, 0);
+    dir.Normalize();
+    EZ_TEST_FLOAT(dir.Dot(ezVec3T::MakeOrthogonalVector(dir)), 0.0f, 0.001f);
+  }
 }

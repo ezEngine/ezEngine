@@ -17,6 +17,7 @@ class ezJoltContactListener;
 class ezJoltSoftBodyContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
+class ezJoltBreakableSlabComponent;
 class ezView;
 
 namespace JPH
@@ -25,6 +26,8 @@ namespace JPH
   class TempAllocator;
   class PhysicsSystem;
   class GroupFilter;
+
+  class BodyInterface;
 } // namespace JPH
 
 struct ezJoltImpulse
@@ -67,6 +70,8 @@ public:
 
   JPH::PhysicsSystem* GetJoltSystem() { return m_pSystem.get(); }
   const JPH::PhysicsSystem* GetJoltSystem() const { return m_pSystem.get(); }
+
+  JPH::BodyInterface& GetBodyInterface() { return m_pSystem->GetBodyInterface(); }
 
   ezUInt32 CreateObjectFilterID();
   void DeleteObjectFilterID(ezUInt32& ref_uiObjectFilterID);
@@ -145,9 +150,11 @@ public:
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
   const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
-  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
   const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
   ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
+  const ezMap<ezJoltBreakableSlabComponent*, ezInt32>& GetActiveSlabs() const { return m_ActiveSlabs; }
+  ezArrayPtr<ezJoltBreakableSlabComponent*> GetSlabsPutToSleep() { return m_SlabsPutToSleep.GetArrayPtr(); }
 
   void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
 
@@ -270,9 +277,11 @@ private:
   void* m_pSoftBodyContactListener = nullptr;
   void* m_pActivationListener = nullptr;
   ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
-  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
   ezMap<ezJoltRopeComponent*, ezInt32> m_ActiveRopes;
+  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
   ezDynamicArray<ezJoltRagdollComponent*> m_RagdollsPutToSleep;
+  ezMap<ezJoltBreakableSlabComponent*, ezInt32> m_ActiveSlabs;
+  ezDynamicArray<ezJoltBreakableSlabComponent*> m_SlabsPutToSleep;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;

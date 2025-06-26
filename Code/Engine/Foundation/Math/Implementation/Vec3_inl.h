@@ -268,11 +268,27 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::CalculateNormal(const 
   return NormalizeIfNotZero();
 }
 
+
+template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeOrthogonalVector(const ezVec3Template<Type>& vDirection, const ezVec3Template<Type>& vBasis1, const ezVec3Template<Type>& vBasis2)
+{
+  EZ_ASSERT_DEBUG(vDirection.IsNormalized() && vBasis1.IsNormalized() && vBasis2.IsNormalized(), "All input vectors must be normalized.");
+
+  // do the cross product with the basis that is less similar to the direction
+  if (ezMath::Abs(vDirection.Dot(vBasis1)) < ezMath::Abs(vDirection.Dot(vBasis2)))
+  {
+    return vDirection.CrossRH(vBasis1);
+  }
+  else
+  {
+    return vDirection.CrossRH(vBasis2);
+  }
+}
+
 template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(
-    vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
 
   ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
   *this = vOrtho.CrossRH(vNormal);

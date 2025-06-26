@@ -23,6 +23,7 @@ enum class ezJoltBroadphaseLayer : ezUInt8
   Ragdoll,
   Rope,
   Cloth,
+  Debris,
 
   ENUM_COUNT
 };

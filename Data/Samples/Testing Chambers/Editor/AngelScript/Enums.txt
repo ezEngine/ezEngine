@@ -18,6 +18,7 @@ Calm
 CancelPreload
 Center
 Character
+Circle
 ClearEntireBlackboard
 Cloth
 Column
@@ -26,6 +27,7 @@ Continuing
 Culling
 CustomPose
 Deactivated
+Debris
 DeleteComponent
 DeleteGameObject
 DeviceID0
@@ -139,6 +141,7 @@ RampNegX
 RampNegY
 RampPosX
 RampPosY
+Rectangle
 RenderTarget
 ResetEntryValues
 RestPose
@@ -175,6 +178,7 @@ TopCenter
 TopLeft
 TopRight
 Transparent
+Triangle
 Trigger
 Turning
 Variable

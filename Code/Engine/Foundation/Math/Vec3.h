@@ -49,6 +49,15 @@ public:
   /// \brief Returns a vector initialized to x,y,z
   [[nodiscard]] static ezVec3Template<Type> Make(Type x, Type y, Type z) { return ezVec3Template<Type>(x, y, z); } // [tested]
 
+  /// \brief Returns a vector that is orthogonal to vDirection.
+  ///
+  /// Uses the vBasis1 and vBasis2 vectors as candidates to create the orthogonal vector from. The basis that is less similar to the direction
+  /// will be used to to compute the orthogonal vector.
+  ///
+  /// All input vectors must be normalized.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  [[nodiscard]] static ezVec3Template<Type> MakeOrthogonalVector(const ezVec3Template<Type>& vDirection, const ezVec3Template<Type>& vBasis1 = MakeAxisX(), const ezVec3Template<Type>& vBasis2 = MakeAxisY()); // [tested]
+
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {

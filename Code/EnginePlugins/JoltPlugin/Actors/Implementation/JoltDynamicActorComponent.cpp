@@ -292,7 +292,7 @@ void ezJoltDynamicActorComponent::OnSimulationStarted()
 
   ezJoltUserData* pUserData = nullptr;
   m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
-  pUserData->Init(this);
+  pUserData->Init(this, m_OnContact);
 
   const float fInitialMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 10.0f, m_fWeightMass, m_fWeightScale);
 

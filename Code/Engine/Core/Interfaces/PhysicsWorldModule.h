@@ -148,6 +148,36 @@ struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
   ezGameObjectHandle m_hGrabbedObjectToRelease;
 };
 
+/// \brief Can be sent by character controllers to inform objects when a CC pushes into them.
+///
+/// Whether this message is sent, depends on the character controller implementation.
+/// This is mainly meant for less important interactions, like breaking decorative things.
+struct EZ_CORE_DLL ezMsgPhysicCharacterContact : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicCharacterContact, ezMessage);
+
+  ezComponentHandle m_hCharacter;
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vNormal;
+  ezVec3 m_vCharacterVelocity;
+  float m_fImpact;
+};
+
+/// \brief Sent to physics components that have contact reporting enabled (see ezOnJoltContact::SendContactMsg).
+///
+/// Only sent for certain physics object combinations, e.g. debris doesn't trigger this.
+/// The reported contact position and normal is an average of the contact manifold.
+/// This is mainly meant for less important interactions, like breaking decorative things.
+struct EZ_CORE_DLL ezMsgPhysicContact : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicContact, ezMessage);
+
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vNormal;
+  float m_fImpactSqr;
+};
+
+
 //////////////////////////////////////////////////////////////////////////
 
 struct EZ_CORE_DLL ezSmcTriangle

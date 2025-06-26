@@ -70,7 +70,8 @@ EZ_DECLARE_FLAGS_WITH_DEFAULT(ezUInt32, ezPhysicsShapeType, 0xFFFFFFFF,
   Character, ///< Shapes associated with character controllers.
   Ragdoll,   ///< All shapes belonging to ragdolls.
   Rope,      ///< All shapes belonging to ropes.
-  Cloth      ///< Soft-body shapes. Mainly for decorative purposes.
+  Cloth,     ///< Soft-body shapes. Mainly for decorative purposes.
+  Debris     ///< Small stuff for visuals, but shouldn't affect the game. This will only have one-way interactions, ie get pushed, but won't push others.
 );
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezPhysicsShapeType);

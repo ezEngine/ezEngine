@@ -118,7 +118,7 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
 
   JPH::CharacterVirtualSettings opt;
   opt.mUp = JPH::Vec3::sAxisZ();
-  opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius());
+  opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius()); // should use the half cylinder height instead of the radius
   opt.mShape = MakeNextCharacterShape();
   opt.mMaxSlopeAngle = m_MaxClimbingSlope.GetRadian();
   opt.mMass = m_fMass;

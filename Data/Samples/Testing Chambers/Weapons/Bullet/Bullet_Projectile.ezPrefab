@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14525557976052393641,5395822087457718604}}
-		u4 %Hash{974066475193433942}
+		u4 %Hash{13392938795381341486}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12675088828524786237,7528991678657620864}}
@@ -20,6 +20,7 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
 			s{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 			s{"{ 93d0dd70-9925-4066-ad2b-82de724eb4b5 }"}
 			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
@@ -45,6 +46,21 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{330503817278416809,4760269974828021139}}
+	s %t{"ezProjectileSurfaceInteraction"}
+	u3 %v{3}
+	p
+	{
+		f %Damage{0x0000A040}
+		f %Impulse{0}
+		u1 %ImpulseType{10}
+		s %Interaction{"BulletImpact"}
+		s %Reaction{"ezProjectileReaction::PassThrough"}
+		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
+	}
+}
 o
 {
 	Uuid %id{u4{7913312135095674292,5200884820511990112}}
@@ -116,10 +132,11 @@ o
 		VarArray %Interactions
 		{
 			Uuid{u4{350875111938553753,5646886264298668778}}
+			Uuid{u4{330503817278416809,4760269974828021139}}
 		}
 		Time %MaxLifetime{d{0x0000000000000040}}
 		s %OnDeathPrefab{""}
-		s %ShapeTypesToHit{"ezPhysicsShapeType::Static|ezPhysicsShapeType::Dynamic|ezPhysicsShapeType::Query|ezPhysicsShapeType::Character|ezPhysicsShapeType::Ragdoll|ezPhysicsShapeType::Rope"}
+		s %ShapeTypesToHit{"ezPhysicsShapeType::Static|ezPhysicsShapeType::Dynamic|ezPhysicsShapeType::Query|ezPhysicsShapeType::Character|ezPhysicsShapeType::Ragdoll|ezPhysicsShapeType::Rope|ezPhysicsShapeType::Debris"}
 		b %SpawnPrefabOnStatic{0}
 		f %Speed{0x0000C842}
 	}

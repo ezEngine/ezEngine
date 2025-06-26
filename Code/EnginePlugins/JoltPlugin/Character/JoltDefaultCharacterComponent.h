@@ -211,6 +211,9 @@ protected:
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
 
+  ezUniquePtr<JPH::CharacterContactListener> m_pContactListener;
+
 private:
   const char* DummyGetter() const { return nullptr; }
+
 };

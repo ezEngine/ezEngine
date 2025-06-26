@@ -710,6 +710,7 @@ ezComponent@ ezInstancedMeshComponent::opImplCast()
 ezComponent@ ezJointAttachmentComponent::opImplCast()
 ezComponent@ ezJointOverrideComponent::opImplCast()
 ezComponent@ ezJoltActorComponent::opImplCast()
+ezComponent@ ezJoltBreakableSlabComponent::opImplCast()
 ezComponent@ ezJoltCharacterControllerComponent::opImplCast()
 ezComponent@ ezJoltClothSheetComponent::opImplCast()
 ezComponent@ ezJoltConeConstraintComponent::opImplCast()
@@ -748,6 +749,7 @@ ezComponent@ ezLodMeshComponent::opImplCast()
 ezComponent@ ezMarkerComponent::opImplCast()
 ezComponent@ ezMeshComponent::opImplCast()
 ezComponent@ ezMeshComponentBase::opImplCast()
+ezComponent@ ezMeshDecalComponent::opImplCast()
 ezComponent@ ezMoveToComponent::opImplCast()
 ezComponent@ ezNavMeshObstacleComponent::opImplCast()
 ezComponent@ ezOccluderComponent::opImplCast()
@@ -957,6 +959,17 @@ ezJoltActorComponent@ ezJoltDynamicActorComponent::opImplCast()
 ezJoltActorComponent@ ezJoltQueryShapeActorComponent::opImplCast()
 ezJoltActorComponent@ ezJoltStaticActorComponent::opImplCast()
 ezJoltActorComponent@ ezJoltTriggerComponent::opImplCast()
+ezJoltBreakableShape ezJoltBreakableSlabComponent::get_Shape() const
+ezJoltBreakableShape::Circle
+ezJoltBreakableShape::Rectangle
+ezJoltBreakableShape::Triangle
+ezJoltBreakableSlabComponent@ ezComponent::opCast()
+ezJoltBreakableSlabComponent@ ezRenderComponent::opCast()
+ezJoltBreakableSlabFlags ezJoltBreakableSlabComponent::get_Flags() const
+ezJoltBreakableSlabFlags::FixedEdgeBottom
+ezJoltBreakableSlabFlags::FixedEdgeLeft
+ezJoltBreakableSlabFlags::FixedEdgeRight
+ezJoltBreakableSlabFlags::FixedEdgeTop
 ezJoltCharacterControllerComponent@ ezComponent::opCast()
 ezJoltCharacterControllerComponent@ ezJoltDefaultCharacterComponent::opImplCast()
 ezJoltCharacterDebugFlags ezJoltCharacterControllerComponent::get_DebugFlags() const
@@ -1091,6 +1104,7 @@ ezMeshComponentBase@ ezInstancedMeshComponent::opImplCast()
 ezMeshComponentBase@ ezMeshComponent::opImplCast()
 ezMeshComponentBase@ ezProcVertexColorComponent::opImplCast()
 ezMeshComponentBase@ ezRenderComponent::opCast()
+ezMeshDecalComponent@ ezComponent::opCast()
 ezMessage@ ezEventMessage::opImplCast()
 ezMessage@ ezEventMsgSetPowerInput::opImplCast()
 ezMessage@ ezJoltMsgDisconnectConstraints::opImplCast()
@@ -1122,6 +1136,8 @@ ezMessage@ ezMsgObjectGrabbed::opImplCast()
 ezMessage@ ezMsgOnlyApplyToObject::opImplCast()
 ezMessage@ ezMsgParentChanged::opImplCast()
 ezMessage@ ezMsgPathChanged::opImplCast()
+ezMessage@ ezMsgPhysicCharacterContact::opImplCast()
+ezMessage@ ezMsgPhysicContact::opImplCast()
 ezMessage@ ezMsgPhysicsAddImpulse::opImplCast()
 ezMessage@ ezMsgPhysicsJointBroke::opImplCast()
 ezMessage@ ezMsgQueryAnimationSkeleton::opImplCast()
@@ -1175,6 +1191,8 @@ ezMsgOnlyApplyToObject@ ezMessage::opCast()
 ezMsgParentChanged@ ezMessage::opCast()
 ezMsgPathChanged@ ezEventMessage::opCast()
 ezMsgPathChanged@ ezMessage::opCast()
+ezMsgPhysicCharacterContact@ ezMessage::opCast()
+ezMsgPhysicContact@ ezMessage::opCast()
 ezMsgPhysicsAddImpulse@ ezMessage::opCast()
 ezMsgPhysicsJointBroke@ ezEventMessage::opCast()
 ezMsgPhysicsJointBroke@ ezMessage::opCast()
@@ -1240,6 +1258,7 @@ ezPhysicsShapeType ezProjectileComponent::get_ShapeTypesToHit() const
 ezPhysicsShapeType ezRaycastComponent::get_ShapeTypesToHit() const
 ezPhysicsShapeType::Character
 ezPhysicsShapeType::Cloth
+ezPhysicsShapeType::Debris
 ezPhysicsShapeType::Dynamic
 ezPhysicsShapeType::Query
 ezPhysicsShapeType::Ragdoll
@@ -1328,6 +1347,7 @@ ezRenderComponent@ ezGizmoComponent::opImplCast()
 ezRenderComponent@ ezGreyBoxComponent::opImplCast()
 ezRenderComponent@ ezHeightfieldComponent::opImplCast()
 ezRenderComponent@ ezInstancedMeshComponent::opImplCast()
+ezRenderComponent@ ezJoltBreakableSlabComponent::opImplCast()
 ezRenderComponent@ ezJoltClothSheetComponent::opImplCast()
 ezRenderComponent@ ezJoltVisColMeshComponent::opImplCast()
 ezRenderComponent@ ezKrautTreeComponent::opImplCast()
@@ -1500,6 +1520,7 @@ ezStringView ezHashedString::GetView() const
 ezStringView ezHeightfieldComponent::get_HeightfieldImage() const
 ezStringView ezHeightfieldComponent::get_Material() const
 ezStringView ezInstancedMeshComponent::get_Mesh() const
+ezStringView ezJoltBreakableSlabComponent::get_Material() const
 ezStringView ezJoltClothSheetComponent::get_Material() const
 ezStringView ezJoltDefaultCharacterComponent::get_FallbackWalkSurface() const
 ezStringView ezJoltDynamicActorComponent::get_Surface() const
@@ -1532,6 +1553,8 @@ ezStringView ezSkyBoxComponent::get_CubeMap() const
 ezStringView ezSkyLightComponent::get_CubeMap() const
 ezStringView ezSpawnBoxComponent::get_Prefab() const
 ezStringView ezSpawnComponent::get_Prefab() const
+ezStringView ezSpotLightComponent::get_Cookie() const
+ezStringView ezSpotLightComponent::get_Material() const
 ezStringView ezSpriteComponent::get_Texture() const
 ezStringView ezStateMachineComponent::GetCurrentState() const
 ezStringView ezStateMachineComponent::get_Resource() const
@@ -1576,6 +1599,7 @@ ezTime ezSliderComponent::get_RandomStart() const
 ezTime ezSpawnBoxComponent::get_Duration() const
 ezTime ezSpawnComponent::get_DelayRange() const
 ezTime ezSpawnComponent::get_MinDelay() const
+ezTime ezSpotLightComponent::get_MaterialUpdateInterval() const
 ezTime ezTime::Hours(double fHours)
 ezTime ezTime::MakeFromHours(double fHours)
 ezTime ezTime::MakeFromMicroseconds(double fMicroSeconds)
@@ -1651,6 +1675,7 @@ ezVec2 ezDebug::GetResolution()
 ezVec2 ezHeightfieldComponent::get_HalfExtents() const
 ezVec2 ezHeightfieldComponent::get_TexCoordOffset() const
 ezVec2 ezHeightfieldComponent::get_TexCoordScale() const
+ezVec2 ezJoltBreakableSlabComponent::get_UVScale() const
 ezVec2 ezJoltClothSheetComponent::get_Size() const
 ezVec2 ezJoltClothSheetComponent::get_TextureScale() const
 ezVec2 ezMath::Lerp(ezVec2 from, ezVec2 to, float factor)
@@ -1708,6 +1733,11 @@ ezVec3 ezMath::Lerp(ezVec3 from, ezVec3 to, float factor)
 ezVec3 ezMsgApplyRootMotion::get_Translation() const
 ezVec3 ezMsgDamage::get_GlobalPosition() const
 ezVec3 ezMsgDamage::get_ImpactDirection() const
+ezVec3 ezMsgPhysicCharacterContact::get_CharacterVelocity() const
+ezVec3 ezMsgPhysicCharacterContact::get_GlobalPosition() const
+ezVec3 ezMsgPhysicCharacterContact::get_Normal() const
+ezVec3 ezMsgPhysicContact::get_GlobalPosition() const
+ezVec3 ezMsgPhysicContact::get_Normal() const
 ezVec3 ezMsgPhysicsAddImpulse::get_GlobalPosition() const
 ezVec3 ezMsgPhysicsAddImpulse::get_Impulse() const
 ezVec3 ezOccluderComponent::get_Extents() const
@@ -1941,6 +1971,11 @@ float ezGreyBoxComponent::get_SizePosZ() const
 float ezGreyBoxComponent::get_Thickness() const
 float ezHeightfieldComponent::get_Height() const
 float ezInputComponent::GetCurrentInputState(ezString InputAction, bool OnlyKeyPressed) const
+float ezJoltBreakableSlabComponent::get_ContactReportForceThreshold() const
+float ezJoltBreakableSlabComponent::get_GravityFactor() const
+float ezJoltBreakableSlabComponent::get_Height() const
+float ezJoltBreakableSlabComponent::get_Thickness() const
+float ezJoltBreakableSlabComponent::get_Width() const
 float ezJoltCharacterControllerComponent::get_Mass() const
 float ezJoltCharacterControllerComponent::get_Strength() const
 float ezJoltCharacterControllerComponent::get_WeightScale() const
@@ -2048,6 +2083,8 @@ float ezMoveToComponent::get_TranslationAcceleration() const
 float ezMoveToComponent::get_TranslationDeceleration() const
 float ezMoveToComponent::get_TranslationSpeed() const
 float ezMsgInputActionTriggered::get_KeyPressValue() const
+float ezMsgPhysicCharacterContact::get_Impact() const
+float ezMsgPhysicContact::get_ImpactSqr() const
 float ezMsgSetCustomData::get_Data0() const
 float ezMsgSetCustomData::get_Data1() const
 float ezMsgSetCustomData::get_Data2() const
@@ -2208,6 +2245,7 @@ uint ezRandom::UInt()
 uint ezRandom::UInt32Index(uint uiArraySize, uint uiFallbackValue = 0xFFFFFFFF)
 uint ezRandom::UIntInRange(uint uiRange)
 uint ezRopeRenderComponent::get_Detail() const
+uint ezSpotLightComponent::get_MaterialResolution() const
 uint ezString::GetElementCount() const
 uint ezStringBuilder::GetCharacterCount() const
 uint ezStringBuilder::GetElementCount() const
@@ -2232,6 +2270,8 @@ uint8 ezAreaDamageComponent::get_ImpulseType() const
 uint8 ezFmodEventComponent::get_OcclusionCollisionLayer() const
 uint8 ezFmodListenerComponent::get_ListenerIndex() const
 uint8 ezJoltActorComponent::get_CollisionLayer() const
+uint8 ezJoltBreakableSlabComponent::get_CollisionLayerDynamic() const
+uint8 ezJoltBreakableSlabComponent::get_CollisionLayerStatic() const
 uint8 ezJoltCharacterControllerComponent::get_CollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_PresenceCollisionLayer() const
 uint8 ezJoltCharacterControllerComponent::get_WeightCategory() const
@@ -2566,6 +2606,21 @@ void ezJointOverrideComponent::set_OverridePosition(bool)
 void ezJointOverrideComponent::set_OverrideRotation(bool)
 void ezJointOverrideComponent::set_OverrideScale(bool)
 void ezJoltActorComponent::set_CollisionLayer(uint8)
+void ezJoltBreakableSlabComponent::Restore()
+void ezJoltBreakableSlabComponent::ShatterAll(float fShardSize, ezVec3 vImpulse)
+void ezJoltBreakableSlabComponent::ShatterCellular(ezVec3 vGlobalPosition, float fCellSize, ezVec3 vImpulse, float fMakeDynamicRadius)
+void ezJoltBreakableSlabComponent::ShatterRadial(ezVec3 vGlobalPosition, float fImpactRadius, ezVec3 vImpulse, float fMakeDynamicRadius)
+void ezJoltBreakableSlabComponent::set_CollisionLayerDynamic(uint8)
+void ezJoltBreakableSlabComponent::set_CollisionLayerStatic(uint8)
+void ezJoltBreakableSlabComponent::set_ContactReportForceThreshold(float)
+void ezJoltBreakableSlabComponent::set_Flags(ezJoltBreakableSlabFlags)
+void ezJoltBreakableSlabComponent::set_GravityFactor(float)
+void ezJoltBreakableSlabComponent::set_Height(float)
+void ezJoltBreakableSlabComponent::set_Material(ezStringView)
+void ezJoltBreakableSlabComponent::set_Shape(ezJoltBreakableShape)
+void ezJoltBreakableSlabComponent::set_Thickness(float)
+void ezJoltBreakableSlabComponent::set_UVScale(ezVec2)
+void ezJoltBreakableSlabComponent::set_Width(float)
 void ezJoltCharacterControllerComponent::set_CollisionLayer(uint8)
 void ezJoltCharacterControllerComponent::set_DebugFlags(ezJoltCharacterDebugFlags)
 void ezJoltCharacterControllerComponent::set_Mass(float)
@@ -2815,6 +2870,13 @@ void ezMsgMoveCharacterController::set_StrafeRight(double)
 void ezMsgObjectGrabbed::set_GotGrabbed(bool)
 void ezMsgObjectGrabbed::set_GrabbedBy(ezGameObjectHandle)
 void ezMsgOnlyApplyToObject::set_Object(ezGameObjectHandle)
+void ezMsgPhysicCharacterContact::set_CharacterVelocity(ezVec3)
+void ezMsgPhysicCharacterContact::set_GlobalPosition(ezVec3)
+void ezMsgPhysicCharacterContact::set_Impact(float)
+void ezMsgPhysicCharacterContact::set_Normal(ezVec3)
+void ezMsgPhysicContact::set_GlobalPosition(ezVec3)
+void ezMsgPhysicContact::set_ImpactSqr(float)
+void ezMsgPhysicContact::set_Normal(ezVec3)
 void ezMsgPhysicsAddImpulse::set_GlobalPosition(ezVec3)
 void ezMsgPhysicsAddImpulse::set_Impulse(ezVec3)
 void ezMsgPhysicsAddImpulse::set_ObjectFilterID(uint)
@@ -3027,7 +3089,11 @@ void ezSpawnComponent::set_SpawnContinuously(bool)
 void ezSphereReflectionProbeComponent::set_Falloff(float)
 void ezSphereReflectionProbeComponent::set_Radius(float)
 void ezSphereReflectionProbeComponent::set_SphereProjection(bool)
+void ezSpotLightComponent::set_Cookie(ezStringView)
 void ezSpotLightComponent::set_InnerSpotAngle(ezAngle)
+void ezSpotLightComponent::set_Material(ezStringView)
+void ezSpotLightComponent::set_MaterialResolution(uint)
+void ezSpotLightComponent::set_MaterialUpdateInterval(ezTime)
 void ezSpotLightComponent::set_OuterSpotAngle(ezAngle)
 void ezSpotLightComponent::set_Range(float)
 void ezSpotLightComponent::set_ShadowFadeOutRange(float)

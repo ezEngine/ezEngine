@@ -47,8 +47,6 @@ ezJoltSteppingMode::SemiFixed;Semi-Fixed Stepping
 ezJoltConstraintDriveMode::DriveVelocity;Reach Velocity
 ezJoltConstraintDriveMode::DrivePosition;Reach Position
 
-ezOnJoltContact::SendReportMsg;Send Report Message
-
 ezJoltCharacterDebugFlags::VisShape;Visualize Shape
 ezJoltCharacterDebugFlags::VisGroundContact;Visualize Ground Contact
 ezJoltCharacterDebugFlags::VisCasts;Visualize Casts

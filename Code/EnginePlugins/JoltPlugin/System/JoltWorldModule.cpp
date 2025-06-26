@@ -57,52 +57,89 @@ public:
   virtual void OnBodyActivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltDynamicActorComponent* pActor = ezJoltUserData::GetDynamicActorComponent(pUserData))
-    {
-      m_pActiveActors->Insert(pActor);
-    }
 
-    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    switch (ezJoltUserData::GetType(pUserData))
     {
-      (*m_pActiveRagdolls)[pActor]++;
-    }
+      case ezJoltUserData::Type::DynamicActorComponent:
+        m_pActiveActors->Insert(static_cast<ezJoltDynamicActorComponent*>(pUserData->GetObject()));
+        return;
 
-    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
-    {
-      (*m_pActiveRopes)[pActor]++;
+      case ezJoltUserData::Type::RagdollComponent:
+        (*m_pActiveRagdolls)[static_cast<ezJoltRagdollComponent*>(pUserData->GetObject())]++;
+        return;
+
+      case ezJoltUserData::Type::RopeComponent:
+        (*m_pActiveRopes)[static_cast<ezJoltRopeComponent*>(pUserData->GetObject())]++;
+        return;
+
+      case ezJoltUserData::Type::BreakableSlabComponent:
+        (*m_pActiveSlabs)[static_cast<ezJoltBreakableSlabComponent*>(pUserData->GetObject())]++;
+        return;
+
+      default:
+        return;
     }
   }
 
   virtual void OnBodyDeactivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
-    {
-      m_pActiveActors->Remove(pActor);
-    }
 
-    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    switch (ezJoltUserData::GetType(pUserData))
     {
-      if (--(*m_pActiveRagdolls)[pActor] == 0)
+      case ezJoltUserData::Type::DynamicActorComponent:
       {
-        m_pActiveRagdolls->Remove(pActor);
-        m_pRagdollsPutToSleep->PushBack(pActor);
-      }
-    }
+        m_pActiveActors->Remove(static_cast<ezJoltDynamicActorComponent*>(pUserData->GetObject()));
 
-    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
-    {
-      if (--(*m_pActiveRopes)[pActor] == 0)
-      {
-        m_pActiveRopes->Remove(pActor);
+        return;
       }
+
+      case ezJoltUserData::Type::RagdollComponent:
+      {
+        ezJoltRagdollComponent* pActor = static_cast<ezJoltRagdollComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveRagdolls)[pActor] == 0)
+        {
+          m_pActiveRagdolls->Remove(pActor);
+          m_pRagdollsPutToSleep->PushBack(pActor);
+        }
+
+        return;
+      }
+
+      case ezJoltUserData::Type::RopeComponent:
+      {
+        ezJoltRopeComponent* pActor = static_cast<ezJoltRopeComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveRopes)[pActor] == 0)
+        {
+          m_pActiveRopes->Remove(pActor);
+        }
+
+        return;
+      }
+
+      case ezJoltUserData::Type::BreakableSlabComponent:
+      {
+        ezJoltBreakableSlabComponent* pActor = static_cast<ezJoltBreakableSlabComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveSlabs)[pActor] == 0)
+        {
+          m_pActiveSlabs->Remove(pActor);
+          m_pSlabsPutToSleep->PushBack(pActor);
+        }
+
+        return;
+      }
+
+      default:
+        return;
     }
   }
 
   ezSet<ezJoltDynamicActorComponent*>* m_pActiveActors = nullptr;
-  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr; // value is a ref-count
-  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;       // value is a ref-count
+  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;          // value is a ref-count
+  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr;    // value is a ref-count
   ezDynamicArray<ezJoltRagdollComponent*>* m_pRagdollsPutToSleep = nullptr;
+  ezMap<ezJoltBreakableSlabComponent*, ezInt32>* m_pActiveSlabs = nullptr; // value is a ref-count
+  ezDynamicArray<ezJoltBreakableSlabComponent*>* m_pSlabsPutToSleep = nullptr;
 };
 
 class ezJoltGroupFilter : public JPH::GroupFilter
@@ -271,9 +308,11 @@ void ezJoltWorldModule::Initialize()
     ezJoltBodyActivationListener* pListener = EZ_DEFAULT_NEW(ezJoltBodyActivationListener);
     m_pActivationListener = pListener;
     pListener->m_pActiveActors = &m_ActiveActors;
-    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
     pListener->m_pActiveRopes = &m_ActiveRopes;
+    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
     pListener->m_pRagdollsPutToSleep = &m_RagdollsPutToSleep;
+    pListener->m_pActiveSlabs = &m_ActiveSlabs;
+    pListener->m_pSlabsPutToSleep = &m_SlabsPutToSleep;
     m_pSystem->SetBodyActivationListener(pListener);
   }
 
@@ -838,6 +877,7 @@ void ezJoltWorldModule::Simulate()
   ezUInt32 uiSteps = 1;
 
   m_RagdollsPutToSleep.Clear();
+  m_SlabsPutToSleep.Clear();
 
   for (ezUInt32 i = 1; i < m_UpdateSteps.GetCount(); ++i)
   {
@@ -969,6 +1009,12 @@ static const DebugVis s_Vis[ezPhysicsShapeType::Count][2] =
       {szMatTwoSided, ezColor::Crimson}, // non-kinematic
       {szMatTwoSided, ezColor::Red}      // kinematic
     },
+
+    // Debris
+    {
+      {szMatSolid, ezColor::Crimson}, // non-kinematic
+      {szMatSolid, ezColor::Crimson}  // kinematic
+    },
 };
 
 void ezJoltWorldModule::DebugDrawGeometry()
@@ -1003,6 +1049,7 @@ void ezJoltWorldModule::DebugDrawGeometry()
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Trigger, tag);
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Rope, tag);
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Cloth, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Debris, tag);
   }
 
   for (auto it = m_DebugDrawComponents.GetIterator(); it.IsValid();)

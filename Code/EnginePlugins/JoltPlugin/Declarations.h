@@ -41,7 +41,7 @@ struct ezOnJoltContact
   enum Enum
   {
     None = 0,
-    // SendReportMsg = EZ_BIT(0),
+    SendContactMsg = EZ_BIT(0),  ///< On contact, send a ezMsgPhysicContact msg directly to the component.
     ImpactReactions = EZ_BIT(1), ///< Spawn prefabs for impacts (two objects hit each other with enough force).
     SlideReactions = EZ_BIT(2),  ///< Spawn prefabs for sliding (one object slides along the surface of another).
     RollXReactions = EZ_BIT(3),  ///< Spawn prefabs for rolling (one object rotates around its X axis while touching another).
@@ -50,14 +50,14 @@ struct ezOnJoltContact
 
     AllRollReactions = RollXReactions | RollYReactions | RollZReactions,
     SlideAndRollReactions = AllRollReactions | SlideReactions,
-    AllReactions = ImpactReactions | AllRollReactions | SlideReactions,
+    AllReactions = ImpactReactions | AllRollReactions | SlideReactions | SendContactMsg,
 
     Default = None
   };
 
   struct Bits
   {
-    StorageType SendReportMsg : 1;
+    StorageType SendContactMsg : 1;
     StorageType ImpactReactions : 1;
     StorageType SlideReactions : 1;
     StorageType RollXReactions : 1;

@@ -2,7 +2,6 @@
 
 #include <JoltPlugin/JoltPluginDLL.h>
 
-class ezSurfaceResource;
 class ezComponent;
 class ezJoltDynamicActorComponent;
 class ezJoltStaticActorComponent;
@@ -14,19 +13,36 @@ class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
 class ezJoltActorComponent;
 class ezJoltClothSheetComponent;
+class ezJoltBreakableSlabComponent;
 
 class ezJoltUserData
 {
 public:
   EZ_DECLARE_POD_TYPE();
 
+  enum class Type
+  {
+    Invalid,
+    DynamicActorComponent,
+    StaticActorComponent,
+    TriggerComponent,
+    CharacterComponent,
+    ShapeComponent,
+    BreakableSlabComponent,
+    QueryShapeActorComponent,
+    RagdollComponent,
+    RopeComponent,
+    ClothSheetComponent,
+  };
+
   ezJoltUserData() = default;
   ~ezJoltUserData() = default;
 
-  EZ_ALWAYS_INLINE void Init(ezJoltDynamicActorComponent* pObject)
+  EZ_ALWAYS_INLINE void Init(ezJoltDynamicActorComponent* pObject, ezBitflags<ezOnJoltContact> contactFlags)
   {
     m_Type = Type::DynamicActorComponent;
     m_pObject = pObject;
+    m_OnContact = contactFlags;
   }
 
   EZ_ALWAYS_INLINE void Init(ezJoltStaticActorComponent* pObject)
@@ -59,12 +75,6 @@ public:
     m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE void Init(ezSurfaceResource* pObject)
-  {
-    m_Type = Type::SurfaceResource;
-    m_pObject = pObject;
-  }
-
   EZ_ALWAYS_INLINE void Init(ezJoltRagdollComponent* pObject)
   {
     m_Type = Type::RagdollComponent;
@@ -83,37 +93,42 @@ public:
     m_pObject = pObject;
   }
 
+  EZ_ALWAYS_INLINE void Init(ezJoltBreakableSlabComponent* pObject, ezBitflags<ezOnJoltContact> contactFlags)
+  {
+    m_Type = Type::BreakableSlabComponent;
+    m_pObject = pObject;
+    m_OnContact = contactFlags;
+  }
+
   EZ_FORCE_INLINE void Invalidate()
   {
     m_Type = Type::Invalid;
     m_pObject = nullptr;
   }
 
+  EZ_FORCE_INLINE static Type GetType(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData == nullptr)
+      return Type::Invalid;
+
+    return pJoltUserData->m_Type;
+  }
+
+  EZ_FORCE_INLINE void* GetObject() const
+  {
+    return m_pObject;
+  }
+
   EZ_FORCE_INLINE static ezComponent* GetComponent(const void* pUserData)
   {
     const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData == nullptr ||
-        pJoltUserData->m_Type == Type::Invalid ||
-        pJoltUserData->m_Type == Type::SurfaceResource)
+    if (pJoltUserData == nullptr || pJoltUserData->m_Type == Type::Invalid)
     {
       return nullptr;
     }
 
     return static_cast<ezComponent*>(pJoltUserData->m_pObject);
-  }
-
-  EZ_FORCE_INLINE static ezJoltActorComponent* GetActorComponent(const void* pUserData)
-  {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr &&
-        (pJoltUserData->m_Type == Type::DynamicActorComponent ||
-          pJoltUserData->m_Type == Type::StaticActorComponent ||
-          pJoltUserData->m_Type == Type::QueryShapeActorComponent))
-    {
-      return static_cast<ezJoltActorComponent*>(pJoltUserData->m_pObject);
-    }
-
-    return nullptr;
   }
 
   EZ_FORCE_INLINE static ezJoltDynamicActorComponent* GetDynamicActorComponent(const void* pUserData)
@@ -127,50 +142,6 @@ public:
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static ezJoltRagdollComponent* GetRagdollComponent(const void* pUserData)
-  {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::RagdollComponent)
-    {
-      return static_cast<ezJoltRagdollComponent*>(pJoltUserData->m_pObject);
-    }
-
-    return nullptr;
-  }
-
-  EZ_FORCE_INLINE static ezJoltRopeComponent* GetRopeComponent(const void* pUserData)
-  {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::RopeComponent)
-    {
-      return static_cast<ezJoltRopeComponent*>(pJoltUserData->m_pObject);
-    }
-
-    return nullptr;
-  }
-
-  EZ_FORCE_INLINE static ezJoltClothSheetComponent* GetClothSheetComponent(const void* pUserData)
-  {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ClothSheetComponent)
-    {
-      return static_cast<ezJoltClothSheetComponent*>(pJoltUserData->m_pObject);
-    }
-
-    return nullptr;
-  }
-
-  // EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
-  //{
-  //   const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-  //   if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
-  //   {
-  //     return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
-  //   }
-
-  //  return nullptr;
-  //}
-
   EZ_FORCE_INLINE static ezJoltTriggerComponent* GetTriggerComponent(const void* pUserData)
   {
     const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
@@ -182,34 +153,23 @@ public:
     return nullptr;
   }
 
-  EZ_FORCE_INLINE static const ezSurfaceResource* GetSurfaceResource(const void* pUserData)
+  EZ_FORCE_INLINE static ezBitflags<ezOnJoltContact> GetContactFlags(const void* pUserData)
   {
-    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::SurfaceResource)
+    if (const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData))
     {
-      return static_cast<const ezSurfaceResource*>(pJoltUserData->m_pObject);
+      return pJoltUserData->m_OnContact;
     }
 
-    return nullptr;
+    return ezOnJoltContact::None;
+  }
+
+  EZ_FORCE_INLINE ezBitflags<ezOnJoltContact> GetContactFlags() const
+  {
+    return m_OnContact;
   }
 
 private:
-  enum class Type
-  {
-    Invalid,
-    DynamicActorComponent,
-    StaticActorComponent,
-    TriggerComponent,
-    CharacterComponent,
-    ShapeComponent,
-    BreakableSheetComponent,
-    SurfaceResource,
-    QueryShapeActorComponent,
-    RagdollComponent,
-    RopeComponent,
-    ClothSheetComponent,
-  };
-
   Type m_Type = Type::Invalid;
   void* m_pObject = nullptr;
+  ezBitflags<ezOnJoltContact> m_OnContact;
 };

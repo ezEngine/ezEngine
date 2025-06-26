@@ -75,6 +75,9 @@ ezInstancedMeshComponent
 ezJointAttachmentComponent
 ezJointOverrideComponent
 ezJoltActorComponent
+ezJoltBreakableShape
+ezJoltBreakableSlabComponent
+ezJoltBreakableSlabFlags
 ezJoltCharacterControllerComponent
 ezJoltCharacterDebugFlags
 ezJoltClothSheetComponent
@@ -123,6 +126,7 @@ ezMat3
 ezMat4
 ezMeshComponent
 ezMeshComponentBase
+ezMeshDecalComponent
 ezMessage
 ezMoveToComponent
 ezMsgAnimationPoseGeneration
@@ -153,6 +157,8 @@ ezMsgObjectGrabbed
 ezMsgOnlyApplyToObject
 ezMsgParentChanged
 ezMsgPathChanged
+ezMsgPhysicCharacterContact
+ezMsgPhysicContact
 ezMsgPhysicsAddImpulse
 ezMsgPhysicsJointBroke
 ezMsgQueryAnimationSkeleton

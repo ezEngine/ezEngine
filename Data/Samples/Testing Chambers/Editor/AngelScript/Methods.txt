@@ -283,6 +283,7 @@ RemoveFileExtension
 ReplaceAll
 ReplaceAll_NoCase
 Reserve
+Restore
 Reverse
 Rotate
 RotateUp
@@ -333,6 +334,9 @@ SetTeamID
 SetValue
 SetVerticalRotation
 SetZero
+ShatterAll
+ShatterCellular
+ShatterRadial
 Shrink
 Sort
 SoundCue

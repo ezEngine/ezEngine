@@ -74,6 +74,35 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+/// \brief Custom contact listener to send ezMsgPhysicCharacterContact to objects that the CC touches.
+class ezJoltDefaultCharacterContactListener : public JPH::CharacterContactListener
+{
+public:
+  JPH::PhysicsSystem* m_pSystem = nullptr;
+  ezJoltDefaultCharacterComponent* m_pCharacter = nullptr;
+
+  virtual void OnContactAdded(const JPH::CharacterVirtual* inCharacter, const JPH::BodyID& inBodyID2, const JPH::SubShapeID& inSubShapeID2, JPH::RVec3Arg inContactPosition, JPH::Vec3Arg inContactNormal, JPH::CharacterContactSettings& ioSettings) override
+  {
+    JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), inBodyID2);
+    if (lock.Succeeded())
+    {
+      if (ezComponent* pComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(lock.GetBody().GetUserData())))
+      {
+        ezMsgPhysicCharacterContact msg;
+        msg.m_hCharacter = m_pCharacter->GetHandle();
+        msg.m_vGlobalPosition = ezJoltConversionUtils::ToVec3(inContactPosition);
+        msg.m_vNormal = ezJoltConversionUtils::ToVec3(inContactNormal);
+        msg.m_vCharacterVelocity = ezJoltConversionUtils::ToVec3(inCharacter->GetLinearVelocity());
+        msg.m_fImpact = ezMath::Abs(msg.m_vNormal.Dot(msg.m_vCharacterVelocity));
+
+        pComponent->SendMessage(msg);
+      }
+    }
+
+    JPH::CharacterContactListener::OnContactAdded(inCharacter, inBodyID2, inSubShapeID2, inContactPosition, inContactNormal, ioSettings);
+  }
+};
+
 ezJoltDefaultCharacterComponent::ezJoltDefaultCharacterComponent() = default;
 ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
 
@@ -255,6 +284,8 @@ void ezJoltDefaultCharacterComponent::OnActivated()
 void ezJoltDefaultCharacterComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
+
+  m_pContactListener.Clear();
 }
 
 JPH::Ref<JPH::Shape> ezJoltDefaultCharacterComponent::MakeNextCharacterShape()
@@ -289,6 +320,18 @@ void ezJoltDefaultCharacterComponent::OnSimulationStarted()
 
   // creates the CC, so the next shape size must be set already
   SUPER::OnSimulationStarted();
+
+  if (m_pContactListener == nullptr)
+  {
+    m_pContactListener = EZ_DEFAULT_NEW(ezJoltDefaultCharacterContactListener);
+    ezJoltDefaultCharacterContactListener* pListener = (ezJoltDefaultCharacterContactListener*)m_pContactListener.Borrow();
+    pListener->m_pSystem = GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem();
+    pListener->m_pCharacter = this;
+  }
+
+  // the default CC uses a custom contact listener to send ezMsgPhysicCharacterContact messages to whatever it hits,
+  // so that those objects can react to it (e.g. by breaking apart)
+  GetJoltCharacter()->SetListener(m_pContactListener.Borrow());
 
   ezGameObject* pHeadObject;
   if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))

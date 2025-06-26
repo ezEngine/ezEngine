@@ -287,6 +287,7 @@ enum ezPhysicsShapeType
   Ragdoll = 32,
   Rope = 64,
   Cloth = 128,
+  Debris = 256,
 }
 
 enum ezClothSheetFlags
@@ -318,6 +319,21 @@ enum ezJoltCharacterDebugFlags
   VisCasts = 8,
   VisGroundContact = 16,
   VisFootCheck = 32,
+}
+
+enum ezJoltBreakableShape
+{
+  Rectangle = 0,
+  Triangle = 1,
+  Circle = 2,
+}
+
+enum ezJoltBreakableSlabFlags
+{
+  FixedEdgeTop = 1,
+  FixedEdgeRight = 2,
+  FixedEdgeBottom = 4,
+  FixedEdgeLeft = 8,
 }
 
 enum ezJoltClothSheetFlags
@@ -1234,6 +1250,7 @@ class ezComponent
   ezMoveToComponent@ opCast();
   ezThirdPersonViewComponent@ opCast();
   ezLineToComponent@ opCast();
+  ezMeshDecalComponent@ opCast();
   ezCameraShakeComponent@ opCast();
   ezCameraShakeVolumeComponent@ opCast();
   ezCameraShakeVolumeSphereComponent@ opCast();
@@ -1253,6 +1270,7 @@ class ezComponent
   ezJoltTriggerComponent@ opCast();
   ezJoltCharacterControllerComponent@ opCast();
   ezJoltDefaultCharacterComponent@ opCast();
+  ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
   ezJoltHitboxComponent@ opCast();
   ezJoltRagdollComponent@ opCast();
@@ -1324,6 +1342,8 @@ class ezWorld
 class ezMessage
 {
   ezMsgPhysicsAddImpulse@ opCast();
+  ezMsgPhysicCharacterContact@ opCast();
+  ezMsgPhysicContact@ opCast();
   ezMsgPhysicsJointBroke@ opCast();
   ezMsgObjectGrabbed@ opCast();
   ezMsgReleaseObjectGrab@ opCast();
@@ -1503,6 +1523,7 @@ class ezRenderComponent : ezComponent
   ezGizmoComponent@ opCast();
   ezClothSheetComponent@ opCast();
   ezHeightfieldComponent@ opCast();
+  ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
   ezJoltVisColMeshComponent@ opCast();
   ezKrautTreeComponent@ opCast();
@@ -1771,6 +1792,10 @@ class ezSpotLightComponent : ezLightComponent
   ezAngle InnerSpotAngle;
   ezAngle OuterSpotAngle;
   float ShadowFadeOutRange;
+  ezStringView Cookie;
+  ezStringView Material;
+  uint32 MaterialResolution;
+  ezTime MaterialUpdateInterval;
 }
 
 class ezCustomMeshComponent : ezRenderComponent
@@ -2372,6 +2397,10 @@ class ezLineToComponent : ezComponent
   ezColor Color;
 }
 
+class ezMeshDecalComponent : ezComponent
+{
+}
+
 class ezCameraShakeComponent : ezComponent
 {
   ezAngle MinShake;
@@ -2585,6 +2614,25 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
   float RunInteractionDistance;
   ezStringView FallbackWalkSurface;
   ezString HeadObject;
+}
+
+class ezJoltBreakableSlabComponent : ezRenderComponent
+{
+  void Restore();
+  void ShatterCellular(ezVec3 vGlobalPosition, float fCellSize, ezVec3 vImpulse, float fMakeDynamicRadius);
+  void ShatterRadial(ezVec3 vGlobalPosition, float fImpactRadius, ezVec3 vImpulse, float fMakeDynamicRadius);
+  void ShatterAll(float fShardSize, ezVec3 vImpulse);
+  float Width;
+  float Height;
+  float Thickness;
+  ezStringView Material;
+  ezVec2 UVScale;
+  uint8 CollisionLayerStatic;
+  uint8 CollisionLayerDynamic;
+  ezJoltBreakableShape Shape;
+  ezJoltBreakableSlabFlags Flags;
+  float GravityFactor;
+  float ContactReportForceThreshold;
 }
 
 class ezJoltClothSheetComponent : ezRenderComponent
@@ -2876,6 +2924,21 @@ class ezMsgPhysicsAddImpulse : ezMessage
   ezVec3 GlobalPosition;
   ezVec3 Impulse;
   uint32 ObjectFilterID;
+}
+
+class ezMsgPhysicCharacterContact : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Normal;
+  ezVec3 CharacterVelocity;
+  float Impact;
+}
+
+class ezMsgPhysicContact : ezMessage
+{
+  ezVec3 GlobalPosition;
+  ezVec3 Normal;
+  float ImpactSqr;
 }
 
 class ezEventMessage : ezMessage
