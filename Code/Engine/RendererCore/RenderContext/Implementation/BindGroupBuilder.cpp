@@ -276,9 +276,8 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
 void ezBindGroupBuilder::RemoveItem(ezTempHashedString sSlotName, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container)
 {
   s_uiReads++;
-  if (ref_Container.Contains(sSlotName.GetHash()))
+  if (ref_Container.Remove(sSlotName.GetHash()))
   {
-    ref_Container.Remove(sSlotName.GetHash());
     m_bModified = true;
     s_uiWrites++;
   }
@@ -287,16 +286,13 @@ void ezBindGroupBuilder::RemoveItem(ezTempHashedString sSlotName, ezHashTable<ez
 void ezBindGroupBuilder::InsertItem(ezTempHashedString sSlotName, const ezGALBindGroupItem& item, ezHashTable<ezUInt64, ezGALBindGroupItem>& ref_Container)
 {
   s_uiReads++;
-  ezGALBindGroupItem* pOldItem = nullptr;
-  if (ref_Container.TryGetValue(sSlotName.GetHash(), pOldItem))
+  ezGALBindGroupItem oldItem;
+  if (ref_Container.Insert(sSlotName.GetHash(), item, &oldItem))
   {
-    if (*pOldItem == item)
+    if (oldItem != item)
     {
-      return;
+      m_bModified = true;
+      s_uiWrites++;
     }
   }
-
-  ref_Container.Insert(sSlotName.GetHash(), item);
-  m_bModified = true;
-  s_uiWrites++;
 }
