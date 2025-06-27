@@ -158,7 +158,7 @@ public:
 
   /// \brief Sets the UV scaling factor for texture mapping
   void SetUvScale(ezVec2 vScale); // [ property ]
-  ezVec2 GetUvScale() const;     // [ property ]
+  ezVec2 GetUvScale() const;      // [ property ]
 
   /// \brief Sets which edges of the slab are fixed/anchored in the world
   void SetFlags(ezBitflags<ezJoltBreakableSlabFlags> flags); // [ property ]
