@@ -26,7 +26,7 @@ namespace JPH
 /// A fixed edge means that shards adjacent to that edge will remain stationary and not fall under gravity.
 struct EZ_JOLTPLUGIN_DLL ezJoltBreakableSlabFlags
 {
-  using StorageType = ezUInt16;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -157,7 +157,7 @@ public:
   float GetThickness() const;          // [ property ]
 
   /// \brief Sets the UV scaling factor for texture mapping
-  void SetUvScale(ezVec2 scale); // [ property ]
+  void SetUvScale(ezVec2 vScale); // [ property ]
   ezVec2 GetUvScale() const;     // [ property ]
 
   /// \brief Sets which edges of the slab are fixed/anchored in the world
@@ -227,7 +227,7 @@ private:
   float m_fGravityFactor = 1.0f;
   float m_fWidth = 1.0f;
   float m_fHeight = 1.0f;
-  float m_fThickness = 0.1f;
+  float m_fThickness = 0.02f;
   ezVec2 m_vUvScale = ezVec2(1.0f);
   float m_fContactReportForceThreshold = 0.0f;
 

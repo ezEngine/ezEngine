@@ -81,25 +81,25 @@ public:
   JPH::PhysicsSystem* m_pSystem = nullptr;
   ezJoltDefaultCharacterComponent* m_pCharacter = nullptr;
 
-  virtual void OnContactAdded(const JPH::CharacterVirtual* inCharacter, const JPH::BodyID& inBodyID2, const JPH::SubShapeID& inSubShapeID2, JPH::RVec3Arg inContactPosition, JPH::Vec3Arg inContactNormal, JPH::CharacterContactSettings& ioSettings) override
+  virtual void OnContactAdded(const JPH::CharacterVirtual* pCharacter, const JPH::BodyID& bodyID2, const JPH::SubShapeID& subShapeID2, JPH::RVec3Arg contactPosition, JPH::Vec3Arg contactNormal, JPH::CharacterContactSettings& settings) override
   {
-    JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), inBodyID2);
+    JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), bodyID2);
     if (lock.Succeeded())
     {
       if (ezComponent* pComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(lock.GetBody().GetUserData())))
       {
         ezMsgPhysicCharacterContact msg;
         msg.m_hCharacter = m_pCharacter->GetHandle();
-        msg.m_vGlobalPosition = ezJoltConversionUtils::ToVec3(inContactPosition);
-        msg.m_vNormal = ezJoltConversionUtils::ToVec3(inContactNormal);
-        msg.m_vCharacterVelocity = ezJoltConversionUtils::ToVec3(inCharacter->GetLinearVelocity());
+        msg.m_vGlobalPosition = ezJoltConversionUtils::ToVec3(contactPosition);
+        msg.m_vNormal = ezJoltConversionUtils::ToVec3(contactNormal);
+        msg.m_vCharacterVelocity = ezJoltConversionUtils::ToVec3(pCharacter->GetLinearVelocity());
         msg.m_fImpact = ezMath::Abs(msg.m_vNormal.Dot(msg.m_vCharacterVelocity));
 
         pComponent->SendMessage(msg);
       }
     }
 
-    JPH::CharacterContactListener::OnContactAdded(inCharacter, inBodyID2, inSubShapeID2, inContactPosition, inContactNormal, ioSettings);
+    JPH::CharacterContactListener::OnContactAdded(pCharacter, bodyID2, subShapeID2, contactPosition, contactNormal, settings);
   }
 };
 

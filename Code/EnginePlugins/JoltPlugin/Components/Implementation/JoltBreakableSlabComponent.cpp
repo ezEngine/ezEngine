@@ -329,12 +329,12 @@ float ezJoltBreakableSlabComponent::GetThickness() const
   return m_fThickness;
 }
 
-void ezJoltBreakableSlabComponent::SetUvScale(ezVec2 scale)
+void ezJoltBreakableSlabComponent::SetUvScale(ezVec2 vScale)
 {
-  if (m_vUvScale == scale)
+  if (m_vUvScale == vScale)
     return;
 
-  m_vUvScale = scale;
+  m_vUvScale = vScale;
   ReinitMeshes();
 }
 
@@ -693,41 +693,41 @@ const ezJoltMaterial* ezJoltBreakableSlabComponent::GetPhysicsMaterial()
   return ezJoltCore::GetDefaultMaterial();
 }
 
-void AddSkirtPolygons(const ezVec2& Point0, const ezVec2& Point1, float fThickness, ezGeometry& Geometry, const ezGeometry::GeoOptions& opt)
+void AddSkirtPolygons(const ezVec2& vPoint0, const ezVec2& vPoint1, float fThickness, ezGeometry& ref_geometry, const ezGeometry::GeoOptions& opt)
 {
-  const float fSpanX = ezMath::Abs(Point0.x - Point1.x);
-  const float fSpanY = ezMath::Abs(Point0.y - Point1.y);
+  const float fSpanX = ezMath::Abs(vPoint0.x - vPoint1.x);
+  const float fSpanY = ezMath::Abs(vPoint0.y - vPoint1.y);
   const float fSpan = ezMath::Max(fSpanX, fSpanY);
 
-  ezVec3 Point0Front(Point0.x, Point0.y, fThickness);
-  ezVec2 Point0FrontUV(fThickness, 0);
-  ezVec3 Point0Back(Point0.x, Point0.y, 0);
-  ezVec2 Point0BackUV(0, 0);
-  ezVec3 Point1Front(Point1.x, Point1.y, fThickness);
-  ezVec2 Point1FrontUV(fThickness, fSpan);
-  ezVec3 Point1Back(Point1.x, Point1.y, 0);
-  ezVec2 Point1BackUV(0, fSpan);
+  ezVec3 vPoint0Front(vPoint0.x, vPoint0.y, fThickness);
+  ezVec2 vPoint0FrontUV(fThickness, 0);
+  ezVec3 vPoint0Back(vPoint0.x, vPoint0.y, 0);
+  ezVec2 vPoint0BackUV(0, 0);
+  ezVec3 vPoint1Front(vPoint1.x, vPoint1.y, fThickness);
+  ezVec2 vPoint1FrontUV(fThickness, fSpan);
+  ezVec3 vPoint1Back(vPoint1.x, vPoint1.y, 0);
+  ezVec2 vPoint1BackUV(0, fSpan);
 
   ezVec3 FaceNormal;
-  if (FaceNormal.CalculateNormal(Point0Front, Point1Front, Point0Back).Failed())
+  if (FaceNormal.CalculateNormal(vPoint0Front, vPoint1Front, vPoint0Back).Failed())
   {
     // ignore degenerate triangles
     return;
   }
 
-  const ezUInt32 uiIdx0 = Geometry.AddVertex(opt, Point0Front, FaceNormal, Point0FrontUV);
-  const ezUInt32 uiIdx1 = Geometry.AddVertex(opt, Point0Back, FaceNormal, Point0BackUV);
-  const ezUInt32 uiIdx2 = Geometry.AddVertex(opt, Point1Front, FaceNormal, Point1FrontUV);
-  const ezUInt32 uiIdx3 = Geometry.AddVertex(opt, Point1Back, FaceNormal, Point1BackUV);
+  const ezUInt32 uiIdx0 = ref_geometry.AddVertex(opt, vPoint0Front, FaceNormal, vPoint0FrontUV);
+  const ezUInt32 uiIdx1 = ref_geometry.AddVertex(opt, vPoint0Back, FaceNormal, vPoint0BackUV);
+  const ezUInt32 uiIdx2 = ref_geometry.AddVertex(opt, vPoint1Front, FaceNormal, vPoint1FrontUV);
+  const ezUInt32 uiIdx3 = ref_geometry.AddVertex(opt, vPoint1Back, FaceNormal, vPoint1BackUV);
 
   {
     ezUInt32 idx[3] = {uiIdx0, uiIdx2, uiIdx1};
-    Geometry.AddPolygon(idx, false);
+    ref_geometry.AddPolygon(idx, false);
   }
 
   {
     ezUInt32 idx[3] = {uiIdx1, uiIdx2, uiIdx3};
-    Geometry.AddPolygon(idx, false);
+    ref_geometry.AddPolygon(idx, false);
   }
 }
 
@@ -1340,7 +1340,7 @@ void ezShatterTask::Execute()
       m_vFinalImpulse += pt.m_vImpulse;
     }
 
-    m_vFinalImpulse /= m_ShatterPoints.GetCount();
+    m_vFinalImpulse /= (float)m_ShatterPoints.GetCount();
   }
 
   m_pComponent->PrepareBreakAsync(m_Shapes, m_ShatterPoints);

@@ -32,7 +32,7 @@ void ezBreakable2D::RemoveShard(ezUInt32 uiShardIdx)
   shard.m_bShattered = true;
 }
 
-void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns)
+void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns)
 {
   EZ_PROFILE_SCOPE("ShatterShard");
 
@@ -77,11 +77,11 @@ void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosi
 
   if ((uiAllowedBreakPatterns & (ezUInt8)ezBreakablePattern::Radial) != 0)
   {
-    ShatterWithRadialPattern(clipPlanes, vShatterPosition, rng, fImpactRadius);
+    ShatterWithRadialPattern(clipPlanes, vShatterPosition, ref_rng, fImpactRadius);
   }
   else if ((uiAllowedBreakPatterns & (ezUInt8)ezBreakablePattern::Cellular) != 0)
   {
-    ShatterWithCellularPattern(uiShardIdx, clipPlanes, rng, fCellSize);
+    ShatterWithCellularPattern(uiShardIdx, clipPlanes, ref_rng, fCellSize);
   }
   else
   {

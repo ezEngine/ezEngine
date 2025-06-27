@@ -98,7 +98,7 @@ public:
   /// * Small pieces will have no break patterns enabled (can't break further)
   /// * Medium pieces will only allow cellular patterns
   /// * Large pieces allow all patterns
-  void ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::All);
+  void ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::All);
 
   /// \brief Shatters all shards using the cellular pattern and optionally sets them all to dynamic.
   void ShatterAll(float fShardSize, ezRandom& rng, bool bMakeAllDynamic);
