@@ -215,5 +215,4 @@ protected:
 
 private:
   const char* DummyGetter() const { return nullptr; }
-
 };
