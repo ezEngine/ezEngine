@@ -48,15 +48,12 @@ void ezManipulatorAdapter::SetManipulator(const ezManipulatorAttribute* pAttribu
 
 void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
+  if (e.m_pObject == m_pObject)
   {
-    if (e.m_pObject == m_pObject)
+    if (e.m_sProperty == m_pManipulatorAttr->m_sProperty1 || e.m_sProperty == m_pManipulatorAttr->m_sProperty2 || e.m_sProperty == m_pManipulatorAttr->m_sProperty3 || e.m_sProperty == m_pManipulatorAttr->m_sProperty4 || e.m_sProperty == m_pManipulatorAttr->m_sProperty5 ||
+        e.m_sProperty == m_pManipulatorAttr->m_sProperty6)
     {
-      if (e.m_sProperty == m_pManipulatorAttr->m_sProperty1 || e.m_sProperty == m_pManipulatorAttr->m_sProperty2 || e.m_sProperty == m_pManipulatorAttr->m_sProperty3 || e.m_sProperty == m_pManipulatorAttr->m_sProperty4 || e.m_sProperty == m_pManipulatorAttr->m_sProperty5 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty6)
-      {
-        Update();
-      }
+      Update();
     }
   }
 }

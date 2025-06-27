@@ -730,6 +730,37 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_FOUNDATION_DLL ezSplineManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSplineManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezSplineManipulatorAttribute();
+  ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo);
+
+  const ezUntrackedString& GetNodesProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetClosedProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetBindTo() const { return m_sProperty3; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezSplineNodeManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSplineNodeManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezSplineNodeManipulatorAttribute();
+  ezSplineNodeManipulatorAttribute(const char* szTangentModeIn, const char* szCustomTangentIn, const char* szTangentModeOut, const char* szCustomTangentOut);
+
+  const ezUntrackedString& GetTangentModeInProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetCustomTangentInProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetTangentModeOutProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetCustomTangentOutProperty() const { return m_sProperty4; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 struct ezVisualizerAnchor
 {
   using StorageType = ezUInt8;

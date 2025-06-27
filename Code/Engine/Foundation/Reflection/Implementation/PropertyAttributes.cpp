@@ -634,6 +634,54 @@ ezBoneManipulatorAttribute::ezBoneManipulatorAttribute(const char* szTransformPr
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineManipulatorAttribute>)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezSplineManipulatorAttribute::ezSplineManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezSplineManipulatorAttribute::ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo)
+  : ezManipulatorAttribute(szNodesProperty, szClosedProperty, szBindTo)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineNodeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineNodeManipulatorAttribute>)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezSplineNodeManipulatorAttribute::ezSplineNodeManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezSplineNodeManipulatorAttribute::ezSplineNodeManipulatorAttribute(const char* szTangentModeIn, const char* szCustomTangentIn, const char* szTangentModeOut, const char* szCustomTangentOut)
+  : ezManipulatorAttribute(szTangentModeIn, szCustomTangentIn, szTangentModeOut, szCustomTangentOut)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezVisualizerAnchor, 1)
 EZ_BITFLAGS_CONSTANTS(ezVisualizerAnchor::Center, ezVisualizerAnchor::PosX, ezVisualizerAnchor::NegX, ezVisualizerAnchor::PosY, ezVisualizerAnchor::NegY, ezVisualizerAnchor::PosZ, ezVisualizerAnchor::NegZ)
 EZ_END_STATIC_REFLECTED_BITFLAGS;

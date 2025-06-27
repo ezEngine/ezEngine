@@ -26,6 +26,8 @@
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/SplineManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/SplineNodeManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
@@ -164,6 +166,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoneManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineNodeManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineNodeManipulatorAdapter); });
 
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); });

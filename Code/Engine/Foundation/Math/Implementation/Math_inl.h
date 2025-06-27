@@ -442,13 +442,27 @@ namespace ezMath
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
     const T2 mt = 1 - t;
+    const T2 mt2 = mt * mt;
+    const T2 t2 = t * t;
 
-    const T2 f1 = mt * mt * mt;
-    const T2 f2 = 3 * mt * mt * t;
-    const T2 f3 = 3 * mt * t * t;
-    const T2 f4 = t * t * t;
+    const T2 f1 = mt2 * mt;
+    const T2 f2 = 3 * mt2 * t;
+    const T2 f3 = 3 * mt * t2;
+    const T2 f4 = t * t2;
 
     return f1 * startPoint + f2 * controlPoint1 + f3 * controlPoint2 + f4 * endPoint;
+  }
+
+  template <typename T, typename T2>
+  T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  {
+    const T2 mt = 1 - t;
+
+    const T2 f1 = 3 * mt * mt;
+    const T2 f2 = 6 * mt * t;
+    const T2 f3 = 3 * t * t;
+
+    return f1 * (controlPoint1 - startPoint) + f2 * (controlPoint2 - controlPoint1) + f3 * (endPoint - controlPoint2);
   }
 } // namespace ezMath
 

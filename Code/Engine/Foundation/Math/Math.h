@@ -421,6 +421,11 @@ namespace ezMath
   template <typename T, typename T2>
   [[nodiscard]] T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 
+  /// \brief Evaluates the derivative of a cubic spline defined by four control points at time \a t and returns the interpolated result.
+  /// Can be used with T as float, vec2, vec3 or vec4
+  template <typename T, typename T2>
+  [[nodiscard]] T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+
   /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
   EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
 
