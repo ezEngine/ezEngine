@@ -62,7 +62,12 @@ void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosi
     for (ezUInt32 i = 0; i < shard.m_Edges.GetCount(); ++i)
     {
       ClipPlane& cp = clipPlanes.ExpandAndGetRef();
-      cp.m_Plane.SetFromPoints(shard.m_Edges[i].m_vStartPosition.GetAsVec3(0), shard.m_Edges[uiPrevIdx].m_vStartPosition.GetAsVec3(0), shard.m_Edges[i].m_vStartPosition.GetAsVec3(0) + vNormal);
+      if (cp.m_Plane.SetFromPoints(shard.m_Edges[i].m_vStartPosition.GetAsVec3(0), shard.m_Edges[uiPrevIdx].m_vStartPosition.GetAsVec3(0), shard.m_Edges[i].m_vStartPosition.GetAsVec3(0) + vNormal).Failed())
+      {
+        clipPlanes.PopBack();
+        continue;
+      }
+
       cp.m_uiOutsideShardIdx = shard.m_Edges[uiPrevIdx].m_uiOutsideShardIdx;
       uiPrevIdx = i;
     }

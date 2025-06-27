@@ -545,7 +545,7 @@ void ezJoltBreakableSlabComponent::Cleanup()
 {
   if (m_pShatterTask)
   {
-    ezTaskSystem::CancelTask(m_pShatterTask, ezOnTaskRunning::WaitTillFinished);
+    ezTaskSystem::CancelTask(m_pShatterTask, ezOnTaskRunning::WaitTillFinished).IgnoreResult();
     m_pShatterTask = nullptr;
   }
 
