@@ -96,7 +96,7 @@ void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosi
   }
 }
 
-void ezBreakable2D::ShatterAll(float fShardSize, ezRandom& rng, bool bMakeAllDynamic)
+void ezBreakable2D::ShatterAll(float fShardSize, ezRandom& ref_rng, bool bMakeAllDynamic)
 {
   const ezUInt32 uiNumShards = m_Shards.GetCount();
 
@@ -109,7 +109,7 @@ void ezBreakable2D::ShatterAll(float fShardSize, ezRandom& rng, bool bMakeAllDyn
     if ((shard.m_uiBreakablePatterns & (ezUInt8)ezBreakablePattern::Cellular) == 0)
       continue;
 
-    ShatterShard(i, ezVec2::MakeZero(), rng, 0.0f, fShardSize, (ezUInt8)ezBreakablePattern::Cellular);
+    ShatterShard(i, ezVec2::MakeZero(), ref_rng, 0.0f, fShardSize, (ezUInt8)ezBreakablePattern::Cellular);
   }
 
   if (bMakeAllDynamic)
@@ -121,7 +121,7 @@ void ezBreakable2D::ShatterAll(float fShardSize, ezRandom& rng, bool bMakeAllDyn
   }
 }
 
-void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPlanes, const ezVec2& vShatterPosition, ezRandom& rng, float fImpactRadius)
+void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPlanes, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius)
 {
   const float fMinAngle = 15.0f;
   const float fMaxAngle = 30.0f;
@@ -131,7 +131,7 @@ void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPla
 
   while (fRemainingAngle > fMaxAngle)
   {
-    const float fAngle = rng.FloatMinMax(fMinAngle, fMaxAngle);
+    const float fAngle = ref_rng.FloatMinMax(fMinAngle, fMaxAngle);
     fRemainingAngle -= fAngle;
     angles.PushBack(ezAngle::MakeFromDegree(fAngle));
   }
@@ -174,11 +174,11 @@ void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPla
     const float r5o = r5i * 1.5f;
 
     qRots.PushBack(ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), angles[i]));
-    radii1.PushBack(rng.FloatMinMax(r1i * fImpactRadius, r1o * fImpactRadius));
-    radii2.PushBack(rng.FloatMinMax(r2i * fImpactRadius, r2o * fImpactRadius));
-    radii3.PushBack(rng.FloatMinMax(r3i * fImpactRadius, r3o * fImpactRadius));
-    radii4.PushBack(rng.FloatMinMax(r4i * fImpactRadius, r4o * fImpactRadius));
-    radii5.PushBack(rng.FloatMinMax(r5i * fImpactRadius, r5o * fImpactRadius));
+    radii1.PushBack(ref_rng.FloatMinMax(r1i * fImpactRadius, r1o * fImpactRadius));
+    radii2.PushBack(ref_rng.FloatMinMax(r2i * fImpactRadius, r2o * fImpactRadius));
+    radii3.PushBack(ref_rng.FloatMinMax(r3i * fImpactRadius, r3o * fImpactRadius));
+    radii4.PushBack(ref_rng.FloatMinMax(r4i * fImpactRadius, r4o * fImpactRadius));
+    radii5.PushBack(ref_rng.FloatMinMax(r5i * fImpactRadius, r5o * fImpactRadius));
     radii6.PushBack(100.0f);
     shardIDs0.PushBack(ezInvalidIndex);
   }
@@ -426,7 +426,7 @@ void ezBreakable2D::RecalculateDymamic()
 
 EZ_DEFINE_AS_POD_TYPE(jcv_point);
 
-bool ezBreakable2D::ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<const ClipPlane> clipPlanes, ezRandom& rng, float fShardSize)
+bool ezBreakable2D::ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<const ClipPlane> clipPlanes, ezRandom& ref_rng, float fShardSize)
 {
   const ezBreakableShard2D& shard = m_Shards[uiShardIdx];
 
@@ -448,8 +448,8 @@ bool ezBreakable2D::ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<c
   {
     for (float x = pointCenter.x - pointBounds.x; x < pointCenter.x + pointBounds.x; x += pointStep.x)
     {
-      const float cx = static_cast<float>(rng.DoubleMinMax(x, x + variation.x));
-      const float cy = static_cast<float>(rng.DoubleMinMax(y, y + variation.y));
+      const float cx = static_cast<float>(ref_rng.DoubleMinMax(x, x + variation.x));
+      const float cy = static_cast<float>(ref_rng.DoubleMinMax(y, y + variation.y));
       diagramPoints.PushBack({cx, cy});
     }
   }

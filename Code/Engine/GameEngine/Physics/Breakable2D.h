@@ -101,7 +101,7 @@ public:
   void ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius, float fCellSize, ezUInt8 uiAllowedBreakPatterns = (ezUInt8)ezBreakablePattern::All);
 
   /// \brief Shatters all shards using the cellular pattern and optionally sets them all to dynamic.
-  void ShatterAll(float fShardSize, ezRandom& rng, bool bMakeAllDynamic);
+  void ShatterAll(float fShardSize, ezRandom& ref_rng, bool bMakeAllDynamic);
 
   /// \brief Calculates which shards are unsupported (not directly or indirectly connected to a fixed edge) and sets them to dynamic.
   void RecalculateDymamic();
@@ -126,8 +126,8 @@ private:
     ezUInt32 m_uiOutsideShardIdx = ezInvalidIndex;
   };
 
-  void ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPlanes, const ezVec2& vShatterPosition, ezRandom& rng, float fImpactRadius);
-  bool ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<const ClipPlane> clipPlanes, ezRandom& rng, float fShardSize);
+  void ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPlanes, const ezVec2& vShatterPosition, ezRandom& ref_rng, float fImpactRadius);
+  bool ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<const ClipPlane> clipPlanes, ezRandom& ref_rng, float fShardSize);
   ezUInt32 AddShard(ezArrayPtr<const ClipPlane> clipPlanes, ezArrayPtr<ezBreakableShard2D::Edge> shape);
   void GenerateRingVertices(ezDynamicArray<ezVec2>& vertices, const ezVec2& vCenter, ezArrayPtr<float> radii, const ezArrayPtr<ezQuat> qRotations);
   void GenerateRingShards(ezArrayPtr<const ClipPlane> clipPlanes, ezArrayPtr<ezVec2> innerVertices, ezArrayPtr<ezVec2> outerVertices, ezArrayPtr<ezUInt32> prevShardIDs, ezDynamicArray<ezUInt32>& out_ShardIDs);

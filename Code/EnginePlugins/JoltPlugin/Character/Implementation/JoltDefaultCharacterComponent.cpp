@@ -81,7 +81,7 @@ public:
   JPH::PhysicsSystem* m_pSystem = nullptr;
   ezJoltDefaultCharacterComponent* m_pCharacter = nullptr;
 
-  virtual void OnContactAdded(const JPH::CharacterVirtual* pCharacter, const JPH::BodyID& bodyID2, const JPH::SubShapeID& subShapeID2, JPH::RVec3Arg contactPosition, JPH::Vec3Arg contactNormal, JPH::CharacterContactSettings& settings) override
+  virtual void OnContactAdded(const JPH::CharacterVirtual* pCharacter, const JPH::BodyID& bodyID2, const JPH::SubShapeID& subShapeID2, JPH::RVec3Arg contactPosition, JPH::Vec3Arg contactNormal, JPH::CharacterContactSettings& ref_settings) override
   {
     JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), bodyID2);
     if (lock.Succeeded())
@@ -99,7 +99,7 @@ public:
       }
     }
 
-    JPH::CharacterContactListener::OnContactAdded(pCharacter, bodyID2, subShapeID2, contactPosition, contactNormal, settings);
+    JPH::CharacterContactListener::OnContactAdded(pCharacter, bodyID2, subShapeID2, contactPosition, contactNormal, ref_settings);
   }
 };
 
