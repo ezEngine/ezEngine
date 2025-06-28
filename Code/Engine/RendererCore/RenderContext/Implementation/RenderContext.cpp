@@ -562,9 +562,12 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       m_pGALCommandEncoder->SetComputePipeline(ezGALPipelineCache::GetPipeline(m_ComputePipeline));
   }
 
-  for (ezUInt32 i = 0; i < m_pActiveGALShader->GetBindGroupCount(); ++i)
+  if (m_pActiveGALShader)
   {
-    EZ_ASSERT_DEV(m_pActiveGALShader->GetBindGroupLayout(i) == m_BindGroups[i].m_hBindGroupLayout, "Invalid Bind Group Layout");
+    for (ezUInt32 i = 0; i < m_pActiveGALShader->GetBindGroupCount(); ++i)
+    {
+      EZ_ASSERT_DEV(m_pActiveGALShader->GetBindGroupLayout(i) == m_BindGroups[i].m_hBindGroupLayout, "Invalid Bind Group Layout");
+    }
   }
   return EZ_SUCCESS;
 }
