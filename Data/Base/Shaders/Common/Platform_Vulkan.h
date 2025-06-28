@@ -19,7 +19,7 @@
 #  define BEGIN_MATERIAL_CONSTANTS struct ezMaterialConstants
 #  define END_MATERIAL_CONSTANTS \
     ;                            \
-    StructuredBuffer<ezMaterialConstants> materialData;
+    StructuredBuffer<ezMaterialConstants> materialData BIND_RESOURCE(0, BG_MATERIAL);
 // #TODO_MATERIAL Right now, there is an individual structured buffer for each material, which is way we always sample at index 0.
 // Thus is until we have refactored the high level renderer to actually have a place to store the material index and use one single structured buffer + index.
 #  define GetMaterialData(x) materialData[0].x

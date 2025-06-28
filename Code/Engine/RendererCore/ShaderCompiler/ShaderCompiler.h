@@ -67,6 +67,7 @@ private:
   ezResult FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   ezSharedPtr<ezShaderConstantBufferLayout> m_pMaterialBufferLayout;
+  ezSet<ezString> m_MaterialParameters;
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 
   ezTokenizedFileCache m_FileCache;

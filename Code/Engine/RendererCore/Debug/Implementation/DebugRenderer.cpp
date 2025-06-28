@@ -1585,7 +1585,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  ezBindGroupBuilder& bindGroupRenderPass = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
   // SolidBoxes
   {
     ezUInt32 uiNumSolidBoxes = pData->m_solidBoxes.GetCount();
@@ -1600,7 +1600,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
       while (uiNumSolidBoxes > 0)
       {
         ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::SolidBoxes].GetNewBuffer();
-        bindGroup.BindBuffer("boxData", hBuffer);
+        bindGroupRenderPass.BindBuffer("boxData", hBuffer);
         const ezUInt32 uiNumSolidBoxesInBatch = ezMath::Min<ezUInt32>(uiNumSolidBoxes, BOXES_PER_BATCH);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
@@ -1653,7 +1653,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
       const auto format = pDevice->GetTexture(hTexture)->GetDescription().m_Format;
       const bool bMonochrome = ezGALResourceFormat::GetChannelCount(format) == 1;
 
-      bindGroup.BindTexture("BaseTexture", hTexture);
+      bindGroupRenderPass.BindTexture("BaseTexture", hTexture);
 
       const auto& verts = itTex.Value();
 
@@ -1729,7 +1729,7 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
       {
         ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::LineBoxes].GetNewBuffer();
         const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
-        bindGroup.BindBuffer("boxData", hBuffer);
+        bindGroupRenderPass.BindBuffer("boxData", hBuffer);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
@@ -1765,14 +1765,14 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
 
-      bindGroup.BindTexture("FontTexture", s_hDebugFontTexture);
+      bindGroupRenderPass.BindTexture("FontTexture", s_hDebugFontTexture);
 
       const GlyphData* pGlyphData = pData->m_glyphs.GetData();
       while (uiNumGlyphs > 0)
       {
         ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Glyphs].GetNewBuffer();
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);
-        bindGroup.BindBuffer("glyphData", hBuffer);
+        bindGroupRenderPass.BindBuffer("glyphData", hBuffer);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
@@ -1936,14 +1936,14 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
 
   // Textured 2D triangles
   {
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
     for (auto itTex = pData->m_texTriangle2DVertices.GetIterator(); itTex.IsValid(); ++itTex)
     {
       auto hTexture = itTex.Key();
       const auto format = pDevice->GetTexture(hTexture)->GetDescription().m_Format;
       const bool bMonochrome = ezGALResourceFormat::GetChannelCount(format) == 1;
 
-      bindGroup.BindTexture("BaseTexture", hTexture);
+      bindGroupRenderPass.BindTexture("BaseTexture", hTexture);
 
       const auto& verts = itTex.Value();
 
@@ -2005,7 +2005,7 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
 
   // Text
   {
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
     pData->m_glyphs.Clear();
 
     for (auto& textLine : pData->m_textLines2D)
@@ -2019,14 +2019,14 @@ void ezDebugRenderer::RenderInternalScreenSpace(const ezDebugRendererContext& co
       CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData));
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
-      bindGroup.BindTexture("FontTexture", s_hDebugFontTexture);
+      bindGroupRenderPass.BindTexture("FontTexture", s_hDebugFontTexture);
 
       const GlyphData* pGlyphData = pData->m_glyphs.GetData();
       while (uiNumGlyphs > 0)
       {
         ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Glyphs].GetNewBuffer();
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);
-        bindGroup.BindBuffer("glyphData", hBuffer);
+        bindGroupRenderPass.BindBuffer("glyphData", hBuffer);
         pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);

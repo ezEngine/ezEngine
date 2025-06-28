@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER(ezSSAOConstants, 3)
+CONSTANT_BUFFER2(ezSSAOConstants, 3, BG_RENDER_PASS)
 {
   FLOAT2(TexCoordsScale);
   FLOAT2(FadeOutParams);

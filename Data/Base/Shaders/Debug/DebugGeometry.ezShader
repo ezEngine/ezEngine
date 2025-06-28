@@ -30,7 +30,7 @@ struct BoxData
 	float4 color;
 };
 
-StructuredBuffer<BoxData> boxData;
+StructuredBuffer<BoxData> boxData BIND_GROUP(BG_RENDER_PASS);
 
 struct VS_IN_POS_ONLY
 {
@@ -49,7 +49,7 @@ VS_OUT main(VS_IN_POS_ONLY Input)
   #else
     float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID].transform);
   #endif
-  
+
   float4 worldPos = mul(worldMatrix, float4(Input.Position, 1.0f));
 
   VS_OUT RetVal;
@@ -62,7 +62,7 @@ VS_OUT main(VS_IN_POS_ONLY Input)
   #else
     RetVal.Color0 = boxData[Input.InstanceID].color;
   #endif
-  
+
   RetVal.InstanceID = Input.InstanceID;
 
   return RetVal;

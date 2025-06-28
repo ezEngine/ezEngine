@@ -37,7 +37,7 @@ WireFrame = false
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Materials/SpriteData.h>
 
-StructuredBuffer<ezPerSpriteData> spriteData;
+StructuredBuffer<ezPerSpriteData> spriteData BIND_GROUP(BG_RENDER_PASS);
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -56,7 +56,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   };
 
   VS_OUT Output;
-  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
+  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO
     Output.RenderTargetArrayIndex = InstanceID;
   #else
     Output.InstanceID = InstanceID;
@@ -127,8 +127,8 @@ struct PS_OUT
   #endif
 };
 
-Texture2D SpriteTexture;
-SamplerState SpriteTexture_AutoSampler;
+Texture2D SpriteTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState SpriteTexture_AutoSampler BIND_GROUP(BG_RENDER_PASS);
 
 float GetOpacity()
 {
@@ -160,7 +160,7 @@ PS_OUT main(PS_IN Input)
 #if SHAPE_ICON
   float3 tintedColor = saturate(color.rgb * Input.Color0.rgb * 2.0);
   float factor = saturate(GetLuminance(color.rgb) * 3.0 - 2.0);
-  color.rgb = lerp(tintedColor, 1.0, factor);  
+  color.rgb = lerp(tintedColor, 1.0, factor);
 #else
   color *= Input.Color0;
 #endif

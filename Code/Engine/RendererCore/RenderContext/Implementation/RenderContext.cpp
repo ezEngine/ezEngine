@@ -255,12 +255,8 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 
 ezBindGroupBuilder& ezRenderContext::GetBindGroup(ezUInt32 uiBindGroup)
 {
-  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsMultipleBindGroups)
-  {
-    EZ_ASSERT_DEBUG(uiBindGroup <= EZ_GAL_MAX_BIND_GROUPS, "Bind group out of range");
-    return m_BindGroupBuilders[uiBindGroup];
-  }
-  return m_BindGroupBuilders[0];
+  EZ_ASSERT_DEBUG(uiBindGroup <= EZ_GAL_MAX_BIND_GROUPS, "Bind group out of range");
+  return m_BindGroupBuilders[uiBindGroup];
 }
 
 void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<const ezUInt8> data)
@@ -275,8 +271,8 @@ void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<
     {
       ezArrayPtr<ezUInt8> targetStorage = pStorage->GetRawDataForWriting();
       ezMemoryUtils::Copy(targetStorage.GetPtr(), data.GetPtr(), data.GetCount());
-      // #TODO: Once all shaders are migrated to use multiple bind groups, we need to decide where to put the fallback buffer for platforms that don't support push constants, e.g. DX11. Right now, everything ends up in slot 0, so this code is correct for now but it is also the worst place to put the push constants as that group should change the least and push constants should change the most.
-      GetBindGroup().BindBuffer(sSlotName, m_hPushConstantsStorage);
+      ezBindGroupBuilder& bindGroupDraw = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      bindGroupDraw.BindBuffer(sSlotName, m_hPushConstantsStorage);
     }
   }
   else
@@ -977,7 +973,8 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
 
 void ezRenderContext::UploadConstants()
 {
-  GetBindGroup().BindBuffer("ezGlobalConstants", m_hGlobalConstantBufferStorage);
+  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroup.BindBuffer("ezGlobalConstants", m_hGlobalConstantBufferStorage);
 
   for (auto it = s_DirtyConstantBuffers.GetIterator(); it.IsValid(); ++it)
   {
@@ -1087,14 +1084,14 @@ void ezRenderContext::ApplyMaterialState()
 
     BindShaderInternal(data->m_hShader, ezShaderBindFlags::Default);
 
-    ezBindGroupBuilder& bindGroup = GetBindGroup();
+    ezBindGroupBuilder& bindGroupMaterial = GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
     if (!data->m_hStructuredBuffer.IsInvalidated())
     {
-      bindGroup.BindBuffer("materialData", data->m_hStructuredBuffer);
+      bindGroupMaterial.BindBuffer("materialData", data->m_hStructuredBuffer);
     }
     else if (!data->m_hConstantBuffer.IsInvalidated())
     {
-      bindGroup.BindBuffer("materialData", data->m_hConstantBuffer);
+      bindGroupMaterial.BindBuffer("materialData", data->m_hConstantBuffer);
     }
 
     for (const ezPermutationVar& perm : data->m_PermutationVars)
@@ -1104,12 +1101,12 @@ void ezRenderContext::ApplyMaterialState()
 
     for (const ezMaterialResourceDescriptor::Texture2DBinding& binding : data->m_Texture2DBindings)
     {
-      bindGroup.BindTexture(binding.m_Name, binding.m_Value);
+      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
     }
 
     for (const ezMaterialResourceDescriptor::TextureCubeBinding& binding : data->m_TextureCubeBindings)
     {
-      bindGroup.BindTexture(binding.m_Name, binding.m_Value);
+      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
     }
 
     m_hMaterial = m_hNewMaterial;

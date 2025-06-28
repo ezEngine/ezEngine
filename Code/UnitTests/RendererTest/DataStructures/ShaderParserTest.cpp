@@ -77,7 +77,20 @@ void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMateri
   if (EZ_TEST_BOOL(pGalShader))
   {
     ezTempHashedString sConstantBufferName("materialData");
-    const ezShaderResourceBinding* pBinding = pGalShader->GetShaderResourceBinding(sConstantBufferName);
+    EZ_TEST_BOOL(pGalShader->GetBindGroupCount() > EZ_GAL_BIND_GROUP_MATERIAL);
+    ezArrayPtr<const ezShaderResourceBinding> bindings = pGalShader->GetBindings(EZ_GAL_BIND_GROUP_MATERIAL);
+
+    const ezShaderResourceBinding* pBinding = nullptr;
+    for (const ezShaderResourceBinding& binding : bindings)
+    {
+      if (binding.m_sName == sConstantBufferName)
+      {
+        pBinding = &binding;
+        break;
+      }
+    }
+    EZ_TEST_BOOL(pBinding != nullptr);
+    
     // Compared parsed vs compiled layout
     if (EZ_TEST_BOOL(pBinding && pBinding->m_pLayout && pShaderResource->GetMaterialLayout()))
     {

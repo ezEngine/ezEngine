@@ -6,8 +6,8 @@ Node %BaseTexture
   string %CodeMaterialParams { "Texture2D BaseTexture @Default(\"$prop0\");" }
 
   string %CodePixelSamplers { "
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Texture
@@ -70,8 +70,8 @@ Texture2D $prop0 @Default(\"$prop1\");
 " }
 
   string %CodePixelSamplers { "
-Texture2D $prop0;
-SamplerState $prop0_AutoSampler;
+Texture2D $prop0 BIND_GROUP(BG_MATERIAL);
+SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Name
@@ -112,8 +112,8 @@ Node %EmissiveTexture
   string %CodeMaterialParams {"Texture2D EmissiveTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
-Texture2D EmissiveTexture;
-SamplerState EmissiveTexture_AutoSampler;
+Texture2D EmissiveTexture BIND_GROUP(BG_MATERIAL);
+SamplerState EmissiveTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Texture
@@ -168,8 +168,8 @@ Node %MetallicTexture
   string %CodeMaterialParams { "Texture2D MetallicTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
-Texture2D MetallicTexture;
-SamplerState MetallicTexture_AutoSampler;
+Texture2D MetallicTexture BIND_GROUP(BG_MATERIAL);
+SamplerState MetallicTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Texture
@@ -203,8 +203,8 @@ Node %RoughnessTexture
   string %CodeMaterialParams { "Texture2D RoughnessTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
-Texture2D RoughnessTexture;
-SamplerState RoughnessTexture_AutoSampler;
+Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Texture
@@ -243,8 +243,8 @@ Texture2D $prop0 @Default(\"$prop1\");
 " }
 
   string %CodePixelSamplers { "
-Texture2D $prop0;
-SamplerState $prop0_AutoSampler;
+Texture2D $prop0 BIND_GROUP(BG_MATERIAL);
+SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Name
@@ -321,8 +321,8 @@ Texture2D $prop0 @Default(\"$prop1\");
 " }
 
   string %CodePixelSamplers { "
-Texture2D $prop0;
-SamplerState $prop0_AutoSampler;
+Texture2D $prop0 BIND_GROUP(BG_MATERIAL);
+SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
 
   Property %Name
@@ -336,7 +336,7 @@ SamplerState $prop0_AutoSampler;
     string %Type { "Texture2D" }
     string %DefaultValue {"" }
   }
-  
+
   Property %Tiling
   {
     string %Type { "float" }
@@ -376,7 +376,7 @@ Node %BlendNormals
     string %Type { "float3" }
     string %Color { "Violet" }
   }
-  
+
   InputPin %DetailNormal
   {
     string %Type { "float3" }

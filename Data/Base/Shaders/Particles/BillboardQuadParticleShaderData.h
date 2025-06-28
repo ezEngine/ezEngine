@@ -12,7 +12,7 @@ struct EZ_SHADER_STRUCT ezBillboardQuadParticleShaderData
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData;
+StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData BIND_GROUP(BG_DRAW_CALL);
 
 #else // C++
 

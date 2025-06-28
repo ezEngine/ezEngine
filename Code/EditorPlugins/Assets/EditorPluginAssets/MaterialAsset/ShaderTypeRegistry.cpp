@@ -324,7 +324,14 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
       return;
     }
 
-    ezShaderParser::ParseMaterialParameterSection(file, parameters, enumDefinitions);
+    ezString sContent;
+    sContent.ReadAll(file);
+    ezShaderHelper::ezTextSectionizer sections;
+    ezShaderHelper::GetShaderSections(sContent, sections);
+    ezUInt32 uiFirstLine = 0;
+    ezStringView sSectionContent = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+
+    ezShaderParser::ParseMaterialParameterSection(sSectionContent, parameters, enumDefinitions);
     data.m_fileModifiedTime = Stats.m_LastModificationTime;
   }
 

@@ -90,7 +90,7 @@ float3 ComputeWind(float phasedTime, float3 localPosition, float4 vWindTrunk, fl
   // but uses the global 0 - 20 m/sec speed range (w component and length) no matter the object scale
 
   float fFlutterAmplitude = 0.1; // expose ?
-  
+
   float fFastFlutterWindSpeed = 15.0; // constant
   float fMinFlutterWindSpeed = 1.0; // constant (always have some flutter)
   float fMaxFlutterWindSpeed = 20.0; // constant
@@ -125,7 +125,7 @@ VS_OUT main(VS_IN Input)
   VS_OUT result = FillVertexData(Input);
 
   #if !MATERIAL_PREVIEW
-  
+
   ezPerInstanceData data = GetInstanceData();
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float3 localPosition = Input.Position.xyz;
@@ -137,7 +137,7 @@ VS_OUT main(VS_IN Input)
 
   // shift time by world space position (x, y) to make trees standing next to each other flutter out of phase
   float phasedTime = WorldTime + objectToWorld._m03 + objectToWorld._m13;
-  
+
   localPosition = ComputeWind(phasedTime, localPosition, data.Color, data.Color, Input.Color0.r, Input.Color0.g, Input.Color0.b, Input.Color1.xyz, Input.Color1.w);
 
   float4 worldPosition = mul(objectToWorld, float4(localPosition, 1));
@@ -147,7 +147,7 @@ VS_OUT main(VS_IN Input)
   result.Color1 = Input.Color1;
 
   float globalUniformScale = dot(scale, 1.0 / 3.0);
-  
+
   [branch]
   if (GetMaterialData(KrautTreeMode) == 4) // Billboard Impostor
   {
@@ -218,7 +218,7 @@ VS_OUT main(VS_IN Input)
 
     worldPosition.xyz += span.x * GetCameraDirRight() * size;
     worldPosition.xyz += span.y * GetCameraDirUp() * size;
-    
+
     result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
 
     [branch]
@@ -257,30 +257,30 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D NormalTexture;
-SamplerState NormalTexture_AutoSampler;
+Texture2D NormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState NormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D RoughnessTexture;
-SamplerState RoughnessTexture_AutoSampler;
+Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OcclusionTexture;
-SamplerState OcclusionTexture_AutoSampler;
+Texture2D OcclusionTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OcclusionTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float2 GetTexCoord()
 {
   float2 tc = G.Input.TexCoord0.xy;
 
   #if !MATERIAL_PREVIEW
-  
+
   // unfortunately we have to DIVIDE in the pixel shader with the original value
   // if we use the inverse of TexCoords.z and interpolate that in the vertex-shader
   // the result has a slightly different value in the pixel shader,
   // resulting in drastically reduced quality
   tc = tc / G.Input.TexCoord1.x;
-  
+
   #endif
 
   tc.y = 1.0 - tc.y;
@@ -293,7 +293,7 @@ float3 GetBaseColor()
   #if MATERIAL_PREVIEW
 
     return BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
-    
+
   #else
 
     float3 variationColor = GetMaterialData(VariationColor).rgb;

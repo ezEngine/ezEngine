@@ -15,13 +15,13 @@
 
 class ezWindowBase;
 
-/// \brief Bind group layout for a single set.
+/// \brief Bind group layout for a single bind group.
 /// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
 struct ezGALBindGroupLayoutCreationDescription
 {
   ezUInt32 CalculateHash() const;
 
-  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iSet must be the same for all bindings in this array.
+  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iBindGroup must be the same for all bindings in this array.
   ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
 };
 
@@ -38,7 +38,7 @@ struct ezGALPushConstant
 /// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
 struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
 {
-  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each set used in the shader. SET_FRAME, SET_RENDER_PASS, SET_MATERIAL, SET_DRAW_CALL.
+  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each bind group used in the shader. BG_FRAME, BG_RENDER_PASS, BG_MATERIAL, BG_DRAW_CALL.
   ezGALPushConstant m_PushConstants;                        ///< Only one push constant block is supported right now.
 };
 

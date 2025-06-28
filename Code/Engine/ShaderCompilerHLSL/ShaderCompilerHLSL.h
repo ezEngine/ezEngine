@@ -34,6 +34,7 @@ private:
 
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
   ezSharedPtr<ezShaderConstantBufferLayout> ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  ezResult AddFakeSetAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog);
   void Initialize();
   static ezGALResourceFormat::Enum GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc);
 

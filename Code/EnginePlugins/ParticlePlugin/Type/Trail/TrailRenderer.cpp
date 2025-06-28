@@ -67,7 +67,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
   pRenderContext->BindShader(m_hShader);
 
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
   // now render all particle effects of type Trail
   for (auto it = batch.GetIterator<ezParticleTrailRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
@@ -90,7 +90,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
-    bindGroup.BindTexture("ParticleTexture", pRenderData->m_hTexture);
+    bindGroupMaterial.BindTexture("ParticleTexture", pRenderData->m_hTexture);
 
     systemConstants.SetGenericData(
       pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength, pRenderData->m_fNormalCurvature, pRenderData->m_fLightDirectionality);
@@ -103,9 +103,11 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
       ezGALBufferHandle hTrailDataBuffer = m_TrailDataBuffer.GetNewBuffer();
       ezGALBufferHandle hActiveTrailPointsDataBuffer = m_pActiveTrailPointsDataBuffer->GetNewBuffer();
-      bindGroup.BindBuffer("particleBaseData", hBaseDataBuffer);
-      bindGroup.BindBuffer("particleTrailData", hTrailDataBuffer);
-      bindGroup.BindBuffer("particlePointsData", hActiveTrailPointsDataBuffer);
+
+      ezBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      bindGroupDraw.BindBuffer("particleBaseData", hBaseDataBuffer);
+      bindGroupDraw.BindBuffer("particleTrailData", hTrailDataBuffer);
+      bindGroupDraw.BindBuffer("particlePointsData", hActiveTrailPointsDataBuffer);
 
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
@@ -129,7 +131,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const
 {
   auto pRenderContext = renderViewContext.m_pRenderContext;
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
   switch (pRenderData->m_RenderMode)
   {
     case ezParticleTypeRenderMode::Additive:
@@ -145,7 +147,7 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
       break;
     case ezParticleTypeRenderMode::Distortion:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
-      bindGroup.BindTexture("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
+      bindGroupMaterial.BindTexture("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
       break;
     case ezParticleTypeRenderMode::BlendAdd:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDADD");

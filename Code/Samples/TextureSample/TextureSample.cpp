@@ -300,8 +300,8 @@ public:
 
       ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindBuffer("ezTextureSampleConstants", m_hSampleConstants);
+      ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupSample.BindBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
       ezMat4 mTransform = ezMat4::MakeIdentity();
@@ -339,7 +339,7 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
-          bindGroup.BindTexture("DiffuseTexture", hTexture);
+          bindGroupSample.BindTexture("DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
         }

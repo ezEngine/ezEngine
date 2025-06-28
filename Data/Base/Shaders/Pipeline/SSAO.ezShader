@@ -27,11 +27,11 @@ CullMode = CullMode_None
 #include <Shaders/Pipeline/Utils.h>
 #include "SSAOConstants.h"
 
-Texture2DArray DepthTexture;
-Texture2DArray LowResDepthTexture;
-SamplerState DepthSampler;
+Texture2DArray DepthTexture BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray LowResDepthTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState DepthSampler BIND_GROUP(BG_RENDER_PASS);
 
-Texture2D NoiseTexture;
+Texture2D NoiseTexture BIND_GROUP(BG_RENDER_PASS);
 
 #define NUM_AO_SAMPLES 6
 #define SAMPLE_STEPS 1

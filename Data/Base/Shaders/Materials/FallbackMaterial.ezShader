@@ -92,8 +92,8 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float3 GetNormal()
 {

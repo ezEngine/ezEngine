@@ -37,7 +37,7 @@ TWO_SIDED
 %endif
 
 // SYSTEM permutations:
-// all of these are automatically set by the engine 
+// all of these are automatically set by the engine
 FLIP_WINDING
 RENDER_PASS
 FORWARD_PASS_WRITE_DEPTH
@@ -165,7 +165,7 @@ VS_OUT main(VS_IN Input)
   // Search for USE_OBJECT_POSITION_OFFSET and USE_WORLD_POSITION_OFFSET to inject custom offsets,
   // or manipulate the Input or Output structures directly.
   VS_OUT Output = FillVertexData(Input);
-  
+
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
   // Fetch the procedural vertex colors from the per instance vertex color buffer
   float4 instanceVertexColor0 = GetInstanceVertexColors(0);
@@ -192,31 +192,31 @@ VS_OUT main(VS_IN Input)
 #define USE_MATERIAL_OCCLUSION    // remove if you don't need occlusion
 #define USE_TWO_SIDED_LIGHTING    // only used if TWO_SIDED == TRUE
 #define USE_DECALS                // whether decals should be applied to this material
-#define USE_FOG                   // whether fog should be applied to this material 
+#define USE_FOG                   // whether fog should be applied to this material
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 // if you remove any of these, make sure to also remove them from the MATERIALPARAMETER section and CONSTANT_BUFFER
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D NormalTexture;
-SamplerState NormalTexture_AutoSampler;
+Texture2D NormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState NormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D MetallicTexture;
-SamplerState MetallicTexture_AutoSampler;
+Texture2D MetallicTexture BIND_GROUP(BG_MATERIAL);
+SamplerState MetallicTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D RoughnessTexture;
-SamplerState RoughnessTexture_AutoSampler;
+Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D EmissiveTexture;
-SamplerState EmissiveTexture_AutoSampler;
+Texture2D EmissiveTexture BIND_GROUP(BG_MATERIAL);
+SamplerState EmissiveTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OcclusionTexture;
-SamplerState OcclusionTexture_AutoSampler;
+Texture2D OcclusionTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OcclusionTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OrmTexture;
-SamplerState OrmTexture_AutoSampler;
+Texture2D OrmTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OrmTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 ////////////////////////////////////////////////////////
 // For custom shader effects, the code below is usually the part that you edit the most.

@@ -4,13 +4,15 @@
 #  error "Functions in Lighting.h are only for QUALITY_NORMAL shading quality. Todo: Split up file"
 #endif
 
+#include "StandardMacros.h"
+
+
 #include <Shaders/Common/AmbientCubeBasis.h>
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
 
-Texture2DArray SSAOTexture;
-
+// Frame data:
 Texture2D ShadowAtlasTexture;
 SamplerComparisonState ShadowSampler;
 
@@ -24,9 +26,11 @@ TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
 #define NUM_REFLECTION_MIPS 6
 
-Texture2DArray SceneDepth;
-Texture2DArray SceneColor;
-SamplerState SceneColorSampler;
+// Pass data
+Texture2DArray SSAOTexture BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray SceneDepth BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray SceneColor BIND_GROUP(BG_RENDER_PASS);
+SamplerState SceneColorSampler BIND_GROUP(BG_RENDER_PASS);
 
 ///////////////////////////////////////////////////////////////////////////////////
 

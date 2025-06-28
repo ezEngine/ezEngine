@@ -9,7 +9,7 @@ ALL
 
 #include "../../../Base/Shaders/Common/Platforms.h"
 
-cbuffer ezTestPerFrame BIND_RESOURCE(0, SET_FRAME)
+cbuffer ezTestPerFrame BIND_RESOURCE(0, BG_FRAME)
 {
   float Time;
   float Unused1;
@@ -17,7 +17,7 @@ cbuffer ezTestPerFrame BIND_RESOURCE(0, SET_FRAME)
   float Unused3;
 };
 
-cbuffer PerObject BIND_SET(SET_MATERIAL)
+cbuffer PerObject BIND_GROUP(BG_MATERIAL)
 {
   float4x4 mvp : packoffset(c0);
   float4 ObjectColor : packoffset(c4);
@@ -49,8 +49,8 @@ VS_OUT main(VS_IN Input)
 
 [PIXELSHADER]
 
-Texture2D DiffuseTexture BIND_SET(SET_DRAW_CALL);
-SamplerState PointClampSampler BIND_SET(SET_DRAW_CALL);
+Texture2D DiffuseTexture BIND_GROUP(BG_DRAW_CALL);
+SamplerState PointClampSampler BIND_GROUP(BG_DRAW_CALL);
 
 float4 main(PS_IN Input) : SV_Target
 {

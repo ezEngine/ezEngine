@@ -16,22 +16,6 @@ ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)
   : ezGALObject(Description)
 {
 }
-ezArrayPtr<const ezShaderResourceBinding> ezGALShader::GetBindingMapping() const
-{
-  return m_BindingMapping;
-}
-
-const ezShaderResourceBinding* ezGALShader::GetShaderResourceBinding(const ezTempHashedString& sName) const
-{
-  for (auto& binding : m_BindingMapping)
-  {
-    if (binding.m_sName == sName)
-    {
-      return &binding;
-    }
-  }
-  return nullptr;
-}
 
 ezArrayPtr<const ezShaderVertexInputAttribute> ezGALShader::GetVertexInputAttributes() const
 {
@@ -82,41 +66,41 @@ ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutabl
       continue;
     }
 
-    if (binding.m_iSet >= EZ_GAL_MAX_BIND_GROUPS)
+    if (binding.m_iBindGroup >= EZ_GAL_MAX_BIND_GROUPS)
     {
-      ezLog::Error("Binding set {} for shader resource '{}' is bigger than EZ_GAL_MAX_BIND_GROUPS.", binding.m_sName.GetData(), binding.m_iSet);
+      ezLog::Error("Binding set {} for shader resource '{}' is bigger than EZ_GAL_MAX_BIND_GROUPS.", binding.m_sName.GetData(), binding.m_iBindGroup);
       return EZ_FAILURE;
     }
 
     if (bSupportsImmutableSamplers && binding.m_ResourceType == ezGALShaderResourceType::Sampler && immutableSamplers.Contains(binding.m_sName))
     {
-      BindGroupLayoutDesc[binding.m_iSet].m_ImmutableSamplers.PushBack(binding);
+      BindGroupLayoutDesc[binding.m_iBindGroup].m_ImmutableSamplers.PushBack(binding);
     }
     else
     {
-      BindGroupLayoutDesc[binding.m_iSet].m_ResourceBindings.PushBack(binding);
+      BindGroupLayoutDesc[binding.m_iBindGroup].m_ResourceBindings.PushBack(binding);
     }
   }
 
   // There must always be at least one empty set.
-  ezUInt32 uiMaxSets = 1;
-  for (ezUInt32 uiSetIndex = 1; uiSetIndex < EZ_GAL_MAX_BIND_GROUPS; ++uiSetIndex)
+  ezUInt32 uiMaxBindGroups = 1;
+  for (ezUInt32 uiBindGroup = 1; uiBindGroup < EZ_GAL_MAX_BIND_GROUPS; ++uiBindGroup)
   {
-    if (!BindGroupLayoutDesc[uiSetIndex].m_ResourceBindings.IsEmpty())
+    if (!BindGroupLayoutDesc[uiBindGroup].m_ResourceBindings.IsEmpty())
     {
-      uiMaxSets = uiSetIndex + 1;
+      uiMaxBindGroups = uiBindGroup + 1;
     }
   }
 
-  m_BindGroupLayouts.SetCount(uiMaxSets);
-  for (ezUInt32 uiSetIndex = 0; uiSetIndex < uiMaxSets; ++uiSetIndex)
+  m_BindGroupLayouts.SetCount(uiMaxBindGroups);
+  for (ezUInt32 uiBindGroup = 0; uiBindGroup < uiMaxBindGroups; ++uiBindGroup)
   {
-    m_BindGroupLayouts[uiSetIndex] = pDevice->CreateBindGroupLayout(BindGroupLayoutDesc[uiSetIndex]);
-    if (m_BindGroupLayouts[uiSetIndex].IsInvalidated())
+    m_BindGroupLayouts[uiBindGroup] = pDevice->CreateBindGroupLayout(BindGroupLayoutDesc[uiBindGroup]);
+    if (m_BindGroupLayouts[uiBindGroup].IsInvalidated())
     {
       return EZ_FAILURE;
     }
-    PipelineLayoutDesc.m_BindGroups[uiSetIndex] = m_BindGroupLayouts[uiSetIndex];
+    PipelineLayoutDesc.m_BindGroups[uiBindGroup] = m_BindGroupLayouts[uiBindGroup];
   }
   m_hPipelineLayout = pDevice->CreatePipelineLayout(PipelineLayoutDesc);
   if (m_hPipelineLayout.IsInvalidated())
@@ -129,17 +113,17 @@ ezResult ezGALShader::CreateLayouts(ezGALDevice* pDevice, bool bSupportsImmutabl
 void ezGALShader::DestroyLayouts(ezGALDevice* pDevice)
 {
   pDevice->DestroyPipelineLayout(m_hPipelineLayout);
-  for (ezUInt32 uiSetIndex = 0; uiSetIndex < m_BindGroupLayouts.GetCount(); ++uiSetIndex)
+  for (ezUInt32 uiBindGroup = 0; uiBindGroup < m_BindGroupLayouts.GetCount(); ++uiBindGroup)
   {
-    pDevice->DestroyBindGroupLayout(m_BindGroupLayouts[uiSetIndex]);
+    pDevice->DestroyBindGroupLayout(m_BindGroupLayouts[uiBindGroup]);
   }
   m_BindGroupLayouts.Clear();
 }
 
-ezArrayPtr<const ezShaderResourceBinding> ezGALShader::GetBindings(ezUInt32 uiSet) const
+ezArrayPtr<const ezShaderResourceBinding> ezGALShader::GetBindings(ezUInt32 uiBindGroup) const
 {
-  EZ_ASSERT_DEBUG(uiSet < GetBindGroupCount(), "Bind group index out of range.");
-  return m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiSet])->GetDescription().m_ResourceBindings;
+  EZ_ASSERT_DEBUG(uiBindGroup < GetBindGroupCount(), "Bind group index out of range.");
+  return m_pDevice->GetBindGroupLayout(m_BindGroupLayouts[uiBindGroup])->GetDescription().m_ResourceBindings;
 }
 
 ezGALShader::~ezGALShader() = default;

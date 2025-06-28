@@ -278,6 +278,22 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   ezUInt32 uiFirstMaterialConstantsLine = 0;
   ezStringView sMaterialConstantsSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstMaterialConstantsLine);
 
+  ezStringView sMaterialParametersSection = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+
+  // Gather material parameters to force these into the material bind group to make migration of other shaders easier.
+  m_MaterialParameters.Clear();
+  ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
+  ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  ezShaderParser::ParseMaterialParameterSection(sMaterialParametersSection, parameters, enumDefinitions);
+  for (ezUInt32 i = 0; i < parameters.GetCount(); ++i)
+  {
+    const ezShaderParser::ParameterDefinition& param = parameters[i];
+    if (param.m_sType == "Texture2D" || param.m_sType == "TextureCube" || param.m_sType == "Texture3D")
+    {
+      m_MaterialParameters.Insert(param.m_sName);
+    }
+  }
+
   ezStringBuilder sMaterialConstantsTemplate;
   // If this is a material shader (i.e. it has a [MATERIALCONSTANTS] section), we need to parse the section and also load the MaterialConstants.template file which will be used to generate the material constants struct which is prepended before every shader and defines the HAS_MATERIAL_CONSTANTS define.
   if (!sMaterialConstantsSource.IsEmpty())
@@ -385,6 +401,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
     ezShaderProgramData spd;
     spd.m_sSourceFile = sFile;
     spd.m_sPlatform = Platforms[p];
+    spd.m_MaterialParameters = m_MaterialParameters;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     // 'DEBUG' is a platform tag that enables additional compiler flags

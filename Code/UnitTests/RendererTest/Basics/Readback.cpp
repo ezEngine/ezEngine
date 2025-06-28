@@ -331,8 +331,8 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
       ezRectFloat viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
 
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindTexture("DiffuseTexture", m_hTexture2DUpload);
+      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupTest.BindTexture("DiffuseTexture", m_hTexture2DUpload);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
       EndRendering();
       CompareUploadImage();

@@ -24,8 +24,8 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Decals/DecalPixelShader.h>
 
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float3 GetBaseColor()
 {

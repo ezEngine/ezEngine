@@ -27,7 +27,7 @@ CullMode = CullMode_None
 #include <Shaders/Common/GlobalConstants.h>
 #include "SSAOConstants.h"
 
-Texture2DArray SSAOTexture;
+Texture2DArray SSAOTexture BIND_GROUP(BG_RENDER_PASS);
 
 float CalculateDepthWeight(float depthA, float depthB, float scale)
 {

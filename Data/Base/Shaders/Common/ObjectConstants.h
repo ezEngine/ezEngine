@@ -18,16 +18,16 @@ struct EZ_SHADER_STRUCT ezPerInstanceData
 
 #if EZ_ENABLED(PLATFORM_SHADER)
 #  include "Common.h"
-StructuredBuffer<ezPerInstanceData> perInstanceData;
+StructuredBuffer<ezPerInstanceData> perInstanceData BIND_GROUP(BG_DRAW_CALL);
 
 #  if defined(USE_SKINNING)
-StructuredBuffer<Transform> skinningTransforms;
+StructuredBuffer<Transform> skinningTransforms BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 #  if EZ_ENABLED(SUPPORTS_TEXEL_BUFFER)
-Buffer<float4> perInstanceVertexColors;
+Buffer<float4> perInstanceVertexColors BIND_GROUP(BG_DRAW_CALL);
 #  else
-StructuredBuffer<uint> perInstanceVertexColors;
+StructuredBuffer<uint> perInstanceVertexColors BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 
@@ -38,7 +38,7 @@ EZ_DEFINE_AS_POD_TYPE(ezPerInstanceData);
 static_assert(sizeof(ezPerInstanceData) == 144);
 #endif
 
-CONSTANT_BUFFER(ezObjectConstants, 2)
+CONSTANT_BUFFER2(ezObjectConstants, 2, BG_DRAW_CALL)
 {
   UINT1(InstanceDataOffset);
 };

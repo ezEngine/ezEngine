@@ -59,17 +59,17 @@ void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEnco
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
   // SSAO texture
   if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
     if (inputs[m_PinSSAO.m_uiInputIndex])
     {
-      bindGroup.BindTexture("SSAOTexture", inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
+      bindGroupRenderPass.BindTexture("SSAOTexture", inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
     }
     else
     {
-      bindGroup.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
     }
   }
 }

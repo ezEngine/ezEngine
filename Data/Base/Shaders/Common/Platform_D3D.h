@@ -11,11 +11,11 @@
 #  define PLATFORM_DX11 EZ_ON
 
 // DX11 does not support push constants, so we just emulate them via a normal constant buffer.
-#  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name
+#  define BEGIN_PUSH_CONSTANTS(Name) cbuffer Name BIND_GROUP(BG_DRAW_CALL)
 #  define END_PUSH_CONSTANTS(Name) ;
 #  define GET_PUSH_CONSTANT(Name, Constant) Constant
 
-#  define BEGIN_MATERIAL_CONSTANTS cbuffer materialData
+#  define BEGIN_MATERIAL_CONSTANTS cbuffer materialData BIND_GROUP(BG_MATERIAL)
 #  define END_MATERIAL_CONSTANTS ;
 #  define GetMaterialData(x) x
 

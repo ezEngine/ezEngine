@@ -52,7 +52,6 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
   }
 
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
   // now render all particle effects of type Point
   for (auto it = batch.GetIterator<ezParticlePointRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
@@ -70,8 +69,9 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       // Request new buffers and bind them
       ezGALBufferHandle hBaseDataBuffer = m_BaseDataBuffer.GetNewBuffer();
       ezGALBufferHandle hBillboardDataBuffer = m_BillboardDataBuffer.GetNewBuffer();
-      bindGroup.BindBuffer("particleBaseData", hBaseDataBuffer);
-      bindGroup.BindBuffer("particleBillboardQuadData", hBillboardDataBuffer);
+      ezBindGroupBuilder& bindGroupDraw = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      bindGroupDraw.BindBuffer("particleBaseData", hBaseDataBuffer);
+      bindGroupDraw.BindBuffer("particleBillboardQuadData", hBillboardDataBuffer);
 
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);

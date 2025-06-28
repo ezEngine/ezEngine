@@ -528,17 +528,11 @@ ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShade
 }
 
 // static
-void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
+void ezShaderParser::ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
 {
-  ezStringBuilder sContent;
-  if (PreprocessSection(inout_stream, ezShaderHelper::ezShaderSections::MATERIALPARAMETER, ezArrayPtr<ezString>(), sContent).Failed())
-  {
-    ezLog::Error("Failed to preprocess material parameter section");
-    return;
-  }
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sSection.GetStartPointer(), sSection.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
 
   TokenStream tokens;
   tokenizer.GetAllLines(tokens);
@@ -960,7 +954,7 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
     sSet.TrimWordStart("space"_ezsv);
     ezInt32 iSet;
     ezConversionUtils::StringToInt(sSet, iSet).AssertSuccess("Failed to parse set index of shader resource");
-    out_resourceDefinition.m_Binding.m_iSet = static_cast<ezInt16>(iSet);
+    out_resourceDefinition.m_Binding.m_iBindGroup = static_cast<ezInt16>(iSet);
     uiEndToken = acceptedTokens.PeekBack();
   }
 
@@ -1048,7 +1042,7 @@ ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezH
 {
   for (auto it : bindings)
   {
-    if (it.Value().m_iSet < 0)
+    if (it.Value().m_iBindGroup < 0)
     {
       ezLog::Error(pLog, "Shader resource '{}' does not have a set defined.", it.Key());
       return EZ_FAILURE;

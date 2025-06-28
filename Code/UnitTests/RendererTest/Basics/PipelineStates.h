@@ -24,7 +24,7 @@ private:
     ST_Texture2DArray,
     ST_GenerateMipMaps,
     ST_PushConstants,
-    ST_SetsSlots,
+    ST_BindGroups,
     ST_Timestamps,
     ST_OcclusionQueries,
     ST_CustomVertexStreams,
@@ -62,7 +62,7 @@ private:
   void Texture2DArray();
   void GenerateMipMaps();
   void PushConstantsTest();
-  void SetsSlotsTest();
+  void BindGroupsTest();
   void CustomVertexStreams();
   ezTestAppRun Timestamps();
   ezTestAppRun OcclusionQueries();

@@ -30,7 +30,7 @@ void ezRendererTestPipelineStates::SetupSubTests()
   AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
   AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
   AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
-  AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
+  AddSubTest("11 - BindGroups", SubTests::ST_BindGroups);
   AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
   AddSubTest("13 - OcclusionQueries", SubTests::ST_OcclusionQueries);
   AddSubTest("14 - CustomVertexStreams", SubTests::ST_CustomVertexStreams);
@@ -316,9 +316,9 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::ST_PushConstants:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
       break;
-    case SubTests::ST_SetsSlots:
+    case SubTests::ST_BindGroups:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/SetsSlots.ezShader");
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/BindGroups.ezShader");
       break;
     case SubTests::ST_Timestamps:
     case SubTests::ST_OcclusionQueries:
@@ -448,8 +448,8 @@ ezTestAppRun ezRendererTestPipelineStates::RunSubTest(ezInt32 iIdentifier, ezUIn
     case SubTests::ST_PushConstants:
       PushConstantsTest();
       break;
-    case SubTests::ST_SetsSlots:
-      SetsSlotsTest();
+    case SubTests::ST_BindGroups:
+      BindGroupsTest();
       break;
     case SubTests::ST_Timestamps:
     {
@@ -609,7 +609,7 @@ void ezRendererTestPipelineStates::PushConstantsTest()
   EndCommands();
 }
 
-void ezRendererTestPipelineStates::SetsSlotsTest()
+void ezRendererTestPipelineStates::BindGroupsTest()
 {
   const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
   const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
@@ -624,15 +624,15 @@ void ezRendererTestPipelineStates::SetsSlotsTest()
   constants->Time = 1.0f;
   ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
   {
-    ezBindGroupBuilder& frameBindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_FRAME);
-    frameBindGroup.BindBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
+    ezBindGroupBuilder& bindGroupFrame = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_FRAME);
+    bindGroupFrame.BindBuffer("ezTestPerFrame", m_hTestPerFrameConstantBuffer);
   }
   auto renderCube = [&](ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange)
   {
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
     {
-      ezBindGroupBuilder& drawCallBindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
-      drawCallBindGroup.BindTexture("DiffuseTexture", hTexture, textureRange);
+      ezBindGroupBuilder& bindGroupDraw = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+      bindGroupDraw.BindTexture("DiffuseTexture", hTexture, textureRange);
 
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ezShaderBindFlags::None);
 
@@ -640,8 +640,8 @@ void ezRendererTestPipelineStates::SetsSlotsTest()
       ocb->m_MVP = mMVP;
       ocb->m_Color = ezColor(1, 1, 1, 1);
 
-      ezBindGroupBuilder& materialBindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
-      materialBindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
+      ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
+      bindGroupMaterial.BindBuffer("PerObject", m_hObjectTransformCB);
 
       ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
       ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
@@ -678,9 +678,9 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
-      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
-      bindGroup.BindBuffer("ezTestColors", m_hTestColorsConstantBuffer);
-      bindGroup.BindBuffer("ezTestPositions", m_hTestPositionsConstantBuffer);
+      ezBindGroupBuilder& bindGroupTest = pContext->GetBindGroup();
+      bindGroupTest.BindBuffer("ezTestColors", m_hTestColorsConstantBuffer);
+      bindGroupTest.BindBuffer("ezTestPositions", m_hTestPositionsConstantBuffer);
       pContext->BindShader(m_hConstantBufferShader);
       pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -742,13 +742,13 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
 
       pContext->BindShader(m_hCopyBufferShader);
       // Copy [12, 17] to the front (green)
-      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
-      bindGroup.BindBuffer("instancingData", m_hInstancingData);
-      bindGroup.BindBuffer("instancingTarget", m_hInstancingDataUAV, {0, 4 * sizeof(ezTestShaderData)});
+      ezBindGroupBuilder& bindGroupTest = pContext->GetBindGroup();
+      bindGroupTest.BindBuffer("instancingData", m_hInstancingData);
+      bindGroupTest.BindBuffer("instancingTarget", m_hInstancingDataUAV, {0, 4 * sizeof(ezTestShaderData)});
       pContext->Dispatch(4, 1, 1).AssertSuccess();
       // Copy [8, 11] to the back (red)
-      bindGroup.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
-      bindGroup.BindBuffer("instancingTarget", m_hInstancingDataUAV, {4 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
+      bindGroupTest.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
+      bindGroupTest.BindBuffer("instancingTarget", m_hInstancingDataUAV, {4 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
       pContext->Dispatch(4, 1, 1).AssertSuccess();
 
       pContext->EndCompute();
@@ -758,18 +758,18 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
     {
       pContext->BindShader(m_hInstancingShader);
       pContext->BindMeshBuffer(m_hTriangleMesh);
-      ezBindGroupBuilder& bindGroup = pContext->GetBindGroup();
+      ezBindGroupBuilder& bindGroupTest = pContext->GetBindGroup();
       if (m_iFrame <= ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
       {
-        bindGroup.BindBuffer("instancingData", m_hInstancingData);
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingData);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
       {
         // Use the second half of the buffer to render the 8 triangles using two draw calls.
-        bindGroup.BindBuffer("instancingData", m_hInstancingData, {8 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingData, {8 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
-        bindGroup.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingData, {12 * sizeof(ezTestShaderData), 4 * sizeof(ezTestShaderData)});
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient1)
@@ -781,7 +781,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         {
           pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, i * sizeof(ezTestShaderData), instanceData.GetArrayPtr().GetSubArray(i, 1).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         }
-        bindGroup.BindBuffer("instancingData", m_hInstancingDataTransient);
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingDataTransient);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
@@ -790,12 +790,12 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         ezRendererTestUtils::FillStructuredBuffer(instanceData);
         // Update with one single update call for the first 8 elements matching the initial state.
         pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-        bindGroup.BindBuffer("instancingData", m_hInstancingDataTransient);
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingDataTransient);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UAV)
       {
-        bindGroup.BindBuffer("instancingData", m_hInstancingDataUAV);
+        bindGroupTest.BindBuffer("instancingData", m_hInstancingDataUAV);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
     }

@@ -32,7 +32,7 @@ struct GlyphData
 	uint glyphIndexAndSize;
 };
 
-StructuredBuffer<GlyphData> glyphData;
+StructuredBuffer<GlyphData> glyphData BIND_GROUP(BG_RENDER_PASS);
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -91,8 +91,8 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-Texture2D FontTexture;
-SamplerState FontTexture_AutoSampler;
+Texture2D FontTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState FontTexture_AutoSampler BIND_GROUP(BG_RENDER_PASS);
 
 float4 main(PS_IN Input) : SV_Target
 {

@@ -136,7 +136,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     // ezLog::Info("Bound Resource: '{0}' at slot {1} (Count: {2}, Flags: {3})", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
     // #TODO_SHADER remove [x] at the end of the name for arrays
     ezShaderResourceBinding shaderResourceBinding;
-    shaderResourceBinding.m_iSet = 0;
+    shaderResourceBinding.m_iBindGroup = 0;
     shaderResourceBinding.m_iSlot = static_cast<ezInt16>(shaderInputBindDesc.BindPoint);
     shaderResourceBinding.m_uiArraySize = shaderInputBindDesc.BindCount;
     shaderResourceBinding.m_sName.Assign(shaderInputBindDesc.Name);
@@ -346,6 +346,39 @@ ezSharedPtr<ezShaderConstantBufferLayout> ezShaderCompilerHLSL::ReflectConstantB
   return pLayout;
 }
 
+ezResult ezShaderCompilerHLSL::AddFakeSetAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog)
+{
+  ezMap<ezHashedString, const ezShaderResourceDefinition*> resourceMap;
+  for (const ezShaderResourceDefinition& resource : inout_Data.m_Resources[(int)Stage])
+  {
+    bool bExisted = false;
+    auto it = resourceMap.FindOrAdd(resource.m_Binding.m_sName, &bExisted);
+    if (!bExisted)
+    {
+      it.Value() = &resource;
+    }
+    else
+    {
+      const ezInt16 iCurrentSet = it.Value()->m_Binding.m_iBindGroup != -1 ? it.Value()->m_Binding.m_iBindGroup : 0;
+      const ezInt16 iNewSet = resource.m_Binding.m_iBindGroup != -1 ? resource.m_Binding.m_iBindGroup : 0;
+      if (iCurrentSet != iNewSet)
+      {
+        ezLog::Error(pLog, "Two bindings found with same name but different set assignment: A: {}, B: {}. Shader is invalid.", it.Value()->m_sDeclarationAndRegister, resource.m_sDeclarationAndRegister);
+        return EZ_FAILURE;
+      }
+    }
+  }
+
+  for (ezShaderResourceBinding& binding : inout_Data.m_ByteCode[(int)Stage]->m_ShaderResourceBindings)
+  {
+    if (auto it = resourceMap.Find(binding.m_sName); it.IsValid())
+    {
+      binding.m_iBindGroup = it.Value()->m_Binding.m_iBindGroup != -1 ? it.Value()->m_Binding.m_iBindGroup : 0;
+    }
+  }
+  return EZ_SUCCESS;
+}
+
 const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum stage)
 {
   if (sPlatform == "DX11_SM40_93")
@@ -425,6 +458,15 @@ ezResult ezShaderCompilerHLSL::ModifyShaderSource(ezShaderProgramData& inout_dat
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     ezShaderParser::ParseShaderResources(inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage]);
+
+    // Force material parameter into the material bind group
+    for (ezShaderResourceDefinition& def : inout_data.m_Resources[stage])
+    {
+      if (inout_data.m_MaterialParameters.Contains(def.m_Binding.m_sName))
+      {
+        def.m_Binding.m_iBindGroup = EZ_GAL_BIND_GROUP_MATERIAL;
+      }
+    }
   }
 
   ezHashTable<ezHashedString, ezShaderResourceBinding> bindings;
@@ -453,7 +495,6 @@ ezResult ezShaderCompilerHLSL::ModifyShaderSource(ezShaderProgramData& inout_dat
       continue;
     ezShaderParser::ApplyShaderResourceBindings(inout_data.m_sPlatform, inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage], bindings, ezMakeDelegate(&ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration, this), sNewShaderCode);
     inout_data.m_sShaderSource[stage] = sNewShaderCode;
-    inout_data.m_Resources[stage].Clear();
   }
   return EZ_SUCCESS;
 }
@@ -484,6 +525,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInt
       if (CompileDXShader(inout_data.m_sSourceFile.GetData(sFile), sShaderSource.GetData(sSource), inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_ByteCode[stage]->m_ByteCode).Succeeded())
       {
         ReflectShaderStage(inout_data, (ezGALShaderStage::Enum)stage);
+        EZ_SUCCEED_OR_RETURN(AddFakeSetAssignments(inout_data, (ezGALShaderStage::Enum)stage, pLog));
       }
       else
       {
@@ -566,7 +608,7 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
       indexInUse[uiIndex].SetBit(iSlot);
     }
     // DX11: Everything is set 0.
-    it.Value().m_iSet = 0;
+    it.Value().m_iBindGroup = 0;
   }
 
   // Create stable order of resources
@@ -615,7 +657,7 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
 
 void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration)
 {
-  EZ_ASSERT_DEBUG(binding.m_iSet == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
+  EZ_ASSERT_DEBUG(binding.m_iBindGroup == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
   const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
   ezStringView sResourcePrefix;
   if (binding.m_iSlot == -1)

@@ -562,9 +562,9 @@ void ezRendererTestAdvancedFeatures::FloatSampling()
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   BeginCommands("FloatSampling");
   {
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindSampler("DepthSampler", m_hDepthSamplerState);
-    bindGroup.BindTexture("DepthTexture", m_hTexture2DArray);
+    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroupTest.BindSampler("DepthSampler", m_hDepthSamplerState);
+    bindGroupTest.BindTexture("DepthTexture", m_hTexture2DArray);
 
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
     {
@@ -645,8 +645,8 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mMVP;
     ocb->m_Color = ezColor(1, 1, 1, 1);
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
+    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroupTest.BindBuffer("PerObject", m_hObjectTransformCB);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(0xFFFFFFFF, 0, 2).IgnoreResult();
 
@@ -661,8 +661,8 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindTexture("DiffuseTexture", m_hTexture2DArray);
+    ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroupTest.BindTexture("DiffuseTexture", m_hTexture2DArray);
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
     ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
@@ -708,7 +708,7 @@ void ezRendererTestAdvancedFeatures::Compute()
     ezRenderContext::GetDefaultInstance()->BeginCompute("Compute");
     {
       ezRenderContext::GetDefaultInstance()->BindShader(m_hShader2);
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
 
       ezGALTextureRange textureRange;
       textureRange.m_uiBaseMipLevel = 4;
@@ -716,7 +716,7 @@ void ezRendererTestAdvancedFeatures::Compute()
       textureRange.m_uiBaseArraySlice = 0;
       textureRange.m_uiArraySlices = 2;
 
-      bindGroup.BindTexture("OutputTexture", m_hTexture2D, textureRange);
+      bindGroupTest.BindTexture("OutputTexture", m_hTexture2D, textureRange);
 
       // The compute shader uses [numthreads(8, 8, 1)], so we need to compute how many of these groups we need to dispatch to fill the entire image.
       constexpr ezUInt32 uiThreadsX = 8;
@@ -787,23 +787,24 @@ ezTestAppRun ezRendererTestAdvancedFeatures::Material()
     const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
     const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
     const ezMat4 mMVP = CreateSimpleMVP((float)fWidth / (float)fHeight);
-    BeginCommands("Tessellation");
+    BeginCommands("MaterialTest");
     {
       ezRectFloat viewport = ezRectFloat(0, 0, fWidth, fHeight);
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
       ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
+      pContext->SetAllowAsyncShaderLoading(false);
       pContext->BindMaterial(m_hMaterial);
 
       ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
       ocb->m_MVP = mMVP;
       ocb->m_Color = ezColor(1, 1, 1, 1);
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindBuffer("PerObject", m_hObjectTransformCB);
+      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupTest.BindBuffer("PerObject", m_hObjectTransformCB);
 
       ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hCubeUV);
-      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+      ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
       EndRendering();
       if (m_ImgCompFrames.Contains(m_iFrame))
@@ -862,8 +863,8 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
 
       ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindTexture("DiffuseTexture", m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
+      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupTest.BindTexture("DiffuseTexture", m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
       EndRendering();

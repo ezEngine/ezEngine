@@ -31,8 +31,8 @@ float3x3 TransformToRotation(Transform t)
 }
 
 
-#  define CONSTANT_BUFFER(Name, Slot) cbuffer Name : register(b##Slot)
-#  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name : register(b##Slot, space##Set)
+#  define CONSTANT_BUFFER(Name, Slot) cbuffer Name BIND_RESOURCE(Slot, BG_FRAME)
+#  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name BIND_RESOURCE(Slot, Set)
 #  define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
 
 // Note: If extended, you need to extend Engine/RendererCore/ShaderCompiler/Implementation/ShaderParser.cpp as well as ezShaderConstant::Type.

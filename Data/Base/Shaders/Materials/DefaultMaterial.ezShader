@@ -130,28 +130,28 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D NormalTexture;
-SamplerState NormalTexture_AutoSampler;
+Texture2D NormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState NormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D MetallicTexture;
-SamplerState MetallicTexture_AutoSampler;
+Texture2D MetallicTexture BIND_GROUP(BG_MATERIAL);
+SamplerState MetallicTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D RoughnessTexture;
-SamplerState RoughnessTexture_AutoSampler;
+Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D EmissiveTexture;
-SamplerState EmissiveTexture_AutoSampler;
+Texture2D EmissiveTexture BIND_GROUP(BG_MATERIAL);
+SamplerState EmissiveTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OcclusionTexture;
-SamplerState OcclusionTexture_AutoSampler;
+Texture2D OcclusionTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OcclusionTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OrmTexture;
-SamplerState OrmTexture_AutoSampler;
+Texture2D OrmTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OrmTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D DitherNoiseTexture;
+Texture2D DitherNoiseTexture BIND_GROUP(BG_MATERIAL);
 
 float3 GetNormal()
 {
@@ -172,7 +172,7 @@ float3 GetBaseColor()
   float3 baseColor = GetMaterialData(BaseColor).rgb * GetInstanceData().Color.rgb;
 
   // note that the default material actually doesn't support per-vertex colors
-#if defined(USE_COLOR0)  
+#if defined(USE_COLOR0)
   baseColor *= G.Input.Color0;
 #endif
 

@@ -17,7 +17,7 @@ struct EZ_SHADER_STRUCT ezTangentQuadParticleShaderData
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezTangentQuadParticleShaderData> particleTangentQuadData;
+StructuredBuffer<ezTangentQuadParticleShaderData> particleTangentQuadData BIND_GROUP(BG_DRAW_CALL);
 
 #else // C++
 

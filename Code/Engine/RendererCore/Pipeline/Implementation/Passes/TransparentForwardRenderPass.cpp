@@ -61,9 +61,9 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
     SetupPermutationVars(renderViewContext);
     SetupLighting(renderViewContext);
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindTexture("SceneColor", hSceneColor);
-    bindGroup.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    bindGroupRenderPass.BindTexture("SceneColor", hSceneColor);
+    bindGroupRenderPass.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
 
     RenderObjects(renderViewContext);
 
@@ -81,8 +81,8 @@ void ezTransparentForwardRenderPass::SetupResources(ezGALCommandEncoder* pComman
 
   if (inputs[m_PinResolvedDepth.m_uiInputIndex])
   {
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindTexture("SceneDepth", inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    bindGroupRenderPass.BindTexture("SceneDepth", inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
   }
 }
 

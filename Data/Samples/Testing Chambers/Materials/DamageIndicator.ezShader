@@ -8,7 +8,7 @@ TWO_SIDED = TRUE
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 // SYSTEM permutations:
-// all of these are automatically set by the engine 
+// all of these are automatically set by the engine
 FLIP_WINDING
 RENDER_PASS
 FORWARD_PASS_WRITE_DEPTH
@@ -47,15 +47,15 @@ RenderDataCategory = SimpleTransparent;
 VS_OUT main(VS_IN Input)
 {
   VS_OUT Output = FillVertexData(Input);
-  
+
   Output.Position = float4(Input.Position, 1.0);
-  
+
   // Cull behind farplane if it is completely faded out anyways
   if (GetInstanceData().Color.a <= 0)
   {
     Output.Position.z = 2;
-  } 
-  
+  }
+
   return Output;
 }
 
@@ -66,7 +66,8 @@ VS_OUT main(VS_IN Input)
 [PIXELSHADER]
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D NoiseTexture;
+
+Texture2D NoiseTexture BIND_GROUP(BG_MATERIAL) ;
 
 float3 GetDiffuseColor()
 {
@@ -76,10 +77,10 @@ float3 GetDiffuseColor()
 float GetOpacity()
 {
   float fade = saturate(length(G.Input.TexCoord0.xy - 0.5) - 0.2);
-  
+
   float noise = NoiseTexture.Sample(LinearSampler, G.Input.TexCoord0).r;
   fade = saturate(fade + (noise + GetMaterialData(NoiseBias)) * GetMaterialData(NoiseStrength));
   fade = fade * fade;
-  
+
   return GetMaterialData(BaseColor).a * fade * GetInstanceData().Color.a;
 }

@@ -93,8 +93,8 @@ void ezComputeShaderHistogramApp::Run()
       ezGALRenderingSetup renderingSetup;
       renderingSetup.SetColorTarget(0, hBackbufferRTV);
       renderContext.BeginRendering(renderingSetup, viewport, "Blit");
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindTexture("Input", m_hScreenTexture);
+      ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupSample.BindTexture("Input", m_hScreenTexture);
       renderContext.BindShader(m_hDisplayScreenShader);
       renderContext.BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
       renderContext.DrawMeshBuffer().IgnoreResult();
@@ -105,20 +105,20 @@ void ezComputeShaderHistogramApp::Run()
     {
       renderContext.BeginCompute("ComputeHistogram");
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
       // Reset first.
       renderContext.BindShader(m_hClearHistogramShader);
       ClearHistogramParams params;
       params.Height = 3;
       params.Width = 256;
       renderContext.SetPushConstants("ClearHistogramParams", params);
-      bindGroup.BindTexture("HistogramOutput", m_hHistogramTexture);
+      bindGroupSample.BindTexture("HistogramOutput", m_hHistogramTexture);
       renderContext.Dispatch(256 / 16, 1, 1).IgnoreResult();
 
       // Compute histogram
       renderContext.BindShader(m_hComputeHistogramShader);
-      bindGroup.BindTexture("ScreenTexture", m_hScreenTexture);
-      bindGroup.BindTexture("HistogramOutput", m_hHistogramTexture);
+      bindGroupSample.BindTexture("ScreenTexture", m_hScreenTexture);
+      bindGroupSample.BindTexture("HistogramOutput", m_hHistogramTexture);
       renderContext.Dispatch(uiWindowWidth / g_uiComputeThreadGroupSize + (uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0), uiWindowHeight / g_uiComputeThreadGroupSize + (uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0)).IgnoreResult();
 
       renderContext.EndCompute();
@@ -132,8 +132,8 @@ void ezComputeShaderHistogramApp::Run()
 
       renderContext.BindShader(m_hDisplayHistogramShader);
       renderContext.BindMeshBuffer(m_hHistogramQuadMeshBuffer);
-      ezBindGroupBuilder& bindGroup = renderContext.GetBindGroup();
-      bindGroup.BindTexture("HistogramTexture", m_hHistogramTexture);
+      ezBindGroupBuilder& bindGroupSample = renderContext.GetBindGroup();
+      bindGroupSample.BindTexture("HistogramTexture", m_hHistogramTexture);
       renderContext.DrawMeshBuffer().IgnoreResult();
 
       renderContext.EndRendering();

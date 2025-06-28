@@ -36,15 +36,14 @@
 
 #endif
 
-/// \brief #TODO_SHADER Right now these are only used in the ST_SetsSlots unit test. We will need to decide what the best separation and naming for these sets is once the renderer can make actual use of these to improve performance.
-#define SET_FRAME 0
-#define SET_RENDER_PASS 1
-#define SET_MATERIAL 2
-#define SET_DRAW_CALL 3
+#define BG_FRAME 0
+#define BG_RENDER_PASS 1
+#define BG_MATERIAL 2
+#define BG_DRAW_CALL 3
 #define SLOT_AUTO AUTO
 
-/// \brief Binds the resource to the given set and slot. Note that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
-#define BIND_RESOURCE(Slot, Set) : register(EZ_PP_CONCAT(x, Slot), EZ_PP_CONCAT(space, Set))
+/// \brief Binds the resource to the given bind group and slot. Note, that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
+#define BIND_RESOURCE(Slot, BindGroup) : register(EZ_PP_CONCAT(x, Slot), EZ_PP_CONCAT(space, BindGroup))
 
-/// \brief Binds the resource to the given set. Note that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
-#define BIND_SET(Set) BIND_RESOURCE(SLOT_AUTO, Set)
+/// \brief Binds the resource to the given bind group. Note, that this does not produce valid HLSL code, the code will instead be patched by the shader compiler.
+#define BIND_GROUP(BindGroup) BIND_RESOURCE(SLOT_AUTO, BindGroup)

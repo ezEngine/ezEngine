@@ -34,7 +34,7 @@ SourceBlendAlpha0 = Blend_Zero
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Materials/LensFlareData.h>
 
-StructuredBuffer<ezPerLensFlareData> lensFlareData;
+StructuredBuffer<ezPerLensFlareData> lensFlareData BIND_GROUP(BG_RENDER_PASS);
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -53,7 +53,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   };
 
   VS_OUT Output;
-  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
+  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO
     Output.RenderTargetArrayIndex = InstanceID;
   #else
     Output.InstanceID = InstanceID;
@@ -75,7 +75,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   {
 	return (VS_OUT)0;
   }
-  
+
   worldPosition += cameraDir * data.DepthOffset;
 
   float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
@@ -96,7 +96,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     float fogAmount = GetFogAmount(worldPosition);
     fade *= fogAmount;
   }
-  
+
   if (fade > 0)
   {
     // Fibonacci Spiral, source: https://c-core-games.com/Generator/SpiralPatterns.html?p=F&n=32
@@ -134,10 +134,10 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
       {  0.5323f, -0.8279f },
       {  0.1694f,  0.9856f },
     };
-  
+
     float2 sampleUv = screenPosition.xy + vertexPosition * screenSampleRadius * data.OcclusionSpread;
     sampleUv = sampleUv * float2(0.5, -0.5) + 0.5;
-    
+
     float visibility = 0.0;
     for (int i = 0; i < 32; ++i)
     {
@@ -148,7 +148,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     }
     fade *= (visibility / 32);
   }
-  
+
   if (fade <= 0)
   {
 	return (VS_OUT)0;
@@ -164,9 +164,9 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   float2 aspectRatioAndShift = RG16FToFloat2(data.AspectRatioAndShift);
   screenSize.y *= aspectRatioAndShift.x;
-    
+
   screenPosition.xy = lerp(screenPosition.xy, 0, aspectRatioAndShift.y);
-  
+
   Output.Position = float4(screenPosition.xy + vertexPosition * screenSize, 0, 1);
   Output.TexCoord0 = texCoords;
   Output.Color0 = RGBA16FToFloat4(data.ColorRG, data.ColorBA);
@@ -193,8 +193,8 @@ struct PS_OUT
   float4 Color : SV_Target;
 };
 
-Texture2D LensFlareTexture;
-SamplerState LensFlareTexture_AutoSampler;
+Texture2D LensFlareTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState LensFlareTexture_AutoSampler BIND_GROUP(BG_RENDER_PASS);
 
 PS_OUT main(PS_IN Input)
 {

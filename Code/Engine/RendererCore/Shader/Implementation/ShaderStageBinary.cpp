@@ -45,7 +45,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
     inout_stream << r.m_ResourceType;
     inout_stream << r.m_TextureType;
     inout_stream << r.m_Stages;
-    inout_stream << r.m_iSet;
+    inout_stream << r.m_iBindGroup;
     inout_stream << r.m_iSlot;
     inout_stream << r.m_uiArraySize;
     inout_stream << r.m_sName.GetData();
@@ -140,7 +140,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
       inout_stream >> r.m_ResourceType;
       inout_stream >> r.m_TextureType;
       inout_stream >> r.m_Stages;
-      inout_stream >> r.m_iSet;
+      inout_stream >> r.m_iBindGroup;
       inout_stream >> r.m_iSlot;
       inout_stream >> r.m_uiArraySize;
       inout_stream >> sTemp;

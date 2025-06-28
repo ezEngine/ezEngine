@@ -57,7 +57,7 @@ FLOAT1(AlphaContrast);
 // Use the depth bias to ensure decals are always rendered on top the surface.
 float GetVertexDepthBias()
 {
-  return -DepthBias;
+  return -GetMaterialData(DepthBias);
 }
 
 VS_OUT main(VS_IN Input)
@@ -66,7 +66,7 @@ VS_OUT main(VS_IN Input)
 
   Output.TexCoordAlpha = Output.TexCoord0;
 
-  // First determine the slot index based on the integer part of the UVs. 
+  // First determine the slot index based on the integer part of the UVs.
   uint innerIndex = clamp(uint(Input.TexCoord0.x), 0, 1);
   uint outerIndex = clamp(uint(Input.TexCoord0.y), 0, 3);
 
@@ -100,8 +100,8 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-Texture2D AlphaTexture;
-SamplerState AlphaTexture_AutoSampler;
+Texture2D AlphaTexture BIND_GROUP(BG_MATERIAL);
+SamplerState AlphaTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float3 GetNormal()
 {
@@ -111,7 +111,7 @@ float3 GetNormal()
 float3 GetBaseColor()
 {
   float3 color = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, G.Input.TexCoord0.xy, 0).rgb;
-  color *= BaseColor.rgb * GetInstanceData().Color.rgb;
+  color *= GetMaterialData(BaseColor).rgb * GetInstanceData().Color.rgb;
   return color;
 }
 
@@ -133,13 +133,13 @@ float GetRoughness()
 float GetOpacity()
 {
   float alpha = AlphaTexture.Sample(AlphaTexture_AutoSampler, G.Input.TexCoordAlpha.xy).r;
-  alpha = AdjustContrast(alpha, AlphaContrast);
+  alpha = AdjustContrast(alpha, GetMaterialData(AlphaContrast));
 
   float opacity = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, G.Input.TexCoord0.xy, 0).a;
-  opacity *= alpha * BaseColor.a * GetInstanceData().Color.a;
-  
+  opacity *= alpha * GetMaterialData(BaseColor).a * GetInstanceData().Color.a;
+
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return opacity - MaskThreshold;
+    return opacity - GetMaterialData(MaskThreshold);
   #else
     return opacity;
   #endif

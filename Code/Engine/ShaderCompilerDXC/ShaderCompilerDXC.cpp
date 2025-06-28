@@ -303,18 +303,27 @@ ezResult ezShaderCompilerDXC::ModifyShaderSource(ezShaderProgramData& inout_data
       continue;
     ezShaderParser::ApplyShaderResourceBindings(inout_data.m_sPlatform, inout_data.m_sShaderSource[stage], inout_data.m_Resources[stage], bindings, ezMakeDelegate(&ezShaderCompilerDXC::CreateNewShaderResourceDeclaration, this), sNewShaderCode);
     inout_data.m_sShaderSource[stage] = sNewShaderCode;
-    inout_data.m_Resources[stage].Clear();
   }
   return EZ_SUCCESS;
 }
 
 ezResult ezShaderCompilerDXC::DefineShaderResourceBindings(const ezShaderProgramData& data, ezHashTable<ezHashedString, ezShaderResourceBinding>& inout_resourceBinding, ezLogInterface* pLog)
 {
+  // Force material parameter into the material bind group
+  for (const ezString& sMaterialParameter : data.m_MaterialParameters)
+  {
+    ezShaderResourceBinding* pBinding = nullptr;
+    if (inout_resourceBinding.TryGetValue(ezTempHashedString(sMaterialParameter.GetView()), pBinding))
+    {
+      pBinding->m_iBindGroup = EZ_GAL_BIND_GROUP_MATERIAL;
+    }
+  }
+
   // Determine which indices are hard-coded in the shader already.
   ezHybridArray<ezHybridBitfield<64>, 4> slotInUseInSet;
   for (auto it : inout_resourceBinding)
   {
-    ezInt16& iSet = it.Value().m_iSet;
+    ezInt16& iSet = it.Value().m_iBindGroup;
     if (iSet == -1)
       iSet = 0;
 
@@ -337,7 +346,7 @@ ezResult ezShaderCompilerDXC::DefineShaderResourceBindings(const ezShaderProgram
 
     for (const auto& res : data.m_Resources[stage])
     {
-      const ezInt16 iSet = res.m_Binding.m_iSet < 0 ? (ezInt16)0 : res.m_Binding.m_iSet;
+      const ezInt16 iSet = res.m_Binding.m_iBindGroup < 0 ? (ezInt16)0 : res.m_Binding.m_iBindGroup;
       if (!orderInSet[iSet].Contains(res.m_Binding.m_sName))
       {
         orderInSet[iSet].PushBack(res.m_Binding.m_sName);
@@ -366,13 +375,13 @@ ezResult ezShaderCompilerDXC::DefineShaderResourceBindings(const ezShaderProgram
       if (!itTexture.IsValid())
         continue;
 
-      if (itSampler.Value().m_iSet != itTexture.Value().m_iSet || itSampler.Value().m_iSlot != itTexture.Value().m_iSlot)
+      if (itSampler.Value().m_iBindGroup != itTexture.Value().m_iBindGroup || itSampler.Value().m_iSlot != itTexture.Value().m_iSlot)
         continue;
 
       itSampler.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
       itTexture.Value().m_ResourceType = ezGALShaderResourceType::TextureAndSampler;
       // Sampler will match the slot of the texture at the end
-      orderInSet[itSampler.Value().m_iSet].RemoveAndCopy(itSampler.Key());
+      orderInSet[itSampler.Value().m_iBindGroup].RemoveAndCopy(itSampler.Key());
       autoSamplers.PushBack({itSampler, itTexture});
     }
   }
@@ -439,11 +448,11 @@ void ezShaderCompilerDXC::CreateNewShaderResourceDeclaration(ezStringView sPlatf
 
   if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
   {
-    out_sDeclaration.SetFormat("[[vk::combinedImageSampler]] {} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
+    out_sDeclaration.SetFormat("[[vk::combinedImageSampler]] {} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iBindGroup);
   }
   else
   {
-    out_sDeclaration.SetFormat("{} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iSet);
+    out_sDeclaration.SetFormat("{} : register({}{}, space{})", sDeclaration, sResourcePrefix, binding.m_iSlot, binding.m_iBindGroup);
   }
 }
 
@@ -808,7 +817,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
       ezLog::Info("Bound Resource: '{}' at slot {} (Count: {})", info.name, info.binding, info.count);
 
       ezShaderResourceBinding shaderResourceBinding;
-      shaderResourceBinding.m_iSet = static_cast<ezInt16>(info.set);
+      shaderResourceBinding.m_iBindGroup = static_cast<ezInt16>(info.set);
       shaderResourceBinding.m_iSlot = static_cast<ezInt16>(info.binding);
       shaderResourceBinding.m_uiArraySize = info.count;
       shaderResourceBinding.m_sName.Assign(info.name);
@@ -865,7 +874,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       ezShaderResourceBinding shaderResourceBinding;
       shaderResourceBinding.m_ResourceType = ezGALShaderResourceType::PushConstants;
-      shaderResourceBinding.m_iSet = -1;
+      shaderResourceBinding.m_iBindGroup = -1;
       shaderResourceBinding.m_iSlot = -1;
       shaderResourceBinding.m_uiArraySize = 1;
 

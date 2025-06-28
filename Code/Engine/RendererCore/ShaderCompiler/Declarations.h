@@ -4,6 +4,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Declarations.h>
+#include <RendererFoundation/Shader/ShaderByteCode.h>
 
 /// \brief Output of ParseShaderResources. A shader resource definition found inside the shader source code.
 struct ezShaderResourceDefinition
@@ -59,4 +60,5 @@ struct EZ_RENDERERCORE_DLL ezShaderProgramData
   ezUInt32 m_uiSourceHash[ezGALShaderStage::ENUM_COUNT];
   ezSharedPtr<ezGALShaderByteCode> m_ByteCode[ezGALShaderStage::ENUM_COUNT];
   bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
+  ezSet<ezString> m_MaterialParameters; ///< Any resource matching these names will be forced into the material bind group.
 };

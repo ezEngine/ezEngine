@@ -11,7 +11,7 @@ ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
     writer << binding.m_ResourceType.GetValue();
     writer << binding.m_TextureType.GetValue();
     writer << binding.m_Stages.GetValue();
-    writer << binding.m_iSet;
+    writer << binding.m_iBindGroup;
     writer << binding.m_iSlot;
     writer << binding.m_uiArraySize;
     writer << binding.m_sName;

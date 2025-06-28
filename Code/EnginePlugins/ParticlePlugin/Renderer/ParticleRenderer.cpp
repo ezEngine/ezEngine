@@ -15,8 +15,8 @@ ezParticleRenderer::TempSystemCB::TempSystemCB(ezRenderContext* pRenderContext)
   // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
 
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-  bindGroup.BindBuffer("ezParticleSystemConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
+  bindGroupMaterial.BindBuffer("ezParticleSystemConstants", m_hConstantBuffer);
 }
 
 ezParticleRenderer::TempSystemCB::~TempSystemCB()

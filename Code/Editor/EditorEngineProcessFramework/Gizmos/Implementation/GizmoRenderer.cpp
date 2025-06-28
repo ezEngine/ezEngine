@@ -81,8 +81,8 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer));
 
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-  bindGroup.BindBuffer("ezGizmoConstants", hGizmoConstantBuffer);
+  ezBindGroupBuilder& bindGroupRenderPass = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+  bindGroupRenderPass.BindBuffer("ezGizmoConstants", hGizmoConstantBuffer);
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
   const float fGizmoScale = s_fGizmoScale * (128.0f / (float)renderViewContext.m_pViewData->m_ViewPortRect.height);

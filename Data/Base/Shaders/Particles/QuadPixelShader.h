@@ -1,13 +1,14 @@
 // clang-format off
+#include <Shaders/Common/StandardMacros.h>
 #include <Shaders/Particles/ParticleCommonPS.h>
 
-Texture2D ParticleTexture;
-SamplerState ParticleTexture_AutoSampler;
+Texture2D ParticleTexture BIND_GROUP(BG_MATERIAL);
+SamplerState ParticleTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
 
-  Texture2D ParticleDistortionTexture;
-  SamplerState ParticleDistortionTexture_AutoSampler;
+  Texture2D ParticleDistortionTexture BIND_GROUP(BG_MATERIAL);
+  SamplerState ParticleDistortionTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 #endif
 

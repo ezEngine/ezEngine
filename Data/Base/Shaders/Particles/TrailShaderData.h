@@ -36,22 +36,22 @@ struct EZ_SHADER_STRUCT ezTrailParticlePointsData64
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezTrailParticleShaderData> particleTrailData;
+StructuredBuffer<ezTrailParticleShaderData> particleTrailData BIND_GROUP(BG_DRAW_CALL);
 
 #  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT8
-StructuredBuffer<ezTrailParticlePointsData8> particlePointsData;
+StructuredBuffer<ezTrailParticlePointsData8> particlePointsData BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 #  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT16
-StructuredBuffer<ezTrailParticlePointsData16> particlePointsData;
+StructuredBuffer<ezTrailParticlePointsData16> particlePointsData BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 #  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT32
-StructuredBuffer<ezTrailParticlePointsData32> particlePointsData;
+StructuredBuffer<ezTrailParticlePointsData32> particlePointsData BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 #  if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT64
-StructuredBuffer<ezTrailParticlePointsData64> particlePointsData;
+StructuredBuffer<ezTrailParticlePointsData64> particlePointsData BIND_GROUP(BG_DRAW_CALL);
 #  endif
 
 #else // C++

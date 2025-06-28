@@ -183,8 +183,8 @@ public:
 
       const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f);
 
-      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-      bindGroup.BindBuffer("ezMeshRenderSampleConstants", m_hSampleConstants);
+      ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupSample.BindBuffer("ezMeshRenderSampleConstants", m_hSampleConstants);
 
       m_CameraRotation += ezAngle::MakeFromDegree(ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds() * 90.0f);
       m_CameraRotation.NormalizeRange();

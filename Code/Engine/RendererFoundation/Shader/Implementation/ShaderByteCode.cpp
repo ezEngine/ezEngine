@@ -106,7 +106,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
 
   auto EqualBindings = [](const ezShaderResourceBinding& a, const ezShaderResourceBinding& b) -> bool
   {
-    return a.m_sName == b.m_sName && a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iSet == b.m_iSet && a.m_iSlot == b.m_iSlot;
+    return a.m_sName == b.m_sName && a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iBindGroup == b.m_iBindGroup && a.m_iSlot == b.m_iSlot;
   };
 
   auto AddOrExtendBinding = [&](ezGALShaderStage::Enum stage, ezUInt32 uiStartIndex, const ezShaderResourceBinding& add)
@@ -178,8 +178,8 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
   }
   out_bindings.Sort([](const ezShaderResourceBinding& lhs, const ezShaderResourceBinding& rhs)
     {
-    if (lhs.m_iSet != rhs.m_iSet)
-      return lhs.m_iSet < rhs.m_iSet;
+    if (lhs.m_iBindGroup != rhs.m_iBindGroup)
+      return lhs.m_iBindGroup < rhs.m_iBindGroup;
 
     return lhs.m_iSlot < rhs.m_iSlot; });
   return EZ_SUCCESS;

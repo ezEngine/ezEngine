@@ -246,12 +246,12 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "SSAO", renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
-    bindGroup.BindTexture("DepthTexture", pDepthInput->m_TextureHandle);
-    bindGroup.BindTexture("LowResDepthTexture", hzbTexture);
-    bindGroup.BindSampler("DepthSampler", m_hSSAOSamplerState);
-    bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+    bindGroupRenderPass.BindTexture("DepthTexture", pDepthInput->m_TextureHandle);
+    bindGroupRenderPass.BindTexture("LowResDepthTexture", hzbTexture);
+    bindGroupRenderPass.BindSampler("DepthSampler", m_hSSAOSamplerState);
+    bindGroupRenderPass.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -264,10 +264,10 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
     auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Blur", renderViewContext.m_pCamera->IsStereoscopic());
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
-    bindGroup.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
-    bindGroup.BindTexture("SSAOTexture", tempSSAOTexture);
+    bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
+    bindGroupRenderPass.BindTexture("SSAOTexture", tempSSAOTexture);
 
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 

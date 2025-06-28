@@ -41,7 +41,7 @@ public:
 
   static ezResult PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult);
 
-  static void ParseMaterialParameterSection(ezStreamReader& inout_stream, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions);
+  static void ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions);
 
   static void ParsePermutationSection(ezStringView sPermutationSection, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars);
 

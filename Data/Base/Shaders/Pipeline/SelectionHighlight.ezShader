@@ -50,14 +50,14 @@ struct PS_IN
 };
 
 #if MSAA
-  Texture2DMSArray<float> SelectionDepthTexture;
-  Texture2DMSArray<float> SceneDepthTexture;
+  Texture2DMSArray<float> SelectionDepthTexture BIND_GROUP(BG_RENDER_PASS);
+  Texture2DMSArray<float> SceneDepthTexture BIND_GROUP(BG_RENDER_PASS);
 
   #define SampleDepth(texture, coords, input) texture.Load(int3(coords.xy, 0), input.SampleIndex).r
 
 #else
-  Texture2DArray SelectionDepthTexture;
-  Texture2DArray SceneDepthTexture;
+  Texture2DArray SelectionDepthTexture BIND_GROUP(BG_RENDER_PASS);
+  Texture2DArray SceneDepthTexture BIND_GROUP(BG_RENDER_PASS);
 
   #define SampleDepth(texture, coords, input) texture.Load(int4(coords.xy, 0, 0)).r
 

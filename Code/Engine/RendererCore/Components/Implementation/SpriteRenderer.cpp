@@ -49,9 +49,9 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));
 
   pContext->BindShader(m_hShader);
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-  bindGroup.BindBuffer("spriteData", hSpriteData);
-  bindGroup.BindTexture("SpriteTexture", pRenderData->m_hTexture);
+  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+  bindGroupRenderPass.BindBuffer("spriteData", hSpriteData);
+  bindGroupRenderPass.BindTexture("SpriteTexture", pRenderData->m_hTexture);
 
   pContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
   pContext->SetShaderPermutationVariable("SHAPE_ICON", pRenderData->m_BlendMode == ezSpriteBlendMode::ShapeIcon ? ezMakeHashedString("TRUE") : ezMakeHashedString("FALSE"));

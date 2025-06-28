@@ -118,11 +118,11 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    bindGroupRenderPass.BindBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    bindGroup.BindTexture("SelectionDepthTexture", hDepthTexture);
-    bindGroup.BindTexture("SceneDepthTexture", pDepthInput->m_TextureHandle);
+    bindGroupRenderPass.BindTexture("SelectionDepthTexture", hDepthTexture);
+    bindGroupRenderPass.BindTexture("SceneDepthTexture", pDepthInput->m_TextureHandle);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
