@@ -584,7 +584,7 @@ void ezRenderContext::ResetContextState()
   m_sActiveShader.Clear();
   m_hActiveGALShader.Invalidate();
   m_pActiveGALShader = nullptr;
-  
+
   static_assert(EZ_ARRAY_SIZE(m_hVertexBuffers) == EZ_GAL_MAX_VERTEX_BUFFER_COUNT);
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hVertexBuffers); ++i)
   {
