@@ -45,6 +45,8 @@ public:
     void Reset();
 
     ezUInt32 m_uiFailedDrawcalls;
+    ezUInt32 m_uiModifiedBindGroup[EZ_GAL_MAX_BIND_GROUPS] = {0};
+    ezUInt32 m_uiLayoutChanged[EZ_GAL_MAX_BIND_GROUPS] = {0};
   };
 
   Statistics GetAndResetStatistics();
@@ -175,7 +177,6 @@ public:
   ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY = 1, ezUInt32 uiThreadGroupCountZ = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
-  void ResetContextState();
 
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
@@ -262,6 +263,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
+  void ResetContextState();
   static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
   static void RegisterImmutableSamplers();
   static void OnEngineStartup();
@@ -271,17 +273,23 @@ private:
 private:
   Statistics m_Statistics;
   ezBitflags<ezRenderContextFlags> m_StateFlags;
-  ezShaderResourceHandle m_hActiveShader;
-  ezGALShaderHandle m_hActiveGALShader;
 
-  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
+  // Material
   ezMaterialResourceHandle m_hNewMaterial;
   ezMaterialResourceHandle m_hMaterial;
 
-  ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
+  // Shader Resource
+  ezShaderResourceHandle m_hActiveShader;
+  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
 
+  // Shader Permutation
+  ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
+  ezString m_sActiveShader;
+  ezGALShaderHandle m_hActiveGALShader;
+  const ezGALShader* m_pActiveGALShader = nullptr;
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
+  // Vertex / Index Buffer
   ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
   ezEnum<ezGALVertexBindingRate> m_VertexBufferBindingRates[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
@@ -299,6 +307,7 @@ private:
   ezGALComputePipelineCreationDescription m_ComputePipeline;
   ezBindGroupBuilder m_BindGroupBuilders[EZ_GAL_MAX_BIND_GROUPS];
   ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+  bool m_bDirtyBindGroups[EZ_GAL_MAX_BIND_GROUPS] = {};
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
   ezConstantBufferStorageHandle m_hPushConstantsStorage;
@@ -343,7 +352,7 @@ private: // Per Renderer States
 
   void SetShaderPermutationVariableInternal(const ezHashedString& sName, const ezHashedString& sValue);
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
-  ezShaderPermutationResource* ApplyShaderState();
+  ezResult ApplyShaderState();
   void ApplyMaterialState();
   ezResult ApplyBindGroup(const ezGALShader* pShader, ezUInt32 uiBindGroup);
 };

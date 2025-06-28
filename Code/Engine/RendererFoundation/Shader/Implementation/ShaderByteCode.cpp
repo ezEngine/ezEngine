@@ -135,7 +135,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
       ezUInt32 uiIndex = ezInvalidIndex;
       if (res.m_ResourceType == ezGALShaderResourceType::Sampler)
       {
-        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See ezRenderContext::BindTexture2D for binding code. For now, we allow this collision, but it will probably bite us later on.
+        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See ezBindGroupBuilder::BindTexture for binding code. For now, we allow this collision, but it will probably bite us later on.
         samplerToIndex.TryGetValue(res.m_sName, uiIndex);
       }
       else

@@ -142,7 +142,6 @@ void ezComputeShaderHistogramApp::Run()
     device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
-    ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
 
   // needs to be called once per frame

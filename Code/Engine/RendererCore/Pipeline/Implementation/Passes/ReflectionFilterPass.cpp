@@ -98,7 +98,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 
   {
     auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
-    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
+    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated() && pDevice->GetTexture(pFilteredSpecularOutput->m_TextureHandle) != nullptr)
     {
       ezUInt32 uiNumMipMaps = pFilteredSpecularOutput->m_Desc.m_uiMipLevelCount;
 

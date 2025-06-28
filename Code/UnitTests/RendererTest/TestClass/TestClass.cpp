@@ -299,8 +299,6 @@ void ezGraphicsTest::EndFrame()
     m_pWindow->ProcessWindowMessages();
   }
 
-  ezRenderContext::GetDefaultInstance()->ResetContextState();
-
   m_pDevice->EndFrame();
 
   ezTaskSystem::FinishFrameTasks();

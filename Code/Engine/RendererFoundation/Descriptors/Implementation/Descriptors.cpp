@@ -6,7 +6,7 @@
 ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
 {
   ezHashStreamWriter32 writer;
-  for (const ezShaderResourceBinding& binding : m_ResourceBindings)
+  auto HashBinding = [](ezHashStreamWriter32& writer, const ezShaderResourceBinding& binding)
   {
     writer << binding.m_ResourceType.GetValue();
     writer << binding.m_TextureType.GetValue();
@@ -27,6 +27,15 @@ ezUInt32 ezGALBindGroupLayoutCreationDescription::CalculateHash() const
         writer << constant.m_uiOffset;
       }
     }
+  };
+
+  for (const ezShaderResourceBinding& binding : m_ResourceBindings)
+  {
+    HashBinding(writer, binding);
+  }
+  for (const ezShaderResourceBinding& binding : m_ImmutableSamplers)
+  {
+    HashBinding(writer, binding);
   }
   return writer.GetHashValue();
 }

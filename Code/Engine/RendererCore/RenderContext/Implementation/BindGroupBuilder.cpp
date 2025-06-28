@@ -295,4 +295,9 @@ void ezBindGroupBuilder::InsertItem(ezTempHashedString sSlotName, const ezGALBin
       s_uiWrites++;
     }
   }
+  else
+  {
+    m_bModified = true;
+    s_uiWrites++;
+  }
 }

@@ -142,8 +142,6 @@ void ezWindowOutputTargetXR::CompanionViewEndFrame()
     m_pRenderContext->EndRendering();
 
     pDevice->EndCommands(pEncoder);
-
-    m_pRenderContext->ResetContextState();
   }
 }
 

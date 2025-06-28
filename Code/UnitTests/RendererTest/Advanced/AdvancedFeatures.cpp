@@ -880,7 +880,6 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
 
     texture.m_uiCurrentSemaphoreValue++;
     pSharedTexture->SignalSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
-    ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
   EndFrame();
 

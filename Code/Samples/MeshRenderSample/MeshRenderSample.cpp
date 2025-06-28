@@ -216,7 +216,6 @@ public:
       m_pDevice->EndCommands(pCommandEncoder);
 
       m_pDevice->EndFrame();
-      ezRenderContext::GetDefaultInstance()->ResetContextState();
     }
 
     // needs to be called once per frame to finish resource loading

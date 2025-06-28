@@ -116,7 +116,6 @@ void ezOffscreenRendererTest::Run()
     device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
-    ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
 
   if (m_RequestedFrames.IsEmpty() && m_bExiting)

@@ -984,6 +984,8 @@ ezGALCommandEncoder* ezGALDeviceVulkan::BeginCommandsPlatform(const char* szName
 #if EZ_ENABLED(EZ_USE_PROFILING)
   m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
 #endif
+  m_pCommandEncoderImpl->Reset();
+  m_pCommandEncoder->InvalidateState();
   return m_pCommandEncoder.Borrow();
 }
 
@@ -992,10 +994,6 @@ void ezGALDeviceVulkan::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
-  // Submit();
-  //  Technically we don't need to do this here.
-  m_pCommandEncoderImpl->Reset();
-  m_pCommandEncoder->InvalidateState();
 }
 
 

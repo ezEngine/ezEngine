@@ -3,8 +3,10 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/ResourceFormats.h>
 
 /// \brief The reflection data of a constant in a shader constant buffer.
 /// \sa ezShaderConstantBufferLayout

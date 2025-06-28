@@ -1290,8 +1290,6 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
   }
 
-  pRenderContext->ResetContextState();
-
   data.Clear();
 
   m_CurrentRenderThread = (ezThreadID)0;
