@@ -90,7 +90,7 @@ void TestMaterialConstants(ezStringView sMaterialConstants, ezStringView sMateri
       }
     }
     EZ_TEST_BOOL(pBinding != nullptr);
-    
+
     // Compared parsed vs compiled layout
     if (EZ_TEST_BOOL(pBinding && pBinding->m_pLayout && pShaderResource->GetMaterialLayout()))
     {
