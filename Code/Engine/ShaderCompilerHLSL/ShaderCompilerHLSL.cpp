@@ -346,7 +346,7 @@ ezSharedPtr<ezShaderConstantBufferLayout> ezShaderCompilerHLSL::ReflectConstantB
   return pLayout;
 }
 
-ezResult ezShaderCompilerHLSL::AddFakeSetAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog)
+ezResult ezShaderCompilerHLSL::AddFakeBindGroupAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog)
 {
   ezMap<ezHashedString, const ezShaderResourceDefinition*> resourceMap;
   for (const ezShaderResourceDefinition& resource : inout_Data.m_Resources[(int)Stage])
@@ -359,11 +359,11 @@ ezResult ezShaderCompilerHLSL::AddFakeSetAssignments(ezShaderProgramData& inout_
     }
     else
     {
-      const ezInt16 iCurrentSet = it.Value()->m_Binding.m_iBindGroup != -1 ? it.Value()->m_Binding.m_iBindGroup : 0;
-      const ezInt16 iNewSet = resource.m_Binding.m_iBindGroup != -1 ? resource.m_Binding.m_iBindGroup : 0;
-      if (iCurrentSet != iNewSet)
+      const ezInt16 iCurrentBindGroup = it.Value()->m_Binding.m_iBindGroup != -1 ? it.Value()->m_Binding.m_iBindGroup : 0;
+      const ezInt16 iNewBindGroup = resource.m_Binding.m_iBindGroup != -1 ? resource.m_Binding.m_iBindGroup : 0;
+      if (iCurrentBindGroup != iNewBindGroup)
       {
-        ezLog::Error(pLog, "Two bindings found with same name but different set assignment: A: {}, B: {}. Shader is invalid.", it.Value()->m_sDeclarationAndRegister, resource.m_sDeclarationAndRegister);
+        ezLog::Error(pLog, "Two bindings found with same name but different bind group assignment: A: {}, B: {}. Shader is invalid.", it.Value()->m_sDeclarationAndRegister, resource.m_sDeclarationAndRegister);
         return EZ_FAILURE;
       }
     }
@@ -525,7 +525,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInt
       if (CompileDXShader(inout_data.m_sSourceFile.GetData(sFile), sShaderSource.GetData(sSource), inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_ByteCode[stage]->m_ByteCode).Succeeded())
       {
         ReflectShaderStage(inout_data, (ezGALShaderStage::Enum)stage);
-        EZ_SUCCEED_OR_RETURN(AddFakeSetAssignments(inout_data, (ezGALShaderStage::Enum)stage, pLog));
+        EZ_SUCCEED_OR_RETURN(AddFakeBindGroupAssignments(inout_data, (ezGALShaderStage::Enum)stage, pLog));
       }
       else
       {
