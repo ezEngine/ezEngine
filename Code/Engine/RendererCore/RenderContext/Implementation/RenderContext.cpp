@@ -1036,9 +1036,14 @@ ezResult ezRenderContext::ApplyShaderState()
   m_pActiveGALShader = ezGALDevice::GetDefaultDevice()->GetShader(m_hActiveGALShader);
   EZ_ASSERT_DEV(m_pActiveGALShader, "Invalid GAL Shader handle.");
   const ezUInt32 uiBindGroups = m_pActiveGALShader->GetBindGroupCount();
+
+  // On DX11 or other platforms that do not support multiple bind groups, we always need to invalidate all bind groups as another bind group could have overwritten the state of a different one as they all write to the same state.
+  // E.g. a shader that has only one bind group, can overwrite everything. If we then switch to a shader that uses 4 bind groups, while bind groups 1 to 3 have not been touched, they are still dirty as the old 1 BG layout and the new 4 BG layout can overlap outside of BG0.
+  const bool bForceAllBindGroupsDirty = !ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsMultipleBindGroups;
   for (ezUInt32 i = 0; i < uiBindGroups; ++i)
   {
-    if (m_pActiveGALShader->GetBindGroupLayout(i) != m_BindGroups[i].m_hBindGroupLayout)
+    
+    if (bForceAllBindGroupsDirty || m_pActiveGALShader->GetBindGroupLayout(i) != m_BindGroups[i].m_hBindGroupLayout)
     {
       m_Statistics.m_uiLayoutChanged[i]++;
       m_bDirtyBindGroups[i] = true;
