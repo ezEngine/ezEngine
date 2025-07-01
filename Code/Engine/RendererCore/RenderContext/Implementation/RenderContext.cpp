@@ -1042,7 +1042,7 @@ ezResult ezRenderContext::ApplyShaderState()
   const bool bForceAllBindGroupsDirty = !ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsMultipleBindGroups;
   for (ezUInt32 i = 0; i < uiBindGroups; ++i)
   {
-    
+
     if (bForceAllBindGroupsDirty || m_pActiveGALShader->GetBindGroupLayout(i) != m_BindGroups[i].m_hBindGroupLayout)
     {
       m_Statistics.m_uiLayoutChanged[i]++;
