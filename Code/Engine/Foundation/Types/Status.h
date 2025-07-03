@@ -65,8 +65,8 @@ struct [[nodiscard]] EZ_FOUNDATION_DLL ezStatus
   [[nodiscard]] const ezString& GetMessageString() const { return m_sMessage; }
 
 private:
-  ezString m_sMessage;
   ezResult m_Result;
+  ezString m_sMessage;
 };
 
 EZ_ALWAYS_INLINE ezResult ezToResult(const ezStatus& result)
