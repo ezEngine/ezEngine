@@ -92,6 +92,10 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::OpaqueSplitterResize;
   ads::CDockManager::setConfigFlags(flags);
 
+  ads::CDockManager::setAutoHideConfigFlags(ads::CDockManager::DefaultAutoHideConfig);
+  ads::CDockManager::setAutoHideConfigFlag(ads::CDockManager::AutoHideShowOnMouseOver, false);
+  ads::CDockManager::setAutoHideConfigFlag(ads::CDockManager::AutoHideCloseOnOutsideMouseClick, false);
+
   m_pDockManager = new ads::CDockManager(this);
 
   connect(m_pDockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
@@ -407,6 +411,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   ads::CDockWidget* dock = new ads::CDockWidget(m_pDockManager, QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
   dock->installEventFilter(pDocWindow);
   dock->setFeature(ads::CDockWidget::CustomCloseHandling, true);
+  dock->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
 
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
