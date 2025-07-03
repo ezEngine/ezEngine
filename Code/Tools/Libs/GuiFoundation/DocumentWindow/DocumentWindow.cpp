@@ -347,17 +347,24 @@ void ezQtDocumentWindow::ScheduleRestoreWindowLayout()
 
 void ezQtDocumentWindow::SlotRestoreLayout()
 {
+  EZ_LOG_BLOCK("DocSlotRestoreLayout");
+
   RestoreWindowLayout(false);
 }
 
 void ezQtDocumentWindow::SaveWindowLayout()
 {
+  if (GetDocument() == nullptr)
+    return;
+
   // This is a workaround for newer Qt versions (5.13 or so) that seem to change the state of QDockWidgets to "closed" once the parent
   // QMainWindow gets the closeEvent, even though they still exist and the QMainWindow is not yet deleted. Previously this function was
   // called multiple times, including once after the QMainWindow got its closeEvent, which would then save a corrupted state. Therefore,
   // once the parent ezQtContainerWindow gets the closeEvent, we now prevent further saving of the window layout.
   if (!m_bAllowSaveWindowLayout)
     return;
+
+  ezLog::Debug("Save Layout - {}", GetDocument()->GetDocumentTypeName());
 
   const bool bMaximized = isMaximized();
 
@@ -378,11 +385,19 @@ void ezQtDocumentWindow::SaveWindowLayout()
 
 void ezQtDocumentWindow::RestoreWindowLayout(bool bForce)
 {
+  if (GetDocument() == nullptr)
+    return;
+
   if (!s_bAllowRestoreWindowLayout)
     return;
 
   if (!bForce && m_bWindowRestored)
     return;
+
+  if (GetDocument() != nullptr)
+  {
+    ezLog::Debug("Restore Layout - {} ({})", GetDocument()->GetDocumentTypeName(), GetDocument()->GetDocumentPath());
+  }
 
   m_bWindowRestored = true;
 
