@@ -43,7 +43,7 @@ void ezJoltQueryShapeActorComponentManager::UpdateMovingQueryShapes()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     // Jolt is overly strict about normalization
-    jRot.Normalized();
+    jRot = jRot.Normalized();
 #endif
 
     pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), jRot, JPH::EActivation::DontActivate);
