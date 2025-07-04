@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Static);
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
-    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate)->AddAttributes(new ezDefaultValueAttribute(ezAnimationInvisibleUpdateRate::Pause)),
     EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
   EZ_END_PROPERTIES;
@@ -119,7 +119,9 @@ void ezSimpleAnimationComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  const bool bVisible = visType != ezVisibilityState::Invisible;
+  // if we did this, the animation would fully stop, when the component is really invisible (not even indirectly visible)
+  // this breaks the setting 'InvisibleUpdateRate', which is supposed to let the user override the update rate for this case
+  const bool bVisible = true; // visType != ezVisibilityState::Invisible;
 
   ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
