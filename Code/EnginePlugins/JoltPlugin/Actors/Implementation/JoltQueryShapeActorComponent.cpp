@@ -39,7 +39,14 @@ void ezJoltQueryShapeActorComponentManager::UpdateMovingQueryShapes()
     const ezSimdVec4f pos = pObject->GetGlobalPositionSimd();
     const ezSimdQuat rot = pObject->GetGlobalRotationSimd();
 
-    pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), ezJoltConversionUtils::ToQuat(rot), JPH::EActivation::DontActivate);
+    JPH::Quat jRot = ezJoltConversionUtils::ToQuat(rot);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    // Jolt is overly strict about normalization
+    jRot.Normalized();
+#endif
+
+    pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), jRot, JPH::EActivation::DontActivate);
   }
 }
 

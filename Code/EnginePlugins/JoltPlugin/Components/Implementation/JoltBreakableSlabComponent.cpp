@@ -1042,8 +1042,12 @@ void ezJoltBreakableSlabComponent::DestroyShardCollider(ezUInt32 uiShardIdx, JPH
 
   if (bUpdateVis)
   {
-    EZ_ASSERT_DEBUG(m_iSkinningStateToUse != -1, "");
-    m_SkinningState[m_iSkinningStateToUse].m_Transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0)); // make it disappear by scaling to zero
+    ezInt32 iSkinningState = m_iSkinningStateToUse;
+    if (m_iSwitchToSkinningState != -1)
+      iSkinningState = m_iSwitchToSkinningState;
+
+    EZ_ASSERT_DEBUG(iSkinningState != -1, "");
+    m_SkinningState[iSkinningState].m_Transforms[uiShardIdx] = ezMat4::MakeScaling(ezVec3(0)); // make it disappear by scaling to zero
 
     // not needed here
     // m_SkinningState[m_uiSkinningStateToUse].TransformsChanged();
@@ -1070,7 +1074,12 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
 
   m_uiShardsSleeping = 0;
 
-  if (m_iSkinningStateToUse == -1 || m_bSkinningUpdated[m_iSkinningStateToUse])
+  ezInt32 iSkinningState = m_iSkinningStateToUse;
+
+  if (m_iSwitchToSkinningState != -1)
+    iSkinningState = m_iSwitchToSkinningState;
+
+  if (iSkinningState == -1)
     return;
 
   ezBoundingBox bbox = ezBoundingBox::MakeInvalid();
@@ -1091,7 +1100,7 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
     JPH::Quat rot;
     jphBodies.GetPositionAndRotation(bodyId, pos, rot);
 
-    m_SkinningState[m_iSkinningStateToUse].m_Transforms[idx] = ezJoltConversionUtils::ToTransform(pos, rot);
+    m_SkinningState[iSkinningState].m_Transforms[idx] = ezJoltConversionUtils::ToTransform(pos, rot);
 
     const ezVec3 vPos = ezJoltConversionUtils::ToVec3(pos);
 
@@ -1118,8 +1127,11 @@ void ezJoltBreakableSlabComponent::RetrieveShardTransforms()
     TriggerLocalBoundsUpdate();
   }
 
-  m_bSkinningUpdated[m_iSkinningStateToUse] = true;
-  m_SkinningState[m_iSkinningStateToUse].TransformsChanged();
+  if (!m_bSkinningUpdated[iSkinningState])
+  {
+    m_bSkinningUpdated[iSkinningState] = true;
+    m_SkinningState[iSkinningState].TransformsChanged();
+  }
 }
 
 void ezJoltBreakableSlabComponent::ApplyImpulse(const ezVec3& vImpulse, ezUInt32 uiFirstShard)
@@ -1202,6 +1214,13 @@ void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData
   m_bSkinningUpdated[0] = false;
   m_bSkinningUpdated[1] = false;
 
+  if (m_hSwitchToMesh.IsValid())
+  {
+    m_hMeshToRender = m_hSwitchToMesh;
+    m_iSkinningStateToUse = m_iSwitchToSkinningState;
+    m_hSwitchToMesh.Invalidate();
+  }
+
   if (m_hMeshToRender.IsValid())
   {
     ezMeshRenderData* pRenderData = nullptr;
@@ -1255,13 +1274,6 @@ void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData
     {
       msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
     }
-  }
-
-  if (m_hSwitchToMesh.IsValid())
-  {
-    m_hMeshToRender = m_hSwitchToMesh;
-    m_iSkinningStateToUse = m_iSwitchToSkinningState;
-    m_hSwitchToMesh.Invalidate();
   }
 }
 
