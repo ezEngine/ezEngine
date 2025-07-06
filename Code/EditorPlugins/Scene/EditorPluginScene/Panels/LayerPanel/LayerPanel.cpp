@@ -6,8 +6,8 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
-#include <QVBoxLayout>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <QVBoxLayout>
 
 ezQtLayerPanel::ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
   : ezQtDocumentPanel(pDockManager, pParent, pDocument)
