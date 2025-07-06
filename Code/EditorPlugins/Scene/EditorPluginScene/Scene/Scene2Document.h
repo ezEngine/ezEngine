@@ -56,6 +56,7 @@ struct ezScene2LayerEvent
     LayerVisible,
     LayerInvisible,
     ActiveLayerChanged,
+    SettingsChanged,
   };
 
   Type m_Type;
@@ -109,6 +110,9 @@ public:
   virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() override;
 
   bool IsAnyLayerModified() const;
+
+  bool GetSwitchLayerToSelection() const { return m_bSwitchLayerToSelection; }
+  void SetSwitchLayerToSelection(bool bEnable);
 
   ///@}
   /// \name Base Class Functions
@@ -176,6 +180,7 @@ private:
   mutable ezUniquePtr<ezSelectionManager> m_pLayerSelection;
   ezUuid m_ActiveLayerGuid;
   ezHashTable<ezUuid, LayerInfo> m_Layers;
+  bool m_bSwitchLayerToSelection = true;
 
   void ActiveLayerGameObjectEventHandler(const ezGameObjectEvent& e);
 

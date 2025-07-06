@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4025706763557391268,5561767617844493014}}
-		u4 %Hash{8974483691524073322}
+		u4 %Hash{12318718853050300255}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -67,7 +67,7 @@ o
 			Uuid{u4{14297796451663817887,2620174386669844025}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xCDCCCC41,0x9A997940,0x31335340}}
+		Vec3 %LocalPosition{f{0xCDCCCC41,0x0000B040,0x6266E63F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -163,7 +163,7 @@ o
 			Uuid{u4{15052979748227913434,5329957381823104229}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x343383C0,0x6966A6BF,0x31335340}}
+		Vec3 %LocalPosition{f{0x343383C0,0xCFCC8CBF,0xCBCC0C40}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -442,7 +442,7 @@ o
 			Uuid{u4{7906681225849977954,10122298778038626929}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x343383C0,0x34339BC1,0x31335340}}
+		Vec3 %LocalPosition{f{0x000090C0,0x67669AC1,0x9599D93F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

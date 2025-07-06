@@ -39,8 +39,15 @@ void ezSceneSelectionContext::SelectPickedObject(const ezObjectPickingResult& re
 
         if (pSceneDocument->GetActiveLayer() != layerGuid)
         {
-          pSceneDocument->PreventDoubleSelectionChange(true);
-          pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
+          if (pSceneDocument->GetSwitchLayerToSelection())
+          {
+            pSceneDocument->PreventDoubleSelectionChange(true);
+            pSceneDocument->SetActiveLayer(layerGuid).LogFailure();
+          }
+          else
+          {
+            pSceneDocument->ShowDocumentStatus(ezFmt("The clicked object is in layer '{}'. Switch layer or enable 'Auto Switch Layer to Selection'", pSceneDocument->GetLayerDocument(layerGuid)->GetDocumentPath().GetFileName()));
+          }
         }
       }
     }

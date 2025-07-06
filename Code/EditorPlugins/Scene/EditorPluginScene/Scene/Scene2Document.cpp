@@ -121,6 +121,18 @@ ezScene2Document::~ezScene2Document()
   }
 }
 
+void ezScene2Document::SetSwitchLayerToSelection(bool bEnable)
+{
+  if (m_bSwitchLayerToSelection == bEnable)
+    return;
+
+  m_bSwitchLayerToSelection = bEnable;
+
+  ezScene2LayerEvent e;
+  e.m_Type = ezScene2LayerEvent::Type::SettingsChanged;
+  m_LayerEvents.Broadcast(e);
+}
+
 void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   EnsureSettingsObjectExist();

@@ -22,6 +22,8 @@
     <file>Icons/LayerLoaded.svg</file>
     <file>Icons/LayerUnloaded.svg</file>
     <file>Icons/SelectParent.svg</file>
+    <file>Icons/SelectAllowed.svg</file>
+    <file>Icons/SelectForbidden.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezMeshComponent.svg</file>

@@ -222,6 +222,9 @@ void OnLoadPlugin()
   ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
   ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
 
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerToolbar");
+  ezLayerActions::MapToolbarActions("EditorPluginScene_LayerToolbar");
+
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);

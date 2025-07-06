@@ -169,6 +169,7 @@ Layer.SaveLayer;Save Layer
 Layer.SaveActiveLayer;Save Active Layer
 Layer.LayerLoaded;Layer Loaded
 Layer.LayerVisible;Layer Visible
+Layer.SwitchOnSelection;Auto Switch Layer to Selection;Automatically switch to the layer that a selected object is in. If disabled, only objects in the active layer can be selected, to prevent accidentally editing a different layer.
 
 ezLogicOperator::Equal;=
 ezLogicOperator::Unequal;<>

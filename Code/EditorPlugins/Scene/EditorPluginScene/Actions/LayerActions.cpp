@@ -20,6 +20,7 @@ ezActionDescriptorHandle ezLayerActions::s_hSaveLayer;
 ezActionDescriptorHandle ezLayerActions::s_hSaveActiveLayer;
 ezActionDescriptorHandle ezLayerActions::s_hLayerLoaded;
 ezActionDescriptorHandle ezLayerActions::s_hLayerVisible;
+ezActionDescriptorHandle ezLayerActions::s_hSwitchOnSelection;
 
 void ezLayerActions::RegisterActions()
 {
@@ -37,6 +38,8 @@ void ezLayerActions::RegisterActions()
     ezLayerAction, ezLayerAction::ActionType::LayerLoaded);
   s_hLayerVisible = EZ_REGISTER_ACTION_1("Layer.LayerVisible", ezActionScope::Document, "Scene - Layer", "",
     ezLayerAction, ezLayerAction::ActionType::LayerVisible);
+  s_hSwitchOnSelection = EZ_REGISTER_ACTION_1("Layer.SwitchOnSelection", ezActionScope::Document, "Scene - Layer", "",
+    ezLayerAction, ezLayerAction::ActionType::SwitchOnSelection);
 }
 
 void ezLayerActions::UnregisterActions()
@@ -48,13 +51,13 @@ void ezLayerActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSaveActiveLayer);
   ezActionManager::UnregisterAction(s_hLayerLoaded);
   ezActionManager::UnregisterAction(s_hLayerVisible);
+  ezActionManager::UnregisterAction(s_hSwitchOnSelection);
 }
 
 void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
-
 
   pMap->MapAction(s_hLayerCategory, "", 0.0f);
 
@@ -66,11 +69,23 @@ void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
   pMap->MapAction(s_hLayerVisible, sSubPath, 5.0f);
 }
 
+void ezLayerActions::MapToolbarActions(ezStringView sMapping)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
+
+  pMap->MapAction(s_hLayerCategory, "", 0.0f);
+
+  const ezStringView sSubPath = "LayerCategory";
+  pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
+  pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
+  pMap->MapAction(s_hSwitchOnSelection, sSubPath, 3.0f);
+}
+
 ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName, ezLayerAction::ActionType type)
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  // TODO const cast
   m_pSceneDocument = const_cast<ezScene2Document*>(static_cast<const ezScene2Document*>(context.m_pDocument));
 
   switch (m_Type)
@@ -90,6 +105,10 @@ ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName,
       break;
     case ActionType::LayerVisible:
       SetCheckable(true);
+      break;
+    case ActionType::SwitchOnSelection:
+      SetCheckable(true);
+      SetIconPath(":/GuiFoundation/Icons/Cursor.svg");
       break;
   }
 
@@ -212,6 +231,11 @@ void ezLayerAction::Execute(const ezVariant& value)
       m_pSceneDocument->SetLayerVisible(layerGuid, bVisible).LogFailure();
       return;
     }
+    case ActionType::SwitchOnSelection:
+    {
+      m_pSceneDocument->SetSwitchLayerToSelection(!m_pSceneDocument->GetSwitchLayerToSelection());
+      return;
+    }
   }
 }
 
@@ -233,6 +257,18 @@ void ezLayerAction::UpdateEnableState()
   {
     case ActionType::CreateLayer:
       return;
+    case ActionType::SwitchOnSelection:
+    {
+      SetChecked(m_pSceneDocument->GetSwitchLayerToSelection());
+
+      if (m_pSceneDocument->GetSwitchLayerToSelection())
+        SetIconPath(":/EditorPluginScene/Icons/SelectAllowed.svg");
+      else
+        SetIconPath(":/EditorPluginScene/Icons/SelectForbidden.svg");
+
+      TriggerUpdate();
+      return;
+    }
     case ActionType::DeleteLayer:
     {
       SetEnabled(layerGuid.IsValid() && layerGuid != m_pSceneDocument->GetGuid());
