@@ -134,8 +134,8 @@ private:
   struct DynamicOffsets
   {
     ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers; ///< Constant buffers in order of appearance in the bind group. Normal constant buffers write a nullptr here as they have fixed offsets and will never have to be updated. Only updated once via FindDynamicUniformBuffers.
-    ezHybridArray<vk::Buffer , 6> m_DynamicUniformVkBuffers; ///< Current vk::Buffer for each dynamic uniform buffer in m_DynamicUniformBuffers. Updated via UpdateDynamicUniformBufferOffsets. If any of these change, a new descriptor has to be created.
-    ezHybridArray<ezUInt32 , 6> m_DynamicUniformBufferOffsets; ///< Offsets in this bind group. Normal constant buffers have fixed offsets determined in FindDynamicUniformBuffers which never change. Transient constant buffer offsets are updated with each UpdateDynamicUniformBufferOffsets call.
+    ezHybridArray<vk::Buffer, 6> m_DynamicUniformVkBuffers;             ///< Current vk::Buffer for each dynamic uniform buffer in m_DynamicUniformBuffers. Updated via UpdateDynamicUniformBufferOffsets. If any of these change, a new descriptor has to be created.
+    ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;           ///< Offsets in this bind group. Normal constant buffers have fixed offsets determined in FindDynamicUniformBuffers which never change. Transient constant buffer offsets are updated with each UpdateDynamicUniformBufferOffsets call.
   };
 
   ezResult FlushDeferredStateChanges();
@@ -145,7 +145,7 @@ private:
 
   enum class DynamicUniformBufferChanges
   {
-    None, ///< Neither offsets nor buffers have changed.
+    None,           ///< Neither offsets nor buffers have changed.
     OffsetsChanged, ///< Offsets have changed, call bindDescriptorSets with new offsets.
     BuffersChanged, ///< Buffers have changed, create new descriptor set for new buffers. This should only happen if we exhaust the current dynamic uniform buffer and request a new one from the pool.
   };
