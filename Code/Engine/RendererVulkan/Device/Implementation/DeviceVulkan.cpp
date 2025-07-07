@@ -1602,6 +1602,13 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
     ezStats::SetStat("Vulkan/AllocationCount", stats.m_uiAllocationCount);
     ezStats::SetStat("Vulkan/BlockBytes", stats.m_uiBlockBytes);
     ezStats::SetStat("Vulkan/AllocationBytes", stats.m_uiAllocationBytes);
+
+    ezGALCommandEncoderImplVulkan::Statistics encoderStats = m_pCommandEncoderImpl->GetAndResetStatistics();
+    ezStats::SetStat("Vulkan/DescriptorSetsCreated", encoderStats.m_uiDescriptorSetsCreated);
+    ezStats::SetStat("Vulkan/DescriptorSetsUpdated", encoderStats.m_uiDescriptorSetsUpdated);
+    ezStats::SetStat("Vulkan/DescriptorSetsReused", encoderStats.m_uiDescriptorSetsReused);
+    ezStats::SetStat("Vulkan/DescriptorWrites", encoderStats.m_uiDescriptorWrites);
+    ezStats::SetStat("Vulkan/DynamicUniformBufferChanged", encoderStats.m_uiDynamicUniformBufferChanged);
   }
 }
 

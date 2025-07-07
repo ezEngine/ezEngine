@@ -118,10 +118,38 @@ public:
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
   virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) override;
 
+  struct Statistics
+  {
+    ezUInt32 m_uiDescriptorSetsCreated = 0;
+    ezUInt32 m_uiDescriptorSetsUpdated = 0;
+    ezUInt32 m_uiDescriptorSetsReused = 0;
+    ezUInt32 m_uiDescriptorWrites = 0;
+    ezUInt32 m_uiDynamicUniformBufferChanged = 0;
+  };
+  Statistics GetAndResetStatistics();
 
 private:
+  /// \brief To be able to cache descriptor sets, we not only need the bind group description but also the currently used dynamic uniform buffers used by transient constant buffers.
+  /// All constant buffers in EZ are marked as dynamic in the layout so we need to provide offsets for each slot, no mater if a normal or transient constant buffer is bound to a slot.
+  struct DynamicOffsets
+  {
+    ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers; ///< Constant buffers in order of appearance in the bind group. Normal constant buffers write a nullptr here as they have fixed offsets and will never have to be updated. Only updated once via FindDynamicUniformBuffers.
+    ezHybridArray<vk::Buffer , 6> m_DynamicUniformVkBuffers; ///< Current vk::Buffer for each dynamic uniform buffer in m_DynamicUniformBuffers. Updated via UpdateDynamicUniformBufferOffsets. If any of these change, a new descriptor has to be created.
+    ezHybridArray<ezUInt32 , 6> m_DynamicUniformBufferOffsets; ///< Offsets in this bind group. Normal constant buffers have fixed offsets determined in FindDynamicUniformBuffers which never change. Transient constant buffer offsets are updated with each UpdateDynamicUniformBufferOffsets call.
+  };
+
   ezResult FlushDeferredStateChanges();
-  ezResult CreateDescriptorSet(ezUInt32 uiBindGroup);
+  void FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, DynamicOffsets& out_offsets);
+  static ezUInt64 HashBindGroup(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
+  vk::DescriptorSet CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
+
+  enum class DynamicUniformBufferChanges
+  {
+    None, ///< Neither offsets nor buffers have changed.
+    OffsetsChanged, ///< Offsets have changed, call bindDescriptorSets with new offsets.
+    BuffersChanged, ///< Buffers have changed, create new descriptor set for new buffers. This should only happen if we exhaust the current dynamic uniform buffer and request a new one from the pool.
+  };
+  DynamicUniformBufferChanges UpdateDynamicUniformBufferOffsets(DynamicOffsets& ref_offsets);
 
 private:
   ezGALDeviceVulkan& m_GALDeviceVulkan;
@@ -136,7 +164,8 @@ private:
   bool m_bPipelineStateDirty = true;
   bool m_bViewportDirty = true;
   bool m_bIndexBufferDirty = false;
-  bool m_bDescriptorsDirty = false;
+  bool m_BindGroupDirty[EZ_GAL_MAX_BIND_GROUPS] = {};
+  bool m_bDynamicOffsetsDirty = false;
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
   bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
   bool m_bClearSubmitted = false;   ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
@@ -165,21 +194,21 @@ private:
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   vk::DeviceSize m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
 
-  struct BindGroupInfo
-  {
-    ezGALBindGroupCreationDescription m_Desc;
+  // Bind Groups
+  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+  DynamicOffsets m_DynamicOffsets[EZ_GAL_MAX_BIND_GROUPS];
 
-    ezHybridArray<const ezGALBufferVulkan*, 6> m_DynamicUniformBuffers;
-    ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
-  };
-  BindGroupInfo m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
-
+  // Descriptor Writes
   ezDynamicArray<vk::WriteDescriptorSet> m_DescriptorWrites;
   ezDeque<vk::DescriptorImageInfo> m_DescriptorImageInfos;
   ezDeque<vk::DescriptorBufferInfo> m_DescriptorBufferInfos;
   ezDeque<vk::BufferView> m_DescriptorBufferViews;
-  ezHybridArray<vk::DescriptorSet, EZ_GAL_MAX_BIND_GROUPS> m_DescriptorSets;
+
+  // Actual bound descriptor sets
+  ezHashTable<ezUInt64, vk::DescriptorSet> m_DescriptorCache;
+  vk::DescriptorSet m_DescriptorSets[EZ_GAL_MAX_BIND_GROUPS];
 
   ezDynamicArray<ezUInt8> m_PushConstants;
-  ezHybridArray<ezUInt32, 6> m_DynamicUniformBufferOffsets;
+
+  Statistics m_Statistics;
 };

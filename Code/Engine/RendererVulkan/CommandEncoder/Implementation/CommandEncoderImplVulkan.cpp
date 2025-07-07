@@ -69,7 +69,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
   m_bIndexBufferDirty = true;
-  m_bDescriptorsDirty = true;
+  m_bDynamicOffsetsDirty = true;
   m_BoundVertexBuffersRange.Reset();
 
   m_pShader = nullptr;
@@ -95,11 +95,16 @@ void ezGALCommandEncoderImplVulkan::Reset()
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
   {
-    m_BindGroups[i].m_Desc.m_hBindGroupLayout = {};
-    m_BindGroups[i].m_Desc.m_BindGroupItems.Clear();
-    m_BindGroups[i].m_DynamicUniformBufferOffsets.Clear();
-    m_BindGroups[i].m_DynamicUniformBuffers.Clear();
+    m_DescriptorSets[i] = nullptr;
+    m_BindGroupDirty[i] = true;
+    m_BindGroups[i].m_hBindGroupLayout = {};
+    m_BindGroups[i].m_BindGroupItems.Clear();
+    m_DynamicOffsets[i].m_DynamicUniformBuffers.Clear();
+    m_DynamicOffsets[i].m_DynamicUniformVkBuffers.Clear();
+    m_DynamicOffsets[i].m_DynamicUniformBufferOffsets.Clear();
   }
+  m_DescriptorCache.Clear();
+  m_PushConstants.Clear();
 
   m_renderPass = vk::RenderPassBeginInfo();
   m_clearValues.Clear();
@@ -126,7 +131,12 @@ void ezGALCommandEncoderImplVulkan::AfterCommandBufferSubmit(vk::Fence submitFen
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
   m_bIndexBufferDirty = true;
-  m_bDescriptorsDirty = true;
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
+  {
+    m_DescriptorSets[i] = nullptr;
+    m_BindGroupDirty[i] = true;
+  }
+  m_bDynamicOffsetsDirty = true;
   m_BoundVertexBuffersRange.Reset();
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
   {
@@ -148,7 +158,8 @@ void ezGALCommandEncoderImplVulkan::SetCurrentCommandBuffer(vk::CommandBuffer* c
 
 void ezGALCommandEncoderImplVulkan::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup)
 {
-  m_BindGroups[uiBindGroup].m_Desc = bindGroup;
+  m_BindGroups[uiBindGroup] = bindGroup;
+  m_BindGroupDirty[uiBindGroup] = true;
 }
 
 void ezGALCommandEncoderImplVulkan::SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data)
@@ -236,6 +247,7 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
       EZ_ASSERT_DEBUG(uiDestOffset == 0, "Offset not supported");
       EZ_ASSERT_DEBUG(pVulkanDestination->GetDescription().m_uiTotalSize == pSourceData.GetCount(), "Transient buffers must be updated in their entirety");
       m_pUniformBufferPool->UpdateBuffer(pVulkanDestination, pSourceData);
+      m_bDynamicOffsetsDirty = true;
       break;
     case ezGALUpdateMode::AheadOfTime:
       m_GALDeviceVulkan.GetInitContext().UpdateBuffer(pVulkanDestination, uiDestOffset, pSourceData);
@@ -666,7 +678,11 @@ void ezGALCommandEncoderImplVulkan::GenerateMipMapsPlatform(const ezGALTexture* 
 
       m_bPipelineStateDirty = true;
       m_bViewportDirty = true;
-      m_bDescriptorsDirty = true;
+      for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
+      {
+        m_BindGroupDirty[i] = true;
+      }
+      m_bDynamicOffsetsDirty = true;
     }
   }
 }
@@ -716,6 +732,7 @@ void ezGALCommandEncoderImplVulkan::InsertEventMarkerPlatform(const char* szMark
 
 void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup)
 {
+  m_bDynamicOffsetsDirty = true;
   // #TODO_VULKAN we should always have a command buffer, so this call should not be necessary.
   m_GALDeviceVulkan.GetCurrentCommandBuffer();
   // We have to ensure we have enough queries before entering the render pass as we can't replenish pools while within.
@@ -982,6 +999,7 @@ void ezGALCommandEncoderImplVulkan::BeginComputePlatform()
   m_bClearSubmitted = true;
   m_bInsideCompute = true;
   m_bPipelineStateDirty = true;
+  m_bDynamicOffsetsDirty = true;
 }
 
 void ezGALCommandEncoderImplVulkan::EndComputePlatform()
@@ -1034,8 +1052,6 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
     m_pCommandBuffer->bindPipeline(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, pipeline);
     m_bPipelineStateDirty = false;
-    // Changes to the descriptor layout always require the descriptor set to be re-created.
-    m_bDescriptorsDirty = true;
   }
 
   if (!m_bInsideCompute && m_bViewportDirty)
@@ -1084,32 +1100,80 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     m_bIndexBufferDirty = false;
   }
 
-  if (true /*m_bDescriptorsDirty*/)
+  // Bind Groups
   {
-    // #TODO_VULKAN we always create a new descriptor set
-    m_bDescriptorsDirty = false;
-
-
+    // Only bind groups that have changes or higher indices than those that have changed need to be updated. Thus, we track the first bind group index with actual changes here.
+    ezUInt32 uiFirstChangedBindGroup = EZ_GAL_MAX_BIND_GROUPS;
     const ezUInt32 uiBindGroups = m_pShader->GetBindGroupCount();
-    m_DescriptorSets.SetCount(uiBindGroups);
-    m_DynamicUniformBufferOffsets.Clear();
-
+    bool bAnyBindGroupDirty = false;
     for (ezUInt32 uiBindGroup = 0; uiBindGroup < uiBindGroups; ++uiBindGroup)
     {
-      if (m_pShader->GetBindGroupLayout(uiBindGroup) != m_BindGroups[uiBindGroup].m_Desc.m_hBindGroupLayout)
+      if (m_pShader->GetBindGroupLayout(uiBindGroup) != m_BindGroups[uiBindGroup].m_hBindGroupLayout)
       {
         ezLog::Error("Bind group layout missmatch");
         return EZ_FAILURE;
       }
-      m_DescriptorSets[uiBindGroup] = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_pShader->GetDescriptorSetLayout(uiBindGroup));
 
-      EZ_SUCCEED_OR_RETURN(CreateDescriptorSet(uiBindGroup));
+      if (m_BindGroupDirty[uiBindGroup])
+      {
+        uiFirstChangedBindGroup = ezMath::Min(uiFirstChangedBindGroup, uiBindGroup);
+        m_BindGroupDirty[uiBindGroup] = false;
+        bAnyBindGroupDirty = true;
+        // Need to call FindDynamicUniformBuffers first to generate the m_DynamicUniformVkBuffers list which is needed for the hash lookup inside CreateDescriptorSet.
+        FindDynamicUniformBuffers(m_BindGroups[uiBindGroup], m_DynamicOffsets[uiBindGroup]);
+        m_DescriptorSets[uiBindGroup] = CreateDescriptorSet(m_BindGroups[uiBindGroup], m_DynamicOffsets[uiBindGroup]);
+        continue;
+      }
 
-      m_DynamicUniformBufferOffsets.PushBackRange(m_BindGroups[uiBindGroup].m_DynamicUniformBufferOffsets);
+      if (m_bDynamicOffsetsDirty)
+      {
+        // If a dynamic uniform buffer is updated, it can cause it's location to bump forward in the same buffer (OffsetsChanged) or if the old buffer is full, it can be moved to a new buffer (BuffersChanged), in which case a new descriptor set must be created.
+        const DynamicUniformBufferChanges changes = UpdateDynamicUniformBufferOffsets(m_DynamicOffsets[uiBindGroup]);
+        switch (changes)
+        {
+          case DynamicUniformBufferChanges::None:
+            break;
+          case DynamicUniformBufferChanges::BuffersChanged:
+            m_Statistics.m_uiDynamicUniformBufferChanged++;
+            m_DescriptorSets[uiBindGroup] = CreateDescriptorSet(m_BindGroups[uiBindGroup], m_DynamicOffsets[uiBindGroup]);
+            [[fallthrough]];
+          case DynamicUniformBufferChanges::OffsetsChanged:
+            uiFirstChangedBindGroup = ezMath::Min(uiFirstChangedBindGroup, uiBindGroup);
+            break;
+        }
+      }
     }
-    m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_pShader->GetVkPipelineLayout(), 0, m_DescriptorSets.GetCount(), m_DescriptorSets.GetData(), m_DynamicUniformBufferOffsets.GetCount(), m_DynamicUniformBufferOffsets.GetData());
+
+    if (m_bDynamicOffsetsDirty || bAnyBindGroupDirty)
+    {
+      ezHybridArray<ezUInt32, 8> dynamicUniformBufferOffsets;
+      for (ezUInt32 uiBindGroup = uiFirstChangedBindGroup; uiBindGroup < uiBindGroups; ++uiBindGroup)
+      {
+        dynamicUniformBufferOffsets.PushBackRange(m_DynamicOffsets[uiBindGroup].m_DynamicUniformBufferOffsets);
+      }
+
+      // Pending descriptor writes. Must be executed before bind call unless VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT is used (Vulkan 1.2). https://registry.khronos.org/vulkan/specs/latest/man/html/VkDescriptorSetLayoutBindingFlagsCreateInfo.html
+      if (!m_DescriptorWrites.IsEmpty())
+      {
+        m_Statistics.m_uiDescriptorSetsUpdated++;
+        m_Statistics.m_uiDescriptorWrites += m_DescriptorWrites.GetCount();
+        m_vkDevice.updateDescriptorSets(m_DescriptorWrites.GetCount(), m_DescriptorWrites.GetData(), 0, nullptr);
+
+        m_DescriptorWrites.Clear();
+        m_DescriptorImageInfos.Clear();
+        m_DescriptorBufferInfos.Clear();
+        m_DescriptorBufferViews.Clear();
+      }
+
+      if (uiFirstChangedBindGroup != EZ_GAL_MAX_BIND_GROUPS)
+      {
+        m_pCommandBuffer->bindDescriptorSets(m_bInsideCompute ? vk::PipelineBindPoint::eCompute : vk::PipelineBindPoint::eGraphics, m_pShader->GetVkPipelineLayout(), uiFirstChangedBindGroup, uiBindGroups - uiFirstChangedBindGroup, m_DescriptorSets + uiFirstChangedBindGroup, dynamicUniformBufferOffsets.GetCount(), dynamicUniformBufferOffsets.GetData());
+      }
+      m_bDynamicOffsetsDirty = false;
+    }
   }
 
+  // Push Constants
   if (m_bPushConstantsDirty && m_pShader->GetPushConstantRange().size > 0)
   {
     EZ_ASSERT_DEBUG(m_pShader->GetPushConstantRange().size == m_PushConstants.GetCount(), "");
@@ -1136,32 +1200,35 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   return EZ_SUCCESS;
 }
 
-ezResult ezGALCommandEncoderImplVulkan::CreateDescriptorSet(ezUInt32 uiBindGroup)
+vk::DescriptorSet ezGALCommandEncoderImplVulkan::CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets)
 {
-  m_DescriptorWrites.Clear();
-  m_DescriptorImageInfos.Clear();
-  m_DescriptorBufferInfos.Clear();
-  m_DescriptorBufferViews.Clear();
-  m_BindGroups[uiBindGroup].m_DynamicUniformBuffers.Clear();
-  m_BindGroups[uiBindGroup].m_DynamicUniformBufferOffsets.Clear();
+  // Hash current description
+  ezUInt64 uiHash = HashBindGroup(desc, offsets);
 
-  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_GALDeviceVulkan.GetBindGroupLayout(m_BindGroups[uiBindGroup].m_Desc.m_hBindGroupLayout));
-  if (pLayout == nullptr)
-    return EZ_FAILURE;
+  // Look up Hash
+  vk::DescriptorSet descriptorSet;
+  if (m_DescriptorCache.TryGetValue(uiHash, descriptorSet))
+  {
+    m_Statistics.m_uiDescriptorSetsReused++;
+    return descriptorSet;
+  }
 
-  m_DescriptorSets[uiBindGroup] = ezDescriptorSetPoolVulkan::CreateDescriptorSet(pLayout->GetDescriptorSetLayout());
+  // Create new descriptor set
+  m_Statistics.m_uiDescriptorSetsCreated++;
+  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_GALDeviceVulkan.GetBindGroupLayout(desc.m_hBindGroupLayout));
+  descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(pLayout->GetDescriptorSetLayout());
   ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
   const ezUInt32 uiBindings = bindings.GetCount();
   for (ezUInt32 i = 0; i < uiBindings; ++i)
   {
     const ezShaderResourceBinding& binding = bindings[i];
-    const ezGALBindGroupItem& item = m_BindGroups[uiBindGroup].m_Desc.m_BindGroupItems[i];
+    const ezGALBindGroupItem& item = desc.m_BindGroupItems[i];
 
     vk::WriteDescriptorSet& write = m_DescriptorWrites.ExpandAndGetRef();
     write.dstArrayElement = 0;
     write.descriptorType = ezConversionUtilsVulkan::GetDescriptorType(binding.m_ResourceType);
     write.dstBinding = binding.m_iSlot;
-    write.dstSet = m_DescriptorSets[uiBindGroup];
+    write.dstSet = descriptorSet;
     write.descriptorCount = binding.m_uiArraySize;
     switch (binding.m_ResourceType)
     {
@@ -1173,16 +1240,16 @@ ezResult ezGALCommandEncoderImplVulkan::CreateDescriptorSet(ezUInt32 uiBindGroup
         if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
         {
           bufferInfo = *m_pUniformBufferPool->GetBuffer(pBuffer);
+          // Offsets are moved into separate offset array so leave at 0.
+          bufferInfo.offset = 0;
         }
         else
         {
           bufferInfo = pBuffer->GetBufferInfo();
+          bufferInfo.range = item.m_Buffer.m_BufferRange.m_uiByteCount;
+          // Offsets are moved into separate offset array so leave at 0. Dynamic uniform buffers need to be tagged in the layout, so we can't decide whether we use them or not depending on what buffer we have bound. Thus, everything is a dynamic uniform buffer and the offset must be provided via the bindDescriptorSets call for normal constant buffers too.
+          bufferInfo.offset = 0;
         }
-
-        // Move offset out and into the separate offset array.
-        m_BindGroups[uiBindGroup].m_DynamicUniformBuffers.PushBack(pBuffer);
-        m_BindGroups[uiBindGroup].m_DynamicUniformBufferOffsets.PushBack((ezUInt32)bufferInfo.offset);
-        bufferInfo.offset = 0;
       }
       break;
       case ezGALShaderResourceType::Texture:
@@ -1238,6 +1305,107 @@ ezResult ezGALCommandEncoderImplVulkan::CreateDescriptorSet(ezUInt32 uiBindGroup
     }
   }
 
-  ezDescriptorSetPoolVulkan::UpdateDescriptorSet(m_DescriptorSets[uiBindGroup], m_DescriptorWrites);
-  return EZ_SUCCESS;
+
+  m_DescriptorCache.Insert(uiHash, descriptorSet);
+  return descriptorSet;
+}
+
+void ezGALCommandEncoderImplVulkan::FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, ezGALCommandEncoderImplVulkan::DynamicOffsets& out_offsets)
+{
+  out_offsets.m_DynamicUniformBuffers.Clear();
+  out_offsets.m_DynamicUniformVkBuffers.Clear();
+  out_offsets.m_DynamicUniformBufferOffsets.Clear();
+
+  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_GALDeviceVulkan.GetBindGroupLayout(desc.m_hBindGroupLayout));
+  ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+  const ezUInt32 uiBindings = bindings.GetCount();
+  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  {
+    const ezShaderResourceBinding& binding = bindings[i];
+    const ezGALBindGroupItem& item = desc.m_BindGroupItems[i];
+
+    switch (binding.m_ResourceType)
+    {
+      case ezGALShaderResourceType::ConstantBuffer:
+      {
+        const ezGALBufferVulkan* pBuffer = static_cast<const ezGALBufferVulkan*>(m_GALDeviceVulkan.GetBuffer(item.m_Buffer.m_hBuffer));
+        if (pBuffer->GetDescription().m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient))
+        {
+          out_offsets.m_DynamicUniformBuffers.PushBack(pBuffer);
+          const vk::DescriptorBufferInfo* pBufferInfo = m_pUniformBufferPool->GetBuffer(pBuffer);
+          out_offsets.m_DynamicUniformVkBuffers.PushBack(pBufferInfo->buffer);
+          out_offsets.m_DynamicUniformBufferOffsets.PushBack(pBufferInfo->offset);
+        }
+        else
+        {
+          // Non-transient buffers are handled like dynamic uniform buffers but the offset is fixed so no need to track the pointers.
+          out_offsets.m_DynamicUniformBuffers.PushBack(nullptr);
+          out_offsets.m_DynamicUniformVkBuffers.PushBack(nullptr);
+          out_offsets.m_DynamicUniformBufferOffsets.PushBack(item.m_Buffer.m_BufferRange.m_uiByteOffset);
+        }
+      }
+      break;
+      default:
+        break;
+    }
+  }
+  UpdateDynamicUniformBufferOffsets(out_offsets);
+}
+
+ezUInt64 ezGALCommandEncoderImplVulkan::HashBindGroup(const ezGALBindGroupCreationDescription& desc, const ezGALCommandEncoderImplVulkan::DynamicOffsets& offsets)
+{
+  // We only need to hash the bind group layout, the items and the current set of dynamic uniform buffers.
+  ezHashStreamWriter64 writer;
+  writer << desc.m_hBindGroupLayout.GetInternalID().m_Data;
+  if (!desc.m_BindGroupItems.IsEmpty())
+  {
+    auto data = desc.m_BindGroupItems.GetByteArrayPtr();
+    writer.WriteBytes(data.GetPtr(), data.GetCount()).IgnoreResult();
+  }
+  if (!offsets.m_DynamicUniformVkBuffers.IsEmpty())
+  {
+    auto data = offsets.m_DynamicUniformVkBuffers.GetByteArrayPtr();
+    writer.WriteBytes(data.GetPtr(), data.GetCount()).IgnoreResult();
+  }
+  return writer.GetHashValue();
+}
+
+ezGALCommandEncoderImplVulkan::DynamicUniformBufferChanges ezGALCommandEncoderImplVulkan::UpdateDynamicUniformBufferOffsets(ezGALCommandEncoderImplVulkan::DynamicOffsets& ref_offsets)
+{
+  bool bBuffersChanged = false;
+  bool bOffsetsChanged = false;
+  ezUInt32 uiCount = ref_offsets.m_DynamicUniformBuffers.GetCount();
+  for (int i = 0; i < uiCount; ++i)
+  {
+    const ezGALBufferVulkan* pBuffer = ref_offsets.m_DynamicUniformBuffers[i];
+    if (pBuffer == nullptr)
+    {
+      // Non-transient buffers are not tracked here and will always have an offset of zero.
+      ref_offsets.m_DynamicUniformBufferOffsets.PushBack(0);
+      continue;
+    }
+    const vk::DescriptorBufferInfo* pBufferInfo = m_pUniformBufferPool->GetBuffer(pBuffer);
+    if (ref_offsets.m_DynamicUniformVkBuffers[i] != pBufferInfo->buffer)
+    {
+      ref_offsets.m_DynamicUniformVkBuffers[i] = pBufferInfo->buffer;
+      bBuffersChanged = true;
+    }
+    if (ref_offsets.m_DynamicUniformBufferOffsets[i] != pBufferInfo->offset)
+    {
+      ref_offsets.m_DynamicUniformBufferOffsets[i] = pBufferInfo->offset;
+      bOffsetsChanged = true;
+    }
+  }
+
+  if (bBuffersChanged)
+    return DynamicUniformBufferChanges::BuffersChanged;
+
+  return bOffsetsChanged ? DynamicUniformBufferChanges::OffsetsChanged : DynamicUniformBufferChanges::None;
+}
+
+ezGALCommandEncoderImplVulkan::Statistics ezGALCommandEncoderImplVulkan::GetAndResetStatistics()
+{
+  Statistics stats = m_Statistics;
+  m_Statistics = {};
+  return stats;
 }
