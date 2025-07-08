@@ -768,6 +768,18 @@ void ezGameObjectDocument::SetSimulationSpeed(float f)
   ShowDocumentStatus(ezFmt("Simulation Speed: {0}%%", (ezInt32)(m_fSimulationSpeed * 100.0f)));
 }
 
+void ezGameObjectDocument::SetPauseSimulation(bool b)
+{
+  if (m_bPauseSimulation == b)
+    return;
+
+  m_bPauseSimulation = b;
+
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::SimulationSpeedChanged;
+  m_GameObjectEvents.Broadcast(e);
+}
+
 void ezGameObjectDocument::SetRenderSelectionOverlay(bool b)
 {
   if (m_CurrentMode.m_bRenderSelectionOverlay == b)

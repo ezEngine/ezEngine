@@ -127,6 +127,9 @@ public:
   /// Stops the world simulation, if it is running. Returns true, when the simulation needed to be stopped.
   bool StopGameMode();
 
+  void StepSimulation();
+  void PauseSimulation();
+
   ezTransformStatus ExportScene(bool bCreateThumbnail);
   void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
 

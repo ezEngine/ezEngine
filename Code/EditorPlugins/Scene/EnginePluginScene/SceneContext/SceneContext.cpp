@@ -382,6 +382,7 @@ void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgTo
   const bool bSimulate = pMsg->m_bSimulateWorld;
   ezGameStateBase* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
+  m_pWorld->GetClock().SetPaused(pMsg->m_fSimulationSpeed == 0.0f);
 
   if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
   {

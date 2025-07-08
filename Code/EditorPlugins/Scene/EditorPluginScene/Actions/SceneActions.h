@@ -25,6 +25,7 @@ public:
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModePlayFromHere;
   static ezActionDescriptorHandle s_hGameModeStop;
+  static ezActionDescriptorHandle s_hGameModePause;
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
   static ezActionDescriptorHandle s_hKeepSimulationChanges;
   static ezActionDescriptorHandle s_hCreateThumbnail;
@@ -48,6 +49,7 @@ public:
     StartGameModePlay,
     StartGameModePlayFromHere,
     StopGameMode,
+    PauseSimulation,
     ExportSceneToOBJ,
     KeepSimulationChanges,
     CreateThumbnail,

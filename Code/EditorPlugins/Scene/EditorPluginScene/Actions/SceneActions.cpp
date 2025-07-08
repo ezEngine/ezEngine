@@ -26,6 +26,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlayFromHere;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
+ezActionDescriptorHandle ezSceneActions::s_hGameModePause;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
 ezActionDescriptorHandle ezSceneActions::s_hCreateThumbnail;
@@ -48,6 +49,8 @@ void ezSceneActions::RegisterActions()
     ezSceneAction::ActionType::StartGameModePlayFromHere);
 
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
+
+  s_hGameModePause = EZ_REGISTER_ACTION_1("Scene.GameMode.Pause", ezActionScope::Document, "Scene", "Pause", ezSceneAction, ezSceneAction::ActionType::PauseSimulation);
 
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
 
@@ -113,6 +116,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModePlayFromHere);
   ezActionManager::UnregisterAction(s_hGameModeStop);
+  ezActionManager::UnregisterAction(s_hGameModePause);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
   ezActionManager::UnregisterAction(s_hCreateThumbnail);
@@ -158,6 +162,7 @@ void ezSceneActions::MapMenuActions(ezStringView sMapping)
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
     pMap->MapAction(s_hGameModePlayFromHere, szSubPath, 7.0f);
+    pMap->MapAction(s_hGameModePause, szSubPath, 8.0f);
   }
 }
 
@@ -173,6 +178,7 @@ void ezSceneActions::MapToolbarActions(ezStringView sMapping)
     /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
     pMap->MapAction(s_hSceneCategory, "", 11.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 1.0f);
+    pMap->MapAction(s_hGameModePause, szSubPath, 1.5f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 4.0f);
@@ -202,9 +208,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       break;
 
     case ActionType::StartGameModeSimulate:
-      SetCheckable(true);
       SetIconPath(":/EditorPluginScene/Icons/ScenePlay.svg");
-      SetChecked(m_pSceneDocument->GetGameMode() == GameMode::Simulate);
       SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Play);
       break;
 
@@ -218,6 +222,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
     case ActionType::StopGameMode:
       SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg");
+      break;
+
+    case ActionType::PauseSimulation:
+      SetIconPath(":/EditorPluginScene/Icons/ScenePause.svg");
       break;
 
     case ActionType::ExportSceneToOBJ:
@@ -365,11 +373,25 @@ void ezSceneAction::Execute(const ezVariant& value)
       return;
 
     case ActionType::StartGameModeSimulate:
-      m_pSceneDocument->StartSimulateWorld();
+      if (m_pSceneDocument->GetPauseSimulation())
+      {
+        m_pSceneDocument->SetPauseSimulation(false);
+      }
+      else
+      {
+        m_pSceneDocument->StartSimulateWorld();
+      }
       return;
 
     case ActionType::StopGameMode:
       m_pSceneDocument->StopGameMode();
+      return;
+
+    case ActionType::PauseSimulation:
+      if (m_pSceneDocument->GetPauseSimulation())
+        m_pSceneDocument->StepSimulation();
+      else
+        m_pSceneDocument->PauseSimulation();
       return;
 
     case ActionType::ExportSceneToOBJ:
@@ -467,7 +489,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
 
       if (auto pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
-          pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+        pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
       {
         m_pSceneDocument->ShowDocumentStatus("Note: Level cameras cannot be created in orthographic views.");
         return;
@@ -557,6 +579,7 @@ void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
   switch (e.m_Type)
   {
     case ezGameObjectEvent::Type::GameModeChanged:
+    case ezGameObjectEvent::Type::SimulationSpeedChanged:
       UpdateState();
       break;
 
@@ -567,7 +590,17 @@ void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
 
 void ezSceneAction::UpdateState()
 {
-  if (m_Type == ActionType::StartGameModeSimulate || m_Type == ActionType::StartGameModePlay || m_Type == ActionType::ExportAndRunScene)
+  if (m_Type == ActionType::StartGameModeSimulate)
+  {
+    if (m_pSceneDocument->GetGameMode() == GameMode::Off)
+      SetEnabled(true);
+    else if (m_pSceneDocument->GetPauseSimulation() && (m_pSceneDocument->GetGameMode() == GameMode::Simulate || m_pSceneDocument->GetGameMode() == GameMode::Play))
+      SetEnabled(true);
+    else
+      SetEnabled(false);
+  }
+
+  if (m_Type == ActionType::ExportAndRunScene || m_Type == ActionType::StartGameModePlay)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() == GameMode::Off);
   }
@@ -575,6 +608,22 @@ void ezSceneAction::UpdateState()
   if (m_Type == ActionType::StopGameMode)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
+  }
+
+  if (m_Type == ActionType::PauseSimulation)
+  {
+    SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
+
+    if (m_pSceneDocument->GetPauseSimulation())
+    {
+      SetIconPath(":/EditorPluginScene/Icons/SceneStep.svg");
+    }
+    else
+    {
+      SetIconPath(":/EditorPluginScene/Icons/ScenePause.svg");
+    }
+
+    TriggerUpdate();
   }
 
   if (m_Type == ActionType::KeepSimulationChanges)

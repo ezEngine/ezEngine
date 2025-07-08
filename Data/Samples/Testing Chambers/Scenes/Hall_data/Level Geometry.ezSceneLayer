@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15189912638122679973,5056406926986055588}}
-		u4 %Hash{15331904616301469977}
+		u4 %Hash{8022920457518626576}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -26,9 +26,9 @@ o
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 522c7e02-3e76-4d5d-ba3e-1936544bbdff }"}
 			s{"{ 526ebdd3-265d-4bbb-93a3-6389cec9d729 }"}
-			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 			s{"{ dba927c8-40a8-462e-92f8-d2100b060b17 }"}
 			s{"{ e0cf917f-e7ae-4739-afa5-d74c0fb54e38 }"}
 		}
@@ -42,9 +42,9 @@ o
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
 			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
 			s{"{ 522c7e02-3e76-4d5d-ba3e-1936544bbdff }"}
-			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 			s{"{ e0cf917f-e7ae-4739-afa5-d74c0fb54e38 }"}
 		}
 		s %Tags{""}
@@ -1037,6 +1037,35 @@ o
 		f %Thickness{0x0AD7A33C}
 		Vec2 %UVScale{f{0x0000803F,0x0000803F}}
 		f %Width{0x0000B040}
+	}
+}
+o
+{
+	Uuid %id{u4{5003741172033480353,1388303214683579688}}
+	s %t{"ezSpotLightComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
+		s %Cookie{""}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
+		Angle %InnerSpotAngle{f{0xF366DF3F}}
+		f %Intensity{0x00007A44}
+		ColorGamma %LightColor{u1{78,255,252,255}}
+		s %Material{"{ 0b975f05-9508-4ea4-9c1e-750f1f3386ba }"}
+		u3 %MaterialResolution{512}
+		Time %MaterialUpdateInterval{d{0}}
+		Angle %OuterSpotAngle{f{0xC2B83240}}
+		f %PenumbraSize{0x9A99993E}
+		f %Range{0x00007041}
+		f %ShadowFadeOutRange{0}
+		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %TransparentShadows{0}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -2111,6 +2140,32 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000020C1,0x00005841,0}}
 		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6312008579164308397,1892047447433098785}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5003741172033480353,1388303214683579688}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x9A9901C1,0x00001841,0x67662640}}
+		Quat %LocalRotation{f{0x0CC87F3E,0xE9EBAE3E,0x00E508BF,0x893C3B3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -3511,7 +3566,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -10034,6 +10089,7 @@ o
 			Uuid{u4{1448734719282759689,15246739518875187335}}
 			Uuid{u4{13827637536853494172,5295900170704454027}}
 			Uuid{u4{5295447941193700920,10869997035484696791}}
+			Uuid{u4{6312008579164308397,1892047447433098785}}
 		}
 		Uuid %Settings{u4{3545585462772090823,5964016910079890489}}
 	}
@@ -11085,7 +11141,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -11152,7 +11208,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -11307,7 +11363,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -11513,7 +11569,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -12009,7 +12065,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -12944,7 +13000,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -13753,7 +13809,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -13794,7 +13850,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -21591,7 +21647,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -26604,7 +26660,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o
@@ -31044,7 +31100,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
+		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 	}
 }
 o

@@ -169,7 +169,6 @@ struct DecalInfo
     m_fMaxScreenSpaceSize = 0.0f;
 
     m_NextUpdateTime = ezTime::Now() + ezTime::MakeFromSeconds(m_fUpdateInterval);
-    m_WorldTime = ezTime::MakeZero();
   }
 
   EZ_ALWAYS_INLINE static ezUInt64 GetKey(const ezTexture2DResourceHandle& hTexture)

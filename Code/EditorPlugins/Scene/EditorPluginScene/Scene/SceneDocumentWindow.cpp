@@ -271,7 +271,14 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
     ezSimulationSettingsMsgToEngine msg;
     auto pSceneDoc = GetSceneDocument();
     msg.m_bSimulateWorld = pSceneDoc->GetGameMode() != GameMode::Off;
-    msg.m_fSimulationSpeed = pSceneDoc->GetSimulationSpeed();
+    msg.m_fSimulationSpeed = pSceneDoc->GetPauseSimulation() ? 0.0f : pSceneDoc->GetSimulationSpeed();
+
+    if (msg.m_bSimulateWorld && pSceneDoc->GetStepSimulation())
+    {
+      msg.m_fSimulationSpeed = 1.0f;
+      pSceneDoc->SetStepSimulation(false);
+    }
+
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {

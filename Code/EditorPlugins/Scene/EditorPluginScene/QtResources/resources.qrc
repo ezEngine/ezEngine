@@ -2,6 +2,8 @@
   <qresource prefix="EditorPluginScene">
     <file>Icons/SceneExport.svg</file>
     <file>Icons/ScenePlay.svg</file>
+    <file>Icons/ScenePause.svg</file>
+    <file>Icons/SceneStep.svg</file>
     <file>Icons/SceneRun.svg</file>
     <file>Icons/SceneStop.svg</file>
     <file>Icons/ScenePlayTheGame.svg</file>

@@ -177,6 +177,9 @@ public:
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
 
+  bool GetPauseSimulation() const { return m_bPauseSimulation; }
+  void SetPauseSimulation(bool b);
+
   bool GetRenderSelectionOverlay() const { return m_CurrentMode.m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay(bool b);
 
@@ -188,6 +191,9 @@ public:
 
   bool GetPickTransparent() const { return m_bPickTransparent; }
   void SetPickTransparent(bool b);
+
+  void SetStepSimulation(bool b) { m_bStepSimulation = b; }
+  bool GetStepSimulation() const { return m_bStepSimulation; }
 
   /// \brief Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
   void SetActiveParent(ezUuid object);
@@ -280,6 +286,8 @@ private:
   bool m_bGizmoMoveParentOnly = false;
   bool m_bPickTransparent = true;
 
+  bool m_bPauseSimulation = false;
+  bool m_bStepSimulation = false;
   float m_fSimulationSpeed = 1.0f;
 
   using TransformTable = ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper>;

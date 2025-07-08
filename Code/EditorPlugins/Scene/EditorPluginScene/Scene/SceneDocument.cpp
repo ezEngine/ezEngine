@@ -615,6 +615,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   m_GameModeData[m_GameMode] = m_CurrentMode;
 
   m_GameMode = mode;
+  SetPauseSimulation(false);
 
   switch (m_GameMode)
   {
@@ -824,6 +825,16 @@ bool ezSceneDocument::StopGameMode()
   }
 
   return true;
+}
+
+void ezSceneDocument::StepSimulation()
+{
+  SetStepSimulation(true);
+}
+
+void ezSceneDocument::PauseSimulation()
+{
+  SetPauseSimulation(true);
 }
 
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
