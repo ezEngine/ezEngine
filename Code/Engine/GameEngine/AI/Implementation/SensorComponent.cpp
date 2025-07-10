@@ -624,7 +624,6 @@ void ezSensorWorldModule::Initialize()
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
     desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
-    desc.m_uiAsyncPhaseBatchSize = 16;
 
     RegisterUpdateFunction(desc);
   }

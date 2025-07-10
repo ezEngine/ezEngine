@@ -70,8 +70,8 @@ protected:
                                                   ///< called after all its dependencies have been called.
     ezEnum<ezWorldUpdatePhase> m_Phase;           ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
     bool m_bOnlyUpdateWhenSimulating = false;     ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiAsyncPhaseBatchSize = 0;         ///< 0 means all components are updated one after another, but still in parallel with other component managers.
-                                                  ///< >0 means m_Function will be called multiple times with batches of roughly this size.
+    ezUInt16 m_uiAsyncPhaseBatchSize = 0;         ///< 0 means m_Function is called once per frame, to update all components, but still in parallel with other world modules.
+                                                  ///< >0 means m_Function is called multiple times (in parallel) with batches of roughly this size.
     float m_fPriority = 0.0f;                     ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
 
