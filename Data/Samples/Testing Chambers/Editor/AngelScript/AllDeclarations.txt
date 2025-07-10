@@ -8,6 +8,9 @@ bool T[]::opEquals(const T[]&in) const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathCorridor() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathLine() const
 bool ezAiNavMeshPathTestComponent::get_VisualizePathState() const
+bool ezAiNavigationComponent::EnsureNavMeshSectorAvailable(ezVec3 vCenter, float fRadius)
+bool ezAiNavigationComponent::FindRandomPointAroundCircle(ezVec3 vCenter, float fRadius, ezVec3&out out_vPoint)
+bool ezAiNavigationComponent::RaycastNavMesh(ezVec3 vStart, ezVec3 vDirection, float fDistance, ezVec3&out out_vPoint, float&out out_fDistance)
 bool ezAimIKComponent::get_InversePoleVector() const
 bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AiPlugin/AiPluginDLL.h>
+#include <AiPlugin/Navigation/NavMeshQuery.h>
 #include <AiPlugin/Navigation/Navigation.h>
 #include <AiPlugin/Navigation/Steering.h>
 #include <Core/World/Component.h>
@@ -94,12 +95,29 @@ public:
   /// \brief Returns the current navigation state.
   ezEnum<ezAiNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
 
+
+  /// \brief Checks whether the area around the given point is loaded and thus queries would succeed.
+  ///
+  /// If the area is not fully loaded, the function returns false.
+  /// In this case, queries in that area will probably fail and should be delayed to a later point,
+  /// since the navmesh first has to be generated.
+  bool EnsureNavMeshSectorAvailable(const ezVec3& vCenter, float fRadius); ///< [ scriptable ]
+
+  /// \brief Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
+  ///
+  /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
+  bool FindRandomPointAroundCircle(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint); ///< [ scriptable ]
+
+  bool RaycastNavMesh(const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezVec3& out_vPoint, float& out_fDistance);
+
 protected:
   void Update();
   void Steer(ezTransform& transform, float tDiff);
   void Turn(ezTransform& transform, float tDiff);
   void PlaceOnGround(ezTransform& transform, float tDiff);
+  bool PrepareQueryObject();
 
+  ezAiNavmeshQuery m_Query;
   ezEnum<ezAiNavigationComponentState> m_State;
   ezAiSteering m_Steering;
   ezAiNavigation m_Navigation;

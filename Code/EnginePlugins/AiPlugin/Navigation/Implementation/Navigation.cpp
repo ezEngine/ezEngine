@@ -13,6 +13,9 @@ ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQuer
   if (dtStatusFailed(ref_query.findNearestPoly(position, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
     return EZ_FAILURE;
 
+  if (out_polyRef == 0)
+    return EZ_FAILURE;
+
   if (!ezMath::IsEqual(position.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
       !ezMath::IsEqual(position.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
       !ezMath::IsEqual(position.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))

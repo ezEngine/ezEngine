@@ -18,6 +18,8 @@ class EZ_AIPLUGIN_DLL ezAiNavmeshQuery
 public:
   ezAiNavmeshQuery();
 
+  ezAiNavMesh* GetNavmesh() const { return m_pNavmesh; }
+
   /// \brief Sets on which navmesh to do the queries.
   ///
   /// \see ezAiNavMeshWorldModule::GetNavMesh()
@@ -38,6 +40,11 @@ public:
   ///
   /// Returns true, if a navmesh edge has been hit and the result struct was filled with details.
   bool Raycast(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezAiNavmeshRaycastHit& out_raycastHit);
+
+  /// \brief Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
+  ///
+  /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
+  bool FindRandomPointAroundCircle(const ezVec3& vStart, float fRadius, ezRandom& rng, ezVec3& out_vPoint);
 
 private:
   ezUInt8 m_uiReinitQueryBit : 1;

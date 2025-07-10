@@ -45,6 +45,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetState),
     EZ_SCRIPT_FUNCTION_PROPERTY(StopWalking, In, "WithinDistance"),
     EZ_SCRIPT_FUNCTION_PROPERTY(TurnTowards, In, "TargetPosition"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(EnsureNavMeshSectorAvailable, In, "vCenter", In, "fRadius"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundCircle, In, "vCenter", In, "fRadius", Out, "out_vPoint"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(RaycastNavMesh, In, "vStart", In, "vDirection", In, "fDistance", Out, "out_vPoint", Out, "out_fDistance"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -95,6 +98,57 @@ void ezAiNavigationComponent::TurnTowards(const ezVec2& vGlobalPos)
 
     m_vTurnTowardsPos = vGlobalPos;
   }
+}
+
+bool ezAiNavigationComponent::PrepareQueryObject()
+{
+  if (m_Query.GetNavmesh() == nullptr)
+  {
+    ezAiNavMeshWorldModule* pNavMeshModule = GetWorld()->GetOrCreateModule<ezAiNavMeshWorldModule>();
+    if (pNavMeshModule == nullptr)
+      return false;
+
+    m_Query.SetNavmesh(pNavMeshModule->GetNavMesh(m_sNavmeshConfig));
+    m_Query.SetQueryFilter(pNavMeshModule->GetPathSearchFilter(m_sPathSearchConfig));
+  }
+
+  return true;
+}
+
+bool ezAiNavigationComponent::EnsureNavMeshSectorAvailable(const ezVec3& vCenter, float fRadius)
+{
+  if (!PrepareQueryObject())
+    return false;
+
+  return m_Query.GetNavmesh()->RequestSector(vCenter.GetAsVec2(), ezVec2(fRadius));
+}
+
+bool ezAiNavigationComponent::FindRandomPointAroundCircle(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint)
+{
+  if (!PrepareQueryObject())
+    return false;
+
+  if (!m_Query.PrepareQueryArea(vCenter, fRadius))
+    return false;
+
+  return m_Query.FindRandomPointAroundCircle(vCenter, fRadius, GetWorld()->GetRandomNumberGenerator(), out_vPoint);
+}
+
+bool ezAiNavigationComponent::RaycastNavMesh(const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezVec3& out_vPoint, float& out_fDistance)
+{
+  if (!PrepareQueryObject())
+    return false;
+
+  // ignore result, even if not everything is loaded, the raycast may still hit an obstacle
+  m_Query.PrepareQueryArea(vStart, fDistance);
+
+  ezAiNavmeshRaycastHit hit;
+  if (!m_Query.Raycast(vStart, vDirection, fDistance, hit))
+    return false;
+
+  out_vPoint = hit.m_vHitPosition;
+  out_fDistance = hit.m_fHitDistance;
+  return true;
 }
 
 void ezAiNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -407,6 +461,5 @@ void ezAiNavigationComponent::PlaceOnGround(ezTransform& transform, float tDiff)
     transform.m_vPosition.z += fFallDist;
   }
 }
-
 
 EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Components_NavigationComponent);

@@ -58,10 +58,12 @@ DoubleZeroToOneInclusive
 DropGrabbedObject
 EndsWith
 EndsWith_NoCase
+EnsureNavMeshSectorAvailable
 ExpandAndGetRef
 FadeOut
 FindChildByName
 FindChildByPath
+FindRandomPointAroundCircle
 FireTransitionEvent
 FloatMinMax
 FloatVariance
@@ -275,6 +277,7 @@ PostMessageRecursive
 Prepend
 PrependFormat
 PushBack
+RaycastNavMesh
 ReconstructFromMat3
 ReconstructFromMat4
 RecreatePhysicsShapes
