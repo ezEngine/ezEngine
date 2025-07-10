@@ -80,10 +80,15 @@ private:
   friend class ezJoltWorldModule;
   friend class ezJoltBreakableSlabComponent;
 
+  void PreAsyncUpdate(const ezWorldModule::UpdateContext& context);
+  void ReinitSlabs(const ezWorldModule::UpdateContext& context);
   void Update(const ezWorldModule::UpdateContext& context);
 
   ezSet<ezComponentHandle> m_RequireBreakage;
   ezSet<ezComponentHandle> m_RequireBreakUpdate;
+
+  ezAtomicInteger32 m_iTriggerBoundsUpdateSlot;
+  ezDynamicArray<ezJoltBreakableSlabComponent*> m_TriggerBoundsUpdate;
 };
 
 /// \brief Represents a point in world space, where the breakable slab should be shattered.
@@ -236,6 +241,7 @@ private:
   ezMaterialResourceHandle m_hMaterial;
   ezSurfaceResourceHandle m_hSurface;
 
+  bool m_bReinitMeshes = true;
   ezInt8 m_iSwitchToSkinningState = -1;
   mutable ezInt8 m_iSkinningStateToUse = -1;
   mutable ezMeshResourceHandle m_hSwitchToMesh;

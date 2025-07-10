@@ -46,11 +46,50 @@ void ezJoltBreakableSlabComponentManager::Initialize()
   SUPER::Initialize();
 
   {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::PreAsyncUpdate, this);
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
+    desc.m_bOnlyUpdateWhenSimulating = false;
+
+    RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::ReinitSlabs, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = false;
+    desc.m_uiAsyncPhaseBatchSize = 16;
+
+    RegisterUpdateFunction(desc);
+  }
+
+  {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltBreakableSlabComponentManager::Update, this);
     desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = false;
 
-    this->RegisterUpdateFunction(desc);
+    RegisterUpdateFunction(desc);
+  }
+}
+
+void ezJoltBreakableSlabComponentManager::PreAsyncUpdate(const ezWorldModule::UpdateContext& context)
+{
+  m_iTriggerBoundsUpdateSlot = 0;
+  m_TriggerBoundsUpdate.SetCount(m_ComponentStorage.GetCount());
+}
+
+void ezJoltBreakableSlabComponentManager::ReinitSlabs(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ezJoltBreakableSlabComponent* pComponent = it;
+    if (pComponent->IsActive() && pComponent->m_bReinitMeshes)
+    {
+      pComponent->ReinitMeshes();
+
+      // we need to call TriggerUpdateBounds() on this component, but we can't do this on just any thread, so queue this for the PostAsync update
+      const ezInt32 iSlot = m_iTriggerBoundsUpdateSlot.PostIncrement();
+      m_TriggerBoundsUpdate[iSlot] = pComponent;
+    }
   }
 }
 
@@ -125,6 +164,11 @@ void ezJoltBreakableSlabComponentManager::Update(const ezWorldModule::UpdateCont
     {
       m_RequireBreakUpdate.Remove(hComponent);
     }
+  }
+
+  for (ezInt32 i = 0; i < m_iTriggerBoundsUpdateSlot; ++i)
+  {
+    m_TriggerBoundsUpdate[i]->TriggerLocalBoundsUpdate();
   }
 
   if (cvar_BreakableSlabVis)
@@ -226,7 +270,7 @@ void ezJoltBreakableSlabComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 void ezJoltBreakableSlabComponent::OnSimulationStarted()
@@ -256,13 +300,45 @@ void ezJoltBreakableSlabComponent::OnSimulationStarted()
   }
 
   ezHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
-  PrepareShardColliders(0, shapes);
+
+  if (m_Shape == ezJoltBreakableShape::Rectangle)
+  {
+    // this code path is an optimization for PrepareShardColliders() because box colliders are much more efficient to set up (and simulate)
+    shapes.SetCount(1);
+
+    const float fShardThickness = ezMath::Max(m_fThickness, JPH::cDefaultConvexRadius * 2.0f);
+    const float fThick1 = -(fShardThickness - m_fThickness) * 0.5f;
+    const float fThick2 = fShardThickness + fThick1;
+
+    JPH::BoxShapeSettings shapeSettings;
+    shapeSettings.mHalfExtent.SetX(m_fWidth * 0.5f);
+    shapeSettings.mHalfExtent.SetY(m_fHeight * 0.5f);
+    shapeSettings.mHalfExtent.SetZ(fShardThickness * 0.5f);
+    shapeSettings.mDensity = 0.1f;
+    shapeSettings.mUserData = 0;
+
+    JPH::ShapeSettings::ShapeResult shapeResult = shapeSettings.Create();
+    if (!shapeResult.HasError())
+    {
+      shapes[0] = (JPH::ConvexShape*)(shapeResult.Get().GetPtr());
+    }
+  }
+  else
+  {
+    PrepareShardColliders(0, shapes);
+  }
 
   m_hSwitchToMesh = m_hMeshToRender;
   m_iSwitchToSkinningState = CreateShardColliders(0, shapes);
   m_uiShardsSleeping = 190;
 
   InvalidateCachedRenderData();
+
+  if (m_bReinitMeshes)
+  {
+    ReinitMeshes();
+    TriggerLocalBoundsUpdate();
+  }
 }
 
 void ezJoltBreakableSlabComponent::OnDeactivated()
@@ -291,8 +367,7 @@ void ezJoltBreakableSlabComponent::SetWidth(float fWidth)
     return;
 
   m_fWidth = fWidth;
-
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 float ezJoltBreakableSlabComponent::GetWidth() const
@@ -306,8 +381,7 @@ void ezJoltBreakableSlabComponent::SetHeight(float fHeight)
     return;
 
   m_fHeight = fHeight;
-
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 float ezJoltBreakableSlabComponent::GetHeight() const
@@ -321,7 +395,7 @@ void ezJoltBreakableSlabComponent::SetThickness(float fThickness)
     return;
 
   m_fThickness = fThickness;
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 float ezJoltBreakableSlabComponent::GetThickness() const
@@ -335,7 +409,7 @@ void ezJoltBreakableSlabComponent::SetUvScale(ezVec2 vScale)
     return;
 
   m_vUvScale = vScale;
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 
@@ -347,19 +421,20 @@ ezVec2 ezJoltBreakableSlabComponent::GetUvScale() const
 void ezJoltBreakableSlabComponent::SetFlags(ezBitflags<ezJoltBreakableSlabFlags> flags)
 {
   m_Flags = flags;
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 void ezJoltBreakableSlabComponent::SetShape(ezEnum<ezJoltBreakableShape> shape)
 {
   m_Shape = shape;
-  ReinitMeshes();
+  m_bReinitMeshes = true;
 }
 
 void ezJoltBreakableSlabComponent::Restore()
 {
   Cleanup();
   ReinitMeshes();
+  TriggerLocalBoundsUpdate();
 
   ezHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
   PrepareShardColliders(0, shapes);
@@ -568,10 +643,11 @@ void ezJoltBreakableSlabComponent::Cleanup()
 
 void ezJoltBreakableSlabComponent::ReinitMeshes()
 {
-  Cleanup();
+  EZ_ASSERT_DEBUG(IsActive(), "Should only be called on active components.");
 
-  if (!IsActive())
-    return;
+  m_bReinitMeshes = false;
+
+  Cleanup();
 
   m_Breakable.Initialize();
 
@@ -644,7 +720,6 @@ void ezJoltBreakableSlabComponent::ReinitMeshes()
   InvalidateCachedRenderData();
 
   m_Bounds = ezBoundingBox::MakeFromMinMax(ezVec3::MakeZero(), ezVec3(m_fWidth, m_fHeight, m_fThickness));
-  TriggerLocalBoundsUpdate();
 }
 
 void ezJoltBreakableSlabComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const
@@ -736,7 +811,7 @@ ezMeshResourceHandle ezJoltBreakableSlabComponent::CreateShardsMesh() const
   EZ_PROFILE_SCOPE("CreateShardsMesh");
 
   ezStringBuilder meshName;
-  meshName.SetFormat("ezJoltBreakableSlab_Shards-{}", s_iShardMeshCounter.Increment());
+  meshName.SetFormat("JoltSlab-{}-{}", ezArgP(this), s_iShardMeshCounter.Increment());
 
   ezGeometry geo;
   ezHybridArray<ezUInt32, 16> vtxIdx1;

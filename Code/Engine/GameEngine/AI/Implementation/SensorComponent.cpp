@@ -621,18 +621,19 @@ void ezSensorWorldModule::Initialize()
   SUPER::Initialize();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::Async;
-    updateDesc.m_bOnlyUpdateWhenSimulating = true;
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 16;
 
-    RegisterUpdateFunction(updateDesc);
+    RegisterUpdateFunction(desc);
   }
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
-    updateDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
+    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
-    RegisterUpdateFunction(updateDesc);
+    RegisterUpdateFunction(desc);
   }
 
   m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();

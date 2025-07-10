@@ -197,7 +197,7 @@ namespace ezInternal
     m_Function = desc.m_Function;
     m_sFunctionName = desc.m_sFunctionName;
     m_fPriority = desc.m_fPriority;
-    m_uiGranularity = desc.m_uiGranularity;
+    m_uiAsyncPhaseBatchSize = desc.m_uiAsyncPhaseBatchSize;
     m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
   }
 

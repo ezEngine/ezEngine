@@ -610,6 +610,7 @@ void ezClothSheetComponentManager::Initialize()
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezClothSheetComponentManager::Update, this);
     desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 2;
 
     this->RegisterUpdateFunction(desc);
   }

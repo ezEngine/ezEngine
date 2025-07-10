@@ -77,6 +77,7 @@ void ezFmodEventComponentManager::Initialize()
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
     desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 8;
 
     this->RegisterUpdateFunction(desc);
   }

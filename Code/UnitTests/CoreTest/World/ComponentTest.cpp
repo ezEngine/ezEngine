@@ -29,7 +29,7 @@ namespace
 
       auto descAsync = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
       descAsync.m_Phase = ezWorldUpdatePhase::Async;
-      descAsync.m_uiGranularity = 20;
+      descAsync.m_uiAsyncPhaseBatchSize = 20;
 
       // Update functions are now registered in reverse order, so we can test whether dependencies work.
       this->RegisterUpdateFunction(descAsync);

@@ -1045,7 +1045,6 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezWorldUpdatePhase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezWorldUpdatePhase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
@@ -1133,7 +1132,7 @@ void ezWorld::UpdateAsynchronous()
 
     // a world module can also register functions in the async phase so we want at least one task
     const ezUInt32 uiTotalCount = pManager != nullptr ? pManager->GetComponentCount() : 1;
-    const ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
+    const ezUInt32 uiGranularity = (updateFunction.m_uiAsyncPhaseBatchSize != 0) ? updateFunction.m_uiAsyncPhaseBatchSize : uiTotalCount;
 
     ezUInt32 uiStartIndex = 0;
     while (uiStartIndex < uiTotalCount)

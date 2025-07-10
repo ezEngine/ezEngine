@@ -294,7 +294,7 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
   e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
+  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceIdOrDescription(), "ResourceDesc"));
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);

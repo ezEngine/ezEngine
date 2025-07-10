@@ -179,7 +179,7 @@ namespace ezInternal
       ezWorldModule::UpdateFunction m_Function;
       ezHashedString m_sFunctionName;
       float m_fPriority;
-      ezUInt16 m_uiGranularity;
+      ezUInt16 m_uiAsyncPhaseBatchSize;
       bool m_bOnlyUpdateWhenSimulating;
 
       void FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc);

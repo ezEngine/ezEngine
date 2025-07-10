@@ -147,9 +147,10 @@ template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(UpdateFunctionDesc& desc)
 {
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
-  if (desc.m_uiGranularity != 0)
-    desc.m_uiGranularity = static_cast<ezUInt16>(
-      ezMath::RoundUp(static_cast<ezInt32>(desc.m_uiGranularity), ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY));
+  if (desc.m_uiAsyncPhaseBatchSize != 0)
+  {
+    desc.m_uiAsyncPhaseBatchSize = static_cast<ezUInt16>(ezMath::RoundUp(static_cast<ezInt32>(desc.m_uiAsyncPhaseBatchSize), ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY));
+  }
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }
