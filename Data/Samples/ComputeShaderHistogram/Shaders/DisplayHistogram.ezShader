@@ -3,9 +3,6 @@ ALL
 
 [PERMUTATIONS]
 
-[MATERIALPARAMETER]
-Texture2D HistogramTexture;
-
 [RENDERSTATE]
 DepthTest = false
 CullMode = CullMode_None
