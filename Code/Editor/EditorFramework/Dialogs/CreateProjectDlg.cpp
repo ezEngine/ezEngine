@@ -331,6 +331,9 @@ void ezQtCreateProjectDlg::CreateProject()
     // make sure, that in case we copied an AssetCache, it gets deleted
     // so that the project definitely starts fresh
     ezStringBuilder sAssetCache(sFullPath, "/AssetCache");
-    ezOSFile::DeleteFolder(sAssetCache);
+    if (ezOSFile::DeleteFolder(sAssetCache).Failed())
+    {
+      // TODO
+    }
   }
 }

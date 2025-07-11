@@ -1331,6 +1331,8 @@ void ezGALCommandEncoderImplVulkan::EnsureBindGroupTextureLayout(const ezGALBind
         m_pPipelineBarrier->EnsureImageLayout(pTexture, item.m_Texture.m_TextureRange, imageLayout, ezConversionUtilsVulkan::GetPipelineStages(binding.m_Stages), vk::AccessFlagBits::eShaderRead);
       }
       break;
+      default:
+        break;
     }
   }
 }
