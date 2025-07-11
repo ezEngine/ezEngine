@@ -451,17 +451,8 @@ namespace
   }
 } // namespace
 
-ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
+ezResult ezShaderParser::PreprocessSection(ezStringView sSectionContent, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
 {
-  ezString sContent;
-  sContent.ReadAll(inout_stream);
-
-  ezShaderHelper::ezTextSectionizer sections;
-  ezShaderHelper::GetShaderSections(sContent, sections);
-
-  ezUInt32 uiFirstLine = 0;
-  ezStringView sSectionContent = sections.GetSectionContent(section, uiFirstLine);
-
   ezPreprocessor pp;
   pp.SetPassThroughPragma(false);
   pp.SetPassThroughLine(false);
@@ -530,9 +521,15 @@ ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShade
 // static
 void ezShaderParser::ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
 {
+  ezStringBuilder sPreprocessedSection;
+  if (ezShaderParser::PreprocessSection(sSection, ezArrayPtr<ezString>(), sPreprocessedSection).Failed())
+  {
+    ezLog::Error("Preprocessing material parameter section failed.");
+    return;
+  }
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sSection.GetStartPointer(), sSection.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
+  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sPreprocessedSection.GetData(), sPreprocessedSection.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
 
   TokenStream tokens;
   tokenizer.GetAllLines(tokens);

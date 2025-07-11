@@ -39,7 +39,7 @@ public:
     ezHybridArray<EnumValue, 16> m_Values;
   };
 
-  static ezResult PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult);
+  static ezResult PreprocessSection(ezStringView sSectionContent, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult);
 
   static void ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions);
 

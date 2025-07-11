@@ -76,8 +76,15 @@ namespace
       }
     }
 
+    ezString sContent;
+    sContent.ReadAll(file);
+    ezShaderHelper::ezTextSectionizer sections;
+    ezShaderHelper::GetShaderSections(sContent, sections);
+    ezUInt32 uiFirstLine = 0;
+    ezStringView sSectionContent = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONFIG, uiFirstLine);
+
     ezStringBuilder sOutput;
-    EZ_SUCCEED_OR_RETURN(ezShaderParser::PreprocessSection(file, ezShaderHelper::ezShaderSections::MATERIALCONFIG, defines, sOutput));
+    EZ_SUCCEED_OR_RETURN(ezShaderParser::PreprocessSection(sSectionContent, defines, sOutput));
 
     ezHybridArray<ezStringView, 32> allAssignments;
     sOutput.Split(false, allAssignments, "\n", ";", "\r");
