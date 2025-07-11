@@ -44,7 +44,7 @@ public:
   /// \brief Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
   ///
   /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
-  bool FindRandomPointAroundCircle(const ezVec3& vStart, float fRadius, ezRandom& rng, ezVec3& out_vPoint);
+  bool FindRandomPointAroundCircle(const ezVec3& vStart, float fRadius, ezRandom& ref_rng, ezVec3& out_vPoint);
 
 private:
   ezUInt8 m_uiReinitQueryBit : 1;

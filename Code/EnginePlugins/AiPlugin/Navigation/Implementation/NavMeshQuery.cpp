@@ -75,7 +75,7 @@ static float frand()
   return tl_pRandom->FloatZeroToOneInclusive();
 }
 
-bool ezAiNavmeshQuery::FindRandomPointAroundCircle(const ezVec3& vStart, float fRadius, ezRandom& rng, ezVec3& out_vPoint)
+bool ezAiNavmeshQuery::FindRandomPointAroundCircle(const ezVec3& vStart, float fRadius, ezRandom& ref_rng, ezVec3& out_vPoint)
 {
   if (m_uiReinitQueryBit)
   {
