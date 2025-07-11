@@ -607,8 +607,6 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
       indexInUse[uiIndex].SetCount(ezMath::Max(indexInUse[uiIndex].GetCount(), static_cast<ezUInt32>(iSlot + 1)));
       indexInUse[uiIndex].SetBit(iSlot);
     }
-    // DX11: Everything is set 0.
-    it.Value().m_iBindGroup = 0;
   }
 
   // Create stable order of resources
@@ -657,13 +655,14 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
 
 void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration)
 {
-  EZ_ASSERT_DEBUG(binding.m_iBindGroup == 0, "HLSL: error X3721: space is only supported for shader targets 5.1 and higher");
   const ezBitflags<DX11ResourceCategory> type = DX11ResourceCategory::MakeFromShaderDescriptorType(binding.m_ResourceType);
+  ezStringView sSemicolon = type.GetValue() != DX11ResourceCategory::ConstantBuffer ? ";" : "";
+
   ezStringView sResourcePrefix;
   if (binding.m_iSlot == -1)
   {
     // Let the compiler choose an index.
-    out_sDeclaration.SetFormat("{}", sDeclaration);
+    out_sDeclaration.SetFormat("{}{} // Bind Group: {}", sDeclaration, sSemicolon, binding.m_iBindGroup);
     return;
   }
 
@@ -685,7 +684,7 @@ void ezShaderCompilerHLSL::CreateNewShaderResourceDeclaration(ezStringView sPlat
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
-  out_sDeclaration.SetFormat("{} : register({}{})", sDeclaration, sResourcePrefix, binding.m_iSlot);
+  out_sDeclaration.SetFormat("{} : register({}{}){} // Bind Group: {}", sDeclaration, sResourcePrefix, binding.m_iSlot, sSemicolon, binding.m_iBindGroup);
 }
 
 void ezShaderCompilerHLSL::Initialize()

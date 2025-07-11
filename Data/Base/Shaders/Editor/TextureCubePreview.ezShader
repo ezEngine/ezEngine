@@ -37,8 +37,9 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
-TextureCube BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+
+TextureCube BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float4 SampleTexture(PS_IN Input)
 {

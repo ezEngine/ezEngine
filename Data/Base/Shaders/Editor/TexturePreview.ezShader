@@ -42,7 +42,7 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
-SamplerState BaseTexture_AutoSampler;
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float4 SampleTexture(PS_IN Input)
 {
