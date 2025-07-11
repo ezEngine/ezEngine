@@ -293,7 +293,7 @@ PS_OUT main(PS_IN Input)
     Output.Color = float4(matData.diffuseColor, 1.0f);
   }
 
-#elif (RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME )
+#elif (RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   Output.Color = RGBA8ToFloat4(gameObjectId);
 
 #elif RENDER_PASS == RENDER_PASS_DEPTH_ONLY
