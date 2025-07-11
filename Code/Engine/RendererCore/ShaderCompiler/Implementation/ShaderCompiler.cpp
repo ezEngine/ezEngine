@@ -184,7 +184,7 @@ void ezShaderCompiler::ShaderCompileMsg(ezRemoteMessage& msg)
   }
 }
 
-ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform)
+ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform, ezTokenizedFileCache* pFileCache)
 {
   EZ_PROFILE_SCOPE("ezShaderCompiler::CompileShaderPermutationForPlatforms");
 
@@ -359,21 +359,26 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   }
 
   // try out every compiler that we can find
-  ezResult result = EZ_SUCCESS;
+  ezHybridArray<const ezRTTI*, 2> compilers;
   ezRTTI::ForEachDerivedType<ezShaderProgramCompiler>(
     [&](const ezRTTI* pRtti)
     {
-      ezUniquePtr<ezShaderProgramCompiler> pCompiler = pRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
-
-      if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog).Failed())
-        result = EZ_FAILURE;
+      compilers.PushBack(pRtti);
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
+  ezResult result = EZ_SUCCESS;
+  for (auto pCompilerRtti : compilers)
+  {
+    ezUniquePtr<ezShaderProgramCompiler> pCompiler = pCompilerRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
+
+    if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog, pFileCache).Failed())
+      result = EZ_FAILURE;
+  }
   return result;
 }
 
-ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog)
+ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog, ezTokenizedFileCache* pFileCache)
 {
   EZ_PROFILE_SCOPE("ezShaderCompiler::RunShaderCompiler");
   EZ_LOG_BLOCK(pLog, "Compiling Shader", sFile);
@@ -425,7 +430,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       EZ_LOG_BLOCK(pLog, "Preprocessing Shader State Source");
 
       ezPreprocessor pp;
-      pp.SetCustomFileCache(&m_FileCache);
+      pp.SetCustomFileCache(pFileCache != nullptr ? pFileCache : &m_FileCache);
       pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(false);
@@ -473,7 +478,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       bool bFoundUndefinedVars = false;
 
       ezPreprocessor pp;
-      pp.SetCustomFileCache(&m_FileCache);
+      pp.SetCustomFileCache(pFileCache != nullptr ? pFileCache : &m_FileCache);
       pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(true);

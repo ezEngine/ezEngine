@@ -62,5 +62,6 @@ private:
     ezTime m_LastCheck;
   };
 
+  static ezMutex s_FileTimestampsLock;
   static ezMap<ezString, FileCheckCache> s_FileTimestamps;
 };

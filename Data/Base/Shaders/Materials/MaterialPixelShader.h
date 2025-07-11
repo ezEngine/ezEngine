@@ -89,10 +89,9 @@ PS_OUT main(PS_IN Input)
 
   ezMaterialData matData = FillMaterialData();
 
+  uint gameObjectId = GetInstanceData().GameObjectID;
 #if SHADING_QUALITY == SHADING_QUALITY_NORMAL
   ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
-  uint gameObjectId = GetInstanceData().GameObjectID;
-
 #  if defined(USE_DECALS)
   ApplyDecals(matData, clusterData, gameObjectId);
 #  endif
@@ -294,7 +293,7 @@ PS_OUT main(PS_IN Input)
     Output.Color = float4(matData.diffuseColor, 1.0f);
   }
 
-#elif (RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+#elif (RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME )
   Output.Color = RGBA8ToFloat4(gameObjectId);
 
 #elif RENDER_PASS == RENDER_PASS_DEPTH_ONLY

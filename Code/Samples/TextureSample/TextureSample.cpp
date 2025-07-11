@@ -196,7 +196,6 @@ public:
 
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
 
-      m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
 
@@ -293,7 +292,8 @@ public:
       ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.SetColorTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
+      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+      renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.SetClearColor(0).SetClearDepth();
 
       ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
@@ -448,7 +448,6 @@ private:
   ezGALDevice* m_pDevice;
 
   ezGALSwapChainHandle m_hSwapChain;
-  ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;
 

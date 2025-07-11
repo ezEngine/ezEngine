@@ -51,6 +51,7 @@ public:
   static void RemoveMainView(const ezViewHandle& hView);
   static void ClearMainViews();
   static ezArrayPtr<ezViewHandle> GetMainViews();
+  static bool IsRenderingScheduled();
 
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 

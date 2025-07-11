@@ -1122,6 +1122,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
         // Need to call FindDynamicUniformBuffers first to generate the m_DynamicUniformVkBuffers list which is needed for the hash lookup inside CreateDescriptorSet.
         FindDynamicUniformBuffers(m_BindGroups[uiBindGroup], m_DynamicOffsets[uiBindGroup]);
         m_DescriptorSets[uiBindGroup] = CreateDescriptorSet(m_BindGroups[uiBindGroup], m_DynamicOffsets[uiBindGroup]);
+        EnsureBindGroupTextureLayout(m_BindGroups[uiBindGroup]);
         continue;
       }
 
@@ -1261,7 +1262,6 @@ vk::DescriptorSet ezGALCommandEncoderImplVulkan::CreateDescriptorSet(const ezGAL
         const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(m_GALDeviceVulkan.GetTexture(item.m_Texture.m_hTexture));
         imageInfo = pTexture->GetDescriptorImageInfo(item.m_Texture.m_TextureRange, binding.m_ResourceType, binding.m_TextureType, item.m_Texture.m_OverrideViewFormat);
         imageInfo.imageLayout = binding.m_ResourceType == ezGALShaderResourceType::TextureRW ? vk::ImageLayout::eGeneral : pTexture->GetPreferredLayout(ezConversionUtilsVulkan::GetDefaultLayout(pTexture->GetImageFormat()));
-        m_pPipelineBarrier->EnsureImageLayout(pTexture, item.m_Texture.m_TextureRange, imageInfo.imageLayout, ezConversionUtilsVulkan::GetPipelineStages(binding.m_Stages), vk::AccessFlagBits::eShaderRead);
 
         if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
         {
@@ -1308,6 +1308,31 @@ vk::DescriptorSet ezGALCommandEncoderImplVulkan::CreateDescriptorSet(const ezGAL
 
   m_DescriptorCache.Insert(uiHash, descriptorSet);
   return descriptorSet;
+}
+
+void ezGALCommandEncoderImplVulkan::EnsureBindGroupTextureLayout(const ezGALBindGroupCreationDescription& desc)
+{
+  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_GALDeviceVulkan.GetBindGroupLayout(desc.m_hBindGroupLayout));
+  ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+  const ezUInt32 uiBindings = bindings.GetCount();
+  for (ezUInt32 i = 0; i < uiBindings; ++i)
+  {
+    const ezShaderResourceBinding& binding = bindings[i];
+    const ezGALBindGroupItem& item = desc.m_BindGroupItems[i];
+
+    switch (binding.m_ResourceType)
+    {
+      case ezGALShaderResourceType::Texture:
+      case ezGALShaderResourceType::TextureRW:
+      case ezGALShaderResourceType::TextureAndSampler:
+      {
+        const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(m_GALDeviceVulkan.GetTexture(item.m_Texture.m_hTexture));
+        vk::ImageLayout imageLayout = binding.m_ResourceType == ezGALShaderResourceType::TextureRW ? vk::ImageLayout::eGeneral : pTexture->GetPreferredLayout(ezConversionUtilsVulkan::GetDefaultLayout(pTexture->GetImageFormat()));
+        m_pPipelineBarrier->EnsureImageLayout(pTexture, item.m_Texture.m_TextureRange, imageLayout, ezConversionUtilsVulkan::GetPipelineStages(binding.m_Stages), vk::AccessFlagBits::eShaderRead);
+      }
+      break;
+    }
+  }
 }
 
 void ezGALCommandEncoderImplVulkan::FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, ezGALCommandEncoderImplVulkan::DynamicOffsets& out_offsets)
@@ -1381,7 +1406,6 @@ ezGALCommandEncoderImplVulkan::DynamicUniformBufferChanges ezGALCommandEncoderIm
     if (pBuffer == nullptr)
     {
       // Non-transient buffers are not tracked here and will always have an offset of zero.
-      ref_offsets.m_DynamicUniformBufferOffsets.PushBack(0);
       continue;
     }
     const vk::DescriptorBufferInfo* pBufferInfo = m_pUniformBufferPool->GetBuffer(pBuffer);

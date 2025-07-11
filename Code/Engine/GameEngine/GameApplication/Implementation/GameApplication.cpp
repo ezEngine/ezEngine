@@ -99,7 +99,7 @@ ezString ezGameApplication::FindProjectDirectory() const
 
 bool ezGameApplication::IsGameUpdateEnabled() const
 {
-  return ezRenderWorld::GetMainViews().GetCount() > 0;
+  return ezRenderWorld::IsRenderingScheduled();
 }
 
 void ezGameApplication::Run_WorldUpdateAndRender()

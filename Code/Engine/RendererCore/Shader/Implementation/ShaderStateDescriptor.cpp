@@ -277,6 +277,7 @@ static ezInt32 GetIntStateVariable(const ezMap<ezString, ezString>& variables, c
 }
 
 // Global variables don't use memory tracking, so these won't reported as memory leaks.
+static ezMutex StateValuesLock;
 static ezMap<ezString, ezInt32> StateValuesBlend;
 static ezMap<ezString, ezInt32> StateValuesBlendOp;
 static ezMap<ezString, ezInt32> StateValuesCullMode;
@@ -315,63 +316,66 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
     }
   }
 
-  if (StateValuesBlend.IsEmpty())
   {
-    // ezGALBlend
+    EZ_LOCK(StateValuesLock);
+    if (StateValuesBlend.IsEmpty())
     {
-      StateValuesBlend["Blend_Zero"] = ezGALBlend::Zero;
-      StateValuesBlend["Blend_One"] = ezGALBlend::One;
-      StateValuesBlend["Blend_SrcColor"] = ezGALBlend::SrcColor;
-      StateValuesBlend["Blend_InvSrcColor"] = ezGALBlend::InvSrcColor;
-      StateValuesBlend["Blend_SrcAlpha"] = ezGALBlend::SrcAlpha;
-      StateValuesBlend["Blend_InvSrcAlpha"] = ezGALBlend::InvSrcAlpha;
-      StateValuesBlend["Blend_DestAlpha"] = ezGALBlend::DestAlpha;
-      StateValuesBlend["Blend_InvDestAlpha"] = ezGALBlend::InvDestAlpha;
-      StateValuesBlend["Blend_DestColor"] = ezGALBlend::DestColor;
-      StateValuesBlend["Blend_InvDestColor"] = ezGALBlend::InvDestColor;
-      StateValuesBlend["Blend_SrcAlphaSaturated"] = ezGALBlend::SrcAlphaSaturated;
-      StateValuesBlend["Blend_BlendFactor"] = ezGALBlend::BlendFactor;
-      StateValuesBlend["Blend_InvBlendFactor"] = ezGALBlend::InvBlendFactor;
-    }
+      // ezGALBlend
+      {
+        StateValuesBlend["Blend_Zero"] = ezGALBlend::Zero;
+        StateValuesBlend["Blend_One"] = ezGALBlend::One;
+        StateValuesBlend["Blend_SrcColor"] = ezGALBlend::SrcColor;
+        StateValuesBlend["Blend_InvSrcColor"] = ezGALBlend::InvSrcColor;
+        StateValuesBlend["Blend_SrcAlpha"] = ezGALBlend::SrcAlpha;
+        StateValuesBlend["Blend_InvSrcAlpha"] = ezGALBlend::InvSrcAlpha;
+        StateValuesBlend["Blend_DestAlpha"] = ezGALBlend::DestAlpha;
+        StateValuesBlend["Blend_InvDestAlpha"] = ezGALBlend::InvDestAlpha;
+        StateValuesBlend["Blend_DestColor"] = ezGALBlend::DestColor;
+        StateValuesBlend["Blend_InvDestColor"] = ezGALBlend::InvDestColor;
+        StateValuesBlend["Blend_SrcAlphaSaturated"] = ezGALBlend::SrcAlphaSaturated;
+        StateValuesBlend["Blend_BlendFactor"] = ezGALBlend::BlendFactor;
+        StateValuesBlend["Blend_InvBlendFactor"] = ezGALBlend::InvBlendFactor;
+      }
 
-    // ezGALBlendOp
-    {
-      StateValuesBlendOp["BlendOp_Add"] = ezGALBlendOp::Add;
-      StateValuesBlendOp["BlendOp_Subtract"] = ezGALBlendOp::Subtract;
-      StateValuesBlendOp["BlendOp_RevSubtract"] = ezGALBlendOp::RevSubtract;
-      StateValuesBlendOp["BlendOp_Min"] = ezGALBlendOp::Min;
-      StateValuesBlendOp["BlendOp_Max"] = ezGALBlendOp::Max;
-    }
+      // ezGALBlendOp
+      {
+        StateValuesBlendOp["BlendOp_Add"] = ezGALBlendOp::Add;
+        StateValuesBlendOp["BlendOp_Subtract"] = ezGALBlendOp::Subtract;
+        StateValuesBlendOp["BlendOp_RevSubtract"] = ezGALBlendOp::RevSubtract;
+        StateValuesBlendOp["BlendOp_Min"] = ezGALBlendOp::Min;
+        StateValuesBlendOp["BlendOp_Max"] = ezGALBlendOp::Max;
+      }
 
-    // ezGALCullMode
-    {
-      StateValuesCullMode["CullMode_None"] = ezGALCullMode::None;
-      StateValuesCullMode["CullMode_Front"] = ezGALCullMode::Front;
-      StateValuesCullMode["CullMode_Back"] = ezGALCullMode::Back;
-    }
+      // ezGALCullMode
+      {
+        StateValuesCullMode["CullMode_None"] = ezGALCullMode::None;
+        StateValuesCullMode["CullMode_Front"] = ezGALCullMode::Front;
+        StateValuesCullMode["CullMode_Back"] = ezGALCullMode::Back;
+      }
 
-    // ezGALCompareFunc
-    {
-      StateValuesCompareFunc["CompareFunc_Never"] = ezGALCompareFunc::Never;
-      StateValuesCompareFunc["CompareFunc_Less"] = ezGALCompareFunc::Less;
-      StateValuesCompareFunc["CompareFunc_Equal"] = ezGALCompareFunc::Equal;
-      StateValuesCompareFunc["CompareFunc_LessEqual"] = ezGALCompareFunc::LessEqual;
-      StateValuesCompareFunc["CompareFunc_Greater"] = ezGALCompareFunc::Greater;
-      StateValuesCompareFunc["CompareFunc_NotEqual"] = ezGALCompareFunc::NotEqual;
-      StateValuesCompareFunc["CompareFunc_GreaterEqual"] = ezGALCompareFunc::GreaterEqual;
-      StateValuesCompareFunc["CompareFunc_Always"] = ezGALCompareFunc::Always;
-    }
+      // ezGALCompareFunc
+      {
+        StateValuesCompareFunc["CompareFunc_Never"] = ezGALCompareFunc::Never;
+        StateValuesCompareFunc["CompareFunc_Less"] = ezGALCompareFunc::Less;
+        StateValuesCompareFunc["CompareFunc_Equal"] = ezGALCompareFunc::Equal;
+        StateValuesCompareFunc["CompareFunc_LessEqual"] = ezGALCompareFunc::LessEqual;
+        StateValuesCompareFunc["CompareFunc_Greater"] = ezGALCompareFunc::Greater;
+        StateValuesCompareFunc["CompareFunc_NotEqual"] = ezGALCompareFunc::NotEqual;
+        StateValuesCompareFunc["CompareFunc_GreaterEqual"] = ezGALCompareFunc::GreaterEqual;
+        StateValuesCompareFunc["CompareFunc_Always"] = ezGALCompareFunc::Always;
+      }
 
-    // ezGALStencilOp
-    {
-      StateValuesStencilOp["StencilOp_Keep"] = ezGALStencilOp::Keep;
-      StateValuesStencilOp["StencilOp_Zero"] = ezGALStencilOp::Zero;
-      StateValuesStencilOp["StencilOp_Replace"] = ezGALStencilOp::Replace;
-      StateValuesStencilOp["StencilOp_IncrementSaturated"] = ezGALStencilOp::IncrementSaturated;
-      StateValuesStencilOp["StencilOp_DecrementSaturated"] = ezGALStencilOp::DecrementSaturated;
-      StateValuesStencilOp["StencilOp_Invert"] = ezGALStencilOp::Invert;
-      StateValuesStencilOp["StencilOp_Increment"] = ezGALStencilOp::Increment;
-      StateValuesStencilOp["StencilOp_Decrement"] = ezGALStencilOp::Decrement;
+      // ezGALStencilOp
+      {
+        StateValuesStencilOp["StencilOp_Keep"] = ezGALStencilOp::Keep;
+        StateValuesStencilOp["StencilOp_Zero"] = ezGALStencilOp::Zero;
+        StateValuesStencilOp["StencilOp_Replace"] = ezGALStencilOp::Replace;
+        StateValuesStencilOp["StencilOp_IncrementSaturated"] = ezGALStencilOp::IncrementSaturated;
+        StateValuesStencilOp["StencilOp_DecrementSaturated"] = ezGALStencilOp::DecrementSaturated;
+        StateValuesStencilOp["StencilOp_Invert"] = ezGALStencilOp::Invert;
+        StateValuesStencilOp["StencilOp_Increment"] = ezGALStencilOp::Increment;
+        StateValuesStencilOp["StencilOp_Decrement"] = ezGALStencilOp::Decrement;
+      }
     }
   }
 

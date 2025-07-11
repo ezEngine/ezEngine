@@ -55,5 +55,6 @@ private: // statics
 
   static void OnEngineShutdown();
 
+  static ezMutex s_ShaderStageBinariesLock;
   static ezMap<ezUInt32, ezShaderStageBinary> s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 };

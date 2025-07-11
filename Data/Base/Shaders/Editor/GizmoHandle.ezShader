@@ -53,6 +53,9 @@ RenderDataCategory = SimpleForeground
 
 VS_OUT main(VS_IN Input)
 {
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+#endif
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
 
 	#if GIZMO_CONSTANT_SIZE == 1
@@ -87,6 +90,13 @@ VS_OUT main(VS_IN Input)
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(inpos * scale, 1.0f));
 
 	VS_OUT RetVal;
+#if defined(CAMERA_MODE)
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
+#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
+    RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
+#    endif
+#  endif
+#endif
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
 	RetVal.Color0 = GizmoColor;
 	RetVal.Normal = float3(0, 1, 0);

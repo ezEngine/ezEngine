@@ -19,7 +19,7 @@ This option has to be specified.",
   "");
 
 ezCommandLineOptionPath opt_Project("_ShaderCompiler", "-project", "\
-Path to the folder of the project, for which shaders should be compiled.",
+Absolute path to the folder of the project, for which shaders should be compiled.",
   "");
 
 ezCommandLineOptionString opt_Platform("_ShaderCompiler", "-platform", "The name of the platform for which to compile the shaders.\n\
@@ -103,6 +103,10 @@ ezResult ezShaderCompilerApplication::BeforeCoreSystemsStartup()
 
 void ezShaderCompilerApplication::AfterCoreSystemsStartup()
 {
+  ezSystemInformation info = ezSystemInformation::Get();
+  const ezInt32 iCpuCores = info.GetCPUCoreCount();
+  ezTaskSystem::SetWorkerThreadCount(iCpuCores);
+
   ExecuteInitFunctions();
 
   ezStartup::StartupHighLevelSystems();
@@ -130,6 +134,7 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 
       ezHybridArray<ezPermutationVar, 16> PermVars;
 
+      ezTokenizedFileCache fileCache;
       for (ezUInt32 perm = idx; perm < num; ++perm)
       {
         EZ_PROFILE_SCOPE("CompilePermutation");
@@ -137,7 +142,7 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 
         m_PermutationGenerator.GetPermutation(perm, PermVars);
         ezShaderCompiler sc;
-        if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
+        if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms, &fileCache).Failed())
         {
           bContinue = false;
           return;
@@ -270,46 +275,65 @@ void ezShaderCompilerApplication::Run()
   files.Split(false, allFiles, ";");
 
   ezUInt32 uiErrors = 0;
-  for (const ezStringView& shader : allFiles)
+  for (const ezStringView& entry : allFiles)
   {
-    ezStringBuilder file = shader;
-    ezStringBuilder relPath;
-
-    if (ezFileSystem::ResolvePath(file, nullptr, &relPath).Succeeded())
+    ezStringBuilder fileOrFolder;
+    // Relative paths are always relative to the project
+    if (ezPathUtils::IsRelativePath(entry))
     {
-      shadersToCompile.PushBack(relPath);
+      fileOrFolder = m_sAppProjectPath;
+      fileOrFolder.AppendPath(entry);
     }
     else
     {
-      if (ezPathUtils::IsRelativePath(file))
-      {
-        file.Prepend(m_sAppProjectPath, "/");
-      }
+      fileOrFolder = entry;
+    }
 
-      file.TrimWordEnd("*");
-      file.MakeCleanPath();
+    ezFileStats stats;
+    if (ezOSFile::GetFileStats(fileOrFolder, stats).Failed())
+    {
+      ezLog::Error("Couldn't find path '{0}'", fileOrFolder);
+      ++uiErrors;
+      continue;
+    }
 
-      if (ezOSFile::ExistsDirectory(file))
+    ezStringBuilder relPath, absPath;
+    if (stats.m_bIsDirectory)
+    {
+      ezFileSystemIterator fsIt;
+      ezStringBuilder fullPath;
+      for (fsIt.StartSearch(fileOrFolder, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
       {
-        ezFileSystemIterator fsIt;
-        for (fsIt.StartSearch(file, ezFileSystemIteratorFlags::ReportFilesRecursive); fsIt.IsValid(); fsIt.Next())
+        if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
         {
-          if (ezPathUtils::HasExtension(fsIt.GetStats().m_sName, "ezShader"))
+          fsIt.GetStats().GetFullPath(fullPath);
+          if (ezFileSystem::ResolvePath(fullPath, &absPath, &relPath).Succeeded())
           {
-            fsIt.GetStats().GetFullPath(relPath);
-
-            if (relPath.MakeRelativeTo(m_sAppProjectPath).Succeeded())
-            {
-              shadersToCompile.PushBack(relPath);
-            }
+            shadersToCompile.PushBack(relPath);
+          }
+          else
+          {
+            ezLog::Error("Couldn't resolve path '{0}'", fullPath);
+            ++uiErrors;
           }
         }
       }
+    }
+    else if (ezFileSystem::ResolvePath(fileOrFolder, &absPath, &relPath).Succeeded())
+    {
+      if (absPath.HasExtension("ezShader"))
+      {
+        shadersToCompile.PushBack(relPath);
+      }
       else
       {
-        ezLog::Error("Could not resolve path to shader '{0}'", file);
+        ezLog::Error("File '{0}' is not a shader", absPath);
         ++uiErrors;
       }
+    }
+    else
+    {
+      ezLog::Error("Couldn't resolve path '{0}'", fileOrFolder);
     }
   }
 

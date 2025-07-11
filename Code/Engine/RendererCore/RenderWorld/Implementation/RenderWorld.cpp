@@ -255,6 +255,11 @@ ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
   return s_MainViews;
 }
 
+bool ezRenderWorld::IsRenderingScheduled()
+{
+  return !s_MainViews.IsEmpty() || !s_FilteredRenderPipelines[GetDataIndexForRendering()].IsEmpty();
+}
+
 void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
 {
   if (cvar_RenderingCachingStaticObjects)

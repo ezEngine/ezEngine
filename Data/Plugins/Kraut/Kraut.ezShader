@@ -241,10 +241,7 @@ VS_OUT main(VS_IN Input)
 
 [GEOMETRYSHADER]
 
-void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
-{
-  output.LeafNormal = input.LeafNormal;
-}
+#define CopyCustomInterpolators(output, input) output.LeafNormal = input.LeafNormal;
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
 

@@ -33,11 +33,13 @@ DepthTest = true
 
 VS_OUT main(VS_IN Input)
 {
-#if CAMERA_MODE == CAMERA_MODE_STEREO
-  s_ActiveCameraEyeIndex = Input.InstanceID % 2;
-#endif
-
   VS_OUT RetVal;
+  #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+    #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
+      RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
+    #endif
+  #endif
 
   #if PRE_TRANSFORMED_VERTICES
     float2 screenPosition = (Input.Position.xy * ViewportSize.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);

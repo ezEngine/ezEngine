@@ -46,16 +46,14 @@ struct PS_IN
 
 #include "RmlUiConstants.h"
 
-#if RMLUI_MODE != RMLUI_MODE_STENCIL_SET
-  struct VS_IN
-  {
-    float2 Position : POSITION;
-    float2 TexCoord0 : TEXCOORD0;
-    float4 Color0 : COLOR0;
-  };
+struct VS_IN
+{
+  float2 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+};
 
-  typedef PS_IN VS_OUT;
-#endif
+typedef PS_IN VS_OUT;
 
 float4 GetScreenPosition(float4 inputPos)
 {

@@ -142,6 +142,7 @@ private:
   void FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, DynamicOffsets& out_offsets);
   static ezUInt64 HashBindGroup(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
   vk::DescriptorSet CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
+  void EnsureBindGroupTextureLayout(const ezGALBindGroupCreationDescription& desc);
 
   enum class DynamicUniformBufferChanges
   {

@@ -44,10 +44,10 @@ public:
 class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
-  ezResult CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform = "ALL", ezTokenizedFileCache* pFileCache = nullptr);
 
 private:
-  ezResult RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog);
+  ezResult RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog, ezTokenizedFileCache* pFileCache = nullptr);
 
   void WriteFailedShaderSource(ezShaderProgramData& spd, ezLogInterface* pLog);
 

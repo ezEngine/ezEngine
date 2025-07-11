@@ -12,6 +12,7 @@ using namespace ezTokenParseUtils;
 
 namespace
 {
+  static ezMutex s_TableLock;
   static ezHashTable<ezStringView, const ezRTTI*> s_NameToTypeTable;
   static ezHashTable<ezStringView, ezEnum<ezGALShaderResourceType>> s_NameToDescriptorTable;
   static ezHashTable<ezStringView, ezEnum<ezGALShaderTextureType>> s_NameToTextureTable;
@@ -21,6 +22,8 @@ namespace
 
   void InitializeTables()
   {
+    EZ_LOCK(s_TableLock);
+
     if (!s_NameToTypeTable.IsEmpty())
       return;
 

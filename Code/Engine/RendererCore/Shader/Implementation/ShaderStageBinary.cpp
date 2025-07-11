@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
+ezMutex ezShaderStageBinary::s_ShaderStageBinariesLock;
 
 ezShaderStageBinary::ezShaderStageBinary() = default;
 
@@ -227,6 +228,7 @@ ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog, ezStringVie
 // static
 ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform)
 {
+  EZ_LOCK(s_ShaderStageBinariesLock);
   auto itStage = s_ShaderStageBinaries[Stage].Find(uiHash);
 
   if (!itStage.IsValid())
