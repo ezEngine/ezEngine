@@ -98,7 +98,7 @@ bool ezAiNavmeshQuery::FindRandomPointAroundCircle(const ezVec3& vStart, float f
   if (ref == 0)
     return false;
 
-  tl_pRandom = &rng;
+  tl_pRandom = &ref_rng;
 
   dtPolyRef resultRef;
   ezRcPos resPt;
