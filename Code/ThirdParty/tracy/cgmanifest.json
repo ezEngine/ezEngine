@@ -6,9 +6,9 @@
         "git": {
           "Name": "tracy",
           "repositoryUrl": "https://github.com/wolfpld/tracy",
-          "commitHash": "5d542dc09f3d9378d005092a4ad446bd405f819a"
+          "commitHash": "c556831ddc6fe26d2fce01c14c97205a9dad46d5"
         },
-		"version": "0.11.1"
+		"version": "0.12.2"
       }
     }
   ],
