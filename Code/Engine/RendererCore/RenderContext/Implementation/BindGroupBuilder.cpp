@@ -219,7 +219,6 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
           item.m_Flags = ezGALBindGroupItemFlags::Buffer | ezGALBindGroupItemFlags::Fallback;
           item.m_Buffer.m_hBuffer = hBuffer;
           item.m_Buffer.m_BufferRange = pBuffer->ClampRange({});
-          ;
           item.m_Buffer.m_OverrideTexelBufferFormat = {};
         }
       }

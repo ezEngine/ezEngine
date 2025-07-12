@@ -262,6 +262,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
 // static
 void ezShaderStageBinary::OnEngineShutdown()
 {
+  EZ_LOCK(s_ShaderStageBinariesLock);
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     s_ShaderStageBinaries[stage].Clear();
