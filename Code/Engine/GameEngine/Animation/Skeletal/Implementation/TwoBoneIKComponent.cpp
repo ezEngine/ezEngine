@@ -118,7 +118,7 @@ void ezTwoBoneIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGenera
   if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
     return;
 
-    // if we are already past this, just return
+  // if we are already past this, just return
   if (m_uiOrder < msg.m_uiOrderNow)
     return;
 
