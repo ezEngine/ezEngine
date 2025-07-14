@@ -859,7 +859,11 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       JPH::BoxShapeSettings shape;
       shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
       shape.mMaterial = pJoltMaterial;
-      shape.mHalfExtent = ezJoltConversionUtils::ToVec3(geo.m_Transform.m_vScale * 0.5f) * fObjectScale;
+      ezVec3 vHalfSize = geo.m_Transform.m_vScale * 0.5f * fObjectScale;
+      vHalfSize.x = ezMath::Max(vHalfSize.x, JPH::cDefaultConvexRadius);
+      vHalfSize.y = ezMath::Max(vHalfSize.y, JPH::cDefaultConvexRadius);
+      vHalfSize.z = ezMath::Max(vHalfSize.z, JPH::cDefaultConvexRadius);
+      shape.mHalfExtent = ezJoltConversionUtils::ToVec3(vHalfSize);
 
       out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
@@ -878,6 +882,22 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation * qRot;
       out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
+
+      pShape = shape.Create().Get();
+    }
+    break;
+
+    case ezSkeletonJointGeometryType::CapsuleSideways:
+    {
+      JPH::CapsuleShapeSettings shape;
+      shape.mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
+      shape.mMaterial = pJoltMaterial;
+      shape.mHalfHeightOfCylinder = geo.m_Transform.m_vScale.x * 0.5f * fObjectScale;
+      shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
+
+      // ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(-90));
+      out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation; // *qRot;
+      // out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
       pShape = shape.Create().Get();
     }

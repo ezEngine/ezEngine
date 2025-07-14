@@ -35,6 +35,9 @@ class ScriptObject : ezAngelScriptClass
             animComp.Speed = ezMath::Clamp(fSpeed / fAnimSpeed, 0.0f, 1.0f);
         }
 
+        if (Health <= 0)
+            return;
+
         ezAiNavigationComponent@ navComp;
         if (GetOwner().TryGetComponentOfBaseType(@navComp))
         {
@@ -42,7 +45,7 @@ class ScriptObject : ezAngelScriptClass
             float fHit;
             if (navComp.RaycastNavMesh(GetOwner().GetGlobalPosition(), GetOwner().GetGlobalDirForwards(), 10.0f, vHit, fHit))
             {
-                ezDebug::DrawLine(GetOwner().GetGlobalPosition()+ ezVec3(0, 0, 1), vHit+ ezVec3(0, 0, 1), ezColor::Orange, ezColor::Red);
+                ezDebug::DrawLine(GetOwner().GetGlobalPosition()+ ezVec3(0, 0, 1), vHit + ezVec3(0, 0, 1), ezColor::Orange, ezColor::Red);
             }
         }
     }

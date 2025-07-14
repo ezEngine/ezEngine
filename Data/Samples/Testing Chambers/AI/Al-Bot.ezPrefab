@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13538917938739035806,5388555642691984166}}
-		u4 %Hash{9146848708911114105}
+		u4 %Hash{11601254243594072517}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{539284960665380185,1283550099581856954}}
@@ -61,7 +61,7 @@ o
 		HashedString %NavmeshConfig{s{"Default"}}
 		HashedString %PathSearchConfig{s{"Default"}}
 		f %ReachedDistance{0x0000803F}
-		f %Speed{0x0000803F}
+		f %Speed{0x00004040}
 	}
 }
 o
@@ -97,7 +97,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0x0000003F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{0}

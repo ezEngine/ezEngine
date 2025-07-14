@@ -146,8 +146,9 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
 
   const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
-  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  // the capsule should extend along X, but the capsule shape goes along Z
+  const ezQuat qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  const ezQuat qRotYtoZ = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
 
   for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   {
@@ -223,6 +224,15 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
 
       // TODO: if offset desired
       shape.m_vOffsetPos += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+
+      ezJoltShapeCapsuleComponent* pShapeComp = nullptr;
+      ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
+      pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
+      pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
+    }
+    else if (geo.m_Type == ezSkeletonJointGeometryType::CapsuleSideways)
+    {
+      shape.m_qOffsetRot = shape.m_qOffsetRot * qRotYtoZ;
 
       ezJoltShapeCapsuleComponent* pShapeComp = nullptr;
       ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);

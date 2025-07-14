@@ -144,7 +144,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
       props["Thickness"].m_Visibility = ezPropertyUiState::Default;
       props["Thickness"].m_sNewLabelText = "Radius";
     }
-    else if (geomType == ezSkeletonJointGeometryType::Capsule)
+    else if (geomType == ezSkeletonJointGeometryType::Capsule || geomType == ezSkeletonJointGeometryType::CapsuleSideways)
     {
       props["Length"].m_Visibility = ezPropertyUiState::Default;
 

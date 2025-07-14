@@ -34,6 +34,7 @@ struct ezSkeletonJointGeometryType
     Sphere,
     Box,
     ConvexMesh, ///< A convex mesh is extracted from the mesh file.
+    CapsuleSideways,
 
     Default = None
   };

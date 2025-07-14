@@ -388,8 +388,9 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
   if (m_sBonesToHighlight == "*")
     bonesToHighlight.Clear();
 
-  ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
-  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  // the capsule should extend along X, but the debug renderer draws them along Z
+  const ezQuat qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  const ezQuat qRotYtoZ = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -442,6 +443,17 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
 
       // TODO: if offset desired
       st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+
+      auto& shape = m_CapsuleShapes.ExpandAndGetRef();
+      shape.m_Transform = st;
+      shape.m_fLength = geo.m_Transform.m_vScale.x;
+      shape.m_fRadius = geo.m_Transform.m_vScale.z;
+      shape.m_Color = hlS;
+    }
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::CapsuleSideways)
+    {
+      st.m_qRotation = st.m_qRotation * qRotYtoZ;
 
       auto& shape = m_CapsuleShapes.ExpandAndGetRef();
       shape.m_Transform = st;

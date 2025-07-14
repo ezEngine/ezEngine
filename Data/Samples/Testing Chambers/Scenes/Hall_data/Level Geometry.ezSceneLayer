@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15189912638122679973,5056406926986055588}}
-		u4 %Hash{14118110406083106313}
+		u4 %Hash{3513894810365033233}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -4062,7 +4062,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -11768,7 +11768,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -11789,7 +11789,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -11964,7 +11964,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -12133,7 +12133,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -12461,7 +12461,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -13383,7 +13383,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -13976,7 +13976,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -14024,7 +14024,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -21893,7 +21893,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -27156,7 +27156,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
@@ -31414,7 +31414,7 @@ o
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
-		f %GravityFactor{0x0000803F}
+		f %GravityFactor{0xCDCC4C3F}
 		f %Mass{0x00004842}
 		f %OwnerVelocityScale{0x0000803F}
 		b %SelfCollision{1}
