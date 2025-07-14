@@ -63,6 +63,8 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseGeneration : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseGeneration, ezMessage);
 
   ezAnimPoseGenerator* m_pGenerator = nullptr;
+  ezUInt16 m_uiOrderNow = 0;
+  ezUInt16 m_uiOrderNext = 0xFFFF;
 };
 
 /// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.

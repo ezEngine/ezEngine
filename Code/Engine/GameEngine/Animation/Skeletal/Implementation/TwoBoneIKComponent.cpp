@@ -7,7 +7,7 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTwoBoneIKComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezTwoBoneIKComponent, 3, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTwoBoneIKComponent, 2, ezComponentMode::Dynamic);
     EZ_ENUM_MEMBER_PROPERTY("MidAxis", ezBasisAxis, m_MidAxis)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
     EZ_ACCESSOR_PROPERTY("PoleVector", DummyGetter, SetPoleVectorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("Order", m_uiOrder),
     //EZ_MEMBER_PROPERTY("Soften", m_fSoften)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     //EZ_MEMBER_PROPERTY("TwistAngle", m_TwistAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-180), ezAngle::MakeFromDegree(180))),
   }
@@ -80,6 +81,9 @@ void ezTwoBoneIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // s << m_fSoften;
   // s << m_TwistAngle;
+
+  // version 3
+  s << m_uiOrder;
 }
 
 void ezTwoBoneIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -102,12 +106,28 @@ void ezTwoBoneIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   // s >> m_fSoften;
   // s >> m_TwistAngle;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_uiOrder;
+  }
 }
 
 void ezTwoBoneIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
   if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
     return;
+
+    // if we are already past this, just return
+  if (m_uiOrder < msg.m_uiOrderNow)
+    return;
+
+  // if we haven't reached this yet, put it in the queue
+  if (m_uiOrder > msg.m_uiOrderNow)
+  {
+    msg.m_uiOrderNext = ezMath::Min(msg.m_uiOrderNext, m_uiOrder);
+    return;
+  }
 
   const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
   const ezTransform ownerTransform = ezTransform::MakeGlobalTransform(targetTrans, msg.m_pGenerator->GetSkeleton()->GetDescriptor().m_RootTransform);

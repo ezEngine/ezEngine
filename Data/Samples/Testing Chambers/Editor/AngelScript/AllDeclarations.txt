@@ -2256,6 +2256,7 @@ uint ezStringBuilder::GetElementCount() const
 uint ezStringBuilder::ReplaceAll(ezStringView sSearchFor, ezStringView sReplacement)
 uint ezStringBuilder::ReplaceAll_NoCase(ezStringView sSearchFor, ezStringView sReplacement)
 uint ezStringView::GetElementCount() const
+uint16 ezAimIKComponent::get_Order() const
 uint16 ezEventMsgSetPowerInput::get_NewValue() const
 uint16 ezEventMsgSetPowerInput::get_PrevValue() const
 uint16 ezFakeRopeComponent::get_Pieces() const
@@ -2268,6 +2269,7 @@ uint16 ezRandom::UInt16Index(uint16 uiArraySize, uint16 uiFallbackValue = 0xFFFF
 uint16 ezRandomPrefabComponent::get_Count() const
 uint16 ezSpawnBoxComponent::get_MinSpawnCount() const
 uint16 ezSpawnBoxComponent::get_SpawnCountRange() const
+uint16 ezTwoBoneIKComponent::get_Order() const
 uint64 ezParticleComponent::get_RandomSeed() const
 uint8 ezAreaDamageComponent::get_CollisionLayer() const
 uint8 ezAreaDamageComponent::get_ImpulseType() const
@@ -2326,6 +2328,7 @@ void ezAiNavigationComponent::set_Speed(float)
 void ezAimIKComponent::set_DebugVisScale(float)
 void ezAimIKComponent::set_ForwardVector(ezBasisAxis)
 void ezAimIKComponent::set_InversePoleVector(bool)
+void ezAimIKComponent::set_Order(uint16)
 void ezAimIKComponent::set_UpVector(ezBasisAxis)
 void ezAimIKComponent::set_Weight(float)
 void ezAmbientLightComponent::set_BottomColor(ezColorGammaUB)
@@ -3214,6 +3217,7 @@ void ezTwoBoneIKComponent::set_JointEnd(ezHashedString)
 void ezTwoBoneIKComponent::set_JointMiddle(ezHashedString)
 void ezTwoBoneIKComponent::set_JointStart(ezHashedString)
 void ezTwoBoneIKComponent::set_MidAxis(ezBasisAxis)
+void ezTwoBoneIKComponent::set_Order(uint16)
 void ezTwoBoneIKComponent::set_Weight(float)
 void ezVec2::MakeOrthogonalTo(const ezVec2&in)
 void ezVec2::Normalize()

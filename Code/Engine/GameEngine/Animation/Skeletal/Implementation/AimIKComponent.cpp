@@ -19,7 +19,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIkJointEntry, ezNoBase, 1, ezRTTIDefaultAllocat
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 3, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -30,6 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 2, ezComponentMode::Dynamic);
     EZ_MEMBER_PROPERTY("InversePoleVector", m_bInversePoleVector),
     EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Joints", m_Joints),
+    EZ_MEMBER_PROPERTY("Order", m_uiOrder),
   }
   EZ_END_PROPERTIES;
 
@@ -100,6 +101,8 @@ void ezAimIKComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s.WriteArray(m_Joints).AssertSuccess();
 
   s << m_bInversePoleVector;
+
+  s << m_uiOrder;
 }
 
 void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -118,12 +121,28 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     s >> m_bInversePoleVector;
   }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_uiOrder;
+  }
 }
 
 void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
 {
   if ((m_fWeight <= 0.0f && m_uiDebugVisScale == 0) || m_Joints.IsEmpty())
     return;
+
+  // if we are already past this, just return
+  if (m_uiOrder < msg.m_uiOrderNow)
+    return;
+
+  // if we haven't reached this yet, put it in the queue
+  if (m_uiOrder > msg.m_uiOrderNow)
+  {
+    msg.m_uiOrderNext = ezMath::Min(msg.m_uiOrderNext, m_uiOrder);
+    return;
+  }
 
   const ezTransform targetTrans = msg.m_pGenerator->GetTargetObject()->GetGlobalTransform();
   const ezTransform selfTrans = GetOwner()->GetGlobalTransform();

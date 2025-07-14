@@ -256,7 +256,18 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
   {
     ezMsgAnimationPoseGeneration poseGenMsg;
     poseGenMsg.m_pGenerator = this;
-    m_pTargetGameObject->SendMessageRecursive(poseGenMsg);
+
+    while (true)
+    {
+      poseGenMsg.m_uiOrderNext = 0xFFFF;
+
+      m_pTargetGameObject->SendMessageRecursive(poseGenMsg);
+
+      if (poseGenMsg.m_uiOrderNext == 0xFFFF)
+        break;
+
+      poseGenMsg.m_uiOrderNow = poseGenMsg.m_uiOrderNext;
+    }
 
     // update the pose once again afterwards
     Execute(GetCommand(m_FinalCommand));

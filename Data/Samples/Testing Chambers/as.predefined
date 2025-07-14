@@ -1977,6 +1977,7 @@ class ezAimIKComponent : ezComponent
   ezString PoleVector;
   bool InversePoleVector;
   float Weight;
+  uint16 Order;
 }
 
 class ezAnimatedMeshComponent : ezMeshComponentBase
@@ -2039,6 +2040,7 @@ class ezTwoBoneIKComponent : ezComponent
   ezBasisAxis MidAxis;
   ezString PoleVector;
   float Weight;
+  uint16 Order;
 }
 
 class ezPostProcessingComponent : ezComponent
