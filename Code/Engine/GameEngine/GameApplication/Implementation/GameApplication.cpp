@@ -97,9 +97,15 @@ ezString ezGameApplication::FindProjectDirectory() const
   return result;
 }
 
-bool ezGameApplication::IsGameUpdateEnabled() const
+ezGameUpdateMode ezGameApplication::GetGameUpdateMode() const
 {
-  return ezRenderWorld::IsRenderingScheduled();
+  const bool bViewsScheduled = !ezRenderWorld::GetMainViews().IsEmpty();
+  const bool bRenderingScheduled = ezRenderWorld::IsRenderingScheduled();
+  if (bViewsScheduled)
+  {
+    return ezGameUpdateMode::UpdateInputAndRender;
+  }
+  return bRenderingScheduled ? ezGameUpdateMode::Render : ezGameUpdateMode::Skip;
 }
 
 void ezGameApplication::Run_WorldUpdateAndRender()

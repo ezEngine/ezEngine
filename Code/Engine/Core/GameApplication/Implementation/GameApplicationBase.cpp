@@ -403,7 +403,8 @@ void ezGameApplicationBase::RunOneFrame()
 
   ezActorManager::GetSingleton()->Update();
 
-  if (!IsGameUpdateEnabled())
+  const ezGameUpdateMode state = GetGameUpdateMode();
+  if (state == ezGameUpdateMode::Skip)
     return;
 
   {
@@ -415,10 +416,11 @@ void ezGameApplicationBase::RunOneFrame()
     m_ExecutionEvents.Broadcast(e);
   }
 
-  Run_InputUpdate();
+  if (state == ezGameUpdateMode::UpdateInputAndRender)
+    Run_InputUpdate();
 
   Run_AcquireImage();
-
+  
   Run_WorldUpdateAndRender();
 
   if (!s_bUpdatePluginsExecuted)

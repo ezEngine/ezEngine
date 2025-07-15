@@ -45,6 +45,13 @@ struct ezGameApplicationExecutionEvent
   Type m_Type;
 };
 
+enum class ezGameUpdateMode
+{
+  Skip, ///< Dont update or render anything
+  Render, ///< Only render, no input update
+  UpdateInputAndRender, ///< Update input and render
+};
+
 // TODO: document this and update ezGameApplication comments
 
 class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
@@ -249,7 +256,7 @@ public:
   ezTime GetFrameTime() const { return m_FrameTime; }
 
 protected:
-  virtual bool IsGameUpdateEnabled() const { return true; }
+  virtual ezGameUpdateMode GetGameUpdateMode() const { return ezGameUpdateMode::UpdateInputAndRender; }
 
   virtual void Run_InputUpdate();
   virtual bool Run_ProcessApplicationInput();
