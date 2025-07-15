@@ -47,8 +47,8 @@ struct ezGameApplicationExecutionEvent
 
 enum class ezGameUpdateMode
 {
-  Skip, ///< Dont update or render anything
-  Render, ///< Only render, no input update
+  Skip,                 ///< Dont update or render anything
+  Render,               ///< Only render, no input update
   UpdateInputAndRender, ///< Update input and render
 };
 

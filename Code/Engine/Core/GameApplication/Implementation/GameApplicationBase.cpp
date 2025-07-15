@@ -420,7 +420,7 @@ void ezGameApplicationBase::RunOneFrame()
     Run_InputUpdate();
 
   Run_AcquireImage();
-  
+
   Run_WorldUpdateAndRender();
 
   if (!s_bUpdatePluginsExecuted)
