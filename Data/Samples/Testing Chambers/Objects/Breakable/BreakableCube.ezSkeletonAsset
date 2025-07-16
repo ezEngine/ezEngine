@@ -50,7 +50,7 @@ o
 			s{"Assets/BreakableCube.glb"}
 		}
 		Uuid %DocumentID{u4{10816068247558770055,4867851863284337433}}
-		u4 %Hash{7061125120208688842}
+		u4 %Hash{2952875517467838268}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6114842199793093614,8323237612669979735}}
@@ -597,68 +597,68 @@ o
 		s %Identifier{"UCX_Bone.005"}
 		VarArray %TriangleIndices
 		{
-			u1{10}
-			u1{3}
 			u1{0}
-			u1{10}
-			u1{0}
-			u1{7}
-			u1{22}
-			u1{15}
-			u1{4}
-			u1{22}
-			u1{4}
-			u1{11}
-			u1{21}
-			u1{9}
-			u1{6}
-			u1{21}
-			u1{6}
-			u1{18}
-			u1{8}
+			u1{1}
 			u1{2}
-			u1{14}
-			u1{8}
-			u1{14}
-			u1{20}
-			u1{1}
+			u1{0}
+			u1{2}
+			u1{3}
+			u1{4}
 			u1{5}
-			u1{17}
-			u1{1}
-			u1{17}
-			u1{13}
-			u1{19}
+			u1{6}
+			u1{4}
+			u1{6}
+			u1{7}
+			u1{8}
+			u1{9}
+			u1{10}
+			u1{8}
+			u1{10}
+			u1{11}
 			u1{12}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
 			u1{16}
+			u1{17}
+			u1{18}
+			u1{16}
+			u1{18}
 			u1{19}
-			u1{16}
+			u1{20}
+			u1{21}
+			u1{22}
+			u1{20}
+			u1{22}
 			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
-			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
-			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
-			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
-			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
+			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
+			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x0000803F,0x000080BF}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
 		}
 	}
@@ -817,68 +817,68 @@ o
 		s %Identifier{"UCX_Bone.004"}
 		VarArray %TriangleIndices
 		{
-			u1{23}
-			u1{13}
+			u1{0}
+			u1{1}
 			u1{2}
-			u1{23}
+			u1{0}
 			u1{2}
-			u1{5}
-			u1{7}
 			u1{3}
-			u1{0}
+			u1{4}
+			u1{5}
+			u1{6}
+			u1{4}
+			u1{6}
 			u1{7}
-			u1{0}
+			u1{8}
 			u1{9}
+			u1{10}
+			u1{8}
+			u1{10}
+			u1{11}
+			u1{12}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
+			u1{16}
+			u1{17}
+			u1{18}
 			u1{16}
 			u1{18}
-			u1{6}
-			u1{16}
-			u1{6}
-			u1{11}
-			u1{4}
-			u1{8}
+			u1{19}
 			u1{20}
-			u1{4}
+			u1{21}
+			u1{22}
 			u1{20}
 			u1{22}
-			u1{10}
-			u1{1}
-			u1{12}
-			u1{10}
-			u1{12}
-			u1{15}
-			u1{19}
-			u1{17}
-			u1{14}
-			u1{19}
-			u1{14}
-			u1{21}
+			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x000080BF,0x0000803F,0x0000803F}}
-			Vec3{f{0x000080BF,0x0000803F,0x0000803F}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
 			Vec3{f{0x000080BF,0x0000803F,0x0000803F}}
 			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
 			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
-			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x000080BF,0x0000803F,0x0000803F}}
 			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
-			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
-			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
+			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
 			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
+			Vec3{f{0x000080BF,0x0000803F,0x0000803F}}
+			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
 			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
 		}
 	}
@@ -893,69 +893,69 @@ o
 		s %Identifier{"UCX_Bone.008"}
 		VarArray %TriangleIndices
 		{
-			u1{18}
-			u1{21}
 			u1{0}
-			u1{18}
-			u1{0}
-			u1{6}
-			u1{8}
 			u1{1}
+			u1{2}
+			u1{0}
+			u1{2}
 			u1{3}
+			u1{4}
+			u1{5}
+			u1{6}
+			u1{4}
+			u1{6}
+			u1{7}
 			u1{8}
-			u1{3}
+			u1{9}
+			u1{10}
+			u1{8}
+			u1{10}
 			u1{11}
 			u1{12}
-			u1{17}
-			u1{10}
-			u1{12}
-			u1{10}
-			u1{4}
-			u1{7}
-			u1{9}
-			u1{15}
-			u1{7}
-			u1{15}
-			u1{19}
-			u1{5}
-			u1{2}
-			u1{23}
-			u1{5}
-			u1{23}
-			u1{14}
-			u1{16}
 			u1{13}
-			u1{22}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
 			u1{16}
+			u1{17}
+			u1{18}
+			u1{16}
+			u1{18}
+			u1{19}
+			u1{20}
+			u1{21}
 			u1{22}
 			u1{20}
+			u1{22}
+			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
-			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
-			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
-			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
+			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
+			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
+			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
+			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0x507DD23D,0x0000803F,0x000080BF}}
+			Vec3{f{0x000080BF,0x0000803F,0x000080BF}}
 			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
 			Vec3{f{0x000080BF,0x0000803F,0x9431BFBE}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 		}
 	}
 }
@@ -996,69 +996,69 @@ o
 		s %Identifier{"UCX_Bone.007"}
 		VarArray %TriangleIndices
 		{
-			u1{21}
-			u1{17}
+			u1{0}
+			u1{1}
+			u1{2}
+			u1{0}
+			u1{2}
+			u1{3}
 			u1{4}
-			u1{21}
+			u1{5}
+			u1{6}
 			u1{4}
 			u1{6}
-			u1{2}
+			u1{7}
+			u1{8}
+			u1{9}
 			u1{10}
-			u1{7}
-			u1{2}
-			u1{7}
-			u1{5}
-			u1{14}
-			u1{18}
-			u1{9}
-			u1{14}
-			u1{9}
-			u1{1}
 			u1{8}
+			u1{10}
 			u1{11}
-			u1{20}
-			u1{8}
-			u1{20}
-			u1{23}
-			u1{0}
-			u1{3}
-			u1{16}
-			u1{0}
-			u1{16}
-			u1{13}
-			u1{15}
-			u1{22}
-			u1{19}
-			u1{15}
-			u1{19}
 			u1{12}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
+			u1{16}
+			u1{17}
+			u1{18}
+			u1{16}
+			u1{18}
+			u1{19}
+			u1{20}
+			u1{21}
+			u1{22}
+			u1{20}
+			u1{22}
+			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
-			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
-			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
-			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
-			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
+			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
+			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
+			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
 			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x000080BF,0x541A903E,0x000080BF}}
-			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
-			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
-			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x000080BF,0x000080BF}}
+			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
 		}
 	}
 }
@@ -1102,69 +1102,69 @@ o
 		s %Identifier{"UCX_Bone.002"}
 		VarArray %TriangleIndices
 		{
-			u1{21}
-			u1{12}
 			u1{0}
-			u1{21}
-			u1{0}
-			u1{3}
 			u1{1}
-			u1{9}
-			u1{7}
-			u1{1}
-			u1{7}
-			u1{5}
-			u1{14}
-			u1{20}
-			u1{11}
-			u1{14}
-			u1{11}
 			u1{2}
-			u1{8}
-			u1{10}
-			u1{19}
-			u1{8}
-			u1{19}
-			u1{15}
+			u1{0}
+			u1{2}
+			u1{3}
+			u1{4}
+			u1{5}
+			u1{6}
 			u1{4}
 			u1{6}
+			u1{7}
+			u1{8}
+			u1{9}
+			u1{10}
+			u1{8}
+			u1{10}
+			u1{11}
+			u1{12}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
 			u1{16}
-			u1{4}
-			u1{16}
-			u1{22}
-			u1{23}
 			u1{17}
 			u1{18}
-			u1{23}
+			u1{16}
 			u1{18}
-			u1{13}
+			u1{19}
+			u1{20}
+			u1{21}
+			u1{22}
+			u1{20}
+			u1{22}
+			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x0000803F,0x000080BF,0x0000803F}}
-			Vec3{f{0x0000803F,0x000080BF,0x0000803F}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
 			Vec3{f{0x0000803F,0x000080BF,0x0000803F}}
 			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
+			Vec3{f{0x0000803F,0x000080BF,0x0000803F}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
 			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
+			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
+			Vec3{f{0x0000803F,0x000080BF,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
 			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
 			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
-			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
-			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
 			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
 			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
 		}
 	}
 }
@@ -1205,68 +1205,68 @@ o
 		s %Identifier{"UCX_Bone.003"}
 		VarArray %TriangleIndices
 		{
-			u1{21}
-			u1{18}
-			u1{3}
-			u1{21}
-			u1{3}
 			u1{0}
-			u1{4}
-			u1{9}
-			u1{6}
-			u1{4}
-			u1{6}
 			u1{1}
-			u1{14}
-			u1{17}
+			u1{2}
+			u1{0}
+			u1{2}
+			u1{3}
+			u1{4}
+			u1{5}
+			u1{6}
+			u1{4}
+			u1{6}
+			u1{7}
 			u1{8}
-			u1{14}
+			u1{9}
+			u1{10}
 			u1{8}
 			u1{10}
 			u1{11}
-			u1{5}
-			u1{20}
-			u1{11}
-			u1{20}
-			u1{13}
-			u1{2}
-			u1{7}
-			u1{15}
-			u1{2}
-			u1{15}
-			u1{22}
-			u1{16}
 			u1{12}
-			u1{19}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
 			u1{16}
+			u1{17}
+			u1{18}
+			u1{16}
+			u1{18}
 			u1{19}
+			u1{20}
+			u1{21}
+			u1{22}
+			u1{20}
+			u1{22}
 			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
-			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
-			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
-			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
-			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
-			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
-			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
+			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
+			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
+			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x809765BD,0x000080BF,0x0000803F}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x000080BF,0x000080BF,0x0000803F}}
+			Vec3{f{0x000080BF,0x8CE4E13E,0x0000803F}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
 			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
+			Vec3{f{0x000080BF,0x5052B03E,0x804059BE}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0x000080BF,0x000080BF,0x90BAF23D}}
 		}
 	}
@@ -1338,69 +1338,69 @@ o
 		s %Identifier{"UCX_Bone.006"}
 		VarArray %TriangleIndices
 		{
-			u1{13}
-			u1{19}
-			u1{8}
-			u1{13}
-			u1{8}
+			u1{0}
+			u1{1}
+			u1{2}
+			u1{0}
+			u1{2}
+			u1{3}
 			u1{4}
 			u1{5}
 			u1{6}
+			u1{4}
+			u1{6}
+			u1{7}
+			u1{8}
 			u1{9}
-			u1{5}
-			u1{9}
-			u1{1}
+			u1{10}
+			u1{8}
+			u1{10}
+			u1{11}
+			u1{12}
+			u1{13}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
+			u1{16}
+			u1{17}
 			u1{18}
 			u1{16}
-			u1{10}
 			u1{18}
-			u1{10}
-			u1{7}
-			u1{3}
-			u1{0}
+			u1{19}
+			u1{20}
+			u1{21}
 			u1{22}
-			u1{3}
+			u1{20}
 			u1{22}
-			u1{12}
-			u1{2}
-			u1{11}
-			u1{17}
-			u1{2}
-			u1{17}
 			u1{23}
-			u1{20}
-			u1{14}
-			u1{21}
-			u1{20}
-			u1{21}
-			u1{15}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
-			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
-			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
-			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
 			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
 			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
+			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
 			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x6473B93C,0xE03BD9BD,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
-			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xE0912CBD,0x000080BF,0x000080BF}}
+			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
 			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
+			Vec3{f{0x0000803F,0x000080BF,0x000080BF}}
+			Vec3{f{0x0000803F,0x6CEFF3BE,0x000080BF}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
 			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xBA924DBD,0x000080BF,0xD058213E}}
 			Vec3{f{0x0000803F,0x000080BF,0x088E4D3E}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
 		}
 	}
 }
@@ -1471,68 +1471,68 @@ o
 		s %Identifier{"UCX_Bone.001"}
 		VarArray %TriangleIndices
 		{
-			u1{17}
-			u1{23}
-			u1{2}
-			u1{17}
-			u1{2}
-			u1{8}
-			u1{21}
-			u1{20}
-			u1{5}
-			u1{21}
-			u1{5}
-			u1{1}
-			u1{7}
 			u1{0}
-			u1{4}
-			u1{7}
-			u1{4}
-			u1{11}
-			u1{10}
-			u1{12}
-			u1{15}
-			u1{10}
-			u1{15}
-			u1{6}
-			u1{9}
+			u1{1}
+			u1{2}
+			u1{0}
+			u1{2}
 			u1{3}
-			u1{18}
+			u1{4}
+			u1{5}
+			u1{6}
+			u1{4}
+			u1{6}
+			u1{7}
+			u1{8}
 			u1{9}
-			u1{18}
-			u1{14}
-			u1{16}
+			u1{10}
+			u1{8}
+			u1{10}
+			u1{11}
+			u1{12}
 			u1{13}
-			u1{19}
+			u1{14}
+			u1{12}
+			u1{14}
+			u1{15}
 			u1{16}
+			u1{17}
+			u1{18}
+			u1{16}
+			u1{18}
 			u1{19}
+			u1{20}
+			u1{21}
 			u1{22}
+			u1{20}
+			u1{22}
+			u1{23}
 		}
 		VarArray %VertexPositions
 		{
-			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
-			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
-			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
-			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
-			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
-			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
-			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
 			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
-			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
 			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
+			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
 			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
+			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
+			Vec3{f{0x0000803F,0x0000803F,0x0000803F}}
+			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0x0000803F,0x3425A2BE,0x0000803F}}
+			Vec3{f{0xC0BCA63C,0xB0655F3D,0x0000803F}}
+			Vec3{f{0x78FAB53D,0x0000803F,0x0000803F}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0x0000803F,0x3EF1C8BE,0x4020523D}}
+			Vec3{f{0xEAD1B03C,0x560E03BD,0xB0E59EBD}}
+			Vec3{f{0xF0E9C83D,0x0000803F,0xCE14A8BE}}
 			Vec3{f{0x0000803F,0x0000803F,0x361995BE}}
 		}
 	}
@@ -1541,7 +1541,7 @@ o
 {
 	Uuid %id{u4{6814321812781140116,5625294343704443643}}
 	s %t{"ezEditableSkeleton"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %BoneDirection{"ezBasisAxis::PositiveY"}
@@ -1552,9 +1552,12 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Assets/BreakableCube.glb"}
 		b %FlipForwardDir{1}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{""}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightFootJoint{""}
 		s %Surface{"{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -1721,6 +1724,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13569856615221415969,9151104531254943604}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1767,7 +1787,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

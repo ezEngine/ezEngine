@@ -538,7 +538,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     const ezQuat qLimitRot = parentRot * thisJoint.GetLocalOrientation();
 
     // main directions
-    if (m_bVisualizeJoints)
+    if (m_bVisualizeJoints && thisJoint.GetJointType() != ezSkeletonJointType::None)
     {
       const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
       const ezColor hlT = ezMath::Lerp(ezColor::LawnGreen, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
@@ -579,7 +579,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // swing limit
-    if (m_bVisualizeSwingLimits && (thisJoint.GetHalfSwingLimitY() > ezAngle() || thisJoint.GetHalfSwingLimitZ() > ezAngle()))
+    if (m_bVisualizeSwingLimits && thisJoint.GetJointType() == ezSkeletonJointType::SwingTwist)
     {
       auto& shape = m_ConeLimitShapes.ExpandAndGetRef();
       shape.m_Angle1 = thisJoint.GetHalfSwingLimitY();
@@ -604,7 +604,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::MakeFromDegree(0))
+    if (m_bVisualizeTwistLimits && thisJoint.GetJointType() == ezSkeletonJointType::SwingTwist)
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
       shape.m_StartAngle = thisJoint.GetTwistLimitLow();

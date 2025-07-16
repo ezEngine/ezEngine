@@ -59,8 +59,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
     EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
     EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(10), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(170), ezAngle::MakeFromDegree(170))),
-
+    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle),
     EZ_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
     EZ_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("OverrideCollisionLayer", m_bOverrideCollisionLayer),

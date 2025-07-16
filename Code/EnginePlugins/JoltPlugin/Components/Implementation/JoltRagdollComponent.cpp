@@ -1097,18 +1097,17 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
 
     const ezQuat offsetRot = thisJoint.GetLocalOrientation();
 
-    ezQuat qTwist = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisY(), thisJoint.GetTwistLimitCenterAngle());
-
-    pJoint->mDrawConstraintSize = 0.1f;
+    pJoint->mSpace = JPH::EConstraintSpace::WorldSpace;
+    pJoint->mDrawConstraintSize = 0.15f;
     pJoint->mPosition1 = pLink->mPosition;
     pJoint->mPosition2 = pLink->mPosition;
     pJoint->mNormalHalfConeAngle = thisJoint.GetHalfSwingLimitZ().GetRadian();
     pJoint->mPlaneHalfConeAngle = thisJoint.GetHalfSwingLimitY().GetRadian();
-    pJoint->mTwistMinAngle = -thisJoint.GetTwistLimitHalfAngle().GetRadian();
-    pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHalfAngle().GetRadian();
+    pJoint->mTwistMinAngle = thisJoint.GetTwistLimitLow().GetRadian();
+    pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHigh().GetRadian();
     pJoint->mMaxFrictionTorque = m_fStiffnessFactor * thisJoint.GetStiffness();
-    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * qTwist * ezVec3::MakeAxisZ()).Normalized();
-    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * qTwist * ezVec3::MakeAxisZ()).Normalized();
+    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisZ()).Normalized();
+    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisZ()).Normalized();
     pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisY()).Normalized();
     pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisY()).Normalized();
   }
