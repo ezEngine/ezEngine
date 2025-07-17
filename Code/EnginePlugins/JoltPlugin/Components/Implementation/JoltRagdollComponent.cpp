@@ -506,7 +506,7 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
   const JPH::Body* root = lock.GetBody(0);
   JPH::RMat44 root_transform = root->GetWorldTransform();
   JPH::RVec3 vRootOffset = root_transform.GetTranslation();
-  vRootOffset = vCurPosition + (vRootOffset - vCurPosition) * 0.1; // interpolate the object position towards the root bone position
+  vRootOffset = vCurPosition + (vRootOffset - vCurPosition) * 0.1f; // interpolate the object position towards the root bone position
 
 
   const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
