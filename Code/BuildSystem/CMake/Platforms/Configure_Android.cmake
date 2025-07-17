@@ -186,3 +186,18 @@ macro(ez_platformhook_find_vulkan)
 	endif()
 
 endmacro()
+
+macro(ez_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+
+	# Package files for Android APK by copying them to the Assets directory
+	# This is done in PRE_BUILD so that it happens before the APK generation steps
+	# that happen in POST_BUILD via ez_create_target
+	set(ANDROID_PACKAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/package/Assets")
+	
+	add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${ANDROID_PACKAGE_DIR}/${DST_FOLDER}"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${SRC_FOLDER}" "${ANDROID_PACKAGE_DIR}/${DST_FOLDER}"
+		COMMENT "Packaging ${SRC_FOLDER} -> ${DST_FOLDER} for Android")
+
+endmacro()
