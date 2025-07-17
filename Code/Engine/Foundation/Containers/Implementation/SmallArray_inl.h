@@ -201,7 +201,7 @@ template <typename T, ezUInt16 Size>
 template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger early.
 void ezSmallArrayBase<T, Size>::SetCountUninitialized(ezUInt16 uiCount, ezAllocator* pAllocator)
 {
-  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
+  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types. See EZ_DEFINE_AS_POD_TYPE() and EZ_DECLARE_POD_TYPE().");
   const ezUInt16 uiOldCount = m_uiCount;
   const ezUInt16 uiNewCount = uiCount;
 

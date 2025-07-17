@@ -164,12 +164,12 @@ public:
   /// one can separate limbs by setting their joint to 'none'.
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode;                      // [ property ]
-  float m_fGravityFactor = 1.0f;                                   // [ property ]
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                               // [ property ]
+  float m_fGravityFactor = 1.0f;                                            // [ property ]
 
   struct Limb
   {
@@ -189,19 +189,17 @@ protected:
   void DestroyAllLimbs();
   void CreateLimbsFromPose(const ezMsgAnimationPoseUpdated& pose);
   bool HasCreatedLimbs() const;
-  ezTransform GetRagdollRootTransform() const;
-  void UpdateOwnerPosition();
-  void RetrieveRagdollPose();
+  ezVec3 RetrieveRagdollPose();
   void SendAnimationPoseMsg();
   void ConfigureRagdollPart(void* pRagdollSettingsPart, const ezTransform& globalTransform, ezUInt8 uiCollisionLayer, ezJoltWorldModule& worldModule);
-  void CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale);
+  void CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
   void ComputeLimbModelSpaceTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex);
   void ComputeLimbGlobalTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiPoseJointIndex);
-  void CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale);
+  void CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
   JPH::Shape* CreateLimbGeoShape(const LimbConstructionInfo& limbConstructionInfo, const ezSkeletonResourceGeometry& geo, const ezJoltMaterial* pJoltMaterial, const ezQuat& qBoneDirAdjustment, const ezTransform& skeletonRootTransform, ezTransform& out_shapeTransform, float fObjectScale);
-  void CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezSkeletonJoint& thisLimbJoint, const ezSkeletonResource& skeletonResource, float fObjectScale);
-  virtual void ApplyPartInitialVelocity();
-  void ApplyBodyMass(float fMass);
+  void CreateAllLimbGeoShapes(const LimbConstructionInfo& limbConstructionInfo, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezSkeletonJoint& thisLimbJoint, const ezSkeletonResource& skeletonResource, float fObjectScale, JPH::RagdollSettings* pRagdollSettings);
+  virtual void ApplyPartInitialVelocity(JPH::RagdollSettings* pRagdollSettings);
+  void ApplyBodyMass(JPH::RagdollSettings* pRagdollSettings, float fMass);
   void ApplyInitialImpulse(ezJoltWorldModule& worldModule, float fMaxImpulse);
 
   float GetWeight_Scale() const { return m_fWeightScale; }
@@ -211,15 +209,15 @@ protected:
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezDynamicArray<ezMat4> m_CurrentLimbTransforms;
+  ezMat4 m_mInvSkeletonRootTransform;
 
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
   ezUInt32 m_uiJoltUserDataIndex = ezInvalidIndex;
   ezJoltUserData* m_pJoltUserData = nullptr;
 
   JPH::Ragdoll* m_pRagdoll = nullptr;
-  JPH::RagdollSettings* m_pRagdollSettings = nullptr;
+  JPH::PhysicsSystem* m_pJoltSystem = nullptr;
   ezDynamicArray<Limb> m_Limbs;
-  ezTransform m_RootBodyLocalTransform;
   ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 m_vInitialImpulsePosition = ezVec3::MakeZero();
@@ -237,6 +235,6 @@ protected:
 
   //////////////////////////////////////////////////////////////////////////
 
-  void SetupLimbJoints(const ezSkeletonResource* pSkeleton);
+  void SetupLimbJoints(const ezSkeletonResource* pSkeleton, JPH::RagdollSettings* pRagdollSettings);
   void CreateLimbJoint(const ezSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc);
 };

@@ -388,7 +388,7 @@ template <typename> // Second template needed so that the compiler does only ins
 // early.
 void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
 {
-  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
+  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types. See EZ_DEFINE_AS_POD_TYPE() and EZ_DECLARE_POD_TYPE().");
 
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
