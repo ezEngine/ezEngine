@@ -164,12 +164,12 @@ public:
   /// one can separate limbs by setting their joint to 'none'.
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode;                               // [ property ]
-  float m_fGravityFactor = 1.0f;                                            // [ property ]
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                      // [ property ]
+  float m_fGravityFactor = 1.0f;                                   // [ property ]
 
   struct Limb
   {
