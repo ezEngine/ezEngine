@@ -4,7 +4,7 @@
 #include <Foundation/Containers/List.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
-
+#include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Types/VarianceTypes.h>
 
 #include <string>
@@ -21,8 +21,32 @@ public:
 
 // declare bitflags using macro magic
 EZ_DECLARE_FLAGS(ezUInt32, TestFlags, Bit1, Bit2, Bit3, Bit4);
-
 EZ_DEFINE_AS_POD_TYPE(TestFlags::Enum);
+
+struct TestFlagsManual
+{
+  using StorageType = ezUInt32;
+
+  enum Enum
+  {
+    Bit1 = EZ_BIT(0),
+    Bit2 = EZ_BIT(1),
+    Bit3 = EZ_BIT(2),
+    Bit4 = EZ_BIT(3),
+    MultiBits = Bit1 | Bit3,
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType Bit1 : 1;
+    StorageType Bit2 : 1;
+    StorageType Bit3 : 1;
+    StorageType Bit4 : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(TestFlagsManual);
 
 class ReflectedTest : public ezReflectedClass
 {
@@ -222,9 +246,13 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
 
   // Bitflags
   {
-    ezBitflags<TestFlags> bitflags;
-    bitflags.Add(TestFlags::Bit1);
-    bitflags.Add(TestFlags::Bit2);
+    TestFlags::Enum rawBitflags = TestFlags::Bit1;
+    TestFlags::Enum rawBitflags2 = (TestFlags::Enum)(TestFlags::Bit1 | TestFlags::Bit2).GetValue();
+
+    ezBitflags<TestFlagsManual> bitflagsEmpty;
+    ezBitflags<TestFlagsManual> bitflags;
+    bitflags.Add(TestFlagsManual::Bit1);
+    bitflags.Add(TestFlagsManual::Bit3);
 
     ezBitflags<TestFlags> bitflagsArray[2];
     bitflagsArray[0].Add(TestFlags::Bit3);
