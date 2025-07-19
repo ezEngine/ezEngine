@@ -2,15 +2,15 @@
 
 #include <Foundation/CodeUtils/MathExpression.h>
 #include <Foundation/Containers/List.h>
+#include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Types/VarianceTypes.h>
 
 #include <string>
 
 #ifdef __clang__
-#pragma clang optimize off
+#  pragma clang optimize off
 #endif
 
 class TestRefCounted : public ezRefCounted
