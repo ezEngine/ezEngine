@@ -29,18 +29,17 @@
 
     <Type Name="ezStringIterator">
 		<AlternativeType Name="ezStringReverseIterator" />
-		<DisplayString Condition="m_pElement == 0">&lt;Invalid Iterator&gt;</DisplayString>
-		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) != 0x80">{m_pElement,[1]s8}</DisplayString>
-		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) != 0x80">{m_pElement,[2]s8}</DisplayString>
-		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) != 0x80">{m_pElement,[3]s8}</DisplayString>
-		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[4] &amp; 0xC0) != 0x80">{m_pElement,[4]s8}</DisplayString>
+		<DisplayString Condition="m_pCurPtr == 0">&lt;Invalid Iterator&gt;</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) != 0x80">{m_pCurPtr,[1]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) != 0x80">{m_pCurPtr,[2]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[3] &amp; 0xC0) != 0x80">{m_pCurPtr,[3]s8}</DisplayString>
+		<DisplayString Condition="(m_pCurPtr[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[3] &amp; 0xC0) == 0x80 &amp;&amp; (m_pCurPtr[4] &amp; 0xC0) != 0x80">{m_pCurPtr,[4]s8}</DisplayString>
 	</Type>
 	
 	<Type Name="ezHashedString">
 		<DisplayString>{m_Data.m_pElement->m_Value.m_sString}</DisplayString>
 		<StringView>m_Data.m_pElement->m_Value.m_sString</StringView>
 		<Expand>
-			<!--<Item Name="ref">m_Data.m_pElement->m_Value.m_iRefCount</Item>-->
 			<Item Name="hash">m_Data.m_pElement->m_Key,x</Item>
 		</Expand>
 	</Type>
@@ -96,29 +95,29 @@
 	</Type>
 	
 	<Type Name="ezHashTableBase&lt;*&gt;">
+    <AlternativeType Name="ezHashSetBase&lt;*&gt;" />
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
 			<Item Name="capacity">m_uiCapacity</Item>
-			<ArrayItems>
-				<Size>m_uiCapacity</Size>
-				<ValuePointer>m_pEntries</ValuePointer>
-			</ArrayItems>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="index" InitialValue="0" />
+        <Variable Name="flags" InitialValue="0" />
+        <Variable Name="count" InitialValue="0" />
+        <Size>m_uiCount</Size>
+        <Loop>
+          <Exec>flags = (m_pEntryFlags[index / 16] >> ((index &amp; 15) * 2)) &amp; 3</Exec>
+          <If Condition="(flags &amp; 0x01) == 0x01">
+            <Item>m_pEntries[index]</Item>
+            <Exec>count++</Exec>
+          </If>
+          <Exec>index++</Exec>
+          <Break Condition="count == m_uiCount" />
+        </Loop>
+      </CustomListItems>
 		</Expand>
 	</Type>
 	
-	<Type Name="ezHashSetBase&lt;*&gt;">
-		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
-		<Expand>
-			<Item Name="count">m_uiCount</Item>
-			<Item Name="capacity">m_uiCapacity</Item>
-			<ArrayItems>
-				<Size>m_uiCapacity</Size>
-				<ValuePointer>m_pEntries</ValuePointer>
-			</ArrayItems>
-		</Expand>
-	</Type>
-
 	<Type Name="ezListBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
@@ -162,11 +161,14 @@
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
-			<Item Name="start index">m_uiFirstElement</Item>
-			<ArrayItems>
-				<Size>m_uiCount</Size>
-				<ValuePointer>m_pElements</ValuePointer>
-			</ArrayItems>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="index" InitialValue="m_uiFirstElement" />
+        <Size>m_uiCount</Size>
+        <Loop>
+          <Item>m_pElements[index]</Item>
+          <Exec>index = (index + 1) % $T2</Exec>
+        </Loop>
+      </CustomListItems>
 		</Expand>
 	</Type>
 
@@ -185,7 +187,8 @@
 	<Type Name="ezVariant">
 		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
 		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
-		<Expand>
+    <DisplayString Condition="m_uiType == Type::TypedPointer">({reinterpret_cast&lt;ezTypedPointer*&gt;(&amp;m_Data)->m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;ezTypedPointer*&gt;(&amp;m_Data)->m_pObject}</DisplayString>
+    <Expand>
 			<Item Name="Type">(Type::Enum) m_uiType</Item>
 			<Item Name="Value" Condition="m_uiType == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_uiType == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
@@ -257,7 +260,7 @@
 	</Type>
 
 	<Type Name="ezQuatTemplate&lt;*&gt;">
-		<DisplayString>{{ x={v.x}, y={v.y}, z={v.z}, w={w} }}</DisplayString>
+		<DisplayString>{{ x={x}, y={y}, z={z}, w={w} }}</DisplayString>
 	</Type>
 	
 	<Type Name="ezPlaneTemplate&lt;*&gt;">
@@ -265,6 +268,14 @@
 	</Type>
 	
 	<Type Name="ezColor">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezColorBaseUB">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezColorLinearUB">
 		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
 	</Type>
 	
@@ -294,7 +305,11 @@
 			<Item Name="Column3">&amp;m_fElementsCM[12],4</Item>
 		</Expand>
 	</Type>
-
+  
+  <Type Name="ezUuid">
+    <DisplayString>{{ {*reinterpret_cast&lt;ezUInt32*&gt;(this),nvoXb}-{*(reinterpret_cast&lt;ezUInt16*&gt;(this) + 2),nvoXb}-{*(reinterpret_cast&lt;ezUInt16*&gt;(this) + 3),nvoXb}-{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 8),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 9),nvoXb}-{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 10),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 11),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 12),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 13),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 14),nvoXb}{*(reinterpret_cast&lt;ezUInt8*&gt;(this) + 15),nvoXb} }}</DisplayString>
+  </Type>
+  
 	<Type Name="ezResource">
 		<DisplayString>{{ID = {m_sUniqueID} }}</DisplayString>
 		<Expand>
