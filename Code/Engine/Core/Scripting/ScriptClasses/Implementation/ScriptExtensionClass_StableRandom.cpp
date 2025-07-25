@@ -2,7 +2,7 @@
 
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptClasses/ScriptExtensionClass_StableRandom.h>
-
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 
 // clang-format off
