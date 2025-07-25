@@ -1114,12 +1114,6 @@ void ezQtPropertyEditorSliderWidget::onEndTemporary()
 ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   : ezQtStandardPropertyWidget()
 {
-  m_bTemporaryCommand = false;
-
-  m_pWidget[0] = nullptr;
-  m_pWidget[1] = nullptr;
-  m_pWidget[2] = nullptr;
-
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
@@ -1216,6 +1210,177 @@ void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
   ezQuat qRot = ezQuat::MakeFromEulerAngles(x, y, z);
 
   BroadcastValueChanged(qRot);
+}
+
+/// *** TRANSFORM ***
+
+ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
+  : ezQtStandardPropertyWidget()
+{
+  m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  m_pLayout->setSpacing(1);
+  setLayout(m_pLayout);
+
+  QSizePolicy policy = sizePolicy();
+
+  const char* szXYZLabels[] = {"X",
+    "Y",
+    "Z"};
+  const char* szRotLabels[] = {"R",
+    "P",
+    "Y"};
+  const char* szRotTooltip[] = {"Roll (Rotation around the forward axis)",
+    "Pitch (Rotation around the side axis)",
+    "Yaw (Rotation around the up axis)"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue)};
+
+  ezUInt32 uiCurrentWidget = 0;
+  auto AddWidget = [&](QLayout* layout, double fStep, const char* szLabel, const char* szTooltip, ezColorGammaUB color, const char* szDisplaySuffix)
+  {
+    auto pSpinBox = new ezQtDoubleSpinBox(this);
+    pSpinBox->installEventFilter(this);
+    pSpinBox->setMinimum(-ezMath::Infinity<double>());
+    pSpinBox->setMaximum(ezMath::Infinity<double>());
+    pSpinBox->setSingleStep(fStep);
+    pSpinBox->setAccelerated(true);
+    pSpinBox->setDisplaySuffix(szDisplaySuffix);
+
+    policy.setHorizontalStretch(2);
+    pSpinBox->setSizePolicy(policy);
+
+    QLabel* pLabel = new QLabel(szLabel);
+    QPalette palette = pLabel->palette();
+    palette.setColor(pLabel->foregroundRole(), QColor(color.r, color.g, color.b));
+    pLabel->setPalette(palette);
+    pLabel->setToolTip(szTooltip);
+
+    layout->addWidget(pLabel);
+    layout->addWidget(pSpinBox);
+
+    connect(pSpinBox, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+    connect(pSpinBox, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
+
+    m_pWidget[uiCurrentWidget] = pSpinBox;
+    ++uiCurrentWidget;
+  };
+
+  // Position
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 0.1, szXYZLabels[c], "", labelColors[c], "");
+    }    
+  }
+
+  // Rotation
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 1.0, szRotLabels[c], szRotTooltip[c], labelColors[c], "\xC2\xB0");
+    }
+  }
+
+  // Scale
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 0.1, szXYZLabels[c], "", labelColors[c], "");
+    }
+  }
+}
+
+void ezQtPropertyEditorTransformWidget::OnInit() {}
+
+void ezQtPropertyEditorTransformWidget::InternalSetValue(const ezVariant& value)
+{
+  if (m_bTemporaryCommand)
+    return;
+
+  ezQtScopedBlockSignals b0(m_pWidget[0]);
+  ezQtScopedBlockSignals b1(m_pWidget[1]);
+  ezQtScopedBlockSignals b2(m_pWidget[2]);
+  ezQtScopedBlockSignals b3(m_pWidget[3]);
+  ezQtScopedBlockSignals b4(m_pWidget[4]);
+  ezQtScopedBlockSignals b5(m_pWidget[5]);
+  ezQtScopedBlockSignals b6(m_pWidget[6]);
+  ezQtScopedBlockSignals b7(m_pWidget[7]);
+  ezQtScopedBlockSignals b8(m_pWidget[8]);
+
+  if (value.IsValid())
+  {
+    const ezTransform t = value.ConvertTo<ezTransform>();
+
+    m_pWidget[0]->setValue(t.m_vPosition.x);
+    m_pWidget[1]->setValue(t.m_vPosition.y);
+    m_pWidget[2]->setValue(t.m_vPosition.z);
+
+    ezAngle x, y, z;
+    t.m_qRotation.GetAsEulerAngles(x, y, z);
+    m_pWidget[3]->setValue(x.GetDegree());
+    m_pWidget[4]->setValue(y.GetDegree());
+    m_pWidget[5]->setValue(z.GetDegree());
+
+    m_pWidget[6]->setValue(t.m_vScale.x);
+    m_pWidget[7]->setValue(t.m_vScale.y);
+    m_pWidget[8]->setValue(t.m_vScale.z);
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_pWidget); ++i)
+    {
+      m_pWidget[i]->setValueInvalid();
+    }
+  }
+}
+
+void ezQtPropertyEditorTransformWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezQtPropertyEditorTransformWidget::SlotValueChanged()
+{
+  if (!m_bTemporaryCommand)
+  {
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    m_bTemporaryCommand = true;
+  }
+
+  ezTransform t;
+
+  t.m_vPosition.x = m_pWidget[0]->value();
+  t.m_vPosition.y = m_pWidget[1]->value();
+  t.m_vPosition.z = m_pWidget[2]->value();
+
+  ezAngle x = ezAngle::MakeFromDegree(m_pWidget[3]->value());
+  ezAngle y = ezAngle::MakeFromDegree(m_pWidget[4]->value());
+  ezAngle z = ezAngle::MakeFromDegree(m_pWidget[5]->value());
+  t.m_qRotation = ezQuat::MakeFromEulerAngles(x, y, z);
+
+  t.m_vScale.x = m_pWidget[6]->value();
+  t.m_vScale.y = m_pWidget[7]->value();
+  t.m_vScale.z = m_pWidget[8]->value();
+
+  BroadcastValueChanged(t);
 }
 
 /// *** LINEEDIT ***

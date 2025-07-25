@@ -73,6 +73,9 @@ public:
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  void NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
+
   template <int N>
   bool IsZero() const;                                                                  // [tested]
 
@@ -179,6 +182,8 @@ public:
 public:
   ezInternal::QuadFloat m_v;
 };
+
+const ezSimdVec4f operator*(const ezSimdFloat& f, const ezSimdVec4f& v);
 
 #include <Foundation/SimdMath/Implementation/SimdVec4f_inl.h>
 

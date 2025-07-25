@@ -231,9 +231,32 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  bool m_bTemporaryCommand;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget[3];
+  bool m_bTemporaryCommand = false;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[3] = {};
+};
+
+/// *** TRANSFORM ***
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTransformWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorTransformWidget();
+
+private Q_SLOTS:
+  void on_EditingFinished_triggered();
+  void SlotValueChanged();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+protected:
+  bool m_bTemporaryCommand = false;
+  QVBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[9] = {};
 };
 
 

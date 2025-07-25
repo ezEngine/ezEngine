@@ -70,10 +70,6 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   const ezRTTI* pSourceDataType = GetDataType();
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
 
-  if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
-      (targetScriptDataType == ezVisualScriptDataType::AnyPointer || targetScriptDataType == ezVisualScriptDataType::Bool))
-    return true;
-
   if (sourceScriptDataType == ezVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
       targetScriptDataType == ezVisualScriptDataType::TypedPointer && pTargetDataType != nullptr)
     return pSourceDataType->IsDerivedFrom(pTargetDataType);
@@ -85,10 +81,6 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   if (sourceScriptDataType == ezVisualScriptDataType::BitflagValue && pSourceDataType != nullptr &&
       targetScriptDataType == ezVisualScriptDataType::BitflagValue && pTargetDataType != nullptr)
     return pSourceDataType == pTargetDataType;
-
-  if (sourceScriptDataType == ezVisualScriptDataType::Any ||
-      targetScriptDataType == ezVisualScriptDataType::Any)
-    return true;
 
   return ezVisualScriptDataType::CanConvertTo(sourceScriptDataType, targetScriptDataType);
 }

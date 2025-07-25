@@ -5,9 +5,10 @@
 #include <AngelScriptPlugin/Utils/AngelScriptUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs)
+bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTTI* pRtti, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg)
 {
   const bool bIsReturnValue = uiArg == ezInvalidIndex;
+  const auto argType = pFuncAttr ? pFuncAttr->GetArgumentType(uiArg) : ezScriptableFunctionAttribute::ArgType::In;
 
   if (pRtti == nullptr)
   {
@@ -15,7 +16,7 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
     return bIsReturnValue;
   }
 
-  if (pFuncAttr && pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Inout)
+  if (argType == ezScriptableFunctionAttribute::ArgType::Inout)
   {
     // not yet supported for most types
     return false;
@@ -25,7 +26,7 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
   {
     decl.Append(szTypeName);
 
-    if (pFuncAttr && pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -37,7 +38,7 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
   {
     decl.Append(ezAngelScriptUtils::RegisterEnumType(m_pEngine, pRtti));
 
-    if (pFuncAttr && pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -46,30 +47,24 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
 
   if (!bIsReturnValue)
   {
-    if (pRtti->GetTypeName() == "ezVariant")
+    if (pRtti == ezGetStaticRTTI<ezVariant>())
     {
       decl.Append("?& in");
       return true;
     }
 
-    if (pRtti->GetTypeName() == "ezVariantArray")
-    {
-      inout_VarArgs = true;
-      return true;
-    }
-
-    if (pRtti->GetTypeName() == "ezWorld")
+    if (pRtti == ezGetStaticRTTI<ezWorld>())
     {
       // skip
       return true;
     }
   }
 
-  if (pRtti->GetTypeName() == "ezGameObjectHandle" || pRtti->GetTypeName() == "ezComponentHandle")
+  if (pRtti == ezGetStaticRTTI<ezGameObjectHandle>() || pRtti == ezGetStaticRTTI<ezComponentHandle>())
   {
     decl.Append(pRtti->GetTypeName());
 
-    if (pFuncAttr && pFuncAttr->GetArgumentType(uiArg) == ezScriptableFunctionAttribute::ArgType::Out)
+    if (argType == ezScriptableFunctionAttribute::ArgType::Out)
     {
       decl.Append("& out");
     }
@@ -88,7 +83,7 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
   return false;
 }
 
-bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const ezAbstractFunctionProperty* pFunc, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg, bool& inout_VarArgs)
+bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const ezAbstractFunctionProperty* pFunc, const ezScriptableFunctionAttribute* pFuncAttr, ezUInt32 uiArg)
 {
   if (uiArg > 12)
   {
@@ -96,14 +91,12 @@ bool ezAngelScriptEngineSingleton::AppendFuncArgs(ezStringBuilder& decl, const e
     return false;
   }
 
-  EZ_ASSERT_DEBUG(!inout_VarArgs, "VarArgs have to be the last argument");
-
   if (uiArg > 0 && !decl.EndsWith("("))
   {
     decl.Append(", ");
   }
 
-  return AppendType(decl, pFunc->GetArgumentType(uiArg), pFuncAttr, uiArg, inout_VarArgs);
+  return AppendType(decl, pFunc->GetArgumentType(uiArg), pFuncAttr, uiArg);
 }
 
 void ezAngelScriptEngineSingleton::Register_GlobalReflectedFunctions()
@@ -395,10 +388,16 @@ void ezAngelScriptEngineSingleton::RegisterGenericFunction(const char* szTypeNam
 
 void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szFuncName, const char* szTypeName, const ezAbstractFunctionProperty* const pFunc, const ezScriptableFunctionAttribute* pFuncAttr, bool bIsInherited, const ezRTTI* pReturnType)
 {
-  ezStringBuilder decl;
   bool bVarArgs = false;
+  if (const ezDynamicPinAttribute* pVarArgsAttr = pFunc->GetAttributeByType<ezDynamicPinAttribute>())
+  {
+    EZ_ASSERT_DEV(pVarArgsAttr->GetProperty() == pFuncAttr->GetArgumentName(pFuncAttr->GetArgumentCount() - 1), "Var args must be on the last argument of the function");
+    bVarArgs = true;
+  }
 
-  if (!AppendType(decl, pReturnType, nullptr, ezInvalidIndex, bVarArgs))
+  ezStringBuilder decl;  
+
+  if (!AppendType(decl, pReturnType, nullptr, ezInvalidIndex))
   {
     return;
   }
@@ -436,9 +435,10 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
   bool bHasDefaultArgs = false;
   ezVariant defaultValue;
 
-  for (ezUInt32 uiArg = 0; uiArg < pFunc->GetArgumentCount(); ++uiArg)
+  const ezUInt32 uiArgCount = bVarArgs ? pFunc->GetArgumentCount() - 1 : pFunc->GetArgumentCount();
+  for (ezUInt32 uiArg = 0; uiArg < uiArgCount; ++uiArg)
   {
-    if (!AppendFuncArgs(decl, pFunc, pFuncAttr, uiArg, bVarArgs))
+    if (!AppendFuncArgs(decl, pFunc, pFuncAttr, uiArg))
       return;
 
     if (bVarArgs)

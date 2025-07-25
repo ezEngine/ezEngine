@@ -331,6 +331,8 @@ const char* ezVisualScriptDataType::GetName(Enum dataType)
 bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataType)
 {
   if (sourceDataType == targetDataType ||
+      sourceDataType == Any ||
+      targetDataType == Any ||
       targetDataType == String ||
       targetDataType == HashedString ||
       targetDataType == Variant)
@@ -338,6 +340,14 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
 
   if ((IsNumber(sourceDataType) || (sourceDataType == EnumValue || sourceDataType == BitflagValue)) &&
       (IsNumber(targetDataType) || (targetDataType == EnumValue || targetDataType == BitflagValue)))
+    return true;
+
+  if ((IsNumber(sourceDataType) && targetDataType == Vector3) ||
+      (sourceDataType == Vector3 && targetDataType == Transform))
+    return true;
+
+  if (IsPointer(sourceDataType) &&
+      (targetDataType == ezVisualScriptDataType::AnyPointer || targetDataType == ezVisualScriptDataType::Bool))
     return true;
 
   return false;

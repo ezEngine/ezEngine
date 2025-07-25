@@ -542,7 +542,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::GetReflectedProperty;
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
-    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::Any, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
     nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
     m_pGetPropertyType = RegisterNodeType(typeDesc, std::move(nodeDesc), sPropertiesCategory);
@@ -563,7 +563,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
-    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::Any, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
 
     m_pSetPropertyType = RegisterNodeType(typeDesc, std::move(nodeDesc), sPropertiesCategory);
@@ -1258,6 +1258,21 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddOutputExecutionPin("");
     nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
     AddInputDataPin<ezVariant>(typeDesc, nodeDesc, "Element");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
+  // Builtin_Array_PushBackRange
+  {
+    FillDesc(typeDesc, "Builtin_Array::PushBackRange", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_PushBackRange;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    nodeDesc.AddInputDataPin("Range", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }

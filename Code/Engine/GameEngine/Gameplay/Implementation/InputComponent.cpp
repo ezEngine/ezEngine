@@ -79,7 +79,7 @@ void ezInputComponent::Update()
   if (m_sInputSet.IsEmpty())
     return;
 
-  ezHybridArray<ezString, 24> AllActions;
+  ezHybridArray<ezString, 32> AllActions;
   ezInputManager::GetAllInputActions(m_sInputSet, AllActions);
 
   ezMsgInputActionTriggered msg;

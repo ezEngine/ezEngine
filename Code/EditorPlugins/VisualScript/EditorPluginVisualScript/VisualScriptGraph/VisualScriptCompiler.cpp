@@ -287,6 +287,7 @@ namespace
     nullptr,                                         // Builtin_Array_IndexOf,
     nullptr,                                         // Builtin_Array_Insert,
     nullptr,                                         // Builtin_Array_PushBack,
+    nullptr,                                         // Builtin_Array_PushBackRange,
     nullptr,                                         // Builtin_Array_Remove,
     nullptr,                                         // Builtin_Array_RemoveAt,
 
@@ -882,10 +883,51 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
 
   while (objectStack.IsEmpty() == false)
   {
-    auto& objCtx = objectStack.PeekBack();
+    // Find next node with all data output dependencies already in the out stack
+    ObjectContext objCtx = {};
+    for (ezUInt32 i = objectStack.GetCount(); i-- > 0;)
+    {
+      auto& objCtxCandiate = objectStack[i];
+      bool bAllVisited = true;
+
+      m_NodeManager.GetOutputDataPins(objCtxCandiate.m_pObject, pins);
+      for (auto pPin : pins)
+      {
+        auto connections = m_NodeManager.GetConnections(*pPin);
+        for (auto pConnection : connections)
+        {
+          const ezDocumentObject* pTargetObject = pConnection->GetTargetPin().GetParent();
+          AstNode* pTargetAstNode = nullptr;
+          if (!m_CompilationState.m_DataObjectToAstNode.TryGetValue(pTargetObject, pTargetAstNode))
+            continue;
+
+          if (pTargetAstNode->m_bImplicitExecution && !out_Stack.Contains(pTargetAstNode))
+          {
+            bAllVisited = false;
+            break;
+          }
+        }
+
+        if (!bAllVisited)
+          break;
+      }
+
+      if (bAllVisited)
+      {
+        objCtx = objCtxCandiate;
+        objectStack.RemoveAtAndCopy(i);
+        break;
+      }
+    }
+
+    if (objCtx.m_pObject == nullptr)
+    {
+      EZ_REPORT_FAILURE("Data connection corrupted or loop detected");
+      return EZ_FAILURE;
+    }
+
     const ezDocumentObject* pObject = objCtx.m_pObject;
     const ezVisualScriptNodeRegistry::NodeDesc* pNodeDesc = objCtx.m_pNodeDesc;
-    objectStack.PopBack();
 
     AstNode* pAstNode = nullptr;
     EZ_VERIFY(m_CompilationState.m_DataObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
@@ -1005,11 +1047,6 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
                 }
               }
             }
-            else if (out_Stack.RemoveAndCopy(pSourceAstNode))
-            {
-              // If the source node was already added to the stack, we need to move it to the top to ensure correct execution order
-              out_Stack.PushBack(pSourceAstNode);
-            }
 
             ezVisualScriptDataType::Enum sourceDataType = sourcePin.GetResolvedScriptDataType();
             if (sourceDataType == ezVisualScriptDataType::Invalid)
@@ -1060,6 +1097,9 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
   return TraverseAstDepthFirst(pEntryAstNode,
     [&](AstNode*& pAstNode)
     {
+      if (pAstNode->m_bImplicitExecution)
+        return VisitorResult::Continue;
+
       ezHybridArray<AstNode*, 32> dataStack;
       if (BuildDataStack(pAstNode, dataStack).Failed())
         return VisitorResult::Error;
@@ -1079,6 +1119,22 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
 
 ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 {
+  auto InsertBuiltinTypeConversion = [&](AstNode& node, DataInput& dataInput, ezVisualScriptDataType::Enum inputDataType, ezVisualScriptDataType::Enum outputDataType) -> AstNode&
+  {
+    auto nodeType = ezVisualScriptNodeDescription::Type::GetConversionType(inputDataType);
+
+    auto& conversionNode = CreateAstNode(nodeType, outputDataType, true);
+    AddDataInput(conversionNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, outputDataType);
+    AddDataOutput(conversionNode, inputDataType);
+
+    dataInput.m_pSourceNode = &conversionNode;
+    dataInput.m_uiSourcePinIndex = 0;
+
+    ExecuteBefore(node, conversionNode, conversionNode);
+
+    return conversionNode;
+  };
+
   return TraverseAstDepthFirst(pEntryAstNode,
     [&](AstNode*& pAstNode)
     {
@@ -1094,16 +1150,57 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 
         if (dataOutput.m_DataOffset.GetType() != inputDataType)
         {
-          auto nodeType = ezVisualScriptNodeDescription::Type::GetConversionType(inputDataType);
+          if (ezVisualScriptDataType::IsNumber(outputDataType) && inputDataType == ezVisualScriptDataType::Vector3)
+          {
+            AstNode* pSourceNode = dataInput.m_pSourceNode;
+            ezUInt32 uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
+            if (outputDataType != ezVisualScriptDataType::Float)
+            {
+              auto& conversionNode = InsertBuiltinTypeConversion(*pAstNode, dataInput, ezVisualScriptDataType::Float, outputDataType);
+              pSourceNode = &conversionNode;
+              uiSourcePinIndex = 0;
+            }
 
-          auto& conversionNode = CreateAstNode(nodeType, outputDataType, true);
-          AddDataInput(conversionNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, outputDataType);
-          AddDataOutput(conversionNode, inputDataType);
+            auto& makeVec3Node = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
+            makeVec3Node.m_sTargetTypeName.Assign("ezVec3");
 
-          dataInput.m_pSourceNode = &conversionNode;
-          dataInput.m_uiSourcePinIndex = 0;
+            ezVariantArray a;
+            a.PushBack(ezMakeHashedString("Make"));
+            makeVec3Node.m_Value = a;
 
-          ExecuteBefore(*pAstNode, conversionNode, conversionNode);
+            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            AddDataOutput(makeVec3Node, ezVisualScriptDataType::Vector3);
+
+            dataInput.m_pSourceNode = &makeVec3Node;
+            dataInput.m_uiSourcePinIndex = 0;
+
+            ExecuteBefore(*pAstNode, makeVec3Node, makeVec3Node);
+          }
+          else if (outputDataType == ezVisualScriptDataType::Vector3 && inputDataType == ezVisualScriptDataType::Transform)
+          {
+            auto& makeTransformNode = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
+            makeTransformNode.m_sTargetTypeName.Assign("ezTransform");
+
+            ezVariantArray a;
+            a.PushBack(ezMakeHashedString("Make"));
+            makeTransformNode.m_Value = a;
+
+            AddDataInput(makeTransformNode, dataInput.m_pSourceNode, dataInput.m_uiSourcePinIndex, ezVisualScriptDataType::Vector3);
+            AddConstantDataInput(makeTransformNode, ezQuat::MakeIdentity());
+            AddConstantDataInput(makeTransformNode, ezVec3(1));
+            AddDataOutput(makeTransformNode, ezVisualScriptDataType::Transform);
+
+            dataInput.m_pSourceNode = &makeTransformNode;
+            dataInput.m_uiSourcePinIndex = 0;
+
+            ExecuteBefore(*pAstNode, makeTransformNode, makeTransformNode);
+          }
+          else
+          {
+            InsertBuiltinTypeConversion(*pAstNode, dataInput, inputDataType, outputDataType);
+          }
         }
       }
 
@@ -1179,6 +1276,9 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
       pLoopIncrement = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Add, ezVisualScriptDataType::Int);
       AddDataInput(*pLoopIncrement, pLoopIndex, 0, ezVisualScriptDataType::Int);
       AddConstantDataInput(*pLoopIncrement, 1);
+
+      // Dummy input that is not used at runtime but prevents the lastIndexInput from being re-used across the loop's lifetime
+      pLoopIncrement->m_DataInputs.PushBack(lastIndexInput);
 
       // Ensure to write to the same local variable by re-using the loop index output id.
       auto& dataOutput = pLoopIncrement->m_DataOutputs.ExpandAndGetRef();
@@ -1360,6 +1460,28 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     return EZ_FAILURE;
   }
 
+  // Go through all loop body nodes and check if they have data connections to nodes outside the loop.
+  // If so add the data input to the jump node to prevent register re-use inside the loop.
+  m_CompilationState.m_VisitedNodes.Insert(pLoopBody);
+  for (auto pAstNode : m_CompilationState.m_VisitedNodes)
+  {
+    if (pAstNode == pLoopIncrement)
+      continue;
+
+    for (auto& dataInput : pAstNode->m_DataInputs)
+    {
+      auto pSourceNode = dataInput.m_pSourceNode;
+      if (pSourceNode == nullptr || pSourceNode == pLoopIndex || pSourceNode == pLoopElement)
+        continue;
+
+      if (!m_CompilationState.m_VisitedNodes.Contains(dataInput.m_pSourceNode) && pJumpNode->m_DataInputs.Contains(dataInput) == false)
+      {
+        pJumpNode->m_DataInputs.PushBack(dataInput);
+      }
+    }
+  }
+
+  // Remove break nodes from the execution flow and connect them to the loop completed node
   for (auto pAstNode : nodesConnectedToBreak)
   {
     for (ezUInt32 i = 0; i < pAstNode->m_ExecOutputs.GetCount(); ++i)

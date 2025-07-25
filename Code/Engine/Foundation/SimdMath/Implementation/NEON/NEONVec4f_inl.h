@@ -509,12 +509,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
   return __builtin_shufflevector(c, c, EZ_TO_SHUFFLE(ezSwizzle::YZXW));
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
-{
-  // See http://blog.selfshadow.com/2011/10/17/perp-vectors/ - this is Stark's first variant, SIMDified.
-  return CrossRH(vreinterpretq_f32_u32(vandq_u32(vreinterpretq_u32_f32(m_v), vceqq_f32(m_v, HorizontalMin<3>().m_v))));
-}
-
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {

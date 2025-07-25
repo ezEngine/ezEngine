@@ -101,7 +101,7 @@ protected:
   ezUInt32 m_uiTemperature = 6550;
   float m_fIntensity = 10.0f;
   float m_fSpecularMultiplier = 1.0f;
-  float m_fPenumbraSize = 0.1f;
+  float m_fPenumbraSize = 0.05f;
   float m_fSlopeBias = 0.25f;
   float m_fConstantBias = 0.1f;
   bool m_bCastShadows = false;

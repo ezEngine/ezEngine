@@ -108,13 +108,13 @@ namespace
   static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], const ezSimdFloat& fEps)
   {
     ezSimdVec4f a1 = a;
-    a1.NormalizeIfNotZero<1>(fEps);
+    a1.NormalizeIfNotZero<1, acc>(fEps);
     ezSimdVec4f a2 = a;
-    a2.NormalizeIfNotZero<2>(fEps);
+    a2.NormalizeIfNotZero<2, acc>(fEps);
     ezSimdVec4f a3 = a;
-    a3.NormalizeIfNotZero<3>(fEps);
+    a3.NormalizeIfNotZero<3, acc>(fEps);
     ezSimdVec4f a4 = a;
-    a4.NormalizeIfNotZero<4>(fEps);
+    a4.NormalizeIfNotZero<4, acc>(fEps);
     EZ_TEST_BOOL(a1.IsEqual(n[0], fEps).AllSet());
     EZ_TEST_BOOL(a2.IsEqual(n[1], fEps).AllSet());
     EZ_TEST_BOOL(a3.IsEqual(n[2], fEps).AllSet());
@@ -132,6 +132,22 @@ namespace
     b.NormalizeIfNotZero<4>(fEps);
     EZ_TEST_BOOL(b.IsZero<4>());
   }
+
+  template <ezMathAcc::Enum acc>
+  static void TestNormalizeIfNotZeroWithFallback(const ezSimdVec4f& a, const ezSimdFloat& fEps)
+  {
+    ezSimdVec4f vNorm = a;
+    vNorm.Normalize<3>();
+
+    ezSimdVec4f vNormCond = vNorm * (fEps * ezSimdFloat(0.1f));
+    vNormCond.NormalizeIfNotZero<3, acc>(a, fEps);
+    EZ_TEST_BOOL((vNormCond == a).AllSet());
+
+    vNormCond = vNorm * fEps;
+    vNormCond.NormalizeIfNotZero<3, acc>(a, (fEps * ezSimdFloat(0.1f)));
+    EZ_TEST_BOOL(vNormCond.IsEqual(vNorm, fEps).AllSet());
+  }
+
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
@@ -387,6 +403,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       TestNormalizeIfNotZero<ezMathAcc::FULL>(a, n, ezMath::SmallEpsilon<float>());
       TestNormalizeIfNotZero<ezMathAcc::BITS_23>(a, n, ezMath::DefaultEpsilon<float>());
       TestNormalizeIfNotZero<ezMathAcc::BITS_12>(a, n, ezMath::HugeEpsilon<float>());
+    }
+
+    {
+      ezSimdVec4f a(2.0f, -2.0f, 4.0f, -8.0f);
+
+      TestNormalizeIfNotZeroWithFallback<ezMathAcc::FULL>(a, ezMath::SmallEpsilon<float>());
+      TestNormalizeIfNotZeroWithFallback<ezMathAcc::BITS_23>(a, ezMath::DefaultEpsilon<float>());
+      TestNormalizeIfNotZeroWithFallback<ezMathAcc::BITS_12>(a, ezMath::HugeEpsilon<float>());
     }
 
     {
@@ -703,6 +727,18 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     {
       ezSimdVec4f a(-3.0f, 5.0f, -7.0f, 0.0f);
       ezSimdVec4f b = a.GetOrthogonalVector();
+
+      EZ_TEST_BOOL(!b.IsZero<3>());
+      EZ_TEST_FLOAT(a.Dot<3>(b), 0.0f, 0.0f);
+
+      a = ezSimdVec4f(0.0f, 1.0f, 0.0f, 0.0f);
+      b = a.GetOrthogonalVector();
+
+      EZ_TEST_BOOL(!b.IsZero<3>());
+      EZ_TEST_FLOAT(a.Dot<3>(b), 0.0f, 0.0f);
+
+      a = ezSimdVec4f(0.0f, 0.0f, 1.0f, 0.0f);
+      b = a.GetOrthogonalVector();
 
       EZ_TEST_BOOL(!b.IsZero<3>());
       EZ_TEST_FLOAT(a.Dot<3>(b), 0.0f, 0.0f);

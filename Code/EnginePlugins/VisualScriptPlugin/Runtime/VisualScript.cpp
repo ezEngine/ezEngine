@@ -77,6 +77,7 @@ namespace
     "Builtin_Array_IndexOf",
     "Builtin_Array_Insert",
     "Builtin_Array_PushBack",
+    "Builtin_Array_PushBackRange",
     "Builtin_Array_Remove",
     "Builtin_Array_RemoveAt",
 
@@ -156,7 +157,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 6;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 7;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)

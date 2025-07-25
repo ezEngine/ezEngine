@@ -910,19 +910,29 @@ namespace
       inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
     }
 
+    auto& userData = node.GetUserData<NodeUserData_Expression>();
+
+    ezUInt8 dummyOutput[sizeof(ezVec4)];
     ezHybridArray<ezProcessingStream, 8> outputStreams;
     for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
     {
       auto dataOffset = node.GetOutputDataOffset(i);
-      ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
+      if (dataOffset.IsValid())
+      {
+        ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
 
-      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
-      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+        const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+        auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
 
-      outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+      }
+      else
+      {
+        auto& outputStreamDesc = userData.m_ByteCode.GetOutputs()[i];
+        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(dummyOutput), outputStreamDesc.m_DataType));
+      }
     }
 
-    auto& userData = node.GetUserData<NodeUserData_Expression>();
     if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, ezExpression::GlobalData(), ezExpressionVM::Flags::ScalarizeStreams).Failed())
     {
       ezLog::Error("Visual script expression execution failed");
@@ -1293,6 +1303,15 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_Array_PushBackRange(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariantArray& b = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
+    a.PushBackRange(b);
+
+    return ExecResult::RunNext(0);
+  }
+
   static ExecResult NodeFunction_Builtin_Array_Remove(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
@@ -1522,6 +1541,7 @@ namespace
     {&NodeFunction_Builtin_Array_IndexOf},                     // Builtin_Array_IndexOf,
     {&NodeFunction_Builtin_Array_Insert},                      // Builtin_Array_Insert,
     {&NodeFunction_Builtin_Array_PushBack},                    // Builtin_Array_PushBack,
+    {&NodeFunction_Builtin_Array_PushBackRange},               // Builtin_Array_PushBackRange,
     {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
     {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 

@@ -56,6 +56,13 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Normalize()
   *this = GetNormalized<N, acc>();
 }
 
+template <int N, ezMathAcc::Enum acc>
+EZ_ALWAYS_INLINE void ezSimdVec4f::NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon)
+{
+  ezSimdVec4b bIsZero = IsZero<N>(fEpsilon);
+  *this = Select(bIsZero, vFallback, GetNormalized<N, acc>());
+}
+
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNormalized(const ezSimdFloat& fEpsilon) const
 {
@@ -115,4 +122,15 @@ template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<1>() const
 {
   return GetComponent<0>();
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
+{
+  const ezSimdVec4b bIsLessThan = Get<ezSwizzle::YYYY>() < ezSimdVec4f(0.99f);
+  return CrossRH(Select(bIsLessThan, ezSimdVec4f(0, 1, 0, 0), ezSimdVec4f(1, 0, 0, 0)));
+}
+
+EZ_ALWAYS_INLINE const ezSimdVec4f operator*(const ezSimdFloat& f, const ezSimdVec4f& v)
+{
+  return v * f;
 }

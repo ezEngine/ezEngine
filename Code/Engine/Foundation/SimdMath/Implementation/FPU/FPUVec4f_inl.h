@@ -494,18 +494,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
   return m_v.GetAsVec3().CrossRH(v.m_v.GetAsVec3()).GetAsVec4(0.0f);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
-{
-  if (ezMath::Abs(m_v.y) < 0.99f)
-  {
-    return ezVec4(-m_v.z, 0.0f, m_v.x, 0.0f);
-  }
-  else
-  {
-    return ezVec4(0.0f, m_v.z, -m_v.y, 0.0f);
-  }
-}
-
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
