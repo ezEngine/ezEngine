@@ -10,17 +10,17 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Prefabs, ezNoBase, 1, ezRT
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefab, Out, "RootObjects", In, "World", In, "Prefab", In, "GlobalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
-      new ezFunctionArgumentAttributes(2, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefab, In, "World", In, "Prefab", In, "GlobalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
+      new ezFunctionArgumentAttributes(1, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+      new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(ezVariant(ezInvalidIndex))),
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(true)),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true))),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefabAsChild, In, "World", In, "Prefab", In, "Parent", In, "LocalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
+      new ezFunctionArgumentAttributes(1, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
       new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(ezVariant(ezInvalidIndex))),
       new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(true)),
       new ezFunctionArgumentAttributes(6, new ezDefaultValueAttribute(true))),
-
-    EZ_SCRIPT_FUNCTION_PROPERTY(SpawnPrefabAsChild, Out, "RootObjects", In, "World", In, "Prefab", In, "Parent", In, "LocalTransform", In, "UniqueID", In, "SetCreatedByPrefab", In, "SetHideShapeIcon")->AddAttributes(
-      new ezFunctionArgumentAttributes(2, new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
-      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezVariant(ezInvalidIndex))),
-      new ezFunctionArgumentAttributes(6, new ezDefaultValueAttribute(true)),
-      new ezFunctionArgumentAttributes(7, new ezDefaultValueAttribute(true))),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -80,18 +80,22 @@ void SpawnPrefabHelper(ezWorld& world, ezStringView sPrefab, ezGameObjectHandle 
   }
 }
 
-void ezScriptExtensionClass_Prefabs::SpawnPrefab(ezVariantArray& out_rootObjects, ezWorld* pWorld, ezStringView sPrefab, const ezTransform& globalTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
+ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefab(ezWorld* pWorld, ezStringView sPrefab, const ezTransform& globalTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
 {
   if (pWorld == nullptr || sPrefab.IsEmpty())
-    return;
+    return {};
 
-  SpawnPrefabHelper(*pWorld, sPrefab, ezGameObjectHandle(), globalTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, out_rootObjects);
+  ezVariantArray rootObjects;
+  SpawnPrefabHelper(*pWorld, sPrefab, ezGameObjectHandle(), globalTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
+  return rootObjects;
 }
 
-void ezScriptExtensionClass_Prefabs::SpawnPrefabAsChild(ezVariantArray& out_rootObjects, ezWorld* pWorld, ezStringView sPrefab, ezGameObject* pParent, const ezTransform& localTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
+ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefabAsChild(ezWorld* pWorld, ezStringView sPrefab, ezGameObject* pParent, const ezTransform& localTransform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon)
 {
   if (pWorld == nullptr || sPrefab.IsEmpty())
-    return;
+    return {};
 
-  SpawnPrefabHelper(*pWorld, sPrefab, pParent != nullptr ? pParent->GetHandle() : ezGameObjectHandle(), localTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, out_rootObjects);
+  ezVariantArray rootObjects;
+  SpawnPrefabHelper(*pWorld, sPrefab, pParent != nullptr ? pParent->GetHandle() : ezGameObjectHandle(), localTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
+  return rootObjects;
 }
