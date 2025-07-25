@@ -51,7 +51,8 @@ void SpawnPrefabHelper(ezWorld& world, ezStringView sPrefab, ezGameObjectHandle 
 
   pPrefab->InstantiatePrefab(world, transform, opt);
 
-  auto FixupObject = [&](ezGameObject* pObject) {
+  auto FixupObject = [&](ezGameObject* pObject)
+  {
     if (uiUniqueID != ezInvalidIndex)
     {
       for (auto pComponent : pObject->GetComponents())

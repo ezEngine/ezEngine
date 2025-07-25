@@ -395,7 +395,7 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
     bVarArgs = true;
   }
 
-  ezStringBuilder decl;  
+  ezStringBuilder decl;
 
   if (!AppendType(decl, pReturnType, nullptr, ezInvalidIndex))
   {

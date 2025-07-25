@@ -1277,7 +1277,7 @@ ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
     for (ezUInt32 c = 0; c < 3; ++c)
     {
       AddWidget(pSubLayout, 0.1, szXYZLabels[c], "", labelColors[c], "");
-    }    
+    }
   }
 
   // Rotation
