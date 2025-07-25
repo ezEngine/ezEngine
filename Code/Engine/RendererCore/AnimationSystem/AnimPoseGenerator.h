@@ -234,12 +234,30 @@ public:
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
 
+  /// \brief Calculates the pose, using the final command as reference where to start.
+  ///
+  /// If bRequestExternalPoseGeneration is true, inverse-kinematics (IK) and powered ragdolls are also used.
   void UpdatePose(bool bRequestExternalPoseGeneration);
 
   ezArrayPtr<ezMat4> GetCurrentPose() const { return m_OutputPose; }
 
+  /// \brief Sets the (currently) final command in the pose generation.
+  ///
+  /// This will be used to determine which other commands are necessary to calculate.
   void SetFinalCommand(ezAnimPoseGeneratorCommandID cmdId) { m_FinalCommand = cmdId; }
+
+  /// \brief Returns the (currently) final command.
+  ///
+  /// Can be used to inject further commands after it. Call SetFinalCommand() afterwards.
   ezAnimPoseGeneratorCommandID GetFinalCommand() const { return m_FinalCommand; }
+
+  /// \brief Whether the caller should send ezMsgAnimationPoseUpdated to its children.
+  ///
+  /// Typically this should be done, to forward the calculated pose to the animated mesh components.
+  /// However, when some other component takes over control (usually a ragdoll),
+  /// the pose from this generator isn't the final result and thus should not be forwarded.
+  /// The other component will take care of this already.
+  bool ShouldSendPoseResultMsg() const { return m_bSendResultMsg; }
 
 private:
   void Validate() const;
@@ -265,6 +283,7 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseCounter = 0;
   ezAnimPoseGeneratorModelPoseID m_ModelPoseCounter = 0;
 
+  bool m_bSendResultMsg = true;
   ezAnimPoseGeneratorCommandID m_FinalCommand = 0;
 
   ezHybridArray<ezArrayPtr<ozz::math::SoaTransform>, 8> m_UsedLocalTransforms;

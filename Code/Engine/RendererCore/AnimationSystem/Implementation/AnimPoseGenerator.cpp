@@ -252,6 +252,8 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
 
   Execute(GetCommand(m_FinalCommand));
 
+  m_bSendResultMsg = true;
+
   if (bRequestExternalPoseGeneration && m_pTargetGameObject)
   {
     ezMsgAnimationPoseGeneration poseGenMsg;
@@ -268,6 +270,10 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
 
       poseGenMsg.m_uiOrderNow = poseGenMsg.m_uiOrderNext;
     }
+
+    // if there is a very late-stage pose generator (usually a ragdoll)
+    // don't forward the pose as a ezMsgAnimationPoseUpdated
+    m_bSendResultMsg = (poseGenMsg.m_uiOrderNow < 0xFF00);
 
     // update the pose once again afterwards
     Execute(GetCommand(m_FinalCommand));

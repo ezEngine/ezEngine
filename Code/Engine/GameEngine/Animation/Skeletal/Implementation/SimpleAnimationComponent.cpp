@@ -205,6 +205,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   // inform child nodes/components that a new pose is available
+  if (poseGen.ShouldSendPoseResultMsg())
   {
     ezMsgAnimationPoseUpdated msg2;
     msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;

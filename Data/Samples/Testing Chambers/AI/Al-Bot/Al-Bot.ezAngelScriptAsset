@@ -11,10 +11,10 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
-			s{"AI/Al-Bot.as"}
+			s{"AI/Al-Bot/Al-Bot.as"}
 		}
 		Uuid %DocumentID{u4{4216664979612279722,4764307339926272599}}
-		u4 %Hash{9698625523226514429}
+		u4 %Hash{12869124783730379116}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7855305283485473398,7992906130366490927}}
@@ -23,7 +23,7 @@ o
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"AI/Al-Bot.as"}
+			s{"AI/Al-Bot/Al-Bot.as"}
 		}
 		s %Tags{""}
 	}
@@ -53,7 +53,7 @@ o
 		VarArray %Dependencies{}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
-		s %SourceFile{"AI/Al-Bot.as"}
+		s %SourceFile{"AI/Al-Bot/Al-Bot.as"}
 	}
 }
 o

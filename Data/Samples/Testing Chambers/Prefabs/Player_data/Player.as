@@ -322,7 +322,7 @@ class Player : ezAngelScriptClass
 
                 if (grabComp.HasObjectGrabbed())
                 {
-                    ezVec3 dir(1.0, 0, 0);
+                    ezVec3 dir(1.0f, 0, 0);
 
                     grabComp.ThrowGrabbedObject(dir, ezPhysics::GetImpulseTypeByName("Throw Object"));
 

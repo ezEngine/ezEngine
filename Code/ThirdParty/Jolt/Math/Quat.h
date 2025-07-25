@@ -56,7 +56,7 @@ public:
 	inline bool					IsClose(QuatArg inRHS, float inMaxDistSq = 1.0e-12f) const		{ return mValue.IsClose(inRHS.mValue, inMaxDistSq); }
 
 	/// If the length of this quaternion is 1 +/- inTolerance
-	inline bool					IsNormalized(float inTolerance = 1.0e-5f) const					{ return mValue.IsNormalized(inTolerance); }
+	inline bool					IsNormalized(float inTolerance = 1.0e-4f) const					{ return mValue.IsNormalized(inTolerance); }
 
 	/// If any component of this quaternion is a NaN (not a number)
 	inline bool					IsNaN() const													{ return mValue.IsNaN(); }

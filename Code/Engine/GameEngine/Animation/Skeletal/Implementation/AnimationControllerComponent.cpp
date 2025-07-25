@@ -102,7 +102,13 @@ void ezAnimationControllerComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK);
+  if (!m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK))
+  {
+    // if there is an error, OR something else completely took over the animation (usually a ragdoll)
+    // disable this component
+    SetActiveFlag(false);
+  }
+
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 translation;

@@ -60,6 +60,7 @@ EndsWith
 EndsWith_NoCase
 EnsureNavMeshSectorAvailable
 ExpandAndGetRef
+FadeJointMotorStrength
 FadeOut
 FindChildByName
 FindChildByPath
@@ -125,6 +126,7 @@ GetHandle
 GetHours
 GetInverse
 GetInvertedColor
+GetJointMotorStrength
 GetLastGlobalTransform
 GetLength
 GetLengthAndNormalize
@@ -175,6 +177,8 @@ GetSpeed
 GetSquaredDistanceTo
 GetStableRandomSeed
 GetState
+GetSteeringPosition
+GetSteeringRotation
 GetSubString
 GetTeamID
 GetTimeDiff
@@ -316,6 +320,7 @@ SetGlobalTransform
 SetGlobalTransformToLookAt
 SetIdentity
 SetInitialImpulse
+SetJointMotorStrength
 SetJointTypeOverride
 SetLocalPosition
 SetLocalRotation

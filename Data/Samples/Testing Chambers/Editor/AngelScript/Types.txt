@@ -96,6 +96,7 @@ ezJoltHitboxComponent
 ezJoltMsgDisconnectConstraints
 ezJoltPointConstraintComponent
 ezJoltQueryShapeActorComponent
+ezJoltRagdollAnimMode
 ezJoltRagdollComponent
 ezJoltRagdollStartMode
 ezJoltRopeAnchorConstraintMode

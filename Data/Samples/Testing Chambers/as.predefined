@@ -362,6 +362,14 @@ enum ezJoltRagdollStartMode
   WithCurrentMeshPose = 2,
 }
 
+enum ezJoltRagdollAnimMode
+{
+  Off = 0,
+  Limp = 1,
+  Powered = 2,
+  Controlled = 3,
+}
+
 enum ezJoltRopeAnchorConstraintMode
 {
   None = 0,
@@ -2316,6 +2324,8 @@ class ezAiNavigationComponent : ezComponent
   bool EnsureNavMeshSectorAvailable(ezVec3 vCenter, float fRadius);
   bool FindRandomPointAroundCircle(ezVec3 vCenter, float fRadius, ezVec3&out out_vPoint);
   bool RaycastNavMesh(ezVec3 vStart, ezVec3 vDirection, float fDistance, ezVec3&out out_vPoint, float&out out_fDistance);
+  ezVec3 GetSteeringPosition() const;
+  ezQuat GetSteeringRotation() const;
   ezHashedString NavmeshConfig;
   ezHashedString PathSearchConfig;
   float Speed;
@@ -2326,6 +2336,7 @@ class ezAiNavigationComponent : ezComponent
   uint32 CollisionLayer;
   float FallHeight;
   ezAiNavigationDebugFlags DebugFlags;
+  bool ApplySteering;
 }
 
 class ezFmodComponent : ezComponent
@@ -2667,9 +2678,13 @@ class ezJoltRagdollComponent : ezComponent
   uint GetObjectFilterID() const;
   void SetInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
   void AddInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
-  void SetJointTypeOverride(ezStringView JointName, ezSkeletonJointType OverrideType);
+  void SetJointTypeOverride(ezStringView sJointName, ezSkeletonJointType overrideType);
+  void SetJointMotorStrength(float fStrength);
+  float GetJointMotorStrength() const;
+  void FadeJointMotorStrength(float fTargetStrength, ezTime tDuration);
   bool SelfCollision;
   ezJoltRagdollStartMode StartMode;
+  ezJoltRagdollAnimMode AnimMode;
   float GravityFactor;
   uint8 WeightCategory;
   float WeightScale;
@@ -3374,7 +3389,7 @@ namespace ezClock
 
 namespace ezSound
 {
-  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = 1, float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = ezQuat::MakeIdentity(), float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
 }
 
 namespace ezCVar
@@ -3405,33 +3420,33 @@ namespace ezCVar
 
 namespace ezLog
 {
-  void Info(ezStringView Text);
-  void Info(ezStringView Text, ?&in VarArg1);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
-  void Warning(ezStringView Text);
-  void Warning(ezStringView Text, ?&in VarArg1);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
-  void Error(ezStringView Text);
-  void Error(ezStringView Text, ?&in VarArg1);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Info(ezStringView);
+  void Info(ezStringView, ?&in VarArg1);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Warning(ezStringView);
+  void Warning(ezStringView, ?&in VarArg1);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Error(ezStringView);
+  void Error(ezStringView, ?&in VarArg1);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
 }
 
 namespace ezPhysics
@@ -3440,19 +3455,19 @@ namespace ezPhysics
   uint8 GetCollisionLayerByName(ezStringView Name);
   uint8 GetWeightCategoryByName(ezStringView Name);
   uint8 GetImpulseTypeByName(ezStringView Name);
-  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
-  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 18446744073709551615);
+  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 18446744073709551615);
   bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
-  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295);
+  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 18446744073709551615);
 }
 
 namespace ezPrefabs
 {
-  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
-  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, uint UniqueID = 4294967295, bool SetCreatedByPrefab = true, bool SetHideShapeIcon = true);
+  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezTransform LocalTransform, uint UniqueID = 4294967295, bool SetCreatedByPrefab = true, bool SetHideShapeIcon = true);
 }
 
 namespace ezSpatial

@@ -24,6 +24,7 @@ Cloth
 Column
 Cone
 Continuing
+Controlled
 Culling
 CustomPose
 Deactivated
@@ -81,6 +82,7 @@ ImpactReactions
 Left
 LeftController
 LightBreeze
+Limp
 Linear
 LoadAndSwitch
 Local
@@ -114,6 +116,7 @@ NextFrame
 NoDrive
 NoLimit
 None
+Off
 Once
 OnlyPosition
 OrthoFixedHeight
@@ -127,6 +130,7 @@ PositiveY
 PositiveZ
 PostAsync
 PostTransform
+Powered
 Preload
 PreserveGlobal
 PreserveLocal

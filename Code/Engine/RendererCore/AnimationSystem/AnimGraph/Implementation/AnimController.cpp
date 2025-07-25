@@ -47,14 +47,14 @@ void ezAnimController::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rota
   ref_rotationZ = m_RootRotationZ;
 }
 
-void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
+bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
 {
   if (!m_hSkeleton.IsValid())
-    return;
+    return false;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+    return false;
 
   m_pCurrentModelTransforms = nullptr;
 
@@ -80,19 +80,26 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
 
   GetPoseGenerator().UpdatePose(bEnableIK);
 
-  if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
+  if (GetPoseGenerator().ShouldSendPoseResultMsg())
   {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = newPose;
+    if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
+    {
+      ezMsgAnimationPoseUpdated msg;
+      msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+      msg.m_ModelTransforms = newPose;
 
-    // TODO: root transform has to be applied first, only then can the world-space IK be done, and then the pose can be finalized
-    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+      // TODO: root transform has to be applied first, only then can the world-space IK be done, and then the pose can be finalized
+      msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
 
-    // recursive, so that objects below the mesh can also listen in on these changes
-    // for example bone attachments
-    pTarget->SendMessageRecursive(msg);
+      // recursive, so that objects below the mesh can also listen in on these changes
+      // for example bone attachments
+      pTarget->SendMessageRecursive(msg);
+
+      return msg.m_bContinueAnimating;
+    }
   }
+
+  return true;
 }
 
 void ezAnimController::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform)

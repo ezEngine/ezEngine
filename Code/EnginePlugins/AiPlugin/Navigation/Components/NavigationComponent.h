@@ -110,6 +110,9 @@ public:
 
   bool RaycastNavMesh(const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezVec3& out_vPoint, float& out_fDistance);
 
+  ezVec3 GetSteeringPosition() const; ///< [ scriptable ]
+  ezQuat GetSteeringRotation() const; ///< [ scriptable ]
+
 protected:
   void Update();
   void Steer(ezTransform& transform, float tDiff);
@@ -123,9 +126,13 @@ protected:
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
+  bool m_bApplySteering = true;
   ezUInt8 m_uiSkipNextFrames = 0;
   float m_fStopWalkDistance = ezMath::HighValue<float>();
   ezVec2 m_vTurnTowardsPos = ezVec2::MakeZero();
+
+  ezVec3 m_vSteerPosition;
+  ezQuat m_qSteerRotation;
 
 private:
   const char* DummyGetter() const { return nullptr; }

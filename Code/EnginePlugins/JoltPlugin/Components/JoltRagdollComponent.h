@@ -4,6 +4,7 @@
 #include <Core/World/ComponentManager.h>
 #include <Foundation/Math/Declarations.h>
 #include <JoltPlugin/JoltPluginDLL.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 
 class ezJoltUserData;
 class ezSkeletonJoint;
@@ -12,6 +13,7 @@ class ezJoltMaterial;
 struct ezMsgRetrieveBoneState;
 struct ezMsgAnimationPoseUpdated;
 struct ezMsgPhysicsAddImpulse;
+struct ezMsgAnimationPoseGeneration;
 struct ezSkeletonResourceGeometry;
 
 namespace JPH
@@ -32,9 +34,14 @@ public:
 
   virtual void Initialize() override;
 
+  void DriveAnimatedRagdolls(ezTime deltaTime);
+
 private:
   friend class ezJoltWorldModule;
   friend class ezJoltRagdollComponent;
+
+  ezMutex m_SkeletonsMutex;
+  ezDynamicArray<ezUniquePtr<JPH::SkeletonPose>> m_FreeSkeletonPoses;
 
   void Update(const ezWorldModule::UpdateContext& context);
 };
@@ -54,6 +61,23 @@ struct ezJoltRagdollStartMode
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollStartMode);
+
+struct ezJoltRagdollAnimMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Off,        ///< Not ragdolling yet.
+    Limp,       ///< The ragdoll just falls to the ground.
+    Powered,    ///< The ragdoll joints are powered by incoming animation poses.
+    Controlled, ///< The ragdoll is fully controlled by incoming animation poses (kinematic).
+
+    Default = Limp
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltRagdollAnimMode);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -118,6 +142,9 @@ public:
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
   ezEnum<ezJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
 
+  void SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode);                       // [ property ]
+  ezEnum<ezJoltRagdollAnimMode> GetAnimMode() const { return m_AnimMode; }    // [ property ]
+
   /// \brief Applies a force to a specific part of the ragdoll.
   void OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg); // [ msg handler ]
 
@@ -162,14 +189,20 @@ public:
   ///
   /// Similarly, on a animated mesh that is specifically authored to have separable pieces (like an arm on a robot),
   /// one can separate limbs by setting their joint to 'none'.
-  void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
+  void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> overrideType);
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
+  void OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& ref_msg); // [ msg handler ]
+
+  void SetJointMotorStrength(float fStrength);                              // [ scriptable ]
+  float GetJointMotorStrength() const;                                      // [ scriptable ]
+  void FadeJointMotorStrength(float fTargetStrength, ezTime duration);      // [ scriptable ]
 
 protected:
-  ezEnum<ezJoltRagdollStartMode> m_StartMode;                      // [ property ]
-  float m_fGravityFactor = 1.0f;                                   // [ property ]
+  ezEnum<ezJoltRagdollStartMode> m_StartMode;                               // [ property ]
+  ezEnum<ezJoltRagdollAnimMode> m_AnimMode;                                 // [ property ]
+  float m_fGravityFactor = 1.0f;                                            // [ property ]
 
   struct Limb
   {
@@ -183,6 +216,7 @@ protected:
   };
 
   void Update(bool bForce);
+  void DriveAnimated(ezTime deltaTime);
   ezResult EnsureSkeletonIsKnown();
   void CreateLimbsFromBindPose();
   void CreateLimbsFromCurrentMeshPose();
@@ -207,6 +241,9 @@ protected:
   void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
   void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
 
+  void ResetJointMotors();
+  void ApplyJointMotorStrength(float fStrength);
+
   ezSkeletonResourceHandle m_hSkeleton;
   ezDynamicArray<ezMat4> m_CurrentLimbTransforms;
   ezMat4 m_mInvSkeletonRootTransform;
@@ -223,15 +260,21 @@ protected:
   ezVec3 m_vInitialImpulsePosition = ezVec3::MakeZero();
   ezVec3 m_vInitialImpulseDirection = ezVec3::MakeZero();
   ezUInt8 m_uiNumInitialImpulses = 0;
+  bool m_bIsPowered = false;
 
   struct JointOverride
   {
     ezTempHashedString m_sJointName;
-    bool m_bOverrideType = false;
     ezEnum<ezSkeletonJointType> m_JointType;
   };
 
   ezDynamicArray<JointOverride> m_JointOverrides;
+
+  ezUniquePtr<JPH::SkeletonPose> m_pSkeletonPose;
+
+  ezTime m_MotorLerpDuration = ezTime::MakeZero();
+  float m_fMotorStrength = 100.0f;
+  float m_fMotorTargetStrength = 100.0f;
 
   //////////////////////////////////////////////////////////////////////////
 

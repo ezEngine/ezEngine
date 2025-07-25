@@ -1,6 +1,9 @@
 Action_Wave
+Die
 Gun_Point
 Gun_Shoot
+Hit-Chest
+Hit-Head
 Idle
 Jump_End
 Jump_Loop

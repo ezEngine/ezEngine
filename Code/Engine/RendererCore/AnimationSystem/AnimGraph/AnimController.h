@@ -58,7 +58,7 @@ public:
 
   void Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
 
-  void Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK);
+  bool Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK);
 
   void GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const;
 

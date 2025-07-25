@@ -7,6 +7,7 @@
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
 #include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
+#include <JoltPlugin/Components/JoltRagdollComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Constraints/JoltFixedConstraintComponent.h>
@@ -739,6 +740,11 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
   if (ezJoltTriggerComponentManager* pTriggerManager = GetWorld()->GetComponentManager<ezJoltTriggerComponentManager>())
   {
     pTriggerManager->UpdateMovingTriggers();
+  }
+
+  if (ezJoltRagdollComponentManager* pRagdollManager = GetWorld()->GetComponentManager<ezJoltRagdollComponentManager>())
+  {
+    pRagdollManager->DriveAnimatedRagdolls(m_SimulatedTimeStep);
   }
 
   ApplyImpulses();

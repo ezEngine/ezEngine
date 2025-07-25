@@ -22,35 +22,37 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 #include <Physics/Body/BodyLockMulti.h>
 #include <Physics/Collision/Shape/CompoundShape.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonPoseComponent.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
 /* TODO
-
  * prevent crashes with zero bodies
- * import sphere/box/capsule shapes
-
-  * external constraints
+ * external constraints
  * max force clamping / point vs area impulse ?
- * communication with anim controller
- * drive to pose
+ * integrate root motion into controlled playback (?)
  */
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltRagdollStartMode, 1)
   EZ_ENUM_CONSTANTS(ezJoltRagdollStartMode::WithBindPose, ezJoltRagdollStartMode::WithNextAnimPose, ezJoltRagdollStartMode::WithCurrentMeshPose)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltRagdollAnimMode, 1)
+  EZ_ENUM_CONSTANTS(ezJoltRagdollAnimMode::Off, ezJoltRagdollAnimMode::Limp, ezJoltRagdollAnimMode::Powered, ezJoltRagdollAnimMode::Controlled)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 4, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 5, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
     EZ_ENUM_ACCESSOR_PROPERTY("StartMode", ezJoltRagdollStartMode, GetStartMode, SetStartMode),
+    EZ_ENUM_ACCESSOR_PROPERTY("AnimMode", ezJoltRagdollAnimMode, GetAnimMode, SetAnimMode),
     EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
     EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
@@ -67,6 +69,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 4, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
+    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseGeneration, OnMsgAnimationPoseGeneration),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -79,7 +82,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 4, ezComponentMode::Dynamic)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetObjectFilterID),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
     EZ_SCRIPT_FUNCTION_PROPERTY(AddInitialImpulse, In, "vWorldPosition", In, "vWorldDirectionAndStrength"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetJointTypeOverride, In, "JointName", In, "OverrideType"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetJointTypeOverride, In, "sJointName", In, "overrideType"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetJointMotorStrength, In, "fStrength"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetJointMotorStrength),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FadeJointMotorStrength, In, "fTargetStrength", In, "tDuration"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -104,7 +110,7 @@ void ezJoltRagdollComponentManager::Initialize()
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltRagdollComponentManager::Update, this);
     desc.m_Phase = ezWorldUpdatePhase::PostAsync;
-    desc.m_bOnlyUpdateWhenSimulating = false;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -126,6 +132,16 @@ void ezJoltRagdollComponentManager::Update(const ezWorldModule::UpdateContext& c
   for (ezJoltRagdollComponent* pComponent : pModule->GetRagdollsPutToSleep())
   {
     pComponent->Update(true);
+  }
+}
+
+void ezJoltRagdollComponentManager::DriveAnimatedRagdolls(ezTime deltaTime)
+{
+  EZ_PROFILE_SCOPE("DriveAnimatedRagdolls");
+
+  for (auto it = GetComponents(0); it.IsValid(); it.Next())
+  {
+    it->DriveAnimated(deltaTime);
   }
 }
 
@@ -153,6 +169,7 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << (float)m_fWeightScale;
   s << (float)m_fWeightMass;
   s << m_fStiffnessFactor;
+  s << m_AnimMode;
 }
 
 void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -185,6 +202,11 @@ void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 
   s >> m_fStiffnessFactor;
+
+  if (uiVersion >= 5)
+  {
+    s >> m_AnimMode;
+  }
 }
 
 void ezJoltRagdollComponent::OnSimulationStarted()
@@ -205,6 +227,15 @@ void ezJoltRagdollComponent::OnDeactivated()
 {
   DestroyAllLimbs();
 
+  if (m_pSkeletonPose)
+  {
+    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
+
+    EZ_LOCK(pMan->m_SkeletonsMutex);
+    pMan->m_FreeSkeletonPoses.PushBack(std::move(m_pSkeletonPose));
+    m_pSkeletonPose.Clear();
+  }
+
   SUPER::OnDeactivated();
 }
 
@@ -212,6 +243,42 @@ void ezJoltRagdollComponent::Update(bool bForce)
 {
   if (!HasCreatedLimbs())
     return;
+
+  if (m_AnimMode != ezJoltRagdollAnimMode::Powered && m_bIsPowered)
+  {
+    ResetJointMotors();
+  }
+
+  if (m_MotorLerpDuration.IsPositive())
+  {
+    const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+    const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+    const ezTime tStart = tNow - tDiff;
+    const ezTime tFinish = tStart + m_MotorLerpDuration;
+
+    const float fLerpFactor = ezMath::Saturate(ezMath::Unlerp(tStart.GetSeconds(), tFinish.GetSeconds(), tNow.GetSeconds()));
+    const float fNewStrength = ezMath::Lerp(m_fMotorStrength, m_fMotorTargetStrength, fLerpFactor);
+
+    if (m_fMotorStrength != fNewStrength)
+    {
+      m_fMotorStrength = fNewStrength;
+      m_MotorLerpDuration -= tDiff;
+
+      if (m_MotorLerpDuration.IsNegative())
+        m_MotorLerpDuration = ezTime::MakeZero();
+
+      ApplyJointMotorStrength(fNewStrength);
+    }
+  }
+
+  if (m_pSkeletonPose && (m_AnimMode != ezJoltRagdollAnimMode::Controlled) && (m_AnimMode != ezJoltRagdollAnimMode::Powered || m_fMotorStrength <= 0.0f))
+  {
+    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
+
+    EZ_LOCK(pMan->m_SkeletonsMutex);
+    pMan->m_FreeSkeletonPoses.PushBack(std::move(m_pSkeletonPose));
+    m_pSkeletonPose.Clear();
+  }
 
   const ezVisibilityState::Enum visState = GetOwner()->GetVisibilityState();
   if (!bForce && visState != ezVisibilityState::Direct)
@@ -237,6 +304,35 @@ void ezJoltRagdollComponent::Update(bool bForce)
   SendAnimationPoseMsg();
 
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+}
+
+void ezJoltRagdollComponent::DriveAnimated(ezTime deltaTime)
+{
+  if (m_pSkeletonPose)
+  {
+    m_pSkeletonPose->CalculateJointStates();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    for (auto& joint : m_pSkeletonPose->GetJoints())
+    {
+      joint.mRotation = joint.mRotation.Normalized();
+    }
+#endif
+
+    if (m_AnimMode == ezJoltRagdollAnimMode::Controlled)
+    {
+      m_pRagdoll->DriveToPoseUsingKinematics(*m_pSkeletonPose, deltaTime.AsFloatInSeconds());
+    }
+    else if (m_AnimMode == ezJoltRagdollAnimMode::Powered && m_fMotorStrength > 0.0f)
+    {
+      m_bIsPowered = true;
+      m_pRagdoll->DriveToPoseUsingMotors(*m_pSkeletonPose);
+    }
+    else
+    {
+      m_pSkeletonPose.Clear();
+    }
+  }
 }
 
 ezResult ezJoltRagdollComponent::EnsureSkeletonIsKnown()
@@ -372,6 +468,33 @@ void ezJoltRagdollComponent::SetStartMode(ezEnum<ezJoltRagdollStartMode> mode)
   m_StartMode = mode;
 }
 
+void ezJoltRagdollComponent::SetAnimMode(ezEnum<ezJoltRagdollAnimMode> mode)
+{
+  if (m_AnimMode == mode)
+    return;
+
+  m_AnimMode = mode;
+
+  if (m_pRagdoll)
+  {
+    if (m_AnimMode == ezJoltRagdollAnimMode::Controlled)
+    {
+      for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+      {
+        // in the 'Controlled' mode, disable gravity, so that it doesn't affect the pose
+        m_pJoltSystem->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), 0.0f);
+      }
+    }
+    else
+    {
+      for (ezUInt32 i = 0; i < m_pRagdoll->GetBodyCount(); ++i)
+      {
+        m_pJoltSystem->GetBodyInterface().SetGravityFactor(m_pRagdoll->GetBodyID(i), m_fGravityFactor);
+      }
+    }
+  }
+}
+
 void ezJoltRagdollComponent::OnMsgPhysicsAddImpulse(ezMsgPhysicsAddImpulse& ref_msg)
 {
   const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(ref_msg.m_uiImpulseType, m_uiWeightCategory);
@@ -421,7 +544,6 @@ void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnu
     if (m_JointOverrides[i].m_sJointName == sJointNameHashed)
     {
       m_JointOverrides[i].m_JointType = type;
-      m_JointOverrides[i].m_bOverrideType = true;
       return;
     }
   }
@@ -429,7 +551,6 @@ void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnu
   auto& jo = m_JointOverrides.ExpandAndGetRef();
   jo.m_sJointName = sJointNameHashed;
   jo.m_JointType = type;
-  jo.m_bOverrideType = true;
 }
 
 void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_poseMsg)
@@ -439,7 +560,9 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& r
 
   if (HasCreatedLimbs())
   {
-    ref_poseMsg.m_bContinueAnimating = false; // TODO: change this
+    // Note: if this code is reached, although the ragdoll is supposed to use the animation (controlled or powered anim mode)
+    // then the component that generates the animation doesn't have "Apply IK" enabled, ie it doesn't send ezMsgAnimationPoseGeneration
+    ref_poseMsg.m_bContinueAnimating = false;
 
     // TODO: if at some point we can layer ragdolls with detail animations, we should
     // take poses for all bones for which there are no shapes (link == null) -> to animate leafs (fingers and such)
@@ -483,6 +606,105 @@ void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg
   }
 }
 
+void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezTransform& out_Transform)
+{
+  ezMat4 mFullTransform = mRootTransform * mModelTransform;
+
+  out_Transform.m_qRotation.ReconstructFromMat4(mFullTransform);
+  out_Transform.m_vScale.Set(1);
+  out_Transform.m_vPosition = mFullTransform.GetTranslationVector();
+}
+
+void ezJoltRagdollComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& ref_msg)
+{
+  if (m_AnimMode == ezJoltRagdollAnimMode::Limp)
+    return;
+
+  if (!HasCreatedLimbs())
+    return;
+
+  if (ref_msg.m_uiOrderNow > 0xFF00)
+    return;
+
+  if (ref_msg.m_uiOrderNow < 0xFF00)
+  {
+    ref_msg.m_uiOrderNext = ezMath::Min<ezUInt16>(ref_msg.m_uiOrderNext, 0xFF00);
+    return;
+  }
+
+  if (m_AnimMode == ezJoltRagdollAnimMode::Powered && m_fMotorStrength == 0.0f)
+  {
+    // basically the same as Limp mode, but we don't want to deactivate animations, because motor strength can still be changed
+    return;
+  }
+
+  ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  const ezMat4 mRootTransform = pSkeleton->GetDescriptor().m_RootTransform.GetAsMat4();
+
+  const ezTransform tGlobal = GetOwner()->GetGlobalTransform();
+  const auto& curPose = ref_msg.m_pGenerator->GetCurrentPose();
+
+  if (m_pSkeletonPose == nullptr)
+  {
+    auto pMan = static_cast<ezJoltRagdollComponentManager*>(GetOwningManager());
+    EZ_LOCK(pMan->m_SkeletonsMutex);
+    if (!pMan->m_FreeSkeletonPoses.IsEmpty())
+    {
+      m_pSkeletonPose = std::move(pMan->m_FreeSkeletonPoses.PeekBack());
+      pMan->m_FreeSkeletonPoses.PopBack();
+    }
+    else
+    {
+      m_pSkeletonPose = EZ_NEW(ezFoundation::GetAlignedAllocator(), JPH::SkeletonPose);
+    }
+  }
+
+  m_pSkeletonPose->SetSkeleton(m_pRagdoll->GetRagdollSettings()->GetSkeleton());
+
+  ezVec3 vRootOffset(0);
+
+  for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+  {
+    if (m_Limbs[uiLimbIdx].m_uiPartIndex != ezInvalidJointIndex)
+    {
+      JPH::Mat44& jointMat = m_pSkeletonPose->GetJointMatrix(m_Limbs[uiLimbIdx].m_uiPartIndex);
+
+      ezTransform trans;
+      ComputeFullBoneTransform(mRootTransform, curPose[uiLimbIdx], trans);
+
+      trans = ezTransform::MakeGlobalTransform(tGlobal, trans);
+
+      ezMat4 mGlobal = trans.GetAsMat4();
+      jointMat = JPH::Mat44::sLoadFloat4x4((const JPH::Float4*)mGlobal.m_fElementsCM);
+    }
+  }
+
+  m_pSkeletonPose->SetRootOffset(ezJoltConversionUtils::ToVec3(vRootOffset));
+}
+
+void ezJoltRagdollComponent::SetJointMotorStrength(float fStrength)
+{
+  if (m_fMotorStrength != fStrength)
+  {
+    ApplyJointMotorStrength(fStrength);
+  }
+
+  m_fMotorStrength = fStrength;
+  m_fMotorTargetStrength = fStrength;
+  m_MotorLerpDuration = ezTime::MakeZero();
+}
+
+float ezJoltRagdollComponent::GetJointMotorStrength() const
+{
+  return m_fMotorStrength;
+}
+
+void ezJoltRagdollComponent::FadeJointMotorStrength(float fTargetStrength, ezTime duration)
+{
+  m_fMotorTargetStrength = fTargetStrength;
+  m_MotorLerpDuration = duration;
+}
+
 void ezJoltRagdollComponent::SendAnimationPoseMsg()
 {
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
@@ -498,6 +720,8 @@ void ezJoltRagdollComponent::SendAnimationPoseMsg()
 
 ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
 {
+  const float fLerpToPos = (m_AnimMode != ezJoltRagdollAnimMode::Controlled) ? 0.1f : 0.0f;
+
   const JPH::RVec3 vCurPosition = ezJoltConversionUtils::ToVec3(GetOwner()->GetGlobalPosition());
 
   const int body_count = (int)m_pRagdoll->GetBodyCount();
@@ -506,7 +730,7 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
   const JPH::Body* root = lock.GetBody(0);
   JPH::RMat44 root_transform = root->GetWorldTransform();
   JPH::RVec3 vRootOffset = root_transform.GetTranslation();
-  vRootOffset = vCurPosition + (vRootOffset - vCurPosition) * 0.1f; // interpolate the object position towards the root bone position
+  vRootOffset = vCurPosition + (vRootOffset - vCurPosition) * fLerpToPos; // interpolate the object position towards the root bone position
 
 
   const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
@@ -628,6 +852,8 @@ void ezJoltRagdollComponent::CreateLimbsFromPose(const ezMsgAnimationPoseUpdated
   }
 
   ragdollSettings->Stabilize();
+  ragdollSettings->CalculateBodyIndexToConstraintIndex();
+  ragdollSettings->CalculateConstraintIndexToBodyIdxPair();
 
   m_pRagdoll = ragdollSettings->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<ezUInt64>(m_pJoltUserData), m_pJoltSystem);
 
@@ -644,7 +870,7 @@ void ezJoltRagdollComponent::ConfigureRagdollPart(void* pRagdollSettingsPart, co
   pPart->mPosition = ezJoltConversionUtils::ToVec3(globalTransform.m_vPosition);
   pPart->mRotation = ezJoltConversionUtils::ToQuat(globalTransform.m_qRotation).Normalized();
   pPart->mMotionQuality = JPH::EMotionQuality::LinearCast;
-  pPart->mGravityFactor = m_fGravityFactor;
+  pPart->mGravityFactor = m_AnimMode == ezJoltRagdollAnimMode::Controlled ? 0.0f : m_fGravityFactor;
   pPart->mUserData = reinterpret_cast<ezUInt64>(m_pJoltUserData);
   pPart->mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(uiCollisionLayer, ezJoltBroadphaseLayer::Ragdoll);
   pPart->mCollisionGroup.SetGroupID(m_uiObjectFilterID);
@@ -731,6 +957,54 @@ void ezJoltRagdollComponent::ApplyInitialImpulse(ezJoltWorldModule& worldModule,
   if (pJoltSystem->GetBodyInterface().IsAdded(closestBody))
   {
     pJoltSystem->GetBodyInterface().AddImpulse(closestBody, ezJoltConversionUtils::ToVec3(m_vInitialImpulseDirection), vImpulsePosition);
+  }
+}
+
+void ezJoltRagdollComponent::ResetJointMotors()
+{
+  if (!m_bIsPowered)
+    return;
+
+  m_bIsPowered = false;
+
+  if (!m_pRagdoll)
+    return;
+
+  for (int i = 0; i < (int)m_pRagdoll->GetConstraintCount(); ++i)
+  {
+    JPH::TwoBodyConstraint* pConstraint = m_pRagdoll->GetConstraint(i);
+
+    JPH::EConstraintSubType subType = pConstraint->GetSubType();
+    if (subType == JPH::EConstraintSubType::SwingTwist)
+    {
+      JPH::SwingTwistConstraint* pStConstraint = static_cast<JPH::SwingTwistConstraint*>(pConstraint);
+      pStConstraint->SetSwingMotorState(JPH::EMotorState::Off);
+      pStConstraint->SetTwistMotorState(JPH::EMotorState::Off);
+    }
+  }
+}
+
+void ezJoltRagdollComponent::ApplyJointMotorStrength(float fStrength)
+{
+  if (!m_pRagdoll)
+    return;
+
+  for (int i = 0; i < (int)m_pRagdoll->GetConstraintCount(); ++i)
+  {
+    JPH::TwoBodyConstraint* pConstraint = m_pRagdoll->GetConstraint(i);
+
+    JPH::EConstraintSubType subType = pConstraint->GetSubType();
+    if (subType == JPH::EConstraintSubType::SwingTwist)
+    {
+      JPH::SwingTwistConstraint* pStConstraint = static_cast<JPH::SwingTwistConstraint*>(pConstraint);
+
+      pStConstraint->GetSwingMotorSettings().SetForceLimit(m_fMotorStrength);
+      pStConstraint->GetTwistMotorSettings().SetForceLimit(m_fMotorStrength);
+
+      // torque is needed for the 'powered' animation mode
+      pStConstraint->GetSwingMotorSettings().SetTorqueLimit(m_fMotorStrength);
+      pStConstraint->GetTwistMotorSettings().SetTorqueLimit(m_fMotorStrength);
+    }
   }
 }
 
@@ -1053,11 +1327,7 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
   {
     if (m_JointOverrides[i].m_sJointName == thisJoint.GetName())
     {
-      if (m_JointOverrides[i].m_bOverrideType)
-      {
-        jointType = m_JointOverrides[i].m_JointType;
-      }
-
+      jointType = m_JointOverrides[i].m_JointType;
       break;
     }
   }
@@ -1101,6 +1371,17 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisZ()).Normalized();
     pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisY()).Normalized();
     pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisY()).Normalized();
+
+    pJoint->mSwingMotorSettings.mSpringSettings.mFrequency = 20;
+    pJoint->mSwingMotorSettings.mSpringSettings.mStiffness = 20;
+    pJoint->mSwingMotorSettings.mSpringSettings.mDamping = 2;
+
+    pJoint->mSwingMotorSettings.SetForceLimit(m_fMotorStrength);
+    pJoint->mTwistMotorSettings.SetForceLimit(m_fMotorStrength);
+
+    // torque is needed for the 'powered' animation mode
+    pJoint->mSwingMotorSettings.SetTorqueLimit(m_fMotorStrength);
+    pJoint->mTwistMotorSettings.SetTorqueLimit(m_fMotorStrength);
   }
 }
 

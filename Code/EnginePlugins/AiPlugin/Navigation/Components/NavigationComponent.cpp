@@ -17,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAiNavigationComponentState, 1)
   EZ_ENUM_CONSTANTS(ezAiNavigationComponentState::Idle, ezAiNavigationComponentState::Moving, ezAiNavigationComponentState::Turning, ezAiNavigationComponentState::Falling, ezAiNavigationComponentState::Fallen, ezAiNavigationComponentState::Failed)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -31,6 +31,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("FallHeight", m_fFallHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezAiNavigationDebugFlags , m_DebugFlags),
+    EZ_MEMBER_PROPERTY("ApplySteering", m_bApplySteering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -48,6 +49,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 1, ezComponentMode::Dynamic)
     EZ_SCRIPT_FUNCTION_PROPERTY(EnsureNavMeshSectorAvailable, In, "vCenter", In, "fRadius"),
     EZ_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundCircle, In, "vCenter", In, "fRadius", Out, "out_vPoint"),
     EZ_SCRIPT_FUNCTION_PROPERTY(RaycastNavMesh, In, "vStart", In, "vDirection", In, "fDistance", Out, "out_vPoint", Out, "out_fDistance"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetSteeringPosition),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetSteeringRotation),
   }
   EZ_END_FUNCTIONS;
 }
@@ -151,6 +154,16 @@ bool ezAiNavigationComponent::RaycastNavMesh(const ezVec3& vStart, const ezVec3&
   return true;
 }
 
+ezVec3 ezAiNavigationComponent::GetSteeringPosition() const
+{
+  return m_vSteerPosition;
+}
+
+ezQuat ezAiNavigationComponent::GetSteeringRotation() const
+{
+  return m_qSteerRotation;
+}
+
 void ezAiNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -166,13 +179,14 @@ void ezAiNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) co
   s << m_uiCollisionLayer;
   s << m_fFallHeight;
   s << m_DebugFlags;
+  s << m_bApplySteering;
 }
 
 void ezAiNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   ezStreamReader& s = inout_stream.GetStream();
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_sPathSearchConfig;
   s >> m_sNavmeshConfig;
@@ -184,6 +198,11 @@ void ezAiNavigationComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_uiCollisionLayer;
   s >> m_fFallHeight;
   s >> m_DebugFlags;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bApplySteering;
+  }
 }
 
 void ezAiNavigationComponent::Update()
@@ -203,8 +222,14 @@ void ezAiNavigationComponent::Update()
   Turn(transform, tDiff);
   PlaceOnGround(transform, tDiff);
 
-  GetOwner()->SetGlobalPosition(transform.m_vPosition);
-  GetOwner()->SetGlobalRotation(transform.m_qRotation);
+  m_vSteerPosition = transform.m_vPosition;
+  m_qSteerRotation = transform.m_qRotation;
+
+  if (m_bApplySteering)
+  {
+    GetOwner()->SetGlobalPosition(m_vSteerPosition);
+    GetOwner()->SetGlobalRotation(m_qSteerRotation);
+  }
 
   if (m_DebugFlags.IsAnyFlagSet())
   {
