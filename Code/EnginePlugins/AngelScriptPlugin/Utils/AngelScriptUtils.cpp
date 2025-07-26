@@ -471,16 +471,16 @@ const char* ezAngelScriptUtils::VariantTypeToString(ezVariantType::Enum type)
   return nullptr;
 }
 
-ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
+ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value, ezVariantType::Enum expectedType)
 {
   ezStringBuilder s;
-  switch (value.GetType())
+  switch (expectedType)
   {
     case ezVariantType::Angle:
       s.SetFormat("ezAngle::MakeDegrees({})", value.Get<ezAngle>().GetDegree());
       return s;
     case ezVariantType::Bool:
-      s.Set(value.Get<bool>() ? "true" : "false");
+      s.Set(value.ConvertTo<bool>() ? "true" : "false");
       return s;
     case ezVariantType::Color:
       s.SetFormat("ezColor({}, {}, {}, {})", value.Get<ezColor>().r, value.Get<ezColor>().g, value.Get<ezColor>().b, value.Get<ezColor>().a);
@@ -491,11 +491,11 @@ ezString ezAngelScriptUtils::DefaultValueToString(const ezVariant& value)
       return s;
 
     case ezVariantType::Double:
-      s.SetFormat("{}", value.Get<double>());
+      s.SetFormat("{}", value.ConvertTo<double>());
       return s;
 
     case ezVariantType::Float:
-      s.SetFormat("{}", value.Get<float>());
+      s.SetFormat("{}", value.ConvertTo<float>());
       return s;
 
     case ezVariantType::HashedString:
@@ -777,7 +777,8 @@ void ezAngelScriptUtils::MakeGenericFunctionCall(asIScriptGeneric* pGen)
     }
   }
 
-  if (pAbstractFuncProp->GetReturnType() != nullptr)
+  const ezRTTI* pReturnType = pAbstractFuncProp->GetReturnType();
+  if (pReturnType != nullptr && pReturnType != ezGetStaticRTTI<ezVariantArray>())
   {
     const ezRTTI* pRetRtti = ezAngelScriptUtils::MapToRTTI(pGen->GetReturnTypeId(), pGen->GetEngine());
     ezAngelScriptUtils::DefaultConstructInPlace(pGen->GetAddressOfReturnLocation(), pRetRtti);

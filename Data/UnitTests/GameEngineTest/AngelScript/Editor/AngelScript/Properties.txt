@@ -57,7 +57,9 @@ CenterAngularVelocity
 CenterOfMass
 CenterPosition
 CenterVelocity
+Character
 CharacterGravity
+CharacterVelocity
 Chartreuse
 ChildActor
 ChildActorAnchor
@@ -65,12 +67,16 @@ Chocolate
 Closed
 Collection
 CollisionLayer
+CollisionLayerDynamic
+CollisionLayerStatic
 CollisionMesh
 Color
 Comment
 ConeAngle
 ConstantBias
+ContactReportForceThreshold
 ContinuousCollisionDetection
+Cookie
 Coral
 CornflowerBlue
 Cornsilk
@@ -110,6 +116,7 @@ Data3
 DeactivationDelay
 DebugFlags
 DebugShowPoints
+DebugVisScale
 Deceleration
 DeepPink
 DeepSkyBlue
@@ -124,6 +131,8 @@ DimGrey
 Dimensions
 Directionality
 Distance
+DocumentGuid
+DocumentType
 DodgerBlue
 DriveMode
 DriveStrength
@@ -151,7 +160,6 @@ Flags
 FloralWhite
 FollowMode
 FootRadius
-Force
 ForestGreen
 ForwardToBlackboard
 ForwardVector
@@ -185,7 +193,9 @@ HitObjectName
 HoneyDew
 HotPink
 ISO
+Impact
 ImpactDirection
+ImpactSqr
 Impulse
 IndianRed
 Indigo
@@ -198,6 +208,7 @@ InnerSpotAngle
 InputAction
 InputSet
 Intensity
+InversePoleVector
 InverseTonemap
 InvisibleUpdateRate
 Ivory
@@ -253,7 +264,9 @@ Marker
 Maroon
 Mass
 Material
+MaterialResolution
 MaterialSlot
+MaterialUpdateInterval
 MaxBend
 MaxBodies
 MaxClimbingSlope
@@ -302,6 +315,7 @@ NearPlane
 NearPlaneOffset
 NegativeFalloff
 NewStateName
+Normal
 NumCascades
 Object
 ObjectFilterID
@@ -318,6 +332,7 @@ OnFinishedAction
 Orange
 OrangeRed
 Orchid
+Order
 OuterFadeAngle
 OuterSpotAngle
 OverlapRanges
@@ -413,6 +428,7 @@ ShowDebugInfo
 ShowDebugOverlay
 ShowDebugProbes
 ShowMipMaps
+ShowShapeIcons
 ShowStats
 ShutterTime
 Sienna
@@ -495,9 +511,11 @@ TriggerState
 Turquoise
 Type
 UScale
+UVScale
 UVUnitsPerWorldUnit
 UpVector
 UpdateInterval
+UpdateOnlyWhenSimulating
 UpdateRate
 UpdateThreshold
 UpperLimit
@@ -526,6 +544,8 @@ WalkSpeedRunning
 WalkSpeedStanding
 WalkSurfaceInteraction
 Weight
+WeightCategory
+WeightScale
 Wheat
 White
 WhiteSmoke

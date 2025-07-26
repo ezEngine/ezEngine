@@ -278,6 +278,21 @@ enum ezJoltCharacterDebugFlags
   VisFootCheck = 32,
 }
 
+enum ezJoltBreakableShape
+{
+  Rectangle = 0,
+  Triangle = 1,
+  Circle = 2,
+}
+
+enum ezJoltBreakableSlabFlags
+{
+  FixedEdgeTop = 1,
+  FixedEdgeRight = 2,
+  FixedEdgeBottom = 4,
+  FixedEdgeLeft = 8,
+}
+
 enum ezJoltClothSheetFlags
 {
   FixedCornerTopLeft = 1,
@@ -348,6 +363,8 @@ enum ezPhysicsShapeType
   Character = 16,
   Ragdoll = 32,
   Rope = 64,
+  Cloth = 128,
+  Debris = 256,
 }
 
 enum ezDebugTextHAlign
@@ -1036,6 +1053,8 @@ class ezGameObject
   ezVec3 GetGlobalDirForwards() const;
   ezVec3 GetGlobalDirRight() const;
   ezVec3 GetGlobalDirUp() const;
+  void SetGlobalRotationToLookAt(const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
+  void SetGlobalTransformToLookAt(const ezVec3&in vOwnPosition, const ezVec3&in vTargetPosition, const ezVec3&in vUp = ezVec3(0, 0, 1));
   ezVec3 GetLinearVelocity() const;
   ezVec3 GetAngularVelocity() const;
   void UpdateGlobalTransform();
@@ -1076,6 +1095,7 @@ class ezComponent
   ezGameObject@ GetOwner() const;
   ezWorld@ GetWorld() const;
   uint GetUniqueID() const;
+  void DeleteComponent();
   void Initialize();
   void Deinitialize();
   void OnActivated();
@@ -1162,7 +1182,6 @@ class ezComponent
   ezSpawnComponent@ opCast();
   ezTimedDeathComponent@ opCast();
   ezTriggerDelayModifierComponent@ opCast();
-  ezCharacterControllerComponent@ opCast();
   ezStateMachineComponent@ opCast();
   ezVolumeComponent@ opCast();
   ezVolumeSphereComponent@ opCast();
@@ -1179,6 +1198,7 @@ class ezComponent
   ezJoltTriggerComponent@ opCast();
   ezJoltCharacterControllerComponent@ opCast();
   ezJoltDefaultCharacterComponent@ opCast();
+  ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
   ezJoltHitboxComponent@ opCast();
   ezJoltRagdollComponent@ opCast();
@@ -1240,7 +1260,8 @@ class ezWorld
 class ezMessage
 {
   ezMsgPhysicsAddImpulse@ opCast();
-  ezMsgPhysicsAddForce@ opCast();
+  ezMsgPhysicCharacterContact@ opCast();
+  ezMsgPhysicContact@ opCast();
   ezMsgPhysicsJointBroke@ opCast();
   ezMsgObjectGrabbed@ opCast();
   ezMsgReleaseObjectGrab@ opCast();
@@ -1279,6 +1300,7 @@ class ezMessage
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
+  ezMsgExport@ opCast();
   ezMsgMoveCharacterController@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
   ezMsgDeliverAngelScriptMsg@ opCast();
@@ -1353,6 +1375,7 @@ class ezForwardEventsToGameStateComponent : ezEventMessageHandlerComponent
 class ezPrefabReferenceComponent : ezComponent
 {
   ezStringView Prefab;
+  bool ShowShapeIcons;
 }
 
 class ezScriptComponent : ezEventMessageHandlerComponent
@@ -1371,8 +1394,8 @@ class ezScriptComponent : ezEventMessageHandlerComponent
   ezString GetScriptVariable_asString(ezHashedString Name) const;
   ezGameObjectHandle GetScriptVariable_asGameObjectHandle(ezHashedString Name) const;
   ezComponentHandle GetScriptVariable_asComponentHandle(ezHashedString Name) const;
-  void SetUpdateInterval(ezTime interval);
   ezTime UpdateInterval;
+  bool UpdateOnlyWhenSimulating;
   ezStringView ScriptClass;
   void BroadcastEventMsg(const ezEventMessage&in msg);
 }
@@ -1412,6 +1435,7 @@ class ezRenderComponent : ezComponent
   ezLodAnimatedMeshComponent@ opCast();
   ezGreyBoxComponent@ opCast();
   ezGizmoComponent@ opCast();
+  ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
   ezJoltVisColMeshComponent@ opCast();
 }
@@ -1675,6 +1699,10 @@ class ezSpotLightComponent : ezLightComponent
   ezAngle InnerSpotAngle;
   ezAngle OuterSpotAngle;
   float ShadowFadeOutRange;
+  ezStringView Cookie;
+  ezStringView Material;
+  uint32 MaterialResolution;
+  ezTime MaterialUpdateInterval;
 }
 
 class ezCustomMeshComponent : ezRenderComponent
@@ -1848,10 +1876,13 @@ class ezSliderComponent : ezTransformComponent
 
 class ezAimIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezBasisAxis ForwardVector;
   ezBasisAxis UpVector;
   ezString PoleVector;
+  bool InversePoleVector;
   float Weight;
+  uint16 Order;
 }
 
 class ezAnimatedMeshComponent : ezMeshComponentBase
@@ -1907,12 +1938,14 @@ class ezSimpleAnimationComponent : ezComponent
 
 class ezTwoBoneIKComponent : ezComponent
 {
+  float DebugVisScale;
   ezHashedString JointStart;
   ezHashedString JointMiddle;
   ezHashedString JointEnd;
   ezBasisAxis MidAxis;
   ezString PoleVector;
   float Weight;
+  uint16 Order;
 }
 
 class ezPostProcessingComponent : ezComponent
@@ -2092,15 +2125,6 @@ class ezTriggerDelayModifierComponent : ezComponent
   ezTime DeactivationDelay;
 }
 
-class ezCharacterControllerComponent : ezComponent
-{
-  void RawMove(ezVec3 moveDeltaGlobal);
-  void TeleportCharacter(ezVec3 globalFootPosition);
-  bool IsDestinationUnobstructed(ezVec3 globalFootPosition, float characterHeight);
-  bool IsTouchingGround();
-  bool IsCrouching();
-}
-
 class ezStateMachineComponent : ezComponent
 {
   bool SetState(ezStringView Name);
@@ -2184,13 +2208,15 @@ class ezJoltActorComponent : ezComponent
 
 class ezJoltDynamicActorComponent : ezJoltActorComponent
 {
-  void AddLinearForce(ezVec3 vForce);
-  void AddLinearImpulse(ezVec3 vImpulse);
-  void AddAngularForce(ezVec3 vForce);
-  void AddAngularImpulse(ezVec3 vImpulse);
+  void AddLinearImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0);
+  void AddAngularImpulse(ezVec3 vImpulse, uint8 uiImpulseType = 0);
+  uint AddOrUpdateForce(uint uiForceID, ezTime duration, ezVec3 vForce);
+  void ClearForce(uint uiForceID);
   bool Kinematic;
   bool StartAsleep;
   bool AllowSleeping;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Density;
   ezStringView Surface;
@@ -2224,6 +2250,8 @@ class ezJoltCharacterControllerComponent : ezComponent
 {
   uint8 CollisionLayer;
   uint8 PresenceCollisionLayer;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Strength;
   ezAngle MaxClimbingSlope;
@@ -2238,6 +2266,11 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
   bool IsSlidingOnGround() const;
   bool IsInAir() const;
   bool IsCrouching() const;
+  void Jump();
+  void Run();
+  void Crouch();
+  void RotateZ(float Amount);
+  void Move(float Forward, float Right);
   float ShapeRadius;
   float CrouchHeight;
   float StandHeight;
@@ -2256,6 +2289,25 @@ class ezJoltDefaultCharacterComponent : ezJoltCharacterControllerComponent
   float RunInteractionDistance;
   ezStringView FallbackWalkSurface;
   ezString HeadObject;
+}
+
+class ezJoltBreakableSlabComponent : ezRenderComponent
+{
+  void Restore();
+  void ShatterCellular(ezVec3 vGlobalPosition, float fCellSize, ezVec3 vImpulse, float fMakeDynamicRadius);
+  void ShatterRadial(ezVec3 vGlobalPosition, float fImpactRadius, ezVec3 vImpulse, float fMakeDynamicRadius);
+  void ShatterAll(float fShardSize, ezVec3 vImpulse);
+  float Width;
+  float Height;
+  float Thickness;
+  ezStringView Material;
+  ezVec2 UVScale;
+  uint8 CollisionLayerStatic;
+  uint8 CollisionLayerDynamic;
+  ezJoltBreakableShape Shape;
+  ezJoltBreakableSlabFlags Flags;
+  float GravityFactor;
+  float ContactReportForceThreshold;
 }
 
 class ezJoltClothSheetComponent : ezRenderComponent
@@ -2289,6 +2341,8 @@ class ezJoltRagdollComponent : ezComponent
   bool SelfCollision;
   ezJoltRagdollStartMode StartMode;
   float GravityFactor;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float StiffnessFactor;
   float OwnerVelocityScale;
@@ -2305,6 +2359,8 @@ class ezJoltRopeComponent : ezComponent
   ezJoltRopeAnchorConstraintMode Anchor2Constraint;
   uint16 Pieces;
   float Slack;
+  uint8 WeightCategory;
+  float WeightScale;
   float Mass;
   float Thickness;
   float BendStiffness;
@@ -2372,7 +2428,7 @@ class ezJoltGrabObjectComponent : ezComponent
   bool GrabNearbyObject();
   bool HasObjectGrabbed() const;
   void DropGrabbedObject();
-  void ThrowGrabbedObject(ezVec3 Direction);
+  void ThrowGrabbedObject(ezVec3 vDirection, uint8 uiImpulseType = 0);
   void BreakObjectGrab();
   float MaxGrabPointDistance;
   float CastRadius;
@@ -2471,10 +2527,20 @@ class ezMsgPhysicsAddImpulse : ezMessage
   uint32 ObjectFilterID;
 }
 
-class ezMsgPhysicsAddForce : ezMessage
+class ezMsgPhysicCharacterContact : ezMessage
+{
+  ezComponentHandle Character;
+  ezVec3 GlobalPosition;
+  ezVec3 Normal;
+  ezVec3 CharacterVelocity;
+  float Impact;
+}
+
+class ezMsgPhysicContact : ezMessage
 {
   ezVec3 GlobalPosition;
-  ezVec3 Force;
+  ezVec3 Normal;
+  float ImpactSqr;
 }
 
 class ezEventMessage : ezMessage
@@ -2671,6 +2737,12 @@ class ezMsgDamage : ezEventMessage
   ezString HitObjectName;
   ezVec3 GlobalPosition;
   ezVec3 ImpactDirection;
+}
+
+class ezMsgExport : ezMessage
+{
+  ezString DocumentType;
+  ezString DocumentGuid;
 }
 
 class ezMsgMoveCharacterController : ezMessage
@@ -2878,7 +2950,7 @@ namespace ezClock
 
 namespace ezSound
 {
-  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = 1, float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
+  void PlaySound(ezStringView Resource, ezVec3 GlobalPosition, ezQuat GlobalRotation = ezQuat::MakeIdentity(), float Pitch = 1, float Volume = 1, bool BlockToLoad = false);
 }
 
 namespace ezCVar
@@ -2909,52 +2981,54 @@ namespace ezCVar
 
 namespace ezLog
 {
-  void Info(ezStringView Text);
-  void Info(ezStringView Text, ?&in VarArg1);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Info(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
-  void Warning(ezStringView Text);
-  void Warning(ezStringView Text, ?&in VarArg1);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Warning(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
-  void Error(ezStringView Text);
-  void Error(ezStringView Text, ?&in VarArg1);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
-  void Error(ezStringView Text, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Info(ezStringView);
+  void Info(ezStringView, ?&in VarArg1);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Info(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Warning(ezStringView);
+  void Warning(ezStringView, ?&in VarArg1);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Warning(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
+  void Error(ezStringView);
+  void Error(ezStringView, ?&in VarArg1);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7);
+  void Error(ezStringView, ?&in VarArg1, ?&in VarArg2, ?&in VarArg3, ?&in VarArg4, ?&in VarArg5, ?&in VarArg6, ?&in VarArg7, ?&in VarArg8);
 }
 
 namespace ezPhysics
 {
   ezVec3 GetGravity();
   uint8 GetCollisionLayerByName(ezStringView Name);
-  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
-  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 4294967295);
+  uint8 GetWeightCategoryByName(ezStringView Name);
+  uint8 GetImpulseTypeByName(ezStringView Name);
+  bool Raycast(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, ezVec3 Start, ezVec3 Direction, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 18446744073709551615);
+  bool OverlapTestLine(ezVec3 Start, ezVec3 End, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3), uint IgnoreObjectID = 18446744073709551615);
   bool OverlapTestSphere(float Radius, ezVec3 Position, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool OverlapTestCapsule(float Radius, float Height, ezTransform Transform, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool SweepTestSphere(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, ezVec3 Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
   bool SweepTestCapsule(ezVec3&out HitPosition, ezVec3&out HitNormal, ezGameObjectHandle&out HitObject, float Radius, float Height, ezTransform Start, ezVec3 Direction, float Distance, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes = ezPhysicsShapeType(3));
-  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 4294967295);
+  bool RaycastSurfaceInteraction(ezVec3 RayStart, ezVec3 RayDirection, uint8 CollisionLayer, ezPhysicsShapeType ShapeTypes, ezStringView FallbackSurface, ezTempHashedString Interaction, float Impulse = 0, uint IgnoreObjectID = 18446744073709551615);
 }
 
 namespace ezPrefabs
 {
-  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, ezVec3 RelativePos, ezQuat RelativeRotation);
-  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezVec3 RelativePos, ezQuat RelativeRotation);
+  void SpawnPrefab(ezStringView Prefab, ezTransform GlobalTransform, uint UniqueID = 4294967295, bool SetCreatedByPrefab = true, bool SetHideShapeIcon = true);
+  void SpawnPrefabAsChild(ezStringView Prefab, ezGameObject@ Parent, ezTransform LocalTransform, uint UniqueID = 4294967295, bool SetCreatedByPrefab = true, bool SetHideShapeIcon = true);
 }
 
 namespace ezSpatial

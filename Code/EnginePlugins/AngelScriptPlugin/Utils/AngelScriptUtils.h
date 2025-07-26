@@ -44,7 +44,7 @@ public:
 
   static const char* VariantTypeToString(ezVariantType::Enum type);
 
-  static ezString DefaultValueToString(const ezVariant& value);
+  static ezString DefaultValueToString(const ezVariant& value, ezVariantType::Enum expectedType);
 
   static void RetrieveArg(asIScriptGeneric* pGen, ezUInt32 uiRealArg, ezInt32& ref_iSkippedArg, const ezAbstractFunctionProperty* pAbstractFuncProp, ezVariant& out_arg);
 

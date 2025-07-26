@@ -17,7 +17,6 @@ ezBoxReflectionProbeComponent
 ezCameraComponent
 ezCameraMode
 ezCameraUsageHint
-ezCharacterControllerComponent
 ezClock
 ezCollectionComponent
 ezColor
@@ -58,6 +57,9 @@ ezInstancedMeshComponent
 ezJointAttachmentComponent
 ezJointOverrideComponent
 ezJoltActorComponent
+ezJoltBreakableShape
+ezJoltBreakableSlabComponent
+ezJoltBreakableSlabFlags
 ezJoltCharacterControllerComponent
 ezJoltCharacterDebugFlags
 ezJoltClothSheetComponent
@@ -119,6 +121,7 @@ ezMsgComponentsChanged
 ezMsgDamage
 ezMsgDeleteGameObject
 ezMsgDeliverAngelScriptMsg
+ezMsgExport
 ezMsgExtractGeometry
 ezMsgExtractOccluderData
 ezMsgExtractRenderData
@@ -130,7 +133,8 @@ ezMsgObjectGrabbed
 ezMsgOnlyApplyToObject
 ezMsgParentChanged
 ezMsgPathChanged
-ezMsgPhysicsAddForce
+ezMsgPhysicCharacterContact
+ezMsgPhysicContact
 ezMsgPhysicsAddImpulse
 ezMsgPhysicsJointBroke
 ezMsgQueryAnimationSkeleton

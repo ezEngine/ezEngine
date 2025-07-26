@@ -98,9 +98,11 @@ class ScriptObject : ezAngelScriptTestClass
         }
         else if (m_Phase == Phase::Prefabs)
         {
-            //ezPrefabs::SpawnPrefab("{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }", GetOwner().GetGlobalTransform(), ezVec3(1, 2, 3), ezQuat::MakeIdentity());
+            ezTransform localTransform = ezTransform::Make(ezVec3(1, 2, 3));
+            ezPrefabs::SpawnPrefab("{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }", ezTransform::MakeGlobalTransform(GetOwner().GetGlobalTransform(), localTransform));
 
-            //ezPrefabs::SpawnPrefabAsChild("{ 42e938fb-5523-4606-8e64-6fee83dd0c7b }", GetOwner(), ezVec3(2, 3, 4), ezQuat::MakeIdentity());
+            localTransform.m_vPosition = ezVec3(2, 3, 4);
+            ezPrefabs::SpawnPrefabAsChild("{ 42e938fb-5523-4606-8e64-6fee83dd0c7b }", GetOwner(), localTransform);
             
             m_Phase = Phase::Done;
         }

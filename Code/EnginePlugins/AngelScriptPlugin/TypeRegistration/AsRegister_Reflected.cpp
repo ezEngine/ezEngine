@@ -10,7 +10,7 @@ bool ezAngelScriptEngineSingleton::AppendType(ezStringBuilder& decl, const ezRTT
   const bool bIsReturnValue = uiArg == ezInvalidIndex;
   const auto argType = pFuncAttr ? pFuncAttr->GetArgumentType(uiArg) : ezScriptableFunctionAttribute::ArgType::In;
 
-  if (pRtti == nullptr)
+  if (pRtti == nullptr || pRtti == ezGetStaticRTTI<ezVariantArray>())
   {
     decl.Append("void");
     return bIsReturnValue;
@@ -491,13 +491,8 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
         if (defaultValue.IsValid())
         {
-          if (pArgType->GetVariantType() == ezVariantType::UInt32)
-          {
-            // special case to make the default value unsigned
-            defaultValue = defaultValue.ConvertTo<ezUInt32>();
-          }
-
-          decl.Append(ezAngelScriptUtils::DefaultValueToString(defaultValue));
+          ezVariantType::Enum expectedType = bIsEnum ? ezVariantType::Int64 : pArgType->GetVariantType();
+          decl.Append(ezAngelScriptUtils::DefaultValueToString(defaultValue, expectedType));
         }
         else
         {
