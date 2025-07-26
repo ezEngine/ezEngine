@@ -26,34 +26,34 @@ EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 // static
-int ezScriptExtensionClass_StableRandom::IntMinMax(int& iPosition, int iMinValue, int iMaxValue, ezUInt32 uiSeed)
+int ezScriptExtensionClass_StableRandom::IntMinMax(int& inout_iPosition, int iMinValue, int iMaxValue, ezUInt32 uiSeed)
 {
-  const ezSimdVec4i result = ezSimdVec4i::Truncate(ezSimdRandom::FloatMinMax(ezSimdVec4i(iPosition), ezSimdVec4f((float)iMinValue), ezSimdVec4f((float)iMaxValue), ezSimdVec4u(uiSeed)));
-  ++iPosition;
+  const ezSimdVec4i result = ezSimdVec4i::Truncate(ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition), ezSimdVec4f((float)iMinValue), ezSimdVec4f((float)iMaxValue), ezSimdVec4u(uiSeed)));
+  ++inout_iPosition;
   return result.x();
 }
 
 // static
-float ezScriptExtensionClass_StableRandom::FloatZeroToOne(int& iPosition, ezUInt32 uiSeed)
+float ezScriptExtensionClass_StableRandom::FloatZeroToOne(int& inout_iPosition, ezUInt32 uiSeed)
 {
-  const ezSimdVec4f result = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(iPosition), ezSimdVec4u(uiSeed));
-  ++iPosition;
+  const ezSimdVec4f result = ezSimdRandom::FloatZeroToOne(ezSimdVec4i(inout_iPosition), ezSimdVec4u(uiSeed));
+  ++inout_iPosition;
   return result.x();
 }
 
 // static
-float ezScriptExtensionClass_StableRandom::FloatMinMax(int& iPosition, float fMinValue, float fMaxValue, ezUInt32 uiSeed)
+float ezScriptExtensionClass_StableRandom::FloatMinMax(int& inout_iPosition, float fMinValue, float fMaxValue, ezUInt32 uiSeed)
 {
-  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(iPosition), ezSimdVec4f(fMinValue), ezSimdVec4f(fMaxValue), ezSimdVec4u(uiSeed));
-  ++iPosition;
+  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition), ezSimdVec4f(fMinValue), ezSimdVec4f(fMaxValue), ezSimdVec4u(uiSeed));
+  ++inout_iPosition;
   return result.x();
 }
 
 // static
-ezVec3 ezScriptExtensionClass_StableRandom::Vec3MinMax(int& iPosition, const ezVec3& vMinValue, const ezVec3& vMaxValue, ezUInt32 uiSeed)
+ezVec3 ezScriptExtensionClass_StableRandom::Vec3MinMax(int& inout_iPosition, const ezVec3& vMinValue, const ezVec3& vMaxValue, ezUInt32 uiSeed)
 {
   const ezSimdVec4i offset(0, 1, 2, 3);
-  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(iPosition) + offset, ezSimdConversion::ToVec3(vMinValue), ezSimdConversion::ToVec3(vMaxValue), ezSimdVec4u(uiSeed));
-  iPosition += 4;
+  const ezSimdVec4f result = ezSimdRandom::FloatMinMax(ezSimdVec4i(inout_iPosition) + offset, ezSimdConversion::ToVec3(vMinValue), ezSimdConversion::ToVec3(vMaxValue), ezSimdVec4u(uiSeed));
+  inout_iPosition += 4;
   return ezSimdConversion::ToVec3(result);
 }

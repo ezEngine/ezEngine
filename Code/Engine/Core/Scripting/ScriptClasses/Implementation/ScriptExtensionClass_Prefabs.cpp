@@ -32,7 +32,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Prefabs, ezNoBase, 1, ezRT
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void SpawnPrefabHelper(ezWorld& world, ezStringView sPrefab, ezGameObjectHandle hParent, const ezTransform& transform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon, ezVariantArray& out_rootObjects)
+void SpawnPrefabHelper(ezWorld& ref_world, ezStringView sPrefab, ezGameObjectHandle hParent, const ezTransform& transform, ezUInt32 uiUniqueID, bool bSetCreatedByPrefab, bool bSetHideShapeIcon, ezVariantArray& out_rootObjects)
 {
   ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(sPrefab);
 
@@ -49,7 +49,7 @@ void SpawnPrefabHelper(ezWorld& world, ezStringView sPrefab, ezGameObjectHandle 
   opt.m_pCreatedRootObjectsOut = &createdRootObjects;
   opt.m_pCreatedChildObjectsOut = &createdChildObjects;
 
-  pPrefab->InstantiatePrefab(world, transform, opt);
+  pPrefab->InstantiatePrefab(ref_world, transform, opt);
 
   auto FixupObject = [&](ezGameObject* pObject)
   {
