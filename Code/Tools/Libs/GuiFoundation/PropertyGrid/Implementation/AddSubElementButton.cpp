@@ -14,9 +14,10 @@
 #include <QPushButton>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezQtAddSubElementButton::ezQtAddSubElementButton()
+ezQtAddSubElementButton::ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory)
   : ezQtPropertyWidget()
 {
+  m_ContainerCategory = containerCategory;
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   m_pLayout = new QHBoxLayout(this);
@@ -171,7 +172,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
   ezVariant index = (ezInt32)-1;
 
-  if (m_pProp->GetCategory() == ezPropertyCategory::Map)
+  if (m_ContainerCategory == ezPropertyCategory::Map)
   {
     QString text;
     bool bOk = false;

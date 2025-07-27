@@ -5,6 +5,7 @@
 #include <GuiFoundation/PropertyGrid/AttributeDefaultStateProvider.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PrefabDefaultStateProvider.h>
+#include <GuiFoundation/PropertyGrid/VariantSubDefaultStateProvider.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -14,12 +15,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, DefaultState)
   {
     ezDefaultState::RegisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
+    ezDefaultState::RegisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezDefaultState::UnregisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
+    ezDefaultState::UnregisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
   }
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on

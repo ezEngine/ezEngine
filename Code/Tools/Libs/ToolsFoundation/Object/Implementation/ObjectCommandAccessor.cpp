@@ -5,6 +5,11 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectCommandAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezObjectCommandAccessor::ezObjectCommandAccessor(ezCommandHistory* pHistory)
   : ezObjectDirectAccessor(const_cast<ezDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
   , m_pHistory(pHistory)

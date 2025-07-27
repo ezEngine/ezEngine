@@ -4,6 +4,11 @@
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNodeCommandAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezNodeCommandAccessor::ezNodeCommandAccessor(ezCommandHistory* pHistory)
   : ezObjectCommandAccessor(pHistory)
 {

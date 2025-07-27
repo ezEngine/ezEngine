@@ -3,6 +3,11 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectDirectAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezObjectDirectAccessor::ezObjectDirectAccessor(ezDocumentObjectManager* pManager)
   : ezObjectAccessorBase(pManager)
   , m_pManager(pManager)

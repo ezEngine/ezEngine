@@ -7,6 +7,11 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameterCommandAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(
   ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pParameterSourceProp)
   : ezObjectProxyAccessor(pSource)

@@ -2,6 +2,11 @@
 
 #include <ToolsFoundation/Object/ObjectProxyAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectProxyAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezObjectProxyAccessor::ezObjectProxyAccessor(ezObjectAccessorBase* pSource)
   : ezObjectAccessorBase(pSource->GetObjectManager())
   , m_pSource(pSource)

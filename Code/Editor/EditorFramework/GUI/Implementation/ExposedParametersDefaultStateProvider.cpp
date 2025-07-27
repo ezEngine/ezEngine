@@ -48,10 +48,13 @@ ezVariant ezExposedParametersDefaultStateProvider::GetDefaultValue(SuperArray su
   ezExposedParameterCommandAccessor accessor(pAccessor, pProp, m_pParameterSourceProp);
   if (index.IsValid())
   {
-    const ezExposedParameter* pParam = accessor.GetExposedParam(pObject, index.Get<ezString>());
-    if (pParam)
+    if (index.IsA<ezString>())
     {
-      return pParam->m_DefaultValue;
+      const ezExposedParameter* pParam = accessor.GetExposedParam(pObject, index.Get<ezString>());
+      if (pParam)
+      {
+        return pParam->m_DefaultValue;
+      }
     }
     return superPtr[0]->GetDefaultValue(superPtr.GetSubArray(1), pAccessor, pObject, pProp, index);
   }

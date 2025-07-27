@@ -10,7 +10,7 @@ bool ezIReflectedTypeAccessor::GetValues(ezStringView sProperty, ezDynamicArray<
 
   out_values.Clear();
   out_values.Reserve(keys.GetCount());
-  for (ezVariant key : keys)
+  for (const ezVariant& key : keys)
   {
     out_values.PushBack(GetValue(sProperty, key));
   }

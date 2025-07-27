@@ -2,6 +2,11 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectAccessorBase, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 void ezObjectAccessorBase::StartTransaction(ezStringView sDisplayString) {}
 
 

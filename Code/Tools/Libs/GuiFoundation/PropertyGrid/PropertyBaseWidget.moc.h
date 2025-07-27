@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <ToolsFoundation/Object/VariantSubAccessor.h>
 
 class ezDocumentObject;
 class ezQtTypeWidget;
@@ -270,6 +271,8 @@ protected:
   void UpdateElements();
   virtual ezUInt32 GetRequiredElementCount() const;
   virtual void UpdatePropertyMetaState();
+  /// \brief Some containers like ezVariant can be both a map or an array so we can't reply on the property type alone. For these containers, this method can be overwritten to retrieve the category from something other than `m_pProp->GetCategory()`.
+  virtual ezPropertyCategory::Enum GetContainerCategory() const;
 
   void Clear();
   virtual void OnInit() override;
@@ -358,4 +361,23 @@ protected:
   QComboBox* m_pTypeList = nullptr;
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
+};
+
+// Used for sub-containers of an ezVariant, e.g. an ezVariantArray or ezVariantDictionary stored inside an ezVariant. ezVariantSubAccessor is used to create a view into a sub-tree container of the ezVariant.
+class EZ_GUIFOUNDATION_DLL ezQtVariantContainerWidget : public ezQtPropertyStandardTypeContainerWidget
+{
+  Q_OBJECT;
+
+public:
+  ezQtVariantContainerWidget(ezVariantType::Enum variantType);
+  virtual ~ezQtVariantContainerWidget() = default;
+
+protected:
+  virtual void OnInit() override;
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual ezPropertyCategory::Enum GetContainerCategory() const override;
+
+private:
+  ezUniquePtr<ezVariantSubAccessor> m_pVariantSubAccessor;
+  ezEnum<ezPropertyCategory> m_ContainerCategory;
 };

@@ -4,6 +4,11 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimObjectAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezPropertyAnimObjectAccessor::ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDocument* pDoc, ezCommandHistory* pHistory)
   : ezObjectCommandAccessor(pHistory)
   , m_pDocument(pDoc)

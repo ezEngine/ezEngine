@@ -6,9 +6,11 @@ class ezDocumentObject;
 
 class EZ_TOOLSFOUNDATION_DLL ezObjectProxyAccessor : public ezObjectAccessorBase
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectProxyAccessor, ezReflectedClass);
 public:
   ezObjectProxyAccessor(ezObjectAccessorBase* pSource);
   virtual ~ezObjectProxyAccessor();
+  ezObjectAccessorBase* GetSourceAccessor() const { return m_pSource; }
 
   /// \name Transaction Operations
   ///@{
