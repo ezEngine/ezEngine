@@ -6,8 +6,8 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyEventHandler.h>
 #include <QWidget>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/VariantSubAccessor.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 class ezDocumentObject;
 class ezQtTypeWidget;

@@ -30,17 +30,17 @@ ezInt32 ezVariantSubAccessor::GetDepth() const
 
 ezResult ezVariantSubAccessor::GetPath(const ezDocumentObject* pObject, ezDynamicArray<ezVariant>& out_path) const
 {
-    out_path.Clear();
-    if (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(GetSourceAccessor()))
-    {
-      EZ_SUCCEED_OR_RETURN(variantSubAccessor->GetPath(pObject, out_path));
-    }
-    ezVariant subItem;
-    if (!m_SubItemMap.TryGetValue(pObject, subItem))
-      return EZ_FAILURE;
+  out_path.Clear();
+  if (auto variantSubAccessor = ezDynamicCast<ezVariantSubAccessor*>(GetSourceAccessor()))
+  {
+    EZ_SUCCEED_OR_RETURN(variantSubAccessor->GetPath(pObject, out_path));
+  }
+  ezVariant subItem;
+  if (!m_SubItemMap.TryGetValue(pObject, subItem))
+    return EZ_FAILURE;
 
-    out_path.PushBack(subItem);
-    return EZ_SUCCESS;
+  out_path.PushBack(subItem);
+  return EZ_SUCCESS;
 }
 
 ezStatus ezVariantSubAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)

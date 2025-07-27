@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Variant.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezStatus;
 

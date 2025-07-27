@@ -9,6 +9,7 @@ class ezDocumentObject;
 class EZ_TOOLSFOUNDATION_DLL ezVariantSubAccessor : public ezObjectProxyAccessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVariantSubAccessor, ezObjectProxyAccessor);
+
 public:
   /// \brief Constructor
   /// \param pSource The original accessor that is going to be proxied. By chaining this class an ezVariant can be explored deeper and deeper.

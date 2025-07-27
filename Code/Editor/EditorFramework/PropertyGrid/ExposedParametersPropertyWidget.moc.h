@@ -12,6 +12,7 @@ class QAction;
 class EZ_EDITORFRAMEWORK_DLL ezExposedParameterCommandAccessor : public ezObjectProxyAccessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExposedParameterCommandAccessor, ezObjectProxyAccessor);
+
 public:
   ezExposedParameterCommandAccessor(ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pM_pParameterSourceProp);
 

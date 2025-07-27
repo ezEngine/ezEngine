@@ -7,6 +7,7 @@ class ezDocumentObject;
 class EZ_TOOLSFOUNDATION_DLL ezObjectAccessorBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectAccessorBase, ezReflectedClass);
+
 public:
   virtual ~ezObjectAccessorBase();
   const ezDocumentObjectManager* GetObjectManager() const;

@@ -8,6 +8,7 @@ class ezCommandHistory;
 class EZ_TOOLSFOUNDATION_DLL ezObjectCommandAccessor : public ezObjectDirectAccessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectCommandAccessor, ezObjectDirectAccessor);
+
 public:
   ezObjectCommandAccessor(ezCommandHistory* pHistory);
 
