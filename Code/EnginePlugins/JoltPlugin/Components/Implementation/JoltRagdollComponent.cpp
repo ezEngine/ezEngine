@@ -606,13 +606,13 @@ void ezJoltRagdollComponent::OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg
   }
 }
 
-void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezTransform& out_Transform)
+static void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezTransform& out_transform)
 {
   ezMat4 mFullTransform = mRootTransform * mModelTransform;
 
-  out_Transform.m_qRotation.ReconstructFromMat4(mFullTransform);
-  out_Transform.m_vScale.Set(1);
-  out_Transform.m_vPosition = mFullTransform.GetTranslationVector();
+  out_transform.m_qRotation.ReconstructFromMat4(mFullTransform);
+  out_transform.m_vScale.Set(1);
+  out_transform.m_vPosition = mFullTransform.GetTranslationVector();
 }
 
 void ezJoltRagdollComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& ref_msg)
