@@ -113,6 +113,7 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
@@ -232,6 +233,7 @@ void OnLoadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
@@ -247,6 +249,7 @@ void OnUnloadPlugin()
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
 
 
   ezSelectionActions::UnregisterActions();
@@ -429,4 +432,21 @@ void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMeta
   {
     props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
   }
+}
+
+void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezOccluderComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt64 type = e.m_pObject->GetTypeAccessor().GetValue("Type").ConvertTo<ezInt64>();
+  const bool isMesh = (type == 2); // ezOccluderType::Mesh
+
+  auto& props = *e.m_pPropertyStates;
+
+  props["Extents"].m_Visibility = isMesh ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["Mesh"].m_Visibility = isMesh ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }

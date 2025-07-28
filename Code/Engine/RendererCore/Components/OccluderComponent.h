@@ -2,6 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <RendererCore/RendererCoreDLL.h>
 
@@ -23,6 +24,7 @@ struct ezOccluderType
   {
     Box,      ///< The occluder is a box with 6 faces.
     QuadPosX, ///< The occluder is only a single face at the positive X extent of the surrounding box.
+    Mesh,
 
     Default = Box
   };
@@ -71,12 +73,20 @@ public:
   void SetType(ezEnum<ezOccluderType> type);                // [ property ]
   ezEnum<ezOccluderType> GetType() const { return m_Type; } // [ property ]
 
+  // adds SetMeshFile() and GetMeshFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
+
+  void SetMesh(const ezCpuMeshResourceHandle& hCubeMap); // [ property ]
+  const ezCpuMeshResourceHandle& GetMesh() const;        // [ property ]
+
 private:
   ezVec3 m_vExtents = ezVec3(5.0f);
   ezEnum<ezOccluderType> m_Type;
+  ezCpuMeshResourceHandle m_hMesh;
 
   mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
+  void UpdateOccluder();
 };
