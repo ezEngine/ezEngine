@@ -6,7 +6,7 @@ class ezDocumentObject;
 
 class EZ_TOOLSFOUNDATION_DLL ezObjectProxyAccessor : public ezObjectAccessorBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectProxyAccessor, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectProxyAccessor, ezObjectAccessorBase);
 
 public:
   ezObjectProxyAccessor(ezObjectAccessorBase* pSource);
