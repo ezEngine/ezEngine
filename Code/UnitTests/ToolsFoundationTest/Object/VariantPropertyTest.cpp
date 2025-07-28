@@ -12,7 +12,8 @@ void TestPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 
 void TestArray(ezVariantSubAccessor& accessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezVariant()>& getNativeValue)
 {
-  auto VerifyChange = [&](){
+  auto VerifyChange = [&]()
+  {
     // Any operation should collapse to the ezVariant being set as a whole.
     EZ_TEST_INT(s_Changes.GetCount(), 1);
     EZ_TEST_BOOL(s_Changes[0].m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet);
@@ -162,27 +163,31 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
     ezMap<const ezDocumentObject*, ezVariant> subItemMap;
     subItemMap.Insert(pObject, ezVariant());
     accessor.SetSubItems(subItemMap);
-    TestArray(accessor, pObject, pProp, [&](){return pNative->m_Variant;});
+    TestArray(accessor, pObject, pProp, [&]()
+      { return pNative->m_Variant; });
     // What remains is an ezVariantDictionary at index 0 that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pProp);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, 0);
       accessor2.SetSubItems(subItemMap2);
-      TestDictionary(accessor2, pObject, pProp, [&](){return pNative->m_Variant[0];});
+      TestDictionary(accessor2, pObject, pProp, [&]()
+        { return pNative->m_Variant[0]; });
     }
     pAccessor->StartTransaction("Set as Dict");
     EZ_TEST_STATUS(pAccessor->SetValue(pObject, pProp, ezVariantDictionary()));
     pAccessor->FinishTransaction();
     s_Changes.Clear();
-    TestDictionary(accessor, pObject, pProp, [&](){return pNative->m_Variant;});
+    TestDictionary(accessor, pObject, pProp, [&]()
+      { return pNative->m_Variant; });
     // What remains is an ezVariantArray at index "B" that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pProp);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, "B");
       accessor2.SetSubItems(subItemMap2);
-      TestArray(accessor2, pObject, pProp, [&](){return pNative->m_Variant["B"];});
+      TestArray(accessor2, pObject, pProp, [&]()
+        { return pNative->m_Variant["B"]; });
     }
   }
 
@@ -196,14 +201,16 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
     ezMap<const ezDocumentObject*, ezVariant> subItemMap;
     subItemMap.Insert(pObject, 0);
     accessor.SetSubItems(subItemMap);
-    TestArray(accessor, pObject, pPropArray, [&](){return pNative->m_VariantArray[0];});
+    TestArray(accessor, pObject, pPropArray, [&]()
+      { return pNative->m_VariantArray[0]; });
     // What remains is an ezVariantDictionary at index 0 that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pPropArray);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, 0);
       accessor2.SetSubItems(subItemMap2);
-      TestDictionary(accessor2, pObject, pPropArray, [&](){return pNative->m_VariantArray[0][0];});
+      TestDictionary(accessor2, pObject, pPropArray, [&]()
+        { return pNative->m_VariantArray[0][0]; });
     }
     pAccessor->StartTransaction("Insert Dictionary");
     EZ_TEST_STATUS(pAccessor->InsertValue(pObject, pPropArray, ezVariantDictionary(), 1));
@@ -211,14 +218,16 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
     s_Changes.Clear();
     subItemMap.Insert(pObject, 1);
     accessor.SetSubItems(subItemMap);
-    TestDictionary(accessor, pObject, pPropArray, [&](){return pNative->m_VariantArray[1];});
+    TestDictionary(accessor, pObject, pPropArray, [&]()
+      { return pNative->m_VariantArray[1]; });
     // What remains is an ezVariantArray at index "B" that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pPropArray);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, "B");
       accessor2.SetSubItems(subItemMap2);
-      TestArray(accessor2, pObject, pPropArray, [&](){return pNative->m_VariantArray[1]["B"];});
+      TestArray(accessor2, pObject, pPropArray, [&]()
+        { return pNative->m_VariantArray[1]["B"]; });
     }
   }
 
@@ -232,14 +241,16 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
     ezMap<const ezDocumentObject*, ezVariant> subItemMap;
     subItemMap.Insert(pObject, "AAA");
     accessor.SetSubItems(subItemMap);
-    TestArray(accessor, pObject, pPropDict, [&](){return *pNative->m_VariantDictionary.GetValue("AAA");});
+    TestArray(accessor, pObject, pPropDict, [&]()
+      { return *pNative->m_VariantDictionary.GetValue("AAA"); });
     // What remains is an ezVariantDictionary at index 0 that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pPropDict);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, 0);
       accessor2.SetSubItems(subItemMap2);
-      TestDictionary(accessor2, pObject, pPropDict, [&](){return (*pNative->m_VariantDictionary.GetValue("AAA"))[0];});
+      TestDictionary(accessor2, pObject, pPropDict, [&]()
+        { return (*pNative->m_VariantDictionary.GetValue("AAA"))[0]; });
     }
     pAccessor->StartTransaction("Insert Dictionary");
     EZ_TEST_STATUS(pAccessor->InsertValue(pObject, pPropDict, ezVariantDictionary(), "BBB"));
@@ -247,14 +258,16 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, VariantPropertyTest)
     s_Changes.Clear();
     subItemMap.Insert(pObject, "BBB");
     accessor.SetSubItems(subItemMap);
-    TestDictionary(accessor, pObject, pPropDict, [&](){return *pNative->m_VariantDictionary.GetValue("BBB");});
+    TestDictionary(accessor, pObject, pPropDict, [&]()
+      { return *pNative->m_VariantDictionary.GetValue("BBB"); });
     // What remains is an ezVariantArray at index "B" that we can recurse into.
     {
       ezVariantSubAccessor accessor2(&accessor, pPropDict);
       ezMap<const ezDocumentObject*, ezVariant> subItemMap2;
       subItemMap2.Insert(pObject, "B");
       accessor2.SetSubItems(subItemMap2);
-      TestArray(accessor2, pObject, pPropDict, [&](){return (*pNative->m_VariantDictionary.GetValue("BBB"))["B"];});
+      TestArray(accessor2, pObject, pPropDict, [&]()
+        { return (*pNative->m_VariantDictionary.GetValue("BBB"))["B"]; });
     }
   }
 }
