@@ -4,6 +4,18 @@
 #include <ToolsFoundationTest/Reflection/ReflectionTestClasses.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariantTestStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezVariantTestStruct>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Variant", m_Variant),
+    EZ_ARRAY_MEMBER_PROPERTY("VariantArray", m_VariantArray),
+    EZ_MAP_MEMBER_PROPERTY("VariantDictionary", m_VariantDictionary)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezIntegerStruct>)
 {
   EZ_BEGIN_PROPERTIES

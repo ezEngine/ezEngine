@@ -4,6 +4,15 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
 
+struct ezVariantTestStruct
+{
+public:
+  ezVariant m_Variant;
+  ezVariantArray m_VariantArray;
+  ezVariantDictionary m_VariantDictionary;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezVariantTestStruct);
+
 struct ezIntegerStruct
 {
 public:
