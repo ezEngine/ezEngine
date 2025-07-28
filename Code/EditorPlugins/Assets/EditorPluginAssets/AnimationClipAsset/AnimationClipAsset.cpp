@@ -30,6 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
+    EZ_MEMBER_PROPERTY("BasePreviewAnim", m_sPreviewAnim)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation", ezDependencyFlags::Thumbnail)),
     EZ_ENUM_MEMBER_PROPERTY("AdditiveReference", ezAdditiveAnimationReference, m_AdditiveReference),
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
@@ -58,6 +59,7 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
 
   const bool bAdditive = e.m_pObject->GetTypeAccessor().GetValue("Additive").ConvertTo<bool>();
   props["AdditiveReference"].m_Visibility = bAdditive ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["BasePreviewAnim"].m_Visibility = bAdditive ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
   const ezInt64 motionType = e.m_pObject->GetTypeAccessor().GetValue("RootMotion").ConvertTo<ezInt64>();
   props["ConstantRootMotion"].m_Visibility = ezPropertyUiState::Invisible;
@@ -191,6 +193,13 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const Th
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
     msg.m_sPayload = GetProperties()->m_sPreviewMesh;
+    SendMessageToEngine(&msg);
+  }
+  if (!GetProperties()->m_sPreviewAnim.IsEmpty())
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewAnim";
+    msg.m_sPayload = GetProperties()->m_sPreviewAnim;
     SendMessageToEngine(&msg);
   }
 

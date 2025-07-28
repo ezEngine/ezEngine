@@ -14,7 +14,7 @@ o
 			s{"Animations/Al/Al.glb"}
 		}
 		Uuid %DocumentID{u4{10121665253915772071,5633557198921380044}}
-		u4 %Hash{4808445847990775676}
+		u4 %Hash{9289587371401910930}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,7 @@ o
 		{
 			s{"Animations/Al/Al.glb"}
 			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
+			s{"{ fa7071a5-0de4-4f89-8af4-193b37b5e059 }"}
 		}
 		s %Tags{""}
 	}
@@ -39,6 +40,7 @@ o
 		b %Additive{1}
 		s %AdditiveReference{"ezAdditiveAnimationReference::LastKeyFrame"}
 		f %AdjustScale{0x0000803F}
+		s %BasePreviewAnim{"{ fa7071a5-0de4-4f89-8af4-193b37b5e059 }"}
 		Vec3 %ConstantRootMotion{f{0,0,0}}
 		Uuid %EventTrack{u4{15677126911862309341,5500559278710510177}}
 		s %File{"Animations/Al/Al.glb"}

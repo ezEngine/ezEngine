@@ -159,6 +159,12 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewMesh;
     GetDocument()->SendMessageToEngine(&msg);
   }
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewAnim";
+    msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewAnim;
+    GetDocument()->SendMessageToEngine(&msg);
+  }
 
   {
     ezSimpleDocumentConfigMsgToEngine msg;

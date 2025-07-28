@@ -58,6 +58,7 @@ public:
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
+  ezString m_sPreviewAnim;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
   ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
   ezVec3 m_vConstantRootMotion;
