@@ -609,7 +609,7 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
 
   m_pLayout->addWidget(m_pGroup);
 
-  m_pAddButton = new ezQtAddSubElementButton(m_pProp->GetCategory());
+  m_pAddButton = new ezQtAddSubElementButton(ezPropertyCategory::Member);
   m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
 
   m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, this);
