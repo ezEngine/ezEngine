@@ -90,12 +90,12 @@
     <file>ezStateMachineComponent.svg</file>
     <file>ezOccluderComponent.svg</file>
     <file>ezForwardEventsToGameStateComponent.svg</file>
-    <file>ezPathComponent.svg</file>
+    <file>ezSplineComponent.svg</file>
     <file>ezCommentComponent.svg</file>
     <file>ezCameraShakeComponent.svg</file>
 	  <file>ezCameraShakeVolumeSphereComponent.svg</file>
-    <file>ezPathNodeComponent.svg</file>
-    <file>ezFollowPathComponent.svg</file>
+    <file>ezSplineNodeComponent.svg</file>
+    <file>ezFollowSplineComponent.svg</file>
     <file>ezLocalBlackboardComponent.svg</file>
     <file>ezGlobalBlackboardComponent.svg</file>
     <file>ezPostProcessingComponent.svg</file>

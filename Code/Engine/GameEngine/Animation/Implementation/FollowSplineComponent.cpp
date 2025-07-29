@@ -347,3 +347,26 @@ void ezFollowSplineComponent::Update(bool bForce)
 
   GetOwner()->SetGlobalTransform(pSplineObject->GetGlobalTransform() * tFinal);
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezFollowPathComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezFollowPathComponentPatch_1_2()
+    : ezGraphPatch("ezFollowPathComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezFollowSplineComponent");
+  }
+};
+
+ezFollowPathComponentPatch_1_2 g_ezFollowPathComponentPatch_1_2;

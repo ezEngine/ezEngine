@@ -658,3 +658,42 @@ void ezSplineNodeComponent::SplineChanged()
   ezMsgSplineChanged msg;
   GetOwner()->SendEventMessage(msg, this);
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezPathComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezPathComponentPatch_1_2()
+    : ezGraphPatch("ezPathComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezSplineComponent");
+  }
+};
+
+ezPathComponentPatch_1_2 g_ezPathComponentPatch_1_2;
+
+class ezPathNodeComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezPathNodeComponentPatch_1_2()
+    : ezGraphPatch("ezPathNodeComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezSplineNodeComponent");
+  }
+};
+
+ezPathNodeComponentPatch_1_2 g_ezPathNodeComponentPatch_1_2;

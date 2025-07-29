@@ -4,7 +4,6 @@
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Animation/PathComponent.h>
 #include <GameEngine/Physics/RopeSimulator.h>
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
