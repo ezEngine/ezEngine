@@ -106,6 +106,33 @@ Node %Divide
   }
 }
 
+Node %Modulo
+{
+  string %Category { "Math/Basic" }
+  string %Color { "Yellow" }
+
+  InputPin %a
+    {
+      string %Type { "float" }
+      bool %Expose { true }
+      string %DefaultValue { "1" }
+    }
+
+  InputPin %b
+  {
+    string %Type { "float" }
+    bool %Expose { true }
+    string %DefaultValue { "1" }
+  }
+
+  OutputPin %result
+  {
+    string %Type { "float" }
+    string %Inline { "(ToBiggerType($in0, $in1) % ToBiggerType($in1, $in0))" }
+    string %Tooltip { "a modulo b (component-wise)" }
+  }
+}
+
 Node %Fraction
 {
   string %Category { "Math/Basic" }
