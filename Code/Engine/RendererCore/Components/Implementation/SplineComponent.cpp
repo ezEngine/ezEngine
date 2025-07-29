@@ -208,6 +208,9 @@ ezTransform ezSplineComponent::GetTransformAtKey(float fKey) const
 
 float ezSplineComponent::GetKeyAtDistance(float fDistance) const
 {
+  if (m_DistanceToKey.IsEmpty())
+    return 0.0f;
+
   const ezUInt32 uiUpperIndex = ezMath::Min(m_DistanceToKey.UpperBound(fDistance), m_DistanceToKey.GetCount() - 1);
   const ezUInt32 uiLowerIndex = uiUpperIndex > 0 ? uiUpperIndex - 1 : 0;
 
