@@ -10,7 +10,7 @@ void TestPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
   s_Changes.PushBack(e);
 }
 
-void TestArray(ezVariantSubAccessor& accessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezVariant()>& getNativeValue)
+void TestArray(ezVariantSubAccessor& ref_accessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezVariant()>& getNativeValue)
 {
   auto VerifyChange = [&]()
   {
@@ -23,57 +23,57 @@ void TestArray(ezVariantSubAccessor& accessor, const ezDocumentObject* pObject, 
   };
 
   s_Changes.Clear();
-  accessor.StartTransaction("Insert Element");
+  ref_accessor.StartTransaction("Insert Element");
   ezInt32 iCount = 0;
   ezVariant value = ezColor(1, 2, 3);
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 0);
-  EZ_TEST_STATUS(accessor.InsertValue(pObject, pProp, value, 0));
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.InsertValue(pObject, pProp, value, 0));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 1);
   EZ_TEST_BOOL(getNativeValue()[0] == value);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
   s_Changes.Clear();
 
   ezVariant outValue;
-  EZ_TEST_STATUS(accessor.GetValue(pObject, pProp, outValue, 0));
+  EZ_TEST_STATUS(ref_accessor.GetValue(pObject, pProp, outValue, 0));
   EZ_TEST_BOOL(value == outValue);
 
-  accessor.StartTransaction("Set Element");
+  ref_accessor.StartTransaction("Set Element");
   value = ezVariantDictionary();
-  EZ_TEST_STATUS(accessor.SetValue(pObject, pProp, value, 0));
+  EZ_TEST_STATUS(ref_accessor.SetValue(pObject, pProp, value, 0));
   EZ_TEST_BOOL(getNativeValue()[0] == value);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 
-  accessor.StartTransaction("Insert Element");
+  ref_accessor.StartTransaction("Insert Element");
   ezVariant value2 = "Test";
-  EZ_TEST_STATUS(accessor.InsertValue(pObject, pProp, value2, 1));
+  EZ_TEST_STATUS(ref_accessor.InsertValue(pObject, pProp, value2, 1));
   EZ_TEST_BOOL(getNativeValue()[0] == value);
   EZ_TEST_BOOL(getNativeValue()[1] == value2);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 
-  accessor.StartTransaction("Move Element");
-  EZ_TEST_STATUS(accessor.MoveValue(pObject, pProp, 1, 0));
+  ref_accessor.StartTransaction("Move Element");
+  EZ_TEST_STATUS(ref_accessor.MoveValue(pObject, pProp, 1, 0));
   EZ_TEST_BOOL(getNativeValue()[0] == value2);
   EZ_TEST_BOOL(getNativeValue()[1] == value);
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 2);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 
-  accessor.StartTransaction("Remove Element");
-  EZ_TEST_STATUS(accessor.RemoveValue(pObject, pProp, 0));
+  ref_accessor.StartTransaction("Remove Element");
+  EZ_TEST_STATUS(ref_accessor.RemoveValue(pObject, pProp, 0));
   EZ_TEST_BOOL(getNativeValue()[0] == value);
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 1);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 }
 
-void TestDictionary(ezVariantSubAccessor& accessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezVariant()>& getNativeValue)
+void TestDictionary(ezVariantSubAccessor& ref_accessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezVariant()>& getNativeValue)
 {
   auto VerifyChange = [&]()
   {
@@ -86,44 +86,44 @@ void TestDictionary(ezVariantSubAccessor& accessor, const ezDocumentObject* pObj
   };
 
   s_Changes.Clear();
-  accessor.StartTransaction("Insert Element");
+  ref_accessor.StartTransaction("Insert Element");
   ezInt32 iCount = 0;
   ezVariant value = ezColor(1, 2, 3);
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 0);
-  EZ_TEST_STATUS(accessor.InsertValue(pObject, pProp, value, "A"));
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.InsertValue(pObject, pProp, value, "A"));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 1);
   EZ_TEST_BOOL(getNativeValue()["A"] == value);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
   s_Changes.Clear();
 
   ezVariant outValue;
-  EZ_TEST_STATUS(accessor.GetValue(pObject, pProp, outValue, "A"));
+  EZ_TEST_STATUS(ref_accessor.GetValue(pObject, pProp, outValue, "A"));
   EZ_TEST_BOOL(value == outValue);
 
-  accessor.StartTransaction("Set Element");
+  ref_accessor.StartTransaction("Set Element");
   value = 42u;
-  EZ_TEST_STATUS(accessor.SetValue(pObject, pProp, value, "A"));
+  EZ_TEST_STATUS(ref_accessor.SetValue(pObject, pProp, value, "A"));
   EZ_TEST_BOOL(getNativeValue()["A"] == value);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 
-  accessor.StartTransaction("Insert Element");
+  ref_accessor.StartTransaction("Insert Element");
   ezVariant value2 = ezVariantArray();
-  EZ_TEST_STATUS(accessor.InsertValue(pObject, pProp, value2, "B"));
+  EZ_TEST_STATUS(ref_accessor.InsertValue(pObject, pProp, value2, "B"));
   EZ_TEST_BOOL(getNativeValue()["A"] == value);
   EZ_TEST_BOOL(getNativeValue()["B"] == value2);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 
-  accessor.StartTransaction("Remove Element");
-  EZ_TEST_STATUS(accessor.RemoveValue(pObject, pProp, "A"));
+  ref_accessor.StartTransaction("Remove Element");
+  EZ_TEST_STATUS(ref_accessor.RemoveValue(pObject, pProp, "A"));
   EZ_TEST_BOOL(getNativeValue()["B"] == value2);
-  EZ_TEST_STATUS(accessor.GetCount(pObject, pProp, iCount));
+  EZ_TEST_STATUS(ref_accessor.GetCount(pObject, pProp, iCount));
   EZ_TEST_INT(iCount, 1);
-  accessor.FinishTransaction();
+  ref_accessor.FinishTransaction();
   VerifyChange();
 }
 
