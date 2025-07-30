@@ -11,7 +11,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezSplineComponentFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezSplineComponentFlags::VisualizeSpline, ezSplineComponentFlags::VisualizeUpDir)
+  EZ_BITFLAGS_CONSTANTS(ezSplineComponentFlags::VisualizeSpline, ezSplineComponentFlags::VisualizeUpDir, ezSplineComponentFlags::VisualizeTangents)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
@@ -56,7 +56,7 @@ void ezSplineComponentManager::Update(const ezWorldModule::UpdateContext& contex
   {
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->DrawDebugVisualizations(pComponent->GetSplineFlags());
+      pComponent->DrawDebugVisualizations(pComponent->GetSplineFlags());      
     }
   }
 }
@@ -424,15 +424,15 @@ void ezSplineComponent::CreateDistanceToKeyRemapping()
 
 void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlags> flags) const
 {
-  const bool bVisPath = flags.IsSet(ezSplineComponentFlags::VisualizeSpline);
-  const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
-
-  if (!bVisPath && !bVisUp)
+  if (flags.IsNoFlagSet())
     return;
 
   if (m_DistanceToKey.IsEmpty())
     return;
 
+  const bool bVisPath = flags.IsSet(ezSplineComponentFlags::VisualizeSpline);
+  const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
+  
   ezHybridArray<ezDebugRendererLine, 32> lines;
   ezColor c = ezColorScheme::DarkUI(ezColorScheme::Red);
   ezColor cUp = ezColorScheme::LightUI(ezColorScheme::Blue);
@@ -474,6 +474,39 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
   }
 
   ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
+
+  const bool bVisTangents = flags.IsSet(ezSplineComponentFlags::VisualizeTangents);
+  if (bVisTangents)
+  {
+    for (ezUInt32 i = 0; i < m_Spline.m_ControlPoints.GetCount(); ++i)
+    {
+      DrawDebugTangents(i);
+    }
+  }
+}
+
+void ezSplineComponent::DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangentMode::Enum tangentModeIn /*= ezSplineTangentMode::Default*/, ezSplineTangentMode::Enum tangentModeOut /*= ezSplineTangentMode::Default*/) const
+{
+  if (uiPointIndex < m_Spline.m_ControlPoints.GetCount())
+  {
+    const ezSpline::ControlPoint& cp = m_Spline.m_ControlPoints[uiPointIndex];
+
+    const ezColor tInColor = ezColorScheme::DarkUI(tangentModeIn == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
+    const ezColor tOutColor = ezColorScheme::DarkUI(tangentModeOut == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
+    const ezVec3 vTangentIn = ezSimdConversion::ToVec3(cp.m_vPosTangentIn);
+    const ezVec3 vTangentOut = ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
+
+    const ezVec3 vGlobalPos = ezSimdConversion::ToVec3(GetOwner()->GetGlobalTransformSimd().TransformPosition(cp.m_vPos));
+    const ezTransform t = ezTransform::Make(vGlobalPos);
+
+    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
+    ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
+
+    ezHybridArray<ezDebugRendererLine, 2> lines;
+    lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentIn, tInColor));
+    lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentOut, tOutColor));
+    ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, t);
+  }
 }
 
 bool ezSplineComponent::DrawSplineOnSelection() const
@@ -490,6 +523,7 @@ bool ezSplineComponent::DrawSplineOnSelection() const
   {
     DrawDebugVisualizations(ezSplineComponentFlags::VisualizeSpline);
   }
+
   return true;
 }
 
@@ -618,27 +652,7 @@ void ezSplineNodeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   if (pSplineComponent != nullptr && pSplineComponent->DrawSplineOnSelection())
   {
-    auto& spline = pSplineComponent->GetSpline();
-    if (m_uiNodeIndex < spline.m_ControlPoints.GetCount())
-    {
-      const ezSpline::ControlPoint& cp = spline.m_ControlPoints[m_uiNodeIndex];
-
-      const ezColor tInColor = ezColorScheme::DarkUI(m_TangentModeIn == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
-      const ezColor tOutColor = ezColorScheme::DarkUI(m_TangentModeOut == ezSplineTangentMode::Custom ? ezColorScheme::Grape : ezColorScheme::Gray);
-      const ezVec3 vTangentIn = ezSimdConversion::ToVec3(cp.m_vPosTangentIn);
-      const ezVec3 vTangentOut = ezSimdConversion::ToVec3(cp.m_vPosTangentOut);
-
-      const ezVec3 vGlobalPos = ezSimdConversion::ToVec3(pSplineComponent->GetOwner()->GetGlobalTransformSimd().TransformPosition(cp.m_vPos));
-      const ezTransform t = ezTransform::Make(vGlobalPos);
-
-      ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
-      ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
-
-      ezHybridArray<ezDebugRendererLine, 2> lines;
-      lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentIn, tInColor));
-      lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentOut, tOutColor));
-      ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, t);
-    }
+    pSplineComponent->DrawDebugTangents(m_uiNodeIndex, m_TangentModeIn, m_TangentModeOut);    
   }
 }
 

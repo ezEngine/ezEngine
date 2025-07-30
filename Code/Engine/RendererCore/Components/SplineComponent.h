@@ -16,7 +16,7 @@ class ezSplineNodeComponent;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_DECLARE_FLAGS(ezUInt8, ezSplineComponentFlags, VisualizeSpline, VisualizeUpDir);
+EZ_DECLARE_FLAGS(ezUInt8, ezSplineComponentFlags, VisualizeSpline, VisualizeUpDir, VisualizeTangents);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentFlags);
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,6 +151,7 @@ protected:
   void CreateDistanceToKeyRemapping();
 
   void DrawDebugVisualizations(ezBitflags<ezSplineComponentFlags> flags) const;
+  void DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangentMode::Enum tangentModeIn = ezSplineTangentMode::Default, ezSplineTangentMode::Enum tangentModeOut = ezSplineTangentMode::Default) const;
   bool DrawSplineOnSelection() const;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
