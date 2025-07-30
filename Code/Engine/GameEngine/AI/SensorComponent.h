@@ -84,6 +84,12 @@ public:
   /// Returns true, if there was a change in detected objects, false if the same objects were detected as last time.
   bool RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const;
 
+  /// \brief How many objects were detected last.
+  ezUInt32 GetDetectedObjectsCount() const { return m_LastDetectedObjects.GetCount(); } // [ scriptable ]
+
+  /// \brief Returns a handle to the n-th detected object.
+  ezGameObjectHandle GetDetectedObject(ezUInt32 uiIndex) const { return m_LastDetectedObjects[uiIndex]; } // [ scriptable ]
+
 protected:
   void UpdateSpatialCategory();
   void UpdateScheduling();

@@ -378,7 +378,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     v.Set(1, 1, 0);
     v.Normalize();
-    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 315.0f, 0.001f);
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), -45.0f, 0.001f);
 
     v.Set(-1, 0, 0);
     v.Normalize();
@@ -390,7 +390,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     v.Set(0, 1, 0);
     v.Normalize();
-    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), 270.0f, 0.001f);
+    EZ_TEST_FLOAT(v.GetAngleBetween(ezVec3(1, 0, 0), ezVec3(0, 0, 1)).GetDegree(), -90.0f, 0.001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalculateNormal")

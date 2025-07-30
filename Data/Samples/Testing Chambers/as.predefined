@@ -1851,6 +1851,8 @@ class ezMeshComponent : ezMeshComponentBase
 
 class ezSensorComponent : ezComponent
 {
+  uint GetDetectedObjectsCount() const;
+  ezGameObjectHandle GetDetectedObject(uint uiIndex) const;
   ezUpdateRate UpdateRate;
   ezString SpatialCategory;
   bool TestVisibility;

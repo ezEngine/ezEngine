@@ -902,6 +902,7 @@ ezGameObjectHandle ezMsgPhysicsJointBroke::get_JointObject() const
 ezGameObjectHandle ezMsgReleaseObjectGrab::get_GrabbedObjectToRelease() const
 ezGameObjectHandle ezMsgTriggerTriggered::get_GameObject() const
 ezGameObjectHandle ezScriptComponent::GetScriptVariable_asGameObjectHandle(ezHashedString Name) const
+ezGameObjectHandle ezSensorComponent::GetDetectedObject(uint uiIndex) const
 ezGameObjectHandle ezVolumeComponent::GetValue_asGameObjectHandle(ezTempHashedString Name) const
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc)
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&in desc, ezGameObject@&out object)
@@ -2258,6 +2259,7 @@ uint ezRandom::UInt()
 uint ezRandom::UInt32Index(uint uiArraySize, uint uiFallbackValue = 0xFFFFFFFF)
 uint ezRandom::UIntInRange(uint uiRange)
 uint ezRopeRenderComponent::get_Detail() const
+uint ezSensorComponent::GetDetectedObjectsCount() const
 uint ezSpotLightComponent::get_MaterialResolution() const
 uint ezString::GetElementCount() const
 uint ezStringBuilder::GetCharacterCount() const

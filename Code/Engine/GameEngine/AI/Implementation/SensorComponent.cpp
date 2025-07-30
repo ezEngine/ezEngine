@@ -35,6 +35,14 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 2)
   }
   EZ_END_PROPERTIES;
 
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObjectsCount),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObject, In, "uiIndex"),
+  }
+  EZ_END_FUNCTIONS;
+
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Sensors"),

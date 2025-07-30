@@ -238,9 +238,8 @@ void ezSkeletonPoseComponent::SendRestPose()
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
   msg.m_ModelTransforms = ezMakeArrayPtr(reinterpret_cast<const ezMat4*>(pFinalTransforms.GetPtr()), pFinalTransforms.GetCount());
-  ;
 
-  GetOwner()->SendMessage(msg);
+  GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
     m_PoseMode = ezSkeletonPoseMode::Disabled;
@@ -313,9 +312,8 @@ void ezSkeletonPoseComponent::SendCustomPose()
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
   msg.m_ModelTransforms = ezMakeArrayPtr(reinterpret_cast<const ezMat4*>(pFinalTransforms.GetPtr()), pFinalTransforms.GetCount());
-  ;
 
-  GetOwner()->SendMessage(msg);
+  GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
     m_PoseMode = ezSkeletonPoseMode::Disabled;

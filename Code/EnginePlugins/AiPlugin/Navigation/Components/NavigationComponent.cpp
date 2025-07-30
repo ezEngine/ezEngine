@@ -379,13 +379,22 @@ void ezAiNavigationComponent::Turn(ezTransform& transform, float tDiff)
 
   ezAngle turnSpeed = ezAngle::MakeFromDegree(360);
 
-  const ezVec3 vTargetDir = (m_vTurnTowardsPos.GetAsVec3(0) - GetOwner()->GetGlobalPosition()).GetNormalized();
-  const ezVec3 vLookDir = GetOwner()->GetGlobalDirForwards().GetNormalized();
+  ezVec3 vOwnPos2D = GetOwner()->GetGlobalPosition();
+  vOwnPos2D.z = 0.0f;
 
-  ezVec3 vRotAxis = vLookDir.CrossRH(vTargetDir);
-  vRotAxis.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
+  ezVec3 vTargetDir = (m_vTurnTowardsPos.GetAsVec3(0) - vOwnPos2D);
+  if (vTargetDir.NormalizeIfNotZero(ezVec3::MakeZero()).Failed())
+  {
+    m_State = ezAiNavigationComponentState::Idle;
+    return;
+  }
 
-  const ezAngle remainingAngle = vLookDir.GetAngleBetween(vTargetDir);
+  ezVec3 vLookDir = GetOwner()->GetGlobalDirForwards();
+  vLookDir.z = 0.0f;
+  vLookDir.Normalize();
+
+  const ezVec3 vRotAxis = ezVec3::MakeAxisZ();
+  const ezAngle remainingAngle = vLookDir.GetAngleBetween(vTargetDir, vRotAxis);
   const ezAngle rotateNow = tDiff * turnSpeed;
 
   ezAngle toRotate;

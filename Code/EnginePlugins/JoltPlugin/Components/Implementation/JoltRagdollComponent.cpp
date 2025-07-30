@@ -715,7 +715,7 @@ void ezJoltRagdollComponent::SendAnimationPoseMsg()
   poseMsg.m_pRootTransform = &rootTransform;
   poseMsg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
 
-  GetOwner()->SendMessage(poseMsg);
+  GetOwner()->SendMessageRecursive(poseMsg);
 }
 
 ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()

@@ -94,6 +94,8 @@ GetCurrentInputState
 GetCurrentState
 GetDarker
 GetDegree
+GetDetectedObject
+GetDetectedObjectsCount
 GetDistanceTo
 GetElementCount
 GetEntryValue_asAngle

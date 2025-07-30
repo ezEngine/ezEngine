@@ -353,7 +353,7 @@ ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForwa
 
   if (this->Dot(vRight) < 0) // more than 90 degrees away from it
   {
-    return ezAngle::MakeFromDegree(360.0f) - shortAngle;
+    return -shortAngle;
   }
 
   return shortAngle;

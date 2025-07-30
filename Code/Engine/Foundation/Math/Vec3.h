@@ -193,8 +193,8 @@ public:
 
   /// \brief Returns the angle between vForward and *this, going around the vUp direction.
   ///
-  /// Clockwise rotations (looking top down) would result in a small angle,
-  /// counter-clockwise rotations give a large angle (360 degree minus the shortest angle).
+  /// Clockwise rotations (looking top down) result in a positive angle,
+  /// counter-clockwise rotations give a negative angle.
   /// All vectors must be normalized. vUp must not coincide with vForward, but doesn't need to be orthogonal to it.
   ///
   /// NOTE: This function assumes a right-handed coordinate system.
