@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{17574293054750820434}
+		u4 %Hash{17014586724376679327}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -125,7 +125,12 @@ o
 			Vec3 %RandomRotation{f{0,0x00003443,0x00003443}}
 			f %Spacing{0x0000803F}
 			Vec3 %RandomOffset{f{0x0000003F,0x0000803F,0}}
-			s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+			VarArray %Prefab
+			{
+				s{"{ 566bc9c8-ad7f-4578-ba63-f5cf83c6c0e2 }"}
+				s{"{ eb1da1f2-56db-4444-9379-315c8c5ef3c0 }"}
+				s{"{ e207fd9e-794e-4b79-9eeb-908c865e73e5 }"}
+			}
 			f %AlignToSpline{0x0000803F}
 		}
 		b %PassThroughUnhandledEvents{0}
@@ -729,7 +734,7 @@ o
 		b %Active{1}
 		b %Closed{1}
 		u1 %EditNodes{0}
-		s %Flags{"ezSplineComponentFlags::VisualizeSpline|ezSplineComponentFlags::VisualizeUpDir"}
+		s %Flags{"ezSplineComponentFlags::VisualizeSpline"}
 		VarArray %Nodes
 		{
 			HashedString{s{"0.1"}}
@@ -797,7 +802,7 @@ o
 			Uuid{u4{1148151999556631229,4981813894287623632}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A040,0x0000A0C0,0}}
+		Vec3 %LocalPosition{f{0x0000A040,0x0000A0C0,0x000080BE}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -849,7 +854,7 @@ o
 			Uuid{u4{10095868180284699555,5189670421234120060}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x0000A040,0}}
+		Vec3 %LocalPosition{f{0,0x0000A040,0x000080BE}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

@@ -3,7 +3,7 @@
 #include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-class ezStatus;
+struct ezStatus;
 
 /// \brief Helper class to modify an ezVariant as if it was a container.
 /// GetValue and SetValue are valid for all variant types.
