@@ -12,23 +12,23 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_PathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TypeFilter;
 
-void ClampWindowGeometryToScreens(QRect& windowGeometry)
+void ClampWindowGeometryToScreens(QRect& ref_windowGeometry)
 {
   const QList<QScreen*> screens = QGuiApplication::screens();
 
   for (QScreen* screen : screens)
   {
     const QRect screenGeom = screen->availableGeometry();
-    if (screenGeom.intersects(windowGeometry))
+    if (screenGeom.intersects(ref_windowGeometry))
       return;
   }
 
   const QRect primaryGeom = QGuiApplication::primaryScreen()->availableGeometry();
 
-  const QSize size = windowGeometry.size();
-  windowGeometry.setLeft(ezMath::Clamp(windowGeometry.left(), primaryGeom.left(), primaryGeom.right() - windowGeometry.width()));
-  windowGeometry.setTop(ezMath::Clamp(windowGeometry.top(), primaryGeom.top(), primaryGeom.bottom() - windowGeometry.height()));
-  windowGeometry.setSize(size);
+  const QSize size = ref_windowGeometry.size();
+  ref_windowGeometry.setLeft(ezMath::Clamp(ref_windowGeometry.left(), primaryGeom.left(), primaryGeom.right() - ref_windowGeometry.width()));
+  ref_windowGeometry.setTop(ezMath::Clamp(ref_windowGeometry.top(), primaryGeom.top(), primaryGeom.bottom() - ref_windowGeometry.height()));
+  ref_windowGeometry.setSize(size);
 }
 
 void ezQtAssetBrowserDlg::Init(QWidget* pParent)
