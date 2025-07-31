@@ -5,9 +5,14 @@ Gun_Shoot
 Hit-Chest
 Hit-Head
 Idle
+Idle-Action1
+Idle-Action2
 Jump_End
 Jump_Loop
 Jump_Start
+Melee-Attack
+Melee-Cross
+Melee-Jab
 Run_Fwd
 Walk_Back
 Walk_Fwd

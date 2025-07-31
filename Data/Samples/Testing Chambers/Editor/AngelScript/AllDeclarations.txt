@@ -346,6 +346,7 @@ ezAlwaysVisibleComponent@ ezComponent::opCast()
 ezAlwaysVisibleComponent@ ezRenderComponent::opCast()
 ezAmbientLightComponent@ ezComponent::opCast()
 ezAmbientLightComponent@ ezSettingsComponent::opCast()
+ezAngle ezAiNavigationComponent::GetTurnAngleTowards(ezVec2 TargetPosition) const
 ezAngle ezAngle::AngleBetween(ezAngle a1, ezAngle a2)
 ezAngle ezAngle::GetNormalizedRange() const
 ezAngle ezAngle::MakeFromDegree(float fDegree)

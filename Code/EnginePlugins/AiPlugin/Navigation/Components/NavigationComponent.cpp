@@ -46,6 +46,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiNavigationComponent, 2, ezComponentMode::Dynamic)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetState),
     EZ_SCRIPT_FUNCTION_PROPERTY(StopWalking, In, "WithinDistance"),
     EZ_SCRIPT_FUNCTION_PROPERTY(TurnTowards, In, "TargetPosition"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTurnAngleTowards, In, "TargetPosition"),
     EZ_SCRIPT_FUNCTION_PROPERTY(EnsureNavMeshSectorAvailable, In, "vCenter", In, "fRadius"),
     EZ_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundCircle, In, "vCenter", In, "fRadius", Out, "out_vPoint"),
     EZ_SCRIPT_FUNCTION_PROPERTY(RaycastNavMesh, In, "vStart", In, "vDirection", In, "fDistance", Out, "out_vPoint", Out, "out_fDistance"),
@@ -101,6 +102,22 @@ void ezAiNavigationComponent::TurnTowards(const ezVec2& vGlobalPos)
 
     m_vTurnTowardsPos = vGlobalPos;
   }
+}
+
+ezAngle ezAiNavigationComponent::GetTurnAngleTowards(const ezVec2& vGlobalPos) const
+{
+  ezVec3 vOwnPos2D = GetOwner()->GetGlobalPosition();
+  vOwnPos2D.z = 0.0f;
+
+  ezVec3 vTargetDir = (vGlobalPos.GetAsVec3(0) - vOwnPos2D);
+  if (vTargetDir.NormalizeIfNotZero(ezVec3::MakeZero()).Failed())
+    return ezAngle::MakeZero();
+
+  ezVec3 vLookDir = GetOwner()->GetGlobalDirForwards();
+  vLookDir.z = 0.0f;
+  vLookDir.Normalize();
+
+  return vLookDir.GetAngleBetween(vTargetDir, ezVec3::MakeAxisZ());
 }
 
 bool ezAiNavigationComponent::PrepareQueryObject()
@@ -379,22 +396,7 @@ void ezAiNavigationComponent::Turn(ezTransform& transform, float tDiff)
 
   ezAngle turnSpeed = ezAngle::MakeFromDegree(360);
 
-  ezVec3 vOwnPos2D = GetOwner()->GetGlobalPosition();
-  vOwnPos2D.z = 0.0f;
-
-  ezVec3 vTargetDir = (m_vTurnTowardsPos.GetAsVec3(0) - vOwnPos2D);
-  if (vTargetDir.NormalizeIfNotZero(ezVec3::MakeZero()).Failed())
-  {
-    m_State = ezAiNavigationComponentState::Idle;
-    return;
-  }
-
-  ezVec3 vLookDir = GetOwner()->GetGlobalDirForwards();
-  vLookDir.z = 0.0f;
-  vLookDir.Normalize();
-
-  const ezVec3 vRotAxis = ezVec3::MakeAxisZ();
-  const ezAngle remainingAngle = vLookDir.GetAngleBetween(vTargetDir, vRotAxis);
+  const ezAngle remainingAngle = GetTurnAngleTowards(m_vTurnTowardsPos);
   const ezAngle rotateNow = tDiff * turnSpeed;
 
   ezAngle toRotate;
@@ -409,9 +411,8 @@ void ezAiNavigationComponent::Turn(ezTransform& transform, float tDiff)
     toRotate = rotateNow;
   }
 
-  const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(vRotAxis, toRotate);
-
-  const ezVec3 vNewLookDir = qRot * vLookDir;
+  const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), toRotate);
+  const ezVec3 vNewLookDir = qRot * GetOwner()->GetGlobalDirForwards();
 
   transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), vNewLookDir);
 }

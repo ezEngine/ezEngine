@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15189912638122679973,5056406926986055588}}
-		u4 %Hash{3513894810365033233}
+		u4 %Hash{17458006723243039899}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -184,8 +184,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -259,8 +259,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -387,8 +387,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -579,8 +579,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -642,8 +642,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -821,8 +821,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -858,8 +858,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -1026,8 +1026,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -1156,8 +1156,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -1491,8 +1491,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -2353,8 +2353,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -2374,8 +2374,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -2421,8 +2421,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -2468,8 +2468,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -3236,8 +3236,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -3310,8 +3310,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -3542,8 +3542,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -3890,8 +3890,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -4038,8 +4038,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -4055,10 +4055,11 @@ o
 {
 	Uuid %id{u4{11468542537106623794,2397530915544480346}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -4919,8 +4920,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -5676,8 +5677,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6002,8 +6003,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6289,8 +6290,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6416,8 +6417,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6489,8 +6490,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6537,8 +6538,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6917,8 +6918,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6938,8 +6939,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6959,8 +6960,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -6980,8 +6981,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -7204,8 +7205,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -7326,8 +7327,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -7374,8 +7375,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -7548,8 +7549,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -7649,8 +7650,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -8451,8 +8452,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -8472,8 +8473,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -8972,8 +8973,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -8993,8 +8994,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -9292,8 +9293,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -9432,8 +9433,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -9460,8 +9461,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -9892,8 +9893,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -10154,8 +10155,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -10513,8 +10514,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -10767,8 +10768,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -11011,8 +11012,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -11374,8 +11375,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -11475,8 +11476,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -11761,10 +11762,11 @@ o
 {
 	Uuid %id{u4{13925838238983971021,7042781487279364697}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -11782,10 +11784,11 @@ o
 {
 	Uuid %id{u4{15067042197407308225,7045355336924661276}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -11957,10 +11960,11 @@ o
 {
 	Uuid %id{u4{3275791331805395681,7106418849145748676}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -12126,10 +12130,11 @@ o
 {
 	Uuid %id{u4{16879873653571347183,7158725573919946937}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -12454,10 +12459,11 @@ o
 {
 	Uuid %id{u4{5939024360518470343,7271985030020193140}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -13359,8 +13365,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -13376,10 +13382,11 @@ o
 {
 	Uuid %id{u4{5289719218711674038,7624487733809558830}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -13420,8 +13427,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -13931,8 +13938,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -13952,8 +13959,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -13969,10 +13976,11 @@ o
 {
 	Uuid %id{u4{6431599512663710445,8011501996674581954}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -14017,10 +14025,11 @@ o
 {
 	Uuid %id{u4{1841818936689538757,8066965805252210601}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -14910,8 +14919,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15024,8 +15033,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15160,8 +15169,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15208,8 +15217,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15282,8 +15291,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15756,8 +15765,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15793,8 +15802,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15883,8 +15892,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15958,8 +15967,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -15995,8 +16004,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -16142,8 +16151,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -16583,8 +16592,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -16642,8 +16651,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -16864,8 +16873,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -16989,8 +16998,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -17063,8 +17072,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -17125,8 +17134,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -17200,8 +17209,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -17221,8 +17230,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -17767,8 +17776,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -17815,8 +17824,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -18514,8 +18523,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -18919,8 +18928,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -19563,8 +19572,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -20246,8 +20255,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -20351,8 +20360,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -20686,8 +20695,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -20733,8 +20742,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -21331,8 +21340,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -21886,10 +21895,11 @@ o
 {
 	Uuid %id{u4{6852496146843839873,12437280599361416054}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -21937,8 +21947,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -22194,8 +22204,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -22268,8 +22278,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -23428,8 +23438,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -23522,8 +23532,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -23569,8 +23579,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -23644,8 +23654,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -23746,8 +23756,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -24103,8 +24113,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -24502,8 +24512,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -24711,8 +24721,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25012,8 +25022,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25122,8 +25132,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25249,8 +25259,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25297,8 +25307,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25371,8 +25381,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25500,8 +25510,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25701,8 +25711,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -25749,8 +25759,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25797,8 +25807,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -25923,8 +25933,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -26282,8 +26292,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -26455,8 +26465,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -27149,10 +27159,11 @@ o
 {
 	Uuid %id{u4{10609160572585423279,15429731143883859669}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -27574,8 +27585,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -27648,8 +27659,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -27985,8 +27996,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -29332,8 +29343,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -29467,8 +29478,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -29945,8 +29956,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -30320,8 +30331,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -30435,8 +30446,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -30628,8 +30639,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -30701,8 +30712,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -30775,8 +30786,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -31049,8 +31060,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -31148,8 +31159,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -31407,10 +31418,11 @@ o
 {
 	Uuid %id{u4{4083383144651489547,17774096578582209488}}
 	s %t{"ezJoltRagdollComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
+		s %AnimMode{"ezJoltRagdollAnimMode::Limp"}
 		f %CenterAngularVelocity{0}
 		Vec3 %CenterPosition{f{0,0,0}}
 		f %CenterVelocity{0}
@@ -31601,8 +31613,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -32086,8 +32098,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeTop|ezJoltBreakableSlabFlags::FixedEdgeRight|ezJoltBreakableSlabFlags::FixedEdgeBottom|ezJoltBreakableSlabFlags::FixedEdgeLeft"}
 		f %GravityFactor{0x0000803F}
@@ -32160,8 +32172,8 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayerDynamic{0}
-		u1 %CollisionLayerStatic{0}
+		u1 %CollisionLayerDynamic{1}
+		u1 %CollisionLayerStatic{1}
 		f %ContactReportForceThreshold{0}
 		s %Flags{"ezJoltBreakableSlabFlags::FixedEdgeBottom"}
 		f %GravityFactor{0x0000803F}
@@ -32433,6 +32445,16 @@ o
 }
 o
 {
+	Uuid %id{u4{11171779888664659673,166575059593865283}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{2426252493509594648,173597768056081955}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -32516,6 +32538,9 @@ o
 			Uuid{u4{8519532787945430076,5783475434741098576}}
 			Uuid{u4{14578605644851907016,16932826575505374335}}
 			Uuid{u4{6987296098342178865,18362804661428401342}}
+			Uuid{u4{3173039889236437579,3659168462023685553}}
+			Uuid{u4{4101754882266781778,16048599481554855170}}
+			Uuid{u4{12137532367487847797,7985909746046320657}}
 		}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezJoltPlugin"}
@@ -32532,9 +32557,10 @@ o
 			Uuid{u4{2158111392985352070,7815718903054940375}}
 			Uuid{u4{2414776095139389044,5755532943060302027}}
 			Uuid{u4{10424004410737524164,14402600047937648269}}
+			Uuid{u4{13727547837552851027,14044619813659168924}}
 		}
 		s %TypeName{"ezJoltRagdollComponent"}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -32659,13 +32685,12 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{11391486968428628873,9589864724053498083}}
-			Uuid{u4{15606769449217821587,7249728262522715359}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"WeightScale"}
-		s %Type{"float"}
+		s %Name{"WeightCategory"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -32744,11 +32769,11 @@ o
 o
 {
 	Uuid %id{u4{4445986148259346548,1583491208858360064}}
-	s %t{"ezSuffixAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %Suffix{" kg"}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -32858,11 +32883,12 @@ o
 o
 {
 	Uuid %id{u4{13441792643456336623,2411346965517727987}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x00004842}
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -32971,16 +32997,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3865303692106228442,2521577465481208886}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Value{0x0000803F}
-	}
-}
-o
-{
 	Uuid %id{u4{10553243353606483550,2602940591723119880}}
 	s %t{"ezScriptableFunctionAttribute"}
 	u3 %v{1}
@@ -33055,6 +33071,36 @@ o
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{5164055537737709508,3154829924788994306}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u1 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezJoltRagdollAnimMode::Limp"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{10235800726611589176,3242659761298889583}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u1 %ConstantValue{3}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezJoltRagdollAnimMode::Controlled"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -33179,6 +33225,27 @@ o
 }
 o
 {
+	Uuid %id{u4{3173039889236437579,3659168462023685553}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments
+		{
+			Uuid{u4{17386737414305265075,9774939220711182767}}
+		}
+		VarArray %Attributes
+		{
+			Uuid{u4{11071102881391810554,6753253874950358034}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"SetJointMotorStrength"}
+		Uuid %ReturnValue{u4{709877940007711277,14599743299439130791}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
 	Uuid %id{u4{9837450480388568489,3691702095767029442}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -33266,6 +33333,21 @@ o
 }
 o
 {
+	Uuid %id{u4{16150923272588872838,4000109136093845333}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u1 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezJoltRagdollAnimMode::Default"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
 	Uuid %id{u4{10436287537458291866,4104850229502638426}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -33292,11 +33374,11 @@ o
 o
 {
 	Uuid %id{u4{3602691209788561512,4265552038720448744}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezSuffixAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		s %Suffix{" kg"}
 	}
 }
 o
@@ -33380,12 +33462,26 @@ o
 }
 o
 {
-	Uuid %id{u4{14339627632267177322,4851696052710000402}}
-	s %t{"ezDefaultValueAttribute"}
+	Uuid %id{u4{1141421736177280571,4703626819905643909}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0}
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezJoltPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{16150923272588872838,4000109136093845333}}
+			Uuid{u4{4652683958444999859,12929675506386002369}}
+			Uuid{u4{5164055537737709508,3154829924788994306}}
+			Uuid{u4{14911882852340077120,8729875704890789561}}
+			Uuid{u4{10235800726611589176,3242659761298889583}}
+		}
+		s %TypeName{"ezJoltRagdollAnimMode"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -33509,15 +33605,12 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{14339627632267177322,4851696052710000402}}
-		}
+		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterVelocity"}
-		s %Type{"float"}
+		s %Name{"CenterPosition"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -33540,6 +33633,17 @@ o
 		s %Name{"SetInitialImpulse"}
 		Uuid %ReturnValue{u4{3412116164756546910,12680172681538946800}}
 		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{9040196036467056341,5805437920547644891}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames{}
+		VarArray %ArgTypes{}
 	}
 }
 o
@@ -33592,11 +33696,11 @@ o
 o
 {
 	Uuid %id{u4{18058329223591215468,6057991937846271317}}
-	s %t{"ezDynamicEnumAttribute"}
+	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
-		s %DynamicEnum{"PhysicsWeightCategory"}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -33752,6 +33856,23 @@ o
 }
 o
 {
+	Uuid %id{u4{11071102881391810554,6753253874950358034}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames
+		{
+			s{"fStrength"}
+		}
+		VarArray %ArgTypes
+		{
+			u1{0}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{11469687721627590124,7013661349485309574}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -33781,17 +33902,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"StartAsleep"}
 		s %Type{"bool"}
-	}
-}
-o
-{
-	Uuid %id{u4{15606769449217821587,7249728262522715359}}
-	s %t{"ezClampValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		f %Max{0x00002041}
-		f %Min{0xCDCCCC3D}
 	}
 }
 o
@@ -33939,12 +34049,15 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{18010755565016430454,13419524704425328089}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterPosition"}
-		s %Type{"ezVec3"}
+		s %Name{"OwnerVelocityScale"}
+		s %Type{"float"}
 	}
 }
 o
@@ -33960,6 +34073,28 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezJoltRagdollStartMode::WithCurrentMeshPose"}
 		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{12137532367487847797,7985909746046320657}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments
+		{
+			Uuid{u4{6078978406414432186,12971566641276985966}}
+			Uuid{u4{11640339717052619166,8493602219444906012}}
+		}
+		VarArray %Attributes
+		{
+			Uuid{u4{6460987205766151889,9847497943010143677}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"FadeJointMotorStrength"}
+		Uuid %ReturnValue{u4{4024335012683105559,11742786543642857218}}
+		s %Type{"ezFunctionType::Member"}
 	}
 }
 o
@@ -34024,6 +34159,17 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{11640339717052619166,8493602219444906012}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezTime"}
 	}
 }
 o
@@ -34102,6 +34248,21 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14911882852340077120,8729875704890789561}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u1 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezJoltRagdollAnimMode::Powered"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -34248,11 +34409,11 @@ o
 o
 {
 	Uuid %id{u4{11391486968428628873,9589864724053498083}}
-	s %t{"ezDefaultValueAttribute"}
+	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		s %DynamicEnum{"PhysicsWeightCategory"}
 	}
 }
 o
@@ -34283,6 +34444,17 @@ o
 }
 o
 {
+	Uuid %id{u4{17386737414305265075,9774939220711182767}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{6845573787327098065,9814332057686503621}}
 	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
@@ -34290,6 +34462,25 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{6460987205766151889,9847497943010143677}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames
+		{
+			s{"fTargetStrength"}
+			s{"tDuration"}
+		}
+		VarArray %ArgTypes
+		{
+			u1{0}
+			u1{0}
+		}
 	}
 }
 o
@@ -34393,8 +34584,8 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"WeightCategory"}
-		s %Type{"ezUInt8"}
+		s %Name{"GravityFactor"}
+		s %Type{"float"}
 	}
 }
 o
@@ -34493,6 +34684,17 @@ o
 }
 o
 {
+	Uuid %id{u4{8824712686177451792,11081673274018011934}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -34536,6 +34738,17 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Density"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{4024335012683105559,11742786543642857218}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
 	}
 }
 o
@@ -34652,12 +34865,11 @@ o
 		{
 			Uuid{u4{4445986148259346548,1583491208858360064}}
 			Uuid{u4{13441792643456336623,2411346965517727987}}
-			Uuid{u4{12945824271538029246,13148362549312476080}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Mass"}
+		s %Name{"WeightScale"}
 		s %Type{"float"}
 	}
 }
@@ -34794,15 +35006,12 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{3865303692106228442,2521577465481208886}}
-		}
+		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GravityFactor"}
-		s %Type{"float"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"AnimMode"}
+		s %Type{"ezJoltRagdollAnimMode"}
 	}
 }
 o
@@ -34863,6 +35072,21 @@ o
 }
 o
 {
+	Uuid %id{u4{4652683958444999859,12929675506386002369}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u1 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezJoltRagdollAnimMode::Off"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
 	Uuid %id{u4{8114326279546664217,12970061331727704798}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -34880,13 +35104,23 @@ o
 }
 o
 {
-	Uuid %id{u4{12945824271538029246,13148362549312476080}}
-	s %t{"ezClampValueAttribute"}
+	Uuid %id{u4{6078978406414432186,12971566641276985966}}
+	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
 	p
 	{
-		f %Max{0x00007A44}
-		f %Min{0x0000803F}
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{18010755565016430454,13419524704425328089}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -34917,6 +35151,34 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{5907742290838549419,14024812587576376262}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00004842}
+	}
+}
+o
+{
+	Uuid %id{u4{13727547837552851027,14044619813659168924}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11171779888664659673,166575059593865283}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CenterAngularVelocity"}
+		s %Type{"float"}
 	}
 }
 o
@@ -34993,7 +35255,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CenterAngularVelocity"}
+		s %Name{"CenterVelocity"}
 		s %Type{"float"}
 	}
 }
@@ -35034,6 +35296,17 @@ o
 		s %Name{"ShatterAll"}
 		Uuid %ReturnValue{u4{10529321693700940800,10121680186550001762}}
 		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{709877940007711277,14599743299439130791}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
 	}
 }
 o
@@ -35132,8 +35405,8 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"JointName"}
-			s{"OverrideType"}
+			s{"sJointName"}
+			s{"overrideType"}
 		}
 		VarArray %ArgTypes
 		{
@@ -35183,7 +35456,7 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"OwnerVelocityScale"}
+		s %Name{"StiffnessFactor"}
 		s %Type{"float"}
 	}
 }
@@ -35220,6 +35493,17 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Mass"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{4265289927338478983,15254928493756721013}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00007A44}
+		f %Min{0x0000803F}
 	}
 }
 o
@@ -35316,6 +35600,24 @@ o
 }
 o
 {
+	Uuid %id{u4{4101754882266781778,16048599481554855170}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{9040196036467056341,5805437920547644891}}
+		}
+		s %Flags{"ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"GetJointMotorStrength"}
+		Uuid %ReturnValue{u4{8824712686177451792,11081673274018011934}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
 	Uuid %id{u4{11566665362405230449,16218941520632567358}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -35393,11 +35695,13 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{3602691209788561512,4265552038720448744}}
+			Uuid{u4{5907742290838549419,14024812587576376262}}
+			Uuid{u4{4265289927338478983,15254928493756721013}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"StiffnessFactor"}
+		s %Name{"Mass"}
 		s %Type{"float"}
 	}
 }

@@ -51,7 +51,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{5242146117102653784}
+		u4 %Hash{8660283175205394553}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -510,7 +510,7 @@ o
 		b %Active{1}
 		f %AirFriction{0x0000003F}
 		f %AirSpeed{0x00002040}
-		u1 %CollisionLayer{0}
+		u1 %CollisionLayer{6}
 		f %CrouchHeight{0x9A99993E}
 		s %DebugFlags{""}
 		s %FallbackWalkSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
@@ -689,7 +689,7 @@ o
 {
 	Uuid %id{u4{7950382221197526173,5542071289512806489}}
 	s %t{"ezSpotLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{0}
@@ -700,6 +700,9 @@ o
 		Angle %InnerSpotAngle{f{0xF3665F3F}}
 		f %Intensity{0x00004843}
 		ColorGamma %LightColor{u1{255,255,255,255}}
+		s %Material{""}
+		u3 %MaterialResolution{512}
+		Time %MaterialUpdateInterval{d{0}}
 		Angle %OuterSpotAngle{f{0xAA619C3F}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0}
@@ -782,7 +785,7 @@ o
 {
 	Uuid %id{u4{14533035257435161515,5758214449907519538}}
 	s %t{"ezJoltDynamicActorComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
@@ -987,7 +990,7 @@ o
 			Uuid{u4{5543457617355474506,9707309292235189967}}
 		}
 		s %TypeName{"ezJoltCharacterControllerComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1050,9 +1053,11 @@ o
 		VarArray %ArgNames
 		{
 			s{"vImpulse"}
+			s{"uiImpulseType"}
 		}
 		VarArray %ArgTypes
 		{
+			u1{0}
 			u1{0}
 		}
 	}
@@ -1082,6 +1087,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezManipulatorAttribute"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14958217006258665035,690358072931221741}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{0}
 	}
 }
 o
@@ -1553,9 +1568,11 @@ o
 		VarArray %ArgNames
 		{
 			s{"vImpulse"}
+			s{"uiImpulseType"}
 		}
 		VarArray %ArgTypes
 		{
+			u1{0}
 			u1{0}
 		}
 	}
@@ -1674,6 +1691,17 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4480277756701344755,3122750415656630425}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -1989,6 +2017,20 @@ o
 }
 o
 {
+	Uuid %id{u4{16337583193817562798,4686003285916175886}}
+	s %t{"ezFunctionArgumentAttributes"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgAttributes
+		{
+			Uuid{u4{11000941240856164325,15082151704469256447}}
+		}
+		u3 %ArgIndex{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16162376989091885172,4692891152274104602}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -2059,10 +2101,12 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"Direction"}
+			s{"vDirection"}
+			s{"uiImpulseType"}
 		}
 		VarArray %ArgTypes
 		{
+			u1{0}
 			u1{0}
 		}
 	}
@@ -2334,9 +2378,9 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"forceID"}
+			s{"uiForceID"}
 			s{"duration"}
-			s{"force"}
+			s{"vForce"}
 		}
 		VarArray %ArgTypes
 		{
@@ -2643,7 +2687,7 @@ o
 	{
 		VarArray %ArgNames
 		{
-			s{"forceID"}
+			s{"uiForceID"}
 		}
 		VarArray %ArgTypes
 		{
@@ -2775,7 +2819,7 @@ o
 			Uuid{u4{3225422539751733703,15467635098152158757}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{7}
 	}
 }
 o
@@ -2903,6 +2947,20 @@ o
 }
 o
 {
+	Uuid %id{u4{2357468310717760816,8632558209350404379}}
+	s %t{"ezFunctionArgumentAttributes"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgAttributes
+		{
+			Uuid{u4{7702557002466047589,12509929384975136944}}
+		}
+		u3 %ArgIndex{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1384249629208594585,8654940901197862733}}
 	s %t{"ezTransformManipulatorAttribute"}
 	u3 %v{1}
@@ -2981,10 +3039,12 @@ o
 		VarArray %Arguments
 		{
 			Uuid{u4{6336723317049884733,6579878144043010185}}
+			Uuid{u4{4480277756701344755,3122750415656630425}}
 		}
 		VarArray %Attributes
 		{
 			Uuid{u4{5683086205581634420,2448255893199881040}}
+			Uuid{u4{12993606658877674130,12900577086516897735}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
 		s %Name{"AddAngularImpulse"}
@@ -3035,6 +3095,17 @@ o
 	p
 	{
 		s %DynamicEnum{"PhysicsCollisionLayer"}
+	}
+}
+o
+{
+	Uuid %id{u4{266995518533564983,9230344921036805643}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -3878,6 +3949,27 @@ o
 }
 o
 {
+	Uuid %id{u4{8819527038817297850,12454596949791776075}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{7702557002466047589,12509929384975136944}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{12259091969111677279,12532376757824778256}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -3978,6 +4070,20 @@ o
 }
 o
 {
+	Uuid %id{u4{12993606658877674130,12900577086516897735}}
+	s %t{"ezFunctionArgumentAttributes"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgAttributes
+		{
+			Uuid{u4{14958217006258665035,690358072931221741}}
+		}
+		u3 %ArgIndex{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1901387044353002873,12900824541498245213}}
 	s %t{"ezReflectedFunctionDescriptor"}
 	u3 %v{1}
@@ -4033,10 +4139,12 @@ o
 		VarArray %Arguments
 		{
 			Uuid{u4{430358030032219362,18053878464760017016}}
+			Uuid{u4{8819527038817297850,12454596949791776075}}
 		}
 		VarArray %Attributes
 		{
 			Uuid{u4{17449938494334932034,4959565430320447596}}
+			Uuid{u4{2357468310717760816,8632558209350404379}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
 		s %Name{"ThrowGrabbedObject"}
@@ -4197,7 +4305,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -4312,10 +4420,12 @@ o
 		VarArray %Arguments
 		{
 			Uuid{u4{14656959313833216783,11974093621308024724}}
+			Uuid{u4{266995518533564983,9230344921036805643}}
 		}
 		VarArray %Attributes
 		{
 			Uuid{u4{8848366910655626142,348363795862216714}}
+			Uuid{u4{16337583193817562798,4686003285916175886}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
 		s %Name{"AddLinearImpulse"}
@@ -4376,6 +4486,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11000941240856164325,15082151704469256447}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{0}
 	}
 }
 o

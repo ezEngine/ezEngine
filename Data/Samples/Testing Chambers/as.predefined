@@ -2323,6 +2323,7 @@ class ezAiNavigationComponent : ezComponent
   ezAiNavigationComponentState GetState() const;
   void StopWalking(float WithinDistance);
   void TurnTowards(ezVec2 TargetPosition);
+  ezAngle GetTurnAngleTowards(ezVec2 TargetPosition) const;
   bool EnsureNavMeshSectorAvailable(ezVec3 vCenter, float fRadius);
   bool FindRandomPointAroundCircle(ezVec3 vCenter, float fRadius, ezVec3&out out_vPoint);
   bool RaycastNavMesh(ezVec3 vStart, ezVec3 vDirection, float fDistance, ezVec3&out out_vPoint, float&out out_fDistance);

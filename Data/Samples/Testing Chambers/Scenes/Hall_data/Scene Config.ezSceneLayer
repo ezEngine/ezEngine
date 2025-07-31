@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4025706763557391268,5561767617844493014}}
-		u4 %Hash{6017168668433537335}
+		u4 %Hash{5848369207110499806}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -43,10 +43,10 @@ o
 			s{"SkyLight"}
 		}
 		f %Falloff{0xCDCCCC3D}
-		f %FarPlane{0x00007A44}
+		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags{}
 		f %NearPlane{0}
-		f %Radius{0x0000C842}
+		f %Radius{0x0000A041}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
@@ -77,6 +77,29 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14216325252922416827,4685440286707453870}}
+	s %t{"ezSkyLightComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+		VarArray %ExcludeTags{}
+		f %FarPlane{0x0000C842}
+		VarArray %IncludeTags
+		{
+			s{"SkyLight"}
+		}
+		f %Intensity{0xCDCCCC3D}
+		f %NearPlane{0}
+		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
+		f %Saturation{0x9A99993E}
+		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -139,10 +162,10 @@ o
 			s{"SkyLight"}
 		}
 		f %Falloff{0xCDCCCC3D}
-		f %FarPlane{0x00007A44}
+		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags{}
 		f %NearPlane{0}
-		f %Radius{0x0000C842}
+		f %Radius{0x0000A041}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
@@ -163,7 +186,7 @@ o
 			Uuid{u4{15052979748227913434,5329957381823104229}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x343383C0,0xCFCC8CBF,0xCBCC0C40}}
+		Vec3 %LocalPosition{f{0x343333C0,0x32331340,0xCBCC0C40}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -222,6 +245,7 @@ o
 		{
 			s{"CastShadow"}
 			s{"AutoColMesh"}
+			s{"SkyLight"}
 		}
 	}
 }
@@ -251,11 +275,11 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{3926164586780735876,10616554154746894918}}
 			Uuid{u4{138166267714284381,10378266348766768573}}
+			Uuid{u4{14216325252922416827,4685440286707453870}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xA49AF3BF,0x4A3F00C0,0x487F6E3F}}
+		Vec3 %LocalPosition{f{0xA49AF3BF,0x604B8DBF,0x0AA6DD3F}}
 		Quat %LocalRotation{f{0xEE83043E,0xF685653E,0xEB46F7BE,0xEE25563F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -309,10 +333,10 @@ o
 			s{"SkyLight"}
 		}
 		f %Falloff{0xCDCCCC3D}
-		f %FarPlane{0x00007A44}
+		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags{}
 		f %NearPlane{0}
-		f %Radius{0x0000C842}
+		f %Radius{0x0000A041}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
@@ -402,19 +426,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3926164586780735876,10616554154746894918}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x0000803F}
-		ColorGamma %TopColor{u1{124,124,149,255}}
-	}
-}
-o
-{
 	Uuid %id{u4{4219148732026433392,10644684326107573205}}
 	s %t{"ezPlayerStartPointComponent"}
 	u3 %v{2}
@@ -424,6 +435,7 @@ o
 		VarDict %Parameters
 		{
 			b %GiveAllWeapons{1}
+			b %Invincible{0}
 		}
 		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 	}
@@ -442,7 +454,7 @@ o
 			Uuid{u4{7906681225849977954,10122298778038626929}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000090C0,0x67669AC1,0x9599D93F}}
+		Vec3 %LocalPosition{f{0x999919C0,0x3433B7C1,0x9599D93F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -468,10 +480,10 @@ o
 			s{"SkyLight"}
 		}
 		f %Falloff{0xCDCCCC3D}
-		f %FarPlane{0x00007A44}
+		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags{}
 		f %NearPlane{0}
-		f %Radius{0x0000C842}
+		f %Radius{0x0000A041}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
@@ -1002,6 +1014,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9327907810903036587,14925289355879257238}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyLightComponent"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
 	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1015,23 +1044,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeVersion{2}
 	}
 }
 o

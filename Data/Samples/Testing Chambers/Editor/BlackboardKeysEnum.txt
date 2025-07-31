@@ -1,11 +1,13 @@
 Aim
 Health
 IsAlive
+Melee
 MoodColor
 MoodStrength
 MoveBackwards
 MoveForwards
 PlayHitReaction
+PlayIdleAction
 RotateLeft
 RotateRight
 Shoot

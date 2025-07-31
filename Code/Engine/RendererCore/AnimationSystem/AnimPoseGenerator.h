@@ -93,8 +93,8 @@ private:
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandSampleTrack final : public ezAnimPoseGeneratorCommand
 {
   ezAnimationClipResourceHandle m_hAnimationClip;
-  float m_fNormalizedSamplePos;
-  float m_fPreviousNormalizedSamplePos;
+  float m_fNormalizedSamplePos = 0.0f;
+  float m_fPreviousNormalizedSamplePos = 0.0f;
 
   ezAnimPoseEventTrackSampleMode m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
 

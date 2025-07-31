@@ -174,6 +174,7 @@ bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWo
   m_LastOccludedObjectPositions.Clear();
 #endif
 
+  m_bHadUpdate = true;
   out_objectsInSensorVolume.Clear();
 
   GetObjectsInSensorVolume(out_objectsInSensorVolume);
@@ -346,7 +347,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
   const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
-  ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -435,8 +436,7 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
   pt.m_vScale.Set(1);
   t = pt * t;
 
-  ezColor solidColor = ezColor::Black.WithAlpha(0.0f); // lines only
-  ezDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, solidColor, m_Color, t);
+  ezDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, ezColor::MakeZero(), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), t);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -608,7 +608,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   }
 
   EZ_ASSERT_DEV(curLine <= NUM_LINES, "");
-  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_Color, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -701,6 +701,7 @@ void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& c
     EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
     pSensorComponent->DebugDrawSensorShape();
+    pSensorComponent->m_bHadUpdate = false;
 
     const ezVec3 sensorPos = pSensorComponent->GetOwner()->GetGlobalPosition();
     for (ezGameObjectHandle hObject : pSensorComponent->m_LastDetectedObjects)

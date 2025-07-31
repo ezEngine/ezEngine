@@ -184,6 +184,7 @@ GetSteeringRotation
 GetSubString
 GetTeamID
 GetTimeDiff
+GetTurnAngleTowards
 GetUniqueID
 GetValue_asAngle
 GetValue_asBool

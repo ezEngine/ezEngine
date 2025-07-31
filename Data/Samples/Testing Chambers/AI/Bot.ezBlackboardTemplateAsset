@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5840789953856331920,5365145387547261496}}
-		u4 %Hash{17563508055029622933}
+		u4 %Hash{4085131509687087337}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,30 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{7475762451179207613,4775618196056776302}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		i3 %InitialValue{-1}
+		HashedString %Name{s{"Shoot"}}
+	}
+}
+o
+{
+	Uuid %id{u4{12764525636760276628,4839067624800210366}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		i3 %InitialValue{-1}
+		HashedString %Name{s{"Melee"}}
+	}
+}
 o
 {
 	Uuid %id{u4{6572128143548337046,4935909465581184439}}
@@ -48,6 +72,18 @@ o
 }
 o
 {
+	Uuid %id{u4{2132801469527621797,5323071979105551066}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		i3 %InitialValue{-1}
+		HashedString %Name{s{"PlayIdleAction"}}
+	}
+}
+o
+{
 	Uuid %id{u4{1792858250741794944,5373025296277251366}}
 	s %t{"ezBlackboardTemplateAssetObject"}
 	u3 %v{1}
@@ -59,6 +95,9 @@ o
 			Uuid{u4{1462379333046593678,5751231619210647697}}
 			Uuid{u4{6572128143548337046,4935909465581184439}}
 			Uuid{u4{9059401332396094098,5016525827726429084}}
+			Uuid{u4{7475762451179207613,4775618196056776302}}
+			Uuid{u4{2132801469527621797,5323071979105551066}}
+			Uuid{u4{12764525636760276628,4839067624800210366}}
 		}
 	}
 }

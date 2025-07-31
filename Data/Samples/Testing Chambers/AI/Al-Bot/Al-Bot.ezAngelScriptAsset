@@ -14,7 +14,7 @@ o
 			s{"AI/Al-Bot/Al-Bot.as"}
 		}
 		Uuid %DocumentID{u4{4216664979612279722,4764307339926272599}}
-		u4 %Hash{12869124783730379116}
+		u4 %Hash{17989732443263695025}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7855305283485473398,7992906130366490927}}
@@ -30,12 +30,56 @@ o
 }
 o
 {
+	Uuid %id{u4{15863496947712508938,4845540081987646196}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		i3 %DefaultValue{50}
+		s %Name{"Health"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{5645884320301430187,5451274358698965928}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x00007041}
+		s %Name{"MaxShootDistance"}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{7855305283485473398,7992906130366490927}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{15863496947712508938,4845540081987646196}}
+			Uuid{u4{5645884320301430187,5451274358698965928}}
+			Uuid{u4{8546864662629442572,8643542302965132399}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8546864662629442572,8643542302965132399}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		b %DefaultValue{1}
+		s %Name{"ShowState"}
+		s %Type{""}
 	}
 }
 }
@@ -48,12 +92,56 @@ o
 	u3 %v{1}
 	p
 	{
-		s %ClassName{"ScriptObject"}
+		s %ClassName{"Bot"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
 		VarArray %Dependencies{}
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{16226711775381909934,5460911938601690122}}
+			Uuid{u4{13756324908931637431,5551616222866705207}}
+			Uuid{u4{15076180471805269400,5675796133248104609}}
+		}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
 		s %SourceFile{"AI/Al-Bot/Al-Bot.as"}
+	}
+}
+o
+{
+	Uuid %id{u4{16226711775381909934,5460911938601690122}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 Health = 50"}
+		i3 %DefaultValue{50}
+		b %Expose{1}
+		s %Name{"Health"}
+	}
+}
+o
+{
+	Uuid %id{u4{13756324908931637431,5551616222866705207}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float MaxShootDistance = 15"}
+		f %DefaultValue{0x00007041}
+		b %Expose{1}
+		s %Name{"MaxShootDistance"}
+	}
+}
+o
+{
+	Uuid %id{u4{15076180471805269400,5675796133248104609}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"bool ShowState = true"}
+		b %DefaultValue{1}
+		b %Expose{1}
+		s %Name{"ShowState"}
 	}
 }
 o

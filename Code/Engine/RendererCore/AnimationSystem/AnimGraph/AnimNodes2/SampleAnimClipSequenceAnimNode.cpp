@@ -398,11 +398,22 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
   const void* pThis = this;
   auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
-  cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+
 
   cmd.m_hAnimationClip = hCurClip;
-  cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
-  cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+
+  // if we are already holding the last frame, we can skip event sampling
+  if (pState->m_State >= State::HoldStartFrame)
+  {
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+  }
+  else
+  {
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
+
+    cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+    cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+  }
 
   {
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();

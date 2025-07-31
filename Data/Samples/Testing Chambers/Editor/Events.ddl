@@ -1,6 +1,7 @@
 Event %'AnimMode-Limp'{}
 Event %'AnimMode-Powered'{}
 Event %'Animation Cue 1'{}
+Event %'Melee-Hit'{}
 Event %gun.shoot{}
 Event %jump.land{}
 Event %jump.liftoff{}

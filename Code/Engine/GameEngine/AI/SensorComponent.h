@@ -97,6 +97,7 @@ protected:
 
   ezEnum<ezUpdateRate> m_UpdateRate;
   bool m_bShowDebugInfo = false;
+  mutable bool m_bHadUpdate = false;
   ezColorGammaUB m_Color = ezColorScheme::LightUI(ezColorScheme::Orange);
 
   ezHashedString m_sSpatialCategory;
