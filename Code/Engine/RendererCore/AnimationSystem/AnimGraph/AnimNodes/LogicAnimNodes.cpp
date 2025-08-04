@@ -195,7 +195,7 @@ void ezLogicOrAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstan
 
   for (const auto& pin : m_InBool)
   {
-    if (!pin.GetBool(ref_graph, true))
+    if (pin.GetBool(ref_graph, false))
     {
       res = true;
       break;
