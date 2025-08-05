@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2190465465481255065,4882593655429363122}}
-		u4 %Hash{18358787032335346259}
+		u4 %Hash{11689922398086005910}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18117016166384126865,3844805253438337895}}
@@ -30,13 +30,13 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
-			s{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
 			s{"{ be293ead-2ab8-4f74-be40-078fd811b4fe }"}
+			s{"{ f790ffcc-6343-448d-ba74-50723488a26c }"}
 		}
 		VarArray %References
 		{
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
-			s{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
+			s{"{ f790ffcc-6343-448d-ba74-50723488a26c }"}
 		}
 		s %Tags{""}
 	}
@@ -58,7 +58,7 @@ o
 		{
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
 		}
-		s %Mesh{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
+		s %Mesh{"{ f790ffcc-6343-448d-ba74-50723488a26c }"}
 		f %SortingDepthOffset{0}
 	}
 }
@@ -116,7 +116,7 @@ o
 {
 	Uuid %id{u4{11645940089112211370,5025316063653777900}}
 	s %t{"ezScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -128,6 +128,7 @@ o
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ be293ead-2ab8-4f74-be40-078fd811b4fe }"}
 		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{1}
 	}
 }
 o
@@ -171,7 +172,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x6F12033C}
+		f %LocalUniformScaling{0xCDCCCC3D}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -356,7 +357,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezScriptComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

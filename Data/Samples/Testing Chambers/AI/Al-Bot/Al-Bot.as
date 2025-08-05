@@ -3,6 +3,8 @@
 // * hear player noises
 // * patrol paths
 // * better area damage (falloff, don't hit yourself)
+// * aim up/down
+// * better projectil spawn
 
 enum BotState
 {
