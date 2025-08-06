@@ -512,6 +512,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Initialize Phase");
     ProcessComponentsToInitialize();
+    ProcessUpdateFunctionsToDeregister();
     ProcessUpdateFunctionsToRegister();
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
@@ -548,7 +549,6 @@ void ezWorld::Update()
     EZ_PROFILE_SCOPE("Delete Dead Objects");
     DeleteDeadObjects();
     DeleteDeadComponents();
-    ProcessUpdateFunctionsToDeregister();
   }
 
   // update transforms
