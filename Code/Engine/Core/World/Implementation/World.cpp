@@ -548,6 +548,7 @@ void ezWorld::Update()
     EZ_PROFILE_SCOPE("Delete Dead Objects");
     DeleteDeadObjects();
     DeleteDeadComponents();
+    ProcessUpdateFunctionsToDeregister();
   }
 
   // update transforms
@@ -624,7 +625,7 @@ void ezWorld::DeleteModule(const ezRTTI* pRtti)
       m_Data.m_Modules[uiTypeId] = nullptr;
 
       pModule->Deinitialize();
-      DeregisterUpdateFunctions(pModule);
+      DeregisterUpdateFunctionsInternal(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
   }
@@ -1055,33 +1056,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 {
   CheckForWriteAccess();
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
-
-  for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
-  {
-    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
-    {
-      updateFunctions.RemoveAtAndCopy(i);
-    }
-  }
-}
-
-void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
-{
-  CheckForWriteAccess();
-
-  for (ezUInt32 phase = ezWorldUpdatePhase::PreAsync; phase < ezWorldUpdatePhase::COUNT; ++phase)
-  {
-    ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
-
-    for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
-    {
-      if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
-      {
-        updateFunctions.RemoveAtAndCopy(i);
-      }
-    }
-  }
+  m_Data.m_UpdateFunctionsToDeregister.PushBack(desc);
 }
 
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
@@ -1367,6 +1342,52 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunc
   updateFunctions.InsertAt(uiInsertionIndex, newFunction);
 
   return EZ_SUCCESS;
+}
+
+void ezWorld::ProcessUpdateFunctionsToDeregister()
+{
+  CheckForWriteAccess();
+
+  if (m_Data.m_UpdateFunctionsToDeregister.IsEmpty())
+    return;
+
+  for (const ezWorldModule::UpdateFunctionDesc& updateFunction : m_Data.m_UpdateFunctionsToDeregister)
+  {
+    DeregisterUpdateFunctionInternal(updateFunction);
+  }
+
+  m_Data.m_UpdateFunctionsToDeregister.Clear();
+}
+
+void ezWorld::DeregisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc)
+{
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
+
+  for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
+  {
+    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
+    {
+      updateFunctions.RemoveAtAndCopy(i);
+    }
+  }
+}
+
+void ezWorld::DeregisterUpdateFunctionsInternal(ezWorldModule* pModule)
+{
+  CheckForWriteAccess();
+
+  for (ezUInt32 phase = ezWorldUpdatePhase::PreAsync; phase < ezWorldUpdatePhase::COUNT; ++phase)
+  {
+    ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
+
+    for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
+    {
+      if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
+      {
+        updateFunctions.RemoveAtAndCopy(i);
+      }
+    }
+  }
 }
 
 void ezWorld::DeleteDeadObjects()

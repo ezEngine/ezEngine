@@ -192,7 +192,7 @@ void ezWorld::DeleteComponentManager()
       m_Data.m_Modules[uiTypeId] = nullptr;
 
       static_cast<ezWorldModule*>(pModule)->Deinitialize();
-      DeregisterUpdateFunctions(pModule);
+      DeregisterUpdateFunctionsInternal(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
   }

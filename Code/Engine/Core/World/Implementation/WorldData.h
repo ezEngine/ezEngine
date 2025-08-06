@@ -197,6 +197,7 @@ namespace ezInternal
 
     ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldUpdatePhase::COUNT];
     ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
+    ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToDeregister;
 
     ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;
 

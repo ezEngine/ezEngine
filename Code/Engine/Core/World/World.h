@@ -428,7 +428,6 @@ private:
 
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
-  void DeregisterUpdateFunctions(ezWorldModule* pModule);
 
   /// \brief Used by component managers to queue a new component for initialization during the next update
   void AddComponentToInitialize(ezComponentHandle hComponent);
@@ -442,6 +441,9 @@ private:
   void ProcessComponentsToInitialize();
   void ProcessUpdateFunctionsToRegister();
   ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
+  void ProcessUpdateFunctionsToDeregister();
+  void DeregisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
+  void DeregisterUpdateFunctionsInternal(ezWorldModule* pModule);
 
   void DeleteDeadObjects();
   void DeleteDeadComponents();
