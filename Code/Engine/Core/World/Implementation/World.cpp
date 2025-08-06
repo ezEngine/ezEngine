@@ -1348,9 +1348,6 @@ void ezWorld::ProcessUpdateFunctionsToDeregister()
 {
   CheckForWriteAccess();
 
-  if (m_Data.m_UpdateFunctionsToDeregister.IsEmpty())
-    return;
-
   for (const ezWorldModule::UpdateFunctionDesc& updateFunction : m_Data.m_UpdateFunctionsToDeregister)
   {
     DeregisterUpdateFunctionInternal(updateFunction);
