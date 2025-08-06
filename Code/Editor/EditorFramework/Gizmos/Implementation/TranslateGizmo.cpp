@@ -167,12 +167,7 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   m_vStartPosition = GetTransformation().m_vPosition;
   m_vTotalMouseDiff.SetZero();
 
-  ezMat4 mView = m_pCamera->GetViewMatrix();
-  ezMat4 mProj;
-  m_pCamera->GetProjectionMatrix((float)m_vViewport.x / (float)m_vViewport.y, mProj);
-  ezMat4 mViewProj = mProj * mView;
-  m_mInvViewProj = mViewProj.GetInverse();
-
+  GetInverseViewProjectionMatrix(m_mInvViewProj);
 
   m_LastInteraction = ezTime::Now();
 
@@ -181,11 +176,11 @@ ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (m_Mode == TranslateMode::Axis)
   {
-    GetPointOnAxis(e->pos().x(), e->pos().y(), m_vInteractionPivot).IgnoreResult();
+    GetPointOnAxis(m_vStartPosition, m_vMoveAxis, ezVec2I32(e->pos().x(), e->pos().y()), m_mInvViewProj, m_vInteractionPivot).IgnoreResult();
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-    GetPointOnPlane(e->pos().x(), e->pos().y(), m_vInteractionPivot).IgnoreResult();
+    GetPointOnPlane(ezVec2I32(e->pos().x(), e->pos().y()), m_vInteractionPivot).IgnoreResult();
   }
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
@@ -212,48 +207,12 @@ ezEditorInput ezTranslateGizmo::DoMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
+ezResult ezTranslateGizmo::GetPointOnPlane(const ezVec2I32& vScreenPos, ezVec3& out_Result) const
 {
-  out_Result = m_vStartPosition;
-
-  ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
-    return EZ_FAILURE;
-
   ezPlane Plane;
   Plane = ezPlane::MakeFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
 
-  ezVec3 vIntersection;
-  if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return EZ_FAILURE;
-
-  out_Result = vIntersection;
-  return EZ_SUCCESS;
-}
-
-ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
-{
-  out_Result = m_vStartPosition;
-
-  ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
-    return EZ_FAILURE;
-
-  const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
-  const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
-
-  ezPlane Plane;
-  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
-
-  ezVec3 vIntersection;
-  if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return EZ_FAILURE;
-
-  const ezVec3 vDirAlongRay = vIntersection - m_vStartPosition;
-  const float fProjectedLength = vDirAlongRay.Dot(m_vMoveAxis);
-
-  out_Result = m_vStartPosition + fProjectedLength * m_vMoveAxis;
-  return EZ_SUCCESS;
+  return SUPER::GetPointOnPlane(Plane, vScreenPos, m_mInvViewProj, out_Result);
 }
 
 ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
@@ -281,7 +240,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     if (m_Mode == TranslateMode::Axis)
     {
-      if (GetPointOnAxis(e->pos().x(), e->pos().y(), vCurrentInteractionPoint).Failed())
+      if (GetPointOnAxis(m_vStartPosition, m_vMoveAxis, ezVec2I32(e->pos().x(), e->pos().y()), m_mInvViewProj, vCurrentInteractionPoint).Failed())
       {
         m_vLastMousePos = UpdateMouseMode(e);
         return ezEditorInput::WasExclusivelyHandled;
@@ -289,7 +248,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
     }
     else if (m_Mode == TranslateMode::Plane)
     {
-      if (GetPointOnPlane(e->pos().x(), e->pos().y(), vCurrentInteractionPoint).Failed())
+      if (GetPointOnPlane(ezVec2I32(e->pos().x(), e->pos().y()), vCurrentInteractionPoint).Failed())
       {
         m_vLastMousePos = UpdateMouseMode(e);
         return ezEditorInput::WasExclusivelyHandled;

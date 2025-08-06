@@ -8,11 +8,11 @@ ezSplineManipulatorAdapter::ezSplineManipulatorAdapter() = default;
 ezSplineManipulatorAdapter::~ezSplineManipulatorAdapter() = default;
 
 // static
-ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sNodesPropertyName, ezStringView sClosedPropertyName, ezSpline& out_spline)
+ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sNodesPropertyName, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName /*= ezStringView()*/, ezUInt32* out_pNodeIndex /*= nullptr*/)
 {
   out_spline.m_ControlPoints.Clear();
   out_spline.m_bClosed = false;
-  
+
   if (pSplineComponent == nullptr)
     return EZ_FAILURE;
 
@@ -37,6 +37,11 @@ ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSpline
     if (FillControlPointFromNodeComponent(pNodeComponent, cp).Succeeded())
     {
       out_spline.m_ControlPoints.PushBack(cp);
+
+      if (out_pNodeIndex != nullptr && v.Get<ezHashedString>() == sNodeName)
+      {
+        *out_pNodeIndex = out_spline.m_ControlPoints.GetCount() - 1;
+      }
     }
   }
 
@@ -88,26 +93,20 @@ ezResult ezSplineManipulatorAdapter::FillControlPointFromNodeComponent(const ezD
 
   {
     ezUInt32 uiTangentModeIn = pNodeComponent->GetTypeAccessor().GetValue("TangentModeIn").ConvertTo<ezUInt32>();
-    ezUInt32 uiTangentModeOut = pNodeComponent->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<ezUInt32>();
-
-    out_cp.SetTangentModeIn(static_cast<ezSplineTangentMode::Enum>(uiTangentModeIn));
-    out_cp.SetTangentModeOut(static_cast<ezSplineTangentMode::Enum>(uiTangentModeOut));
-  }
-
-  {
     ezVariant v = pNodeComponent->GetTypeAccessor().GetValue("CustomTangentIn");
     if (!v.IsA<ezVec3>())
       return EZ_FAILURE;
 
-    out_cp.m_vPosTangentIn = ezSimdConversion::ToVec3(v.Get<ezVec3>());
+    out_cp.SetTangentIn(ezSimdConversion::ToVec3(v.Get<ezVec3>()), static_cast<ezSplineTangentMode::Enum>(uiTangentModeIn));
   }
 
   {
+    ezUInt32 uiTangentModeOut = pNodeComponent->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<ezUInt32>();
     ezVariant v = pNodeComponent->GetTypeAccessor().GetValue("CustomTangentOut");
     if (!v.IsA<ezVec3>())
       return EZ_FAILURE;
 
-    out_cp.m_vPosTangentOut = ezSimdConversion::ToVec3(v.Get<ezVec3>());
+    out_cp.SetTangentOut(ezSimdConversion::ToVec3(v.Get<ezVec3>()), static_cast<ezSplineTangentMode::Enum>(uiTangentModeOut));
   }
 
   return EZ_SUCCESS;

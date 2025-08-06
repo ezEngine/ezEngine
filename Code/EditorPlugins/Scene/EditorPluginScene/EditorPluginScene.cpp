@@ -441,9 +441,6 @@ void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
 {
   static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezOccluderComponent");
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
-void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
-{
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSplineNodeComponent");
 
   if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
@@ -455,6 +452,15 @@ void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 
   props["Extents"].m_Visibility = isMesh ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
   props["Mesh"].m_Visibility = isMesh ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSplineNodeComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
   const ezInt32 iTangentModeIn = e.m_pObject->GetTypeAccessor().GetValue("TangentModeIn").ConvertTo<ezInt32>();
   const ezInt32 iTangentModeOut = e.m_pObject->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<ezInt32>();
 

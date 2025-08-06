@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{17014586724376679327}
+		u4 %Hash{9873490492062827512}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -71,6 +71,37 @@ o
 		Angle %Roll{f{0xC2B832BF}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{615010217690313871,4700782687324177612}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{1010983450633002643,5240265596840315111}}
+			Uuid{u4{13986474071260358786,4945549006554539417}}
+			Uuid{u4{1198762662610484373,5641146050703194256}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{16860525285257686406,5565113602506043286}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00000442,0x00000040,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -182,6 +213,21 @@ o
 }
 o
 {
+	Uuid %id{u4{15648952618086593195,4778860490672539707}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
 	Uuid %id{u4{2822574531945171357,4781345655751442604}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -230,6 +276,21 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14776507715250889390,4826307061069657103}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -356,6 +417,32 @@ o
 }
 o
 {
+	Uuid %id{u4{13986474071260358786,4945549006554539417}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15648952618086593195,4778860490672539707}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x00001040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"0.1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{9117581180707426204,4949659529657977083}}
 	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
@@ -449,11 +536,11 @@ o
 	p
 	{
 		b %Active{1}
-		Vec3 %CustomTangentIn{f{0,0,0}}
-		Vec3 %CustomTangentOut{f{0,0,0}}
+		Vec3 %CustomTangentIn{f{0xAC3B8F3F,0x7F54CE3F,0xC486313F}}
+		Vec3 %CustomTangentOut{f{0x0790A6BF,0xCAEFEFBF,0x0B714EBF}}
 		Angle %Roll{f{0xF3665FBF}}
-		s %TangentModeIn{"ezSplineTangentMode::Auto"}
-		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Custom"}
+		s %TangentModeOut{"ezSplineTangentMode::Custom"}
 	}
 }
 o
@@ -523,7 +610,7 @@ o
 	{
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
-		Vec3 %CustomTangentOut{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0x3A7C41C0,0x233E97BF,0}}
 		Angle %Roll{f{0x920A863E}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -616,6 +703,32 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"0.1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1010983450633002643,5240265596840315111}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1676572928956058542,5661637111397044204}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x00007040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"0.2"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -816,6 +929,25 @@ o
 }
 o
 {
+	Uuid %id{u4{16860525285257686406,5565113602506043286}}
+	s %t{"ezSplineComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %Closed{0}
+		u1 %EditNodes{0}
+		s %Flags{""}
+		VarArray %Nodes
+		{
+			HashedString{s{"0.2"}}
+			HashedString{s{"0.1"}}
+			HashedString{s{"0"}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{15571733357245578939,5576551778896468301}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -894,6 +1026,32 @@ o
 }
 o
 {
+	Uuid %id{u4{1198762662610484373,5641146050703194256}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14776507715250889390,4826307061069657103}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"0"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{18338091097337364896,5652381562163756829}}
 	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
@@ -903,6 +1061,21 @@ o
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0x920A863E}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{1676572928956058542,5661637111397044204}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
@@ -994,6 +1167,7 @@ o
 			Uuid{u4{6091083510139579280,5242330529363530197}}
 			Uuid{u4{17627430900995411349,4940307597396386061}}
 			Uuid{u4{7466563822863635876,4844577445546918839}}
+			Uuid{u4{615010217690313871,4700782687324177612}}
 		}
 		Uuid %Settings{u4{8550874485691714864,9833858948211458572}}
 	}
@@ -1092,8 +1266,8 @@ o
 			Uuid{u4{10688200740413359141,10018919471378251624}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000A0C0,0,0x00000040}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x0000D6C1,0x0000AEC1,0x00000841}}
+		Quat %LocalRotation{f{0xA8A885BD,0xFE80E73D,0x55CFFD3E,0x4ACE5B3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
