@@ -249,7 +249,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             {
               ezHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
-              ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+              ezDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
               if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultValue(pProp))
                 continue;
             }
@@ -279,7 +279,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             {
               ezHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
-              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
               for (ezInt32 i = 0; i < iCount; ++i)
               {
                 ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
@@ -327,7 +327,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             {
               ezHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
-              ezDefaultContainerState defaultState(GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
+              ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
               for (auto it : varDict)
               {
                 if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultElement(it.Key()))

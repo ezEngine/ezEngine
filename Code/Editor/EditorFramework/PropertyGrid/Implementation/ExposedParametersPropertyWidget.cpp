@@ -6,11 +6,17 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
+#include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameterCommandAccessor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAsTypeCommandAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+bool ezQtExposedParametersPropertyWidget::s_bRawMode = false;
 
 ezExposedParameterCommandAccessor::ezExposedParameterCommandAccessor(
   ezObjectAccessorBase* pSource, const ezAbstractProperty* pParameterProp, const ezAbstractProperty* pParameterSourceProp)
@@ -67,7 +73,7 @@ ezStatus ezExposedParameterCommandAccessor::SetValue(
   // so we redirect to insert to make it true.
   if (res.Failed() && m_pParameterProp == pProp && index.IsA<ezString>())
   {
-    return InsertValue(pObject, pProp, newValue, index);
+    return ezExposedParameterCommandAccessor::InsertValue(pObject, pProp, newValue, index);
   }
   return res;
 }
@@ -199,6 +205,7 @@ const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(cons
     if (bFirst)
     {
       type = GetExposedParamsType(item.m_pObject);
+      bFirst = false;
     }
     else
     {
@@ -225,60 +232,219 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value)
+ezExposedParametersAsTypeCommandAccessor::ezExposedParametersAsTypeCommandAccessor(ezExposedParameterCommandAccessor* pSource)
+  : ezObjectProxyAccessor(pSource)
 {
-  ezVariantType::Enum commonType = ezVariantType::Invalid;
-  GetCommonVariantSubType(m_Items, m_pProp, commonType);
-  const ezRTTI* pNewtSubType = commonType != ezVariantType::Invalid ? ezReflectionUtils::GetTypeFromVariant(commonType) : nullptr;
+}
 
-  ezExposedParameterCommandAccessor* proxy = static_cast<ezExposedParameterCommandAccessor*>(m_pObjectAccessor);
-  if (auto type = proxy->GetCommonExposedParamsType(m_Items))
+ezStatus ezExposedParametersAsTypeCommandAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index)
+{
+  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, out_value));
+
+  ezStatus result(EZ_SUCCESS);
+  out_value = ezVariantStorageAccessor(pProp->GetPropertyName(), out_value).GetValue(index, &result);
+  return result;
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+{
+  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
+    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).SetValue(newValue, index); });
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
+{
+  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
+    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).InsertValue(index, newValue); });
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+{
+  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
+    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).RemoveValue(index); });
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+{
+  return SetSubValue(pObject, pProp, [&](ezVariant& subValue) -> ezStatus
+    { return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).MoveValue(oldIndex, newIndex); });
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount)
+{
+  ezVariant subValue;
+  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  out_iCount = ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetCount();
+  return EZ_SUCCESS;
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys)
+{
+  ezVariant subValue;
+  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  return ezVariantStorageAccessor(pProp->GetPropertyName(), subValue).GetKeys(out_keys);
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values)
+{
+  ezVariant subValue;
+  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
+  ezHybridArray<ezVariant, 16> keys;
+  ezVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
+  EZ_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
+  out_values.Clear();
+  out_values.Reserve(keys.GetCount());
+  for (const ezVariant& key : keys)
   {
-    if (auto prop = type->FindPropertyByName(m_Items[0].m_Index.Get<ezString>()))
+    out_values.PushBack(accessor.GetValue(key));
+  }
+  return EZ_SUCCESS;
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
+{
+  const ezRTTI* pType = GetSourceAccessor()->GetExposedParamsType(pObject);
+  EZ_ASSERT_DEBUG(pType && pType->FindPropertyByName(pProp->GetPropertyName()) == pProp, "");
+
+  ezStatus result = GetSourceAccessor()->GetValue(pObject, GetSourceAccessor()->m_pParameterProp, out_value, pProp->GetPropertyName());
+  if (result.Failed())
+    return result;
+
+  PatchPropertyType(out_value, pProp);
+
+  return result;
+}
+
+ezStatus ezExposedParametersAsTypeCommandAccessor::SetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezStatus(ezVariant&)>& func)
+{
+  ezVariant currentValue;
+  EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, currentValue));
+  EZ_SUCCEED_OR_RETURN(func(currentValue));
+  return GetSourceAccessor()->SetValue(pObject, pProp, currentValue, pProp->GetPropertyName());
+}
+
+void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_value, const ezAbstractProperty* pProp)
+{
+  const ezVariantType::Enum propType = ezToolsReflectionUtils::GetStorageType(pProp);
+  const ezVariantType::Enum valueType = ref_value.GetType();
+  if (propType != valueType)
+  {
+    if (ref_value.CanConvertTo(propType))
     {
-      auto paramDefault = ezToolsReflectionUtils::GetStorageDefault(prop);
-      if (paramDefault.GetType() == commonType)
-      {
-        if (prop->GetSpecificType() != m_pCurrentSubType || m_pWidget == nullptr)
-        {
-          if (m_pWidget)
-          {
-            m_pWidget->PrepareToDie();
-            m_pWidget->deleteLater();
-            m_pWidget = nullptr;
-          }
-          m_pCurrentSubType = pNewtSubType;
-          m_pWidget = ezQtPropertyGridWidget::CreateMemberPropertyWidget(prop);
-          if (!m_pWidget)
-            m_pWidget = new ezQtUnsupportedPropertyWidget("Unsupported Type");
-
-          m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-          m_pWidget->setParent(this);
-          m_pLayout->addWidget(m_pWidget);
-          m_pWidget->Init(m_pGrid, m_pObjectAccessor, type, prop);
-
-          UpdateTypeListSelection(commonType);
-        }
-        m_pWidget->SetSelection(m_Items);
-        return;
-      }
+      ref_value = ref_value.ConvertTo(propType);
+    }
+    else
+    {
+      ref_value = ezToolsReflectionUtils::GetStorageDefault(pProp);
     }
   }
-  ezQtVariantPropertyWidget::InternalSetValue(value);
+
+  switch (pProp->GetCategory())
+  {
+    case ezPropertyCategory::Array:
+      if (const ezVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != ezVariantType::Invalid)
+      {
+        const ezVariantArray& array = ref_value.Get<ezVariantArray>();
+        for (int i = 0; i < array.GetCount(); ++i)
+        {
+          const ezVariant& element = array[i];
+          const ezVariantType::Enum valueElementType = element.GetType();
+          if (propElementType != valueElementType)
+          {
+            ezVariantArray& arrayWritable = ref_value.GetWritable<ezVariantArray>();
+            ezVariant& elementWritable = arrayWritable[i];
+            if (elementWritable.CanConvertTo(propElementType))
+            {
+              elementWritable = elementWritable.ConvertTo(propType);
+            }
+            else
+            {
+              elementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+            }
+          }
+        }
+      }
+      break;
+    case ezPropertyCategory::Map:
+      if (const ezVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != ezVariantType::Invalid)
+      {
+        const ezVariantDictionary& map = ref_value.Get<ezVariantDictionary>();
+        for (auto it : map)
+        {
+          const ezVariant& element = it.Value();
+          const ezVariantType::Enum valueElementType = element.GetType();
+          if (propElementType != valueElementType)
+          {
+            ezVariantDictionary& mapWritable = ref_value.GetWritable<ezVariantDictionary>();
+            ezVariant* pElementWritable = nullptr;
+            mapWritable.TryGetValue(it.Key(), pElementWritable);
+            if (pElementWritable->CanConvertTo(propElementType))
+            {
+              *pElementWritable = pElementWritable->ConvertTo(propType);
+            }
+            else
+            {
+              *pElementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+            }
+          }
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() = default;
+ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget()
+  : ezQtPropertyStandardTypeContainerWidget()
+{
+  // Replace the container layout so we can prepend the type widget before all container elements
+  delete m_pGroupLayout;
+  m_pGroupLayout = new QVBoxLayout(nullptr);
+  m_pGroupLayout->setSpacing(1);
+  m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
+
+  m_pTypeViewLayout = new QVBoxLayout(nullptr);
+  m_pTypeViewLayout->addLayout(m_pGroupLayout);
+  m_pTypeViewLayout->setSpacing(0);
+  m_pTypeViewLayout->setContentsMargins(0, 0, 0, 0);
+
+  m_pGroup->GetContent()->setLayout(m_pTypeViewLayout);
+}
 
 ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
 {
   m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
 }
 
 void ezQtExposedParametersPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {
+  const ezRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(items);
+  if (m_pTypeWidget && m_pTypeWidget->GetType() != pCommonType)
+  {
+    m_pTypeWidget->PrepareToDie();
+    m_pTypeWidget->deleteLater();
+    m_pTypeWidget = nullptr;
+  }
+
+  if (m_pTypeWidget == nullptr && pCommonType != nullptr)
+  {
+    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pTypeProxy.Borrow(), pCommonType, nullptr, nullptr);
+    m_pTypeViewLayout->insertWidget(0, m_pTypeWidget);
+  }
+
+  if (m_pTypeWidget)
+  {
+    m_pTypeWidget->setVisible(!s_bRawMode);
+    m_pTypeWidget->SetSelection(items);
+  }
+
+
   ezQtPropertyStandardTypeContainerWidget::SetSelection(items);
   UpdateActionState();
 }
@@ -287,6 +453,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
 {
   m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler, this));
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
 
   const auto* pAttrib = m_pProp->GetAttributeByType<ezExposedParametersAttribute>();
   EZ_ASSERT_DEV(pAttrib, "ezQtExposedParametersPropertyWidget was created for a property that does not have the ezExposedParametersAttribute.");
@@ -296,7 +463,9 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", m_sExposedParamProperty, m_pType->GetTypeName());
   m_pSourceObjectAccessor = m_pObjectAccessor;
   m_pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
-  m_pObjectAccessor = m_pProxy.Borrow();
+  m_pTypeProxy = EZ_DEFAULT_NEW(ezExposedParametersAsTypeCommandAccessor, m_pProxy.Borrow());
+  // Overwriting this will display the exposed parameter map as before, i.e. each property will be shown in the map even if not present. As this is now obsolete given the phantom type widget, this is probably no longer needed?
+  //m_pObjectAccessor = m_pProxy.Borrow();
 
   ezQtPropertyStandardTypeContainerWidget::OnInit();
 
@@ -327,13 +496,29 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
     layout->insertWidget(layout->count() - 1, m_pFixMeButton);
   }
-}
 
-ezQtPropertyWidget* ezQtExposedParametersPropertyWidget::CreateWidget(ezUInt32 index)
-{
-  return new ezQtExposedParameterPropertyWidget();
-}
+  {
+    // Button to toggle between type-based view and the raw dictionary-based view of the exposed parameters.
+    m_pToggleRawModeButton = new QToolButton();
+    m_pToggleRawModeButton->setAutoRaise(true);
+    m_pToggleRawModeButton->setCheckable(true);
+    m_pToggleRawModeButton->setChecked(s_bRawMode);
+    m_pToggleRawModeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/ExposedParameterViewToggle.svg"));
+    auto sp = m_pToggleRawModeButton->sizePolicy();
+    sp.setVerticalPolicy(QSizePolicy::Ignored);
+    m_pToggleRawModeButton->setSizePolicy(sp);
+    m_pToggleRawModeButton->setToolTip("Toggle between Type or RAW dictionary view");
 
+    connect(m_pToggleRawModeButton, &QToolButton::toggled, this, [this](bool checked){
+        s_bRawMode = checked;
+        ezQtScopedUpdatesDisabled _(this);
+        SetSelection(m_Items);
+      });
+
+    auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
+    layout->insertWidget(layout->count() - 1, m_pToggleRawModeButton);
+  }
+}
 
 void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
 {
@@ -343,27 +528,17 @@ void ezQtExposedParametersPropertyWidget::UpdateElement(ezUInt32 index)
 void ezQtExposedParametersPropertyWidget::UpdatePropertyMetaState()
 {
   ezQtPropertyStandardTypeContainerWidget::UpdatePropertyMetaState();
-  return;
+}
 
-  for (ezUInt32 i = 0; i < m_Elements.GetCount(); i++)
+void ezQtExposedParametersPropertyWidget::GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const
+{
+  if (!s_bRawMode)
   {
-    Element& elem = m_Elements[i];
-    const auto& selection = elem.m_pWidget->GetSelection();
-    bool isDefault = true;
-    for (const auto& item : selection)
-    {
-      ezVariant value;
-      ezStatus res = m_pSourceObjectAccessor->GetValue(item.m_pObject, m_pProp, value, item.m_Index);
-      if (res.Succeeded())
-      {
-        // In case we successfully read the value from the source accessor (not the proxy that pretends all exposed params exist)
-        // we now the value is overwritten as in the default case the map index would not exist.
-        isDefault = false;
-        break;
-      }
-    }
-    elem.m_pWidget->SetIsDefault(isDefault);
-    elem.m_pSubGroup->SetBoldTitle(!isDefault);
+    out_keys.Clear();
+  }
+  else
+  {
+    ezQtPropertyContainerWidget::GetRequiredElements(out_keys);
   }
 }
 
@@ -378,16 +553,11 @@ void ezQtExposedParametersPropertyWidget::PropertyEventHandler(const ezDocumentO
 
   if (!m_bNeedsUpdate && m_sExposedParamProperty == e.m_sProperty)
   {
-    m_bNeedsUpdate = true;
-    // In case the change happened outside the command history we have to update at once.
-    if (!m_pGrid->GetCommandHistory()->IsInTransaction() && !m_pGrid->GetCommandHistory()->IsInUndoRedo())
-      FlushQueuedChanges();
+    FlushOrQueueChanges(true, false);
   }
   if (!m_bNeedsMetaDataUpdate && m_pProp->GetPropertyName() == e.m_sProperty)
   {
-    m_bNeedsMetaDataUpdate = true;
-    if (!m_pGrid->GetCommandHistory()->IsInTransaction() && !m_pGrid->GetCommandHistory()->IsInUndoRedo())
-      FlushQueuedChanges();
+    FlushOrQueueChanges(false, true);
   }
 }
 
@@ -403,7 +573,7 @@ void ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const ezCom
     case ezCommandHistoryEvent::Type::TransactionEnded:
     case ezCommandHistoryEvent::Type::TransactionCanceled:
     {
-      FlushQueuedChanges();
+      FlushOrQueueChanges(false, false);
     }
     break;
 
@@ -412,8 +582,29 @@ void ezQtExposedParametersPropertyWidget::CommandHistoryEventHandler(const ezCom
   }
 }
 
-void ezQtExposedParametersPropertyWidget::FlushQueuedChanges()
+void ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
 {
+  if (const ezRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(m_Items))
+  {
+    if (e.m_pChangedType->IsDerivedFrom(pCommonType))
+    {
+      // The type widget stores pointer to properties which have been destroyed by the phantom type update so we need to destroy it and recreate it.
+      m_pTypeWidget->PrepareToDie();
+      m_pTypeWidget->deleteLater();
+      m_pTypeWidget = nullptr;
+      FlushOrQueueChanges(true, true);
+    }
+  }
+}
+
+void ezQtExposedParametersPropertyWidget::FlushOrQueueChanges(bool bNeedsUpdate, bool bNeedsMetaDataUpdate)
+{
+  m_bNeedsUpdate |= bNeedsUpdate;
+  m_bNeedsMetaDataUpdate |= bNeedsMetaDataUpdate;
+  // Wait until the transaction is done and this function will be called again inside CommandHistoryEventHandler.
+  if (m_pGrid->GetCommandHistory()->IsInTransaction() || m_pGrid->GetCommandHistory()->IsInUndoRedo())
+    return;
+
   if (m_bNeedsUpdate)
   {
     m_bNeedsUpdate = false;
@@ -421,6 +612,7 @@ void ezQtExposedParametersPropertyWidget::FlushQueuedChanges()
   }
   if (m_bNeedsMetaDataUpdate)
   {
+    // m_bNeedsMetaDataUpdate is reset inside UpdateActionState as it can be called from other places.
     UpdateActionState();
   }
 }
@@ -484,11 +676,11 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
               ezVariantType::Enum type = pParam->m_DefaultValue.GetType();
               if (value.CanConvertTo(type))
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, value.ConvertTo(type), key).LogFailure();
+                m_pProxy->SetValue(item.m_pObject, m_pProp, value.ConvertTo(type), key).LogFailure();
               }
               else
               {
-                m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, pParam->m_DefaultValue, key).LogFailure();
+                m_pProxy->SetValue(item.m_pObject, m_pProp, pParam->m_DefaultValue, key).LogFailure();
               }
             }
             else

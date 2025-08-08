@@ -11,6 +11,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezExposedParameter
   ezString m_sName;
   ezString m_sType;
   ezVariant m_DefaultValue;
+  ezEnum<ezPropertyCategory> m_Category;
   ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezExposedParameter)

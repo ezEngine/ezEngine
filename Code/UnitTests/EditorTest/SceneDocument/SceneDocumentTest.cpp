@@ -367,7 +367,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       // Check that modifications above changed properties from their default state.
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
-      ezDefaultObjectState defaultState(pAccessor, selection);
+      ezDefaultObjectState defaultState(pSphere1->GetType(), pAccessor, selection);
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
 
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("Name"));
@@ -397,7 +397,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       // pSphere2 should be unmodified except for the component array.
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere2, ezVariant()});
-      ezDefaultObjectState defaultState(pAccessor, selection);
+      ezDefaultObjectState defaultState(pSphere2->GetType(), pAccessor, selection);
       EZ_TEST_BOOL(defaultState.IsDefaultValue("Name"));
       EZ_TEST_BOOL(defaultState.IsDefaultValue("LocalPosition"));
       EZ_TEST_BOOL(defaultState.IsDefaultValue("LocalRotation"));
@@ -411,7 +411,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
       selection.PushBack({pSphere2, ezVariant()});
-      ezDefaultObjectState defaultState(pAccessor, selection);
+      ezDefaultObjectState defaultState(pSphere1->GetType(), pAccessor, selection);
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("Name"));
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("LocalPosition"));
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("LocalRotation"));
@@ -424,7 +424,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       // Default state object array
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
-      ezDefaultContainerState defaultState(pAccessor, selection, "Components");
+      ezDefaultContainerState defaultState(pSphere1->GetType(), pAccessor, selection, "Components");
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
       EZ_TEST_BOOL(defaultState.GetDefaultContainer() == ezVariantArray());
       EZ_TEST_BOOL(defaultState.GetDefaultElement(0) == ezUuid());
@@ -438,14 +438,14 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       // Default state value array
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pMeshComponent, ezVariant()});
-      ezDefaultContainerState defaultState(pAccessor, selection, "Materials");
+      ezDefaultContainerState defaultState(pMeshComponent->GetType(), pAccessor, selection, "Materials");
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
       EZ_TEST_BOOL(defaultState.GetDefaultContainer() == ezVariantArray());
       EZ_TEST_BOOL(defaultState.GetDefaultElement(0) == "");
       EZ_TEST_BOOL(!defaultState.IsDefaultContainer());
       EZ_TEST_BOOL(!defaultState.IsDefaultElement(0));
 
-      ezDefaultObjectState defaultObjectState(pAccessor, selection);
+      ezDefaultObjectState defaultObjectState(pMeshComponent->GetType(), pAccessor, selection);
       EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Attribute");
       EZ_TEST_BOOL(defaultObjectState.GetDefaultValue("Materials") == ezVariantArray());
       EZ_TEST_BOOL(!defaultObjectState.IsDefaultValue("Materials"));
@@ -556,7 +556,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
   {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
-    ezDefaultObjectState defaultState(pAccessor, selection);
+    ezDefaultObjectState defaultState(pChild->GetType(), pAccessor, selection);
     // The root node of the prefab is not actually part of the prefab in the sense that it is just the container and does not actually exist in the prefab itself.
     const char* szExpectedProvider = pChild == pPrefab3 ? "Attribute" : "Prefab";
     EZ_TEST_STRING(defaultState.GetStateProviderName(), szExpectedProvider);
@@ -646,7 +646,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       {
         ezHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild0, ezVariant()});
-        ezDefaultContainerState defaultObjectState(pAccessor, selection, "Components");
+        ezDefaultContainerState defaultObjectState(pChild0->GetType(), pAccessor, selection, "Components");
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Prefab");
         EZ_TEST_BOOL(!defaultObjectState.IsDefaultContainer());
       }
@@ -654,7 +654,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       {
         ezHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild1, ezVariant()});
-        ezDefaultContainerState defaultObjectState(pAccessor, selection, "Components");
+        ezDefaultContainerState defaultObjectState(pChild1->GetType(), pAccessor, selection, "Components");
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Prefab");
         EZ_TEST_BOOL(!defaultObjectState.IsDefaultContainer());
       }
@@ -662,7 +662,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       {
         ezHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pComp, ezVariant()});
-        ezDefaultObjectState defaultObjectState(pAccessor, selection);
+        ezDefaultObjectState defaultObjectState(pComp->GetType(), pAccessor, selection);
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Attribute");
       }
     }
@@ -680,7 +680,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
         ezHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild1, ezVariant()});
         selection.PushBack({pChild2, ezVariant()});
-        ezDefaultContainerState defaultState(pAccessor, selection, "Components");
+        ezDefaultContainerState defaultState(pChild1->GetType(), pAccessor, selection, "Components");
 
         pAccessor->StartTransaction("Revert children");
         defaultState.RevertContainer().AssertSuccess();
@@ -735,7 +735,7 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   {
     ezHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
-    ezDefaultObjectState defaultState(pAccessor, selection);
+    ezDefaultObjectState defaultState(pChild->GetType(), pAccessor, selection);
 
     ezHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);

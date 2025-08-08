@@ -87,6 +87,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_STARTUP
   {
+    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::RegisterActions();
@@ -178,6 +179,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::UnregisterActions();

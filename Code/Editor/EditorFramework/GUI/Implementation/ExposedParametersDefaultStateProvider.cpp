@@ -4,6 +4,7 @@
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Reflection/VariantStorageAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ezSharedPtr<ezDefaultStateProvider> ezExposedParametersDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
@@ -117,4 +118,75 @@ ezStatus ezExposedParametersDefaultStateProvider::RevertProperty(SuperArray supe
     return ezStatus(EZ_SUCCESS);
   }
   return ezDefaultStateProvider::RevertProperty(superPtr, pAccessor, pObject, pProp, index);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+ezSharedPtr<ezDefaultStateProvider> ezExposedParametersAsTypeDefaultStateProvider::CreateProvider(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+{
+  if (auto pExposedParameterCommandAccessor = ezDynamicCast<ezExposedParametersAsTypeCommandAccessor*>(pAccessor))
+  {
+    return EZ_DEFAULT_NEW(ezExposedParametersAsTypeDefaultStateProvider, pExposedParameterCommandAccessor, pObject, pProp);
+  }
+  return nullptr;
+}
+
+ezExposedParametersAsTypeDefaultStateProvider::ezExposedParametersAsTypeDefaultStateProvider(ezExposedParametersAsTypeCommandAccessor* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp)
+  : ezExposedParametersDefaultStateProvider(pAccessor->GetSourceAccessor(), pObject, pAccessor->GetSourceAccessor()->m_pParameterProp)
+  , m_pAccessor(pAccessor)
+{
+}
+
+ezVariant ezExposedParametersAsTypeDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+{
+  ezVariant defaultValue;
+  if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Succeeded())
+    return defaultValue;
+
+  return {};
+}
+
+ezStatus ezExposedParametersAsTypeDefaultStateProvider::CreateRevertContainerDiff(SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDeque<ezAbstractGraphDiffOperation>& out_diff)
+{
+  EZ_REPORT_FAILURE("Unreachable code");
+  return ezStatus(EZ_SUCCESS);
+}
+
+bool ezExposedParametersAsTypeDefaultStateProvider::IsDefaultValue(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+{
+  ezVariant defaultValue;
+  if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
+    return true;
+
+  ezVariant value;
+  pAccessor->GetValue(pObject, pProp, value, index).LogFailure();
+  return defaultValue == value;
+}
+
+ezStatus ezExposedParametersAsTypeDefaultStateProvider::RevertProperty(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)
+{
+  ezVariant defaultValue;
+  if (GetDefaultValueInternal(superPtr, pAccessor, pObject, pProp, index, defaultValue).Failed())
+    return ezStatus(ezFmt("Failed to retrieve default value for exposed parameter."));
+
+  return pAccessor->SetValue(pObject, pProp, defaultValue, index);
+}
+
+ezResult ezExposedParametersAsTypeDefaultStateProvider::GetDefaultValueInternal(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezVariant& out_DefaultValue)
+{
+  // As we derive from ezExposedParametersDefaultStateProvider, we first need to convert the exposed parameter type, prop, accessor into the actual underlying data structure that the base class expects before calling it.
+  // * The ezExposedParametersAsTypeCommandAccessor proxies the ezExposedParameterCommandAccessor so the proxy source is the correct accessor.
+  // * The object stays the same.
+  // * The property from the exposed parameter type is replaced by the actual property that stores the exposed parameters in the real object.
+  // * The index is the name of the property as that is how the parameter map is generated (keyed by parameter name).
+  // With these changes made, we can rely on the base class to compute the default value.
+  out_DefaultValue = ezExposedParametersDefaultStateProvider::GetDefaultValue(superPtr.GetSubArray(1), m_pAccessor->GetSourceAccessor(), pObject, m_pAccessor->GetSourceAccessor()->m_pParameterProp, pProp->GetPropertyName());
+
+  ezStatus res(EZ_SUCCESS);
+  // We now have the value of the exposed parameter. If this is a container, we need to dive into the index. If index is invalid, this is a no-op.
+  out_DefaultValue = ezVariantStorageAccessor(pProp->GetPropertyName(), out_DefaultValue).GetValue(index, &res);
+  if (res.Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }

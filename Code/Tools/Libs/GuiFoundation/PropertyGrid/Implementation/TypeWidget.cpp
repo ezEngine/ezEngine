@@ -410,7 +410,7 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
   ezMap<ezString, ezPropertyUiState> PropertyStates;
   pMeta->GetTypePropertiesState(m_Items, PropertyStates);
 
-  ezDefaultObjectState defaultState(m_pObjectAccessor, m_Items);
+  ezDefaultObjectState defaultState(m_pType, m_pObjectAccessor, m_Items);
 
   ezQtPropertyWidget::SetPaletteBackgroundColor(defaultState.GetBackgroundColor(), m_Pal);
   setPalette(m_Pal);

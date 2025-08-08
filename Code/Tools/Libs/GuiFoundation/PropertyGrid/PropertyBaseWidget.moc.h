@@ -269,7 +269,7 @@ protected:
   virtual void RemoveElement(ezUInt32 index);
   virtual void UpdateElement(ezUInt32 index) = 0;
   void UpdateElements();
-  virtual ezUInt32 GetRequiredElementCount() const;
+  virtual void GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const;
   virtual void UpdatePropertyMetaState();
   /// \brief Some containers like ezVariant can be both a map or an array so we can't reply on the property type alone. For these containers, this method can be overwritten to retrieve the category from something other than `m_pProp->GetCategory()`.
   virtual ezPropertyCategory::Enum GetContainerCategory() const;
@@ -297,7 +297,7 @@ protected:
   ezQtAddSubElementButton* m_pAddButton = nullptr;
   QPalette m_Pal;
 
-  mutable ezHybridArray<ezVariant, 16> m_Keys;
+  ezHybridArray<ezVariant, 16> m_Keys;
   ezDynamicArray<Element> m_Elements;
   ezInt32 m_iDropSource = -1;
   ezInt32 m_iDropTarget = -1;

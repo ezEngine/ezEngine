@@ -101,7 +101,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
           if (!m_Items[0].m_Index.IsValid())
           {
             // Revert container
-            ezDefaultContainerState defaultState(m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
+            ezDefaultContainerState defaultState(m_pType, m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
             res = defaultState.RevertContainer();
           }
           else
@@ -110,7 +110,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
             if (bIsValueType)
             {
               // Revert container value type element
-              ezDefaultContainerState defaultState(m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
+              ezDefaultContainerState defaultState(m_pType, m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
               res = defaultState.RevertElement({});
             }
             else
@@ -125,7 +125,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
                   ResolvedObjects.PushBack({m_pObjectAccessor->GetObject(ObjectGuid), ezVariant()});
                 }
               }
-              ezDefaultObjectState defaultState(m_pObjectAccessor, ResolvedObjects);
+              ezDefaultObjectState defaultState(m_pType, m_pObjectAccessor, ResolvedObjects);
               res = defaultState.RevertObject();
             }
           }
@@ -140,7 +140,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
         default:
         {
           // Revert object member property
-          ezDefaultObjectState defaultState(m_pObjectAccessor, m_Items);
+          ezDefaultObjectState defaultState(m_pType, m_pObjectAccessor, m_Items);
           ezStatus res = defaultState.RevertProperty(m_pProp);
           if (res.Failed())
           {
@@ -987,6 +987,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
 
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
+  m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
   m_pGroup = new ezQtCollapsibleGroupBox(this);
@@ -1296,7 +1297,8 @@ void ezQtPropertyContainerWidget::UpdateElements()
 {
   ezQtScopedUpdatesDisabled _(this);
 
-  ezUInt32 iElements = GetRequiredElementCount();
+  GetRequiredElements(m_Keys);
+  const ezUInt32 iElements = m_Keys.GetCount();
 
   while (m_Elements.GetCount() > iElements)
   {
@@ -1323,12 +1325,12 @@ void ezQtPropertyContainerWidget::UpdateElements()
   }
 }
 
-ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
+void ezQtPropertyContainerWidget::GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const
 {
+  out_keys.Clear();
   if (GetContainerCategory() == ezPropertyCategory::Map)
   {
-    m_Keys.Clear();
-    EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, m_Keys).Succeeded(), "GetKeys should always succeed.");
+    EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, out_keys).Succeeded(), "GetKeys should always succeed.");
     ezHybridArray<ezVariant, 16> keys;
     for (ezUInt32 i = 1; i < m_Items.GetCount(); i++)
     {
@@ -1338,13 +1340,13 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
       {
         if (!keys.Contains(m_Keys[k]))
         {
-          m_Keys.RemoveAtAndSwap(k);
+          out_keys.RemoveAtAndSwap(k);
         }
       }
     }
-    m_Keys.Sort([](const ezVariant& a, const ezVariant& b)
+    out_keys.Sort([](const ezVariant& a, const ezVariant& b)
       { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });
-    return m_Keys.GetCount();
+    return;
   }
   else
   {
@@ -1356,13 +1358,12 @@ ezUInt32 ezQtPropertyContainerWidget::GetRequiredElementCount() const
       iElements = ezMath::Min(iElements, iCount);
     }
     EZ_ASSERT_DEV(iElements >= 0, "Mismatch between storage and RTTI ({0})", iElements);
-    m_Keys.Clear();
     for (ezUInt32 i = 0; i < (ezUInt32)iElements; i++)
     {
-      m_Keys.PushBack(i);
+      out_keys.PushBack(i);
     }
 
-    return ezUInt32(iElements);
+    return;
   }
 }
 
@@ -1372,7 +1373,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
   ezHashTable<ezVariant, ezPropertyUiState> ElementStates;
   pMeta->GetContainerElementsState(m_Items, m_pProp->GetPropertyName(), ElementStates);
 
-  ezDefaultContainerState defaultState(m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
+  ezDefaultContainerState defaultState(m_pType, m_pObjectAccessor, m_Items, m_pProp->GetPropertyName());
   m_bIsDefault = defaultState.IsDefaultContainer();
   m_pGroup->SetBoldTitle(!m_bIsDefault);
 
@@ -1595,9 +1596,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 
 /// *** ezQtPropertyTypeContainerWidget ***
 
-ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
-
-  = default;
+ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget() = default;
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {

@@ -957,7 +957,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pObject, ezVariant()});
-      ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
+      ezDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
 
       for (auto pProp : properties)
       {

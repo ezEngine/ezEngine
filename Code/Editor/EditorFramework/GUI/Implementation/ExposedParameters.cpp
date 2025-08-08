@@ -3,13 +3,14 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedParameter, ezNoBase, 2, ezRTTIDefaultAllocator<ezExposedParameter>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedParameter, ezNoBase, 3, ezRTTIDefaultAllocator<ezExposedParameter>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_MEMBER_PROPERTY("Type", m_sType),
     EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue),
+    EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category)->AddAttributes(new ezDefaultValueAttribute(ezPropertyCategory::Member)),
     EZ_ARRAY_MEMBER_PROPERTY("Attributes", m_Attributes)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;

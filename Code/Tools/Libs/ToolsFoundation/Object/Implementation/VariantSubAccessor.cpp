@@ -109,7 +109,6 @@ ezStatus ezVariantSubAccessor::GetValues(const ezDocumentObject* pObject, const 
 
 ezStatus ezVariantSubAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
 {
-  // EZ_ASSERT_DEBUG(m_pProp == pProp, "ezVariantSubAccessor should only be used to access a single variant property");
   ezStatus result = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value);
   if (result.Failed())
     return result;
