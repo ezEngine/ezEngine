@@ -43,9 +43,10 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezExposedParametersAsTypeCommandAccessor : public ezObjectProxyAccessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExposedParametersAsTypeCommandAccessor, ezObjectProxyAccessor);
+
 public:
   ezExposedParametersAsTypeCommandAccessor(ezExposedParameterCommandAccessor* pSource);
-  ezExposedParameterCommandAccessor* GetSourceAccessor() const { return static_cast<ezExposedParameterCommandAccessor*>(m_pSource);}
+  ezExposedParameterCommandAccessor* GetSourceAccessor() const { return static_cast<ezExposedParameterCommandAccessor*>(m_pSource); }
 
   virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) override;
   virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;

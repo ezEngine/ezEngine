@@ -465,7 +465,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
   m_pProxy = EZ_DEFAULT_NEW(ezExposedParameterCommandAccessor, m_pSourceObjectAccessor, m_pProp, pParameterSourceProp);
   m_pTypeProxy = EZ_DEFAULT_NEW(ezExposedParametersAsTypeCommandAccessor, m_pProxy.Borrow());
   // Overwriting this will display the exposed parameter map as before, i.e. each property will be shown in the map even if not present. As this is now obsolete given the phantom type widget, this is probably no longer needed?
-  //m_pObjectAccessor = m_pProxy.Borrow();
+  // m_pObjectAccessor = m_pProxy.Borrow();
 
   ezQtPropertyStandardTypeContainerWidget::OnInit();
 
@@ -509,11 +509,11 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     m_pToggleRawModeButton->setSizePolicy(sp);
     m_pToggleRawModeButton->setToolTip("Toggle between Type or RAW dictionary view");
 
-    connect(m_pToggleRawModeButton, &QToolButton::toggled, this, [this](bool checked){
+    connect(m_pToggleRawModeButton, &QToolButton::toggled, this, [this](bool checked)
+      {
         s_bRawMode = checked;
         ezQtScopedUpdatesDisabled _(this);
-        SetSelection(m_Items);
-      });
+        SetSelection(m_Items); });
 
     auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
     layout->insertWidget(layout->count() - 1, m_pToggleRawModeButton);
