@@ -345,7 +345,7 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
       if (const ezVariantType::Enum propElementType = pProp->GetSpecificType()->GetVariantType(); propElementType != ezVariantType::Invalid)
       {
         const ezVariantArray& array = ref_value.Get<ezVariantArray>();
-        for (int i = 0; i < array.GetCount(); ++i)
+        for (ezUInt32 i = 0; i < array.GetCount(); ++i)
         {
           const ezVariant& element = array[i];
           const ezVariantType::Enum valueElementType = element.GetType();
