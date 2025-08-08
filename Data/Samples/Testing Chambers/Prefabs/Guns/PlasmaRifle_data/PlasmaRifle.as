@@ -1,5 +1,5 @@
 #include "../Weapon.as"
-#include "../../../Scripting/GameDecls.as"
+#include "../../../Scripts/GameDecls.as"
 
 class PlasmaRifle : WeaponBaseClass
 {

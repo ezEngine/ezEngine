@@ -23,7 +23,7 @@ o
 		{
 			s{"Prefabs/Guns/Pistol_data/Pistol.as"}
 			s{"Prefabs/Guns/Weapon.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{5966609228509665681,5361859106406761452}}
 		u4 %Hash{47204891290238127}
@@ -55,7 +55,7 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/Guns/Weapon.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}

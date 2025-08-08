@@ -12,10 +12,10 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{15093952775324887440,4755446790216139985}}
-		u4 %Hash{17193738463330394903}
+		u4 %Hash{13360968661650680018}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3849098155197325966,14027127256261368063}}
@@ -83,7 +83,7 @@ o
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
 		VarArray %Dependencies
 		{
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		VarArray %Parameters
 		{

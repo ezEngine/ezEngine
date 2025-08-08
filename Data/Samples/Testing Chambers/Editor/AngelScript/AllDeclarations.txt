@@ -1234,6 +1234,7 @@ ezObjectMsgQueueType::PostTransform
 ezOccluderComponent@ ezComponent::opCast()
 ezOccluderType ezOccluderComponent::get_Type() const
 ezOccluderType::Box
+ezOccluderType::Mesh
 ezOccluderType::QuadPosX
 ezOnComponentFinishedAction ezCameraShakeVolumeComponent::get_OnFinishedAction() const
 ezOnComponentFinishedAction ezDecalComponent::get_OnFinishedAction() const
@@ -1546,6 +1547,7 @@ ezStringView ezJoltVisColMeshComponent::get_CollisionMesh() const
 ezStringView ezKrautTreeComponent::get_KrautTree() const
 ezStringView ezMeshComponent::get_Mesh() const
 ezStringView ezMsgSetMeshMaterial::get_Material() const
+ezStringView ezOccluderComponent::get_Mesh() const
 ezStringView ezParticleComponent::get_Effect() const
 ezStringView ezPlayerStartPointComponent::get_PlayerPrefab() const
 ezStringView ezPrefabReferenceComponent::get_Prefab() const
@@ -2922,6 +2924,7 @@ void ezMsgTriggerTriggered::set_Message(ezHashedString)
 void ezMsgTriggerTriggered::set_TriggerState(ezTriggerState)
 void ezNavMeshObstacleComponent::InvalidateSectors()
 void ezOccluderComponent::set_Extents(ezVec3)
+void ezOccluderComponent::set_Mesh(ezStringView)
 void ezOccluderComponent::set_Type(ezOccluderType)
 void ezParticleComponent::InterruptEffect()
 void ezParticleComponent::StopEffect()

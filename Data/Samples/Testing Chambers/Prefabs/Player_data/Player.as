@@ -1,4 +1,4 @@
-#include "../../Scripting/GameDecls.as"
+#include "../../Scripts/GameDecls.as"
 #include "../../Prefabs/Guns/Weapon.as"
 
 class Player : ezAngelScriptClass

@@ -13,7 +13,7 @@ o
 		{
 			s{"Prefabs/Guns/PlasmaRifle_data/PlasmaRifle.as"}
 			s{"Prefabs/Guns/Weapon.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{12712196599291816839,5266986229344438210}}
 		u4 %Hash{5874244306660053868}
@@ -55,7 +55,7 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/Guns/Weapon.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		VarArray %Parameters{}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}

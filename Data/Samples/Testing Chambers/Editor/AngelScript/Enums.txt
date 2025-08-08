@@ -102,6 +102,7 @@ Max5FPS
 Max5fps
 Max60FPS
 MediumShockwave
+Mesh
 Min
 ModerateBreeze
 Modulate

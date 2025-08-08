@@ -24,10 +24,10 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
-			s{"Scripting/BreakOnDamage.as"}
+			s{"Scripts/BreakOnDamage.as"}
 		}
 		Uuid %DocumentID{u4{14284963838003596697,5071985160611160455}}
-		u4 %Hash{2191402434750357169}
+		u4 %Hash{13613098033009030934}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5108253317147013698,17431389485786882149}}
@@ -36,7 +36,7 @@ o
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"Scripting/BreakOnDamage.as"}
+			s{"Scripts/BreakOnDamage.as"}
 		}
 		s %Tags{""}
 	}
@@ -66,12 +66,13 @@ o
 	{
 		s %ClassName{"ScriptObject"}
 		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies{}
 		VarArray %Parameters
 		{
 			Uuid{u4{6888086599914153364,5423609248108382341}}
 		}
 		s %Source{"ezAngelScriptCodeMode::FromFile"}
-		s %SourceFile{"Scripting/BreakOnDamage.as"}
+		s %SourceFile{"Scripts/BreakOnDamage.as"}
 	}
 }
 o

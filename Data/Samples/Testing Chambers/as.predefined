@@ -54,6 +54,7 @@ enum ezOccluderType
 {
   Box = 0,
   QuadPosX = 1,
+  Mesh = 2,
 }
 
 enum ezSpriteBlendMode
@@ -1636,6 +1637,7 @@ class ezOccluderComponent : ezComponent
 {
   ezOccluderType Type;
   ezVec3 Extents;
+  ezStringView Mesh;
 }
 
 class ezRenderTargetActivatorComponent : ezRenderComponent

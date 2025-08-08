@@ -11,10 +11,12 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies
 		{
+			s{"Prefabs/Guns/Weapon.as"}
 			s{"Prefabs/Player_data/Player.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		Uuid %DocumentID{u4{5967608025336921517,5557651060148712635}}
-		u4 %Hash{11355554131486594524}
+		u4 %Hash{5560324449012797337}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5188246925958840120,17028944065193808758}}
@@ -83,7 +85,7 @@ o
 		VarArray %Dependencies
 		{
 			s{"Prefabs/Guns/Weapon.as"}
-			s{"Scripting/GameDecls.as"}
+			s{"Scripts/GameDecls.as"}
 		}
 		VarArray %Parameters
 		{

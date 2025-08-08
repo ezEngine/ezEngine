@@ -1,4 +1,4 @@
-#include "../../Scripting/GameDecls.as"
+#include "../../Scripts/GameDecls.as"
 
 class ConsumablePickup : ezAngelScriptClass
 {
