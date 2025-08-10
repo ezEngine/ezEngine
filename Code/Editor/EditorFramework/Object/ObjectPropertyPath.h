@@ -17,10 +17,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezPropertyReference
 {
   bool operator==(const ezPropertyReference& rhs) const
   {
-    return m_Object == rhs.m_Object && m_pType == rhs.m_pType && m_pProperty == rhs.m_pProperty && m_Index == rhs.m_Index;
+    return m_Object == rhs.m_Object && m_pProperty == rhs.m_pProperty && m_Index == rhs.m_Index;
   }
   ezUuid m_Object;
-  const ezRTTI* m_pType = nullptr;
   const ezAbstractProperty* m_pProperty = nullptr;
   ezVariant m_Index;
 };

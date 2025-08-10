@@ -385,7 +385,7 @@ void ezPropertyAnimAssetDocument::GenerateTrackInfo(const ezDocumentObject* pObj
   ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const
 {
   ezObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pObject->GetType(), pProp, index};
+  ezPropertyReference propertyRef = {pObject->GetGuid(), pProp, index};
   ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath).AssertSuccess();
 }
 

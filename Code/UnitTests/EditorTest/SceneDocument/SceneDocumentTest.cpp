@@ -833,7 +833,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject property")
   {
     ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
-    ezPropertyReference propertyRef{pC2->GetGuid(), pC2->GetType(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
+    ezPropertyReference propertyRef{pC2->GetGuid(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
 
     ezStringBuilder sObjectSearchSequence;
     ezStringBuilder sComponentType;
@@ -854,7 +854,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     properties.Clear();
     EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", "", sPropertyPath)); // ambiguous target
     EZ_TEST_INT(properties.GetCount(), 2);
-    ezPropertyReference propertyRef2{pC1->GetGuid(), pC1->GetType(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
+    ezPropertyReference propertyRef2{pC1->GetGuid(), pC2->GetType()->FindPropertyByName("Active"_ezsv)};
     EZ_TEST_BOOL(properties[0] == propertyRef2);
     EZ_TEST_BOOL(properties[1] == propertyRef);
   }
@@ -862,7 +862,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component member property")
   {
     ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
-    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType(), pComp2->GetType()->FindPropertyByName("Color"_ezsv)};
+    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType()->FindPropertyByName("Color"_ezsv)};
 
     ezStringBuilder sObjectSearchSequence;
     ezStringBuilder sComponentType;
@@ -881,7 +881,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     properties.Clear();
     EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", sComponentType, sPropertyPath)); // ambiguous target
     EZ_TEST_INT(properties.GetCount(), 2);
-    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType(), pComp1->GetType()->FindPropertyByName("Color"_ezsv)};
+    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType()->FindPropertyByName("Color"_ezsv)};
     EZ_TEST_BOOL(properties[0] == propertyRef2);
     EZ_TEST_BOOL(properties[1] == propertyRef);
   }
@@ -889,7 +889,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component array property")
   {
     ezObjectPropertyPathContext context{pRoot, pAccessor, "Children"};
-    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType(), pComp2->GetType()->FindPropertyByName("Decals"_ezsv), 0};
+    ezPropertyReference propertyRef{pComp2->GetGuid(), pComp2->GetType()->FindPropertyByName("Decals"_ezsv), 0};
 
     ezStringBuilder sObjectSearchSequence;
     ezStringBuilder sComponentType;
@@ -908,7 +908,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     properties.Clear();
     EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, "C", sComponentType, sPropertyPath)); // ambiguous target
     EZ_TEST_INT(properties.GetCount(), 2);
-    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType(), pComp1->GetType()->FindPropertyByName("Decals"_ezsv), 0};
+    ezPropertyReference propertyRef2{pComp1->GetGuid(), pComp1->GetType()->FindPropertyByName("Decals"_ezsv), 0};
     EZ_TEST_BOOL(properties[0] == propertyRef2);
     EZ_TEST_BOOL(properties[1] == propertyRef);
   }

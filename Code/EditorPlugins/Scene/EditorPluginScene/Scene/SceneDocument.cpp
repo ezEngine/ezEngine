@@ -1136,7 +1136,7 @@ ezStatus ezSceneDocument::CreateExposedProperty(ezObjectAccessorBase* pAccessor,
     return ezStatus("No parent node or component found.");
 
   ezObjectPropertyPathContext context = {pNodeComponent, pAccessor, "Children"};
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pType, pProperty, path[0]};
+  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, path[0]};
   ezStringBuilder sPropertyPath;
   ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
   if (res.Failed())
