@@ -396,14 +396,16 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
           {
             ezVariantDictionary& mapWritable = ref_value.GetWritable<ezVariantDictionary>();
             ezVariant* pElementWritable = nullptr;
-            mapWritable.TryGetValue(it.Key(), pElementWritable);
-            if (pElementWritable->CanConvertTo(propElementType))
+            if (mapWritable.TryGetValue(it.Key(), pElementWritable))
             {
-              *pElementWritable = pElementWritable->ConvertTo(propType);
-            }
-            else
-            {
-              *pElementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+              if (pElementWritable->CanConvertTo(propElementType))
+              {
+                *pElementWritable = pElementWritable->ConvertTo(propType);
+              }
+              else
+              {
+                *pElementWritable = ezReflectionUtils::GetDefaultVariantFromType(propElementType);
+              }
             }
           }
         }
