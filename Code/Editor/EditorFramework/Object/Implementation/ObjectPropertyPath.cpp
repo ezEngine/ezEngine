@@ -96,6 +96,14 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezObjectPropertyPath::AppendSubIndices(ezStringBuilder& ref_sPropertyPath, ezArrayPtr<ezVariant> indices)
+{
+  for (ezUInt32 i = 0; i < indices.GetCount(); ++i)
+  {
+    ref_sPropertyPath.AppendFormat("[{0}]", indices[i]);
+  }
+}
+
 ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& ref_keys,
   const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {

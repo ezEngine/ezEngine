@@ -25,6 +25,7 @@ class ezQtQuadViewWidget;
 struct ezEngineWindowEvent;
 class ezSceneDocument;
 class QMenu;
+class ezQtPropertyWidget;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
@@ -58,7 +59,7 @@ protected:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void SnapSelectionToPosition(bool bSnapEachObject);
   void SendRedrawMsg();
-  void ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp);
+  void ExtendPropertyGridContextMenu(QMenu& menu, ezQtPropertyWidget* pPropWidget);
 
 protected:
   ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;

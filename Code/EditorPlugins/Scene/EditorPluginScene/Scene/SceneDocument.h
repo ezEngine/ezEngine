@@ -151,9 +151,9 @@ public:
     return ezDynamicCast<const T*>(GetSettingsBase());
   }
 
-  ezStatus CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
-  ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
-  ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
+  ezStatus CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
+  ezStatus AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
+  ezInt32 FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
   ezStatus RemoveExposedParameter(ezInt32 iIndex);
   ///@}
 

@@ -34,6 +34,10 @@ public:
   virtual ~ezQtPropertyWidget();
 
   void Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp);
+
+  ezQtPropertyGridWidget* GetPropertyGrid() { return m_pGrid; }
+  ezObjectAccessorBase* GetObjectAccessor() { return m_pObjectAccessor; }
+  const ezRTTI* GetType() const { return m_pType; }
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
 
   /// \brief This is called whenever the selection in the editor changes and thus the widget may need to display a different value.

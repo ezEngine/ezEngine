@@ -37,6 +37,8 @@ public:
   virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_keys) override;
   virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezDynamicArray<ezVariant>& out_values) override;
 
+  virtual ezObjectAccessorBase* ResolveProxy(const ezDocumentObject*& ref_pObject, const ezRTTI*& ref_pType, const ezAbstractProperty*& ref_pProp, ezDynamicArray<ezVariant>& ref_indices) override;
+
 private:
   ezStatus GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value);
   ezStatus SetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezDelegate<ezStatus(ezVariant& subValue)>& func);

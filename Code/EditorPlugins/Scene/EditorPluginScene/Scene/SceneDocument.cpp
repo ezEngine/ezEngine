@@ -1123,34 +1123,43 @@ const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
   return static_cast<const ezSceneDocumentSettingsBase*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
-ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+ezStatus ezSceneDocument::CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
 {
+  ezHybridArray<ezVariant, 2> path;
+  if (index.IsValid())
+    path.PushBack(index);
+
+  pAccessor = pAccessor->ResolveProxy(pObject, pType, pProperty, path);
+
   const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
   if (!pObject)
     return ezStatus("No parent node or component found.");
 
-  ezObjectPropertyPathContext context = {pNodeComponent, GetObjectAccessor(), "Children"};
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, index};
+  ezObjectPropertyPathContext context = {pNodeComponent, pAccessor, "Children"};
+  ezPropertyReference propertyRef = {pObject->GetGuid(), pType, pProperty, path[0]};
   ezStringBuilder sPropertyPath;
   ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
   if (res.Failed())
     return res;
+
+  if (path.GetCount() > 1)
+    ezObjectPropertyPath::AppendSubIndices(sPropertyPath, path.GetArrayPtr().GetSubArray(1));
 
   out_key.m_Object = pNodeComponent->GetGuid();
   out_key.m_sPropertyPath = sPropertyPath;
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezStatus ezSceneDocument::AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
 {
   if (m_DocumentType != DocumentType::Prefab)
     return ezStatus("Exposed parameters are only supported in prefab documents.");
 
-  if (FindExposedParameter(pObject, pProperty, index) != -1)
+  if (FindExposedParameter(pAccessor, pObject, pType, pProperty, index) != -1)
     return ezStatus("Exposed parameter already exists.");
 
   ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return res;
 
@@ -1165,12 +1174,12 @@ ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocume
   return ezStatus(EZ_SUCCESS);
 }
 
-ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezInt32 ezSceneDocument::FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(m_DocumentType == DocumentType::Prefab, "Exposed properties are only supported in prefab documents.");
 
   ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return -1;
 

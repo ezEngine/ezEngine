@@ -49,7 +49,7 @@ public:
   void SetCollapseState(ezQtGroupBoxBase* pBox);
 
 Q_SIGNALS:
-  void ExtendContextMenu(QMenu& ref_menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp);
+  void ExtendContextMenu(QMenu& ref_menu, ezQtPropertyWidget* pPropWidget);
 
 public Q_SLOTS:
   void OnCollapseStateChanged(bool bCollapsed);

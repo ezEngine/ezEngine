@@ -303,16 +303,20 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
   }
 }
 
-void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
-  QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp)
+void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQtPropertyWidget* pPropWidget)
 {
   if (!GetSceneDocument()->IsPrefab())
     return;
 
+  const ezRTTI* pType = pPropWidget->GetType();
+  const ezAbstractProperty* pProp = pPropWidget->GetProperty();
+  ezObjectAccessorBase* pAccessor = pPropWidget->GetObjectAccessor();
+  const ezHybridArray<ezPropertySelection, 8>& items = pPropWidget->GetSelection();
+
   ezUInt32 iExposed = 0;
   for (ezUInt32 i = 0; i < items.GetCount(); i++)
   {
-    ezInt32 index = GetSceneDocument()->FindExposedParameter(items[i].m_pObject, pProp, items[i].m_Index);
+    ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, items[i].m_pObject, pType, pProp, items[i].m_Index);
     if (index != -1)
       iExposed++;
   }
@@ -320,7 +324,7 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   {
     QAction* pAction = menu.addAction("Expose as Parameter");
     pAction->setEnabled(iExposed < items.GetCount());
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pAccessor, pType, pProp]()
       {
       while (true)
       {
@@ -337,14 +341,13 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
           continue; // try again
         }
 
-        auto pAccessor = GetSceneDocument()->GetObjectAccessor();
         pAccessor->StartTransaction("Expose as Parameter");
         for (const ezPropertySelection& sel : items)
         {
-          ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+          ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
           if (index == -1)
           {
-            GetSceneDocument()->AddExposedParameter(name.toUtf8(), sel.m_pObject, pProp, sel.m_Index).LogFailure();
+            GetSceneDocument()->AddExposedParameter(name.toUtf8(), pAccessor, sel.m_pObject, pType, pProp, sel.m_Index).LogFailure();
           }
         }
         pAccessor->FinishTransaction();
@@ -354,13 +357,12 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   {
     QAction* pAction = menu.addAction("Remove Exposed Parameter");
     pAction->setEnabled(iExposed > 0);
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pAccessor, pType, pProp]()
       {
-      auto pAccessor = GetSceneDocument()->GetObjectAccessor();
       pAccessor->StartTransaction("Remove Exposed Parameter");
       for (const ezPropertySelection& sel : items)
       {
-        ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+        ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
         if (index != -1)
         {
           GetSceneDocument()->RemoveExposedParameter(index).LogFailure();

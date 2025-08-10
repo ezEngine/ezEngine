@@ -107,6 +107,17 @@ ezStatus ezVariantSubAccessor::GetValues(const ezDocumentObject* pObject, const 
   return EZ_SUCCESS;
 }
 
+ezObjectAccessorBase* ezVariantSubAccessor::ResolveProxy(const ezDocumentObject*& ref_pObject, const ezRTTI*& ref_pType, const ezAbstractProperty*& ref_pProp, ezDynamicArray<ezVariant>& ref_indices)
+{
+  ezVariant subItem;
+  if (m_SubItemMap.TryGetValue(ref_pObject, subItem))
+  {
+    ref_indices.InsertAt(0, subItem);
+  }
+
+  return m_pSource->ResolveProxy(ref_pObject, ref_pType, ref_pProp, ref_indices);
+}
+
 ezStatus ezVariantSubAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
 {
   ezStatus result = ezObjectProxyAccessor::GetValue(pObject, pProp, out_value);

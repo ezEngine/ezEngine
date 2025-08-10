@@ -301,6 +301,19 @@ ezStatus ezExposedParametersAsTypeCommandAccessor::GetValues(const ezDocumentObj
   return EZ_SUCCESS;
 }
 
+ezObjectAccessorBase* ezExposedParametersAsTypeCommandAccessor::ResolveProxy(const ezDocumentObject*& ref_pObject, const ezRTTI*& ref_pType, const ezAbstractProperty*& ref_pProp, ezDynamicArray<ezVariant>& ref_indices)
+{
+  const ezRTTI* pType = GetSourceAccessor()->GetExposedParamsType(ref_pObject);
+  if (pType == ref_pType)
+  {
+    EZ_ASSERT_DEBUG(pType && pType->FindPropertyByName(ref_pProp->GetPropertyName()) == ref_pProp, "");
+    ref_indices.InsertAt(0, ref_pProp->GetPropertyName());
+    ref_pType = ref_pObject->GetType();
+    ref_pProp = GetSourceAccessor()->m_pParameterProp;
+  }
+  return m_pSource->ResolveProxy(ref_pObject, ref_pType, ref_pProp, ref_indices);
+}
+
 ezStatus ezExposedParametersAsTypeCommandAccessor::GetSubValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value)
 {
   const ezRTTI* pType = GetSourceAccessor()->GetExposedParamsType(pObject);
@@ -325,6 +338,9 @@ ezStatus ezExposedParametersAsTypeCommandAccessor::SetSubValue(const ezDocumentO
 
 void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_value, const ezAbstractProperty* pProp)
 {
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>() && pProp->GetCategory() == ezPropertyCategory::Member)
+    return;
+
   const ezVariantType::Enum propType = ezToolsReflectionUtils::GetStorageType(pProp);
   const ezVariantType::Enum valueType = ref_value.GetType();
   if (propType != valueType)
@@ -338,6 +354,9 @@ void ezExposedParametersAsTypeCommandAccessor::PatchPropertyType(ezVariant& ref_
       ref_value = ezToolsReflectionUtils::GetStorageDefault(pProp);
     }
   }
+
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+    return;
 
   switch (pProp->GetCategory())
   {
@@ -588,10 +607,13 @@ void ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler(const 
   {
     if (e.m_pChangedType->IsDerivedFrom(pCommonType))
     {
-      // The type widget stores pointer to properties which have been destroyed by the phantom type update so we need to destroy it and recreate it.
-      m_pTypeWidget->PrepareToDie();
-      m_pTypeWidget->deleteLater();
-      m_pTypeWidget = nullptr;
+      if (m_pTypeWidget)
+      {
+        // The type widget stores pointer to properties which have been destroyed by the phantom type update so we need to destroy it and recreate it.
+        m_pTypeWidget->PrepareToDie();
+        m_pTypeWidget->deleteLater();
+        m_pTypeWidget = nullptr;
+      }
       FlushOrQueueChanges(true, true);
     }
   }

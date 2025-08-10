@@ -444,7 +444,7 @@ void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
   m.setToolTipsVisible(true);
 
   ExtendContextMenu(m);
-  m_pGrid->ExtendContextMenu(m, m_Items, m_pProp);
+  m_pGrid->ExtendContextMenu(m, this);
 
   m.exec(pt); // pt is already in global space, because we fixed that
 }
@@ -1219,7 +1219,7 @@ void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
     m.setToolTipsVisible(true);
     pElement->m_pWidget->ExtendContextMenu(m);
 
-    m_pGrid->ExtendContextMenu(m, pElement->m_pWidget->GetSelection(), pElement->m_pWidget->GetProperty());
+    m_pGrid->ExtendContextMenu(m, pElement->m_pWidget);
 
     if (!m.isEmpty())
     {

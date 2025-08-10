@@ -255,6 +255,7 @@ void ezShaderCompilerApplication::Run()
   ezStringBuilder files = m_sShaderFiles;
 
   ezDynamicArray<ezStringView> allFiles;
+  // If not shader files are provided, compile all shaders of the project, i.e. all data directories.
   if (m_sShaderFiles.IsEmpty())
   {
     ezStringBuilder sPath, sPath2;
