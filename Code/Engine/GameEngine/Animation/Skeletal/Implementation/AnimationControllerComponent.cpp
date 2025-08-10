@@ -12,7 +12,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 4, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Stat
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
     EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
     EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
+    EZ_ARRAY_MEMBER_PROPERTY("AnimationClipOverrides", m_AnimationClipOverrides),
   }
   EZ_END_PROPERTIES;
 
@@ -29,6 +30,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 3, ezComponentMode::Stat
       new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetAnimationClipOverride, In, "sAnimationName", In, "sAnimationClipResource"),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -45,6 +52,13 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
   s << m_RootMotionMode;
   s << m_InvisibleUpdateRate;
   s << m_bEnableIK;
+
+  s << m_AnimationClipOverrides.GetCount();
+  for (const auto& clip : m_AnimationClipOverrides)
+  {
+    s << clip.m_sClipName;
+    s << clip.m_hClip;
+  }
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -65,6 +79,19 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
   {
     s >> m_bEnableIK;
   }
+
+  if (uiVersion >= 4)
+  {
+    ezUInt32 uiNumOverrides = 0;
+    s >> uiNumOverrides;
+    m_AnimationClipOverrides.SetCount(uiNumOverrides);
+
+    for (ezUInt32 i = 0; i < uiNumOverrides; ++i)
+    {
+      s >> m_AnimationClipOverrides[i].m_sClipName;
+      s >> m_AnimationClipOverrides[i].m_hClip;
+    }
+  }
 }
 
 void ezAnimationControllerComponent::OnSimulationStarted()
@@ -82,6 +109,24 @@ void ezAnimationControllerComponent::OnSimulationStarted()
 
   m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
   m_AnimController.AddAnimGraph(m_hAnimGraph);
+
+  for (const auto& clip : m_AnimationClipOverrides)
+  {
+    ezAnimController::AnimClipInfo info;
+    info.m_hClip = clip.m_hClip;
+    m_AnimController.SetAnimationClipInfo(clip.m_sClipName, info);
+  }
+}
+
+void ezAnimationControllerComponent::SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource)
+{
+  ezAnimController::AnimClipInfo info;
+  info.m_hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(sAnimationClipResource);
+
+  ezHashedString sName;
+  sName.Assign(sAnimationName);
+
+  m_AnimController.SetAnimationClipInfo(sName, info);
 }
 
 void ezAnimationControllerComponent::Update()

@@ -7,6 +7,7 @@
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResource>;
@@ -54,11 +55,20 @@ public:
   ezAnimationControllerComponent();
   ~ezAnimationControllerComponent();
 
-  /// \brief How often to update the animation while the animated mesh is invisible.
+  /// How often to update the animation while the animated mesh is invisible.
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
-  /// \brief If enabled, child game objects can add IK computation commands to influence the final pose.
+  /// If enabled, child game objects can add IK computation commands to influence the final pose.
   bool m_bEnableIK = false; // [ property ]
+
+  /// A list of animation clips to use instead of the default ones that are set up in the animation graph.
+  ezDynamicArray<ezAnimationClipMapping> m_AnimationClipOverrides; // [ property ]
+
+  /// Overrides which animation clip resource to use for the given animation.
+  ///
+  /// Should only be called right at the start or when it is absolutely certain that an animation clip isn't in use right now,
+  /// otherwise the running animation playback may produce weird results.
+  void SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource); // [ scriptable ]
 
 protected:
   void Update();

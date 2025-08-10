@@ -376,3 +376,8 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
 
   return it.Value();
 }
+
+void ezAnimController::SetAnimationClipInfo(const ezHashedString& sClipName, const AnimClipInfo& info)
+{
+  m_AnimationClipMapping[sClipName] = info;
+}

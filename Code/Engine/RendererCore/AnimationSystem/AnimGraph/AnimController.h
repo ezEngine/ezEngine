@@ -87,6 +87,12 @@ public:
 
   const AnimClipInfo& GetAnimationClipInfo(ezTempHashedString sClipName) const;
 
+  /// Sets which animation clip is used for the named animation.
+  ///
+  /// Should only be called right at the start or when it is absolutely certain that an animation clip isn't in use right now,
+  /// otherwise the running animation playback may produce weird results.
+  void SetAnimationClipInfo(const ezHashedString& sClipName, const AnimClipInfo& info);
+
 private:
   void GenerateLocalResultProcessors(const ezSkeletonResource* pSkeleton);
 
