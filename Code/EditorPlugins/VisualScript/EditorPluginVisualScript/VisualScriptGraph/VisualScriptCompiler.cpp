@@ -1082,6 +1082,12 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
       }
     }
 
+    if (nextNode == nullptr)
+    {
+      EZ_REPORT_FAILURE("Data connection corrupted or loop detected");
+      return EZ_FAILURE;
+    }
+
     if (sortedDataStack.IsEmpty() == false)
     {
       ConnectExecution(*sortedDataStack.PeekBack(), *nextNode);
