@@ -145,7 +145,7 @@ private:
   ezResult BuildInstanceDataMapping();
   AstNode* BuildExecutionFlow(const ezDocumentObject* pEntryObject);
 
-  ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
+  ezResult BuildDataStack(AstNode* pEntryAstNode, AstNode*& out_pFirstDataNode, AstNode*& out_pLastDataNode);
   ezResult BuildDataExecutions(AstNode* pEntryAstNode);
 
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);

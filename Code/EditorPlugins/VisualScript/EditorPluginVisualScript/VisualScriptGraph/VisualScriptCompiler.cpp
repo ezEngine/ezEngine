@@ -861,7 +861,7 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(cons
   return pEntryAstNode;
 }
 
-ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack)
+ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*& out_pFirstDataNode, AstNode*& out_pLastDataNode)
 {
   if (pEntryAstNode->m_pObject == nullptr)
     return EZ_SUCCESS;
@@ -881,60 +881,21 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
   m_CompilationState.m_DataObjectToAstNode.Clear();
   m_CompilationState.m_DataObjectToAstNode.Insert(pEntryAstNode->m_pObject, pEntryAstNode);
 
+  ezHybridArray<AstNode*, 32> dataStack;
+
   while (objectStack.IsEmpty() == false)
   {
-    // Find next node with all data output dependencies already in the out stack
-    ObjectContext objCtx = {};
-    for (ezUInt32 i = objectStack.GetCount(); i-- > 0;)
-    {
-      auto& objCtxCandiate = objectStack[i];
-      bool bAllVisited = true;
-
-      m_NodeManager.GetOutputDataPins(objCtxCandiate.m_pObject, pins);
-      for (auto pPin : pins)
-      {
-        auto connections = m_NodeManager.GetConnections(*pPin);
-        for (auto pConnection : connections)
-        {
-          const ezDocumentObject* pTargetObject = pConnection->GetTargetPin().GetParent();
-          AstNode* pTargetAstNode = nullptr;
-          if (!m_CompilationState.m_DataObjectToAstNode.TryGetValue(pTargetObject, pTargetAstNode))
-            continue;
-
-          if (pTargetAstNode->m_bImplicitExecution && !out_Stack.Contains(pTargetAstNode))
-          {
-            bAllVisited = false;
-            break;
-          }
-        }
-
-        if (!bAllVisited)
-          break;
-      }
-
-      if (bAllVisited)
-      {
-        objCtx = objCtxCandiate;
-        objectStack.RemoveAtAndCopy(i);
-        break;
-      }
-    }
-
-    if (objCtx.m_pObject == nullptr)
-    {
-      EZ_REPORT_FAILURE("Data connection corrupted or loop detected");
-      return EZ_FAILURE;
-    }
-
+    auto& objCtx = objectStack.PeekBack();
     const ezDocumentObject* pObject = objCtx.m_pObject;
     const ezVisualScriptNodeRegistry::NodeDesc* pNodeDesc = objCtx.m_pNodeDesc;
+    objectStack.PopBack();
 
     AstNode* pAstNode = nullptr;
     EZ_VERIFY(m_CompilationState.m_DataObjectToAstNode.TryGetValue(pObject, pAstNode), "Implementation error");
 
     if (pAstNode != pEntryAstNode)
     {
-      out_Stack.PushBack(pAstNode);
+      dataStack.PushBack(pAstNode);
     }
 
     m_NodeManager.GetInputDataPins(pObject, pins);
@@ -961,7 +922,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
 
           AddDataInput(*pAstNode, pMakeArrayAstNode, 0, ezVisualScriptDataType::Array);
 
-          out_Stack.PushBack(pMakeArrayAstNode);
+          dataStack.PushBack(pMakeArrayAstNode);
 
           pAstNodeToAddInput = pMakeArrayAstNode;
           bArrayInput = true;
@@ -1002,8 +963,8 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
             {
               if (defaultInput.m_pSourceNode->m_ExecInputs.IsEmpty())
               {
-                out_Stack.RemoveAndCopy(defaultInput.m_pSourceNode);
-                out_Stack.PushBack(defaultInput.m_pSourceNode);
+                dataStack.RemoveAndCopy(defaultInput.m_pSourceNode);
+                dataStack.PushBack(defaultInput.m_pSourceNode);
               }
             }
           }
@@ -1076,17 +1037,67 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
     }
   }
 
-  // Connect executions
-  if (out_Stack.GetCount() > 1)
-  {
-    AstNode* pLastDataNode = out_Stack.PeekBack();
-    for (ezUInt32 i = out_Stack.GetCount() - 1; i > 0; --i)
-    {
-      AstNode* pDataNode = out_Stack[i - 1];
-      ConnectExecution(*pLastDataNode, *pDataNode);
+  // Traverse in topological order and connect executions
+  ezHybridArray<AstNode*, 32> sortedDataStack;
 
-      pLastDataNode = pDataNode;
+  while (dataStack.IsEmpty() == false)
+  {
+    // Find next node with all data dependencies already in the sorted stack
+    AstNode* nextNode = nullptr;
+    for (ezUInt32 i = dataStack.GetCount(); i-- > 0;)
+    {
+      AstNode* nextNodeCandiate = dataStack[i];
+      const bool bValidCandidate = [&]()
+      {
+        m_NodeManager.GetInputDataPins(nextNodeCandiate->m_pObject, pins);
+        for (auto pPin : pins)
+        {
+          auto connections = m_NodeManager.GetConnections(*pPin);
+          for (auto pConnection : connections)
+          {
+            const ezDocumentObject* pSourceObject = pConnection->GetSourcePin().GetParent();
+
+            AstNode* pSourceAstNode = nullptr;
+            if (!m_CompilationState.m_DataObjectToAstNode.TryGetValue(pSourceObject, pSourceAstNode))
+            {
+              // Not part of the data stack so we can ignore it
+              continue;
+            }
+
+            if (!sortedDataStack.Contains(pSourceAstNode))
+            {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      }();
+
+      if (bValidCandidate)
+      {
+        nextNode = nextNodeCandiate;
+        dataStack.RemoveAtAndCopy(i);
+        break;
+      }
     }
+
+    if (sortedDataStack.IsEmpty() == false)
+    {
+      ConnectExecution(*sortedDataStack.PeekBack(), *nextNode);
+    }
+    sortedDataStack.PushBack(nextNode);
+  }
+
+  if (sortedDataStack.IsEmpty())
+  {
+    out_pFirstDataNode = nullptr;
+    out_pLastDataNode = nullptr;
+  }
+  else
+  {
+    out_pFirstDataNode = sortedDataStack[0];
+    out_pLastDataNode = sortedDataStack.PeekBack();
   }
 
   return EZ_SUCCESS;
@@ -1100,17 +1111,15 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
       if (pAstNode->m_bImplicitExecution)
         return VisitorResult::Continue;
 
-      ezHybridArray<AstNode*, 32> dataStack;
-      if (BuildDataStack(pAstNode, dataStack).Failed())
+      AstNode* pFirstDataNode = nullptr;
+      AstNode* pLastDataNode = nullptr;
+      if (BuildDataStack(pAstNode, pFirstDataNode, pLastDataNode).Failed())
         return VisitorResult::Error;
 
-      if (dataStack.IsEmpty())
+      if (pFirstDataNode == nullptr || pLastDataNode == nullptr)
         return VisitorResult::Continue;
 
       // Connect data stack
-      AstNode* pFirstDataNode = dataStack.PeekBack();
-      AstNode* pLastDataNode = dataStack[0];
-
       ExecuteBefore(*pAstNode, *pFirstDataNode, *pLastDataNode);
 
       return VisitorResult::Continue;
