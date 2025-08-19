@@ -308,6 +308,7 @@ SendMessage
 SendMessageRecursive
 Set
 SetActiveFlag
+SetAnimationClipOverride
 SetCount
 SetDestination
 SetDirectionForwards

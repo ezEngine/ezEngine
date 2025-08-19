@@ -33,6 +33,13 @@ EZ_END_COMPONENT_TYPE;
 ezMoveToComponent::ezMoveToComponent() = default;
 ezMoveToComponent::~ezMoveToComponent() = default;
 
+void ezMoveToComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  m_vTargetPosition = GetOwner()->GetGlobalPosition();
+}
+
 void ezMoveToComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -75,7 +82,11 @@ bool ezMoveToComponent::IsRunning() const
 
 void ezMoveToComponent::SetTargetPosition(const ezVec3& vPos)
 {
-  m_vTargetPosition = vPos;
+  if (!m_vTargetPosition.IsEqual(vPos, 0.001f))
+  {
+    m_vTargetPosition = vPos;
+    SetRunning(true);
+  }
 }
 
 static float CalculateNewSpeed(float fRemainingDistance, float fCurSpeed, float fMaxSpeed, float fAcceleration, float fDeceleration, float fTimeStep)
@@ -84,13 +95,8 @@ static float CalculateNewSpeed(float fRemainingDistance, float fCurSpeed, float 
 
   if (fDeceleration > 0)
   {
-    const float fMaxDecelerationTime = (fMaxSpeed / fDeceleration);
-    const float fMaxDecelerationDistance = fMaxDecelerationTime * fMaxSpeed;
-
-    if (fRemainingDistance <= fMaxDecelerationDistance)
-    {
-      fMaxAllowedSpeed = fMaxSpeed * (fRemainingDistance / fMaxDecelerationDistance);
-    }
+    const float fMaxSpeedForDistance = ezMath::Sqrt(2.0f * fDeceleration * fRemainingDistance);
+    fMaxAllowedSpeed = ezMath::Min(fMaxSpeed, fMaxSpeedForDistance);
   }
 
   float fMaxNewSpeed = fMaxSpeed;

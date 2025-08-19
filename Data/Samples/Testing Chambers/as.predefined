@@ -2001,6 +2001,7 @@ class ezAnimatedMeshComponent : ezMeshComponentBase
 
 class ezAnimationControllerComponent : ezComponent
 {
+  void SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource);
   ezStringView AnimGraph;
   ezRootMotionMode RootMotionMode;
   ezAnimationInvisibleUpdateRate InvisibleUpdateRate;

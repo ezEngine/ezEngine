@@ -170,6 +170,9 @@ public:
   bool HasName(const ezTempHashedString& sName) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
+  ///
+  /// If two objects use the same global key, the last one that registers it will be the referenced object.
+  /// To prevent warnings about overwriting global keys, first clear the global key on the previous object.
   void SetGlobalKey(ezStringView sGlobalKey);
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   ezStringView GetGlobalKey() const;
