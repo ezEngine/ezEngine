@@ -492,13 +492,13 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String || m_uiType == Type::HashedString))
     return true;
 
-  if (IsVector2Static(type) && (IsVector2Static(m_uiType)))
+  if (IsVector2Static(type) && (IsVector2Static(m_uiType) || IsNumber()))
     return true;
 
-  if (IsVector3Static(type) && (IsVector3Static(m_uiType)))
+  if (IsVector3Static(type) && (IsVector3Static(m_uiType) || IsNumber()))
     return true;
 
-  if (IsVector4Static(type) && (IsVector4Static(m_uiType)))
+  if (IsVector4Static(type) && (IsVector4Static(m_uiType) || IsNumber()))
     return true;
 
   if (type == Type::Color && m_uiType == Type::ColorGamma)

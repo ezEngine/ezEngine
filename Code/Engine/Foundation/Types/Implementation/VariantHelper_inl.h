@@ -402,7 +402,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
@@ -430,7 +435,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
@@ -458,7 +468,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
