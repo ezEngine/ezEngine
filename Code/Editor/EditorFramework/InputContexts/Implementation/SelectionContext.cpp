@@ -185,6 +185,9 @@ void ezSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bo
 
 void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 {
+  // Get devicePixelRatio from the owner view
+  const qreal devicePixelRatio = GetOwnerView()->devicePixelRatioF();
+
   ezVec2I32 curPos;
   curPos.Set(e->pos().x(), e->pos().y());
 
@@ -200,8 +203,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
     EZ_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
   }
 
+  // Multiply mouse positions by devicePixelRatio
   const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
-
   const ezVec3 vScreenSpacePos0(vMousePos.x, vMousePos.y, vMousePos.z);
   const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
 
@@ -231,10 +234,10 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   {
     ezViewMarqueePickingMsgToEngine msg;
     msg.m_uiViewID = GetOwnerView()->GetViewID();
-    msg.m_uiPickPosX0 = (ezUInt16)m_vMarqueeStartPos.x;
-    msg.m_uiPickPosY0 = (ezUInt16)m_vMarqueeStartPos.y;
-    msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x());
-    msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y());
+    msg.m_uiPickPosX0 = (ezUInt16)(m_vMarqueeStartPos.x * devicePixelRatio);
+    msg.m_uiPickPosY0 = (ezUInt16)(m_vMarqueeStartPos.y * devicePixelRatio);
+    msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x() * devicePixelRatio);
+    msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y() * devicePixelRatio);
     msg.m_uiWhatToDo = uiWhatToDo;
     msg.m_uiActionIdentifier = m_uiMarqueeID;
 
