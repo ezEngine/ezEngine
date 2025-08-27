@@ -16,7 +16,7 @@ class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
 public:
   /// Constructor
   /// \param containerCategory The type of container. Only Map, Set and Array are supported.
-  ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory);
+  ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory, ezStringView sButtonText);
 
 protected:
   virtual void DoPrepareToDie() override {}

@@ -261,12 +261,13 @@ ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUIn
   ezStringBuilder tmp = sString;
   tmp.Trim(" _-");
 
-  tmp.TrimWordStart("ez");
-
-  ezStringView sComponent = "Component";
-  if (tmp.EndsWith(sComponent) && tmp.GetElementCount() > sComponent.GetElementCount())
+  if (tmp.TrimWordStart("ez"))
   {
-    tmp.Shrink(0, sComponent.GetElementCount());
+    ezStringView sComponent = "Component";
+    if (tmp.EndsWith(sComponent) && tmp.GetElementCount() > sComponent.GetElementCount())
+    {
+      tmp.Shrink(0, sComponent.GetElementCount());
+    }
   }
 
   auto IsUpper = [](ezUInt32 c)
