@@ -69,6 +69,9 @@ EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluatePosition(float fT) const
 
 EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluatePosition(ezUInt32 uiCp0, const ezSimdFloat& fT) const
 {
+  if (m_ControlPoints.IsEmpty())
+    return ezSimdVec4f::MakeZero();
+
   const ezUInt32 uiCp1 = GetCp1Index(uiCp0);
 
   return EvaluatePosition(m_ControlPoints[uiCp0], m_ControlPoints[uiCp1], fT);
@@ -84,6 +87,9 @@ EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateDerivative(float fT) const
 
 EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateDerivative(ezUInt32 uiCp0, const ezSimdFloat& fT) const
 {
+  if (m_ControlPoints.IsEmpty())
+    return ezSimdVec4f::MakeZero();
+
   const ezUInt32 uiCp1 = GetCp1Index(uiCp0);
 
   return EvaluateDerivative(m_ControlPoints[uiCp0], m_ControlPoints[uiCp1], fT);
@@ -91,6 +97,9 @@ EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateDerivative(ezUInt32 uiCp0, const e
 
 EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateUpDirection(float fT) const
 {
+  if (m_ControlPoints.IsEmpty())
+    return ezSimdVec4f::MakeZero();
+
   ezUInt32 uiCp0;
   fT = ClampAndSplitT(fT, uiCp0);
 
@@ -104,6 +113,9 @@ EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateUpDirection(float fT) const
 
 EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluateScale(float fT) const
 {
+  if (m_ControlPoints.IsEmpty())
+    return ezSimdVec4f::MakeZero();
+
   ezUInt32 uiCp0;
   fT = ClampAndSplitT(fT, uiCp0);
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{1036224088352136628}
+		u4 %Hash{5663861999519337560}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -920,14 +920,16 @@ o
 o
 {
 	Uuid %id{u4{7972763977410148950,1446618701788342432}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -952,19 +954,19 @@ o
 o
 {
 	Uuid %id{u4{14781880864390956388,1536418772903099364}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00002042}
 		f %TiltAmount{0x0000A040}
 	}
@@ -1325,19 +1327,19 @@ o
 o
 {
 	Uuid %id{u4{17207039092176859777,1911166911762923139}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x0000A041}
 		f %TiltAmount{0x0000A040}
 	}
@@ -1855,19 +1857,19 @@ o
 o
 {
 	Uuid %id{u4{11168608607476014678,2082219995469491042}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00007041}
 		f %TiltAmount{0x0000A040}
 	}
@@ -4475,19 +4477,19 @@ o
 o
 {
 	Uuid %id{u4{9011857689836019076,4662569943523825105}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0}
 		f %TiltAmount{0x0000A040}
 	}
@@ -5932,14 +5934,16 @@ o
 o
 {
 	Uuid %id{u4{7973011216215824265,4844100113059804023}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -10688,23 +10692,23 @@ o
 o
 {
 	Uuid %id{u4{4897137664113183663,5369994818561619325}}
-	s %t{"ezPathComponent"}
+	s %t{"ezSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
 		b %Closed{1}
-		f %Detail{0x0AD7233C}
-		s %Flags{"ezPathComponentFlags::VisualizePath"}
+		u1 %EditNodes{0}
+		s %Flags{"ezSplineComponentFlags::VisualizeSpline"}
 		VarArray %Nodes
 		{
-			s{"1"}
-			s{"2"}
-			s{"3"}
-			s{"4"}
-			s{"5"}
-			s{"6"}
-			s{"7"}
+			HashedString{s{"1"}}
+			HashedString{s{"2"}}
+			HashedString{s{"3"}}
+			HashedString{s{"4"}}
+			HashedString{s{"5"}}
+			HashedString{s{"6"}}
+			HashedString{s{"7"}}
 		}
 	}
 }
@@ -14499,14 +14503,16 @@ o
 o
 {
 	Uuid %id{u4{3203223816732553725,6427949728132575995}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -15330,19 +15336,19 @@ o
 o
 {
 	Uuid %id{u4{11903088772137298959,6899632116005385277}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x0000C841}
 		f %TiltAmount{0x0000A040}
 	}
@@ -15404,19 +15410,19 @@ o
 o
 {
 	Uuid %id{u4{13077548855041980942,7049035923794724031}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00003442}
 		f %TiltAmount{0x0000A040}
 	}
@@ -17446,19 +17452,19 @@ o
 o
 {
 	Uuid %id{u4{9746337854497303357,9479982064059719340}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x0000F041}
 		f %TiltAmount{0x0000A040}
 	}
@@ -18184,14 +18190,16 @@ o
 o
 {
 	Uuid %id{u4{10147467223364304428,9832565915540027262}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -19539,19 +19547,19 @@ o
 o
 {
 	Uuid %id{u4{17431376155343999785,10149876012476028183}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x0000A040}
 		f %TiltAmount{0x0000A040}
 	}
@@ -24582,14 +24590,16 @@ o
 o
 {
 	Uuid %id{u4{2876639655926820991,11674558684295028940}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -24803,19 +24813,19 @@ o
 o
 {
 	Uuid %id{u4{17418332976707759780,12094391245758364096}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00004842}
 		f %TiltAmount{0x0000A040}
 	}
@@ -27216,14 +27226,16 @@ o
 o
 {
 	Uuid %id{u4{18069194450151603143,14516107008708905324}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -27884,19 +27896,19 @@ o
 o
 {
 	Uuid %id{u4{18165856320005284066,14967288133011922418}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00000C42}
 		f %TiltAmount{0x0000A040}
 	}
@@ -29727,19 +29739,19 @@ o
 o
 {
 	Uuid %id{u4{16472558927515575496,15540498864936580520}}
-	s %t{"ezFollowPathComponent"}
+	s %t{"ezFollowSplineComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
+		s %FollowMode{"ezFollowSplineMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
 		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
-		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
+		s %Spline{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		f %StartDistance{0x00002041}
 		f %TiltAmount{0x0000A040}
 	}
@@ -33065,14 +33077,16 @@ o
 o
 {
 	Uuid %id{u4{16777095017829868308,17136097522586930175}}
-	s %t{"ezPathNodeComponent"}
+	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
 		Angle %Roll{f{0}}
-		s %Tangent1{"ezPathNodeTangentMode::Auto"}
-		s %Tangent2{"ezPathNodeTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -34535,23 +34549,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5018917795216573594,2027115265023679231}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPathNodeTangentMode"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{16970770697025885982,2043134442330306838}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -35072,6 +35069,23 @@ o
 }
 o
 {
+	Uuid %id{u4{10293704651643042842,3503406394558077356}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFollowSplineComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17523044089822028024,3521005166208929094}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -35141,6 +35155,23 @@ o
 }
 o
 {
+	Uuid %id{u4{4703311060447830999,3977544601562298928}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineNodeComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10436287537458291866,4104850229502638426}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -35158,6 +35189,23 @@ o
 	{
 		f %Max{0x0000803F}
 		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3414595336801375576,4156646965533310725}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentFlags"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -36741,23 +36789,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1157354600552181302,9879728911739992565}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPathComponent"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{8228401658076077542,9903301473102603301}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -36820,6 +36851,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezClothSheetFlags::FixedCornerTopLeft"}
 		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{11567003349540998631,10071876288442081223}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -36932,23 +36980,6 @@ o
 	{
 		f %Max{0x00401C46}
 		f %Min{0xCDCCCC3D}
-	}
-}
-o
-{
-	Uuid %id{u4{13911205554535895356,10530443876777205009}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezFollowPathMode"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -37492,6 +37523,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8761784020540283900,11813671609775349281}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2797605736284022243,11870783614192411682}}
 	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
@@ -37774,23 +37822,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5762726892282944437,12506155996343976232}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezBitflagsBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPathComponentFlags"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{4239989975116396296,12561722361915498492}}
 	s %t{"ezReflectedFunctionDescriptor"}
 	u3 %v{1}
@@ -38022,6 +38053,23 @@ o
 }
 o
 {
+	Uuid %id{u4{3477397724192825265,13467442718353903955}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineNodeManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6132541930804163846,13595781168769623263}}
 	s %t{"ezFunctionArgumentDescriptor"}
 	u3 %v{1}
@@ -38207,6 +38255,23 @@ o
 }
 o
 {
+	Uuid %id{u4{14632264051441319294,14723708231366072684}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFollowSplineMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{9555009133943837384,14758007224326679488}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -38275,23 +38340,6 @@ o
 		s %Name{"AddLinearImpulse"}
 		Uuid %ReturnValue{u4{10916935353549710630,2962763290225888874}}
 		s %Type{"ezFunctionType::Member"}
-	}
-}
-o
-{
-	Uuid %id{u4{6450233544356210622,14923596853796700968}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezFollowPathComponent"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -38382,23 +38430,6 @@ o
 	p
 	{
 		s %Category{"Effects/Ropes"}
-	}
-}
-o
-{
-	Uuid %id{u4{13068640429400056629,15150382662622016418}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPathNodeComponent"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -39300,6 +39331,23 @@ o
 	p
 	{
 		s %Category{"Effects"}
+	}
+}
+o
+{
+	Uuid %id{u4{12282983039272315452,18409996219135515065}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineTangentMode"}
+		u3 %TypeVersion{1}
 	}
 }
 }

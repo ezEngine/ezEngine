@@ -691,6 +691,14 @@ public:
   virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     ref_context.RenameClass("ezSplineComponent");
+
+    auto* pFlags = pNode->FindProperty("Flags");
+    if (pFlags && pFlags->m_Value.IsA<ezString>())
+    {
+      ezStringBuilder sFlags = pFlags->m_Value.Get<ezString>();
+      sFlags.ReplaceAll("Path", "Spline");
+      pNode->ChangeProperty("Flags", sFlags.GetView());
+    }
   }
 };
 

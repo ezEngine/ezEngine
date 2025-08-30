@@ -304,6 +304,9 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& globalUpDir, con
 
 ezSimdTransform ezSpline::EvaluateTransform(float fT) const
 {
+  if (m_ControlPoints.IsEmpty())
+    return ezSimdTransform::MakeIdentity();
+
   ezUInt32 uiCp0;
   fT = ClampAndSplitT(fT, uiCp0);
 

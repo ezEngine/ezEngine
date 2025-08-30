@@ -366,6 +366,16 @@ public:
   virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     ref_context.RenameClass("ezFollowSplineComponent");
+
+    pNode->RenameProperty("Path", "Spline");
+
+    auto* pFollowMode = pNode->FindProperty("FollowMode");
+    if (pFollowMode && pFollowMode->m_Value.IsA<ezString>())
+    {
+      ezStringBuilder sFollowMode = pFollowMode->m_Value.Get<ezString>();
+      sFollowMode.ReplaceAll("Path", "Spline");
+      pNode->ChangeProperty("FollowMode", sFollowMode.GetView());
+    }
   }
 };
 
