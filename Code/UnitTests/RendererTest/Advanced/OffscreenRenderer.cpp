@@ -238,7 +238,7 @@ void ezOffscreenRendererTest::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-void ezOffscreenRendererTest::MessageFunc(ezIpcProcessMessageProtocol::Event& msg)
+void ezOffscreenRendererTest::MessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
 {
   if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(msg.m_pMessage))
   {

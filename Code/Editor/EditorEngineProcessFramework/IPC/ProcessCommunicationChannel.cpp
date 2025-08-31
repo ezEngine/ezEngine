@@ -53,7 +53,7 @@ void ezProcessCommunicationChannel::WaitForMessages()
   m_pProtocol->WaitForMessages().IgnoreResult();
 }
 
-void ezProcessCommunicationChannel::MessageFunc(ezIpcProcessMessageProtocol::Event& msg)
+void ezProcessCommunicationChannel::MessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
 {
   const ezProcessMessage* pMsg = msg.m_pMessage;
   const ezRTTI* pRtti = pMsg->GetDynamicRTTI();

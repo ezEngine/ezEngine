@@ -39,7 +39,7 @@ public:
 
   ezEvent<const Event&> m_Events;
 
-  void MessageFunc(ezIpcProcessMessageProtocol::Event& msg);
+  void MessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
 
 protected:
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;

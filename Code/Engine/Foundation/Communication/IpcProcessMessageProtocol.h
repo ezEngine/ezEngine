@@ -34,7 +34,7 @@ public:
   {
     const ezProcessMessage* m_pMessage;
     // Set to true in a message handler to cancel the ProcessMessages function and return to the caller before all messages have been processed.
-    bool m_bInterruptMessageProcessing = false;
+    mutable bool m_bInterruptMessageProcessing = false;
   };
   ezEvent<Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
