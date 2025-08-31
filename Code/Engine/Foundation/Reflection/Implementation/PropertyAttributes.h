@@ -745,18 +745,16 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_FOUNDATION_DLL ezSplineNodeManipulatorAttribute : public ezManipulatorAttribute
+class EZ_FOUNDATION_DLL ezSplineTangentManipulatorAttribute : public ezManipulatorAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSplineNodeManipulatorAttribute, ezManipulatorAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSplineTangentManipulatorAttribute, ezManipulatorAttribute);
 
 public:
-  ezSplineNodeManipulatorAttribute();
-  ezSplineNodeManipulatorAttribute(const char* szTangentModeIn, const char* szCustomTangentIn, const char* szTangentModeOut, const char* szCustomTangentOut);
+  ezSplineTangentManipulatorAttribute();
+  ezSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent);
 
-  const ezUntrackedString& GetTangentModeInProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetCustomTangentInProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetTangentModeOutProperty() const { return m_sProperty3; }
-  const ezUntrackedString& GetCustomTangentOutProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetTangentModeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetCustomTangentProperty() const { return m_sProperty2; }
 };
 
 //////////////////////////////////////////////////////////////////////////

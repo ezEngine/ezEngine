@@ -3,19 +3,18 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 
 #include <Core/Graphics/Spline.h>
-#include <EditorFramework/Gizmos/SplineTangentGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezGizmoEvent;
 
-/// \brief Makes tangents of spline nodes editable in the editor.
+/// \brief Makes a spline tangent editable in the editor.
 ///
-/// Enabled by attaching the ezSplineNodeManipulatorAttribute.
-class ezSplineNodeManipulatorAdapter : public ezManipulatorAdapter
+/// Enabled by attaching the ezSplineTangentManipulatorAttribute.
+class ezSplineTangentManipulatorAdapter : public ezManipulatorAdapter
 {
 public:
-  ezSplineNodeManipulatorAdapter();
-  ~ezSplineNodeManipulatorAdapter();
+  ezSplineTangentManipulatorAdapter();
+  ~ezSplineTangentManipulatorAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -30,10 +29,10 @@ protected:
 
   ezSpline m_Spline;
   ezUInt32 m_uiNodeIndex = ezInvalidIndex;
+  bool m_bIsTangentIn = false;
 
-  ezVec3 m_vLastTangentIn;
-  ezVec3 m_vLastTangentOut;
+  ezVec3 m_vLastTangent;
 
-  ezSplineTangentGizmo m_TangentInGizmo;
-  ezSplineTangentGizmo m_TangentOutGizmo;
+  ezRotateGizmo m_RotateGizmo;
+  ezScaleGizmo m_ScaleGizmo;
 };

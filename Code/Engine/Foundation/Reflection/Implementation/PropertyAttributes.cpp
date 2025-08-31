@@ -658,24 +658,24 @@ ezSplineManipulatorAttribute::ezSplineManipulatorAttribute(const char* szNodesPr
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineNodeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineNodeManipulatorAttribute>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineTangentManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSplineTangentManipulatorAttribute>)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSplineNodeManipulatorAttribute::ezSplineNodeManipulatorAttribute()
+ezSplineTangentManipulatorAttribute::ezSplineTangentManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
 {
 }
 
-ezSplineNodeManipulatorAttribute::ezSplineNodeManipulatorAttribute(const char* szTangentModeIn, const char* szCustomTangentIn, const char* szTangentModeOut, const char* szCustomTangentOut)
-  : ezManipulatorAttribute(szTangentModeIn, szCustomTangentIn, szTangentModeOut, szCustomTangentOut)
+ezSplineTangentManipulatorAttribute::ezSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent)
+  : ezManipulatorAttribute(szTangentMode, szCustomTangent)
 {
 }
 

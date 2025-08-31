@@ -560,7 +560,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Utilities/Splines"),
-    new ezSplineNodeManipulatorAttribute("TangentModeIn", "CustomTangentIn", "TangentModeOut", "CustomTangentOut"),
+    new ezSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
+    new ezSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
   }
   EZ_END_ATTRIBUTES;
 }
