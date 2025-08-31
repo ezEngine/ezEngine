@@ -542,7 +542,6 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
   ezHybridArray<ContactPoint, 32> contacts;
   CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, m_fMaxStepDown);
-  //CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, 0.01f);
 
   for (const auto& contact : contacts)
   {
