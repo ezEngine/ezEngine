@@ -53,8 +53,9 @@ void ezProcessCommunicationChannel::WaitForMessages()
   m_pProtocol->WaitForMessages().IgnoreResult();
 }
 
-void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
+void ezProcessCommunicationChannel::MessageFunc(ezIpcProcessMessageProtocol::Event& msg)
 {
+  const ezProcessMessage* pMsg = msg.m_pMessage;
   const ezRTTI* pRtti = pMsg->GetDynamicRTTI();
 
   if (m_pWaitForMessageType != nullptr && pMsg->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
@@ -79,7 +80,9 @@ void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
 
   Event e;
   e.m_pMessage = pMsg;
+  e.m_bInterruptMessageProcessing = msg.m_bInterruptMessageProcessing;
   m_Events.Broadcast(e);
+  msg.m_bInterruptMessageProcessing = e.m_bInterruptMessageProcessing;
 }
 
 ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack)

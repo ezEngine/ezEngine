@@ -45,8 +45,7 @@ private:
   void Compute();
   ezTestAppRun Material();
   ezTestAppRun SharedTexture();
-  void OffscreenProcessMessageFunc(const ezProcessMessage* pMsg);
-
+  void OffscreenProcessMessageFunc(ezIpcProcessMessageProtocol::Event& msg);
 
 private:
   ezShaderResourceHandle m_hShader2;

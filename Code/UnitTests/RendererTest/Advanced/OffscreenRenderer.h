@@ -68,7 +68,7 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  void MessageFunc(const ezProcessMessage* pMsg);
+  void MessageFunc(ezIpcProcessMessageProtocol::Event& msg);
 
 
 private:

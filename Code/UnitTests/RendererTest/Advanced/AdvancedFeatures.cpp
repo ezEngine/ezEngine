@@ -898,9 +898,9 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
   return ezTestAppRun::Continue;
 }
 
-void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcessMessage* pMsg)
+void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(ezIpcProcessMessageProtocol::Event& msg)
 {
-  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(pMsg))
+  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(msg.m_pMessage))
   {
     m_uiReceivedTextures++;
     ezStringBuilder sTemp;

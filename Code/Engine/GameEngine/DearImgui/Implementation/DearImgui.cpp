@@ -257,10 +257,13 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
 
   const size_t id = (size_t)m_Textures.GetCount() - 1;
   m_pSharedFontAtlas->TexID = reinterpret_cast<void*>(id);
+
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
 }
 
 void ezImgui::Shutdown()
 {
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
   m_Textures.Clear();
 
   m_pSharedFontAtlas = nullptr;
@@ -388,6 +391,14 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   ImGui::NewFrame();
 
   m_bImguiWantsInput = cfg.WantCaptureKeyboard || cfg.WantCaptureMouse;
+}
+
+void ezImgui::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e)
+{
+  if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins)
+  {
+    ImGui::EndFrame();
+  }
 }
 
 #endif

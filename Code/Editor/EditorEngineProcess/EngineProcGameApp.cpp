@@ -180,11 +180,12 @@ void ezEngineProcessGameApplication::Run()
     }
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
-  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
-
-  // Normally rendering is done in EventHandlerIPC as a response to ezSyncWithProcessMsgToEngine. However, when playing or when pending operations are in progress we need to render even if we didn't receive a draw request.
+  // If the editor enqueues a frame to be rendered, the loop above will break due to m_uiRedrawCountExecuted != m_uiRedrawCountReceived, and we will render a frame.
+  // Alternatively, a pending operations is active at which point we render as fast as we can, ignoring the editor lock step.
+  // Note there are two other cases in which we render a frame: when "FreeGalResources" or "FreeAllResources" messages are sent we must render a frame to clear pending deletions and free memory.
   SUPER::Run();
   ezRenderWorld::ClearMainViews();
+  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -248,8 +249,8 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
     }
-    return true;
   }
+  return true;
 }
 
 void ezEngineProcessGameApplication::SendProjectReadyMessage()
@@ -297,8 +298,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;
 
     // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
-    RunOneFrame();
-    ezRenderWorld::ClearMainViews();
+    // As multiple ezSyncWithProcessMsgToEngine messages could be enqueued we break out of the message processing loop to render this frame.
+    // Previously re renderer int frame on the stack but this caused stuttering so ezEngineProcessGameApplication::Run is now the only place we render in this class.
+    e.m_bInterruptMessageProcessing = true;
 
     m_IPC.SendMessage(&msg);
     return;

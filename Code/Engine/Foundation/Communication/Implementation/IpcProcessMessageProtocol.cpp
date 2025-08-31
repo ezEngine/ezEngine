@@ -17,9 +17,9 @@ ezIpcProcessMessageProtocol::~ezIpcProcessMessageProtocol()
 {
   m_pChannel->SetReceiveCallback({});
 
-  ezDeque<ezUniquePtr<ezProcessMessage>> messages;
-  SwapWorkQueue(messages);
-  messages.Clear();
+  while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
+  {
+  }
 }
 
 bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
@@ -32,21 +32,20 @@ bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
 
 bool ezIpcProcessMessageProtocol::ProcessMessages()
 {
-  ezDeque<ezUniquePtr<ezProcessMessage>> messages;
-  SwapWorkQueue(messages);
-  if (messages.IsEmpty())
+  bool messagesPresent = false;
+
+  while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
   {
-    return false;
+    messagesPresent = true;
+    Event e;
+    e.m_pMessage = msg.Borrow();
+    e.m_bInterruptMessageProcessing = false;
+    m_MessageEvent.Broadcast(e);
+    if (e.m_bInterruptMessageProcessing)
+      break;
   }
 
-  while (!messages.IsEmpty())
-  {
-    ezUniquePtr<ezProcessMessage> msg = std::move(messages.PeekFront());
-    messages.PopFront();
-    m_MessageEvent.Broadcast(msg.Borrow());
-  }
-
-  return true;
+  return messagesPresent;
 }
 
 ezResult ezIpcProcessMessageProtocol::WaitForMessages(ezTime timeout)
@@ -83,11 +82,13 @@ void ezIpcProcessMessageProtocol::EnqueueMessage(ezUniquePtr<ezProcessMessage>&&
   m_IncomingQueue.PushBack(std::move(msg));
 }
 
-void ezIpcProcessMessageProtocol::SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMessage>>& messages)
+ezUniquePtr<ezProcessMessage> ezIpcProcessMessageProtocol::PopMessage()
 {
-  EZ_ASSERT_DEBUG(messages.IsEmpty(), "Swap target must be empty!");
   EZ_LOCK(m_IncomingQueueMutex);
   if (m_IncomingQueue.IsEmpty())
-    return;
-  messages.Swap(m_IncomingQueue);
+    return {};
+
+  ezUniquePtr<ezProcessMessage> front = std::move(m_IncomingQueue.PeekFront());
+  m_IncomingQueue.PopFront();
+  return front;
 }

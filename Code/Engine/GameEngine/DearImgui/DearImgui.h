@@ -15,6 +15,7 @@
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 struct ImGuiContext;
+struct ezGameApplicationExecutionEvent;
 
 using ezImguiConfigFontCallback = ezDelegate<void(ImFontAtlas&)>;
 using ezImguiConfigStyleCallback = ezDelegate<void(ImGuiStyle&)>;
@@ -85,6 +86,7 @@ private:
 
   ImGuiContext* CreateContext();
   void BeginFrame(const ezViewHandle& hView);
+  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
   ezProxyAllocator m_Allocator;
 

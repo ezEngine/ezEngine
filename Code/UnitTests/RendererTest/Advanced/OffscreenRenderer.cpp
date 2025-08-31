@@ -238,9 +238,9 @@ void ezOffscreenRendererTest::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
+void ezOffscreenRendererTest::MessageFunc(ezIpcProcessMessageProtocol::Event& msg)
 {
-  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(pMsg))
+  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(msg.m_pMessage))
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
     EZ_ASSERT_DEBUG(m_hSwapChain.IsInvalidated(), "SwapChain creation should only happen once");
@@ -258,11 +258,11 @@ void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
       RequestApplicationQuit();
     }
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(pMsg))
+  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(msg.m_pMessage))
   {
     m_bExiting = true;
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderMsg*>(pMsg))
+  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderMsg*>(msg.m_pMessage))
   {
     EZ_ASSERT_DEBUG(m_bExiting == false, "No new frame requests should come in at this point.");
     m_RequestedFrames.PushBack(*pAction);
