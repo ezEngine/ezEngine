@@ -36,7 +36,7 @@ public:
     // Set to true in a message handler to cancel the ProcessMessages function and return to the caller before all messages have been processed.
     mutable bool m_bInterruptMessageProcessing = false;
   };
-  ezEvent<Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
+  ezEvent<const Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
 private:
   void EnqueueMessage(ezUniquePtr<ezProcessMessage>&& msg);
