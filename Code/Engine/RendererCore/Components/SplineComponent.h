@@ -204,6 +204,9 @@ public:
   void SetCustomTangentOut(const ezVec3& vTangent);                                  // [ property ]
   const ezVec3& GetCustomTangentOut() const { return m_vCustomTangentOut; }          // [ property ]
 
+  void SetLinkCustomTangents(bool bLink);                                            // [ property ]
+  bool GetLinkCustomTangents() const;                                                // [ property ]
+
 protected:
   friend class ezSplineComponent;
 

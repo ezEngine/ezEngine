@@ -57,6 +57,31 @@ void ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler(const ezGizmoEv
 
       const ezSplineTangentManipulatorAttribute* pAttr = static_cast<const ezSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
       ChangeProperties(pAttr->GetTangentModeProperty(), ezSplineTangentMode::Custom, pAttr->GetCustomTangentProperty(), newTangent);
+
+      if (CustomTangentsLinked())
+      {
+        ezStringBuilder sOtherTangentModeProp = pAttr->GetTangentModeProperty();
+        ezStringBuilder sOtherCustomTangentProp = pAttr->GetCustomTangentProperty();
+
+        if (m_bIsTangentIn)
+        {
+          sOtherTangentModeProp.Shrink(0, 2);
+          sOtherTangentModeProp.Append("Out");
+
+          sOtherCustomTangentProp.Shrink(0, 2);
+          sOtherCustomTangentProp.Append("Out");
+        }
+        else
+        {
+          sOtherTangentModeProp.Shrink(0, 3);
+          sOtherTangentModeProp.Append("In");
+
+          sOtherCustomTangentProp.Shrink(0, 3);
+          sOtherCustomTangentProp.Append("In");
+        }
+
+        ChangeProperties(sOtherTangentModeProp, ezSplineTangentMode::Custom, sOtherCustomTangentProp, -newTangent);
+      }
     }
     break;
   }
@@ -153,4 +178,10 @@ void ezSplineTangentManipulatorAdapter::ConfigureGizmos()
     const ezSplineTangentManipulatorAttribute* pAttr = static_cast<const ezSplineTangentManipulatorAttribute*>(m_pManipulatorAttr);
     m_bIsTangentIn = pAttr->GetTangentModeProperty().EndsWith("In");
   }
+}
+
+bool ezSplineTangentManipulatorAdapter::CustomTangentsLinked() const
+{
+  ezVariant linkedVar = m_pObject->GetTypeAccessor().GetValue("LinkCustomTangents");
+  return linkedVar.IsA<bool>() && linkedVar.Get<bool>();
 }

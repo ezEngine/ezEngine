@@ -27,6 +27,8 @@ protected:
   void BuildSpline();
   void ConfigureGizmos();
 
+  bool CustomTangentsLinked() const;
+
   ezSpline m_Spline;
   ezUInt32 m_uiNodeIndex = ezInvalidIndex;
   bool m_bIsTangentIn = false;

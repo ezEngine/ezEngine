@@ -56,7 +56,7 @@ void ezSplineComponentManager::Update(const ezWorldModule::UpdateContext& contex
   {
     if (pComponent->IsActiveAndInitialized())
     {
-      pComponent->DrawDebugVisualizations(pComponent->GetSplineFlags());      
+      pComponent->DrawDebugVisualizations(pComponent->GetSplineFlags());
     }
   }
 }
@@ -334,7 +334,16 @@ void ezSplineComponent::UpdateFromNodeObjects()
     auto& cp = points.ExpandAndGetRef();
     cp.SetPosition(localNodeTransform.m_Position);
     cp.SetTangentIn(ezSimdConversion::ToVec3(pNodeComponent->GetCustomTangentIn()), pNodeComponent->GetTangentModeIn());
-    cp.SetTangentOut(ezSimdConversion::ToVec3(pNodeComponent->GetCustomTangentOut()), pNodeComponent->GetTangentModeOut());
+
+    if (pNodeComponent->GetLinkCustomTangents() && pNodeComponent->GetTangentModeIn() == ezSplineTangentMode::Custom && pNodeComponent->GetTangentModeOut() == ezSplineTangentMode::Custom)
+    {
+      cp.SetTangentOut(ezSimdConversion::ToVec3(-pNodeComponent->GetCustomTangentIn()), pNodeComponent->GetTangentModeOut());
+    }
+    else
+    {
+      cp.SetTangentOut(ezSimdConversion::ToVec3(pNodeComponent->GetCustomTangentOut()), pNodeComponent->GetTangentModeOut());
+    }
+
     cp.SetRoll(pNodeComponent->GetRoll());
     cp.SetScale(localNodeTransform.m_Scale);
   }
@@ -432,7 +441,7 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
 
   const bool bVisPath = flags.IsSet(ezSplineComponentFlags::VisualizeSpline);
   const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
-  
+
   ezHybridArray<ezDebugRendererLine, 32> lines;
   ezColor c = ezColorScheme::DarkUI(ezColorScheme::Red);
   ezColor cUp = ezColorScheme::LightUI(ezColorScheme::Blue);
@@ -547,6 +556,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("CustomTangentIn", GetCustomTangentIn, SetCustomTangentIn),
     EZ_ENUM_ACCESSOR_PROPERTY("TangentModeOut", ezSplineTangentMode, GetTangentModeOut, SetTangentModeOut),
     EZ_ACCESSOR_PROPERTY("CustomTangentOut", GetCustomTangentOut, SetCustomTangentOut),
+    EZ_ACCESSOR_PROPERTY("LinkCustomTangents", GetLinkCustomTangents, SetLinkCustomTangents),
   }
   EZ_END_PROPERTIES;
 
@@ -616,6 +626,20 @@ void ezSplineNodeComponent::SetCustomTangentOut(const ezVec3& vTangent)
   }
 }
 
+void ezSplineNodeComponent::SetLinkCustomTangents(bool bLink)
+{
+  if (bLink != GetLinkCustomTangents())
+  {
+    SetUserFlag(0, bLink);
+    SplineChanged();
+  }
+}
+
+bool ezSplineNodeComponent::GetLinkCustomTangents() const
+{
+  return GetUserFlag(0);
+}
+
 void ezSplineNodeComponent::OnMsgTransformChanged(ezMsgTransformChanged& msg)
 {
   SplineChanged();
@@ -653,7 +677,7 @@ void ezSplineNodeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   if (pSplineComponent != nullptr && pSplineComponent->DrawSplineOnSelection())
   {
-    pSplineComponent->DrawDebugTangents(m_uiNodeIndex, m_TangentModeIn, m_TangentModeOut);    
+    pSplineComponent->DrawDebugTangents(m_uiNodeIndex, m_TangentModeIn, m_TangentModeOut);
   }
 }
 
