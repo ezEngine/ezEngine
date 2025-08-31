@@ -248,6 +248,7 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
       contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
       contact.m_BodyID = result.mBodyID2;
       contact.m_fCastFraction = result.mFraction;
+      contact.m_fPenetrationDepth = result.mPenetrationDepth;
       contact.m_SubShapeID = result.mSubShapeID2;
 
       JPH::BodyLockRead lock(*m_pLockInterface, contact.m_BodyID);
@@ -273,7 +274,7 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
   pJoltSystem->GetNarrowPhaseQuery().CastShape(castOpt, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);
 }
 
-void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fCollisionTolerance) const
+void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fMaxSeparationDistance) const
 {
   out_Contacts.Clear();
 
@@ -286,6 +287,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
     virtual void AddHit(const JPH::CollideShapeResult& result) override
     {
       auto& contact = m_pContacts->ExpandAndGetRef();
+      contact.m_fPenetrationDepth = result.mPenetrationDepth;
       contact.m_vPosition = ezJoltConversionUtils::ToVec3(result.mContactPointOn2);
       contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
       contact.m_BodyID = result.mBodyID2;
@@ -309,7 +311,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qQueryRotation), ezJoltConversionUtils::ToVec3(vQueryPosition));
 
   JPH::CollideShapeSettings settings;
-  settings.mCollisionTolerance = fCollisionTolerance;
+  settings.mMaxSeparationDistance = fMaxSeparationDistance;
   settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
 
   pJoltSystem->GetNarrowPhaseQuery().CollideShape(pShape, JPH::Vec3::sReplicate(1.0f), trans, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);

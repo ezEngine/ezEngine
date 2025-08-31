@@ -538,14 +538,21 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   const float halfHeight = ezMath::Max(0.01f, m_fMaxStepDown - radius);
 
   JPH::CapsuleShape shape(halfHeight, radius);
+  shapeTrans.m_vPosition.z += halfHeight;
 
   ezHybridArray<ContactPoint, 32> contacts;
-  CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, 0.01f);
+  CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, m_fMaxStepDown);
+  //CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, 0.01f);
 
   for (const auto& contact : contacts)
   {
     ezVec3 gpos = contact.m_vPosition;
     ezVec3 gnom = contact.m_vSurfaceNormal;
+
+    // if the object is not penetrated and stands further than foot radius then skip this object
+    float fXYDistanceSquared = contact.m_fPenetrationDepth < 0 ? (contact.m_fPenetrationDepth * gnom).GetAsVec2().GetLengthSquared() : 0.f;
+    if (fXYDistanceSquared > radius * radius)
+      continue;
 
     ezColor color = ezColor::LightYellow;
     ezQuat rot;

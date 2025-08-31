@@ -48,6 +48,7 @@ public:
   struct ContactPoint
   {
     float m_fCastFraction = 0.0f;
+    float m_fPenetrationDepth = 0.0f;
     ezVec3 m_vPosition;
     ezVec3 m_vSurfaceNormal;
     ezVec3 m_vContactNormal;
@@ -152,8 +153,8 @@ protected:
 
   /// \brief Gathers all contact points of the shape at the target position.
   ///
-  /// Use fCollisionTolerance > 0 (e.g. 0.02f) to find contacts with walls/ground that the shape is touching but not penetrating.
-  void CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fCollisionTolerance) const;
+  /// Use fMaxSeparationDistance > 0 (e.g. 0.02f) to find contacts with walls/ground that the shape is touching but not penetrating.
+  void CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fMaxSeparationDistance) const;
 
   /// \brief Detects the velocity at the contact point. If it is a dynamic body, a force pushing it away is applied.
   ///
