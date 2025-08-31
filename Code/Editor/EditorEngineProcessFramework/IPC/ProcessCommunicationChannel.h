@@ -2,10 +2,10 @@
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 
 class ezIpcChannel;
 class ezProcessMessage;
