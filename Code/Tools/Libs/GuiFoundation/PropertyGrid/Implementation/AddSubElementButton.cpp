@@ -25,7 +25,7 @@ ezQtAddSubElementButton::ezQtAddSubElementButton(ezEnum<ezPropertyCategory> cont
   setLayout(m_pLayout);
 
   m_pButton = new QPushButton(this);
-  m_pButton->setText(ezMakeQString(ezTranslate(sButtonText)));
+  m_pButton->setText(ezMakeQString(sButtonText));
   m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Add.svg"));
   m_pButton->setObjectName("Button");
 

@@ -1439,9 +1439,37 @@ void ezQtPropertyContainerWidget::OnInit()
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
   {
-    m_pAddButton = new ezQtAddSubElementButton(GetContainerCategory(), m_pProp->GetSpecificType()->GetTypeName());
+    ezStringBuilder sTmp;
+
+
+    if (m_pProp->GetAttributeByType<ezAssetBrowserAttribute>())
+    {
+      sTmp.Prepend("Add Asset ");
+    }
+    else if (m_pProp->GetAttributeByType<ezExposedParametersAttribute>())
+    {
+      sTmp.Prepend("Add Parameter");
+    }
+    else
+    {
+      sTmp.Set("Add ", ezTranslate(m_pProp->GetSpecificType()->GetTypeName()));
+    }
+
+    m_pAddButton = new ezQtAddSubElementButton(GetContainerCategory(), sTmp);
     m_pAddButton->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
-    m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
+
+    QWidget* pTmp = new QWidget();
+    pTmp->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    pTmp->setContentsMargins(0, 0, 0, 0);
+    QHBoxLayout* pLayout = new QHBoxLayout();
+    pLayout->setContentsMargins(0, 2, 2, 5);
+    pTmp->setLayout(pLayout);
+    pLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    pLayout->addWidget(m_pAddButton);
+    pLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    m_pGroupLayout->addWidget(pTmp);
+    // m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
   }
 
   m_pGrid->SetCollapseState(m_pGroup);
