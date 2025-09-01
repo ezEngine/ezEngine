@@ -183,8 +183,8 @@ void ezVisualScriptNodeManager::GetAllVariables(ezDynamicArray<ezVisualScriptVar
 
       auto& variable = out_variables.ExpandAndGetRef();
       variable.m_sName = pVariableObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezHashedString>();
+      variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
       variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
-      variable.m_bExpose = pVariableObject->GetTypeAccessor().GetValue("Expose").ConvertTo<bool>();
     }
   }
 }

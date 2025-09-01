@@ -357,6 +357,7 @@ protected:
   virtual void DoPrepareToDie() override;
   void UpdateTypeListSelection(ezVariantType::Enum type);
   void ChangeVariantType(ezVariantType::Enum type);
+  void EnableTypeSelection(bool bEnable);
 
   virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const;
 

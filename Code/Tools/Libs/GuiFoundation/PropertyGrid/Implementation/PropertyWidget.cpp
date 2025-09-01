@@ -1540,6 +1540,7 @@ ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
 void ezQtPropertyEditorColorWidget::OnInit()
 {
   m_bExposeAlpha = (m_pProp->GetAttributeByType<ezExposeColorAlphaAttribute>() != nullptr);
+  m_bExposeAlpha |= (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>());
 }
 
 void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
@@ -1548,15 +1549,12 @@ void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 
   m_OriginalValue = GetOldValue();
   m_pWidget->SetColor(value);
+
+  m_bIsHDR = value.GetType() == ezVariantType::Color;
 }
 
 void ezQtPropertyEditorColorWidget::on_Button_triggered()
 {
-  if (GetProperty() && GetProperty()->GetSpecificType() == ezGetStaticRTTI<ezColor>())
-  {
-    m_bIsHDR = true;
-  }
-
   Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
   ezColor temp = ezColor::White;

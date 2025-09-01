@@ -141,6 +141,7 @@ namespace
     "", // Count,
     "Enum",
     "Bitflag",
+    "Resource",
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::ExtendedCount);
 } // namespace
@@ -259,6 +260,7 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     nullptr,                                    // Count,
     nullptr,                                    // EnumValue,
     nullptr,                                    // BitflagValue,
+    nullptr,                                    // Resource,
   };
   static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::ExtendedCount);
 

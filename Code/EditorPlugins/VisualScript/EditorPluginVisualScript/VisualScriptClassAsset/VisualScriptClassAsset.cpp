@@ -100,12 +100,14 @@ void ezVisualScriptClassAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
 
   for (const auto& v : GetProperties()->m_Variables)
   {
-    if (v.m_bExpose == false)
+    if (v.m_TypeDecl.m_bPublic == false)
       continue;
 
     ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
     param->m_sName = v.m_sName.GetString();
+    param->m_sType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(v.m_TypeDecl.m_Type.GetValue()))->GetTypeName();
     param->m_DefaultValue = v.m_DefaultValue;
+    param->m_Category = ezVisualScriptVariableCategory::GetPropertyCategory(v.m_TypeDecl.m_Category);
 
     pExposedParams->m_Parameters.PushBack(param);
   }

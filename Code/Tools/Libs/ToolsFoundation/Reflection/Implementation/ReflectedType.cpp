@@ -33,7 +33,8 @@ ezAttributeHolder::~ezAttributeHolder()
 {
   for (auto pAttr : m_Attributes)
   {
-    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
+    if (pAttr)
+      pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(const_cast<ezPropertyAttribute*>(pAttr));
   }
 }
 

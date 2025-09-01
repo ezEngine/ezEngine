@@ -258,8 +258,8 @@ ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullpt
   : ezQtNodeScene(pParent)
 {
   constexpr int iconSize = 32;
-  m_CoroutineIcon = QIcon(":/EditorPluginVisualScript/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
-  m_LoopIcon = QIcon(":/EditorPluginVisualScript/Loop.svg").pixmap(QSize(iconSize, iconSize));
+  m_CoroutineIcon = QIcon(":/EditorPluginVisualScript/Icons/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
+  m_LoopIcon = QIcon(":/EditorPluginVisualScript/Icons/Loop.svg").pixmap(QSize(iconSize, iconSize));
 }
 
 ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene()

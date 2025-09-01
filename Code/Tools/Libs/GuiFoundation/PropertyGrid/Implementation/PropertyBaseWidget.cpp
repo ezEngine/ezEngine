@@ -1893,6 +1893,11 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
   m_pObjectAccessor->FinishTransaction();
 }
 
+void ezQtVariantPropertyWidget::EnableTypeSelection(bool bEnable)
+{
+  m_pTypeList->setVisible(bEnable);
+}
+
 ezResult ezQtVariantPropertyWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
 {
   if (type != ezVariantType::VariantArray && type != ezVariantType::VariantDictionary)

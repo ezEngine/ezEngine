@@ -617,7 +617,7 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "IsBasicType: missing data!");
   ezVariant::Type::Enum type = pRtti->GetVariantType();
-  return type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType;
+  return (type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || pRtti == ezGetStaticRTTI<ezVariant>();
 }
 
 bool ezReflectionUtils::IsValueType(const ezAbstractProperty* pProp)

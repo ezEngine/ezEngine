@@ -28,6 +28,9 @@ namespace
     if (result == ezVisualScriptDataType::EnumValue || result == ezVisualScriptDataType::BitflagValue)
       result = ezVisualScriptDataType::Int64;
 
+    if (result == ezVisualScriptDataType::Resource)
+      result = ezVisualScriptDataType::String;
+
     return result;
   }
 
