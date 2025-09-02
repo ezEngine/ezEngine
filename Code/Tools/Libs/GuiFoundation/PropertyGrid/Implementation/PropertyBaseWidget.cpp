@@ -609,7 +609,7 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
 
   m_pLayout->addWidget(m_pGroup);
 
-  m_pAddButton = new ezQtAddSubElementButton(ezPropertyCategory::Member, m_pProp->GetSpecificType()->GetTypeName());
+  m_pAddButton = new ezQtAddSubElementButton(ezPropertyCategory::Member, "Create");
   m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
 
   m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, this);
@@ -1439,21 +1439,8 @@ void ezQtPropertyContainerWidget::OnInit()
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
   {
-    ezStringBuilder sTmp;
-
-
-    if (m_pProp->GetAttributeByType<ezAssetBrowserAttribute>())
-    {
-      sTmp.Prepend("Add Asset ");
-    }
-    else if (m_pProp->GetAttributeByType<ezExposedParametersAttribute>())
-    {
-      sTmp.Prepend("Add Parameter");
-    }
-    else
-    {
-      sTmp.Set("Add ", ezTranslate(m_pProp->GetSpecificType()->GetTypeName()));
-    }
+    ezStringBuilder sTmp, tmp2;
+    sTmp.SetFormat(ezTranslate("CONTAINER_AddEntry").GetData(tmp2), m_pProp->GetPropertyName());
 
     m_pAddButton = new ezQtAddSubElementButton(GetContainerCategory(), sTmp);
     m_pAddButton->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
