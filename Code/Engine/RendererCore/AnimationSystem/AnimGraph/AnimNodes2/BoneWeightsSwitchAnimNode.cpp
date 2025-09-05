@@ -148,7 +148,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   else
   {
     const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
-    const float fLerp = ezMath::GetCurveValue_EaseInOutCubic(fLerp0);
+    const float fLerp = static_cast<float>(ezMath::GetCurveValue_EaseInOutCubic(fLerp0));
 
     auto pWeights0 = pPins[iTransitionFromIndex]->GetWeights(ref_controller, ref_graph);
     auto pWeights1 = pPins[iTransitionToIndex]->GetWeights(ref_controller, ref_graph);

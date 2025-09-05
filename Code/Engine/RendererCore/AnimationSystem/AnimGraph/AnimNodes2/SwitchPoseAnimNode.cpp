@@ -173,7 +173,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     ezAnimGraphPinDataLocalTransforms* pPinData = ref_controller.AddPinDataLocalTransforms();
 
     const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
-    const float fLerp = ezMath::GetCurveValue_EaseInOutCubic(fLerp0);
+    const float fLerp = static_cast<float>(ezMath::GetCurveValue_EaseInOutCubic(fLerp0));
 
     auto& cmd = ref_controller.GetPoseGenerator().AllocCommandCombinePoses();
     cmd.m_InputWeights.SetCount(2);
