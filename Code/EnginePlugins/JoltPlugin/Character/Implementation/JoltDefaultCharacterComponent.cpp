@@ -269,6 +269,9 @@ void ezJoltDefaultCharacterComponent::RotateZ(float fAmount)
 
 void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFootPosition)
 {
+  m_vVelocityLateral.SetZero();
+  m_fVelocityUp = 0;
+  
   TeleportToPosition(vGlobalFootPosition);
 }
 
