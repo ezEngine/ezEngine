@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Math/CurveFunctions.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
@@ -108,9 +109,26 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
 
   if (iDstIdx != pInstance->m_iTransitionToIndex)
   {
-    pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
-    pInstance->m_iTransitionToIndex = iDstIdx;
-    pInstance->m_TransitionTime = ezTime::MakeZero();
+    if (iDstIdx == pInstance->m_iTransitionFromIndex)
+    {
+      // if we transition back to the previous index, just reverse the transition
+      pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
+      pInstance->m_iTransitionToIndex = iDstIdx;
+      pInstance->m_TransitionTime = ezMath::Max(ezTime::MakeZero(), m_TransitionDuration - pInstance->m_TransitionTime);
+    }
+    else if (pInstance->m_TransitionTime < m_TransitionDuration * 0.5)
+    {
+      // if we are still in the first half of the transition, switch the target index,
+      // but keep the source index and transition time
+      pInstance->m_iTransitionToIndex = iDstIdx;
+    }
+    else
+    {
+      // otherwise just start a new transition from the current target to the new target
+      pInstance->m_TransitionTime = ezTime::MakeZero();
+      pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
+      pInstance->m_iTransitionToIndex = iDstIdx;
+    }
   }
 
   if (pInstance->m_TransitionTime >= m_TransitionDuration)
@@ -129,7 +147,8 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   }
   else
   {
-    const float fLerp = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
+    const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
+    const float fLerp = ezMath::GetCurveValue_EaseInOutCubic(fLerp0);
 
     auto pWeights0 = pPins[iTransitionFromIndex]->GetWeights(ref_controller, ref_graph);
     auto pWeights1 = pPins[iTransitionToIndex]->GetWeights(ref_controller, ref_graph);
