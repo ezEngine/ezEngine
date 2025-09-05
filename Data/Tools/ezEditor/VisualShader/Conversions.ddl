@@ -2,6 +2,7 @@ Node %Split
 {
   string %Category { "Components" }
   string %Color { "Lime" }
+  string %Docs { "Outputs each component of the input vector separately." }
 
   InputPin %a
   {
@@ -46,6 +47,7 @@ Node %MergeFloat2
 {
   string %Category { "Components" }
   string %Color { "Lime" }
+  string %Docs { "Combines 2 single values into a 2-component vector. " }
 
   InputPin %x
   {
@@ -78,6 +80,7 @@ Node %MergeFloat3
 {
   string %Category { "Components" }
   string %Color { "Lime" }
+  string %Docs { "Combines 3 single values into a 3-component vector. " }
 
   InputPin %x
   {
@@ -119,6 +122,7 @@ Node %MergeFloat4
 {
   string %Category { "Components" }
   string %Color { "Lime" }
+  string %Docs { "Combines 4 single values into a 4-component vector. " }
 
   InputPin %x
   {

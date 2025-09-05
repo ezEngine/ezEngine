@@ -2,6 +2,7 @@ Node %Add
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Adds two values, outputs the larger type." }
 
   InputPin %a
   {
@@ -29,6 +30,7 @@ Node %Subtract
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Subtracts two values, outputs the larger type." }
 
   InputPin %a
   {
@@ -56,6 +58,7 @@ Node %Multiply
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Multiplies two values component-wise, outputs the larger type." }
 
   InputPin %a
   {
@@ -83,6 +86,7 @@ Node %Divide
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Divides two values component-wise, outputs the larger type." }
 
   InputPin %a
     {
@@ -110,6 +114,7 @@ Node %Modulo
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Component-wise modulo (remainder after division), outputs the larger type." }
 
   InputPin %a
     {
@@ -137,6 +142,7 @@ Node %Fraction
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the fractional part of the input value." }
 
   InputPin %a
   {
@@ -155,6 +161,7 @@ Node %Abs
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the absolute value of the input." }
 
   InputPin %a
   {
@@ -173,6 +180,7 @@ Node %Sign
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the sign (-1, 0, +1) for each component of the input value." }
 
   InputPin %a
   {
@@ -191,6 +199,7 @@ Node %Sqrt
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the square root for each component of the input value." }
 
   InputPin %a
   {
@@ -209,6 +218,7 @@ Node %Negate
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the negated value for each component of the input." }
 
   InputPin %a
   {

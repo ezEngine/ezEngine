@@ -3,6 +3,8 @@ Node %DecalOutput
   string %Category { "Output" }
   string %Color { "Grape" }
   string %NodeType { "Main" }
+  string %Docs { "Output node for projected materials such as decals and lights." }
+
   string %CodePermutations { "" }
 
   string %CheckPermutations {""}

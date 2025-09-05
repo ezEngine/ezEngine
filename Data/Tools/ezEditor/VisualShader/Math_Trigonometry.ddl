@@ -2,11 +2,12 @@ Node %Sine
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the sine of the given angle (given in Radians)." }
 
   InputPin %a
   {
     string %Type { "float" }
-    string %Tooltip { "The angle value in radians." }
+    string %Tooltip { "The angle value in Radians." }
   }
 
   OutputPin %result
@@ -21,11 +22,12 @@ Node %Cosine
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the cosine of the given angle (given in Radians)." }
 
   InputPin %a
   {
     string %Type { "float" }
-    string %Tooltip { "The angle value in radians." }
+    string %Tooltip { "The angle value in Radians." }
   }
 
   OutputPin %result
@@ -40,6 +42,7 @@ Node %Exp
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the base-e exponential." }
 
   InputPin %a
   {
@@ -59,6 +62,7 @@ Node %Exp2
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the base-2 exponential." }
 
   InputPin %a
   {
@@ -78,6 +82,7 @@ Node %Log
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the base-e logarithm." }
 
   InputPin %a
   {
@@ -97,6 +102,7 @@ Node %Log2
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the base-2 logarithm." }
 
   InputPin %a
   {
@@ -116,6 +122,7 @@ Node %Log10
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the base-10 logarithm." }
 
   InputPin %a
   {
@@ -135,6 +142,7 @@ Node %Pow
 {
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs 'Base' to the power of 'Exponent'." }
 
   InputPin %Base
   {

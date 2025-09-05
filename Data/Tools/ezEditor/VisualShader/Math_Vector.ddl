@@ -2,6 +2,7 @@ Node %Distance
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the distance between the two vectors." }
 
   InputPin %a
   {
@@ -25,6 +26,7 @@ Node %Length
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the length of the vector." }
 
   InputPin %a
   {
@@ -43,6 +45,7 @@ Node %Dot
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the dot-product of the two vectors." }
 
   InputPin %a
   {
@@ -68,6 +71,7 @@ Node %Cross
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the cross-product of the two vectors." }
 
   InputPin %a
   {
@@ -93,6 +97,7 @@ Node %Normalize
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the normalized input vector." }
 
   InputPin %vector
   {

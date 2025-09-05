@@ -2,6 +2,7 @@ Node %Floor
 {
   string %Category { "Math/Rounding" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the closest whole integer number that's smaller or equal than the input value." }
 
   InputPin %a
   {
@@ -20,6 +21,7 @@ Node %Ceil
 {
   string %Category { "Math/Rounding" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the closest whole integer number that's larger or equal than the input value." }
 
   InputPin %a
   {
@@ -38,6 +40,7 @@ Node %Round
 {
   string %Category { "Math/Rounding" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the closest whole integer." }
 
   InputPin %a
   {
@@ -56,6 +59,7 @@ Node %Truncate
 {
   string %Category { "Math/Rounding" }
   string %Color { "Yellow" }
+  string %Docs { "For each component outputs the whole integer part by discarding the fractional part." }
 
   InputPin %a
   {

@@ -3,6 +3,8 @@ Node %MaterialOutput
   string %Category { "Output" }
   string %Color { "Grape" }
   string %NodeType { "Main" }
+  string %Docs { "Output node for standard PBR materials." }
+
   string %CodePermutations { "
 BLEND_MODE
 RENDER_PASS

@@ -3,6 +3,8 @@ Node %BaseTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples the material's base texture." }
+
   string %CodeMaterialParams { "Texture2D BaseTexture @Default(\"$prop0\");" }
 
   string %CodePixelSamplers { "
@@ -65,6 +67,8 @@ Node %NormalTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples the material's normal map." }
+
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -109,6 +113,8 @@ Node %EmissiveTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples the material's emissive texture." }
+
   string %CodeMaterialParams {"Texture2D EmissiveTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -165,6 +171,8 @@ Node %MetallicTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples the material's metalness texture." }
+
   string %CodeMaterialParams { "Texture2D MetallicTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -200,6 +208,8 @@ Node %RoughnessTexture
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples the material's roughness texture." }
+
   string %CodeMaterialParams { "Texture2D RoughnessTexture @Default(\"$prop0\"); " }
 
   string %CodePixelSamplers { "
@@ -238,6 +248,8 @@ Node %Texture2D
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples a custom 2D texture." }
+
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -316,6 +328,8 @@ Node %Texture3Way
   string %Category { "Texturing" }
   string %NodeType { "Texture" }
   string %Color { "Blue" }
+  string %Docs { "Samples a custom 2D texture 3 times and projects it from 3 sides according to the given normal." }
+
   string %CodeMaterialParams { "
 Texture2D $prop0 @Default(\"$prop1\");
 " }
@@ -370,6 +384,7 @@ Node %BlendNormals
 {
   string %Category { "Texturing" }
   string %Color { "Violet" }
+  string %Docs { "Blends a detail normal on top of a base normal." }
 
   InputPin %BaseNormal
   {

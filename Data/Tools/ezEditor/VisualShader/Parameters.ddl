@@ -2,6 +2,7 @@ Node %Parameter1f
 {
   string %Category { "Parameters" }
   string %Color { "Red" }
+  string %Docs { "Outputs a 1-component value that can be configured on the material." }
 
   string %CodeMaterialParams { "float $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "FLOAT1($prop0);" }
@@ -29,6 +30,7 @@ Node %Parameter2f
 {
   string %Category { "Parameters" }
   string %Color { "Red" }
+  string %Docs { "Outputs a 2-component value that can be configured on the material." }
 
   string %CodeMaterialParams { "float2 $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "FLOAT2($prop0);" }
@@ -56,6 +58,7 @@ Node %Parameter3f
 {
   string %Category { "Parameters" }
   string %Color { "Red" }
+  string %Docs { "Outputs a 3-component value that can be configured on the material." }
 
   string %CodeMaterialParams { "float3 $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "FLOAT3($prop0);" }
@@ -83,6 +86,7 @@ Node %Parameter4f
 {
   string %Category { "Parameters" }
   string %Color { "Red" }
+  string %Docs { "Outputs a 4-component value that can be configured on the material." }
 
   string %CodeMaterialParams { "float4 $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "FLOAT4($prop0);" }
@@ -111,6 +115,7 @@ Node %ParameterColor
 {
   string %Category { "Parameters" }
   string %Color { "Red" }
+  string %Docs { "Outputs a color value that can be configured on the material." }
 
   string %CodeMaterialParams { "Color $prop0 @Default($prop1);" }
   string %CodeMaterialCB { "COLOR4F($prop0);" }

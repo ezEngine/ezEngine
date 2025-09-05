@@ -2,6 +2,7 @@ Node %Max
 {
   string %Category { "Math/Clamping" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the larger value for each component of the input." }
 
   InputPin %a
   {
@@ -29,6 +30,7 @@ Node %Min
 {
   string %Category { "Math/Clamping" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the smaller value for each component of the input." }
 
   InputPin %a
   {
@@ -56,6 +58,7 @@ Node %Saturate
 {
   string %Category { "Math/Clamping" }
   string %Color { "Yellow" }
+  string %Docs { "Clamps each component of the input to the range zero to one." }
 
   InputPin %a
   {
@@ -74,6 +77,7 @@ Node %Clamp
 {
   string %Category { "Math/Clamping" }
   string %Color { "Yellow" }
+  string %Docs { "Clamps each component of the input to the given minimum and maximum range." }
 
   InputPin %x
   {

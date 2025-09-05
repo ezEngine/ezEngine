@@ -2,6 +2,7 @@ Node %FromCameraSpace
 {
   string %Category { "Transformations" }
   string %Color { "Indigo" }
+  string %Docs { "Transforms a coordinate from camera-space to another space." }
 
   InputPin %CameraSpace
   {
@@ -31,6 +32,7 @@ Node %FromScreenSpace
 {
   string %Category { "Transformations" }
   string %Color { "Indigo" }
+  string %Docs { "Transforms a coordinate from screen-space to another space." }
 
   InputPin %ScreenSpace
   {
@@ -60,6 +62,7 @@ Node %FromWorldSpace
 {
   string %Category { "Transformations" }
   string %Color { "Indigo" }
+  string %Docs { "Transforms a coordinate from world-space to another space." }
 
   InputPin %WorldSpace
   {
@@ -104,6 +107,7 @@ Node %FromObjectSpace
 {
   string %Category { "Transformations" }
   string %Color { "Indigo" }
+  string %Docs { "Transforms a coordinate from object-space to another space." }
 
   InputPin %ObjectSpace
   {
@@ -133,6 +137,7 @@ Node %TangentToWorldSpace
 {
   string %Category { "Transformations" }
   string %Color { "Indigo" }
+  string %Docs { "Transforms a normal from trangent-space to world-space." }
 
   InputPin %TangentSpace
   {

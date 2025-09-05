@@ -2,6 +2,7 @@ Node %PointSampler
 {
   string %Category { "Texturing/Samplers" }
   string %Color { "Cyan" }
+  string %Docs { "Nearest-neighbor sampler for texture sampling." }
 
   string %CodePixelSamplers { "" }
 
@@ -17,6 +18,7 @@ Node %LinearSampler
 {
   string %Category { "Texturing/Samplers" }
   string %Color { "Cyan" }
+  string %Docs { "Bilinear sampler for texture sampling." }
 
   string %CodePixelSamplers { "" }
 
@@ -32,6 +34,7 @@ Node %PointClampSampler
 {
   string %Category { "Texturing/Samplers" }
   string %Color { "Cyan" }
+  string %Docs { "Nearest-neighbor sampler with UV clamping for texture sampling." }
 
   string %CodePixelSamplers { "" }
 
@@ -47,6 +50,7 @@ Node %LinearClampSampler
 {
   string %Category { "Texturing/Samplers" }
   string %Color { "Cyan" }
+  string %Docs { "Bilinear sampler with UV clamping for texture sampling." }
 
   string %CodePixelSamplers { "" }
 

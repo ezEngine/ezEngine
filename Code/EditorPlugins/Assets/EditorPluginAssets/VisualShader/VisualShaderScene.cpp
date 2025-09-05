@@ -92,6 +92,7 @@ void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const
   if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {
     m_HeaderColor = ezToQtColor(pDesc->m_Color);
+    m_pTitleLabel->setToolTip(ezMakeQString(pDesc->m_sDocs));
   }
   else
   {

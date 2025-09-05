@@ -2,6 +2,7 @@ Node %Time
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs time values from different clocks. " }
 
   OutputPin %Global
   {
@@ -22,6 +23,7 @@ Node %UV
 {
   string %Category { "Input" }
   string %Color { "Teal" }
+  string %Docs { "Outputs the first vertex texture coordinate (UV0). " }
 
   string %CodeVertexShader { "
 #ifndef USE_TEXCOORD0
@@ -54,7 +56,8 @@ Node %UV2
 {
   string %Category { "Input" }
   string %Color { "Teal" }
-  
+  string %Docs { "Outputs the second vertex texture coordinate (UV1). " }
+
   string %CodeVertexShader { "
 #ifndef USE_TEXCOORD0
   #define USE_TEXCOORD0
@@ -95,6 +98,7 @@ Node %UV_Scroll
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs the first vertex texture coordinate (UV0) and applies a scrolling effect, using the world time. " }
 
   string %CodeVertexShader { "
 #ifndef USE_TEXCOORD0
@@ -148,6 +152,7 @@ Node %VertexPosition
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs the vertex position data.\nFor vertex shaders this is the untransformed local position, for pixel shaders it is the transformed position." }
 
   OutputPin %Position
   {
@@ -162,6 +167,7 @@ Node %VertexWorldPosition
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs the vertex position transformed into world-space." }
 
   OutputPin %Position
   {
@@ -176,6 +182,7 @@ Node %VertexNormal
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs the vertex normal.\nFor vertex shaders this is in local space, for pixel shaders it is in world space." }
 
   string %CodeVertexShader { "
 #ifndef USE_NORMAL
@@ -208,6 +215,7 @@ Node %VertexTangent
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs the vertex tangent.\nFor vertex shaders this is in local space, for pixel shaders it is in world space." }
 
   string %CodeVertexShader { "
 #ifndef USE_TANGENT
@@ -240,7 +248,8 @@ Node %VertexColor
 {
   string %Category { "Input" }
   string %Color { "Green" }
-  
+  string %Docs { "Outputs the first vertex color value (Color0)." }
+
   string %CodeVertexShader { "
 #ifndef USE_COLOR0
   #define USE_COLOR0
@@ -272,7 +281,8 @@ Node %VertexColor2
 {
   string %Category { "Input" }
   string %Color { "Green" }
-  
+  string %Docs { "Outputs the second vertex color value (Color1)." }
+
   string %CodeVertexShader { "
 #ifndef USE_COLOR0
   #define USE_COLOR0
@@ -313,7 +323,8 @@ Node %InstanceData
 {
   string %Category { "Input" }
   string %Color { "Green" }
-  
+  string %Docs { "Outputs the object instance specific data." }
+
   OutputPin %Color
   {
     string %Type { "float4" }
@@ -335,6 +346,7 @@ Node %Camera
 {
   string %Category { "Input" }
   string %Color { "Green" }
+  string %Docs { "Outputs data about the rendering camera." }
 
   OutputPin %Position
   {
