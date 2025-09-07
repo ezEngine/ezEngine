@@ -397,7 +397,11 @@ void ezImgui::GameApplicationEventHandler(const ezGameApplicationExecutionEvent&
 {
   if (e.m_Type == ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins)
   {
-    ImGui::EndFrame();
+    ImGuiContext* pContext = ImGui::GetCurrentContext();
+    if (pContext && pContext->Initialized && pContext->WithinFrameScope)
+    {
+      ImGui::EndFrame();
+    }
   }
 }
 
