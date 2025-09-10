@@ -5,7 +5,7 @@
 ezCameraShakeComponent;Camera Shake;;https://ezengine.net/pages/docs/effects/camera-shake/camera-shake-component.html
 ezCameraShakeVolumeSphereComponent;Camera Shake Sphere Volume;;https://ezengine.net/pages/docs/effects/camera-shake/camera-shake-volume-components.html
 ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/camera/headbone-component.html
-ezThirdPersonViewComponent;Third Persion View;;https://ezengine.net/pages/docs/gameplay/camera/thirdpersonview-component.html
+ezThirdPersonViewComponent;Third Person View;;https://ezengine.net/pages/docs/gameplay/camera/thirdpersonview-component.html
 
 # UI
 
