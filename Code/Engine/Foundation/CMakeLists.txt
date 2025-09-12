@@ -36,7 +36,7 @@ if (EZ_CMAKE_PLATFORM_LINUX)
   )
 endif()
 
-if(CURRENT_OSX_VERSION)
+if(EZ_CMAKE_PLATFORM_OSX)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
