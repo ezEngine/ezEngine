@@ -24,6 +24,7 @@ Panel.LongOps;Background Operations
 
 # Property Widget
 CONTAINER_AddEntry;{0}: Add Entry
+POINTERWIDGET_Create;Create
 
 # Menus
 

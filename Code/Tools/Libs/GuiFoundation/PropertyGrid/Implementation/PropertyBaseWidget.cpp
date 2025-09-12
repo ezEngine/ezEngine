@@ -609,7 +609,7 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
 
   m_pLayout->addWidget(m_pGroup);
 
-  m_pAddButton = new ezQtAddSubElementButton(ezPropertyCategory::Member, "Create");
+  m_pAddButton = new ezQtAddSubElementButton(ezPropertyCategory::Member, ezTranslate("POINTERWIDGET_Create"));
   m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
 
   m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->GetHeader(), ezQtElementGroupButton::ElementAction::DeleteElement, this);
@@ -1456,7 +1456,6 @@ void ezQtPropertyContainerWidget::OnInit()
     pLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     m_pGroupLayout->addWidget(pTmp);
-    // m_pGroup->GetHeader()->layout()->addWidget(m_pAddButton);
   }
 
   m_pGrid->SetCollapseState(m_pGroup);
