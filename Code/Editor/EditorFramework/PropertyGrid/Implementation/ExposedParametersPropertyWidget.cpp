@@ -491,7 +491,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
   ezQtPropertyStandardTypeContainerWidget::OnInit();
 
   auto layout = qobject_cast<QHBoxLayout*>(m_pGroup->GetHeader()->layout());
-  
+
   layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
   layout->setStretch(0, 1);
