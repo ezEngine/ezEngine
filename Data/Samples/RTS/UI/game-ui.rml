@@ -1,0 +1,56 @@
+<rml>
+
+  <head>
+    <!-- The default RML template is in the RmlUI plugin folder.
+         It sets up a default style for common widgets.
+         Override the style with your own RCSS files as needed. -->
+    <link type="text/template" href="RmlUI/rmlui-default/template.rml" />
+    <link type="text/css" href="game-widget.rcss" />
+  </head>
+
+  <body>
+    <div class="game-widget" style="top: 10dp; left: 10dp;">
+      <div class="title">
+        Game Mode
+      </div>
+      <div class="content">
+        <form>
+          <input type="radio" name="gamemode" onclick="switchMode" id="mainmenu" /> Main Menu<br />
+          <input type="radio" name="gamemode" onclick="switchMode" id="edit" checked /> Edit<br />
+          <input type="radio" name="gamemode" onclick="switchMode" id="battle" /> Battle<br />
+        </form>
+      </div>
+    </div>
+
+    <div class="game-widget" style="top: 10dp; right: 10dp;" data-model="game-ui" data-if="ShowEditWidget">
+      <div class="title">
+        Edit Level
+      </div>
+      <div class="content right-aligned">
+        <div class="property">
+          <div>Team</div>
+          <select id="team" data-value="Team">
+            <option value="0">Red</option>
+            <option value="1">Green</option>
+            <option value="2">Blue</option>
+            <option value="3">Yellow</option>
+          </select>
+        </div>
+        <div class="property" style="width: 100%">
+          <div>Build</div>
+          <select id="shipType" data-value="ShipType">
+            <option value="0">Federation Ship 1</option>
+            <option value="1">Federation Ship 2</option>
+            <option value="2">Federation Ship 3</option>
+            <option value="3">Klingon Ship 1</option>
+            <option value="4">Klingon Ship 2</option>
+            <option value="5">Klingon Ship 3</option>
+          </select>
+        </div>
+        <div>Select: {{SelectKey}}</div>
+        <div>Create: {{CreateKey}}</div>
+        <div>Remove: {{RemoveKey}}</div>
+      </div>
+    </div>
+  </body>
+</rml>

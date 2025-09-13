@@ -1,0 +1,76 @@
+/* Styles for range slider input elements.
+   Includes track, progress bar, slider handle, and increment/decrement arrows.
+*/
+
+input.range {
+	width: 200dp;
+	height: 32dp;
+	vertical-align: -12dp;
+}
+
+input.range slidertrack {
+	margin-top: 3dp;
+	height: 22dp;
+	image-color: #ecc;
+	decorator: ninepatch(range-track, range-track-inner, 1.0);
+}
+
+input.range:focus-visible slidertrack {
+	decorator: ninepatch(range-track-focus, range-track-focus-inner, 1.0);
+}
+
+input.range sliderprogress {
+	background: rgba(100, 0, 0, 80);
+	margin-top: 8dp;
+	height: 7dp;
+}
+
+input.range sliderbar {
+	margin-left: -8dp;
+	margin-right: -7dp;
+	margin-top: -3dp;
+	width: 34dp;
+	height: 23dp;
+	decorator: image(range-bar);
+}
+
+input.range sliderbar:hover,
+input.range slidertrack:hover+sliderbar {
+	image-color: #cc0;
+}
+
+input.range sliderbar:active,
+input.range slidertrack:active+sliderbar {
+	image-color: #c80;
+}
+
+input.range sliderarrowdec,
+input.range sliderarrowinc {
+	width: 17dp;
+	height: 17dp;
+	margin-top: 6dp;
+}
+
+input.range sliderarrowdec {
+	decorator: image(range-dec);
+}
+
+input.range sliderarrowinc {
+	decorator: image(range-inc);
+}
+
+input.range sliderarrowdec:hover {
+	decorator: image(range-dec-hover);
+}
+
+input.range sliderarrowinc:hover {
+	decorator: image(range-inc-hover);
+}
+
+input.range sliderarrowdec:active {
+	decorator: image(range-dec-active);
+}
+
+input.range sliderarrowinc:active {
+	decorator: image(range-inc-active);
+}

@@ -1,0 +1,85 @@
+/* Styles for multi-line text areas with custom vertical and horizontal scrollbars. */
+
+textarea {
+	padding: 5dp 8dp;
+	decorator: ninepatch(textarea, textarea-inner, 1.0) border-box;
+	cursor: text;
+	text-align: left;
+	line-height: 1.3;
+	border-width: 14dp 12dp 10dp;
+	border-color: transparent;
+	color: #333;
+	font-size: 13dp;
+}
+
+textarea:focus-visible {
+	decorator: ninepatch(textarea-focus, textarea-focus-inner, 1.0) border-box;
+}
+
+textarea scrollbarvertical {
+	cursor: arrow;
+	width: 12dp;
+	margin: -3dp -7dp -3dp 7dp;
+}
+
+textarea scrollbarvertical slidertrack {
+	decorator: none;
+	background-color: #eee;
+}
+
+textarea scrollbarvertical sliderbar {
+	decorator: none;
+	background-color: #bc0000;
+	border-left: 5dp #cc7272;
+	width: 7dp;
+	min-height: 16dp;
+	margin: 0;
+}
+
+textarea scrollbarvertical sliderbar:hover {
+	decorator: none;
+	background-color: #ca3535;
+}
+
+textarea scrollbarvertical sliderbar:active {
+	decorator: none;
+	background-color: #880000;
+}
+
+textarea scrollbarvertical sliderarrowdec,
+textarea scrollbarvertical sliderarrowinc {
+	width: 0;
+	height: 0;
+}
+
+textarea scrollbarhorizontal {
+	cursor: arrow;
+	height: 10dp;
+	margin: 3dp -7dp -3dp -3dp;
+}
+
+textarea scrollbarhorizontal sliderbar {
+	background-color: #bc0000;
+	border-top: 4dp #cc7272;
+	height: 6dp;
+	min-width: 10dp;
+}
+
+textarea scrollbarhorizontal sliderbar:hover {
+	background-color: #ca3535;
+}
+
+textarea scrollbarhorizontal sliderbar:active {
+	background-color: #880000;
+}
+
+textarea scrollbarhorizontal slidertrack {
+	background-color: #eee;
+}
+
+textarea scrollbarcorner {
+	cursor: arrow;
+	background-color: #ccc;
+	margin-top: 3dp;
+	margin-left: 7dp;
+}

@@ -17,7 +17,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::MakeZero()), new ezSuffixAttribute("px")),    
+    EZ_ACCESSOR_PROPERTY("CustomScale", GetCustomScale, SetCustomScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
     EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -169,6 +170,11 @@ void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
   m_bPassInput = bPassInput;
 }
 
+void ezRmlUiCanvas2DComponent::SetCustomScale(float fScale)
+{
+  m_fCustomScale = fScale;
+}
+
 void ezRmlUiCanvas2DComponent::SetAutobindBlackboards(bool bAutobind)
 {
   if (m_bAutobindBlackboards != bAutobind)
@@ -277,6 +283,7 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_bPassInput;
   s << m_bAutobindBlackboards;
   s << m_bOnDemandUpdate;
+  s << m_fCustomScale;
 }
 
 void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -299,6 +306,11 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 3)
   {
     s >> m_bOnDemandUpdate;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_fCustomScale;
   }
 }
 
@@ -369,7 +381,7 @@ bool ezRmlUiCanvas2DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
     return false;
 
   m_pContext->SetSize(sizeU32);
-  m_pContext->SetDpiScale(fScale);
+  m_pContext->SetDpiScale(fScale * m_fCustomScale);
 
   ezVec2 offset = ezVec2(static_cast<float>(m_vOffset.x), static_cast<float>(m_vOffset.y)) * fScale;
   offset = (out_viewSize - size).CompMul(m_vAnchorPoint) - offset.CompMul(m_vAnchorPoint * 2.0f - ezVec2(1.0f));

@@ -1,0 +1,35 @@
+.game-widget {
+  font-size: 14dp;
+  color: white;
+  position: absolute;
+  width: 200dp;
+  background-color: rgba(100, 100, 120, 160);
+}
+
+.game-widget .title {
+  padding: 5dp;
+  background-color: rgb(14, 61, 99);
+}
+
+.game-widget .content {
+  padding: 5dp;
+  margin-left: 5dp;
+}
+
+.game-widget .property {
+  display: flex;
+
+  /* Vertically center label and input*/
+  align-items: center;
+
+  /* Align to left */
+  justify-content: flex-start;
+}
+
+.right-aligned {
+  margin-left: auto;
+}
+
+.right-aligned select {
+  margin-left: auto;
+}

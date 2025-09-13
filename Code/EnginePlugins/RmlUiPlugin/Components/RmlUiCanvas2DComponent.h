@@ -49,6 +49,9 @@ public:
   void SetPassInput(bool bPassInput);                                         // [ property ]
   bool GetPassInput() const { return m_bPassInput; }                          // [ property ]
 
+  void SetCustomScale(float fScale);                                          // [ property ]
+  float GetCustomScale() const { return m_fCustomScale; }                     // [ property ]
+
   /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
@@ -81,6 +84,7 @@ protected:
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
+  float m_fCustomScale = 1.0f;
   ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
   ezVec2U32 m_vSize = ezVec2U32::MakeZero();
   ezVec2 m_vAnchorPoint = ezVec2::MakeZero();

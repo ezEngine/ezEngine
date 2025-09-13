@@ -3,22 +3,28 @@
 #include <RTSPlugin/Components/ComponentMessages.h>
 #include <RTSPlugin/GameMode/BattleMode/BattleMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/RmlUiContext.h>
 
 RtsBattleMode::RtsBattleMode() = default;
 RtsBattleMode::~RtsBattleMode() = default;
 
-void RtsBattleMode::OnActivateMode() {}
+void RtsBattleMode::OnActivateMode()
+{
+  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), true);
+}
 
-void RtsBattleMode::OnDeactivateMode() {}
+void RtsBattleMode::OnDeactivateMode()
+{
+  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), false);
+}
 
 void RtsBattleMode::OnBeforeWorldUpdate()
 {
-  DisplaySelectModeUI();
+  SetupSelectModeUI();
 
   m_pGameState->RenderUnitSelection();
 }
-
-void RtsBattleMode::RegisterInputActions() {}
 
 void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput)
 {

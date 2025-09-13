@@ -21,11 +21,13 @@ static ezHashedString s_sShipType = ezMakeHashedString("ShipType");
 static ezHashedString s_sSelectKey = ezMakeHashedString("SelectKey");
 static ezHashedString s_sCreateKey = ezMakeHashedString("CreateKey");
 static ezHashedString s_sRemoveKey = ezMakeHashedString("RemoveKey");
+static ezHashedString s_sShowEditWidget = ezMakeHashedString("ShowEditWidget");
 
 RtsEditLevelMode::RtsEditLevelMode()
 {
+  // create a blackboard to easily share state with the RML UI
   m_pBlackboard = ezBlackboard::Create();
-  m_pBlackboard->SetName("EditLevelModel");
+  m_pBlackboard->SetName("game-ui");
 
   m_pBlackboard->SetEntryValue(s_sTeam, 0);
   m_pBlackboard->SetEntryValue(s_sShipType, 0);
@@ -38,6 +40,9 @@ RtsEditLevelMode::~RtsEditLevelMode() = default;
 
 void RtsEditLevelMode::OnActivateMode()
 {
+  m_pBlackboard->SetEntryValue(s_sShowEditWidget, true);
+  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), true);
+
   SetupEditUI();
 }
 
@@ -45,17 +50,13 @@ void RtsEditLevelMode::OnDeactivateMode()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-  if (m_pMainWorld->TryGetComponent(m_hEditUIComponent, pUiComponent))
-  {
-    pUiComponent->SetActiveFlag(false);
-  }
+  m_pBlackboard->SetEntryValue(s_sShowEditWidget, false);
+  SetUiActive(m_pMainWorld, ezTempHashedString("game-ui"), false);
 }
 
 void RtsEditLevelMode::OnBeforeWorldUpdate()
 {
-  DisplaySelectModeUI();
-  DisplayEditUI();
+  SetupSelectModeUI();
 
   m_pGameState->RenderUnitSelection();
 }
@@ -65,14 +66,14 @@ void RtsEditLevelMode::SetupEditUI()
   // Set blackboard values
   {
     m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
-    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
-    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
+    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("game-ui", "PlaceObject"));
+    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("game-ui", "RemoveObject"));
   }
 
   if (m_hEditUIComponent.IsInvalidated())
   {
     ezGameObject* pEditUIObject = nullptr;
-    if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("EditUI"), pEditUIObject))
+    if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("game-ui"), pEditUIObject))
       return;
 
     ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
@@ -85,58 +86,17 @@ void RtsEditLevelMode::SetupEditUI()
   }
 }
 
-void RtsEditLevelMode::DisplayEditUI()
-{
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-  if (m_pMainWorld->TryGetComponent(m_hEditUIComponent, pUiComponent))
-  {
-    pUiComponent->SetActiveFlag(s_bUseRmlUi);
-  }
-
-  if (!s_bUseRmlUi)
-  {
-    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
-
-    const ezSizeU32 resolution = ezImgui::GetSingleton()->GetCurrentWindowResolution();
-
-    const float ww = 200;
-
-    ImGui::SetNextWindowPos(ImVec2((float)resolution.width - ww - 10, 10));
-    ImGui::SetNextWindowSize(ImVec2(ww, 150));
-    ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
-
-    int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
-    if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
-    {
-      m_pBlackboard->SetEntryValue(s_sTeam, iTeam);
-    }
-
-    int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
-    if (ImGui::Combo("Build", &iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
-    {
-      m_pBlackboard->SetEntryValue(s_sShipType, iShipType);
-    }
-
-    ezStringBuilder tmp;
-    ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0).GetData(tmp));
-    ImGui::Text("Create: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject").GetData(tmp));
-    ImGui::Text("Remove: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject").GetData(tmp));
-
-    ImGui::End();
-  }
-}
-
-void RtsEditLevelMode::RegisterInputActions()
+void RtsEditLevelMode::OnFirstActivation()
 {
   ezInputActionConfig cfg;
 
   // Level Editing
   {
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "PlaceObject", cfg, true);
+    ezInputManager::SetInputActionConfig("game-ui", "PlaceObject", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDelete;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "RemoveObject", cfg, true);
+    ezInputManager::SetInputActionConfig("game-ui", "RemoveObject", cfg, true);
   }
 }
 
@@ -157,7 +117,7 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool
   if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
     return;
 
-  if (ezInputManager::GetInputActionState("EditLevelMode", "PlaceObject") == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("game-ui", "PlaceObject") == ezKeyState::Pressed)
   {
     ezGameObject* pSpawned = nullptr;
 
@@ -175,7 +135,7 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool
 
   auto& unitSelection = m_pGameState->m_SelectedUnits;
 
-  if (ezInputManager::GetInputActionState("EditLevelMode", "RemoveObject") == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("game-ui", "RemoveObject") == ezKeyState::Pressed)
   {
     for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
     {

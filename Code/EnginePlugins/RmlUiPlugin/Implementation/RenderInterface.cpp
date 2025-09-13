@@ -41,7 +41,6 @@ namespace ezRmlUiInternal
       Invalid,
       RenderGeometry,
       SetScissorRegion,
-      EnableClipMask,
       RenderToClipMask,
 
       Default = Invalid
@@ -51,8 +50,9 @@ namespace ezRmlUiInternal
   struct alignas(4) CommandHeader
   {
     ezEnum<CommandType> m_Type;
-    bool m_bValue = false;
-    ezUInt8 m_uiPadding[2] = {};
+    bool m_bNeedsPremultipliedAlpha = false;
+    bool m_bUseStencilTest = false;
+    ezUInt8 m_uiPadding = 0;
   };
 
   struct CommandRenderGeometry : CommandHeader
@@ -70,11 +70,6 @@ namespace ezRmlUiInternal
     static constexpr CommandType::Enum Type = CommandType::SetScissorRegion;
 
     ezRectU32 m_ScissorRect = {};
-  };
-
-  struct CommandEnableClipMask : CommandHeader
-  {
-    static constexpr CommandType::Enum Type = CommandType::EnableClipMask;
   };
 
   struct CommandRenderToClipMask : CommandHeader
@@ -227,7 +222,8 @@ namespace ezRmlUiInternal
 
     cmd.m_Transform = m_mTransform;
     cmd.m_Translation = ezVec2(translation.x, translation.y);
-    cmd.m_bValue = textureInfo.m_bHasPremultipliedAlpha == false;
+    cmd.m_bNeedsPremultipliedAlpha = textureInfo.m_bHasPremultipliedAlpha == false;
+    cmd.m_bUseStencilTest = m_bUseStencilTest;
   }
 
   void RenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle hGeometry)
@@ -319,8 +315,7 @@ namespace ezRmlUiInternal
 
   void RenderInterface::EnableClipMask(bool bEnable)
   {
-    auto& cmd = m_pCurrentCommandBuffer->AddCommand<CommandEnableClipMask>();
-    cmd.m_bValue = bEnable;
+    m_bUseStencilTest = bEnable;
   }
 
   void RenderInterface::RenderToClipMask(Rml::ClipMaskOperation operation, Rml::CompiledGeometryHandle hGeometry, Rml::Vector2f translation)
@@ -352,6 +347,7 @@ namespace ezRmlUiInternal
   void RenderInterface::BeginExtraction(const ezHashedString& sName, ezGALTextureHandle hTargetTexture)
   {
     m_mTransform = ezMat4::MakeIdentity();
+    m_bUseStencilTest = false;
 
     m_pCurrentCommandBuffer = AllocateCommandBuffer();
     m_pCurrentCommandBuffer->m_sName = sName;
@@ -424,8 +420,6 @@ namespace ezRmlUiInternal
       renderingSetup.SetClearStencil().SetClearDepth();
 
       pRenderContext->BeginRendering(renderingSetup, viewport, pCommandBuffer->m_sName, false);
-      pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_NORMAL");
-
       pCommandEncoder->SetScissorRect(scissorRect);
 
       ezUInt32 uiCommandOffset = 0;
@@ -438,10 +432,12 @@ namespace ezRmlUiInternal
           {
             auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderGeometry>(uiCommandOffset);
 
+            pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", cmd.m_bUseStencilTest ? ezTempHashedString("RMLUI_MODE_STENCIL_TEST") : ezTempHashedString("RMLUI_MODE_NORMAL"));
+
             ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
             pConstants->UiTransform = cmd.m_Transform;
             pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
-            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bValue;
+            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bNeedsPremultipliedAlpha;
 
             pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
@@ -459,7 +455,28 @@ namespace ezRmlUiInternal
           }
           break;
 
-            EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+          case CommandType::RenderToClipMask:
+          {
+            auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderToClipMask>(uiCommandOffset);
+
+            EZ_ASSERT_DEV(cmd.m_Operation == Rml::ClipMaskOperation::Set, "Only 'Set' clip mask operation is implemented.");
+            pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");
+
+            ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
+            pConstants->UiTransform = cmd.m_Transform;
+            pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
+
+            pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+
+            pRenderContext->DrawMeshBuffer().IgnoreResult();
+          }
+          break;
+
+          default:
+          {
+            EZ_ASSERT_ALWAYS(false, "RmlUI: Command Type '{}' is not implemented.", cmdType);
+            break;
+          }
         }
       }
 

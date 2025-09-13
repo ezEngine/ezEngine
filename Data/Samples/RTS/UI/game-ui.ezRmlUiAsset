@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{1305255426561629067,5673149715115996774}}
+	Uuid %id{u4{16179479873965521045,4671898762287297159}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,17 +11,34 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
-			s{"UI/SelectMode.rml"}
-			s{"UI/UI.rcss"}
+			s{"RmlUI/rmlui-default/assets.rcss"}
+			s{"RmlUI/rmlui-default/button.rcss"}
+			s{"RmlUI/rmlui-default/common.rcss"}
+			s{"RmlUI/rmlui-default/expand.rcss"}
+			s{"RmlUI/rmlui-default/input-checkbox.rcss"}
+			s{"RmlUI/rmlui-default/input-radio.rcss"}
+			s{"RmlUI/rmlui-default/input-range.rcss"}
+			s{"RmlUI/rmlui-default/input-submit.rcss"}
+			s{"RmlUI/rmlui-default/input-text.rcss"}
+			s{"RmlUI/rmlui-default/progress.rcss"}
+			s{"RmlUI/rmlui-default/scrollbar.rcss"}
+			s{"RmlUI/rmlui-default/select.rcss"}
+			s{"RmlUI/rmlui-default/table.rcss"}
+			s{"RmlUI/rmlui-default/tabs.rcss"}
+			s{"RmlUI/rmlui-default/template.rml"}
+			s{"RmlUI/rmlui-default/textarea.rcss"}
+			s{"RmlUI/rmlui-default/window.rcss"}
+			s{"UI/game-ui.rml"}
+			s{"UI/game-widget.rcss"}
 		}
-		Uuid %DocumentID{u4{1305255426561629067,5673149715115996774}}
-		u4 %Hash{6468534380519459840}
+		Uuid %DocumentID{u4{16179479873965521045,4671898762287297159}}
+		u4 %Hash{13751952887758144531}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"UI/SelectMode.rml"}
+			s{"UI/game-ui.rml"}
 		}
 		s %Tags{""}
 	}
@@ -31,13 +48,13 @@ Objects
 {
 o
 {
-	Uuid %id{u4{9049631250410921897,5270650338730648315}}
+	Uuid %id{u4{1644275010032927923,5144825853727332476}}
 	s %t{"ezRmlUiAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		Vec2u %ReferenceResolution{u3{1280,720}}
-		s %RmlFile{"UI/SelectMode.rml"}
+		Vec2u %ReferenceResolution{u3{1920,1080}}
+		s %RmlFile{"UI/game-ui.rml"}
 		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
@@ -51,7 +68,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{9049631250410921897,5270650338730648315}}
+			Uuid{u4{1644275010032927923,5144825853727332476}}
 		}
 	}
 }

@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{10922229380658380468,5439759434091703483}}
+	Uuid %id{u4{4635230918134906298,5050252128969311633}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,17 +11,34 @@ o
 		s %AssetType{"RmlUi"}
 		VarArray %Dependencies
 		{
-			s{"UI/Edit.rml"}
-			s{"UI/UI.rcss"}
+			s{"RmlUI/rmlui-default/assets.rcss"}
+			s{"RmlUI/rmlui-default/button.rcss"}
+			s{"RmlUI/rmlui-default/common.rcss"}
+			s{"RmlUI/rmlui-default/expand.rcss"}
+			s{"RmlUI/rmlui-default/input-checkbox.rcss"}
+			s{"RmlUI/rmlui-default/input-radio.rcss"}
+			s{"RmlUI/rmlui-default/input-range.rcss"}
+			s{"RmlUI/rmlui-default/input-submit.rcss"}
+			s{"RmlUI/rmlui-default/input-text.rcss"}
+			s{"RmlUI/rmlui-default/progress.rcss"}
+			s{"RmlUI/rmlui-default/scrollbar.rcss"}
+			s{"RmlUI/rmlui-default/select.rcss"}
+			s{"RmlUI/rmlui-default/table.rcss"}
+			s{"RmlUI/rmlui-default/tabs.rcss"}
+			s{"RmlUI/rmlui-default/template.rml"}
+			s{"RmlUI/rmlui-default/textarea.rcss"}
+			s{"RmlUI/rmlui-default/window.rcss"}
+			s{"UI/app-settings.rcss"}
+			s{"UI/app-settings.rml"}
 		}
-		Uuid %DocumentID{u4{10922229380658380468,5439759434091703483}}
-		u4 %Hash{4733857253323256867}
+		Uuid %DocumentID{u4{4635230918134906298,5050252128969311633}}
+		u4 %Hash{16228381178069711259}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
-			s{"UI/Edit.rml"}
+			s{"UI/app-settings.rml"}
 		}
 		s %Tags{""}
 	}
@@ -31,13 +48,13 @@ Objects
 {
 o
 {
-	Uuid %id{u4{12587139358636351908,5546253010064476250}}
+	Uuid %id{u4{5508021555521953668,5588545763210491225}}
 	s %t{"ezRmlUiAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		Vec2u %ReferenceResolution{u3{1280,720}}
-		s %RmlFile{"UI/Edit.rml"}
+		Vec2u %ReferenceResolution{u3{1920,1080}}
+		s %RmlFile{"UI/app-settings.rml"}
 		s %ScaleMode{"ezRmlUiScaleMode::WithScreenSize"}
 	}
 }
@@ -51,7 +68,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{12587139358636351908,5546253010064476250}}
+			Uuid{u4{5508021555521953668,5588545763210491225}}
 		}
 	}
 }

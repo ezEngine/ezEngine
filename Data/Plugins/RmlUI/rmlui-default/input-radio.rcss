@@ -1,0 +1,30 @@
+/* Styles for radio button input elements with checked states. */
+
+input.radio {
+	width: 30dp;
+	height: 30dp;
+	vertical-align: -11dp;
+	decorator: image(radio);
+}
+
+input.radio:hover,
+input.radio:focus-visible {
+	decorator: image(radio-hover);
+}
+
+input.radio:active {
+	decorator: image(radio-active);
+}
+
+input.radio:checked {
+	decorator: image(radio-checked);
+}
+
+input.radio:checked:hover,
+input.radio:checked:focus-visible {
+	decorator: image(radio-checked-hover);
+}
+
+input.radio:checked:active {
+	decorator: image(radio-checked-active);
+}

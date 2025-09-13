@@ -30,12 +30,10 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/Uuid.h>
-#include <GameEngine/DearImgui/DearImgui.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameState/GameState.h>
 #include <GameEngine/Gameplay/InputComponent.h>
-#include <Imgui/imgui.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <RTSPlugin/GameMode/GameMode.h>
-#include <RTSPlugin/GameState/RTSGameState.h>
 #include <RmlUiPlugin\Components\RmlUiCanvas2DComponent.h>
 
-class RtsMainMenuMode : public RtsGameMode
+class RtsSettingsMenuMode : public RtsGameMode
 {
 public:
-  RtsMainMenuMode();
-  ~RtsMainMenuMode();
+  RtsSettingsMenuMode();
+  ~RtsSettingsMenuMode();
 
 protected:
   virtual void OnActivateMode() override;
@@ -16,5 +15,6 @@ protected:
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) override;
   virtual void OnBeforeWorldUpdate() override;
 
-  ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hMainMenu;
+  ezTypedComponentHandle<ezRmlUiCanvas2DComponent> m_hSettingsMenu;
+  ezUInt32 m_uiButtonClickCount = 0;
 };

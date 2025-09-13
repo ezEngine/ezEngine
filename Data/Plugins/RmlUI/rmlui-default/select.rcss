@@ -1,0 +1,132 @@
+/* Styles for dropdown select elements with custom scrollbar for the option list. */
+
+select {
+	nav: auto;
+	color: #333;
+	font-size: 13dp;
+	width: 175dp;
+	height: 37dp;
+}
+
+select selectvalue {
+	width: auto;
+	margin-right: 30dp;
+
+	height: 25dp;
+	padding: 12dp 10dp 0dp 10dp;
+
+	decorator: image(selectvalue);
+}
+
+select:focus-visible selectvalue {
+	decorator: image(selectvalue-hover);
+}
+
+select selectarrow {
+	width: 30dp;
+	height: 37dp;
+
+	decorator: image(selectarrow);
+}
+
+select:hover selectarrow,
+select:focus-visible selectarrow {
+	decorator: image(selectarrow-hover);
+}
+
+select:active selectarrow,
+select selectarrow:checked {
+	decorator: image(selectarrow-active);
+}
+
+select selectbox {
+	margin-left: 3dp;
+	margin-top: -7dp;
+	margin-bottom: -10dp;
+	width: 165dp;
+	max-height: 300dp;
+	padding: 1dp 4dp 4dp 4dp;
+	background: #DDDDDDFF;
+	box-sizing: border-box;
+	border: 1dp #888888;
+	overflow-y: scroll;
+}
+
+select selectbox option {
+	display: block;
+	padding: 3dp 6dp 3dp 6dp;
+	background: #DDDDDDFF;
+}
+
+select selectbox option:nth-child(even) {
+	background: #FFFFFFFF;
+}
+
+select selectbox option:checked {
+	font-weight: bold;
+}
+
+select selectbox option:hover {
+	background: #FF5D5D;
+}
+
+/* Scrollbar configuration for select boxes. */
+select selectbox scrollbarvertical {
+	margin-top: -1dp;
+	margin-bottom: 0;
+	margin-right: -1dp;
+	width: 27dp;
+}
+
+select selectbox scrollbarvertical slidertrack {
+	decorator: tiled-vertical(slidertrack-t, slidertrack-c, slidertrack-b);
+}
+
+select selectbox scrollbarvertical slidertrack:active {
+	image-color: #aaa;
+}
+
+select selectbox scrollbarvertical sliderbar {
+	margin-left: 4dp;
+	width: 23dp;
+	min-height: 30dp;
+	decorator: tiled-vertical(sliderbar-t, sliderbar-c, sliderbar-b);
+}
+
+select selectbox scrollbarvertical sliderbar:hover {
+	decorator: tiled-vertical(sliderbar-hover-t, sliderbar-hover-c, sliderbar-hover-b);
+}
+
+select selectbox scrollbarvertical sliderbar:active {
+	decorator: tiled-vertical(sliderbar-active-t, sliderbar-active-c, sliderbar-active-b);
+}
+
+select selectbox scrollbarvertical sliderarrowdec,
+select selectbox scrollbarvertical sliderarrowinc {
+	width: 27dp;
+	height: 24dp;
+}
+
+select selectbox scrollbarvertical sliderarrowdec {
+	decorator: image(sliderarrowdec);
+}
+
+select selectbox scrollbarvertical sliderarrowdec:hover {
+	decorator: image(sliderarrowdec-hover);
+}
+
+select selectbox scrollbarvertical sliderarrowdec:active {
+	decorator: image(sliderarrowdec-active);
+}
+
+select selectbox scrollbarvertical sliderarrowinc {
+	decorator: image(sliderarrowinc);
+}
+
+select selectbox scrollbarvertical sliderarrowinc:hover {
+	decorator: image(sliderarrowinc-hover);
+}
+
+select selectbox scrollbarvertical sliderarrowinc:active {
+	decorator: image(sliderarrowinc-active);
+}

@@ -55,7 +55,7 @@ void ezInputDeviceMouseKeyboard_Win::InitializeDevice()
     // keyboard
     Rid[0].usUsagePage = 0x01;
     Rid[0].usUsage = 0x06;
-    Rid[0].dwFlags = RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key
+    Rid[0].dwFlags = 0; // RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key (unclear whether to make this configurable)
     Rid[0].hwndTarget = nullptr;
 
     // mouse
@@ -474,6 +474,10 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
     case WM_CHAR:
       m_uiLastCharacter = (wchar_t)wparam;
+      if (m_uiLastCharacter == 13) // turn '\r' into '\n'
+      {
+        m_uiLastCharacter = '\n';
+      }
       return;
 
       // these messages would only arrive, if the window had the flag CS_DBLCLKS

@@ -3,10 +3,13 @@
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
 #include <Core/World/World.h>
-#include <GameEngine/DearImgui/DearImgui.h>
 #include <RTSPlugin/Components/ComponentMessages.h>
 #include <RTSPlugin/Components/SelectableComponent.h>
+#include <RTSPlugin/GameMode/BattleMode/BattleMode.h>
+#include <RTSPlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RTSPlugin/GameMode/GameMode.h>
+#include <RTSPlugin/GameMode/MainMenuMode/MainMenuMode.h>
+#include <RTSPlugin/GameMode/SettingsMenuMode/SettingsMenuMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RTSGameState, 1, ezRTTIDefaultAllocator<RTSGameState>)
@@ -73,12 +76,12 @@ void RTSGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, co
 
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
-  if (ezImgui::GetSingleton() == nullptr)
-  {
-    EZ_DEFAULT_NEW(ezImgui);
-  }
-
   PreloadAssets();
+
+  m_pMainMenuMode = EZ_DEFAULT_NEW(RtsMainMenuMode);
+  m_pSettingsMenuMode = EZ_DEFAULT_NEW(RtsSettingsMenuMode);
+  m_pBattleMode = EZ_DEFAULT_NEW(RtsBattleMode);
+  m_pEditLevelMode = EZ_DEFAULT_NEW(RtsEditLevelMode);
 
   SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
 }
@@ -88,12 +91,6 @@ void RTSGameState::OnDeactivation()
   EZ_LOG_BLOCK("GameState::Deactivate");
 
   SetActiveGameMode(RtsActiveGameMode::None);
-
-  if (ezImgui::GetSingleton() != nullptr)
-  {
-    ezImgui* pImgui = ezImgui::GetSingleton();
-    EZ_DEFAULT_DELETE(pImgui);
-  }
 
   SUPER::OnDeactivation();
 }
@@ -128,6 +125,16 @@ void RTSGameState::BeforeWorldUpdate()
     return;
 
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  ezGameObject* pGameUiObject = nullptr;
+  if (m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("game-ui"), pGameUiObject))
+  {
+    ezRmlUiCanvas2DComponent* pGameUiComponent = nullptr;
+    if (pGameUiObject->TryGetComponentOfBaseType(pGameUiComponent))
+    {
+      pGameUiComponent->SetCustomScale(m_fUiScale);
+    }
+  }
 
   SetActiveGameMode(m_GameModeToSwitchTo);
 
@@ -208,15 +215,19 @@ void RTSGameState::SetActiveGameMode(RtsActiveGameMode mode)
       break;
 
     case RtsActiveGameMode::MainMenuMode:
-      m_pActiveGameMode = &m_MainMenuMode;
+      m_pActiveGameMode = m_pMainMenuMode.Borrow();
+      break;
+
+    case RtsActiveGameMode::SettingsMenuMode:
+      m_pActiveGameMode = m_pSettingsMenuMode.Borrow();
       break;
 
     case RtsActiveGameMode::BattleMode:
-      m_pActiveGameMode = &m_BattleMode;
+      m_pActiveGameMode = m_pBattleMode.Borrow();
       break;
 
     case RtsActiveGameMode::EditLevelMode:
-      m_pActiveGameMode = &m_EditLevelMode;
+      m_pActiveGameMode = m_pEditLevelMode.Borrow();
       break;
   }
 

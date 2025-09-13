@@ -15,7 +15,7 @@ namespace
 
   static Rml::Input::KeyIdentifier s_rmlKeys[] = {Rml::Input::KI_TAB, Rml::Input::KI_LEFT, Rml::Input::KI_UP,
     Rml::Input::KI_RIGHT, Rml::Input::KI_DOWN, Rml::Input::KI_PRIOR, Rml::Input::KI_NEXT, Rml::Input::KI_HOME,
-    Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_RETURN,
+    Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_NUMPADENTER,
     Rml::Input::KI_ESCAPE};
 
   static_assert(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
@@ -58,6 +58,7 @@ void ezRmlUiContext::ShowDocument()
 {
   if (HasDocument())
   {
+    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Show();
   }
 }
@@ -66,6 +67,7 @@ void ezRmlUiContext::HideDocument()
 {
   if (HasDocument())
   {
+    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Hide();
   }
 
@@ -125,7 +127,8 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
   // Keyboard
   {
     ezUInt32 uiLastChar = ezInputManager::RetrieveLastCharacter(false);
-    if (uiLastChar >= 32) // >= space
+
+    if (uiLastChar >= 32 || uiLastChar == '\n') // >= space (+ enter/return)
     {
       char szUtf8[8] = "";
       char* pChar = szUtf8;

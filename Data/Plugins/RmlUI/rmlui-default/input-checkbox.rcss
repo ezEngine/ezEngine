@@ -1,0 +1,30 @@
+/* Styles for checkbox input elements with checked states. */
+
+input.checkbox {
+	width: 30dp;
+	height: 30dp;
+	vertical-align: -11dp;
+	decorator: image(checkbox);
+}
+
+input.checkbox:hover,
+input.checkbox:focus-visible {
+	decorator: image(checkbox-hover);
+}
+
+input.checkbox:active {
+	decorator: image(checkbox-active);
+}
+
+input.checkbox:checked {
+	decorator: image(checkbox-checked);
+}
+
+input.checkbox:checked:hover,
+input.checkbox:checked:focus-visible {
+	decorator: image(checkbox-checked-hover);
+}
+
+input.checkbox:checked:active {
+	decorator: image(checkbox-checked-active);
+}

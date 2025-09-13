@@ -43,7 +43,13 @@ public:
 
   using EventHandler = ezDelegate<void(Rml::Event&)>;
 
+  /// Registers an event handler for a RmlUI event (such as 'onclick')
+  ///
+  /// There can only be one event handler for each event type.
+  /// If called multiple times, the existing event handler is overridden.
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
+
+  /// Removes a previously registered RmlUI event handler.
   void DeregisterEventHandler(const char* szIdentifier);
 
   void Update();

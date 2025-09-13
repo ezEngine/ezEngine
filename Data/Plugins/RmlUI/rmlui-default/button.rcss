@@ -1,0 +1,29 @@
+/* Styles for button elements with hover, focus, and active states. */
+
+button {
+	display: inline-block;
+	nav: auto;
+
+	width: 159dp;
+	height: 33dp;
+	padding-top: 12dp;
+
+	font-size: 16dp;
+	text-align: center;
+	tab-index: auto;
+
+	decorator: image(button);
+}
+
+button:focus {
+	font-effect: blur(3dp #fff);
+}
+
+button:hover,
+button:focus-visible {
+	decorator: image(button-hover);
+}
+
+button:active {
+	decorator: image(button-active);
+}
