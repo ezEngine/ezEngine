@@ -2,6 +2,7 @@
 
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAsset.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 ezStringView FindRCSSReference(ezStringView& ref_sRml)
 {
@@ -49,6 +50,36 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezRmlUiAssetDocument::ezRmlUiAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezRmlUiAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
+}
+
+void ezRmlUiAssetDocument::OpenExternalEditor()
+{
+  ezStringBuilder sFile(GetProperties()->m_sRmlFile);
+
+  if (!ezFileSystem::ExistsFile(sFile))
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("Can't find the file '{}'.\nTo create an RML file click the button next to 'RmlFile'.", sFile));
+
+    ShowDocumentStatus("RML file doesn't exist.");
+    return;
+  }
+
+  ezStringBuilder sFileAbs;
+  if (ezFileSystem::ResolvePath(sFile, &sFileAbs, nullptr).Failed())
+    return;
+
+  {
+    QStringList args;
+
+    args.append(ezMakeQString(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+    args.append(sFileAbs.GetData());
+
+    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    {
+      // try again with a different program
+      ezQtUiServices::OpenFileInDefaultProgram(sFileAbs).IgnoreResult();
+    }
+  }
 }
 
 ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

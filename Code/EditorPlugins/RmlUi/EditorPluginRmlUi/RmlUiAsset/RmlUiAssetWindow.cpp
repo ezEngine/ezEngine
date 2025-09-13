@@ -46,7 +46,7 @@ ezQtRmlUiAssetDocumentWindow::ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDoc
 
     m_pViewWidget = new ezQtEngineViewWidget(nullptr, this, &m_ViewConfig);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
     m_pDockManager->setCentralWidget(pContainer);
   }
 

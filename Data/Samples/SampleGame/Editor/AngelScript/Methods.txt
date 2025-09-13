@@ -76,6 +76,8 @@ GetCurrentInputState
 GetCurrentState
 GetDarker
 GetDegree
+GetDetectedObject
+GetDetectedObjectsCount
 GetDistanceTo
 GetElementCount
 GetEntryValue_asAngle
@@ -262,6 +264,7 @@ SendMessage
 SendMessageRecursive
 Set
 SetActiveFlag
+SetAnimationClipOverride
 SetCount
 SetDirectionForwards
 SetEntryValue

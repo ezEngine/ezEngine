@@ -13,6 +13,8 @@ class ezRmlUiAssetDocument : public ezSimpleAssetDocument<ezRmlUiAssetProperties
 public:
   ezRmlUiAssetDocument(ezStringView sDocumentPath);
 
+  void OpenExternalEditor();
+
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

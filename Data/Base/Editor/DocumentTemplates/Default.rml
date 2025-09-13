@@ -1,0 +1,14 @@
+<rml>
+  <head>
+    <link type="text/css" href="UI.rcss"/>
+    <title>Window</title>
+  </head>
+  <body class="window">
+    <div class="title">
+      Window Title
+    </div>
+    <div class="content">
+      Window Content
+    </div>
+  </body>
+</rml>

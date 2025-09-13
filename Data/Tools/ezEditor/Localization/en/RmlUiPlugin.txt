@@ -8,3 +8,6 @@ ezRmlUiCanvas2DComponent;RmlUi Canvas 2D;;https://ezengine.net/pages/docs/ui/rml
 
 # Properties
 
+# Actions
+
+RmlUi.OpenInVSC;Open in External Text Editor
