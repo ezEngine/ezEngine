@@ -237,3 +237,8 @@ void ezRmlUi::ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTe
 
   ref_context.ExtractRenderData(m_pData->m_RenderInterface, hTexture);
 }
+
+ezMutex& ezRmlUi::GetContextMutex()
+{
+  return m_pData->m_ContextsMutex;
+}

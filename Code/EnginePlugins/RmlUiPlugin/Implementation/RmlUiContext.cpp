@@ -177,6 +177,8 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
 
 void ezRmlUiContext::Update()
 {
+  EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
+
   Rml::Context::Update();
 
   m_uiUpdatedFrame = ezRenderWorld::GetFrameCounter();

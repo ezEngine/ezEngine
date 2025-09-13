@@ -45,6 +45,8 @@ public:
 
   void ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture);
 
+  ezMutex& GetContextMutex();
+
 private:
   struct Data;
   ezUniquePtr<Data> m_pData;
