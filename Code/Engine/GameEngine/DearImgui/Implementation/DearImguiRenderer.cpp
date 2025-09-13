@@ -196,6 +196,10 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
       uiFirstIndex += imGuiBatch.m_uiVertexCount;
     }
   }
+
+  // Reset scissor to default.
+  ezRectFloat rect = renderContext.m_pViewData->m_ViewPortRect;
+  pCommandEncoder->SetScissorRect(ezRectU32((ezUInt32)rect.x, (ezUInt32)rect.y, (ezUInt32)rect.width, (ezUInt32)rect.height));
 }
 
 void ezImguiRenderer::SetupRenderer()
