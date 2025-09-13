@@ -38,6 +38,10 @@ void ezRmlUiDocumentContext::OnInitialize()
     ezRmlUiCanvas2DComponent* pComponent = nullptr;
     ezRmlUiCanvas2DComponent::CreateComponent(m_pMainObject, pComponent);
 
+    pComponent->SetPassInput(false);
+    pComponent->SetOnDemandUpdate(false);
+    pComponent->SetAutobindBlackboards(false); // there is no blackboard that could be bound in this context
+
     ezStringBuilder sResourceGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sResourceGuid);
     m_hMainResource = ezResourceManager::LoadResource<ezRmlUiResource>(sResourceGuid);
