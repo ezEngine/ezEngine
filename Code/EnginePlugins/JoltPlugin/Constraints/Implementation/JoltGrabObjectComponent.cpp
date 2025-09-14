@@ -258,6 +258,11 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
       // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
       bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
 
+      JPH::Vec3 vLinear = bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity() * 0.14f;
+      JPH::Vec3 vAngular = bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity() * 0.10f;
+      bodyLock.GetBody().GetMotionProperties()->SetLinearVelocity(vLinear);
+      bodyLock.GetBody().GetMotionProperties()->SetAngularVelocity(vAngular);
+
       if (pModule->GetJoltSystem()->GetBodyInterfaceNoLock().IsAdded(JPH::BodyID(pGrabbedActor->GetJoltBodyID())))
       {
         pModule->GetJoltSystem()->GetBodyInterfaceNoLock().ActivateBody(JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
