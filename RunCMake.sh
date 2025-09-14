@@ -2,7 +2,7 @@
 
 # read arguments
 opts=$(getopt \
-  --longoptions help,clang,setup,no-cmake,no-unity,build-type: \
+  --longoptions help,clang,setup,force,no-cmake,no-unity,build-type: \
   --name "$(basename "$0")" \
   --options "" \
   -- "$@"
@@ -20,6 +20,7 @@ while [[ $# -gt 0 ]]; do
     --help)
       echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type debug|dev|shipping] [--no-unity]"
       echo "  --setup       Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
+      echo "  --force       Auto confirm any prompts during setup"
       echo "  --clang       Use clang instead of gcc"
       echo "  --no-cmake    Do not invoke cmake (usefull when only --setup is needed)"
       echo "  --build-type  Which build type cmake should be invoked with debug|dev|shipping"
@@ -34,6 +35,11 @@ while [[ $# -gt 0 ]]; do
 
     --setup)
       Setup=true
+      shift 1
+      ;;
+
+    --force)
+      Force=true
       shift 1
       ;;
 
@@ -130,7 +136,11 @@ if [ "$Setup" = true ]; then
   git submodule update --init
   echo "Attempting to install the following packages through the package manager:"
   echo ${packages[@]}
-  sudo apt install ${packages[@]}
+  if [ "$Force" = true ]; then
+    sudo apt install -y ${packages[@]}
+  else
+    sudo apt install ${packages[@]}
+  fi 
 fi
 
 CompilerShort=gcc
