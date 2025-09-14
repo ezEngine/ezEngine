@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-ezStringView FindRCSSReference(ezStringView& ref_sRml)
+ezStringView FindNextHREF(ezStringView& ref_sRml)
 {
   const char* szCurrent = ref_sRml.FindSubString("href");
   if (szCurrent == nullptr)
@@ -34,10 +34,14 @@ ezStringView FindRCSSReference(ezStringView& ref_sRml)
   {
     ref_sRml.SetStartPosition(szEnd);
 
-    ezStringView rcss = ezStringView(szStart, szEnd);
-    if (rcss.EndsWith_NoCase(".rcss"))
+    ezStringView href = ezStringView(szStart, szEnd);
+    if (href.HasExtension(".rcss"))
     {
-      return rcss;
+      return href;
+    }
+    if (href.HasExtension(".rml"))
+    {
+      return href;
     }
   }
 
@@ -93,7 +97,7 @@ ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& s
 
   desc.m_DependencyFile.AddFileDependency(pProp->m_sRmlFile);
 
-  EZ_SUCCEED_OR_RETURN(FindDependencies(desc.m_DependencyFile));
+  EZ_SUCCEED_OR_RETURN(FindDependencies(desc.m_DependencyFile, pProp->m_sRmlFile));
 
   EZ_SUCCEED_OR_RETURN(desc.Save(stream));
 
@@ -106,41 +110,41 @@ ezTransformStatus ezRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailI
   return status;
 }
 
-ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependencies) const
+ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath) const
 {
-  const ezRmlUiAssetProperties* pProp = GetProperties();
-
   ezStringBuilder sContent;
   {
     ezFileReader reader;
-    if (reader.Open(pProp->m_sRmlFile).Failed())
-      return ezStatus("Failed to read RML file");
+    if (reader.Open(sFilePath).Failed())
+      return ezStatus(ezFmt("Failed to read file: '{}'", sFilePath));
 
     sContent.ReadAll(reader);
   }
 
-  ezStringBuilder sRmlFilePath = pProp->m_sRmlFile;
-  sRmlFilePath = sRmlFilePath.GetFileDirectory();
+  const ezStringView sFileDir = sFilePath.GetFileDirectory();
 
+  ezStringBuilder sTemp;
   ezStringView sContentView = sContent;
 
   while (true)
   {
-    ezStringView rcssReference = FindRCSSReference(sContentView);
-    if (rcssReference.IsEmpty())
+    ezStringView href = FindNextHREF(sContentView);
+    if (href.IsEmpty())
       break;
 
-    ezStringBuilder sRcssRef = rcssReference;
-    if (!ezFileSystem::ExistsFile(sRcssRef))
+    if (ezFileSystem::ExistsFile(href))
     {
-      ezStringBuilder sTemp;
-      sTemp.AppendPath(sRmlFilePath, sRcssRef);
-      sRcssRef = sTemp;
+      ref_Dependencies.AddFileDependency(href);
+      EZ_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, href));
+      continue;
     }
 
-    if (ezFileSystem::ExistsFile(sRcssRef))
+    sTemp.SetPath(sFileDir, href);
+    if (ezFileSystem::ExistsFile(sTemp))
     {
-      ref_Dependencies.AddFileDependency(sRcssRef);
+      ref_Dependencies.AddFileDependency(sTemp);
+      EZ_SUCCEED_OR_RETURN(FindDependencies(ref_Dependencies, sTemp));
+      continue;
     }
   }
 
@@ -151,8 +155,10 @@ void ezRmlUiAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) c
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
+  const ezRmlUiAssetProperties* pProp = GetProperties();
+
   ezDependencyFile deps;
-  FindDependencies(deps).IgnoreResult();
+  FindDependencies(deps, pProp->m_sRmlFile).IgnoreResult();
 
   for (const auto& file : deps.GetFileDependencies())
   {
