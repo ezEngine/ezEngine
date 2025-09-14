@@ -74,8 +74,9 @@ jobs:
     inputs:
       targetType: inline
       script: | 
-        sudo apt-get update
-        sudo apt-get install -y systemd-coredump vulkan-tools # xvfb lightdm
+        # Disabled due to hang when running in agent.
+        # sudo apt-get update
+        # sudo apt-get install -y systemd-coredump vulkan-tools # xvfb lightdm
         sudo ./RunCMake.sh --setup --no-cmake
   
   - task: Bash@3
