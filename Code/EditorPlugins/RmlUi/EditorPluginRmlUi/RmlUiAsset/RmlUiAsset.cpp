@@ -93,46 +93,7 @@ ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& s
 
   desc.m_DependencyFile.AddFileDependency(pProp->m_sRmlFile);
 
-  // Find rcss dependencies
-  {
-    ezStringBuilder sContent;
-    {
-      ezFileReader reader;
-      if (reader.Open(pProp->m_sRmlFile).Failed())
-        return ezStatus("Failed to read rml file");
-
-      sContent.ReadAll(reader);
-    }
-
-    ezStringBuilder sRmlFilePath = pProp->m_sRmlFile;
-    sRmlFilePath = sRmlFilePath.GetFileDirectory();
-
-    ezStringView sContentView = sContent;
-
-    while (true)
-    {
-      ezStringView rcssReference = FindRCSSReference(sContentView);
-      if (rcssReference.IsEmpty())
-        break;
-
-      ezStringBuilder sRcssRef = rcssReference;
-      if (!ezFileSystem::ExistsFile(sRcssRef))
-      {
-        ezStringBuilder sTemp;
-        sTemp.AppendPath(sRmlFilePath, sRcssRef);
-        sRcssRef = sTemp;
-      }
-
-      if (ezFileSystem::ExistsFile(sRcssRef))
-      {
-        desc.m_DependencyFile.AddFileDependency(sRcssRef);
-      }
-      else
-      {
-        ezLog::Warning("RCSS file '{}' was not added as dependency since it doesn't exist", sRcssRef);
-      }
-    }
-  }
+  EZ_SUCCEED_OR_RETURN(FindDependencies(desc.m_DependencyFile));
 
   EZ_SUCCEED_OR_RETURN(desc.Save(stream));
 
@@ -143,4 +104,58 @@ ezTransformStatus ezRmlUiAssetDocument::InternalCreateThumbnail(const ThumbnailI
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
+}
+
+ezStatus ezRmlUiAssetDocument::FindDependencies(ezDependencyFile& ref_Dependencies) const
+{
+  const ezRmlUiAssetProperties* pProp = GetProperties();
+
+  ezStringBuilder sContent;
+  {
+    ezFileReader reader;
+    if (reader.Open(pProp->m_sRmlFile).Failed())
+      return ezStatus("Failed to read RML file");
+
+    sContent.ReadAll(reader);
+  }
+
+  ezStringBuilder sRmlFilePath = pProp->m_sRmlFile;
+  sRmlFilePath = sRmlFilePath.GetFileDirectory();
+
+  ezStringView sContentView = sContent;
+
+  while (true)
+  {
+    ezStringView rcssReference = FindRCSSReference(sContentView);
+    if (rcssReference.IsEmpty())
+      break;
+
+    ezStringBuilder sRcssRef = rcssReference;
+    if (!ezFileSystem::ExistsFile(sRcssRef))
+    {
+      ezStringBuilder sTemp;
+      sTemp.AppendPath(sRmlFilePath, sRcssRef);
+      sRcssRef = sTemp;
+    }
+
+    if (ezFileSystem::ExistsFile(sRcssRef))
+    {
+      ref_Dependencies.AddFileDependency(sRcssRef);
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezRmlUiAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  ezDependencyFile deps;
+  FindDependencies(deps).IgnoreResult();
+
+  for (const auto& file : deps.GetFileDependencies())
+  {
+    pInfo->m_TransformDependencies.Insert(file);
+  }
 }

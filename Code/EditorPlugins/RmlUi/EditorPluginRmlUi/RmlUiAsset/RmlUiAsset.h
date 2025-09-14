@@ -20,4 +20,8 @@ protected:
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
+
+  ezStatus FindDependencies(ezDependencyFile& ref_Dependencies) const;
+
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 };

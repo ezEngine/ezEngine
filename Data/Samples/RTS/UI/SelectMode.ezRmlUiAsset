@@ -12,6 +12,7 @@ o
 		VarArray %Dependencies
 		{
 			s{"UI/SelectMode.rml"}
+			s{"UI/UI.rcss"}
 		}
 		Uuid %DocumentID{u4{1305255426561629067,5673149715115996774}}
 		u4 %Hash{6468534380519459840}
