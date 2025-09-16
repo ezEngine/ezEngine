@@ -6,6 +6,7 @@
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
@@ -79,6 +80,20 @@ EZ_END_STATIC_REFLECTED_TYPE;
 EZ_DEFINE_CUSTOM_VARIANT_TYPE(ezVisualScriptVariableTypeDeclaration);
 // clang-format on
 
+ezVisualScriptDataType::Enum ezVisualScriptVariableTypeDeclaration::GetDataType() const
+{
+  if (m_Category == ezVisualScriptVariableCategory::Array)
+  {
+    return ezVisualScriptDataType::Array;
+  }
+  else if (m_Category == ezVisualScriptVariableCategory::Map)
+  {
+    return ezVisualScriptDataType::Map;
+  }
+
+  return static_cast<ezVisualScriptDataType::Enum>(m_Type.GetValue());
+}
+
 void operator<<(ezStreamWriter& inout_stream, const ezVisualScriptVariableTypeDeclaration& value)
 {
   inout_stream << value.m_Type;
@@ -101,38 +116,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
-
-static ezQtPropertyWidget* VisualScriptVariableTypeCreator(const ezRTTI* pRtti)
-{
-  return new ezQtVisualScriptVariableWidget();
-}
-
-static ezQtPropertyWidget* VisualScriptVariableTypeDeclarationCreator(const ezRTTI* pRtti)
-{
-  return new ezQtVisualScriptVariableTypeDeclarationWidget();
-}
-
-// clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, VisualScriptVariable)
-
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-  "ToolsFoundation", "PropertyMetaState"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_CORESYSTEMS_STARTUP
-  {
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>(), VisualScriptVariableTypeCreator);
-    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>(), VisualScriptVariableTypeDeclarationCreator);
-  }
-
-  ON_CORESYSTEMS_SHUTDOWN
-  {
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>());
-    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>());
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION;
-// clang-format on
 
 ezQtVisualScriptVariableWidget::ezQtVisualScriptVariableWidget() = default;
 ezQtVisualScriptVariableWidget::~ezQtVisualScriptVariableWidget() = default;
@@ -183,6 +166,8 @@ ezResult ezQtVisualScriptVariableWidget::GetVariantTypeDisplayName(ezVariantType
 
   return EZ_SUCCESS;
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 ezQtVisualScriptVariableTypeDeclarationWidget::ezQtVisualScriptVariableTypeDeclarationWidget()
 {
@@ -317,7 +302,7 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
     typeDecl.m_Category = static_cast<ezVisualScriptVariableCategory::Enum>(uiCategory);
     typeDecl.m_bPublic = m_pVisibilityButton->isChecked();
 
-    m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, typeDecl, item.m_Index);
+    m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, typeDecl, item.m_Index).AssertSuccess();
   }
 
   m_pObjectAccessor->FinishTransaction();
@@ -335,6 +320,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 2, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_ACCESSOR_PROPERTY("Type", GetTypeDecl, SetTypeDecl),
     EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0), new ezVisualScriptVariableAttribute()),
+    EZ_MEMBER_PROPERTY("ClampRange", m_bClampRange),
+    EZ_MEMBER_PROPERTY("MinValue", m_fMinValue),
+    EZ_MEMBER_PROPERTY("MaxValue", m_fMaxValue)->AddAttributes(new ezDefaultValueAttribute(1)),
   }
   EZ_END_PROPERTIES;
 }
@@ -363,8 +351,15 @@ void ezVisualScriptVariable::SetTypeDecl(ezVisualScriptVariableTypeDeclaration t
     if (targetType == ezVisualScriptDataType::Variant)
       return;
 
+    auto variantTargetType = ezVisualScriptDataType::GetVariantType(targetType);
+    if (variantTargetType == ezVariantType::Invalid || variantTargetType == ezVariantType::TypedObject || variantTargetType == ezVariantType::TypedPointer)
+    {
+      v = ezVariant();
+      return;
+    }
+
     ezResult res = EZ_SUCCESS;
-    v = v.ConvertTo(ezVisualScriptDataType::GetVariantType(targetType), &res);
+    v = v.ConvertTo(variantTargetType, &res);
     if (res.Failed())
     {
       v = ezReflectionUtils::GetDefaultVariantFromType(ezVisualScriptDataType::GetRtti(targetType));
@@ -422,6 +417,64 @@ void ezVisualScriptVariable::SetTypeDecl(ezVisualScriptVariableTypeDeclaration t
 
   m_DefaultValue = newDefaultValue;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+static ezQtPropertyWidget* VisualScriptVariableTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtVisualScriptVariableWidget();
+}
+
+static ezQtPropertyWidget* VisualScriptVariableTypeDeclarationCreator(const ezRTTI* pRtti)
+{
+  return new ezQtVisualScriptVariableTypeDeclarationWidget();
+}
+
+void ezVisualScriptVariable_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezVisualScriptVariable>();
+
+  auto& typeAccessor = e.m_pObject->GetTypeAccessor();
+
+  if (typeAccessor.GetType() != pRtti)
+    return;
+
+  auto typeDecl = typeAccessor.GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
+  const bool bIsPublicNumberType = typeDecl.m_bPublic && ezVisualScriptDataType::IsNumber(static_cast<ezVisualScriptDataType::Enum>(typeDecl.m_Type.GetValue()));
+
+  auto& props = *e.m_pPropertyStates;
+
+  auto clampRangeVisibility = bIsPublicNumberType ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["ClampRange"].m_Visibility = clampRangeVisibility;
+  props["MinValue"].m_Visibility = clampRangeVisibility;
+  props["MaxValue"].m_Visibility = clampRangeVisibility;
+}
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginVisualScript, VisualScriptVariable)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "ToolsFoundation", "PropertyMetaState"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>(), VisualScriptVariableTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>(), VisualScriptVariableTypeDeclarationCreator);
+
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezVisualScriptVariable_PropertyMetaStateEventHandler);
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptVariableTypeDeclaration>());
+
+    ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezVisualScriptVariable_PropertyMetaStateEventHandler);
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ///////////////////////////////////////////////////////////////////////////
 

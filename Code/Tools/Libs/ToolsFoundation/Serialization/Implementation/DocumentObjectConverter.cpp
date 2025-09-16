@@ -257,7 +257,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) || bIsValueType)
       {
         const ezVariantType::Enum memberType = ezToolsReflectionUtils::GetStorageType(pProp);
-        if (bIsValueType && op.m_Value.GetType() != memberType)
+        if (memberType != ezVariantType::Invalid && bIsValueType && op.m_Value.GetType() != memberType)
         {
           op.m_Value = op.m_Value.ConvertTo(memberType);
         }

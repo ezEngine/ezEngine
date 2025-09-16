@@ -136,14 +136,26 @@ void ezVisualScriptClassAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
 
   for (const auto& v : GetProperties()->m_Variables)
   {
-    if (v.m_TypeDecl.m_bPublic == false)
+    if (v.m_TypeDecl.m_Type == ezVisualScriptVariableType::Invalid || v.m_TypeDecl.m_bPublic == false)
       continue;
+
+    if (v.m_TypeDecl.m_Type == ezVisualScriptVariableType::GameObject || v.m_TypeDecl.m_Type == ezVisualScriptVariableType::Component)
+    {
+      ezLog::Error("Variables of type 'GameObject' or 'Component' are currently not supported as exposed parameters.");
+      continue;
+    }
 
     ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
     param->m_sName = v.m_sName.GetString();
     param->m_sType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(v.m_TypeDecl.m_Type.GetValue()))->GetTypeName();
     param->m_DefaultValue = v.m_DefaultValue;
     param->m_Category = ezVisualScriptVariableCategory::GetPropertyCategory(v.m_TypeDecl.m_Category);
+
+    if (v.m_bClampRange && v.m_TypeDecl.m_Type >= ezVisualScriptVariableType::Byte && v.m_TypeDecl.m_Type <= ezVisualScriptVariableType::Double)
+    {
+      auto pClampValueAttribute = EZ_DEFAULT_NEW(ezClampValueAttribute, v.m_fMinValue, v.m_fMaxValue);
+      param->m_Attributes.PushBack(pClampValueAttribute);
+    }
 
     pExposedParams->m_Parameters.PushBack(param);
   }

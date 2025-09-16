@@ -52,7 +52,8 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Default = Invalid,
   };
 
-  EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Bool && dataType <= Double; }
+  EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Byte && dataType <= Double; }
+  EZ_ALWAYS_INLINE static bool IsNumberOrBool(Enum dataType) { return dataType == Bool || IsNumber(dataType); }
   EZ_ALWAYS_INLINE static bool IsPointer(Enum dataType) { return (dataType >= GameObject && dataType <= TypedPointer) || dataType == Coroutine; }
 
   static ezVariantType::Enum GetVariantType(Enum dataType);

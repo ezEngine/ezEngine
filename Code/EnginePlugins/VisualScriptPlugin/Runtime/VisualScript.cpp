@@ -115,7 +115,7 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
   static_assert(Builtin_ToBool + (ezVisualScriptDataType::Float - ezVisualScriptDataType::Bool) == Builtin_ToFloat);
   static_assert(Builtin_ToBool + (ezVisualScriptDataType::Double - ezVisualScriptDataType::Bool) == Builtin_ToDouble);
 
-  if (ezVisualScriptDataType::IsNumber(targetDataType))
+  if (ezVisualScriptDataType::IsNumberOrBool(targetDataType))
     return static_cast<Enum>(Builtin_ToBool + (targetDataType - ezVisualScriptDataType::Bool));
 
   if (targetDataType == ezVisualScriptDataType::String)

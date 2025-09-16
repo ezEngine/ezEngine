@@ -9,6 +9,7 @@ struct ezVisualScriptVariableType
 
   enum Enum
   {
+    Invalid = ezVisualScriptDataType::Invalid,
     Bool = ezVisualScriptDataType::Bool,
     Byte,
     Int,
@@ -70,6 +71,8 @@ struct ezVisualScriptVariableTypeDeclaration
   {
     return m_Type == other.m_Type && m_Category == other.m_Category && m_bPublic == other.m_bPublic;
   }
+
+  ezVisualScriptDataType::Enum GetDataType() const;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariableTypeDeclaration);
@@ -142,10 +145,14 @@ struct ezVisualScriptVariable
   ezVisualScriptVariableTypeDeclaration m_TypeDecl;
   ezVariant m_DefaultValue;
 
+  bool m_bClampRange = false;
+  double m_fMinValue = 0.0;
+  double m_fMaxValue = 1.0;
+
   void SetTypeDecl(ezVisualScriptVariableTypeDeclaration typeDecl);
   ezVisualScriptVariableTypeDeclaration GetTypeDecl() const { return m_TypeDecl; }
 
-  ezDocument* m_pDocument = nullptr;            
+  ezDocument* m_pDocument = nullptr;
   ezDocumentObject* m_pDocumentObject = nullptr;
 };
 

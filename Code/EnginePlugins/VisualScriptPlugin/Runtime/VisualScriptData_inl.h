@@ -117,7 +117,9 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
     }
     else
     {
-      EZ_ASSERT_DEBUG(!pType || pType->IsDerivedFrom<ezComponent>() == false, "Component type '{}' is stored as typed pointer, cast to ezComponent first to ensure correct storage", pType->GetTypeName());
+      const bool bIsAllowedType = !pType || (pType->IsDerivedFrom<ezComponent>() == false && pType->IsDerivedFrom<ezGameObject>() == false);
+      EZ_ASSERT_DEBUG(bIsAllowedType,
+        "GameObject or Component type '{}' is stored as typed pointer, cast to ezGameObject or ezComponent first to ensure correct storage", pType->GetTypeName());
 
       m_pDesc->CheckOffset(dataOffset, pType);
 
@@ -133,13 +135,31 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
 inline ezResult ezVisualScriptInstanceData::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(m_DataOffset.Serialize(inout_stream));
-  inout_stream << m_DefaultValue;
+
+  if (m_DataOffset.GetType() != ezVisualScriptDataType::GameObject && m_DataOffset.GetType() != ezVisualScriptDataType::Component)
+  {
+    inout_stream << m_DefaultValue;
+  }
+
   return EZ_SUCCESS;
 }
 
 inline ezResult ezVisualScriptInstanceData::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(m_DataOffset.Deserialize(inout_stream));
-  inout_stream >> m_DefaultValue;
+
+  if (m_DataOffset.GetType() == ezVisualScriptDataType::GameObject)
+  {
+    m_DefaultValue = ezGameObjectHandle();
+  }
+  else if (m_DataOffset.GetType() == ezVisualScriptDataType::Component)
+  {
+    m_DefaultValue = ezComponentHandle();
+  }
+  else
+  {
+    inout_stream >> m_DefaultValue;
+  }
+
   return EZ_SUCCESS;
 }

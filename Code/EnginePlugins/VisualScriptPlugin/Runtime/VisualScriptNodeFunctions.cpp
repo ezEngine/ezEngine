@@ -424,9 +424,17 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_SetVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                  std::is_same_v<T, ezComponentHandle> ||
-                  std::is_same_v<T, ezTypedPointer>)
+    if constexpr (std::is_same_v<T, ezGameObjectHandle>)
+    {
+      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezGameObject*>(ptr.m_pObject), ezGetStaticRTTI<ezGameObject>());
+    }
+    else if constexpr (std::is_same_v<T, ezComponentHandle>)
+    {
+      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezComponent*>(ptr.m_pObject), ezGetStaticRTTI<ezComponent>());
+    }
+    else if constexpr (std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
       inout_context.SetPointerData(node.GetOutputDataOffset(0), ptr.m_pObject, ptr.m_pType);
