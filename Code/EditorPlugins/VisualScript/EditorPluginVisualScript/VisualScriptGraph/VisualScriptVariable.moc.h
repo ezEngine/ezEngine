@@ -142,11 +142,11 @@ struct ezVisualScriptVariable
   ezVisualScriptVariableTypeDeclaration m_TypeDecl;
   ezVariant m_DefaultValue;
 
-  // void SetType(ezVisualScriptVariableType::Enum type);
-  // ezVisualScriptVariableType::Enum GetType() const { return m_Type; }
+  void SetTypeDecl(ezVisualScriptVariableTypeDeclaration typeDecl);
+  ezVisualScriptVariableTypeDeclaration GetTypeDecl() const { return m_TypeDecl; }
 
-  // void SetCategory(ezVisualScriptVariableCategory::Enum category);
-  // ezVisualScriptVariableCategory::Enum GetCategory() const { return m_Category; }
+  ezDocument* m_pDocument = nullptr;            
+  ezDocumentObject* m_pDocumentObject = nullptr;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariable);

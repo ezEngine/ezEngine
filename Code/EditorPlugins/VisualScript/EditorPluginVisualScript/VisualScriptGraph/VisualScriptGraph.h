@@ -81,6 +81,7 @@ private:
   virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
 
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
+  void ObjectStructureEventsHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
 
   friend class ezVisualScriptPin;

@@ -30,6 +30,42 @@ ezVisualScriptClassAssetDocument::ezVisualScriptClassAssetDocument(ezStringView 
   m_pObjectAccessor = EZ_DEFAULT_NEW(ezNodeCommandAccessor, GetCommandHistory());
 }
 
+void ezVisualScriptClassAssetDocument::SetDocumentPointers()
+{
+  ezDocumentObject* pPropertyObject = GetPropertyObject();
+
+  ezVariantArray varUuids;
+  if (pPropertyObject->GetTypeAccessor().GetValues("Variables", varUuids) == false)
+    return;
+
+  auto& variables = GetProperties()->m_Variables;
+  EZ_ASSERT_DEV(varUuids.GetCount() == variables.GetCount(), "Variable array out of sync");
+
+  for (ezUInt32 i = 0; i < varUuids.GetCount(); ++i)
+  {
+    ezVisualScriptVariable& v = variables[i];
+    if (v.m_pDocument != nullptr && v.m_pDocumentObject != nullptr)
+      continue;
+
+    if (varUuids[i].IsA<ezUuid>() == false)
+      continue;
+
+    ezDocumentObject* pVarObject = GetObjectManager()->GetObject(varUuids[i].Get<ezUuid>());
+    if (pVarObject == nullptr)
+      continue;
+    
+    v.m_pDocument = this;
+    v.m_pDocumentObject = pVarObject;
+  }
+}
+
+void ezVisualScriptClassAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+{
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
+
+  SetDocumentPointers();
+}
+
 ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   auto pManager = static_cast<ezVisualScriptNodeManager*>(GetObjectManager());

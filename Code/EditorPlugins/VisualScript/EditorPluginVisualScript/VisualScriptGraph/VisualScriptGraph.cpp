@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 #include <Foundation/SimdMath/SimdRandom.h>
@@ -90,6 +91,7 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
 ezVisualScriptNodeManager::ezVisualScriptNodeManager()
 {
   m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::NodeEventsHandler, this));
+  m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::ObjectStructureEventsHandler, this));
   m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::PropertyEventsHandler, this));
 }
 
@@ -592,13 +594,26 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
   }
 }
 
+void ezVisualScriptNodeManager::ObjectStructureEventsHandler(const ezDocumentObjectStructureEvent& e)
+{
+  switch (e.m_EventType)
+  {
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+      
+      break;
+
+    default:
+      break;
+  }
+}
+
 void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (IsNode(e.m_pObject))
   {
     DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
-  else if (e.m_sProperty == "Name" || e.m_sProperty == "DefaultValue") // a variable's name or default value has changed, re-run type deduction
+  else if (e.m_sProperty == "Name" || e.m_sProperty == "DefaultValue") // a variable's name or type has changed, re-run type deduction
   {
     for (auto pObject : GetRootObject()->GetChildren())
     {
@@ -607,6 +622,11 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
 
       DeductNodeTypeAndAllPinTypes(pObject);
     }
+  }
+  else if (e.m_sProperty == "Type")
+  {
+    auto pDocument = static_cast<ezVisualScriptClassAssetDocument*>(GetDocument());
+    pDocument->SetDocumentPointers();
   }
 }
 

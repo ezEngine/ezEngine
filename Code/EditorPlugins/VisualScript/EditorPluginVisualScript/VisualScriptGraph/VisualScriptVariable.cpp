@@ -258,7 +258,7 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::OnInit()
     }
   }
 
-  connect (m_pVisibilityButton, &QPushButton::toggled, [this](bool)
+  connect(m_pVisibilityButton, &QPushButton::toggled, [this](bool)
     { ChangeType(); });
 }
 
@@ -333,13 +333,95 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 2, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("Type", m_TypeDecl),
+    EZ_ACCESSOR_PROPERTY("Type", GetTypeDecl, SetTypeDecl),
     EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0), new ezVisualScriptVariableAttribute()),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
+
+void ezVisualScriptVariable::SetTypeDecl(ezVisualScriptVariableTypeDeclaration typeDecl)
+{
+  if (m_TypeDecl == typeDecl)
+    return;
+
+  m_TypeDecl = typeDecl;
+
+  // If no doc is present, we are de-serializing the document so do nothing yet.
+  if (m_pDocument == nullptr || m_pDocumentObject == nullptr)
+    return;
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+  ezObjectAccessorBase* pAccessor = m_pDocument->GetObjectAccessor();
+
+  // Do not make new commands if we got here in a response to an undo / redo action.
+  if (pHistory->IsInUndoRedo())
+    return;
+
+  auto ConvertOrSetToDefault = [](ezVariant& v, ezVisualScriptDataType::Enum targetType)
+  {
+    if (targetType == ezVisualScriptDataType::Variant)
+      return;
+
+    ezResult res = EZ_SUCCESS;
+    v = v.ConvertTo(ezVisualScriptDataType::GetVariantType(targetType), &res);
+    if (res.Failed())
+    {
+      v = ezReflectionUtils::GetDefaultVariantFromType(ezVisualScriptDataType::GetRtti(targetType));
+    }
+  };
+
+  ezVariant newDefaultValue = m_DefaultValue;
+  auto targetType = static_cast<ezVisualScriptDataType::Enum>(typeDecl.m_Type.GetValue());
+  if (typeDecl.m_Category == ezVisualScriptVariableCategory::Array)
+  {
+    if (newDefaultValue.IsA<ezVariantArray>())
+    {
+      ezVariantArray a = newDefaultValue.Get<ezVariantArray>();
+      for (auto& v : a)
+      {
+        ConvertOrSetToDefault(v, targetType);
+      }
+      newDefaultValue = a;
+    }
+    else
+    {
+      ezVariantArray a;
+      ConvertOrSetToDefault(newDefaultValue, targetType);
+      a.PushBack(newDefaultValue);
+      newDefaultValue = a;
+    }
+  }
+  else if (typeDecl.m_Category == ezVisualScriptVariableCategory::Map)
+  {
+    if (newDefaultValue.IsA<ezVariantDictionary>())
+    {
+      ezVariantDictionary d = newDefaultValue.Get<ezVariantDictionary>();
+      for (auto it = d.GetIterator(); it.IsValid(); it.Next())
+      {
+        ezVariant v = it.Value();
+        ConvertOrSetToDefault(v, targetType);
+        d[it.Key()] = v;
+      }
+      newDefaultValue = d;
+    }
+    else
+    {
+      ezVariantDictionary d;
+      ConvertOrSetToDefault(newDefaultValue, targetType);
+      d["Key"] = newDefaultValue;
+      newDefaultValue = d;
+    }
+  }
+  else
+  {
+    ConvertOrSetToDefault(newDefaultValue, targetType);
+  }
+
+  pAccessor->SetValueByName(m_pDocumentObject, "DefaultValue", newDefaultValue).AssertSuccess();
+
+  m_DefaultValue = newDefaultValue;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 

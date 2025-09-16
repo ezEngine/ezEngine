@@ -21,7 +21,10 @@ class ezVisualScriptClassAssetDocument : public ezSimpleAssetDocument<ezVisualSc
 public:
   ezVisualScriptClassAssetDocument(ezStringView sDocumentPath);
 
+  void SetDocumentPointers();
+
 protected:
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
