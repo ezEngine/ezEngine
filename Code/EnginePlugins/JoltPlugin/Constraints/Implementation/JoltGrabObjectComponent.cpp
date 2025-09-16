@@ -258,10 +258,42 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
       // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
       bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
 
-      JPH::Vec3 vLinear = bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity() * 0.14f;
-      JPH::Vec3 vAngular = bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity() * 0.10f;
+      // clamp velocities according to weight
+      JPH::Vec3 vLinear = bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity();
+      JPH::Vec3 vAngular = bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity();
+
+      // get impulse, hard-coded for now
+      const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(
+        pModule->GetImpulseTypeByName("Throw Object"),
+        pGrabbedActor->m_uiWeightCategory
+      );
+      // get mass. minimum = 1
+      const float fMass = m_fGrabbedActorInverseMass > 0 ? 1 / m_fGrabbedActorInverseMass : 1;
+
+      // divide impulse by mass to get maximal velocity
+      float maxVelocity = abs(fImpulse / fMass);
+
+      // clamp linear velocity
+      float len = vLinear.Length();
+      float change = 0;
+      if (len > 0 && len > maxVelocity) {
+        change = maxVelocity / len;
+        vLinear  *= change;
+        vAngular *= change; // clamp angular velocity by the same amount as linear
+      }
+
+      //ezLog::Error("before: mass= {0}, vel= {1}, angular vel= {2}",
+      //  GetGrabbedActorMass(),
+      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity().Length(), 2),
+      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity().Length(), 2));
+
       bodyLock.GetBody().GetMotionProperties()->SetLinearVelocity(vLinear);
       bodyLock.GetBody().GetMotionProperties()->SetAngularVelocity(vAngular);
+
+      //ezLog::Error("after:            vel= {0}, angular vel= {1}, percent change= {2}",
+      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity().Length(), 2),
+      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity().Length(), 2),
+      //  ezArgF((1-change) * -100.0f, 2));
 
       if (pModule->GetJoltSystem()->GetBodyInterfaceNoLock().IsAdded(JPH::BodyID(pGrabbedActor->GetJoltBodyID())))
       {
