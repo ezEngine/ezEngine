@@ -88,7 +88,7 @@ public:
   /// should only be done in very rare cases.
   bool m_bAllowSleeping = true;        // [ property ]
 
-  ezUInt8 m_uiWeightCategory;          // [ property ]
+  ezUInt8 m_uiWeightCategory = 0;      // [ property ]
   ezFloat16 m_fWeightMass = 10.0f;     // [ property ]
   ezFloat16 m_fWeightDensity = 100.0f; // [ property ]
   ezFloat16 m_fWeightScale = 1.0f;     // [ property ]

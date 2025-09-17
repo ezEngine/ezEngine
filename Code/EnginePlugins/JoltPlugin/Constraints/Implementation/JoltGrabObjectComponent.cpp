@@ -30,7 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 2, ezComponentMode::Static)
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(GrabNearbyObject),
     EZ_SCRIPT_FUNCTION_PROPERTY(HasObjectGrabbed),
-    EZ_SCRIPT_FUNCTION_PROPERTY(DropGrabbedObject),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DropGrabbedObject, In, "uiImpulseType")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDefaultValueAttribute(0))),
     EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject, In, "vDirection", In, "uiImpulseType")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(0))),
     EZ_SCRIPT_FUNCTION_PROPERTY(BreakObjectGrab),
   }
@@ -204,15 +204,27 @@ bool ezJoltGrabObjectComponent::HasObjectGrabbed() const
   return m_pConstraint != nullptr;
 }
 
-void ezJoltGrabObjectComponent::DropGrabbedObject()
+void ezJoltGrabObjectComponent::DropGrabbedObject(ezUInt8 uiImpulseType)
 {
-  ReleaseGrabbedObject();
+  if (uiImpulseType >= ezImpulseTypeConfig::FirstValidKey)
+  {
+    ezJoltDynamicActorComponent* pGrabbedActor = nullptr;
+    if (GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor))
+    {
+      const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(uiImpulseType, pGrabbedActor->m_uiWeightCategory);
+
+      ReleaseGrabbedObject(fImpulse);
+      return;
+    }
+  }
+
+  ReleaseGrabbedObject(0.0f);
 }
 
 void ezJoltGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType)
 {
   ezComponentHandle hActor = m_hGrabbedActor;
-  ReleaseGrabbedObject();
+  ReleaseGrabbedObject(0.0f);
 
   ezJoltDynamicActorComponent* pActor;
   if (GetWorld()->TryGetComponent(hActor, pActor))
@@ -223,7 +235,7 @@ void ezJoltGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir, e
 
 void ezJoltGrabObjectComponent::BreakObjectGrab()
 {
-  ReleaseGrabbedObject();
+  ReleaseGrabbedObject(0.0f);
 
   ezMsgPhysicsJointBroke msg;
   msg.m_hJointObject = GetOwner()->GetHandle();
@@ -241,7 +253,7 @@ void ezJoltGrabObjectComponent::SetAttachToReference(const char* szReference)
   m_hAttachTo = resolver(szReference, GetHandle(), "AttachTo");
 }
 
-void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
+void ezJoltGrabObjectComponent::ReleaseGrabbedObject(float fMaxAllowedImpulse)
 {
   if (m_pConstraint == nullptr)
     return;
@@ -251,49 +263,34 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
   ezJoltDynamicActorComponent* pGrabbedActor = nullptr;
   if (GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor))
   {
+    // preserve the owner velocity
+    const JPH::Vec3 vParentVelocity = ezJoltConversionUtils::ToVec3(GetOwner()->GetLinearVelocity());
+
     JPH::BodyLockWrite bodyLock(pModule->GetJoltSystem()->GetBodyLockInterface(), JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
     if (bodyLock.Succeeded())
     {
-      bodyLock.GetBody().GetMotionProperties()->SetInverseMass(m_fGrabbedActorInverseMass);
-      // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
-      bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
+      auto& motion = *bodyLock.GetBody().GetMotionProperties();
 
-      // clamp velocities according to weight
-      JPH::Vec3 vLinear = bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity();
-      JPH::Vec3 vAngular = bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity();
+      motion.SetInverseMass(m_fGrabbedActorInverseMass);
+      // TODO: this needs to be set as well : motion.SetInverseInertia(m_fGrabbedActorMass);
+      motion.SetGravityFactor(m_fGrabbedActorGravity);
 
-      // get impulse, hard-coded for now
-      const float fImpulse = ezJoltCore::GetImpulseTypeConfig().GetImpulseForWeight(
-        pModule->GetImpulseTypeByName("Throw Object"),
-        pGrabbedActor->m_uiWeightCategory
-      );
-      // get mass. minimum = 1
-      const float fMass = m_fGrabbedActorInverseMass > 0 ? 1 / m_fGrabbedActorInverseMass : 1;
+      // clamp linear velocities according to maximum impulse
+      const JPH::Vec3 vLinear = motion.GetLinearVelocity() - vParentVelocity;
+      const JPH::Vec3 vAngular = bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity();
 
       // divide impulse by mass to get maximal velocity
-      float maxVelocity = abs(fImpulse / fMass);
+      const float fMaxVelocity = ezMath::Abs(fMaxAllowedImpulse * m_fGrabbedActorInverseMass);
+      const float fSpeed = vLinear.Length();
 
       // clamp linear velocity
-      float len = vLinear.Length();
-      float change = 0;
-      if (len > 0 && len > maxVelocity) {
-        change = maxVelocity / len;
-        vLinear  *= change;
-        vAngular *= change; // clamp angular velocity by the same amount as linear
+      if (fSpeed > fMaxVelocity)
+      {
+        const float change = fMaxVelocity / fSpeed;
+
+        motion.SetLinearVelocity(vParentVelocity + vLinear * change);
+        motion.SetAngularVelocity(vAngular * change);
       }
-
-      //ezLog::Error("before: mass= {0}, vel= {1}, angular vel= {2}",
-      //  GetGrabbedActorMass(),
-      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity().Length(), 2),
-      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity().Length(), 2));
-
-      bodyLock.GetBody().GetMotionProperties()->SetLinearVelocity(vLinear);
-      bodyLock.GetBody().GetMotionProperties()->SetAngularVelocity(vAngular);
-
-      //ezLog::Error("after:            vel= {0}, angular vel= {1}, percent change= {2}",
-      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetLinearVelocity().Length(), 2),
-      //  ezArgF(bodyLock.GetBody().GetMotionProperties()->GetAngularVelocity().Length(), 2),
-      //  ezArgF((1-change) * -100.0f, 2));
 
       if (pModule->GetJoltSystem()->GetBodyInterfaceNoLock().IsAdded(JPH::BodyID(pGrabbedActor->GetJoltBodyID())))
       {
@@ -583,7 +580,7 @@ void ezJoltGrabObjectComponent::OnSimulationStarted()
 
 void ezJoltGrabObjectComponent::OnDeactivated()
 {
-  ReleaseGrabbedObject();
+  ReleaseGrabbedObject(0.0f);
 
   SUPER::OnDeactivated();
 }

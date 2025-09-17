@@ -2778,7 +2778,7 @@ class ezJoltGrabObjectComponent : ezComponent
 {
   bool GrabNearbyObject();
   bool HasObjectGrabbed() const;
-  void DropGrabbedObject();
+  void DropGrabbedObject(uint8 uiImpulseType = 0);
   void ThrowGrabbedObject(ezVec3 vDirection, uint8 uiImpulseType = 0);
   void BreakObjectGrab();
   float MaxGrabPointDistance;

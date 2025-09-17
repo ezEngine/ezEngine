@@ -248,7 +248,7 @@ class Player : ezAngelScriptClass
         
                 if (grabComp.HasObjectGrabbed())
                 {
-                    grabComp.DropGrabbedObject();
+                    grabComp.DropGrabbedObject(ezPhysics::GetImpulseTypeByName("Throw Object"));
                     SwitchToWeapon(eHolsteredWeapon);
                 }
                 else if (grabComp.GrabNearbyObject())
