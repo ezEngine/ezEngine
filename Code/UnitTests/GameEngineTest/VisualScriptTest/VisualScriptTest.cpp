@@ -20,6 +20,7 @@ ezGameEngineTestApplication* ezGameEngineTestVisualScript::CreateApplication()
 void ezGameEngineTestVisualScript::SetupSubTests()
 {
   AddSubTest("Variables", SubTests::Variables);
+  AddSubTest("Variables2", SubTests::Variables2);
   AddSubTest("Coroutines", SubTests::Coroutines);
   AddSubTest("Messages", SubTests::Messages);
   AddSubTest("EnumsAndSwitch", SubTests::EnumsAndSwitch);
@@ -47,6 +48,12 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(1);
 
     return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables.ezBinScene");
+  }
+  else if (iIdentifier == SubTests::Variables2)
+  {
+    m_ImgCompFrames.PushBack(1);
+
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables2.ezBinScene");
   }
   else if (iIdentifier == SubTests::Coroutines)
   {

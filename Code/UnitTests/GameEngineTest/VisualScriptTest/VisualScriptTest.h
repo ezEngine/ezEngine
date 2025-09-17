@@ -17,6 +17,7 @@ protected:
   enum SubTests
   {
     Variables,
+    Variables2,
     Coroutines,
     Messages,
     EnumsAndSwitch,
