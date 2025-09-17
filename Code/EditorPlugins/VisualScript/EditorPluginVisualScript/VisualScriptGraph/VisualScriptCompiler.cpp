@@ -775,8 +775,9 @@ ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
     auto dataType = variable.m_TypeDecl.GetDataType();
 
     EZ_ASSERT_DEV(dataType == ezVisualScriptDataType::Variant ||
-      ((dataType == ezVisualScriptDataType::GameObject || dataType == ezVisualScriptDataType::Component) && variable.m_DefaultValue.IsValid() == false) ||
-      dataType == ezVisualScriptDataType::FromVariantType(variable.m_DefaultValue.GetType()), "Data type mismatch");
+                    ((dataType == ezVisualScriptDataType::GameObject || dataType == ezVisualScriptDataType::Component) && variable.m_DefaultValue.IsValid() == false) ||
+                    dataType == ezVisualScriptDataType::FromVariantType(variable.m_DefaultValue.GetType()),
+      "Data type mismatch");
 
     auto& offsetAndCount = m_Module.m_InstanceDataDesc.m_PerTypeInfo[dataType];
 

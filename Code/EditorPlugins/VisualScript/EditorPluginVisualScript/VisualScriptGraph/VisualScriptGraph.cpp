@@ -605,7 +605,7 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
   {
     DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
-  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type")) 
+  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type"))
   {
     // a variable's name or type has changed, re-run type deduction
     for (auto pObject : GetRootObject()->GetChildren())
