@@ -8,6 +8,7 @@
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Constraints/JoltGrabObjectComponent.h>
+#include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <Physics/Constraints/SixDOFConstraint.h>
 #include <RendererCore/Debug/DebugRenderer.h>
