@@ -53,7 +53,7 @@ ezTonemapPass::ezTonemapPass()
   m_fContrast = 1.0f;
   m_fLut1Strength = 1.0f;
   m_fLut2Strength = 0.0f;
-  m_fWhitePoint = 1.0f;
+  m_fWhitePoint = 11.2f;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Tonemap.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load tonemap shader!");
