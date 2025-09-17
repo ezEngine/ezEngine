@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/GrabbableItemComponent.h>
+#include <GameEngine/Physics/ImpulseType.h>
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
