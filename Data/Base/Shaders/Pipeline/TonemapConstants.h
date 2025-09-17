@@ -13,4 +13,5 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   FLOAT1(Lut1Strength);
   FLOAT1(Lut2Strength);
   FLOAT4(ContrastParams);
+  FLOAT1(WhitePoint);
 };

@@ -41,6 +41,7 @@ protected:
   float m_fContrast;
   float m_fLut1Strength;
   float m_fLut2Strength;
+  float m_fWhitePoint;
 
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;

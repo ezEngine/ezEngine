@@ -13,7 +13,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/TonemapConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonemapPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 2, ezRTTIDefaultAllocator<ezTonemapPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -29,6 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonem
     EZ_MEMBER_PROPERTY("LUT2Strength", m_fLut2Strength)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT1", m_hLUT1)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
     EZ_RESOURCE_MEMBER_PROPERTY("LUT2", m_hLUT2)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_3D")),
+    EZ_MEMBER_PROPERTY("WhitePoint", m_fWhitePoint)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -52,6 +53,7 @@ ezTonemapPass::ezTonemapPass()
   m_fContrast = 1.0f;
   m_fLut1Strength = 1.0f;
   m_fLut2Strength = 0.0f;
+  m_fWhitePoint = 1.0f;
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Tonemap.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load tonemap shader!");
@@ -147,6 +149,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->Saturation = m_fSaturation;
     constants->Lut1Strength = lutStrengths[0];
     constants->Lut2Strength = lutStrengths[1];
+    constants->WhitePoint  = m_fWhitePoint;
 
     // Pre-calculate factors of a s-shaped polynomial-function
     const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
@@ -197,6 +200,7 @@ ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
   inout_stream << sTemp;
   sTemp = GetLUT2TextureFile();
   inout_stream << sTemp;
+  inout_stream << m_fWhitePoint;
   return EZ_SUCCESS;
 }
 
@@ -204,7 +208,6 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
   ezStringBuilder sTemp;
   inout_stream >> sTemp;
   SetVignettingTextureFile(sTemp);
@@ -218,6 +221,12 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   SetLUT1TextureFile(sTemp);
   inout_stream >> sTemp;
   SetLUT2TextureFile(sTemp);
+
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_fWhitePoint;
+  }
+  
   return EZ_SUCCESS;
 }
 
