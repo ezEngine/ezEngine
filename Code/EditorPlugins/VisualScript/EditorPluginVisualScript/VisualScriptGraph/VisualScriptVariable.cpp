@@ -318,7 +318,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 2, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_ACCESSOR_PROPERTY("Type", GetTypeDecl, SetTypeDecl),
+    EZ_MEMBER_PROPERTY("Type", m_TypeDecl),
     EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0), new ezVisualScriptVariableAttribute()),
     EZ_MEMBER_PROPERTY("ClampRange", m_bClampRange),
     EZ_MEMBER_PROPERTY("MinValue", m_fMinValue),
@@ -329,23 +329,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 2, ezRTTIDefaul
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezVisualScriptVariable::SetTypeDecl(ezVisualScriptVariableTypeDeclaration typeDecl)
+// static
+void ezVisualScriptVariable::ConvertDefaultValue(ezVariant& inout_defaultValue, ezVisualScriptVariableTypeDeclaration targetTypeDecl)
 {
-  if (m_TypeDecl == typeDecl)
-    return;
-
-  m_TypeDecl = typeDecl;
-
-  // If no doc is present, we are de-serializing the document so do nothing yet.
-  if (m_pDocument == nullptr || m_pDocumentObject == nullptr)
-    return;
-  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
-  ezObjectAccessorBase* pAccessor = m_pDocument->GetObjectAccessor();
-
-  // Do not make new commands if we got here in a response to an undo / redo action.
-  if (pHistory->IsInUndoRedo())
-    return;
-
   auto ConvertOrSetToDefault = [](ezVariant& v, ezVisualScriptDataType::Enum targetType)
   {
     if (targetType == ezVisualScriptDataType::Variant)
@@ -366,56 +352,51 @@ void ezVisualScriptVariable::SetTypeDecl(ezVisualScriptVariableTypeDeclaration t
     }
   };
 
-  ezVariant newDefaultValue = m_DefaultValue;
-  auto targetType = static_cast<ezVisualScriptDataType::Enum>(typeDecl.m_Type.GetValue());
-  if (typeDecl.m_Category == ezVisualScriptVariableCategory::Array)
+  auto targetType = static_cast<ezVisualScriptDataType::Enum>(targetTypeDecl.m_Type.GetValue());
+  if (targetTypeDecl.m_Category == ezVisualScriptVariableCategory::Array)
   {
-    if (newDefaultValue.IsA<ezVariantArray>())
+    if (inout_defaultValue.IsA<ezVariantArray>())
     {
-      ezVariantArray a = newDefaultValue.Get<ezVariantArray>();
+      ezVariantArray a = inout_defaultValue.Get<ezVariantArray>();
       for (auto& v : a)
       {
         ConvertOrSetToDefault(v, targetType);
       }
-      newDefaultValue = a;
+      inout_defaultValue = a;
     }
     else
     {
       ezVariantArray a;
-      ConvertOrSetToDefault(newDefaultValue, targetType);
-      a.PushBack(newDefaultValue);
-      newDefaultValue = a;
+      ConvertOrSetToDefault(inout_defaultValue, targetType);
+      a.PushBack(inout_defaultValue);
+      inout_defaultValue = a;
     }
   }
-  else if (typeDecl.m_Category == ezVisualScriptVariableCategory::Map)
+  else if (targetTypeDecl.m_Category == ezVisualScriptVariableCategory::Map)
   {
-    if (newDefaultValue.IsA<ezVariantDictionary>())
+    if (inout_defaultValue.IsA<ezVariantDictionary>())
     {
-      ezVariantDictionary d = newDefaultValue.Get<ezVariantDictionary>();
+      ezVariantDictionary d = inout_defaultValue.Get<ezVariantDictionary>();
       for (auto it = d.GetIterator(); it.IsValid(); it.Next())
       {
         ezVariant v = it.Value();
         ConvertOrSetToDefault(v, targetType);
         d[it.Key()] = v;
       }
-      newDefaultValue = d;
+      inout_defaultValue = d;
     }
     else
     {
       ezVariantDictionary d;
-      ConvertOrSetToDefault(newDefaultValue, targetType);
-      d["Key"] = newDefaultValue;
-      newDefaultValue = d;
+      ConvertOrSetToDefault(inout_defaultValue, targetType);
+      d["Key"] = inout_defaultValue;
+      inout_defaultValue = d;
     }
   }
   else
   {
-    ConvertOrSetToDefault(newDefaultValue, targetType);
+    ConvertOrSetToDefault(inout_defaultValue, targetType);
   }
-
-  pAccessor->SetValueByName(m_pDocumentObject, "DefaultValue", newDefaultValue).AssertSuccess();
-
-  m_DefaultValue = newDefaultValue;
 }
 
 /////////////////////////////////////////////////////////////////////////////

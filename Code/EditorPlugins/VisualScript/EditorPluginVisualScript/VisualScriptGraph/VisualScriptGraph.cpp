@@ -91,7 +91,6 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
 ezVisualScriptNodeManager::ezVisualScriptNodeManager()
 {
   m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::NodeEventsHandler, this));
-  m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::ObjectStructureEventsHandler, this));
   m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualScriptNodeManager::PropertyEventsHandler, this));
 }
 
@@ -600,27 +599,15 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
   }
 }
 
-void ezVisualScriptNodeManager::ObjectStructureEventsHandler(const ezDocumentObjectStructureEvent& e)
-{
-  switch (e.m_EventType)
-  {
-    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-      
-      break;
-
-    default:
-      break;
-  }
-}
-
 void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (IsNode(e.m_pObject))
   {
     DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
-  else if (e.m_sProperty == "Name" || e.m_sProperty == "DefaultValue") // a variable's name or type has changed, re-run type deduction
+  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type")) 
   {
+    // a variable's name or type has changed, re-run type deduction
     for (auto pObject : GetRootObject()->GetChildren())
     {
       if (IsNode(pObject) == false)
@@ -628,11 +615,15 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
 
       DeductNodeTypeAndAllPinTypes(pObject);
     }
-  }
-  else if (e.m_sProperty == "Type")
-  {
-    auto pDocument = static_cast<ezVisualScriptClassAssetDocument*>(GetDocument());
-    pDocument->SetDocumentPointers();
+
+    if (e.m_sProperty == "Type")
+    {
+      auto typeDecl = e.m_NewValue.Get<ezVisualScriptVariableTypeDeclaration>();
+      ezVariant defaultValue = e.m_pObject->GetTypeAccessor().GetValue("DefaultValue");
+      ezVisualScriptVariable::ConvertDefaultValue(defaultValue, typeDecl);
+
+      GetDocument()->GetObjectAccessor()->SetValueByName(e.m_pObject, "DefaultValue", defaultValue).AssertSuccess();
+    }
   }
 }
 

@@ -149,11 +149,7 @@ struct ezVisualScriptVariable
   double m_fMinValue = 0.0;
   double m_fMaxValue = 1.0;
 
-  void SetTypeDecl(ezVisualScriptVariableTypeDeclaration typeDecl);
-  ezVisualScriptVariableTypeDeclaration GetTypeDecl() const { return m_TypeDecl; }
-
-  ezDocument* m_pDocument = nullptr;
-  ezDocumentObject* m_pDocumentObject = nullptr;
+  static void ConvertDefaultValue(ezVariant& inout_defaultValue, ezVisualScriptVariableTypeDeclaration targetTypeDecl);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINVISUALSCRIPT_DLL, ezVisualScriptVariable);
