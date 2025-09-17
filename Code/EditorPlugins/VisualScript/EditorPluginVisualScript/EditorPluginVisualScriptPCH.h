@@ -14,7 +14,10 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
+#include <QActionGroup>
+#include <QComboBox>
 #include <QLabel>
 #include <QLayout>
+#include <QMenu>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
