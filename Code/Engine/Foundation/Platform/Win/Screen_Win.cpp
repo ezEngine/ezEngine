@@ -76,8 +76,8 @@ static void EnumerateDisplayModes(ezStringView deviceName, ezDynamicArray<ezScre
     ezScreenResolution& mode = inout_Modes.ExpandAndGetRef();
     mode.m_uiResolutionX = devMode.dmPelsWidth;
     mode.m_uiResolutionY = devMode.dmPelsHeight;
-    mode.m_uiBitsPerPixel = devMode.dmBitsPerPel;
-    mode.m_uiRefreshRate = devMode.dmDisplayFrequency;
+    mode.m_uiBitsPerPixel = static_cast<ezUInt8>(devMode.dmBitsPerPel);
+    mode.m_uiRefreshRate = static_cast<ezUInt16>(devMode.dmDisplayFrequency);
   }
 
   inout_Modes.Sort();
