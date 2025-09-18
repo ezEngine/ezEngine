@@ -97,7 +97,7 @@ void ezRmlUiCanvas2DComponent::Update()
   if (m_pContext == nullptr)
     return;
 
-  ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
   bool bNeedsUpdate = m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
 
   ezVec2 viewSize = ezVec2::MakeZero();
