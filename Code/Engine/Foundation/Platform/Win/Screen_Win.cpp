@@ -8,9 +8,9 @@
 EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
 EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_MODE_INFO);
 
-static void QueryMonitorNames(ezMap<ezString, ezString>& out_DeviceIDtoName)
+static void QueryMonitorNames(ezMap<ezString, ezString>& out_deviceIDtoName)
 {
-  out_DeviceIDtoName.Clear();
+  out_deviceIDtoName.Clear();
 
   ezHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
   ezHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
@@ -56,16 +56,16 @@ static void QueryMonitorNames(ezMap<ezString, ezString>& out_DeviceIDtoName)
     if (targetName.flags.friendlyNameFromEdid)
     {
       tmp = targetName.monitorDevicePath;
-      out_DeviceIDtoName[tmp] = targetName.monitorFriendlyDeviceName;
+      out_deviceIDtoName[tmp] = targetName.monitorFriendlyDeviceName;
     }
   }
 }
 
-static void EnumerateDisplayModes(ezStringView deviceName, ezDynamicArray<ezScreenResolution>& inout_Modes)
+static void EnumerateDisplayModes(ezStringView sDeviceName, ezDynamicArray<ezScreenResolution>& inout_modes)
 {
-  inout_Modes.Clear();
+  inout_modes.Clear();
 
-  const ezStringWChar wName(deviceName);
+  const ezStringWChar wName(sDeviceName);
 
   DEVMODEW devMode = {};
   devMode.dmSize = sizeof(DEVMODEW);
@@ -73,17 +73,17 @@ static void EnumerateDisplayModes(ezStringView deviceName, ezDynamicArray<ezScre
   int modeNum = 0;
   while (EnumDisplaySettingsW(wName.GetData(), modeNum++, &devMode))
   {
-    ezScreenResolution& mode = inout_Modes.ExpandAndGetRef();
+    ezScreenResolution& mode = inout_modes.ExpandAndGetRef();
     mode.m_uiResolutionX = devMode.dmPelsWidth;
     mode.m_uiResolutionY = devMode.dmPelsHeight;
     mode.m_uiBitsPerPixel = static_cast<ezUInt8>(devMode.dmBitsPerPel);
     mode.m_uiRefreshRate = static_cast<ezUInt16>(devMode.dmDisplayFrequency);
   }
 
-  inout_Modes.Sort();
+  inout_modes.Sort();
 }
 
-BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
+static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
   EZ_IGNORE_UNUSED(pHdcMonitor);
   EZ_IGNORE_UNUSED(pLprcMonitor);
