@@ -67,9 +67,16 @@ public:
   /// \brief Call this to signal that a game state requested the application to quit.
   ///
   /// ezGameApplication will shut down when this happens. ezEditor will stop play-the-game mode when it is running.
-  virtual void RequestQuit() = 0;
+  /// When calling this, pass a string to identify where the request comes from, e.g. "window" for when clicking
+  /// the window close button, "game" when game logic (UI) decided to quite, etc.
+  /// ezEditor will pass in "editor-esc" and "editor-force" when a game-state should be shut down due to
+  /// the user pressing Escape or clicking the "stop" button.
+  virtual void RequestQuit(ezStringView sRequestedBy) = 0;
 
   /// \brief Returns whether the game state wants to quit the application.
+  ///
+  /// ezGameApplication will shut down when this function returns true.
+  /// Logic for whether to shut down should typically be handled in RequestQuit().
   virtual bool WasQuitRequested() const = 0;
 
   /// \brief Should be overridden by game states that are only meant as a fallback solution.

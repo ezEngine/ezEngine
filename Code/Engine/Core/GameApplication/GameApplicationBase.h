@@ -223,7 +223,6 @@ protected:
   virtual void Init_LoadWorldModuleConfig();
   virtual void Init_LoadProjectPlugins();
   virtual void Init_PlatformProfile_LoadForRuntime();
-  virtual void Init_ConfigureInput();
   virtual void Init_ConfigureTags();
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;

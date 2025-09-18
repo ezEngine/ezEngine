@@ -43,7 +43,6 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_LoadWorldModuleConfig();
   Init_LoadProjectPlugins();
   Init_PlatformProfile_LoadForRuntime();
-  Init_ConfigureInput();
   Init_ConfigureTags();
   Init_ConfigureCVars();
   Init_SetupGraphicsDevice();
@@ -204,8 +203,6 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
 
   m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).IgnoreResult();
 }
-
-void ezGameApplicationBase::Init_ConfigureInput() {}
 
 void ezGameApplicationBase::Init_ConfigureTags()
 {

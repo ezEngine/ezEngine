@@ -21,7 +21,6 @@ private:
   virtual void AfterCoreSystemsStartup() override;
   virtual void Init_LoadProjectPlugins() override {}
   virtual void Init_SetupDefaultResources() override {}
-  virtual void Init_ConfigureInput() override {}
   virtual void Init_ConfigureTags() override {}
   virtual bool Run_ProcessApplicationInput() override { return true; }
 

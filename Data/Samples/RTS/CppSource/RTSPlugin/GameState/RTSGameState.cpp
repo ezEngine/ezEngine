@@ -21,6 +21,25 @@ RTSGameState::RTSGameState()
 
 RTSGameState::~RTSGameState() = default;
 
+void RTSGameState::RequestQuit(ezStringView sRequestedBy)
+{
+  if (sRequestedBy == "window")
+  {
+    // we could do something when the window close button gets pressed
+    // for example show the main menu with the option to quit the game
+  }
+
+  if (sRequestedBy == "editor-esc")
+  {
+    // sent when the ESC key was pressed while playing in the editor
+    // but only when ezGameApplicationInputFlags::Dev_EscapeToClose is used
+    // by default this is on, but deactivated in this sample in RTSGameState::ConfigureInputActions()
+  }
+
+  // by default, just quit, but we could filter this out in certain cases
+  SUPER::RequestQuit(sRequestedBy);
+}
+
 ezString RTSGameState::GetStartupSceneFile()
 {
   // replace this to load a certain scene at startup

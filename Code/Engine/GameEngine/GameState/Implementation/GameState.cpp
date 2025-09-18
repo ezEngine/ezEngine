@@ -111,7 +111,7 @@ void ezGameState::AddMainViewsToRender()
   }
 }
 
-void ezGameState::RequestQuit()
+void ezGameState::RequestQuit(ezStringView sRequestedBy)
 {
   m_bStateWantsToQuit = true;
 }
@@ -275,7 +275,17 @@ void ezGameState::CreateActors()
 
 void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}
 
-void ezGameState::ConfigureInputActions() {}
+void ezGameState::ConfigureInputActions()
+{
+  if (auto pApp = ezGameApplication::GetGameApplicationInstance())
+  {
+    // shipped games should have their own game state
+    // they should probably only use ezGameApplicationInputFlags::LoadInputConfig
+    // if you've come to the point where you want to use the ESC key (for instance to show a menu)
+    // you also need to have your own game-state and remove the flag ezGameApplicationInputFlags::Dev_EscapeToClose
+    pApp->RegisterGameApplicationInputActions(ezGameApplicationInputFlags::All);
+  }
+}
 
 void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewportSize)
 {
@@ -494,7 +504,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
   ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
   pWindow->ResetOnClickClose([this]()
-    { this->RequestQuit(); });
+    { this->RequestQuit("window"); });
   if (pWindow->GetInputDevice())
     pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.02f));
 

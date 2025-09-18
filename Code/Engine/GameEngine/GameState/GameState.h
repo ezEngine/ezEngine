@@ -86,9 +86,9 @@ public:
   /// \brief Simply stores that the game should stop.
   ///
   /// Override this to add more elaborate logic, if necessary.
-  virtual void RequestQuit() override;
+  virtual void RequestQuit(ezStringView sRequestedBy) override;
 
-  /// \brief Whether WasQuitRequested() was called before.
+  /// \brief Whether RequestQuit() was called before.
   virtual bool WasQuitRequested() const override;
 
   /// \brief The ezGameState doesn't implement any input logic, but it forwards to UpdateBackgroundSceneLoading().

@@ -15,7 +15,17 @@ void RTSGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 
 void RTSGameState::ConfigureInputActions()
 {
-  SUPER::ConfigureInputActions();
+  // do NOT call the base implementation, because we don't want the default setup
+  // instead, go to ezGameApplication directly and only set up what we want
+  // SUPER::ConfigureInputActions();
+
+  if (auto pApp = ezGameApplication::GetGameApplicationInstance())
+  {
+    ezBitflags<ezGameApplicationInputFlags> flags = ezGameApplicationInputFlags::All;
+    flags.Remove(ezGameApplicationInputFlags::Dev_EscapeToClose); // remove the "ESC to quit" functionality
+    pApp->RegisterGameApplicationInputActions(flags);
+  }
+
 
   ezInputActionConfig cfg;
 

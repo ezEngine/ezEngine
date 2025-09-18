@@ -468,8 +468,6 @@ void ezSceneContext::OnSimulationEnabled()
 
   ezResourceManager::ReloadAllResources(false);
 
-  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
-
   if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(true);
@@ -644,8 +642,6 @@ void ezSceneContext::OnPlayTheGameModeStarted(ezStringView sStartPosition, const
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
 
-  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
-
   s_pWorldLinkedWithGameState = m_pWorld;
   ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, sStartPosition, startPositionOffset);
 
@@ -741,7 +737,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
 
     ezLog::Info("Attempting to stop Play-the-Game mode");
-    pState->RequestQuit();
+    pState->RequestQuit("editor-force");
   }
 }
 

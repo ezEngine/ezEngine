@@ -59,9 +59,86 @@ void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice*(
   s_DefaultDeviceCreator = creator;
 }
 
-void ezGameApplication::ReinitializeInputConfig()
+namespace
 {
-  Init_ConfigureInput();
+  const char* s_szInputSet = "GameApp";
+  const char* s_szCloseAppAction = "CloseApp";
+  const char* s_szShowConsole = "ShowConsole";
+  const char* s_szShowFpsAction = "ShowFps";
+  const char* s_szReloadResourcesAction = "ReloadResources";
+  const char* s_szCaptureProfilingAction = "CaptureProfiling";
+  const char* s_szCaptureFrame = "CaptureFrame";
+  const char* s_szTakeScreenshot = "TakeScreenshot";
+} // namespace
+
+
+void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags)
+{
+  ezInputActionConfig config;
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_EscapeToClose))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCloseAppAction, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_Console))
+  {
+    // the tilde has problematic behavior on keyboards where it is a hat (^)
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
+    ezInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
+
+    if (m_pConsole)
+    {
+      m_pConsole->LoadInputHistory(":appdata/ConsoleInputHistory.cfg");
+    }
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_ReloadResources))
+  {
+    // in the editor we cannot use F5, because that is already 'run application'
+    // so we use F4 there, and it should be consistent here
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_ShowStats))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureProfilingInfo))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureFrame))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_Screenshot))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
+  }
+
+  if (flags.IsSet(ezGameApplicationInputFlags::LoadInputConfig))
+  {
+    ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
+
+    ezFileReader file;
+    if (file.Open(sConfigFile).Succeeded())
+    {
+      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
+
+      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
+      ezGameAppInputConfig::ApplyAll(InputActions);
+    }
+  }
 }
 
 ezString ezGameApplication::FindProjectDirectory() const
@@ -352,65 +429,6 @@ void ezGameApplication::RenderConsole()
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
       ezDebugRenderer::Draw2DRectangle(hView, ezRectFloat(fCaretX, fCaretY, 2.0f, fLineHeight - 2.0f), 0.0f, caretColor);
     }
-  }
-}
-
-namespace
-{
-  const char* s_szInputSet = "GameApp";
-  const char* s_szCloseAppAction = "CloseApp";
-  const char* s_szShowConsole = "ShowConsole";
-  const char* s_szShowFpsAction = "ShowFps";
-  const char* s_szReloadResourcesAction = "ReloadResources";
-  const char* s_szCaptureProfilingAction = "CaptureProfiling";
-  const char* s_szCaptureFrame = "CaptureFrame";
-  const char* s_szTakeScreenshot = "TakeScreenshot";
-} // namespace
-
-void ezGameApplication::Init_ConfigureInput()
-{
-  ezInputActionConfig config;
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCloseAppAction, config, true);
-
-  // the tilde has problematic behavior on keyboards where it is a hat (^)
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
-  ezInputManager::SetInputActionConfig("Console", s_szShowConsole, config, true);
-
-  // in the editor we cannot use F5, because that is already 'run application'
-  // so we use F4 there, and it should be consistent here
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
-
-  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
-  ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
-
-  {
-    ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
-
-    ezFileReader file;
-    if (file.Open(sConfigFile).Succeeded())
-    {
-      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
-
-      ezGameAppInputConfig::ReadFromDDL(file, InputActions);
-      ezGameAppInputConfig::ApplyAll(InputActions);
-    }
-  }
-
-  if (m_pConsole)
-  {
-    m_pConsole->LoadInputHistory(":appdata/ConsoleInputHistory.cfg");
   }
 }
 

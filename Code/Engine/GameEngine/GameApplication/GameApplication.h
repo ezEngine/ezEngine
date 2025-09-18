@@ -10,7 +10,45 @@
 
 class ezQuakeConsole;
 
-// TODO: update comments below
+/// Which input actions the ezGameApplication may register and execute (see ezGameApplication::RegisterGameApplicationInputActions())
+struct ezGameApplicationInputFlags
+{
+  using StorageType = ezUInt32;
+
+  enum Enum
+  {
+    None = 0,
+    All = 0xFFFFFFFF,
+
+    LoadInputConfig = EZ_BIT(0),           ///< Whether to load the project's ezGameAppInputConfig
+
+    Dev_EscapeToClose = EZ_BIT(8),         ///< Register the ESC key to close the application without asking
+    Dev_Console = EZ_BIT(9),               ///< Register the F1 key to open the developer console
+    Dev_ReloadResources = EZ_BIT(10),      ///< Register the F4 key to reload all resources
+    Dev_ShowStats = EZ_BIT(11),            ///< Register the F5 key to show stats on screen, such as FPS
+    Dev_CaptureProfilingInfo = EZ_BIT(12), ///< Register the F8 key to write a profiling capture to disk
+    Dev_CaptureFrame = EZ_BIT(13),         ///< Register the F11 key to make a render frame capture (if capture plugin is available)
+    Dev_Screenshot = EZ_BIT(14),           ///< Register the F12 key to save a screenshot to disk
+
+    Dev_All = 0xFFFFFF00,
+
+    Default = All
+  };
+
+  struct Bits
+  {
+    StorageType LoadInputConfig : 1;
+    StorageType NonDevBits : 7;
+
+    StorageType Dev_EscapeToClose : 1;
+    StorageType Dev_Console : 1;
+    StorageType Dev_ReloadResources : 1;
+    StorageType Dev_ShowStats : 1;
+    StorageType Dev_CaptureProfilingInfo : 1;
+    StorageType Dev_CaptureFrame : 1;
+    StorageType Dev_Screenshot : 1;
+  };
+};
 
 /// \brief The base class for all typical game applications made with ezEngine
 ///
@@ -30,7 +68,8 @@ class ezQuakeConsole;
 /// Instead see ezGameState.
 ///
 /// ezGameApplication will create exactly one ezGameState by looping over all available ezGameState types
-/// (through reflection) and picking the one whose DeterminePriority function returns the highest priority.
+/// (through reflection) and picking the one that's not marked as a "fallback" gamestate.
+/// If none is found, it uses the fallback gamestate instead.
 /// That game state will live throughout the entire application life-time and will be stepped every frame.
 class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 {
@@ -64,14 +103,18 @@ public:
   /// Alternatively, ezGameApplication::FindProjectDirectory() must be overwritten.
   virtual ezString FindProjectDirectory() const override;
 
-  /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()
-  void ReinitializeInputConfig();
-
   /// \brief Returns the project path that was given to the constructor (or modified by an overridden implementation).
   ezStringView GetAppProjectPath() const { return m_sAppProjectPath; }
 
+  /// Call this to configure which actions the ezGameApplication may handle
+  ///
+  /// Apart from loading the input configuration from disk, this mostly sets up developer options.
+  /// The function is typically called by ezGameState::ConfigureInputActions().
+  /// Once you need full control over the keyboard bindings, you should write your own game state
+  /// and override ezGameState::ConfigureInputActions() to not register all the developer options.
+  void RegisterGameApplicationInputActions(ezBitflags<ezGameApplicationInputFlags> flags);
+
 protected:
-  virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;
   virtual void Init_LoadRequiredPlugins() override;
   virtual void Init_SetupDefaultResources() override;

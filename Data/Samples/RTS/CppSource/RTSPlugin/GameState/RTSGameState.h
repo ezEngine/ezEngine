@@ -36,6 +36,8 @@ public:
 
   static RTSGameState* GetSingleton() { return s_pSingleton; }
 
+  virtual void RequestQuit(ezStringView sRequestedBy) override;
+
 protected:
   virtual void ConfigureMainCamera() override;
   virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;

@@ -105,6 +105,8 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
 
 void ezFallbackGameState::ConfigureInputActions()
 {
+  SUPER::ConfigureInputActions();
+
   g_AllInput.Clear();
 
   RegisterInputAction("Game", "MoveForwards", ezInputSlot_KeyW);
