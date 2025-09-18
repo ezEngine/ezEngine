@@ -5,6 +5,84 @@
 #  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <Foundation/System/Screen.h>
 
+EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_PATH_INFO);
+EZ_DEFINE_AS_POD_TYPE(DISPLAYCONFIG_MODE_INFO);
+
+static void QueryMonitorNames(ezMap<ezString, ezString>& out_DeviceIDtoName)
+{
+  out_DeviceIDtoName.Clear();
+
+  ezHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
+  ezHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
+  UINT32 flags = QDC_ONLY_ACTIVE_PATHS;
+  LONG isError = ERROR_INSUFFICIENT_BUFFER;
+
+  UINT32 pathCount, modeCount;
+  isError = GetDisplayConfigBufferSizes(flags, &pathCount, &modeCount);
+
+  if (isError)
+    return;
+
+  // Allocate the path and mode arrays
+  paths.SetCount(pathCount);
+  modes.SetCount(modeCount);
+
+  // Get all active paths and their modes
+  isError = QueryDisplayConfig(flags, &pathCount, paths.GetData(), &modeCount, modes.GetData(), nullptr);
+
+  // The function may have returned fewer paths/modes than estimated
+  paths.SetCount(pathCount);
+  modes.SetCount(modeCount);
+
+  if (isError)
+    return;
+
+  ezStringBuilder tmp;
+
+  // For each active path
+  for (ezUInt32 i = 0; i < paths.GetCount(); i++)
+  {
+    // Find the target (monitor) friendly name
+    DISPLAYCONFIG_TARGET_DEVICE_NAME targetName = {};
+    targetName.header.adapterId = paths[i].targetInfo.adapterId;
+    targetName.header.id = paths[i].targetInfo.id;
+    targetName.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
+    targetName.header.size = sizeof(targetName);
+    isError = DisplayConfigGetDeviceInfo(&targetName.header);
+
+    if (isError)
+      return;
+
+    if (targetName.flags.friendlyNameFromEdid)
+    {
+      tmp = targetName.monitorDevicePath;
+      out_DeviceIDtoName[tmp] = targetName.monitorFriendlyDeviceName;
+    }
+  }
+}
+
+static void EnumerateDisplayModes(ezStringView deviceName, ezDynamicArray<ezScreenResolution>& inout_Modes)
+{
+  inout_Modes.Clear();
+
+  const ezStringWChar wName(deviceName);
+
+  DEVMODEW devMode = {};
+  devMode.dmSize = sizeof(DEVMODEW);
+
+  int modeNum = 0;
+  while (EnumDisplaySettingsW(wName.GetData(), modeNum++, &devMode))
+  {
+    ezScreenResolution& mode = inout_Modes.ExpandAndGetRef();
+    mode.m_uiResolutionX = devMode.dmPelsWidth;
+    mode.m_uiResolutionY = devMode.dmPelsHeight;
+    mode.m_uiBitsPerPixel = devMode.dmBitsPerPel;
+    mode.m_uiRefreshRate = devMode.dmDisplayFrequency;
+  }
+
+  inout_Modes.Sort();
+}
+
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprcMonitor, LPARAM data)
 {
   EZ_IGNORE_UNUSED(pHdcMonitor);
@@ -26,15 +104,31 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprc
   mon.m_iOffsetY = info.rcMonitor.top;
   mon.m_iResolutionX = info.rcMonitor.right - info.rcMonitor.left;
   mon.m_iResolutionY = info.rcMonitor.bottom - info.rcMonitor.top;
+  mon.m_sDisplayID = info.szDevice;
   mon.m_sDisplayName = info.szDevice;
   mon.m_bIsPrimary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
 
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);
 
+  ezMap<ezString, ezString> monitorNames;
+  QueryMonitorNames(monitorNames);
+
   if (EnumDisplayDevicesW(info.szDevice, 0, &ddev, 1) != FALSE)
   {
-    mon.m_sDisplayName = ddev.DeviceString;
+    ezStringBuilder tmp;
+    tmp = ddev.DeviceID;
+
+    if (auto it = monitorNames.Find(tmp); it.IsValid())
+    {
+      mon.m_sDisplayName = it.Value();
+    }
+    else
+    {
+      mon.m_sDisplayName = ddev.DeviceString;
+    }
+
+    EnumerateDisplayModes(mon.m_sDisplayID, mon.m_SupportedResolutions);
   }
 
   return TRUE;
