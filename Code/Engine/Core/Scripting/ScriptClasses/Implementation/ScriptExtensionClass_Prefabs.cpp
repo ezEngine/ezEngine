@@ -99,3 +99,7 @@ ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefabAsChild(ezWorld* pWorl
   SpawnPrefabHelper(*pWorld, sPrefab, pParent != nullptr ? pParent->GetHandle() : ezGameObjectHandle(), localTransform, uiUniqueID, bSetCreatedByPrefab, bSetHideShapeIcon, rootObjects);
   return rootObjects;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
+

@@ -40,3 +40,7 @@ void ezScriptExtensionClass_Sound::PlaySound(ezWorld* pWorld, ezStringView sReso
 {
   ezSoundInterface::PlaySound(pWorld, sResourceID, ezTransform(vGlobalPos, qGlobalRot), fPitch, fVolume, bBlockIfNotLoaded).IgnoreResult();
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Interfaces_SoundInterface);
+

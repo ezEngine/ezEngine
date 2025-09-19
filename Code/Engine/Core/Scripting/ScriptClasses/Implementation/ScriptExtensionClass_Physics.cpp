@@ -242,3 +242,7 @@ bool ezScriptExtensionClass_Physics::RaycastSurfaceInteraction(ezWorld* pWorld, 
 
   return false;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);
+

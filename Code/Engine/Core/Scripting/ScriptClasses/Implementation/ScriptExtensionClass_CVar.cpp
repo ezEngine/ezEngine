@@ -236,3 +236,7 @@ void ezScriptExtensionClass_CVar::SetStringValue(ezStringView sName, const ezStr
   ezCVarString* pVar = static_cast<ezCVarString*>(pCVar);
   *pVar = sValue;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);
+

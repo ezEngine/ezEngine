@@ -330,3 +330,7 @@ ezSimdTransform ezSpline::EvaluateTransform(float fT) const
 
   return transform;
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Spline);
+
