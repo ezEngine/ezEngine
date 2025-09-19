@@ -4,26 +4,45 @@ o
 {
 	Uuid %id{u4{2949199736187385953,594677763511628701}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{17591929460950621155,9539037896666998266}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0x0000803F}
 		s %Name{"Spacing"}
-		s %Type{""}
+		s %Type{"float"}
 	}
 }
 o
 {
 	Uuid %id{u4{14856778792724873254,3022823047242903889}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{1741110590689987296,5128373602240394720}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0}
 		s %Name{"AlignToSpline"}
-		s %Type{""}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{1741110590689987296,5128373602240394720}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Max{0x000000000000F03F}
+		d %Min{0}
 	}
 }
 o
@@ -37,7 +56,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12892982444285199766,5260723139333185655}}
-		u4 %Hash{3795236884813572253}
+		u4 %Hash{12741422412995963094}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10698852245720595768,15996515677871391451}}
@@ -58,42 +77,56 @@ o
 {
 	Uuid %id{u4{14798663032628252361,6958730011395389370}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Array"}
 		VarArray %DefaultValue
 		{
 			s{"{ 76197ac6-533f-8a33-3a84-6333fb5cb48d }"}
 		}
 		s %Name{"Prefab"}
-		s %Type{""}
+		s %Type{"ezString"}
 	}
 }
 o
 {
 	Uuid %id{u4{15662900985142212956,9354401820467119595}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Vec3 %DefaultValue{f{0,0,0}}
 		s %Name{"RandomOffset"}
-		s %Type{""}
+		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{17591929460950621155,9539037896666998266}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Max{0x0000000000408F40}
+		d %Min{0x9A9999999999B93F}
 	}
 }
 o
 {
 	Uuid %id{u4{13966678169291995336,11465829822701575279}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Vec3 %DefaultValue{f{0,0,0}}
 		s %Name{"RandomRotation"}
-		s %Type{""}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -326,15 +359,23 @@ o
 {
 	Uuid %id{u4{6795609362328732577,4709656159796475894}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{0}
 		VarArray %DefaultValue
 		{
 			s{"{ 76197ac6-533f-8a33-3a84-6333fb5cb48d }"}
 		}
-		b %Expose{1}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"Prefab"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{13}
+			i4 %Category{1}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -674,12 +715,20 @@ o
 {
 	Uuid %id{u4{2376621170794959031,4862082950758791143}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{0}
 		Vec3 %DefaultValue{f{0,0,0}}
-		b %Expose{1}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"RandomRotation"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{8}
+			i4 %Category{0}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -746,12 +795,20 @@ o
 {
 	Uuid %id{u4{15836945309388997765,4901672399189561837}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{0}
 		Vec3 %DefaultValue{f{0,0,0}}
-		b %Expose{1}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"RandomOffset"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{8}
+			i4 %Category{0}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -1161,12 +1218,20 @@ o
 {
 	Uuid %id{u4{16209499938516933507,5140401747127540320}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{1}
 		f %DefaultValue{0x0000803F}
-		b %Expose{1}
+		d %MaxValue{0x0000000000408F40}
+		d %MinValue{0x9A9999999999B93F}
 		HashedString %Name{s{"Spacing"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{5}
+			i4 %Category{0}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -1306,12 +1371,20 @@ o
 {
 	Uuid %id{u4{15815945527105652129,5242022164745285914}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{1}
 		f %DefaultValue{0}
-		b %Expose{1}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"AlignToSpline"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{5}
+			i4 %Category{0}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -1526,12 +1599,20 @@ o
 {
 	Uuid %id{u4{243917159121296310,5384204649170103722}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{0}
 		VarArray %DefaultValue{}
-		b %Expose{0}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"CreatedObjects"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{18}
+			i4 %Category{1}
+			b %Public{0}
+		}
 	}
 }
 o
@@ -1964,12 +2045,20 @@ o
 {
 	Uuid %id{u4{5065629187736132766,5698756959831521874}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
+		b %ClampRange{0}
 		i3 %DefaultValue{0}
-		b %Expose{0}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"SplineChangeCounter"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{3}
+			i4 %Category{0}
+			b %Public{0}
+		}
 	}
 }
 o
@@ -2808,7 +2897,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -3734,6 +3823,23 @@ o
 }
 o
 {
+	Uuid %id{u4{5514559133848394859,6944786798886162182}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableCategory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17714957485560338731,7080333882984422653}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -4136,6 +4242,23 @@ o
 	p
 	{
 		Color %Color{f{0x0BD0CD3E,0x3FFB213D,0x3B0BBA3D,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{17031262981869958585,9370940739905747393}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableType"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -5007,6 +5130,23 @@ o
 	p
 	{
 		s %Title{"Prefabs::SpawnPrefabAsChild {Prefab}"}
+	}
+}
+o
+{
+	Uuid %id{u4{16046955658216964626,14620062218799320494}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableTypeDeclaration"}
+		u3 %TypeVersion{1}
 	}
 }
 o

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{9873490492062827512}
+		u4 %Hash{17386938822955522035}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -68,6 +68,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0xC2B832BF}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -206,6 +207,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0xC2B832BE}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -221,6 +223,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -288,6 +291,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -356,6 +360,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -371,6 +376,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -429,7 +435,7 @@ o
 			Uuid{u4{15648952618086593195,4778860490672539707}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00001040}}
+		Vec3 %LocalPosition{f{0,0xCDCC8CBF,0xCCCC0C3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -471,6 +477,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0x000000C0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -538,6 +545,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0xAC3B8F3F,0x7F54CE3F,0xC486313F}}
 		Vec3 %CustomTangentOut{f{0x0790A6BF,0xCAEFEFBF,0x0B714EBF}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0xF3665FBF}}
 		s %TangentModeIn{"ezSplineTangentMode::Custom"}
 		s %TangentModeOut{"ezSplineTangentMode::Custom"}
@@ -553,6 +561,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0x920A863E}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -568,6 +577,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -583,6 +593,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0xC2B8323E}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -611,6 +622,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0x3A7C41C0,0x233E97BF,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0x920A863E}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -626,6 +638,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -723,7 +736,7 @@ o
 			Uuid{u4{1676572928956058542,5661637111397044204}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00007040}}
+		Vec3 %LocalPosition{f{0,0xCDCC2CC0,0xCCCC0C3F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -780,6 +793,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0xC2B832BE}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -896,6 +910,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -1058,10 +1073,11 @@ o
 	p
 	{
 		b %Active{1}
-		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentIn{f{0x24059F3F,0xDAAC28BF,0x565546BC}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0x920A863E}}
-		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeIn{"ezSplineTangentMode::Custom"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
@@ -1075,6 +1091,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -1090,6 +1107,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0xE17A8CC0,0x7B14E640,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Custom"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -1105,6 +1123,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -1120,6 +1139,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -1920,6 +1940,23 @@ o
 }
 o
 {
+	Uuid %id{u4{4655660492459501943,8090873753673120907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineTangentManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{12435145686180634860,8288333427582851889}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2187,23 +2224,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAttribute"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{3477397724192825265,13467442718353903955}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezManipulatorAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSplineNodeManipulatorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
