@@ -154,7 +154,7 @@ void ezFollowSplineComponent::SetCurrentDistance(float fDistance)
     ezGameObject* pSplineObject = nullptr;
     if (!GetWorld()->TryGetObject(m_hSplineObject, pSplineObject))
       return;
-    
+
     ezSplineComponent* pSplineComponent;
     if (!pSplineObject->TryGetComponentOfBaseType(pSplineComponent))
       return;

@@ -40,7 +40,7 @@ void ezSplineTangentManipulatorAdapter::TangentGizmoEventHandler(const ezGizmoEv
 
     case ezGizmoEvent::Type::Interaction:
     {
-      ezVec3 newTangent;      
+      ezVec3 newTangent;
 
       if (e.m_pGizmo == &m_RotateGizmo)
       {
