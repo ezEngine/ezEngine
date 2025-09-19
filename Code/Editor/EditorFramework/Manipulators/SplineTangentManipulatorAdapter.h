@@ -3,6 +3,8 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 
 #include <Core/Graphics/Spline.h>
+#include <EditorFramework/Gizmos/RotateGizmo.h>
+#include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezGizmoEvent;

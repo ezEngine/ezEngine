@@ -1,6 +1,8 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <Core/Graphics/Camera.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
