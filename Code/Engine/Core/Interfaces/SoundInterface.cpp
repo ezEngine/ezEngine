@@ -43,4 +43,3 @@ void ezScriptExtensionClass_Sound::PlaySound(ezWorld* pWorld, ezStringView sReso
 
 
 EZ_STATICLINK_FILE(Core, Core_Interfaces_SoundInterface);
-

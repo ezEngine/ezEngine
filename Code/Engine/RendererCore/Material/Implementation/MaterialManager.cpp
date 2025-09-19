@@ -672,4 +672,3 @@ ezMaterialManager::PendingChanges::PendingChanges()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialManager);
-

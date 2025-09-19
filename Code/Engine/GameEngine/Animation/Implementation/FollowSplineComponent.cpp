@@ -383,4 +383,3 @@ ezFollowPathComponentPatch_1_2 g_ezFollowPathComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_FollowSplineComponent);
-

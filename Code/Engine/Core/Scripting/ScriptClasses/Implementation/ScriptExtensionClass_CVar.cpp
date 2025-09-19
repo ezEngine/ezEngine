@@ -239,4 +239,3 @@ void ezScriptExtensionClass_CVar::SetStringValue(ezStringView sName, const ezStr
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);
-

@@ -60,4 +60,3 @@ ezVec3 ezScriptExtensionClass_StableRandom::Vec3MinMax(int& inout_iPosition, con
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);
-

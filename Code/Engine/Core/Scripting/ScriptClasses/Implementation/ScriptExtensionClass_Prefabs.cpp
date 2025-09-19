@@ -102,4 +102,3 @@ ezVariantArray ezScriptExtensionClass_Prefabs::SpawnPrefabAsChild(ezWorld* pWorl
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
-

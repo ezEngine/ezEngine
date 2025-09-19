@@ -747,4 +747,3 @@ ezPathNodeComponentPatch_1_2 g_ezPathNodeComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SplineComponent);
-
