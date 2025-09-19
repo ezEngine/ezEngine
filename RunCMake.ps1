@@ -1,9 +1,10 @@
-param 
+param
 (
     [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2022', 'Uwp64vs2022')][string] $Target,
     [switch]$NoUnityBuild,
     [switch]$NoSubmoduleUpdate,
-    [string]$SolutionName
+    [string]$SolutionName,
+    [string]$WorkspaceDir
 )
 
 Set-Location $PSScriptRoot
@@ -55,6 +56,12 @@ $CMAKE_ARGS += "-G"
 
 Write-Host ""
 
+$CustomWorkspace = $False
+
+if ($WorkspaceDir -ne "") {
+    $CustomWorkspace = $True
+}
+
 if ($Target -eq "Win64vs2022") {
 
     Write-Host "=== Generating Solution for Visual Studio 2022 x64 ==="
@@ -62,8 +69,10 @@ if ($Target -eq "Win64vs2022") {
     $CMAKE_ARGS += "Visual Studio 17 2022"
     $CMAKE_ARGS += "-A"
     $CMAKE_ARGS += "x64"
-    $CMAKE_ARGS += "-B"
-    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2022x64"
+
+    if (-not $CustomWorkspace) {
+        $WorkspaceDir = "vs2022x64"
+    }
 }
 elseif ($Target -eq "Uwp64vs2022") {
 
@@ -72,15 +81,30 @@ elseif ($Target -eq "Uwp64vs2022") {
     $CMAKE_ARGS += "Visual Studio 17 2022"
     $CMAKE_ARGS += "-A"
     $CMAKE_ARGS += "x64"
-    $CMAKE_ARGS += "-B"
-    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2022x64uwp"
-    $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
 
+    if (-not $CustomWorkspace) {
+        $WorkspaceDir = "vs2022x64uwp"
+    }
+
+    $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
     $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
     $CMAKE_ARGS += "-DEZ_BUILD_FILTER='UwpProjects'"
 }
 else {
     throw "Unknown target '$Target'."
+}
+
+# Add build directory to CMAKE_ARGS
+$CMAKE_ARGS += "-B"
+$CMAKE_ARGS += "$PSScriptRoot\Workspace\$WorkspaceDir"
+
+Write-Host "Using workspace directory: Workspace\$WorkspaceDir"
+
+# Set custom output directories to avoid conflicts between different workspaces
+if ($CustomWorkspace) {
+    $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_DLL:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Bin"
+    $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_LIB:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Lib"
+    Write-Host "Custom output directories: Workspace\$WorkspaceDir-output\"
 }
 
 Write-Host ""

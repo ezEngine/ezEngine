@@ -46,6 +46,9 @@ if(NOT EZ_SUBMODULE_MODE)
 		DESCRIPTION "An open-source game engine"
 		HOMEPAGE_URL "https://ezengine.net"
 		LANGUAGES ${EZ_LANGUAGES})
+
+	# Enable CTest support for unit testing
+	enable_testing()
 endif()
 
 include("ezPlatform")
