@@ -5,7 +5,15 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
-/// \brief A 4x4 component matrix class.
+/// \brief 4x4 matrix template for 3D transformations and projection operations.
+///
+/// Matrix layout:
+/// ```
+/// | m00 m10 m20 m30 |   Column 0: (m00, m01, m02, m03)
+/// | m01 m11 m21 m31 |   Column 1: (m10, m11, m12, m13)
+/// | m02 m12 m22 m32 |   Column 2: (m20, m21, m22, m23)
+/// | m03 m13 m23 m33 |   Column 3: (m30, m31, m32, m33)
+/// ```
 template <typename Type>
 class ezMat4Template
 {

@@ -127,8 +127,8 @@ namespace cpu_x86
   {
     uint32_t eax, edx;
     __asm__ __volatile__("xgetbv"
-                         : "=a"(eax), "=d"(edx)
-                         : "c"(index));
+      : "=a"(eax), "=d"(edx)
+      : "c"(index));
     return ((uint64_t)edx << 32) | eax;
   }
 

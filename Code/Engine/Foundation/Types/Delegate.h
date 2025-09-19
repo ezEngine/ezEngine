@@ -25,6 +25,16 @@ protected:
 /// The delegate can capture both these use cases dynamically, so this distinction does not need
 /// to be made statically, but is the choice of the user who assigns some function to the delegate.
 ///
+/// Unlike std::function, delegates are designed for performance-critical scenarios with:
+/// - Small, predictable memory footprint (configurable via DataSize template parameter)
+/// - No heap allocation for small callables
+/// - Minimal call overhead (single indirect function call)
+/// - Move semantics for efficient passing
+///
+/// The delegate stores the callable object inline if it fits within DataSize bytes,
+/// otherwise it uses heap allocation. The default 16-byte storage accommodates most
+/// function pointers and member function pointers without allocation.
+///
 /// Delegates have a rather strange syntax:
 ///
 /// \code{.cpp}

@@ -3,10 +3,14 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Thread.h>
 
-/// \brief This class is the base class for threads which need dispatching of calls.
+/// \brief Thread base class enabling cross-thread function call dispatching
 ///
-/// Used by deriving from this class and overriding the Run() method. Call DispatchQueue() regurarely so that the collected messages can be
-/// dispatched.
+/// Extends ezThread to provide a message passing mechanism where other threads can schedule
+/// function calls to execute within this thread's context. Useful for thread-safe operations
+/// that must run on specific threads (e.g., UI updates, OpenGL calls).
+///
+/// Derived classes must call DispatchQueue() regularly in their Run() method to process
+/// queued function calls. The double-buffering design ensures minimal lock contention.
 class EZ_FOUNDATION_DLL ezThreadWithDispatcher : public ezThread
 {
 public:

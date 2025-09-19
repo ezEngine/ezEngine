@@ -7,7 +7,19 @@
 
 class ezMessage;
 
-/// \brief The base class for all message handlers that a type provides.
+/// \brief Base class for all message handlers in the reflection system's message dispatch framework.
+///
+/// Message handlers allow types to declare methods that can receive and process specific message
+/// types through the reflection system. This enables loose coupling and dynamic message routing
+/// without requiring direct method calls or explicit dependencies.
+///
+/// The handler system supports both const and non-const member functions, automatically detecting
+/// the appropriate calling convention at compile time. Messages are dispatched through type-safe
+/// function pointers with minimal overhead.
+///
+/// This is typically used internally by the reflection macros and should not be used directly.
+/// Instead, use EZ_BEGIN_MESSAGEHANDLERS / EZ_MESSAGE_HANDLER / EZ_END_MESSAGEHANDLERS in
+/// your reflected type definitions.
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:

@@ -28,9 +28,13 @@ enum class ezOpenDdlPrimitiveType
   Custom
 };
 
-/// \brief A low level parser for the OpenDDL format. It can incrementally parse the structure, individual blocks can be skipped.
+/// \brief Low-level streaming parser for OpenDDL documents
 ///
-/// The document structure is returned through virtual functions that need to be overridden.
+/// This abstract base class provides incremental parsing of OpenDDL (Open Data Description Language) format.
+/// Unlike ezOpenDdlReader which builds a complete in-memory tree, this parser operates in streaming mode,
+/// calling virtual functions as elements are encountered. This allows processing large documents with minimal
+/// memory usage and enables selective parsing where only certain parts are processed.
+/// Derived classes must override the virtual On* methods to handle parsed elements.
 class EZ_FOUNDATION_DLL ezOpenDdlParser
 {
 public:
@@ -44,19 +48,21 @@ protected:
   /// \brief Sets an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
-  /// \brief Data is returned in larger chunks, to reduce the number of function calls. The cache size determines the maximum chunk size per primitive
-  /// type.
+  /// \brief Sets the internal cache size for batching primitive data callbacks
   ///
-  /// Default cache size is 4 KB. That means up to 1000 integers may be returned in one chunk (or 500 doubles).
-  /// It does not help to increase the chunk size, when the input data doesn't use such large data lists.
+  /// Data is returned in larger chunks to reduce the number of function calls. The cache size determines
+  /// the maximum chunk size per primitive type. Default cache size is 4 KB, allowing up to 1000 integers
+  /// or 500 doubles per chunk. Increasing the cache size only helps when the input data contains large
+  /// primitive arrays, otherwise it provides no benefit.
   void SetCacheSize(ezUInt32 uiSizeInKB);
 
   /// \brief Configures the parser to read from the given stream. This can only be called once on a parser instance.
   void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0); // [tested]
 
-  /// \brief Call this to parse the next piece of the document. This may trigger a callback through which data is returned.
+  /// \brief Parses the next portion of the document and triggers appropriate callbacks
   ///
-  /// This function returns false when the end of the document has been reached, or a fatal parsing error has been reported.
+  /// Returns false when the end of the document has been reached or a fatal parsing error occurred.
+  /// Use this for incremental parsing where you want to control when parsing happens.
   bool ContinueParsing(); // [tested]
 
   /// \brief Calls ContinueParsing() in a loop until that returns false.
@@ -104,7 +110,10 @@ protected:
   // virtual void OnBeginPrimitiveArrayList(ezOpenDdlPrimitiveType type, ezUInt32 uiGroupSize) = 0;
   // virtual void OnEndPrimitiveArrayList() = 0;
 
-  /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
+  /// \brief Called when boolean primitive data is available
+  ///
+  /// Multiple values may be reported at once for efficiency. bThisIsAll indicates if this is the final batch
+  /// for the current primitive list. Implementations should accumulate data if bThisIsAll is false.
   virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.

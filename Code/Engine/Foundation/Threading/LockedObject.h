@@ -1,7 +1,16 @@
 #pragma once
 
-/// \brief Provides access to an object while managing a lock (e.g. a mutex) that ensures that during its lifetime the access to the object
-/// happens under the lock.
+/// \brief RAII wrapper providing thread-safe access to an object with automatic lock management
+///
+/// Combines object access with lock acquisition/release in a single type. The lock is acquired
+/// in the constructor and automatically released in the destructor, ensuring exception-safe
+/// critical sections. Only move semantics are supported to prevent accidental lock duplication.
+///
+/// Template parameters:
+/// - T: Lock type (e.g., ezMutex, ezSharedMutex)
+/// - O: Object type being protected
+///
+/// Typical usage involves creating this as a temporary object to access shared data safely.
 template <typename T, typename O>
 class ezLockedObject
 {

@@ -20,10 +20,11 @@ public:
 
   ~ezCompressedStreamReaderZstd();                            // [tested]
 
-  /// \brief Configures the reader to decompress the data from the given input stream.
+  /// \brief Configures the input stream for decompression
   ///
-  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new
-  /// one.
+  /// Sets or changes the source stream for compressed data. This method can be called multiple times
+  /// to reuse the decoder instance, which is more efficient than creating new instances for each
+  /// decompression operation.
   void SetInputStream(ezStreamReader* pInputStream); // [tested]
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
@@ -81,17 +82,14 @@ public:
   /// \brief Calls FinishCompressedStream() internally.
   ~ezCompressedStreamWriterZstd(); // [tested]
 
-  /// \brief Configures to which other ezStreamWriter the compressed data should be passed along.
+  /// \brief Configures output stream and compression parameters
   ///
-  /// Also configures how strong the compression should be and how much data (in KB) should be cached internally before passing it
-  /// to the compressor. Adjusting this cache size is only of interest, if the compressed output needs to be consumed as quickly as possible
-  /// (ie sent over a network) even before the full data is compressed. Otherwise 4 KB is a good default.
+  /// Sets the destination stream, compression level, worker thread count, and internal cache size.
+  /// The cache size (in KB) affects how much data is buffered before compression - adjust only if
+  /// compressed output needs immediate consumption (e.g., network streaming). Default 4 KB works well otherwise.
   ///
-  /// This has to be called before writing any bytes to the stream. It may be called by the constructor.
-  /// If this is called a second time, on the same writer, the writer finishes up all work on the previous stream and can then be reused on
-  /// another stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively. It also
-  /// allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will only
-  /// allocate internal structures once that final decision is made.
+  /// Must be called before writing data. Can be called multiple times to reuse the compressor instance,
+  /// which prevents internal reallocations and allows late binding of output streams.
   void SetOutputStream(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.

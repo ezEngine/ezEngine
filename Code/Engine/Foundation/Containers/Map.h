@@ -181,12 +181,28 @@ public:
 ///
 /// A map allows to store key/value pairs. This in turn allows to search for values by looking them
 /// up with a certain key. Key/Value pairs can also be erased again.
-/// All insertion/erasure/lookup functions take O(log n) time. The map is implemented using a balanced tree
-/// (a red-black tree), which means the order of insertions/erasures is not important, since it can never
-/// create a degenerated tree, and performance will always stay the same.\n
-/// \n
-/// KeyType is the key type. For example a string.\n
-/// ValueType is the value type. For example int.\n
+/// This container is implemented using a balanced tree (red-black tree, Anderson tree variant), which means
+/// the order of insertions/erasures is not important, since it can never create a degenerated tree.
+///
+/// Performance characteristics:
+/// - All operations: O(log n) - insertion, erasure, lookup, bounds checking
+/// - Memory usage: One node per key/value pair plus tree overhead
+/// - Iteration: O(n) in sorted key order
+/// - No reallocation of existing elements (stable pointers/references)
+///
+/// Use when:
+/// - You need sorted iteration by key
+/// - Stable element addresses are important
+/// - Range queries (lower_bound, upper_bound) are needed
+/// - Predictable O(log n) performance is required
+///
+/// Consider ezHashTable instead when:
+/// - You don't need sorted iteration
+/// - You want O(1) average case performance
+/// - Memory usage is more critical
+///
+/// KeyType is the key type. For example a string.
+/// ValueType is the value type. For example int.
 /// Comparer is a helper class that implements a strictly weak-ordering comparison for Key types.
 template <typename KeyType, typename ValueType, typename Comparer>
 class ezMapBase

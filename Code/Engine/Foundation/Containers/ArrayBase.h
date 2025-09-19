@@ -62,6 +62,8 @@ public:
   void SetCount(ezUInt32 uiCount, const T& fillValue); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
+  ///
+  /// This function is only available for types that are trivially constructible. New elements are not initialized,
   template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
@@ -90,16 +92,28 @@ public:
   /// \brief Inserts all elements in the range starting at the given index, shifting the elements after the index.
   void InsertRangeAt(ezUInt32 uiIndex, const ezArrayPtr<const T>& range); // [tested]
 
-  /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
+  /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements.
+  ///
+  /// This maintains the order of remaining elements but is O(n) due to element shifting.
+  /// Returns true if the element was found and removed, false otherwise.
   bool RemoveAndCopy(const T& value); // [tested]
 
-  /// \brief Removes the first occurrence of value and fills the gap by swapping in the last element
+  /// \brief Removes the first occurrence of value and fills the gap by swapping in the last element.
+  ///
+  /// This is O(1) but does not preserve element order. The last element takes the place of the removed element.
+  /// Returns true if the element was found and removed, false otherwise.
   bool RemoveAndSwap(const T& value); // [tested]
 
-  /// \brief Removes the element at index and fills the gap by shifting all following elements
+  /// \brief Removes the element at index and fills the gap by shifting all following elements.
+  ///
+  /// This maintains the order of remaining elements but is O(n) due to element shifting.
+  /// Can remove multiple consecutive elements when uiNumElements > 1.
   void RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
-  /// \brief Removes the element at index and fills the gap by swapping in the last element
+  /// \brief Removes the element at index and fills the gap by swapping in the last element.
+  ///
+  /// This is O(1) but does not preserve element order. When removing multiple elements, each gap is filled
+  /// by swapping in elements from the end of the array.
   void RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements = 1); // [tested]
 
   /// \brief Searches for the first occurrence of the given value and returns its index or ezInvalidIndex if not found.
@@ -121,9 +135,17 @@ public:
   void PushBack(T&& value); // [tested]
 
   /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  ///
+  /// This is a performance optimization when you know the array has sufficient capacity.
+  /// Will cause undefined behavior if the array is already at capacity. Use Reserve() or
+  /// ensure sufficient capacity before calling this function.
   void PushBackUnchecked(const T& value); // [tested]
 
   /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  ///
+  /// This is a performance optimization when you know the array has sufficient capacity.
+  /// Will cause undefined behavior if the array is already at capacity. Use Reserve() or
+  /// ensure sufficient capacity before calling this function.
   void PushBackUnchecked(T&& value); // [tested]
 
   /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.

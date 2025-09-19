@@ -8,15 +8,27 @@
 /// \brief This is a helper class to parse command lines.
 ///
 /// Initialize it using SetCommandLine(). Then query for command line options using GetStringOption(), GetBoolOption(), GetIntOption()
-/// or GetFloatOption()
+/// or GetFloatOption().
+///
+/// Command line format:
+/// - Options start with a hyphen (-) and can have zero or more arguments
+/// - Arguments that don't start with a hyphen are considered values for the preceding option
+/// - Boolean options can be specified alone (-verbose) or with a value (-verbose true)
+/// - Multiple arguments can follow an option (-input file1.txt file2.txt)
+///
+/// Examples:
+/// - Simple flags: "-verbose -debug"
+/// - Options with values: "-input data.txt -output result.bin"
+/// - Multiple values: "-files a.txt b.txt c.txt -count 3"
+/// - Mixed usage: "-v -input file.dat -threads 4 -optimize"
 class EZ_FOUNDATION_DLL ezCommandLineUtils
 {
 public:
   enum ArgMode
   {
-    UseArgcArgv,  ///< Use the passed in argc/argv values as they are passed in
-    PreferOsArgs, ///< On Windows, ignore argc/argv and instead query the global arguments from the OS. Necessary to properly support
-                  ///< Unicode strings in arguments.
+    UseArgcArgv,  ///< Use the passed in argc/argv values as they are passed in. May have limited Unicode support on some platforms.
+    PreferOsArgs, ///< On Windows, ignore argc/argv and query arguments directly from GetCommandLineW(). This provides full Unicode
+                  ///< support and handles special characters correctly. On non-Windows platforms, falls back to UseArgcArgv behavior.
   };
 
   /// \brief Returns one global instance of ezCommandLineUtils.
@@ -151,13 +163,22 @@ public:
   ///   If that conversion fails or there is no such option or no parameter follows it, fDefault is returned.
   double GetFloatOption(ezStringView sOption, double fDefault = 0.0, bool bCaseSensitive = false) const; // [tested]
 
-  /// \brief This allows to append an argument programmatically, that wasn't actually set through the command line.
+  /// \brief Appends an argument programmatically, as if it was specified on the command line.
   ///
   /// This can be useful when the command-line is a method to configure something, which might be hidden away in a plugin,
-  /// and we have no other easy way to configure it.
+  /// and we have no other easy way to configure it. Also useful for programmatically adding default values or
+  /// configuration overrides.
   ///
-  /// Be aware that each call to this function is like one command line argument. Therefore to add "-arg test", call it two times,
-  /// once with "-arg", once with "test". To add a string with spaces, call it once, but do not wrap the string in artificial quotes.
+  /// Each call to this function adds one command line argument. Therefore to add "-arg test", call it two times,
+  /// once with "-arg", once with "test". To add a string with spaces, call it once, but do not wrap the string
+  /// in artificial quotes - the function handles strings with spaces correctly.
+  ///
+  /// Example usage:
+  /// \code
+  ///   cmdLine.InjectCustomArgument("-config");
+  ///   cmdLine.InjectCustomArgument("default.cfg");
+  ///   cmdLine.InjectCustomArgument("path with spaces");  // Handled correctly without quotes
+  /// \endcode
   void InjectCustomArgument(ezStringView sArgument); // [tested]
 
 private:

@@ -44,52 +44,52 @@ public:
 
 public:
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetReciprocal() const;                                                    // [tested]
+  ezSimdVec4f GetReciprocal() const;                                                                                  // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetSqrt() const;                                                          // [tested]
+  ezSimdVec4f GetSqrt() const;                                                                                        // [tested]
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetInvSqrt() const;                                                       // [tested]
+  ezSimdVec4f GetInvSqrt() const;                                                                                     // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLength() const;                                                        // [tested]
+  ezSimdFloat GetLength() const;                                                                                      // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetInvLength() const;                                                     // [tested]
+  ezSimdFloat GetInvLength() const;                                                                                   // [tested]
 
   template <int N>
-  ezSimdFloat GetLengthSquared() const;                                                 // [tested]
+  ezSimdFloat GetLengthSquared() const;                                                                               // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdFloat GetLengthAndNormalize();                                                  // [tested]
+  ezSimdFloat GetLengthAndNormalize();                                                                                // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdVec4f GetNormalized() const;                                                    // [tested]
+  ezSimdVec4f GetNormalized() const;                                                                                  // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void Normalize();                                                                     // [tested]
+  void Normalize();                                                                                                   // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
+  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>());                               // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void NormalizeIfNotZero(const ezSimdVec4f& vFallback, const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
   template <int N>
-  bool IsZero() const;                                                                  // [tested]
+  bool IsZero() const;                                                                                                // [tested]
 
   template <int N>
-  bool IsZero(const ezSimdFloat& fEpsilon) const;                                       // [tested]
+  bool IsZero(const ezSimdFloat& fEpsilon) const;                                                                     // [tested]
 
   template <int N>
-  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::HugeEpsilon<float>()) const;  // [tested]
+  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::HugeEpsilon<float>()) const;                                // [tested]
 
   template <int N>
-  bool IsNaN() const;                                                                   // [tested]
+  bool IsNaN() const;                                                                                                 // [tested]
 
   template <int N>
-  bool IsValid() const;                                                                 // [tested]
+  bool IsValid() const;                                                                                               // [tested]
 
 public:
   template <int N>

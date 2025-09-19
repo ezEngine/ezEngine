@@ -28,8 +28,15 @@ enum class ezDirectoryWatcherType
   Directory
 };
 
-/// \brief
-///   Watches file actions in a directory. Changes need to be polled.
+/// \brief Platform-abstracted file system monitoring for detecting directory changes
+///
+/// Provides efficient monitoring of file system events (create, modify, delete, rename) within
+/// a specified directory. Uses native OS facilities (inotify on Linux, ReadDirectoryChangesW on Windows)
+/// for minimal overhead polling. Essential for tools like asset hot-reloading, live file editing,
+/// and build system dependency tracking.
+///
+/// Changes are queued internally and retrieved through polling via EnumerateChanges(). Supports
+/// configurable event filtering and optional recursive subdirectory monitoring.
 class EZ_FOUNDATION_DLL ezDirectoryWatcher
 {
 public:

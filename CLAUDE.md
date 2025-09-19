@@ -44,3 +44,48 @@ ctest --test-dir Workspace/claude-build -C Debug -V
 - **Workspace Cleanup**: To clean up, simply delete the `Workspace/claude-build/` directory and regenerate
 
 - For a basic compilation test, build the **Foundation** library.
+
+## Code Documentation
+
+When documenting code:
+
+* Use a neutral tone for all descriptions.
+* Don't use adjectives to describe how great, efficient or otherwise special some piece of code is. Keep the description factual.
+* Add information that isn't obvious.
+* When documenting a class don't list all its features, if that would just repeat information that is already clearly visible from its interface.
+* Give context for where and how something would be used, especially when a name is ambiguous.
+* Mention edge cases, for instance what effect certain argument values might have (such as asserts, errors or very different code paths).
+* Clearly warn of non-obvious behavior.
+* Make it clear when some code can be used for some purpose, but maybe shouldn't be used often, because of performance or other concerns.
+* Don't add descriptions that would be redundant. Do not document simple getter, setter or comparison functions. Don't repeat things in comments that are already obvious from class or function names or function arguments. It is fine not to document a class or function, at all, if there is nothing of value to add.
+
+Use this documentation comment style:
+
+```cpp
+/// Brief description
+///
+/// Optional detailed description
+/// across multiple lines.
+class Object
+{
+public:
+  /// Brief function documentation
+  ///
+  /// Optional long description.
+  void Function();
+
+  /// Public member documentation
+  int m_iMember = 0;
+};
+
+enum Enum
+{
+  Value1, ///< comment
+  Value2, ///< comment
+};
+```
+
+Don't use `/brief` or `/return`.
+Only use `/param` when it is really necessary to document arguments individually.
+
+For inspiration how detailed to document code, see the Foundation library, where a large part of the code is well documented.

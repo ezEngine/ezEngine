@@ -5,27 +5,27 @@
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Vec3.h>
 
-/// \todo Fix docs and unit tests
-
-/// \brief A class that represents position, rotation and scaling via a position vector, a quaternion and a scale vector.
+/// \brief Represents position, rotation and scaling using separate components for efficient hierarchical transformations.
 ///
-/// Scale is applied first, then rotation and finally translation is added. Thus scale and rotation are always in 'local space',
-/// i.e. applying a rotation to the ezTransformTemplate will rotate objects in place around their local center.
-/// Since the translation is added afterwards, the translation component is always the global center position, around which
-/// objects rotate.
+/// Transform operations follow the order: Scale → Rotation → Translation (SRT).
+/// This ensures that scale and rotation are applied in local space, while translation
+/// occurs in global space. This makes the translation component represent the global
+/// center position around which objects rotate.
 ///
-/// The functions SetLocalTransform() and SetGlobalTransform() allow to create transforms that either represent the full
-/// global transformation of an object, factoring its parent's transform in, or the local transformation that will get you
-/// from the parent's global transformation to the current global transformation of a child (i.e. only the difference).
-/// This is particularly useful when editing entities in a hierarchical structure.
+/// Hierarchical transformation support:
+/// - MakeLocalTransform(): Creates the local transformation difference between parent and child
+/// - MakeGlobalTransform(): Combines parent's global transform with child's local transform
+/// - Useful for editing entities in hierarchical structures where you need to factor in parent transforms
 ///
-/// This representation cannot handle shearing, which means rotations and scalings cannot be combined correctly.
-/// Many parts of game engine cannot handle shearing or non-uniform scaling across hierarchies anyway. Therefore this
-/// class implements a simplified way of combining scalings when multiplying two ezTransform's. Instead of rotating scale into
-/// the proper space, the two values are simply multiplied component-wise.
+/// Limitations:
+/// - Cannot represent shearing transformations
+/// - Non-uniform scaling across hierarchies uses simplified component-wise multiplication
+/// - When these limitations are problematic, use ezMat3 or ezMat4T instead
 ///
-/// In situations where this is insufficient, use a 3x3 or 4x4 matrix instead. Sometimes it is sufficient to use the matrix for
-/// the computation and the result can be stored in a transform again.
+/// Performance characteristics:
+/// - More memory efficient than 4x4 matrices (7 floats vs 16)
+/// - Faster interpolation and concatenation than matrices
+/// - Suitable for real-time animation and game object hierarchies
 template <typename Type>
 class ezTransformTemplate
 {
@@ -54,17 +54,24 @@ public:
   /// \brief Creates an identity transform.
   [[nodiscard]] static ezTransformTemplate<Type> MakeIdentity();
 
-  /// \brief Creates a transform from the given matrix.
+  /// \brief Creates a transform from the given matrix using decomposition.
   ///
-  /// \note This operation always succeeds, even though the matrix may be complete garbage (e.g. a zero matrix)
-  /// or may not be representable as a transform (containing shearing).
-  /// Also be careful with mirroring. The transform may or may not be able to represent that.
+  /// Attempts to decompose the matrix into separate translation, rotation, and scale components.
+  /// The operation always succeeds but may produce unexpected results with invalid matrices.
+  ///
+  /// \note Matrices containing shearing cannot be accurately represented as transforms.
+  /// Mirroring (negative determinant) may not be preserved correctly.
+  /// Zero or near-zero matrices will produce degenerate transforms.
   [[nodiscard]] static ezTransformTemplate<Type> MakeFromMat4(const ezMat4Template<Type>& mMat);
 
   /// \brief Creates a transform that is the local transformation needed to get from the parent's transform to the child's.
+  ///
+  /// Computes: localTransform = inverse(globalTransformParent) * globalTransformChild
   [[nodiscard]] static ezTransformTemplate<Type> MakeLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
 
   /// \brief Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
+  ///
+  /// Computes: globalTransform = globalTransformParent * localTransformChild
   [[nodiscard]] static ezTransformTemplate<Type> MakeGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
   /// \brief Sets the position to be zero and the rotation to identity.
@@ -74,9 +81,14 @@ public:
   Type GetMaxScale() const;
 
   /// \brief Returns whether this transform contains negative scaling aka mirroring.
+  ///
+  /// Checks if any scale component is negative, which indicates mirroring along that axis.
+  /// Important for correct normal vector transformations and culling operations.
   bool HasMirrorScaling() const;
 
   /// \brief Returns whether this transform contains uniform scaling.
+  ///
+  /// Returns true if all three scale components have the same absolute value.
   bool ContainsUniformScale() const;
 
   /// \brief Checks that all components are valid (no NaN, only finite numbers).
@@ -96,13 +108,19 @@ public:
   void Invert(); // [tested]
 
   /// \brief Returns the inverse of this transform.
-  const ezTransformTemplate GetInverse() const;                                               // [tested]
+  const ezTransformTemplate GetInverse() const; // [tested]
 
-  [[nodiscard]] ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const;  // [tested]
+  /// \brief Transforms a position vector by this transform (applies scale, rotation, and translation).
+  [[nodiscard]] ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
+
+  /// \brief Transforms a direction vector by this transform (applies scale and rotation, but not translation).
   [[nodiscard]] ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
-  void operator+=(const ezVec3Template<Type>& v);                                             // [tested]
-  void operator-=(const ezVec3Template<Type>& v);                                             // [tested]
+  /// \brief Translates the transform by the given vector in global space.
+  void operator+=(const ezVec3Template<Type>& v); // [tested]
+
+  /// \brief Translates the transform by the negative of the given vector in global space.
+  void operator-=(const ezVec3Template<Type>& v); // [tested]
 
   // *** Conversion operations ***
 public:
@@ -112,7 +130,7 @@ public:
 
 // *** free functions ***
 
-/// \brief Transforms the vector v by the transform.
+/// \brief Transforms the vector v by the transform (equivalent to TransformPosition).
 template <typename Type>
 const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
 
@@ -133,6 +151,9 @@ template <typename Type>
 const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v); // [tested]
 
 /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
+///
+/// Computes: result = t1 * t2 (apply t2 first, then t1)
+/// Equivalent to: MakeGlobalTransform(t1, t2)
 template <typename Type>
 const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
 

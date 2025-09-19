@@ -4,6 +4,13 @@
 #include <Foundation/Math/Vec3.h>
 
 /// \brief A 3x3 component matrix class.
+///
+/// Matrix layout (column-major):
+/// ```
+/// | m00 m10 m20 |   Column 0: (m00, m01, m02)
+/// | m01 m11 m21 |   Column 1: (m10, m11, m12)
+/// | m02 m12 m22 |   Column 2: (m20, m21, m22)
+/// ```
 template <typename Type>
 class ezMat3Template
 {

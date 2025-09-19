@@ -2,21 +2,28 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief This class provides functions to do atomic operations.
+/// \brief Low-level platform-independent atomic operations for thread-safe programming
 ///
-/// Atomic operations are generally faster than mutexes, and should therefore be preferred whenever possible.
-/// However only the operations in themselves are atomic, once you execute several of them in sequence,
-/// the sequence will not be atomic.
-/// Also atomic operations are a lot slower than non-atomic operations, thus you should not use them in code that
-/// does not need to be thread-safe.
-/// ezAtomicInteger is built on top of ezAtomicUtils and provides a more convenient interface to use atomic
-/// integer instructions.
+/// Provides atomic (indivisible) operations that are faster than mutexes for simple operations
+/// but slower than regular operations. Use only when thread safety is required.
+///
+/// Important considerations:
+/// - Individual operations are atomic, but sequences of operations are not
+/// - Only use in code that requires thread safety - atomic ops have performance overhead
+/// - For higher-level usage, prefer ezAtomicInteger which wraps these utilities
+/// - All operations use lock-free hardware instructions where available
+///
+/// These functions form the foundation for lock-free data structures and algorithms.
 struct EZ_FOUNDATION_DLL ezAtomicUtils
 {
-  /// \brief Returns src as an atomic operation and returns its value.
+  /// \brief Atomically reads a 32-bit integer value
+  ///
+  /// Ensures the read operation is atomic and not subject to partial reads on all platforms.
   static ezInt32 Read(const ezInt32& iSrc); // [tested]
 
-  /// \brief Returns src as an atomic operation and returns its value.
+  /// \brief Atomically reads a 64-bit integer value
+  ///
+  /// Ensures the read operation is atomic and not subject to partial reads on all platforms.
   static ezInt64 Read(const ezInt64& iSrc); // [tested]
 
   /// \brief Increments dest as an atomic operation and returns the new value.

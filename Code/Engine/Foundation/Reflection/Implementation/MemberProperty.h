@@ -10,11 +10,21 @@
 // ***** Base class for accessing properties *****
 
 
-/// \brief The base class for all typed member properties. I.e. once the type of a property is determined, it can be cast to the proper
-/// version of this.
+/// \brief Type-safe base class for accessing member properties with known data types.
 ///
-/// For example, when you have a pointer to an ezAbstractMemberProperty and it returns that the property is of type 'int', you can cast the
-/// pointer to an pointer to ezTypedMemberProperty<int> which then allows you to access its values.
+/// Once you determine a property's type through the reflection system, you can safely cast
+/// the abstract property pointer to this typed version. This provides type-safe access to
+/// property values without the overhead of variant conversions.
+///
+/// Example usage:
+/// ```cpp
+/// auto* abstractProp = rtti->FindPropertyByName("someProperty");
+/// if (abstractProp->GetSpecificType() == ezGetStaticRTTI<int>())
+/// {
+///   auto* intProp = static_cast<ezTypedMemberProperty<int>*>(abstractProp);
+///   int value = intProp->GetValue(instance);
+/// }
+/// ```
 template <typename Type>
 class ezTypedMemberProperty : public ezAbstractMemberProperty
 {
@@ -79,7 +89,17 @@ public:
 // *******************************************************************
 // ***** Class for properties that use custom accessor functions *****
 
-/// \brief [internal] An implementation of ezTypedMemberProperty that uses custom getter / setter functions to access a property.
+/// \brief Implementation of ezTypedMemberProperty that uses custom getter/setter functions to access a property.
+///
+/// This property type is used when you want to expose computed or transformed values as properties,
+/// or when you need to perform validation, logging, or side effects during property access.
+/// The actual data may be stored differently than how it's exposed through the property interface.
+///
+/// Use this when:
+/// - Property value needs computation or transformation
+/// - You need to validate or clamp values on set
+/// - Property access should trigger side effects
+/// - The internal storage format differs from the exposed type
 template <typename Class, typename Type>
 class ezAccessorProperty : public ezTypedMemberProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {
@@ -138,7 +158,7 @@ private:
 // ***** Classes for properties that are accessed directly *****
 
 /// \brief [internal] Helper class to generate accessor functions for (private) members of another class
-template <typename Class, typename Type, Type Class::*Member>
+template <typename Class, typename Type, Type Class::* Member>
 struct ezPropertyAccessor
 {
   static Type GetValue(const Class* pInstance) { return (*pInstance).*Member; }
@@ -149,7 +169,11 @@ struct ezPropertyAccessor
 };
 
 
-/// \brief [internal] An implementation of ezTypedMemberProperty that accesses the property data directly.
+/// \brief Implementation of ezTypedMemberProperty that provides direct access to member variables.
+///
+/// This property type offers the most efficient access to object members by directly
+/// reading from and writing to the memory location of a class member. It's the preferred
+/// choice for simple data members that don't require special handling.
 template <typename Class, typename Type>
 class ezMemberProperty : public ezTypedMemberProperty<Type>
 {

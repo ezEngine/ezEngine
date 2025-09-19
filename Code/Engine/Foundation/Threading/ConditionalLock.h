@@ -1,7 +1,13 @@
 #pragma once
 
-/// \brief Manages a lock (e.g. a mutex) and ensures that it is properly released as the lock object goes out of scope. The lock/unlock will
-/// only be done if the boolean condition is satisfied at scope creation time.
+/// \brief RAII lock guard that conditionally acquires and releases locks based on runtime conditions
+///
+/// Provides the same automatic lock management as ezLock but only performs the actual locking
+/// when a boolean condition is met. Useful in scenarios where locking is only required under
+/// certain circumstances, avoiding unnecessary synchronization overhead when protection is not needed.
+///
+/// The condition is evaluated once at construction time. If false, no locking occurs throughout
+/// the object's lifetime, making this essentially a no-op with zero runtime cost.
 template <typename T>
 class ezConditionalLock
 {

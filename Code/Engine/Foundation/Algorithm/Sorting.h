@@ -8,23 +8,48 @@
 #include <Foundation/Types/ArrayPtr.h>
 
 /// \brief This class provides implementations of different sorting algorithms.
+///
+/// Algorithm selection guidelines:
+/// - QuickSort: Fast general-purpose sorting. Best for large datasets (>16 elements). O(n log n) average, O(n²) worst case.
+/// - InsertionSort: Efficient for small arrays or nearly sorted data. O(n²) worst case, O(n) best case.
+///
+/// The implementation automatically uses InsertionSort for subarrays smaller than 16 elements during QuickSort
+/// to optimize performance for small partitions.
 class ezSorting
 {
 public:
-  /// \brief Sorts the elements in container using a in-place quick sort implementation (not stable).
+  /// \brief Sorts the elements in container using an in-place quicksort implementation (not stable).
+  ///
+  /// Performance: O(n log n) average case, O(n²) worst case, O(log n) space complexity.
+  /// The worst case occurs with already sorted or reverse-sorted input, but this is rare in practice.
+  /// Automatically switches to InsertionSort for small subarrays (<16 elements) for better performance.
+  /// Not stable - equal elements may change their relative order.
   template <typename Container, typename Comparer>
   static void QuickSort(Container& inout_container, const Comparer& comparer = Comparer()); // [tested]
 
-  /// \brief Sorts the elements in the array using a in-place quick sort implementation (not stable).
+  /// \brief Sorts the elements in the array using an in-place quicksort implementation (not stable).
+  ///
+  /// Performance: O(n log n) average case, O(n²) worst case, O(log n) space complexity.
+  /// See the container overload for detailed performance characteristics.
   template <typename T, typename Comparer>
   static void QuickSort(ezArrayPtr<T>& inout_arrayPtr, const Comparer& comparer = Comparer()); // [tested]
 
 
   /// \brief Sorts the elements in container using insertion sort (stable and in-place).
+  ///
+  /// Performance: O(n²) worst case, O(n) best case (nearly sorted), O(1) space complexity.
+  /// Stable - equal elements maintain their relative order. More efficient than QuickSort for:
+  /// - Small arrays (typically <16 elements)
+  /// - Nearly sorted data (performs close to O(n))
+  /// - When stability is required
+  /// Less efficient for large unsorted datasets compared to QuickSort.
   template <typename Container, typename Comparer>
   static void InsertionSort(Container& inout_container, const Comparer& comparer = Comparer()); // [tested]
 
   /// \brief Sorts the elements in the array using insertion sort (stable and in-place).
+  ///
+  /// Performance: O(n²) worst case, O(n) best case (nearly sorted), O(1) space complexity.
+  /// See the container overload for detailed performance characteristics.
   template <typename T, typename Comparer>
   static void InsertionSort(ezArrayPtr<T>& inout_arrayPtr, const Comparer& comparer = Comparer()); // [tested]
 

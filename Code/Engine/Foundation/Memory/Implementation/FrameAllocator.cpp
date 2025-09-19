@@ -10,12 +10,12 @@ ezDoubleBufferedLinearAllocator::ezDoubleBufferedLinearAllocator(ezStringView sN
   ezStringBuilder sName = sName0;
   sName.Append("0");
 
-  m_pCurrentAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
+  m_pCurrentAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent);
 
   sName = sName0;
   sName.Append("1");
 
-  m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
+  m_pOtherAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent);
 }
 
 ezDoubleBufferedLinearAllocator::~ezDoubleBufferedLinearAllocator()

@@ -6,8 +6,24 @@
 ///
 /// Sets are similar to maps that do not store a value (or only a bool that is always true).
 /// Sets can be used to reduce an unordered number of elements to only those that are unique.
-/// Insertion/erasure/lookup in sets is quite fast (O (log n)).
-/// This container is implemented with a red-black tree, so it will always be a balanced tree.
+/// This container is implemented with a red-black tree (Anderson tree variant), ensuring balanced operations.
+///
+/// Performance characteristics:
+/// - All operations: O(log n) - insertion, erasure, lookup, bounds checking
+/// - Memory usage: One node per element plus tree overhead
+/// - Iteration: O(n) in sorted order
+/// - Set operations (union, intersection, difference): O(n + m) where n, m are set sizes
+///
+/// Use when:
+/// - You need sorted iteration over unique elements
+/// - Fast lookup/insertion/removal is important
+/// - Set operations (union, intersection) are needed
+/// - Memory usage is not the primary concern
+///
+/// Consider ezHashSet instead when:
+/// - You don't need sorted iteration
+/// - You want O(1) average case performance
+/// - Memory usage is more critical
 template <typename KeyType, typename Comparer>
 class ezSetBase
 {

@@ -7,6 +7,17 @@ class ezVariant;
 class ezAbstractProperty;
 
 /// \brief Helper functions for handling reflection related operations.
+///
+/// This utility class provides high-level functions for working with ezEngine's reflection system.
+/// It offers functionality for type introspection, property manipulation, enum/bitflag conversion,
+/// object comparison, and dependency analysis.
+///
+/// Key functionality:
+/// - Property value access and modification through ezVariant
+/// - Enum and bitflag string conversion
+/// - Type dependency analysis and sorting
+/// - Object comparison and default value handling
+/// - Safe property access with automatic type checking
 class EZ_FOUNDATION_DLL ezReflectionUtils
 {
 public:
@@ -84,6 +95,11 @@ public:
   /// \brief Converts an enum or bitfield value into its string representation.
   ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
+  /// For bitflags, multiple values are combined with the '|' operator (e.g., "Flag1 | Flag2").
+  /// For enums, single values are returned (e.g., "MyEnum::Value1").
+  ///
+  /// \param conversionMode Controls whether to include the full type name or just the value name
+  /// \return false if the type is not an enum/bitflag or if the value is invalid
   static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput,
     ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default); // [tested]
 
@@ -142,10 +158,13 @@ public:
 
   /// \brief Compares pObject with pObject2 of type pType and returns whether they are equal.
   ///
-  /// In case a class derived from ezReflectedClass is passed in the correct derived type
-  /// will automatically be determined so it is not necessary to put the exact type into pType,
-  /// any derived class type will do. However, the function will return false  pObject and pObject2
-  /// actually have a different type.
+  /// Performs a deep comparison of all reflected properties. For classes derived from ezReflectedClass,
+  /// the correct derived type will automatically be determined, so it is not necessary to pass the exact
+  /// type into pType. However, the function will return false if pObject and pObject2 actually have
+  /// different types.
+  ///
+  /// Performance warning: This function recursively compares all properties, which can be expensive
+  /// for complex object hierarchies or large containers.
   static bool IsEqual(const void* pObject, const void* pObject2, const ezRTTI* pType); // [tested]
 
   /// \brief Compares property pProp of pObject and pObject2 and returns whether it is equal in both.

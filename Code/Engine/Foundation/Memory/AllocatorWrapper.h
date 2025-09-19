@@ -2,6 +2,11 @@
 
 #include <Foundation/Memory/Allocator.h>
 
+/// \brief Allocator wrapper that should never be used - causes assertion failures.
+///
+/// This wrapper is used as a template parameter to indicate that no allocator
+/// should be used. Any attempt to call GetAllocator() will trigger an assertion.
+/// Useful for container types that should never allocate.
 struct ezNullAllocatorWrapper
 {
   EZ_FORCE_INLINE static ezAllocator* GetAllocator()
@@ -11,16 +16,19 @@ struct ezNullAllocatorWrapper
   }
 };
 
+/// \brief Wrapper for the engine's default general-purpose allocator.
 struct ezDefaultAllocatorWrapper
 {
   EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return ezFoundation::GetDefaultAllocator(); }
 };
 
+/// \brief Wrapper for the allocator used for static/global objects.
 struct ezStaticsAllocatorWrapper
 {
   EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return ezFoundation::GetStaticsAllocator(); }
 };
 
+/// \brief Wrapper for the allocator that provides memory with specific alignment guarantees.
 struct ezAlignedAllocatorWrapper
 {
   EZ_ALWAYS_INLINE static ezAllocator* GetAllocator() { return ezFoundation::GetAlignedAllocator(); }

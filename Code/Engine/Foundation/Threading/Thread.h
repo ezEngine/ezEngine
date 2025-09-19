@@ -19,6 +19,7 @@ EZ_WARNING_DISABLE_MSVC(4355)
 
 EZ_THREAD_CLASS_ENTRY_POINT;
 
+/// \brief Event data for thread lifecycle notifications
 struct ezThreadEvent
 {
   enum class Type
@@ -43,15 +44,18 @@ public:
   /// \brief Returns the current ezThread if the current platform thread is an ezThread. Returns nullptr otherwise.
   static const ezThread* GetCurrentThread();
 
-  /// \brief Describes the thread status
+  /// \brief Thread execution state
   enum ezThreadStatus
   {
-    Created = 0,
-    Running,
-    Finished
+    Created = 0, ///< Thread created but not yet started
+    Running,     ///< Thread is currently executing
+    Finished     ///< Thread execution has completed
   };
 
-  /// \brief Initializes the runnable class
+  /// \brief Creates a new thread with specified name and stack size
+  ///
+  /// The thread is created in Created state and must be started separately.
+  /// Default stack size of 128KB is suitable for most purposes.
   ezThread(ezStringView sName = "ezThread", ezUInt32 uiStackSize = 128 * 1024);
 
   /// \brief Destructor checks if the thread is deleted while still running, which is not allowed as this is a data hazard
@@ -66,14 +70,18 @@ public:
   /// \brief Returns the thread name
   inline const char* GetThreadName() const { return m_sName.GetData(); }
 
-  /// \brief These events inform about threads starting and finishing.
+  /// \brief Global events for thread lifecycle monitoring
   ///
-  /// The events are raised on the executing thread! That means thread-specific code may be executed during the event callback,
-  /// e.g. to set up thread-local functionality.
+  /// These events inform about threads starting and finishing. Events are raised on the executing thread,
+  /// allowing thread-specific initialization and cleanup code to be executed during callbacks.
+  /// Useful for setting up thread-local storage or registering threads with profiling systems.
   static ezEvent<const ezThreadEvent&, ezMutex> s_ThreadEvents;
 
 private:
-  /// \brief The run function can be used to implement a long running task in a thread in a platform independent way
+  /// \brief Pure virtual function that contains the thread's main execution logic
+  ///
+  /// Override this method to implement the work that the thread should perform.
+  /// The return value is passed as the thread exit code and can be retrieved after the thread finishes.
   virtual ezUInt32 Run() = 0;
 
 

@@ -3,6 +3,12 @@
 
 #include <Foundation/Threading/AtomicUtils.h>
 
+/// \brief Thread-safe reference counting implementation using atomic operations
+///
+/// Provides the core reference counting functionality that can be used as a base class
+/// or component in objects that need reference counting. Uses atomic operations for
+/// thread-safe increment/decrement operations. Does not provide automatic deletion -
+/// derived classes or users must implement the deletion logic when reference count reaches zero.
 class EZ_FOUNDATION_DLL ezRefCountingImpl
 {
 public:
@@ -49,7 +55,11 @@ private:
   mutable ezInt32 m_iRefCount = 0; ///< Stores the current reference count
 };
 
-/// \brief Base class for reference counted objects.
+/// \brief Base class for objects that require reference counting with virtual destructor
+///
+/// Extends ezRefCountingImpl with a virtual destructor, making it suitable as a base class
+/// for polymorphic objects that need reference counting. Use this when you need virtual
+/// function dispatch and proper destruction through base class pointers.
 class EZ_FOUNDATION_DLL ezRefCounted : public ezRefCountingImpl
 {
 public:
@@ -160,6 +170,11 @@ private:
 };
 
 
+/// \brief Wrapper that makes any type reference counted
+///
+/// Useful for making existing types reference counted without modifying their implementation.
+/// The contained object can be accessed via the m_Content member. Inherits from ezRefCounted
+/// to provide virtual destructor and reference counting functionality.
 template <typename TYPE>
 class ezRefCountedContainer : public ezRefCounted
 {

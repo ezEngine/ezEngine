@@ -15,12 +15,22 @@ struct EZ_FOUNDATION_DLL ezPropertyPathStep
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPropertyPathStep);
 
-///\brief Stores a path from an object of a given type to a property inside of it.
-/// Once initialized to a specific path, the target property/object of the path can be read or written on
-/// multiple root objects.
-/// An empty path is allowed in which case WriteToLeafObject/ReadFromLeafObject will return pRootObject directly.
+/// \brief Stores a path from an object of a given type to a property inside of it.
 ///
-/// TODO: read/write methods and ResolvePath should return a failure state.
+/// Once initialized to a specific path, the target property/object of the path can be read or written on
+/// multiple root objects. This is useful for implementing property binding, serialization, and generic
+/// property editors.
+///
+/// Path syntax: 'propertyName[index]/propertyName[index]/...'
+/// - The '[index]' part is only required for properties that need indices (arrays and maps)
+/// - Example: "Transform/Position[0]" accesses the X component of a Position vector in a Transform property
+/// - An empty path is allowed, in which case operations work directly on the root object
+///
+/// Usage pattern:
+/// 1. Create ezPropertyPath instance
+/// 2. Initialize with InitializeFromPath() using root type and path string
+/// 3. Use SetValue()/GetValue() for simple access or WriteProperty()/ReadProperty() for complex operations
+/// 4. Reuse the same path instance for multiple objects of the same root type
 class EZ_FOUNDATION_DLL ezPropertyPath
 {
 public:
@@ -30,10 +40,17 @@ public:
   /// \brief Returns true if InitializeFromPath() has been successfully called and it is therefore possible to use the other functions.
   bool IsValid() const;
 
-  ///\brief Resolves a path in the syntax 'propertyName[index]/propertyName[index]/...' into steps.
-  /// The '[index]' part is only added for properties that require indices (arrays and maps).
+  /// \brief Resolves a path string into property steps and validates them against the root type.
+  ///
+  /// The path syntax is 'propertyName[index]/propertyName[index]/...'. The '[index]' part is only
+  /// required for properties that need indices (arrays and maps). Returns failure if any property
+  /// in the path doesn't exist or has incompatible types.
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath);
-  ///\brief Resolves a path provided as an array of ezPropertyPathStep.
+
+  /// \brief Resolves a path provided as an array of ezPropertyPathStep and validates it.
+  ///
+  /// This overload allows programmatic construction of paths. Each step must have a valid property
+  /// name and appropriate index (if required by the property type).
   ezResult InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
   ///\brief Applies the entire path and allows writing to the target object.

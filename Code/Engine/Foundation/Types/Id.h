@@ -44,9 +44,30 @@
   }
 
 
-/// \brief A generic id class that holds an id combined of an instance index and a generation counter.
+/// \brief Generic identifier template that combines instance indexing with generation counting for safe object references.
 ///
-/// \todo Document this better.
+/// This ID system solves the "dangling pointer" problem for object management by using a two-part identifier:
+/// - Instance Index: Points to a slot in an object array or similar data structure
+/// - Generation Counter: Detects when a slot has been reused for a different object
+///
+/// When an object is destroyed, its generation counter is incremented. Any existing IDs with the old
+/// generation value become automatically invalid, preventing access to the new object that might
+/// occupy the same index.
+///
+/// Benefits:
+/// - Safe object references that can detect stale access
+/// - Efficient array-based object storage with O(1) access
+/// - Automatic detection of use-after-free scenarios
+/// - Compact representation (configurable bit allocation)
+/// - Type safety when used with EZ_DECLARE_HANDLE_TYPE
+///
+/// Template parameters allow customization of the index space vs. generation granularity:
+/// - More instance bits = larger object arrays possible
+/// - More generation bits = longer time before wraparound reuse
+///
+/// Typical configurations:
+/// - ezGenericId<24, 8>: 16M objects, 256 generations (good for most uses)
+/// - ezGenericId<16, 16>: 64K objects, 65K generations (for high-churn scenarios)
 template <ezUInt32 InstanceIndexBits, ezUInt32 GenerationBits>
 struct ezGenericId
 {

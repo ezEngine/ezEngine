@@ -6,7 +6,11 @@
 class ezStreamReader;
 class ezStreamWriter;
 
-/// \brief This data type is the abstraction for 128-bit Uuid (also known as GUID) instances.
+/// \brief 128-bit Universally Unique Identifier (UUID/GUID) for object identification and referencing.
+///
+/// ezUuid provides a robust way to uniquely identify objects, assets, or entities across systems,
+/// time, and network boundaries. It's essential for serialization, asset management, networking,
+/// and any scenario where objects need stable, globally unique identities.
 class EZ_FOUNDATION_DLL ezUuid
 {
 public:

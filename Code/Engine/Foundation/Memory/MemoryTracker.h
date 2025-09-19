@@ -17,7 +17,11 @@ enum class ezAllocatorTrackingMode : ezUInt32
   Default = EZ_ALLOC_TRACKING_DEFAULT,
 };
 
-/// \brief Memory tracker which keeps track of all allocations and constructions
+/// \brief Global memory tracking system for debugging, profiling, and leak detection.
+///
+/// This singleton provides comprehensive memory allocation tracking across all allocators
+/// in the system. It supports different tracking modes ranging from basic statistics to
+/// full stack trace recording for every allocation.
 class EZ_FOUNDATION_DLL ezMemoryTracker
 {
 public:

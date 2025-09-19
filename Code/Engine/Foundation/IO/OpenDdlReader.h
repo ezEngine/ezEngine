@@ -6,7 +6,12 @@
 #include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/Logging/Log.h>
 
-/// \brief Represents a single 'object' in a DDL document, e.g. either a custom type or a primitives list.
+/// \brief Represents a single element in an OpenDDL document
+///
+/// OpenDDL elements can be either custom objects that contain child elements,
+/// or primitive data lists containing arrays of basic types (bool, integers, floats, strings).
+/// This class provides access to the element's type, name, child hierarchy, and primitive data.
+/// Elements are organized in a tree structure with parent-child relationships.
 class EZ_FOUNDATION_DLL ezOpenDdlReaderElement
 {
 public:
@@ -51,7 +56,9 @@ public:
   /// \brief For non-custom types this returns the type of primitive that is stored at this element.
   EZ_ALWAYS_INLINE ezOpenDdlPrimitiveType GetPrimitivesType() const { return m_PrimitiveType; } // [tested]
 
-  /// \brief Returns true if the element stores the requested type of primitives AND has at least the desired amount of them, so that accessing the
+  /// \brief Validates primitive data type and count for safe array access
+  ///
+  /// Returns true if the element stores the requested type of primitives AND has at least the desired amount of them, so that accessing the
   /// data array at certain indices is safe.
   bool HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
@@ -113,20 +120,29 @@ private:
   const ezOpenDdlReaderElement* m_pSiblingElement = nullptr;
 };
 
-/// \brief An OpenDDL reader parses an entire DDL document and creates an in-memory representation of the document structure.
+/// \brief Parses OpenDDL documents into an in-memory tree structure
+///
+/// OpenDDL (Open Data Description Language) is a text format for describing structured data.
+/// This reader parses an entire DDL document and creates a tree of ezOpenDdlReaderElement objects
+/// that can be traversed to extract data. The parser handles both custom object types and
+/// primitive data arrays. All parsed data remains valid until the reader is destroyed.
+/// Use FindElement() to locate elements by global name, or traverse the tree starting from GetRootElement().
 class EZ_FOUNDATION_DLL ezOpenDdlReader : public ezOpenDdlParser
 {
 public:
   ezOpenDdlReader();
   ~ezOpenDdlReader();
 
-  /// \brief Parses the given document, returns EZ_FAILURE if an unrecoverable parsing error was encountered.
+  /// \brief Parses an OpenDDL document from a stream
   ///
-  /// \param stream is the input data.
-  /// \param uiFirstLineOffset allows to adjust the reported line numbers in error messages, in case the given stream represents a sub-section of a
-  /// larger file. \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged. \param uiCacheSizeInKB
-  /// is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single
-  /// list, increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
+  /// Returns EZ_FAILURE if an unrecoverable parsing error was encountered.
+  /// The parsed element tree can be accessed via GetRootElement() after successful parsing.
+  /// All previous parse results are cleared before parsing begins.
+  ///
+  /// \param stream Input data stream containing OpenDDL text
+  /// \param uiFirstLineOffset Line number offset for error reporting (useful for sub-documents)
+  /// \param pLog Interface for outputting parsing error details (nullptr disables logging)
+  /// \param uiCacheSizeInKB Internal cache size - increase for documents with large primitive arrays
   ezResult ParseDocument(ezStreamReader& inout_stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(),
     ezUInt32 uiCacheSizeInKB = 4); // [tested]
 

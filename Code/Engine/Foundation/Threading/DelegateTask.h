@@ -2,7 +2,12 @@
 
 #include <Foundation/Threading/TaskSystem.h>
 
-/// \brief A simple task implementation that calls a delegate function.
+/// \brief Convenience task wrapper that executes delegate functions with parameters
+///
+/// Provides an easy way to wrap function calls (delegates) as tasks for the task system.
+/// The template parameter T specifies the type of data passed to the delegate function.
+/// Use the void specialization for parameterless functions. This eliminates the need
+/// to manually derive from ezTask for simple function execution scenarios.
 template <typename T>
 class ezDelegateTask final : public ezTask
 {

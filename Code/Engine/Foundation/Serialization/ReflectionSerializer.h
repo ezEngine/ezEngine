@@ -5,19 +5,25 @@
 
 class ezOpenDdlReaderElement;
 
+/// \brief High-level serialization interface for reflected objects using DDL and binary formats.
+///
+/// This class provides convenient functions for serializing/deserializing individual objects or their
+/// properties using ezEngine's reflection system. It supports both DDL (Data Definition Language) and
+/// binary formats with the same interface.
 class EZ_FOUNDATION_DLL ezReflectionSerializer
 {
 public:
-  /// \brief Writes all property values of the reflected \a pObject of type \a pRtti to \a stream in DDL format.
+  /// \brief Writes all property values of the reflected object to stream in DDL format.
   ///
-  /// Using ReadObjectPropertiesFromDDL() you can read those properties back into an existing object.
-  /// Using ReadObjectFromDDL() an object of the same type is allocated and its properties are restored from the DDL data.
+  /// Serializes the complete object state including all reflected properties. Non-existing objects
+  /// (pObject == nullptr) are stored as objects of type "null". Read-only properties are not written
+  /// as they cannot be restored.
   ///
-  /// Non-existing objects (pObject == nullptr) are stored as objects of type "null".
-  /// The compact mode and typeMode should be set according to whether the DDL data is used for interchange with other code only,
-  /// or might also be read by humans.
+  /// \param bCompactMode Controls formatting: true for machine-readable, false for human-readable
+  /// \param typeMode Controls type name verbosity in output
   ///
-  /// Read-only properties are not written out, as they cannot be restored anyway.
+  /// Use ReadObjectPropertiesFromDDL() to restore properties into an existing object,
+  /// or ReadObjectFromDDL() to create a new object and restore its properties.
   static void WriteObjectToDDL(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
     ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
@@ -27,12 +33,15 @@ public:
   /// \brief Same as WriteObjectToDDL but binary.
   static void WriteObjectToBinary(ezStreamWriter& inout_stream, const ezRTTI* pRtti, const void* pObject); // [tested]
 
-  /// \brief Reads the entire DDL data in the stream and restores a reflected object.
+  /// \brief Reads DDL data from stream and creates a new reflected object with restored properties.
   ///
-  /// The object type is read from the DDL information in the stream and the object is either allocated through the given allocator,
-  /// or, if none is provided, the default allocator for the type is used.
+  /// The object type is read from the DDL data and the object is allocated using the default allocator
+  /// for that type. All properties are restored as described in the DDL data, as long as the properties
+  /// can be matched to the runtime type. Properties that don't exist in the current type are ignored
+  /// (useful for forward compatibility).
   ///
-  /// All properties are set to the values as described in the DDL data, as long as the properties can be matched to the runtime type.
+  /// \param ref_pRtti Outputs the RTTI type of the created object
+  /// \return Pointer to the newly created object, or nullptr on failure
   static void* ReadObjectFromDDL(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti);               // [tested]
 
   static void* ReadObjectFromDDL(const ezOpenDdlReaderElement* pRootElement, const ezRTTI*& ref_pRtti); // [tested]
@@ -40,14 +49,16 @@ public:
   /// \brief Same as ReadObjectFromDDL but binary.
   static void* ReadObjectFromBinary(ezStreamReader& inout_stream, const ezRTTI*& ref_pRtti); // [tested]
 
-  /// \brief Reads the entire DDL data in the stream and sets all properties of the given object.
+  /// \brief Reads DDL data and applies property values to an existing object.
   ///
-  /// All properties are set to the values as described in the DDL data, as long as the properties can be matched to the runtime type.
-  /// The given object should ideally be of the same type as the object had that was written to the stream. However, if the types do
-  /// not match or the properties have changed, the data will still be restored as good as possible.
+  /// This function only modifies properties that exist in the DDL data and can be matched to the
+  /// object's type. Properties not present in the DDL data remain unchanged. This is useful for:
+  /// - Partial object updates
+  /// - Configuration loading
+  /// - Applying saved settings to default objects
   ///
-  /// The object itself will not be reset to the default state before the properties are set, so properties that do not appear
-  /// in the DDL data, or cannot be matched, will not be affected.
+  /// The object should ideally be of the same type that was serialized, but type mismatches are
+  /// handled gracefully - compatible properties will be restored, incompatible ones ignored.
   static void ReadObjectPropertiesFromDDL(ezStreamReader& inout_stream, const ezRTTI& rtti, void* pObject); // [tested]
 
   /// \brief Same as ReadObjectPropertiesFromDDL but binary.

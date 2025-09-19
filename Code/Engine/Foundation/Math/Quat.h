@@ -14,6 +14,12 @@
 /// Quaternions have no 'IsIdentical' or 'IsEqual' function, as there can be different representations for the
 /// same rotation, and it is rather difficult to check this. So to not convey any false notion of being equal
 /// (or rather unequal), those functions are not provided.
+///
+/// Implementation notes:
+/// - Components (x, y, z, w) do NOT directly represent axis and angle
+/// - Use factory methods like MakeFromAxisAndAngle() for construction
+/// - No equality operators due to dual representation (q and -q are equivalent)
+/// - Always maintain unit length for proper rotation representation
 template <typename Type>
 class ezQuatTemplate
 {

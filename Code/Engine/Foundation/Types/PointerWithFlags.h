@@ -2,11 +2,18 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief A wrapper around a raw pointer that allows to use the lower N bits for flags
+/// \brief Space-efficient pointer storage that embeds flags in unused low-order bits
 ///
-/// When accessing the pointer, the lower N bits are masked off.
-/// Typically one can safely store 3 bits in the lower bits of a pointer as most data is 8 byte aligned,
-/// especially when it was heap allocated.
+/// Exploits the fact that aligned pointers have zero bits in their lower positions to store
+/// additional flag data without increasing memory usage. The number of available bits depends
+/// on alignment: 8-byte aligned pointers provide 3 bits, 4-byte aligned provide 2 bits, etc.
+///
+/// When accessing the pointer, the flag bits are automatically masked off to yield the original
+/// pointer value. Flag operations are independent of pointer operations, allowing separate
+/// manipulation of the embedded data.
+///
+/// Common use cases include storing object state flags alongside pointers in data structures,
+/// reducing memory overhead in pointer-heavy applications like trees or linked lists.
 template <typename PtrType, ezUInt8 NumFlagBits = 2>
 class ezPointerWithFlags
 {

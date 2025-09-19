@@ -17,7 +17,22 @@ struct ezHybridString;
 
 using ezString = ezHybridString<32, ezDefaultAllocatorWrapper>;
 
-/// \brief Interface for binary in (read) streams.
+/// \brief Abstract base class for binary input streams providing unified reading interface.
+///
+/// StreamReader defines the fundamental interface for reading binary data from various sources
+/// including files, memory buffers, network connections, and compressed streams. All read
+/// operations are performed in a sequential manner with automatic endianness handling.
+///
+/// Core functionality:
+/// - ReadBytes(): Raw binary data reading (pure virtual, must be implemented)
+/// - Typed reading methods with endianness conversion (ReadWordValue, ReadDWordValue, etc.)
+/// - High-level container reading (arrays, sets, maps, hash tables)
+/// - String reading with automatic length handling
+///
+/// Implementation requirements:
+/// - Derived classes must implement ReadBytes() as the primary read method
+/// - All other methods are implemented in terms of ReadBytes()
+/// - Should handle EOF conditions gracefully by returning actual bytes read
 class EZ_FOUNDATION_DLL ezStreamReader
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamReader);
@@ -29,8 +44,11 @@ public:
   /// \brief Virtual destructor to ensure correct cleanup
   virtual ~ezStreamReader();
 
-  /// \brief Reads a raw number of bytes into the read buffer, this is the only method which has to be implemented to fully implement the
-  /// interface.
+  /// \brief Reads a raw number of bytes into the read buffer. This is the only method that must be implemented by derived classes.
+  ///
+  /// \param pReadBuffer Destination buffer for the read data
+  /// \param uiBytesToRead Maximum number of bytes to read
+  /// \return Actual number of bytes read (may be less than requested on EOF or error)
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0; // [tested]
 
   /// \brief Helper method to read a word value correctly (copes with potentially different endianess)
@@ -102,7 +120,24 @@ public:
   EZ_ALWAYS_INLINE ezTypeVersion ReadVersion(ezTypeVersion expectedMaxVersion);
 };
 
-/// \brief Interface for binary out (write) streams.
+/// \brief Abstract base class for binary output streams providing unified writing interface.
+///
+/// StreamWriter defines the fundamental interface for writing binary data to various destinations
+/// including files, memory buffers, network connections, and compressed streams. All write
+/// operations are performed sequentially with automatic endianness handling.
+///
+/// Core functionality:
+/// - WriteBytes(): Raw binary data writing (pure virtual, must be implemented)
+/// - Typed writing methods with endianness conversion (WriteWordValue, WriteDWordValue, etc.)
+/// - High-level container writing (arrays, sets, maps, hash tables)
+/// - String writing with automatic length prefixing
+/// - Optional flush support for ensuring data persistence
+///
+/// Implementation requirements:
+/// - Derived classes must implement WriteBytes() as the primary write method
+/// - All other methods are implemented in terms of WriteBytes()
+/// - Flush() can be overridden for buffered implementations
+/// - Should handle write errors gracefully by returning appropriate ezResult
 class EZ_FOUNDATION_DLL ezStreamWriter
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamWriter);
@@ -114,12 +149,17 @@ public:
   /// \brief Virtual destructor to ensure correct cleanup
   virtual ~ezStreamWriter();
 
-  /// \brief Writes a raw number of bytes from the buffer, this is the only method which has to be implemented to fully implement the
-  /// interface.
+  /// \brief Writes a raw number of bytes from the buffer. This is the only method that must be implemented by derived classes.
+  ///
+  /// \param pWriteBuffer Source buffer containing data to write
+  /// \param uiBytesToWrite Number of bytes to write from the buffer
+  /// \return EZ_SUCCESS if all bytes were written successfully, EZ_FAILURE otherwise
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) = 0; // [tested]
 
-  /// \brief Flushes the stream, may be implemented (not necessary to implement the interface correctly) so that user code can ensure that
-  /// content is written
+  /// \brief Flushes buffered data to the underlying storage, ensuring data persistence.
+  ///
+  /// Default implementation is a no-op. Derived classes with internal buffering should
+  /// override this method to force writing of buffered data to the actual destination.
   virtual ezResult Flush() // [tested]
   {
     return EZ_SUCCESS;

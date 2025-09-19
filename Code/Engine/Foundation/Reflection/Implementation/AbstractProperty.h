@@ -151,8 +151,26 @@ struct ezPropertyCategory
   };
 };
 
-/// \brief This is the base interface for all properties in the reflection system. It provides enough information to cast to the next better
-/// base class.
+/// \brief Base interface for all properties in the reflection system.
+///
+/// Properties represent accessible data members, functions, or virtual data in reflected types.
+/// This base class provides the common interface and metadata for property introspection.
+///
+/// Property categories:
+/// - Constant: Compile-time constant values stored in RTTI data
+/// - Member: Object data members with getter/setter access
+/// - Function: Callable methods with parameters and return values
+/// - Array: Container properties with indexed access
+/// - Set: Collection properties with unique elements
+/// - Map: Key-value pair collections
+///
+/// Key features:
+/// - Property flags for type information (const, reference, pointer, etc.)
+/// - Attribute system for metadata (UI hints, validation, etc.)
+/// - Type-safe casting to specific property interfaces
+/// - Hierarchical property introspection
+///
+/// Usage: Properties are typically registered through reflection macros rather than created manually.
 class EZ_FOUNDATION_DLL ezAbstractProperty
 {
 public:
@@ -235,11 +253,23 @@ public:
   virtual ezVariant GetConstant() const = 0;
 };
 
-/// \brief This is the base class for all properties that are members of a class. It provides more information about the actual type.
+/// \brief Base class for properties that represent data members of a class or struct.
 ///
-/// If ezPropertyFlags::Pointer is set as a flag, you must not cast this property to ezTypedMemberProperty, instead use GetValuePtr and
-/// SetValuePtr. This is because reference and const-ness of the property are only fixed for the pointer but not the type, so the actual
-/// property type cannot be derived.
+/// Member properties provide access to object data through getter/setter mechanisms or direct memory access.
+/// They support both simple types (int, float) and complex types (classes, structs) with proper type safety.
+///
+/// Access patterns:
+/// - Direct pointer access: GetPropertyPointer() for in-place modification
+/// - Value access: GetValuePtr()/SetValuePtr() for type-safe copying
+/// - Variant access: Through ezReflectionUtils for dynamic typing
+///
+/// Important: If ezPropertyFlags::Pointer is set, you must use GetValuePtr/SetValuePtr instead of casting
+/// to ezTypedMemberProperty, because pointer properties have different type semantics.
+///
+/// Performance considerations:
+/// - Direct pointer access is fastest but requires type knowledge
+/// - Value copying is safer but involves memory operations
+/// - Custom accessors (functions) add virtual call overhead
 class EZ_FOUNDATION_DLL ezAbstractMemberProperty : public ezAbstractProperty
 {
 public:
@@ -275,7 +305,26 @@ public:
 };
 
 
-/// \brief The base class for a property that represents an array of values.
+/// \brief Base class for properties that represent arrays or sequential containers.
+///
+/// Array properties provide indexed access to collections of elements with dynamic or fixed sizing.
+/// They support all standard container operations: access, insertion, removal, and resizing.
+///
+/// Supported container types:
+/// - ezDynamicArray, ezHybridArray, ezStaticArray
+/// - Standard arrays (T[N])
+/// - Custom containers implementing the array interface
+///
+/// Key operations:
+/// - Indexed access: GetValue()/SetValue() by index
+/// - Dynamic sizing: SetCount(), Insert(), Remove()
+/// - Bulk operations: Clear() for efficiency
+///
+/// Performance considerations:
+/// - GetCount() may involve virtual calls for dynamic containers
+/// - Insert/Remove operations may require element shifting
+/// - SetCount() can be expensive for complex element types
+/// - GetValuePointer() provides direct access when available
 class EZ_FOUNDATION_DLL ezAbstractArrayProperty : public ezAbstractProperty
 {
 public:
@@ -318,9 +367,25 @@ public:
 };
 
 
-/// \brief The base class for a property that represents a set of values.
+/// \brief Base class for properties that represent sets or unique value collections.
 ///
-/// The element type must either be a standard type or a pointer.
+/// Set properties provide collection semantics with unique elements and no ordering guarantees.
+/// They support standard set operations: insertion, removal, membership testing, and enumeration.
+///
+/// Supported set types:
+/// - ezSet (tree-based, ordered)
+/// - ezHashSet (hash-based, unordered)
+/// - Custom containers implementing the set interface
+///
+/// Element type restrictions:
+/// - Standard types (int, float, string, etc.)
+/// - Pointer types (for object references)
+/// - Types with proper equality and hash operations
+///
+/// Performance characteristics:
+/// - Contains(): O(log n) for ezSet, O(1) average for ezHashSet
+/// - Insert/Remove: O(log n) for ezSet, O(1) average for ezHashSet
+/// - GetValues(): O(n) - creates a copy of all elements
 class EZ_FOUNDATION_DLL ezAbstractSetProperty : public ezAbstractProperty
 {
 public:
@@ -353,9 +418,30 @@ public:
 };
 
 
-/// \brief The base class for a property that represents a set of values.
+/// \brief Base class for properties that represent maps or key-value collections.
 ///
-/// The element type must either be a standard type or a pointer.
+/// Map properties provide associative container semantics with string keys and typed values.
+/// They support standard map operations: key-based access, insertion, removal, and enumeration.
+///
+/// Supported map types:
+/// - ezMap (tree-based, ordered by key)
+/// - ezHashTable (hash-based, unordered)
+/// - Custom containers implementing the map interface
+///
+/// Key restrictions:
+/// - Keys are always strings (const char*)
+/// - Keys must be valid UTF-8 strings
+/// - Key comparison is case-sensitive
+///
+/// Value type restrictions:
+/// - Standard types (int, float, string, etc.)
+/// - Pointer types (for object references)
+/// - Complex types supported through reflection
+///
+/// Performance characteristics:
+/// - GetValue/Contains: O(log n) for ezMap, O(1) average for ezHashTable
+/// - Insert/Remove: O(log n) for ezMap, O(1) average for ezHashTable
+/// - GetKeys: O(n) - creates a copy of all key strings
 class EZ_FOUNDATION_DLL ezAbstractMapProperty : public ezAbstractProperty
 {
 public:
@@ -542,7 +628,28 @@ struct ezFunctionType
   };
 };
 
-/// \brief The base class for a property that represents a function.
+/// \brief Base class for properties that represent callable functions or methods.
+///
+/// Function properties enable runtime invocation of methods with type-safe parameter passing
+/// and return value handling. They support member functions, static functions, and constructors.
+///
+/// Function types:
+/// - Member: Instance methods requiring a valid object pointer
+/// - StaticMember: Static methods, instance pointer ignored
+/// - Constructor: Special functions that create new objects
+///
+/// Parameter handling:
+/// - Standard types: Passed by value, exact type matching required
+/// - Enums/Bitflags: Passed as ezInt64 values through ezEnum/ezBitflags
+/// - Classes: Always passed by pointer regardless of declaration
+/// - Out parameters: Written back to source variants after execution
+/// - Null values: Represented as invalid variants (except for ezVariant parameters)
+///
+/// Performance considerations:
+/// - Function calls involve virtual dispatch and parameter marshaling
+/// - Parameter conversion can be expensive for complex types
+/// - Out parameter writeback requires variant assignments
+/// - Constructor calls include allocation overhead
 class EZ_FOUNDATION_DLL ezAbstractFunctionProperty : public ezAbstractProperty
 {
 public:

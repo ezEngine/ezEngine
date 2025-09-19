@@ -19,13 +19,34 @@ class ezPropertyAttribute;
 class ezMessage;
 using ezMessageId = ezUInt16;
 
-/// \brief This class holds information about reflected types. Each instance represents one type that is known to the reflection
-/// system.
+/// \brief Core class of ezEngine's reflection system that holds complete runtime type information.
 ///
-/// Instances of this class are typically created through the macros from the StaticRTTI.h header.
-/// Each instance represents one type. This class holds information about derivation hierarchies and exposed properties. You can thus find
-/// out whether a type is derived from some base class and what properties of which types are available. Properties can then be read and
-/// modified on instances of this type.
+/// Each ezRTTI instance represents one reflected type and contains all metadata needed for runtime
+/// introspection, serialization, and object creation. The reflection system enables:
+///
+/// - Runtime type queries and inheritance checks
+/// - Dynamic property access and modification
+/// - Object serialization and deserialization
+/// - Message dispatching and handling
+/// - Dynamic object creation and destruction
+/// - Editor property grids and tools
+///
+/// Key features:
+/// - Complete type hierarchy information with fast inheritance checks
+/// - Property metadata including types, attributes, and access methods
+/// - Message handling system for decoupled communication
+/// - Allocator integration for controlled object creation
+/// - Plugin-aware type registration for modular systems
+/// - Version tracking for data migration and compatibility
+///
+/// Performance considerations:
+/// - Type lookups are O(log n) using hash tables
+/// - Inheritance checks are O(1) using pre-computed hierarchy arrays
+/// - Property access involves virtual calls and type conversions
+/// - Message dispatching uses optimized jump tables
+///
+/// Usage: Types are typically registered using macros (EZ_BEGIN_STATIC_REFLECTED_TYPE, etc.)
+/// rather than creating ezRTTI instances manually.
 class EZ_FOUNDATION_DLL ezRTTI
 {
 public:
@@ -56,7 +77,11 @@ public:
   /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
   EZ_ALWAYS_INLINE ezVariantType::Enum GetVariantType() const { return static_cast<ezVariantType::Enum>(m_uiVariantType); }
 
-  /// \brief Returns true if this type is derived from the given type (or of the same type).
+  /// \brief Fast O(1) check if this type is derived from the given type (or is the same type).
+  ///
+  /// Uses pre-computed parent hierarchy arrays for constant-time inheritance checks.
+  /// Returns true if this type inherits from pBaseType or if they are the same type.
+  /// This is the preferred method for inheritance testing in performance-critical code.
   EZ_ALWAYS_INLINE bool IsDerivedFrom(const ezRTTI* pBaseType) const // [tested]
   {
     const ezUInt32 thisGeneration = m_ParentHierarchy.GetCount();
@@ -118,12 +143,17 @@ public:
   /// \brief Returns the array of message handlers that this type has.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
-  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
-  /// handler for this type exists.
+  /// \brief Dispatches a message to the appropriate handler for this type.
+  ///
+  /// Uses optimized message dispatch tables for fast O(1) message routing. Returns true if a handler
+  /// was found and the message was processed, false if no handler exists for this message type.
+  /// The message system enables decoupled communication between components.
   bool DispatchMessage(void* pInstance, ezMessage& ref_msg) const;
 
-  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
-  /// handler for this type exists.
+  /// \brief Dispatches a message to the appropriate handler (const version).
+  ///
+  /// Same as the non-const version but for read-only message handlers. Some messages may only
+  /// be handled by const handlers for safety reasons.
   bool DispatchMessage(const void* pInstance, ezMessage& ref_msg) const;
 
   /// \brief Returns whether this type can handle the given message type.
@@ -229,7 +259,15 @@ EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
 // ***** Object Allocator Struct *****
 
 
-/// \brief The interface for an allocator that creates instances of reflected types.
+/// \brief Interface for allocators that create instances of reflected types.
+///
+/// The RTTI allocator system provides controlled object creation for reflected types,
+/// enabling features like custom memory management, object pooling, and creation tracking.
+/// Different allocator implementations can optimize for specific use cases:
+///
+/// - ezRTTIDefaultAllocator: Standard heap allocation
+/// - ezRTTINoAllocator: Prevents dynamic allocation (compile-time types only)
+/// - Custom allocators: Object pools, stack allocation, etc.
 struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
   virtual ~ezRTTIAllocator();
@@ -264,7 +302,11 @@ private:
   }
 };
 
-/// \brief Dummy Allocator for types that should not be allocatable through the reflection system.
+/// \brief Allocator for types that cannot be dynamically allocated through reflection.
+///
+/// Used for abstract base classes, static utility classes, or types that should only be
+/// created through specific factory functions. Attempting to allocate objects through
+/// this allocator will trigger assertions in debug builds.
 struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
   /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
@@ -286,7 +328,15 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
   }
 };
 
-/// \brief Default implementation of ezRTTIAllocator that allocates instances via the given allocator.
+/// \brief Standard RTTI allocator that creates instances using ezEngine's allocator system.
+///
+/// This is the default allocator used by most reflected types. It provides standard heap allocation
+/// with proper integration into ezEngine's memory management system. The allocator wrapper allows
+/// customization of the underlying allocator (default, aligned, frame, etc.).
+///
+/// Template parameters:
+/// - CLASS: The type to allocate (must be copy-constructible for cloning)
+/// - AllocatorWrapper: Determines which allocator to use (default: ezDefaultAllocatorWrapper)
 template <typename CLASS, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {

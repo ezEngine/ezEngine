@@ -113,7 +113,19 @@ namespace ezInternal
   };
 } // namespace ezInternal
 
-/// \brief Use this function, specialized with the type that you are interested in, to get the static RTTI data for some type.
+/// \brief Retrieves the static RTTI information for any reflected type.
+///
+/// This is the primary entry point for accessing reflection data. It works with both
+/// statically reflected types (using macros) and dynamically reflected types (ezReflectedClass).
+/// The function automatically detects the reflection method and returns the appropriate RTTI.
+///
+/// Usage examples:
+/// \code
+///   const ezRTTI* rtti = ezGetStaticRTTI<MyClass>();
+///   if (rtti->IsDerivedFrom<BaseClass>()) { ... }
+/// \endcode
+///
+/// Performance: This is a compile-time dispatched function with minimal runtime overhead.
 template <typename T>
 EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 {
@@ -125,8 +137,24 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 #define EZ_NO_LINKAGE
 
-/// \brief Declares a type to be statically reflectable. Insert this into the header of a type to enable reflection on it.
-/// This is not needed if the type is already dynamically reflectable.
+/// \brief Declares a type to be statically reflectable.
+///
+/// Insert this macro into the header file of a type to enable static reflection on it.
+/// This creates the necessary template specializations for RTTI access.
+///
+/// Parameters:
+/// - Linkage: Usually EZ_FOUNDATION_DLL, EZ_CORE_DLL, or EZ_NO_LINKAGE for static types
+/// - TYPE: The fully qualified type name to make reflectable
+///
+/// Usage:
+/// \code
+///   // In header file
+///   struct MyStruct { int value; };
+///   EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, MyStruct);
+/// \endcode
+///
+/// Note: This is not needed if the type already uses dynamic reflection (ezReflectedClass).
+/// Only use for POD types, enums, or simple classes that don't inherit from ezReflectedClass.
 #define EZ_DECLARE_REFLECTABLE_TYPE(Linkage, TYPE)                    \
   namespace ezInternal                                                \
   {                                                                   \
@@ -184,19 +212,34 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \endcond
 
-/// \brief Implements the necessary functionality for a type to be statically reflectable.
+/// \brief Begins the implementation block for static reflection of a type.
 ///
-/// \param Type
-///   The type for which the reflection functionality should be implemented.
-/// \param BaseType
-///   The base class type of \a Type. If it has no base class, pass ezNoBase
-/// \param Version
-///   The version of \a Type. Must be increased when the class serialization changes.
-/// \param AllocatorType
-///   The type of an ezRTTIAllocator that can be used to create and destroy instances
-///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
-///   Pass ezRTTIDefaultAllocator<Type> for types that should be created on the default heap.
-///   Pass a custom ezRTTIAllocator type to handle allocation differently.
+/// This macro starts the definition of RTTI data for a type in a source file.
+/// Must be paired with EZ_END_STATIC_REFLECTED_TYPE. Between these macros,
+/// use EZ_BEGIN_PROPERTIES/EZ_END_PROPERTIES and similar blocks to define reflection data.
+///
+/// Parameters:
+/// - Type: The type being reflected (must match EZ_DECLARE_REFLECTABLE_TYPE)
+/// - BaseType: The base class (use ezNoBase if no inheritance)
+/// - Version: Version number for serialization compatibility (increment when structure changes)
+/// - AllocatorType: Controls dynamic allocation:
+///   - ezRTTIDefaultAllocator<Type>: Standard heap allocation
+///   - ezRTTINoAllocator: Disable dynamic creation
+///   - Custom allocator: For specialized memory management
+///
+/// Example:
+/// \code
+///   // In source file
+///   EZ_BEGIN_STATIC_REFLECTED_TYPE(MyStruct, ezNoBase, 1, ezRTTIDefaultAllocator<MyStruct>)
+///   {
+///     EZ_BEGIN_PROPERTIES
+///     {
+///       EZ_MEMBER_PROPERTY("value", value)
+///     }
+///     EZ_END_PROPERTIES;
+///   }
+///   EZ_END_STATIC_REFLECTED_TYPE;
+/// \endcode
 #define EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType) \
   EZ_RTTIINFO_DECL(Type, BaseType, Version)                                    \
   ezRTTI ezInternal::ezStaticRTTIWrapper<Type>::s_RTTI = GetRTTI((Type*)0);    \
@@ -211,12 +254,26 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   }
 
 
-/// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the properties.
+/// \brief Begins a block for declaring reflected properties.
+///
+/// Use this within a reflected type block to start declaring properties.
+/// Add property macros (EZ_MEMBER_PROPERTY, EZ_ACCESSOR_PROPERTY, etc.) between this
+/// and EZ_END_PROPERTIES.
+///
+/// Example:
+/// \code
+///   EZ_BEGIN_PROPERTIES
+///   {
+///     EZ_MEMBER_PROPERTY("Name", m_sName),
+///     EZ_ACCESSOR_PROPERTY("Value", GetValue, SetValue)
+///   }
+///   EZ_END_PROPERTIES;
+/// \endcode
 #define EZ_BEGIN_PROPERTIES static const ezAbstractProperty* PropertyList[] =
 
 
 
-/// \brief Ends the block to declare properties that was started with EZ_BEGIN_PROPERTIES.
+/// \brief Ends the property declaration block started with EZ_BEGIN_PROPERTIES.
 #define EZ_END_PROPERTIES \
   ;                       \
   Properties = PropertyList
@@ -650,7 +707,6 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The name of the member variable that should get exposed as a message sender.
 ///
 /// \note A message sender must be derived from ezMessageSenderBase.
-#define EZ_MESSAGE_SENDER(MemberName)                                                \
-  {                                                                                  \
-    #MemberName, ezGetStaticRTTI<EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
-  }
+#define EZ_MESSAGE_SENDER(MemberName) \
+  {                                   \
+    #MemberName, ezGetStaticRTTI<EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>()}

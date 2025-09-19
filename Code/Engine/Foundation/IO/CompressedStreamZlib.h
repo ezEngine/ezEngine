@@ -9,18 +9,23 @@
 
 struct z_stream_s;
 
-/// \brief Part of the zip / apk support of the ezArchiveReader.
-/// Needed to allow Android to read data from the apk.
+/// \brief Stream reader for ZIP-compressed data with known size
+///
+/// Specialized reader for ZIP/APK archive support, particularly for Android APK file access.
+/// Unlike the general-purpose ezCompressedStreamReaderZlib, this reader requires the exact
+/// compressed input size to be known in advance. Used internally by ezArchiveReader for
+/// reading individual compressed entries from archive files.
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZip : public ezStreamReader
 {
 public:
   ezCompressedStreamReaderZip();
   ~ezCompressedStreamReaderZip();
 
-  /// \brief Configures the reader to decompress the data from the given input stream.
+  /// \brief Configures the reader with input stream and exact compressed size
   ///
-  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new
-  /// one.
+  /// The exact compressed input size must be known in advance for proper decompression.
+  /// This method can be called multiple times to reuse the decoder instance, which is
+  /// more efficient than creating new instances for each decompression operation.
   void SetInputStream(ezStreamReader* pInputStream, ezUInt64 uiInputSize);
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
@@ -38,10 +43,12 @@ private:
 };
 
 
-/// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZlib.
+/// \brief General-purpose zlib decompression stream reader
 ///
-/// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
-/// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
+/// Decompresses data that was compressed using ezCompressedStreamWriterZlib or any zlib-compatible format.
+/// The reader wraps another stream (file, memory, etc.) as its data source and handles decompression transparently.
+/// Uses an internal 256-byte cache to minimize source stream reads and optimize decompression performance.
+/// Unlike ezCompressedStreamReaderZip, this reader does not require knowing the compressed size in advance.
 class EZ_FOUNDATION_DLL ezCompressedStreamReaderZlib : public ezStreamReader
 {
 public:
@@ -63,18 +70,19 @@ private:
   z_stream_s* m_pZLibStream = nullptr;
 };
 
-/// \brief A stream writer that will compress all incoming data and then passes it on into another stream.
+/// \brief Zlib compression stream writer for efficient data compression
 ///
-/// The stream uses an internal cache of 255 Bytes to compress data, before it passes that on to the output stream.
-/// It does not need to compress the entire data first, and it will not do any dynamic memory allocations.
-/// Calling Flush() will write the current amount of compressed data to the output stream. Calling this frequently might reduce the
-/// compression ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was
-/// put into the stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of
-/// data has still not been written to it, because it is still inside the compressor.
+/// Compresses incoming data using zlib and forwards it to another stream (file, memory, etc.).
+/// Uses an internal 255-byte cache for efficient compression without requiring the entire dataset
+/// in memory or dynamic allocations. Data is compressed incrementally as it arrives.
+///
+/// Note about Flush(): Calling Flush() writes available compressed data but does not guarantee
+/// all input data becomes readable from the output stream, as significant data may remain in
+/// the compressor's internal buffers. Use CloseStream() to ensure complete data output.
 class EZ_FOUNDATION_DLL ezCompressedStreamWriterZlib : public ezStreamWriter
 {
 public:
-  /// \brief Specifies the compression level of the stream.
+  /// \brief Compression level settings balancing speed vs. compression ratio
   enum Compression
   {
     Uncompressed = 0,
@@ -83,8 +91,7 @@ public:
     Average = 5,
     High = 7,
     Highest = 9,
-    Default = Fastest ///< Should be preferred, good compression and good speed. Higher compression ratios save not much space but take
-                      ///< considerably longer.
+    Default = Fastest ///< Recommended setting: good compression with good speed. Higher levels provide minimal space savings but significantly longer compression times.
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
@@ -109,12 +116,12 @@ public:
   /// \brief Returns the size of the data in its uncompressed state.
   ezUInt64 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
 
-  /// \brief Returns the current compressed size of the data.
+  /// \brief Returns the compressed data size
   ///
-  /// This value is only accurate after CloseStream() has been called. Before that it is only a rough value, because a lot of data
-  /// might still be cached and not yet accounted for.
-  /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
-  /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
+  /// Only accurate after CloseStream() has been called. Before that, the value is approximate
+  /// because data may still be cached internally. Note that this returns the compressed data size,
+  /// not the total bytes written to the output stream, which includes additional framing overhead
+  /// (approximately 1 byte per 255 compressed bytes, plus one terminator byte).
   ezUInt64 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
 
   /// \brief Writes the currently available compressed data to the stream.

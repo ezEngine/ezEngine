@@ -171,6 +171,10 @@ public:
   ~ezOSFile();
 
   /// \brief Opens a file for reading or writing. Returns EZ_SUCCESS if the file could be opened successfully.
+  ///
+  /// \param sFile Absolute path to the file to open
+  /// \param openMode How to open the file (Read, Write, Append)
+  /// \param fileShareMode How the file can be shared with other processes (platform-specific)
   ezResult Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default); // [tested]
 
   /// \brief Returns true if a file is currently open.
