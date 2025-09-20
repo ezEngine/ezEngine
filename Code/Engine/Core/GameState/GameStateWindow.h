@@ -2,7 +2,10 @@
 
 #include <Core/System/Window.h>
 
-/// \brief A window class that expands a little on ezWindow. Default type used by ezGameState to create a window.
+/// A window class that expands on ezWindow with game-specific functionality.
+///
+/// Default window type used by ezGameState to create a game window.
+/// Provides customizable close behavior through delegate callbacks.
 class EZ_CORE_DLL ezGameStateWindow : public ezWindow
 {
 public:

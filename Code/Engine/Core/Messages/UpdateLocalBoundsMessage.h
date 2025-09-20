@@ -5,18 +5,30 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 
+/// Message sent to components to gather their local bounds for spatial data systems.
+///
+/// Components receive this message to contribute their local bounding volumes
+/// to the game object's overall bounds. Multiple components can add their bounds
+/// which are accumulated into a single result used for culling and spatial queries.
 struct EZ_CORE_DLL ezMsgUpdateLocalBounds : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgUpdateLocalBounds, ezMessage);
 
+  /// Adds bounding volume to the accumulated local bounds.
+  ///
+  /// \param bounds The local bounding volume to include
+  /// \param category The spatial data category this bounds belongs to
   EZ_ALWAYS_INLINE void AddBounds(const ezBoundingBoxSphere& bounds, ezSpatialData::Category category)
   {
     m_ResultingLocalBounds.ExpandToInclude(bounds);
     m_uiSpatialDataCategoryBitmask |= category.GetBitmask();
   }
 
-  ///\brief Enforces the object to be always visible. Note that you can't set this flag to false again,
-  ///  because the same message is sent to multiple components and should accumulate the bounds.
+  /// Marks the object as always visible, bypassing culling systems.
+  ///
+  /// Once set, this flag cannot be unset during the same message handling,
+  /// as the message accumulates data from multiple components.
+  /// \param category The spatial data category for the always-visible flag
   EZ_ALWAYS_INLINE void SetAlwaysVisible(ezSpatialData::Category category)
   {
     m_bAlwaysVisible = true;

@@ -6,6 +6,11 @@
 
 using ezScriptComponentManager = ezComponentManager<class ezScriptComponent, ezBlockStorageType::FreeList>;
 
+/// \brief Component that hosts and executes a script class instance on a game object.
+///
+/// Manages script execution lifecycle, variable access, parameter exposure, and event handling.
+/// Supports configurable update intervals and simulation-only updates. Provides integration
+/// between game objects and scripting systems through the ezScriptClassResource.
 class EZ_CORE_DLL ezScriptComponent : public ezEventMessageHandlerComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezScriptComponent, ezEventMessageHandlerComponent, ezScriptComponentManager);

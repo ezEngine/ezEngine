@@ -5,6 +5,10 @@
 #include <Utilities/UtilitiesDLL.h>
 
 /// \brief Base class for all path finding state objects.
+///
+/// Path states carry information about the current state of a pathfinding agent at a specific node.
+/// This includes costs accumulated so far and can be extended to include custom state like facing direction,
+/// remaining fuel, unlocked abilities, or any other data that affects movement possibilities.
 struct ezPathState
 {
   EZ_DECLARE_POD_TYPE();
@@ -16,11 +20,17 @@ struct ezPathState
     m_fEstimatedCostToTarget = 0.0f;
   }
 
-  /// Initialized by the path searcher. Back-pointer to the node from which this node was reached.
+  /// Back-pointer to the node from which this node was reached.
+  ///
+  /// Set automatically by the path searcher during the search process.
+  /// Used to reconstruct the final path once the target is found.
   ezInt64 m_iReachedThroughNode;
 
-  /// Each ezPathStateGenerator needs to update the costs by taking the nodes from the predecessor state and adding a non-zero cost value to
-  /// it.
+  /// The accumulated cost to reach this node from the start.
+  ///
+  /// Must be updated by ezPathStateGenerator implementations by taking the cost
+  /// from the predecessor state and adding the movement cost to reach this node.
+  /// Should always be non-negative and increase along the path.
   float m_fCostToNode;
 
   /// To get directed path searches (A*) this estimation needs to be filled out. It must be the sum of m_fCostToNode and an estimation
@@ -35,7 +45,7 @@ struct ezPathState
 template <typename PathStateType>
 class ezPathSearch;
 
-/// \brief The base class for all path state generates.
+/// \brief Base class for path state generators that define how pathfinding expands from one node to adjacent nodes.
 ///
 /// A path state generator is a class that takes one 'path state' (typically a node in a graph) and generates all the adjacent nodes
 /// that can be reached from there. It carries state, which allows to expand nodes only in certain directions, depending on what actions
@@ -50,11 +60,26 @@ template <typename PathStateType>
 class ezPathStateGenerator
 {
 public:
-  /// \brief Called by a ezPathSearch object to generate the adjacent states from graph node iNodeIndex.
+  /// \brief Generates all valid adjacent states from the current node and state.
   ///
-  /// On a 2D grid the iNodeIndex would just be the grid cell index (GridHeight * Cell.y + Cell.x). This function would then 'expand'
-  /// the 4 or 8 direct neighbor cells by creating a new PathStateType object for each and then passing that to the ezPathSearch object
-  /// pPathSearch by calling ezPathSearch::AddPathNode.
+  /// This is the core expansion function called during pathfinding. For each valid adjacent node,
+  /// create a new PathStateType with updated costs and state, then add it to the search via
+  /// pPathSearch->AddPathNode().
+  ///
+  /// \param iNodeIndex The current node being expanded (e.g., grid cell index, navmesh triangle ID)
+  /// \param StartState The current path state at this node (costs, direction, resources, etc.)
+  /// \param pPathSearch The search object to add discovered adjacent nodes to
+  ///
+  /// Example for a simple grid:
+  /// ```cpp
+  /// for (auto& neighbor : GetGridNeighbors(iNodeIndex))
+  /// {
+  ///   PathStateType newState = StartState;
+  ///   newState.m_fCostToNode += GetMovementCost(iNodeIndex, neighbor.index);
+  ///   newState.m_fEstimatedCostToTarget = newState.m_fCostToNode + GetHeuristic(neighbor.index, targetIndex);
+  ///   pPathSearch->AddPathNode(neighbor.index, newState);
+  /// }
+  /// ```
   virtual void GenerateAdjacentStates(ezInt64 iNodeIndex, const PathStateType& StartState, ezPathSearch<PathStateType>* pPathSearch) = 0;
 
   /// \brief Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindClosest).

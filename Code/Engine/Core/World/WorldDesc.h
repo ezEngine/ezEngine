@@ -16,16 +16,16 @@ struct ezWorldDesc
 
   ezWorldDesc(ezStringView sWorldName) { m_sName.Assign(sWorldName); }
 
-  ezHashedString m_sName;
-  ezUInt64 m_uiRandomNumberGeneratorSeed = 0;
+  ezHashedString m_sName;                                                         ///< Name of the world for identification
+  ezUInt64 m_uiRandomNumberGeneratorSeed = 0;                                     ///< Seed for the world's random number generator (0 = use current time)
 
-  ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
-  bool m_bAutoCreateSpatialSystem = true;                ///< automatically create a default spatial system if none is set
+  ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;                                  ///< Custom spatial system to use for this world
+  bool m_bAutoCreateSpatialSystem = true;                                         ///< Automatically create a default spatial system if none is set
 
-  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
-  ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing; ///< if nullptr, ezDefaultTimeStepSmoothing will be used
+  ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;            ///< Optional provider for position-dependent coordinate systems
+  ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;                          ///< Custom time step smoothing (if nullptr, ezDefaultTimeStepSmoothing will be used)
 
-  bool m_bReportErrorWhenStaticObjectMoves = true;
+  bool m_bReportErrorWhenStaticObjectMoves = true;                                ///< Whether to log errors when objects marked as static change position
 
-  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::MakeFromHours(10000); // max time to spend on component initialization per frame
+  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::MakeFromHours(10000); ///< Maximum time to spend on component initialization per frame
 };

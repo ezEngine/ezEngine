@@ -26,34 +26,40 @@ struct ezGameApplicationStaticEvent
   Type m_Type;
 };
 
-/// Allows custom code to inject logic at specific update points.
+/// \brief Events fired during game application execution phases.
+///
+/// Allows custom code to inject logic at specific update points during each frame.
 /// The events are listed in the order in which they typically happen.
 struct ezGameApplicationExecutionEvent
 {
   enum class Type
   {
-    BeginAppTick,
-    BeforeWorldUpdates,
-    AfterWorldUpdates,
-    BeforeUpdatePlugins,
-    AfterUpdatePlugins,
-    BeforePresent,
-    AfterPresent,
-    EndAppTick,
+    BeginAppTick,        ///< Fired at the beginning of each application tick
+    BeforeWorldUpdates,  ///< Fired before world updates are processed
+    AfterWorldUpdates,   ///< Fired after world updates are completed
+    BeforeUpdatePlugins, ///< Fired before plugin updates are processed
+    AfterUpdatePlugins,  ///< Fired after plugin updates are completed
+    BeforePresent,       ///< Fired before presenting rendered frames
+    AfterPresent,        ///< Fired after presenting rendered frames
+    EndAppTick,          ///< Fired at the end of each application tick
   };
 
   Type m_Type;
 };
 
+/// \brief Defines different update modes for the game application.
 enum class ezGameUpdateMode
 {
-  Skip,                 ///< Dont update or render anything
-  Render,               ///< Only render, no input update
-  UpdateInputAndRender, ///< Update input and render
+  Skip,                 ///< Skip both updating and rendering
+  Render,               ///< Only render, don't update input or game logic
+  UpdateInputAndRender, ///< Process input, update game logic, and render
 };
 
-// TODO: document this and update ezGameApplication comments
-
+/// \brief Base class for game applications that provides fundamental game loop and window management.
+///
+/// Extends ezApplication with game-specific functionality including game state management,
+/// window creation, input handling, screenshot capture, and profiling. Serves as the foundation
+/// for both standalone games and editor applications.
 class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
 {
 public:

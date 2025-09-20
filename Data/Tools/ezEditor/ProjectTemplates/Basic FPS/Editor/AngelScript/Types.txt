@@ -137,7 +137,6 @@ ezMsgApplyRootMotion
 ezMsgBlackboardEntryChanged
 ezMsgBuildStaticMesh
 ezMsgChildrenChanged
-ezMsgCollision
 ezMsgComponentInternalTrigger
 ezMsgComponentsChanged
 ezMsgDamage

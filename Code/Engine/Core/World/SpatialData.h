@@ -3,6 +3,11 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Strings/HashedString.h>
 
+/// \brief Defines categories and metadata for spatial data used by spatial systems.
+///
+/// Provides a category system for organizing spatial objects (like render objects, collision objects)
+/// that can be used by spatial systems for efficient queries and updates. Categories are registered
+/// globally and can have flags to indicate update frequency hints.
 struct ezSpatialData
 {
   struct Flags
@@ -23,6 +28,7 @@ struct ezSpatialData
     };
   };
 
+  /// \brief Represents a spatial data category for organizing objects in spatial systems.
   struct Category
   {
     EZ_ALWAYS_INLINE Category()
@@ -40,6 +46,7 @@ struct ezSpatialData
 
     ezUInt16 m_uiValue;
 
+    /// \brief Returns the bitmask representation of this category for use in queries.
     EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezSmallInvalidIndex ? static_cast<ezUInt32>(EZ_BIT(m_uiValue)) : 0; }
   };
 
@@ -68,12 +75,13 @@ private:
   static ezHybridArray<ezSpatialData::CategoryData, 32>& GetCategoryData();
 };
 
+/// \brief Predefined spatial data categories commonly used throughout the engine.
 struct EZ_CORE_DLL ezDefaultSpatialDataCategories
 {
-  static ezSpatialData::Category RenderStatic;
-  static ezSpatialData::Category RenderDynamic;
-  static ezSpatialData::Category OcclusionStatic;
-  static ezSpatialData::Category OcclusionDynamic;
+  static ezSpatialData::Category RenderStatic;     ///< Static render objects that don't change position frequently
+  static ezSpatialData::Category RenderDynamic;    ///< Dynamic render objects that may change position frequently
+  static ezSpatialData::Category OcclusionStatic;  ///< Static objects used for occlusion culling
+  static ezSpatialData::Category OcclusionDynamic; ///< Dynamic objects used for occlusion culling
 };
 
 /// \brief When an object is 'seen' by a view and thus tagged as 'visible', this enum describes what kind of observer triggered this.

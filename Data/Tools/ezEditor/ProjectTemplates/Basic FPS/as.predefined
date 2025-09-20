@@ -1341,7 +1341,6 @@ class ezMessage
   ezMsgBuildStaticMesh@ opCast();
   ezMsgOnlyApplyToObject@ opCast();
   ezEventMessage@ opCast();
-  ezMsgCollision@ opCast();
   ezMsgDeleteGameObject@ opCast();
   ezMsgComponentInternalTrigger@ opCast();
   ezMsgUpdateLocalBounds@ opCast();
@@ -2940,10 +2939,6 @@ class ezMsgBuildStaticMesh : ezMessage
 class ezMsgOnlyApplyToObject : ezMessage
 {
   ezGameObjectHandle Object;
-}
-
-class ezMsgCollision : ezMessage
-{
 }
 
 class ezMsgDeleteGameObject : ezMessage

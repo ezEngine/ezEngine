@@ -10,11 +10,17 @@ namespace ezInternal
   struct QueryHelper;
 }
 
+/// \brief Spatial system implementation using regular grids for organizing objects.
+///
+/// Divides space into uniform grid cells to enable efficient spatial queries. Supports
+/// multiple grids for different spatial data categories and implements a caching system
+/// to optimize frequently used tag-based queries by creating specialized grid views.
 class EZ_CORE_DLL ezSpatialSystem_RegularGrid : public ezSpatialSystem
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpatialSystem_RegularGrid, ezSpatialSystem);
 
 public:
+  /// \brief Creates a regular grid spatial system with the given cell size.
   ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize = 128);
   ~ezSpatialSystem_RegularGrid();
 
@@ -67,12 +73,13 @@ private:
   ezDynamicArray<ezUniquePtr<Grid>> m_Grids;
   ezUInt32 m_uiFirstCachedGridIndex = MAX_NUM_GRIDS;
 
+  /// \brief Internal data structure tracking which grids contain a spatial data object.
   struct Data
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS;
-    ezUInt64 m_uiAlwaysVisible : 1;
+    ezUInt64 m_uiGridBitmask : MAX_NUM_GRIDS; ///< Bitmask indicating which grids contain this object
+    ezUInt64 m_uiAlwaysVisible : 1;           ///< Whether this object is always visible (bypasses spatial queries)
   };
 
   ezIdTable<ezSpatialDataId, Data, ezLocalAllocatorWrapper> m_DataTable;
@@ -88,14 +95,15 @@ private:
   using CellCallback = ezDelegate<ezVisitorExecution::Enum(const Cell&, const QueryParams&, Stats&, void*, ezVisibilityState::Enum)>;
   void ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const;
 
+  /// \brief Candidate for grid caching based on query patterns and filtering efficiency.
   struct CacheCandidate
   {
-    ezTagSet m_IncludeTags;
-    ezTagSet m_ExcludeTags;
-    ezSpatialData::Category m_Category;
-    float m_fQueryCount = 0.0f;
-    float m_fFilteredRatio = 0.0f;
-    ezUInt32 m_uiGridIndex = ezInvalidIndex;
+    ezTagSet m_IncludeTags;                  ///< Tags that must be included for this cached grid
+    ezTagSet m_ExcludeTags;                  ///< Tags that must be excluded for this cached grid
+    ezSpatialData::Category m_Category;      ///< Spatial data category for this cached grid
+    float m_fQueryCount = 0.0f;              ///< How frequently this query pattern is used
+    float m_fFilteredRatio = 0.0f;           ///< Ratio of objects that pass the tag filter
+    ezUInt32 m_uiGridIndex = ezInvalidIndex; ///< Index of the associated grid if already cached
   };
 
   mutable ezDynamicArray<CacheCandidate> m_CacheCandidates;

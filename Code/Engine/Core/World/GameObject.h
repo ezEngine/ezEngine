@@ -67,6 +67,9 @@ private:
 
 public:
   /// \brief Iterates over all children of one object.
+  ///
+  /// Provides read-only access to child game objects. The iterator becomes invalid
+  /// when the last child is reached or when the object structure is modified.
   class EZ_CORE_DLL ConstChildIterator
   {
   public:
@@ -93,6 +96,9 @@ public:
     const ezWorld* m_pWorld = nullptr;
   };
 
+  /// \brief Mutable iterator for child game objects.
+  ///
+  /// Extends ConstChildIterator to provide write access to child objects.
   class EZ_CORE_DLL ChildIterator : public ConstChildIterator
   {
   public:

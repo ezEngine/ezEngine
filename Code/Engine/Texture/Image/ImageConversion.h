@@ -8,7 +8,10 @@
 
 EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
 
-/// A structure describing the pairs of source/target format that may be converted using the conversion routine.
+/// \brief Describes a single conversion step between two image formats.
+///
+/// Used by conversion step implementations to advertise which format pairs they can handle.
+/// The conversion system uses this information to build optimal conversion paths.
 struct ezImageConversionEntry
 {
   ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags, float fAdditionalPenalty = 0)
@@ -23,9 +26,10 @@ struct ezImageConversionEntry
   const ezImageFormat::Enum m_targetFormat;
   const ezBitflags<ezImageConversionFlags> m_flags;
 
-  /// This member adds an additional amount to the cost estimate for this conversion step.
-  /// It can be used to bias the choice between steps when there are comparable conversion
-  /// steps available.
+  /// Additional cost penalty for this conversion step.
+  ///
+  /// Used to bias the pathfinding algorithm when multiple conversion routes are available.
+  /// Higher penalties make this step less likely to be chosen in the optimal path.
   float m_fAdditionalPenalty = 0.0f;
 };
 
@@ -95,14 +99,53 @@ public:
 };
 
 
-/// \brief Helper class containing utilities to convert between different image formats and layouts.
+/// \brief High-level image format conversion system with automatic path finding.
+///
+/// This class provides a complete image conversion system that can automatically find
+/// optimal conversion paths between any two supported formats. It uses a plugin-based
+/// architecture where conversion steps register themselves at startup.
+///
+/// **Basic Usage:**
+/// ```cpp
+/// // Simple format conversion
+/// ezImage sourceImage;
+/// sourceImage.LoadFrom("texture.png");
+/// ezImage targetImage;
+/// ezImageConversion::Convert(sourceImage, targetImage, ezImageFormat::BC1_UNORM);
+/// ```
+///
+/// **Advanced Usage with Path Caching:**
+/// ```cpp
+/// // Build reusable conversion path
+/// ezHybridArray<ezImageConversion::ConversionPathNode, 16> path;
+/// ezUInt32 numScratchBuffers;
+/// ezImageConversion::BuildPath(sourceFormat, targetFormat, false, path, numScratchBuffers);
+///
+/// // Use cached path for multiple conversions
+/// for (auto& image : images)
+/// {
+///   ezImageConversion::Convert(image, convertedImage, path, numScratchBuffers);
+/// }
+/// ```
+///
+/// The conversion system automatically handles:
+/// - Multi-step conversions (e.g., BC1 -> RGBA8 -> BC7)
+/// - Memory layout differences (linear, block-compressed, planar)
+/// - Optimal path selection based on quality and performance
+/// - In-place conversions when possible
 class EZ_TEXTURE_DLL ezImageConversion
 {
 public:
-  /// \brief Checks if there is a known conversion path between the two formats
+  /// \brief Checks if a conversion path exists between two formats.
+  ///
+  /// This is a fast query that doesn't build the actual conversion path.
+  /// Use this to validate format compatibility before attempting conversion.
   static bool IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
 
-  /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
+  /// \brief Finds the format requiring the least conversion cost from a list of candidates.
+  ///
+  /// Useful when you have multiple acceptable target formats and want to choose
+  /// the one that preserves the most quality or requires the least processing.
   static ezImageFormat::Enum FindClosestCompatibleFormat(ezImageFormat::Enum format, ezArrayPtr<const ezImageFormat::Enum> compatibleFormats);
 
   /// \brief A single node along a computed conversion path.

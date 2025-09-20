@@ -36,7 +36,17 @@ enum class ezCameraEye
   // Two eyes should be enough for everyone.
 };
 
-/// \brief A camera class that stores the orientation and some basic camera settings.
+/// \brief A camera class that stores the orientation and camera settings for rendering.
+///
+/// The camera supports multiple modes including perspective and orthographic projection,
+/// as well as stereoscopic rendering. Camera positions and orientations can be set directly
+/// via view matrices or manipulated through movement and rotation functions.
+///
+/// The camera uses a configurable coordinate system for input and output coordinates.
+/// By default, forward = +X, right = +Y, up = +Z.
+///
+/// For stereo cameras, separate view and projection matrices are maintained for each eye.
+/// Modification counters track changes to camera settings and orientation for cache invalidation.
 class EZ_CORE_DLL ezCamera
 {
 public:

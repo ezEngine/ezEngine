@@ -4,6 +4,10 @@
 
 class ezInputDeviceController;
 
+/// \brief Static utility class for accessing the global controller input device.
+///
+/// Provides a centralized access point to the currently active controller input device.
+/// Allows checking device availability and getting/setting the global device instance.
 class EZ_CORE_DLL ezControllerInput
 {
 public:

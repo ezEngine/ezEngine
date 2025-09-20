@@ -4,66 +4,91 @@
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/TextureDLL.h>
 
-/// \brief Enum describing the type of an image format.
+/// \brief Categorizes image formats by their storage and compression method.
+///
+/// This classification helps determine how image data is laid out in memory
+/// and which processing algorithms are applicable.
 struct EZ_TEXTURE_DLL ezImageFormatType
 {
-  /// \brief Enum describing the type of an image format.
   enum Enum
   {
-    UNKNOWN,
-    LINEAR,
-    BLOCK_COMPRESSED,
-    PLANAR
+    UNKNOWN,          ///< Format type could not be determined
+    LINEAR,           ///< Pixels stored linearly, uncompressed (e.g., RGBA8)
+    BLOCK_COMPRESSED, ///< Pixels stored in compressed blocks (e.g., BC1, ASTC)
+    PLANAR            ///< Channels stored in separate planes (e.g., YUV formats)
   };
 };
 
-/// \brief Enum describing the channel type of an image format.
+/// \brief Specifies the data type and interpretation of channel values.
+///
+/// This determines how raw channel bits are interpreted as numeric values
+/// and affects precision, range, and rendering behavior.
 struct EZ_TEXTURE_DLL ezImageFormatDataType
 {
-  /// \brief Enum describing the channel type of an image format.
   enum Enum
   {
-    FLOAT,
-    UINT,
-    SINT,
-    UNORM,
-    SNORM,
-    DEPTH_STENCIL,
-    GENERIC,
-    NONE
+    FLOAT,         ///< IEEE floating point values
+    UINT,          ///< Unsigned integer values (0 to max)
+    SINT,          ///< Signed integer values (-max to +max)
+    UNORM,         ///< Unsigned normalized values (0.0 to 1.0)
+    SNORM,         ///< Signed normalized values (-1.0 to 1.0)
+    DEPTH_STENCIL, ///< Depth and/or stencil buffer values
+    GENERIC,       ///< Format-specific interpretation
+    NONE           ///< No data type applicable
   };
 };
 
-/// \brief Enum describing the channel of an image format.
+/// \brief Identifies individual channels within an image format.
 struct EZ_TEXTURE_DLL ezImageFormatChannel
 {
-  /// \brief Enum describing the channel of an image format.
   enum Enum
   {
-    R = 0,
-    G,
-    B,
-    A,
-    D,
-    S,
+    R = 0, ///< Red channel
+    G,     ///< Green channel
+    B,     ///< Blue channel
+    A,     ///< Alpha channel
+    D,     ///< Depth channel
+    S,     ///< Stencil channel
     COUNT
   };
 };
 
-/// \brief Enum describing the encoding format of the pixels of an image.
+/// \brief Comprehensive enumeration of all supported pixel formats with utility functions.
+///
+/// This struct provides both format enumeration and extensive utility functions for working with
+/// different pixel formats. It handles format conversion queries, memory layout calculations,
+/// and format property inspection.
+///
+/// **Format Categories:**
+/// - **Linear formats**: Channels stored interleaved per pixel (e.g., RGBARGBARGBA...)
+/// - **Block compressed**: Pixels grouped into compressed blocks (BC1-7, ASTC formats)
+/// - **Planar formats**: Channels stored in separate memory planes (YUV video formats)
+///
+/// **Common Usage Patterns:**
+/// ```cpp
+/// // Query format properties
+/// bool isCompressed = ezImageFormat::IsCompressed(ezImageFormat::BC1_UNORM);
+/// ezUInt32 bitsPerPixel = ezImageFormat::GetBitsPerPixel(format);
+///
+/// // Calculate memory requirements
+/// ezUInt64 rowPitch = ezImageFormat::GetRowPitch(format, width);
+/// ezUInt64 slicePitch = ezImageFormat::GetDepthPitch(format, width, height);
+///
+/// // Format conversion queries
+/// bool canConvert = ezImageFormat::IsCompatible(sourceFormat, targetFormat);
+/// ezImageFormat::Enum srgbVersion = ezImageFormat::AsSrgb(linearFormat);
+/// ```
+///
+/// **Block Compressed Formats:**
+/// Block compressed formats store pixels in fixed-size blocks (4x4 for BC formats, variable for ASTC).
+/// This provides significant memory savings but requires special handling during processing.
+///
+/// **Planar Formats:**
+/// Planar formats like NV12 store different channels in separate memory planes. For example,
+/// NV12 has a luma (Y) plane and an interleaved chroma (UV) plane. Use GetPlaneSubFormat()
+/// to get the format description for individual planes.
 struct EZ_TEXTURE_DLL ezImageFormat
 {
-  /// \brief Enum describing the encoding format of the pixels of an image.
-  ///
-  /// Image formats can be separated into three types: linear, block compressed, and planar.
-  /// In linear formats, the various channels of each pixel (such as R, G, B) are stored interleaved in memory [RGBRGBRGB...].
-  /// This is in contrast to planar formats, where each channel is stored in a separate slice of memory [RRR...GGG...BBB...].
-  /// Planar formats are typically used for video formats with luma and chroma channels, and may also be partially planarized.
-  /// For example, NV12 has a luma (Y) plane and a chroma (UV) plane,
-  /// where the chroma plane again stores the two sub-channels linearly interleaved.
-  /// For these formats, GetPlaneSubFormat() returns a description of the encoding within each plane.
-  /// Block compressed formats use a different approach, where pixels are arranged in blocks of a fixed format-dependent size
-  /// (from 4x4 for BC1-7 and up to 12x12 for some ASTC formats), with colors encoded with a fixed ratio compression.
   enum Enum : ezUInt16
   {
     UNKNOWN,

@@ -11,6 +11,7 @@ struct ezActorManagerImpl;
 class ezActor;
 class ezActorApiService;
 
+/// \brief Event data for actor lifecycle notifications.
 struct ezActorEvent
 {
   enum class Type
@@ -24,6 +25,11 @@ struct ezActorEvent
   ezActor* m_pActor = nullptr;
 };
 
+/// \brief Singleton that manages the lifecycle of all actors and actor API services.
+///
+/// The actor manager handles creation, updating, and destruction of actors and services.
+/// Updates occur every frame, and destruction can be immediate or queued for the next update.
+/// Events are broadcast for actor lifecycle changes to allow external systems to respond.
 class EZ_CORE_DLL ezActorManager final
 {
   EZ_DECLARE_SINGLETON(ezActorManager);

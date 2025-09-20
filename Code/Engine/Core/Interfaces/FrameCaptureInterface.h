@@ -2,6 +2,11 @@
 
 #include <Core/System/Window.h>
 
+/// \brief Interface for frame capture functionality to save rendered frames to disk.
+///
+/// Provides methods to capture frames from windows and save them as image files.
+/// The interface allows starting and ending frame captures, configuring output paths,
+/// and retrieving information about the last successful capture.
 class ezFrameCaptureInterface
 {
 public:

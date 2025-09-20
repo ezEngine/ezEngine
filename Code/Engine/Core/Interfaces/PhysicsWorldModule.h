@@ -9,6 +9,11 @@
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
 
+/// Interface for physics world modules that provide physics simulation and queries.
+///
+/// Physics world modules implement physics functionality for a world, including
+/// collision detection, raycasting, and shape queries. Different physics engines
+/// can provide their own implementations of this interface.
 class EZ_CORE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysicsWorldModuleInterface, ezWorldModule);

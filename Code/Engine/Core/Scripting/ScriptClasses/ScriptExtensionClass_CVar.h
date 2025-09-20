@@ -3,6 +3,10 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 
+/// Script extension class providing access to console variables (CVars) from scripts.
+///
+/// Allows scripts to read and modify CVars for configuration and debugging purposes.
+/// Provides type-safe accessors for common CVar types as well as generic variant access.
 class EZ_CORE_DLL ezScriptExtensionClass_CVar
 {
 public:

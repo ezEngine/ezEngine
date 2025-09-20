@@ -6,6 +6,10 @@
 
 class ezWorld;
 
+/// \brief Interface for sound system integration providing audio playback and control functionality.
+///
+/// Manages sound configuration, playback, volume control, and listener positions.
+/// Supports multiple listeners for split-screen gameplay and VCA group volume control.
 class EZ_CORE_DLL ezSoundInterface
 {
 public:
@@ -72,6 +76,7 @@ public:
   static ezResult PlaySound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f, bool bBlockIfNotLoaded = true);
 };
 
+/// \brief Script extension class providing sound functionality for scripting environments.
 class EZ_CORE_DLL ezScriptExtensionClass_Sound
 {
 public:

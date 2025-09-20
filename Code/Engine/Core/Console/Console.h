@@ -11,6 +11,9 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 
+/// \brief Represents a line of text displayed in the console with formatting information.
+///
+/// Each console string has a type that determines its visual appearance and color.
 struct EZ_CORE_DLL ezConsoleString
 {
   enum class Type : ezUInt8
@@ -35,6 +38,9 @@ struct EZ_CORE_DLL ezConsoleString
   bool operator<(const ezConsoleString& rhs) const { return m_sText < rhs.m_sText; }
 };
 
+/// \brief State object passed to command interpreters for processing input and generating output.
+///
+/// Contains the current input string and accumulates output lines during command execution.
 struct EZ_CORE_DLL ezCommandInterpreterState
 {
   ezStringBuilder m_sInput;
@@ -43,6 +49,10 @@ struct EZ_CORE_DLL ezCommandInterpreterState
   void AddOutputLine(const ezFormatString& text, ezConsoleString::Type type = ezConsoleString::Type::Default);
 };
 
+/// \brief Base class for command interpreters that process console input.
+///
+/// Implementations handle command parsing, execution, and auto-completion.
+/// The interpreter modifies the state object to provide output and results.
 class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
 {
 public:
@@ -74,6 +84,14 @@ struct ezConsoleEvent
   const ezConsoleString* m_AddedpConsoleString;
 };
 
+/// \brief Base console system for command input, output display, and history management.
+///
+/// Provides infrastructure for command execution through pluggable interpreters,
+/// maintains input history, and broadcasts events when output is added.
+/// Thread-safe through internal mutex protection.
+///
+/// This base class handles core functionality but doesn't store output strings.
+/// Derived classes typically provide persistent storage and visual representation.
 class EZ_CORE_DLL ezConsole
 {
 public:

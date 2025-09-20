@@ -5,6 +5,10 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Types/RefCounted.h>
 
+/// \brief Defines a coordinate system through three orthogonal direction vectors.
+///
+/// Represents a 3D coordinate system using forward, right, and up direction vectors.
+/// Used for transforming between different coordinate conventions in the engine.
 struct EZ_CORE_DLL ezCoordinateSystem
 {
   EZ_DECLARE_POD_TYPE();
@@ -14,6 +18,11 @@ struct EZ_CORE_DLL ezCoordinateSystem
   ezVec3 m_vUpDir;
 };
 
+/// \brief Abstract base class for providing coordinate systems at specific world positions.
+///
+/// Allows defining position-dependent coordinate systems within a world. Derived classes
+/// implement GetCoordinateSystem to provide custom coordinate transformations based on
+/// world position, enabling features like gravity-aligned coordinate systems or curved spaces.
 class EZ_CORE_DLL ezCoordinateSystemProvider : public ezRefCounted
 {
 public:
@@ -24,6 +33,7 @@ public:
 
   virtual ~ezCoordinateSystemProvider() = default;
 
+  /// \brief Returns the coordinate system at the given global position.
   virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const = 0;
 
 protected:

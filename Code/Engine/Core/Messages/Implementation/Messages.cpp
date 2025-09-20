@@ -1,6 +1,5 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
@@ -9,11 +8,6 @@
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCollision);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCollision, 1, ezRTTIDefaultAllocator<ezMsgCollision>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTriggerState, 1)
   EZ_ENUM_CONSTANTS(ezTriggerState::Activated, ezTriggerState::Continuing, ezTriggerState::Deactivated)

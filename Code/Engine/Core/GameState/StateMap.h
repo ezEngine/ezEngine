@@ -4,8 +4,10 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
 
-/// \brief A simple registry that stores name/value pairs of types that are common to store game state
+/// A simple registry that stores name/value pairs of types that are common to store game state.
 ///
+/// Provides type-safe storage and retrieval of common data types used in game state management.
+/// Values are stored by name and can be retrieved with optional default values.
 class EZ_CORE_DLL ezStateMap
 {
 public:

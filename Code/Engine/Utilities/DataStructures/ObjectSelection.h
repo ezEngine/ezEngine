@@ -5,22 +5,37 @@
 #include <Foundation/Containers/Deque.h>
 #include <Utilities/UtilitiesDLL.h>
 
-/// \brief Stores a list of game objects as a 'selection'. Provides some common convenience functions for working with selections.
+/// \brief Stores a list of game objects as a 'selection' for editor tools and gameplay systems.
+///
+/// This class is commonly used in editor applications to track which objects are currently selected
+/// for operations like deletion, transformation, or property editing. It can also be used in gameplay
+/// systems that need to maintain groups of objects, such as unit selection in strategy games,
+/// inventory systems, or quest target tracking.
+///
+/// The selection automatically handles validation of object handles and provides utilities for
+/// common selection operations like adding, removing, and toggling objects.
 class EZ_UTILITIES_DLL ezObjectSelection
 {
 public:
   ezObjectSelection();
 
-  /// \brief The ezWorld in which the game objects are stored.
+  /// \brief Sets the world context for this selection.
+  ///
+  /// All objects in the selection must belong to the same world. This is used for validation
+  /// when adding objects and for cleaning up destroyed objects.
   void SetWorld(ezWorld* pWorld);
 
-  /// \brief Returns the ezWorld in which the game objects live.
+  /// \brief Returns the world in which the selected objects exist.
   const ezWorld* GetWorld() const { return m_pWorld; }
 
   /// \brief Clears the selection.
   void Clear() { m_Objects.Clear(); }
 
-  /// \brief Iterates over all objects and removes the ones that have been destroyed from the selection.
+  /// \brief Removes objects that have been destroyed from the selection.
+  ///
+  /// Game objects can be destroyed at any time, leaving invalid handles in the selection.
+  /// Call this periodically (e.g., each frame) to keep the selection clean, or before
+  /// performing operations on the selected objects.
   void RemoveDeadObjects();
 
   /// \brief Adds the given object to the selection, unless it is not valid anymore. Objects can be added multiple times.
@@ -33,7 +48,7 @@ public:
   /// \brief Removes the object from the selection if it exists already, otherwise adds it.
   void ToggleSelection(ezGameObjectHandle hObject);
 
-  /// \brief Returns the number of objects in the selection.
+  /// \brief Returns the number of objects currently in the selection.
   ezUInt32 GetCount() const { return m_Objects.GetCount(); }
 
   /// \brief Returns the n-th object in the selection.

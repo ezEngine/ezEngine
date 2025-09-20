@@ -6,22 +6,28 @@
 
 class ezWorld;
 
+/// \brief Defines the different phases during world updates for module execution ordering.
 struct ezWorldUpdatePhase
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    PreAsync,
-    Async,
-    PostAsync,
-    PostTransform,
+    PreAsync,      ///< Synchronous phase before parallel processing
+    Async,         ///< Parallel processing phase (thread-safe operations only)
+    PostAsync,     ///< Synchronous phase after parallel processing
+    PostTransform, ///< Synchronous phase after transform updates
     COUNT,
 
     Default = PreAsync
   };
 };
 
+/// \brief Base class for world modules that extend world functionality.
+///
+/// World modules provide additional functionality to worlds such as component management,
+/// physics simulation, or rendering. They can register update functions that are called
+/// during different phases of the world update cycle and manage resources and state.
 class EZ_CORE_DLL ezWorldModule : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezWorldModule, ezReflectedClass);
@@ -45,10 +51,11 @@ protected:
   friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
 
+  /// \brief Context passed to update functions containing information about component range to process.
   struct UpdateContext
   {
-    ezUInt32 m_uiFirstComponentIndex = 0;
-    ezUInt32 m_uiComponentCount = 0;
+    ezUInt32 m_uiFirstComponentIndex = 0; ///< Index of the first component to process in this batch
+    ezUInt32 m_uiComponentCount = 0;      ///< Number of components to process in this batch
   };
 
   /// \brief Update function delegate.

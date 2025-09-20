@@ -27,6 +27,22 @@ struct ezTexConvSliceChannelMapping
   };
 };
 
+/// \brief Complete texture conversion configuration with all processing options.
+///
+/// This structure contains all settings needed to convert source images into optimized
+/// textures for runtime use. It handles input specification, format conversion, quality
+/// settings, mipmap generation, and platform-specific optimizations.
+///
+/// **Basic Usage Pattern:**
+/// ```cpp
+/// ezTexConvDesc desc;
+/// desc.m_InputFiles.PushBack("diffuse.png");
+/// desc.m_OutputType = ezTexConvOutputType::Texture2D;
+/// desc.m_Usage = ezTexConvUsage::Color;
+/// desc.m_CompressionMode = ezTexConvCompressionMode::HighQuality;
+/// desc.m_TargetPlatform = ezTexConvTargetPlatform::PC;
+/// // Process with ezTexConvProcessor...
+/// ```
 class EZ_TEXTURE_DLL ezTexConvDesc
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTexConvDesc);
@@ -34,53 +50,50 @@ class EZ_TEXTURE_DLL ezTexConvDesc
 public:
   ezTexConvDesc() = default;
 
-  ezHybridArray<ezString, 4> m_InputFiles;
-  ezDynamicArray<ezImage> m_InputImages;
+  // Input specification
+  ezHybridArray<ezString, 4> m_InputFiles;                          ///< Source image file paths to process
+  ezDynamicArray<ezImage> m_InputImages;                            ///< Pre-loaded source images (alternative to file paths)
 
-  ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings;
+  ezHybridArray<ezTexConvSliceChannelMapping, 6> m_ChannelMappings; ///< Channel routing for multi-input processing
 
-  // output type / platform
-  ezEnum<ezTexConvOutputType> m_OutputType;
-  ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; // TODO: implement android
+  // Output configuration
+  ezEnum<ezTexConvOutputType> m_OutputType;         ///< Type of texture to generate (2D, Cubemap, 3D, etc.)
+  ezEnum<ezTexConvTargetPlatform> m_TargetPlatform; ///< Target platform for format optimization
 
-  // low resolution output
-  ezUInt32 m_uiLowResMipmaps = 0;
+  // Multi-resolution output
+  ezUInt32 m_uiLowResMipmaps = 0;             ///< Number of low-resolution mipmap levels to generate separately
+  ezUInt32 m_uiThumbnailOutputResolution = 0; ///< Size for thumbnail generation (0 = no thumbnail)
 
-  // thumbnail output
-  ezUInt32 m_uiThumbnailOutputResolution = 0;
+  // Format and compression
+  ezEnum<ezTexConvUsage> m_Usage;                     ///< Intended usage (Color, Normal, Linear, etc.) affects format selection
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode; ///< Quality vs file size trade-off
 
-  // Format / Compression
-  ezEnum<ezTexConvUsage> m_Usage;
-  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
+  // Resolution control
+  ezUInt32 m_uiMinResolution = 16;       ///< Minimum texture dimension (prevents over-downscaling)
+  ezUInt32 m_uiMaxResolution = 1024 * 8; ///< Maximum texture dimension (prevents excessive memory usage)
+  ezUInt32 m_uiDownscaleSteps = 0;       ///< Number of 2x downscaling steps to apply
 
-  // resolution clamp and downscale
-  ezUInt32 m_uiMinResolution = 16;
-  ezUInt32 m_uiMaxResolution = 1024 * 8;
-  ezUInt32 m_uiDownscaleSteps = 0;
+  // Mipmap generation
+  ezEnum<ezTexConvMipmapMode> m_MipmapMode;    ///< Mipmap generation strategy
+  ezEnum<ezTextureFilterSetting> m_FilterMode; ///< Runtime filtering quality (ez formats only)
+  ezEnum<ezImageAddressMode> m_AddressModeU;   ///< Horizontal texture wrapping mode
+  ezEnum<ezImageAddressMode> m_AddressModeV;   ///< Vertical texture wrapping mode
+  ezEnum<ezImageAddressMode> m_AddressModeW;   ///< Depth texture wrapping mode (3D textures)
+  bool m_bPreserveMipmapCoverage = false;      ///< Maintain alpha coverage for alpha testing
+  float m_fMipmapAlphaThreshold = 0.5f;        ///< Alpha threshold for coverage preservation
 
-  // Mipmaps / filtering
-  ezEnum<ezTexConvMipmapMode> m_MipmapMode;
-  ezEnum<ezTextureFilterSetting> m_FilterMode; // only used when writing to ez specific formats
-  ezEnum<ezImageAddressMode> m_AddressModeU;
-  ezEnum<ezImageAddressMode> m_AddressModeV;
-  ezEnum<ezImageAddressMode> m_AddressModeW;
-  bool m_bPreserveMipmapCoverage = false;
-  float m_fMipmapAlphaThreshold = 0.5f;
+  // Image processing options
+  ezUInt8 m_uiDilateColor = 0;      ///< Color dilation steps (fills transparent areas)
+  bool m_bFlipHorizontal = false;   ///< Mirror image horizontally
+  bool m_bPremultiplyAlpha = false; ///< Pre-multiply RGB by alpha for correct blending
+  float m_fHdrExposureBias = 0.0f;  ///< HDR exposure adjustment (stops)
+  float m_fMaxValue = 64000.f;      ///< HDR value clamping
 
-  // Misc options
-  ezUInt8 m_uiDilateColor = 0;
-  bool m_bFlipHorizontal = false;
-  bool m_bPremultiplyAlpha = false;
-  float m_fHdrExposureBias = 0.0f;
-  float m_fMaxValue = 64000.f;
+  // Runtime metadata
+  ezUInt64 m_uiAssetHash = 0;    ///< Content hash for cache invalidation
+  ezUInt16 m_uiAssetVersion = 0; ///< Asset version for dependency tracking
 
-  // ez specific
-  ezUInt64 m_uiAssetHash = 0;
-  ezUInt16 m_uiAssetVersion = 0;
-
-  // Texture Atlas
-  ezString m_sTextureAtlasDescFile;
-
-  // Bump map filter
-  ezEnum<ezTexConvBumpMapFilter> m_BumpMapFilter;
+  // Advanced features
+  ezString m_sTextureAtlasDescFile;               ///< Path to texture atlas description file
+  ezEnum<ezTexConvBumpMapFilter> m_BumpMapFilter; ///< Bump map specific filtering
 };
