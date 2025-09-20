@@ -198,7 +198,7 @@ private:
 
 
 
-template <typename Class, typename Container, Container Class::* Member>
+template <typename Class, typename Container, Container Class::*Member>
 struct ezMapPropertyAccessor
 {
   using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;

@@ -158,7 +158,7 @@ private:
 // ***** Classes for properties that are accessed directly *****
 
 /// \brief [internal] Helper class to generate accessor functions for (private) members of another class
-template <typename Class, typename Type, Type Class::* Member>
+template <typename Class, typename Type, Type Class::*Member>
 struct ezPropertyAccessor
 {
   static Type GetValue(const Class* pInstance) { return (*pInstance).*Member; }
