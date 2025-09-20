@@ -460,8 +460,16 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) cons
 
     if (!details.m_sSurfaceResource.IsEmpty())
     {
-      subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
-      desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
+      const ezUInt32 uiSurfIdx = desc.m_Surfaces.IndexOf(details.m_sSurfaceResource);
+      if (uiSurfIdx == ezInvalidIndex)
+      {
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
+        desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
+      }
+      else
+      {
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(uiSurfIdx);
+      }
     }
   }
 
