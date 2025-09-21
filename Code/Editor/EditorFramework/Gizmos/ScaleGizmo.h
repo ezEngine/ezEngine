@@ -15,7 +15,7 @@ public:
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
 
-  void EnableAxis(bool x, bool y, bool z, bool xyz);
+  void EnableAxis(bool x, bool y, bool z, bool bXyz);
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;

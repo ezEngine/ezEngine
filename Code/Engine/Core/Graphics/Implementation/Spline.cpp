@@ -71,9 +71,9 @@ ezResult ezSpline::ControlPoint::Deserialize(ezStreamReader& s)
   return EZ_SUCCESS;
 }
 
-void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& dirIn, const ezSimdVec4f& dirOut)
+void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& vDirIn, const ezSimdVec4f& vDirOut)
 {
-  const ezSimdVec4f autoPosTangent = (dirIn + dirOut) * 0.5f;
+  const ezSimdVec4f autoPosTangent = (vDirIn + vDirOut) * 0.5f;
   const ezSimdFloat eps = ezMath::LargeEpsilon<float>();
 
   {
@@ -84,7 +84,7 @@ void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& dirIn, const ezS
     }
     else if (tangentModeIn == ezSplineTangentMode::Linear)
     {
-      m_vPosTangentIn = -dirIn;
+      m_vPosTangentIn = -vDirIn;
     }
     else
     {
@@ -94,7 +94,7 @@ void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& dirIn, const ezS
     // Sanitize tangent
     if (m_vPosTangentIn.GetLengthSquared<3>() < eps)
     {
-      m_vPosTangentIn = dirIn;
+      m_vPosTangentIn = vDirIn;
       m_vPosTangentIn.NormalizeIfNotZero<3>(ezSimdVec4f(-1, 0, 0));
       m_vPosTangentIn *= eps;
     }
@@ -110,7 +110,7 @@ void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& dirIn, const ezS
     }
     else if (tangentModeOut == ezSplineTangentMode::Linear)
     {
-      m_vPosTangentOut = dirOut;
+      m_vPosTangentOut = vDirOut;
     }
     else
     {
@@ -120,7 +120,7 @@ void ezSpline::ControlPoint::SetAutoTangents(const ezSimdVec4f& dirIn, const ezS
     // Sanitize tangent
     if (m_vPosTangentOut.GetLengthSquared<3>() < eps)
     {
-      m_vPosTangentOut = dirOut;
+      m_vPosTangentOut = vDirOut;
       m_vPosTangentOut.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0));
       m_vPosTangentOut *= eps;
     }
@@ -153,7 +153,7 @@ ezResult ezSpline::Deserialize(ezStreamReader& ref_reader)
   return EZ_SUCCESS;
 }
 
-void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& globalUpDir, const ezSimdVec4f& globalForwardDir)
+void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, const ezSimdVec4f& vGlobalForwardDir)
 {
   const ezUInt32 uiNumPoints = m_ControlPoints.GetCount();
   if (uiNumPoints < 2)
@@ -207,12 +207,12 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& globalUpDir, con
       auto& cp = m_ControlPoints[i];
 
       ezSimdVec4f forwardDir = EvaluateDerivative(i, 0.0f);
-      forwardDir.NormalizeIfNotZero<3>(globalForwardDir);
+      forwardDir.NormalizeIfNotZero<3>(vGlobalForwardDir);
 
       const ezSimdVec4f upDir = [&]()
       {
-        if (!forwardDir.IsEqual(globalUpDir, ezMath::HugeEpsilon<float>()).AllSet<3>())
-          return globalUpDir;
+        if (!forwardDir.IsEqual(vGlobalUpDir, ezMath::HugeEpsilon<float>()).AllSet<3>())
+          return vGlobalUpDir;
 
         if (i > 0)
         {
@@ -223,7 +223,7 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& globalUpDir, con
           }
         }
 
-        return globalForwardDir;
+        return vGlobalForwardDir;
       }();
 
       const ezSimdVec4f rightDir = upDir.CrossRH(forwardDir).GetNormalized<3>();

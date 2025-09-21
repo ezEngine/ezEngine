@@ -32,12 +32,12 @@ void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(scale.x, 2), ezArgF(scale.y, 2), ezArgF(scale.z, 2)));
 }
 
-void ezScaleGizmo::EnableAxis(bool x, bool y, bool z, bool xyz)
+void ezScaleGizmo::EnableAxis(bool x, bool y, bool z, bool bXyz)
 {
   m_bEnableAxisX = x;
   m_bEnableAxisY = y;
   m_bEnableAxisZ = z;
-  m_bEnableAxisXYZ = xyz;
+  m_bEnableAxisXYZ = bXyz;
 }
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

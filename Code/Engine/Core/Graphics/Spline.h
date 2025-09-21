@@ -63,7 +63,7 @@ struct EZ_CORE_DLL ezSpline
 
     void SetScale(const ezSimdVec4f& vScale);
 
-    void SetAutoTangents(const ezSimdVec4f& dirIn, const ezSimdVec4f& dirOut);
+    void SetAutoTangents(const ezSimdVec4f& vDirIn, const ezSimdVec4f& vDirOut);
   };
 
   ezDynamicArray<ControlPoint, ezAlignedAllocatorWrapper> m_ControlPoints;
@@ -74,7 +74,7 @@ struct EZ_CORE_DLL ezSpline
   ezResult Deserialize(ezStreamReader& ref_reader);
 
   /// \brief Calculates tangents for all control points with a tangent mode other than 'Custom'.
-  void CalculateUpDirAndAutoTangents(const ezSimdVec4f& globalUpDir = ezSimdVec4f(0, 0, 1), const ezSimdVec4f& globalForwardDir = ezSimdVec4f(1, 0, 0));
+  void CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir = ezSimdVec4f(0, 0, 1), const ezSimdVec4f& vGlobalForwardDir = ezSimdVec4f(1, 0, 0));
 
   /// \brief Returns the position of the spline at the given parameter fT.
   ezSimdVec4f EvaluatePosition(float fT) const;
