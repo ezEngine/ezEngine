@@ -1,56 +1,9 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Console/Console.h>
-#include <Core/Console/QuakeConsole.h>
+#include <Core/Console/CommandInterpreter.h>
+#include <Core/Console/ConsoleFunction.h>
 
-void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
-{
-  ezStringBuilder sText;
-
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
-  while (pCVar)
-  {
-    if (pCVar->GetName().StartsWith_NoCase(sVariable))
-    {
-      sText.SetFormat("    {0} = {1}", pCVar->GetName(), ezQuakeConsole::GetFullInfoAsString(pCVar));
-
-      ezConsoleString cs;
-      cs.m_sText = sText;
-      cs.m_Type = ezConsoleString::Type::VarName;
-      inout_autoCompleteDescriptions.PushBack(cs);
-
-      inout_autoCompleteOptions.PushBack(pCVar->GetName());
-    }
-
-    pCVar = pCVar->GetNextInstance();
-  }
-}
-
-void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
-{
-  ezStringBuilder sText;
-
-  ezConsoleFunctionBase* pFunc = ezConsoleFunctionBase::GetFirstInstance();
-  while (pFunc)
-  {
-    if (pFunc->GetName().StartsWith_NoCase(sVariable))
-    {
-      sText.SetFormat("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
-
-      ezConsoleString cs;
-      cs.m_sText = sText;
-      cs.m_Type = ezConsoleString::Type::FuncName;
-      inout_autoCompleteDescriptions.PushBack(cs);
-
-      inout_autoCompleteOptions.PushBack(pFunc->GetName());
-    }
-
-    pFunc = pFunc->GetNextInstance();
-  }
-}
-
-
-const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
+const ezString ezCommandInterpreter::GetValueAsString(ezCVar* pCVar)
 {
   ezStringBuilder s = "undefined";
 
@@ -94,7 +47,7 @@ const ezString ezQuakeConsole::GetValueAsString(ezCVar* pCVar)
   return s.GetData();
 }
 
-ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
+ezString ezCommandInterpreter::GetFullInfoAsString(ezCVar* pCVar)
 {
   ezStringBuilder s = GetValueAsString(pCVar);
 
@@ -113,6 +66,60 @@ ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
     s.Append("]");
 
   return s;
+}
+void ezCommandInterpreterState::AddOutputLine(const ezFormatString& text, ezConsoleString::Type type /*= ezCommandOutputLine::Type::Default*/)
+{
+  auto& line = m_sOutput.ExpandAndGetRef();
+  line.m_Type = type;
+
+  ezStringBuilder tmp;
+  line.m_sText = text.GetText(tmp);
+}
+
+void ezCommandInterpreter::FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
+{
+  ezStringBuilder sText;
+
+  ezCVar* pCVar = ezCVar::GetFirstInstance();
+  while (pCVar)
+  {
+    if (pCVar->GetName().StartsWith_NoCase(sVariable))
+    {
+      sText.SetFormat("    {0} = {1}", pCVar->GetName(), GetFullInfoAsString(pCVar));
+
+      ezConsoleString cs;
+      cs.m_sText = sText;
+      cs.m_Type = ezConsoleString::Type::VarName;
+      inout_autoCompleteDescriptions.PushBack(cs);
+
+      inout_autoCompleteOptions.PushBack(pCVar->GetName());
+    }
+
+    pCVar = pCVar->GetNextInstance();
+  }
+}
+
+void ezCommandInterpreter::FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
+{
+  ezStringBuilder sText;
+
+  ezConsoleFunctionBase* pFunc = ezConsoleFunctionBase::GetFirstInstance();
+  while (pFunc)
+  {
+    if (pFunc->GetName().StartsWith_NoCase(sVariable))
+    {
+      sText.SetFormat("    {0} {1}", pFunc->GetName(), pFunc->GetDescription());
+
+      ezConsoleString cs;
+      cs.m_sText = sText;
+      cs.m_Type = ezConsoleString::Type::FuncName;
+      inout_autoCompleteDescriptions.PushBack(cs);
+
+      inout_autoCompleteOptions.PushBack(pFunc->GetName());
+    }
+
+    pFunc = pFunc->GetNextInstance();
+  }
 }
 
 const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& strings)

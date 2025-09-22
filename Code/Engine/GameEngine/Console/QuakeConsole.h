@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Console/Console.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct ezLoggingEventData;
 
@@ -12,7 +13,7 @@ struct ezLoggingEventData;
 /// easily.
 /// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_CORE_DLL ezQuakeConsole final : public ezConsole
+class EZ_GAMEENGINE_DLL ezQuakeConsole final : public ezConsole
 {
 public:
   ezQuakeConsole();
@@ -122,18 +123,11 @@ public:
   /// \brief Deletes all console strings, making the console empty.
   void ClearConsoleStrings();
 
+  /// \brief Display the console state.
+  virtual void RenderConsole(bool bIsOpen) override;
 
-  /// @}
-
-  /// \name Helpers
-  /// @{
-
-
-  /// \brief Returns a nice string containing all the important information about the cvar.
-  static ezString GetFullInfoAsString(ezCVar* pCVar);
-
-  /// \brief Returns the value of the cvar as a string.
-  static const ezString GetValueAsString(ezCVar* pCVar);
+  /// \brief Update the console with the latest input.
+  virtual void HandleInput(bool bIsOpen) override;
 
   /// @}
 

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <Core/Console/Console.h>
+#include <GameEngine/GameEngineDLL.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-class EZ_CORE_DLL ezCommandInterpreterLua : public ezCommandInterpreter
+class EZ_GAMEENGINE_DLL ezCommandInterpreterLua : public ezCommandInterpreter
 {
 public:
   /// \brief The default interpreter used by ezConsole. Uses Lua for parsing and execution.

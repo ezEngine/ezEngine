@@ -1,8 +1,7 @@
-#include <Core/CorePCH.h>
+#include <GameEngine/GameEnginePCH.h>
 
-#include <Core/Console/LuaInterpreter.h>
-#include <Core/Console/QuakeConsole.h>
 #include <Core/Scripting/LuaWrapper.h>
+#include <GameEngine/Console/LuaInterpreter.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
@@ -191,13 +190,13 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
           inout_state.AddOutputLine("  This change takes only effect after a restart.", ezConsoleString::Type::Note);
         }
 
-        sTemp.SetFormat("  {0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+        sTemp.SetFormat("  {0} = {1}", sRealVarName, GetFullInfoAsString(pCVAR));
         inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);
       }
     }
     else
     {
-      sTemp.SetFormat("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
+      sTemp.SetFormat("{0} = {1}", sRealVarName, GetFullInfoAsString(pCVAR));
       inout_state.AddOutputLine(sTemp);
 
       if (!pCVAR->GetDescription().IsEmpty())

@@ -1,20 +1,19 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
+#include <Core/Console/Console.h>
+#include <EditorEngineProcess/EngineProcGameApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/ETW.h>
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/System/CrashHandler.h>
-#include <Foundation/System/SystemInformation.h>
-
-#include <Core/Console/QuakeConsole.h>
-#include <EditorEngineProcess/EngineProcGameApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/System/StackTracer.h>
+#include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>

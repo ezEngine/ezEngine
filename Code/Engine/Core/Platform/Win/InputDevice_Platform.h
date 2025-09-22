@@ -41,6 +41,7 @@ private:
   static bool s_bMainWindowUsed;
   ezUInt32 m_uiWindowNumber = 0;
   bool m_bShowCursor = true;
+  bool m_bShowCursorChanged = false;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
   // m_bFirstWndMsg and m_bFirstClick are used to fix issues Windows not giving focus to applications that have been launched

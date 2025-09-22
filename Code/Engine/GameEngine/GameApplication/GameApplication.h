@@ -8,7 +8,7 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezQuakeConsole;
+class ezConsole;
 
 /// Which input actions the ezGameApplication may register and execute (see ezGameApplication::RegisterGameApplicationInputActions())
 struct ezGameApplicationInputFlags
@@ -144,5 +144,5 @@ protected:
   static ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bShowConsole = false;
-  ezUniquePtr<ezQuakeConsole> m_pConsole;
+  ezUniquePtr<ezConsole> m_pConsole;
 };

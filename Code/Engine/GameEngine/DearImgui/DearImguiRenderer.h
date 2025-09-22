@@ -73,7 +73,7 @@ public:
 protected:
   void SetupRenderer();
 
-  static constexpr ezUInt32 s_uiVertexBufferSize = 10000;
+  static constexpr ezUInt32 s_uiVertexBufferSize = 1024 * 128;
   static constexpr ezUInt32 s_uiIndexBufferSize = s_uiVertexBufferSize * 2;
 
   ezShaderResourceHandle m_hShader;

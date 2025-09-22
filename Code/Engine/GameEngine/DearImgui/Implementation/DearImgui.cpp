@@ -284,11 +284,12 @@ ImGuiContext* ezImgui::CreateContext()
   // if imgui was active on the same thread before
   ImGui::SetCurrentContext(nullptr);
   ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
-  ImGui::SetCurrentContext(context);
+
 
   ImGuiIO& cfg = ImGui::GetIO();
 
-  cfg.DisplaySize.x = 1650;
+  cfg.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+  cfg.DisplaySize.x = 1920;
   cfg.DisplaySize.y = 1080;
 
   if (m_ConfigStyleCallback.IsValid())
@@ -296,6 +297,7 @@ ImGuiContext* ezImgui::CreateContext()
     m_ConfigStyleCallback(ImGui::GetStyle());
   }
 
+  ImGui::SetCurrentContext(context);
   return context;
 }
 
@@ -311,6 +313,11 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   m_CurrentWindowResolution = ezSizeU32(static_cast<ezUInt32>(viewport.width), static_cast<ezUInt32>(viewport.height));
 
   ImGuiIO& cfg = ImGui::GetIO();
+
+  if (auto* pCVar = (ezCVarFloat*)ezCVar::FindCVarByName("Debug.TextScale"))
+  {
+    cfg.FontGlobalScale = *pCVar;
+  }
 
   cfg.DisplaySize.x = viewport.width;
   cfg.DisplaySize.y = viewport.height;

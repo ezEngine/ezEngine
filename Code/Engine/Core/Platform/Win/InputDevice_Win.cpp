@@ -576,6 +576,24 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
 
     case WM_INPUT:
     {
+      if (m_bShowCursorChanged)
+      {
+        m_bShowCursorChanged = false;
+
+        if (m_bShowCursor)
+        {
+          while (ShowCursor(TRUE) < 0)
+          {
+          }
+        }
+        else
+        {
+          while (ShowCursor(FALSE) >= 0)
+          {
+          }
+        }
+      }
+
       ezUInt32 uiSize = 0;
 
       GetRawInputData((HRAWINPUT)lparam, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER));
@@ -901,7 +919,7 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
     return;
 
   m_bShowCursor = bShow;
-  ShowCursor(m_bShowCursor);
+  m_bShowCursorChanged = true;
 }
 
 bool ezStandardInputDevice::GetShowMouseCursor() const

@@ -93,7 +93,7 @@ ezResult ezWindowWin::InitializeWindow()
 
     if (error != ERROR_CLASS_ALREADY_EXISTS)
     {
-      ezLog::Error("Failed to create ezWindow window class! (error code '{0}')", ezArgU(error));
+      ezLog::Error("Failed to create ezWindow window class! (error code '{0}')", ezArgErrorCode(error));
       return EZ_FAILURE;
     }
   }
