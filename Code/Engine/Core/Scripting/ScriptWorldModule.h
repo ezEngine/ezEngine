@@ -74,8 +74,8 @@ public:
     /// Flags controlling when the function should be executed.
     enum Flags : ezUInt8
     {
-      None,                   ///< Execute always
-      OnlyWhenSimulating     ///< Execute only during simulation
+      None,              ///< Execute always
+      OnlyWhenSimulating ///< Execute only during simulation
     };
 
     ezPointerWithFlags<const ezAbstractFunctionProperty, 1> m_pFunctionAndFlags;

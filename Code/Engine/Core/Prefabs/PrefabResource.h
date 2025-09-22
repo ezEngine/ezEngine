@@ -7,7 +7,9 @@
 
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
-struct EZ_CORE_DLL ezPrefabResourceDescriptor{};
+struct EZ_CORE_DLL ezPrefabResourceDescriptor
+{
+};
 
 struct EZ_CORE_DLL ezExposedPrefabParameterDesc
 {
