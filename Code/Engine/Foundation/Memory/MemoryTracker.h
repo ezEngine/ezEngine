@@ -29,9 +29,7 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    EZ_FORCE_INLINE AllocationInfo()
-
-      = default;
+    EZ_FORCE_INLINE AllocationInfo() = default;
 
     void** m_pStackTrace = nullptr;
     size_t m_uiSize = 0;

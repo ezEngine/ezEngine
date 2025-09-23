@@ -88,6 +88,7 @@ void ezQuakeConsole::LogHandler(const ezLoggingEventData& data)
       break;
 
     case ezLogMsgType::InfoMsg:
+      type = ezConsoleString::Type::Default;
       break;
 
     case ezLogMsgType::DevMsg:
@@ -180,6 +181,9 @@ void ezQuakeConsole::LoadState(ezStreamReader& inout_stream)
 
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
+
+  if (uiVersion > 100)
+    return;
 
   if (uiVersion == 1)
   {

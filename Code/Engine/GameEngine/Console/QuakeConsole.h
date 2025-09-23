@@ -31,7 +31,7 @@ public:
   ezUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
 
   /// \brief Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
-  virtual void EnableLogOutput(bool bEnable);
+  void EnableLogOutput(bool bEnable);
 
   /// \brief Writes the state of the console (history, bound keys) to the stream.
   virtual void SaveState(ezStreamWriter& inout_stream) const;

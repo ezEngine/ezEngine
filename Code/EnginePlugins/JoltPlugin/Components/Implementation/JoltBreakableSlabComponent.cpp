@@ -32,7 +32,7 @@ EZ_END_STATIC_REFLECTED_ENUM
 
 ezAtomicInteger32 ezJoltBreakableSlabComponent::s_iShardMeshCounter;
 
-ezCVarBool cvar_BreakableSlabVis("BreakableSlab.DebugVis", false, ezCVarFlags::Default, "Debug draw the state of breakable slabs.");
+ezCVarBool cvar_BreakableSlabVis("Jolt.BreakableSlab.DebugVis", false, ezCVarFlags::Default, "Debug draw the state of breakable slabs.");
 
 ezJoltBreakableSlabComponentManager::ezJoltBreakableSlabComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezJoltBreakableSlabComponent, ezBlockStorageType::FreeList>(pWorld)

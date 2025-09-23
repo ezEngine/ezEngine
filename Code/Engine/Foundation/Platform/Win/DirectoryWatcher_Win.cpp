@@ -21,7 +21,7 @@
 
 namespace
 {
-  ezCVarBool cvar_ForceNonNTFS("DirectoryWatcher.ForceNonNTFS", false, ezCVarFlags::Default, "Forces the use of ReadDirectoryChanges instead of ReadDirectoryChangesEx");
+  ezCVarBool cvar_ForceNonNTFS("Platform.DirectoryWatcher.ForceNonNTFS", false, ezCVarFlags::Default, "Forces the use of ReadDirectoryChanges instead of ReadDirectoryChangesEx");
 
   struct MoveEvent
   {

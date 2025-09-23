@@ -314,7 +314,7 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   ImGuiIO& cfg = ImGui::GetIO();
 
-  if (auto* pCVar = (ezCVarFloat*)ezCVar::FindCVarByName("Debug.TextScale"))
+  if (auto* pCVar = (ezCVarFloat*)ezCVar::FindCVarByName("App.TextScale"))
   {
     cfg.FontGlobalScale = *pCVar;
   }

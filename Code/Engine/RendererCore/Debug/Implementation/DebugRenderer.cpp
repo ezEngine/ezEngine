@@ -16,7 +16,7 @@
 #include <RendererFoundation/Resources/BufferPool.h>
 #include <RendererFoundation/Shader/Types.h>
 
-ezCVarFloat cvar_DebugTextScale("Debug.TextScale", 1.0f, ezCVarFlags::Save, "Global scale for debug text");
+ezCVarFloat cvar_AppTextScale("App.TextScale", 1.0f, ezCVarFlags::Save, "Global scale for debug text");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -327,7 +327,7 @@ namespace
 
 
     const float fGlyphWidth = ezDebugRenderer::GetTextGlyphWidth(uiSizeInPixel);
-    const float fGlyphHeight = ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale);
+    const float fGlyphHeight = ezMath::Ceil(uiSizeInPixel * cvar_AppTextScale);
     const float fLineHeight = ezDebugRenderer::GetTextLineHeight(uiSizeInPixel);
     const float fLineSpacing = fLineHeight - fGlyphHeight;
 
@@ -402,7 +402,7 @@ namespace
       glyphData.m_topLeftCorner = currentPos;
       glyphData.m_color = textLine.m_color;
       glyphData.m_glyphIndex = uiCharacter < 128 ? static_cast<ezUInt16>(uiCharacter) : 0;
-      glyphData.m_sizeInPixel = (ezUInt16)ezMath::Ceil(textLine.m_uiSizeInPixel * cvar_DebugTextScale);
+      glyphData.m_sizeInPixel = (ezUInt16)ezMath::Ceil(textLine.m_uiSizeInPixel * cvar_AppTextScale);
 
       currentPos.x += fGlyphWidth;
     }
@@ -1439,25 +1439,25 @@ void ezDebugRenderer::DrawArrow(const ezDebugRendererContext& context, float fSi
 float ezDebugRenderer::GetTextGlyphWidth(ezUInt32 uiSizeInPixel /*= 16*/)
 {
   // Glyphs only use 8x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
-  return ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale * (8.0f / 16.0f));
+  return ezMath::Ceil(uiSizeInPixel * cvar_AppTextScale * (8.0f / 16.0f));
 }
 
 // static
 float ezDebugRenderer::GetTextLineHeight(ezUInt32 uiSizeInPixel /*= 16*/)
 {
-  return ezMath::Ceil(uiSizeInPixel * cvar_DebugTextScale * (20.0f / 16.0f));
+  return ezMath::Ceil(uiSizeInPixel * cvar_AppTextScale * (20.0f / 16.0f));
 }
 
 // static
 float ezDebugRenderer::GetTextScale()
 {
-  return cvar_DebugTextScale;
+  return cvar_AppTextScale;
 }
 
 // static
 void ezDebugRenderer::SetTextScale(float fScale)
 {
-  cvar_DebugTextScale = fScale;
+  cvar_AppTextScale = fScale;
 }
 
 // static

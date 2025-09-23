@@ -87,6 +87,11 @@ bool ezConsole::AutoComplete(ezStringBuilder& ref_sText)
       AddConsoleString(l.m_sText, l.m_Type);
     }
 
+    if (!s.m_sOutput.IsEmpty())
+    {
+      AddConsoleString("", ezConsoleString::Type::Note);
+    }
+
     if (ref_sText != s.m_sInput)
     {
       ref_sText = s.m_sInput;
