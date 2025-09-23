@@ -64,7 +64,7 @@ void ezImGuiConsole::SaveState(ezStreamWriter& inout_stream) const
   const ezUInt8 uiVersion = 100;
   inout_stream << uiVersion;
 
-  inout_stream << m_StatsWindowSavedSize;
+  inout_stream << m_vStatsWindowSavedSize;
 }
 
 void ezImGuiConsole::LoadState(ezStreamReader& inout_stream)
@@ -78,7 +78,7 @@ void ezImGuiConsole::LoadState(ezStreamReader& inout_stream)
   if (uiVersion < 100 || uiVersion > 199)
     return;
 
-  inout_stream >> m_StatsWindowSavedSize;
+  inout_stream >> m_vStatsWindowSavedSize;
 }
 
 void ezImGuiConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type type)
@@ -395,9 +395,9 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
   else
   {
     // When switching from overlay to full mode, restore saved size
-    if (!m_bStatsWasInFullMode && m_StatsWindowSavedSize.x > 0 && m_StatsWindowSavedSize.y > 0)
+    if (!m_bStatsWasInFullMode && m_vStatsWindowSavedSize.x > 0 && m_vStatsWindowSavedSize.y > 0)
     {
-      ImGui::SetNextWindowSize(ImVec2(m_StatsWindowSavedSize.x, m_StatsWindowSavedSize.y), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(m_vStatsWindowSavedSize.x, m_vStatsWindowSavedSize.y), ImGuiCond_Always);
     }
   }
 
@@ -415,8 +415,8 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
   else if (bFull)
   {
     // Continuously save size while in full mode
-    m_StatsWindowSavedSize.x = ImGui::GetWindowSize().x;
-    m_StatsWindowSavedSize.y = ImGui::GetWindowSize().y;
+    m_vStatsWindowSavedSize.x = ImGui::GetWindowSize().x;
+    m_vStatsWindowSavedSize.y = ImGui::GetWindowSize().y;
   }
 
   m_bStatsWasInFullMode = bFull;
@@ -438,7 +438,7 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
     const ezUInt64 totalMemoryBytes = CalculateTotalMemoryUsage();
 
     tmp.SetFormat("Memory: {}", ezArgFileSize(totalMemoryBytes));
-    ImGui::Text(tmp);
+    ImGui::TextUnformatted(tmp);
   }
 
   // Collapsible frame time plot
@@ -515,9 +515,9 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
 
   // Before ending the window, ensure that if we're in overlay mode but have a saved full-mode size,
   // we temporarily set the window size to the saved size so ImGui serializes the correct size
-  if (!bFull && m_StatsWindowSavedSize.x > 0 && m_StatsWindowSavedSize.y > 0)
+  if (!bFull && m_vStatsWindowSavedSize.x > 0 && m_vStatsWindowSavedSize.y > 0)
   {
-    ImGui::SetWindowSize(ImVec2(m_StatsWindowSavedSize.x, m_StatsWindowSavedSize.y));
+    ImGui::SetWindowSize(ImVec2(m_vStatsWindowSavedSize.x, m_vStatsWindowSavedSize.y));
   }
 
   ImGui::End();
@@ -784,6 +784,9 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
       }
       break;
     }
+
+    default:
+      break;
   }
 }
 
@@ -794,9 +797,9 @@ void ezImGuiConsole::BuildFilteredLogStrings()
   if (!m_bFilterLog)
     return;
 
-  if (m_LogFilterChanged)
+  if (m_bLogFilterChanged)
   {
-    m_LogFilterChanged = false;
+    m_bLogFilterChanged = false;
     m_FilteredLogStrings.Clear();
 
     for (const auto& entry : m_LogStrings)
@@ -895,7 +898,7 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
     if (ImGui::InputText("##filter", buffer, EZ_ARRAY_SIZE(buffer)))
     {
       m_sLogFilter = buffer;
-      m_LogFilterChanged = true;
+      m_bLogFilterChanged = true;
     }
 
     ImGui::SameLine();
@@ -903,7 +906,7 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
     if (ImGui::Button("Clear Filter"))
     {
       m_sLogFilter.Clear();
-      m_LogFilterChanged = true;
+      m_bLogFilterChanged = true;
     }
     ImGui::EndDisabled();
 
@@ -934,7 +937,7 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
       if (ImGui::Combo("##severity", &currentSelection, severityLabels, 7))
       {
         m_LogLevel = severityValues[currentSelection];
-        m_LogFilterChanged = true;
+        m_bLogFilterChanged = true;
       }
     }
 

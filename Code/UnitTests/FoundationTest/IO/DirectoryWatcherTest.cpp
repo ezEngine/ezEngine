@@ -792,7 +792,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcherNonNTFS)
 {
-  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("DirectoryWatcher.ForceNonNTFS"));
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("Platform.DirectoryWatcher.ForceNonNTFS"));
   *pForceNonNTFS = true;
   DirectoryWatcherTest();
   *pForceNonNTFS = false;

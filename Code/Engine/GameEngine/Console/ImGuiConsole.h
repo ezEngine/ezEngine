@@ -102,7 +102,7 @@ protected:
   ezStringBuilder m_sLogFilter;
   ezStringBuilder m_sCommandText;
   bool m_bFilterLog = false;
-  bool m_LogFilterChanged = false;
+  bool m_bLogFilterChanged = false;
   ezLogMsgType::Enum m_LogLevel = ezLogMsgType::DebugMsg;
 
   // Input handling
@@ -128,7 +128,7 @@ protected:
   bool m_bMemoryTrackingVisible = true;
 
   // Stats window size tracking for overlay/full mode switching
-  ezVec2 m_StatsWindowSavedSize = ezVec2(0, 0);
+  ezVec2 m_vStatsWindowSavedSize = ezVec2(0, 0);
   bool m_bStatsWasInFullMode = true;
 };
 

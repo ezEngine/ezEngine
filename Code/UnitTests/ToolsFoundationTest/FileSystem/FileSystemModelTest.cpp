@@ -1156,7 +1156,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModelNonNTFS)
 {
-  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("DirectoryWatcher.ForceNonNTFS"));
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("Platform.DirectoryWatcher.ForceNonNTFS"));
   *pForceNonNTFS = true;
   FileSystemModelTest();
   *pForceNonNTFS = false;
