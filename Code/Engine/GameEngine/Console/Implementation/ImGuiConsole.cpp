@@ -862,8 +862,8 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
   const float logWidth = screenWidth * 0.33f;
   const float buttonHeight = ImGui::GetFrameHeightWithSpacing();
   const float logHeight = screenHeight * 0.5f - buttonHeight; // Reduced height to account for command window
-  const float logPosX = screenWidth - logWidth - 10.0f;               // Right side with padding
-  const float logPosY = 10.0f;                                        // Top with padding (original position)
+  const float logPosX = screenWidth - logWidth - 10.0f;       // Right side with padding
+  const float logPosY = 10.0f;                                // Top with padding (original position)
 
   ImGui::SetNextWindowSize(ImVec2(logWidth, logHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(logPosX, logPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
