@@ -502,7 +502,7 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
       }
 
       maxMemory = ezMath::Max<float>(maxMemory, 128.0f);
-      maxMemory = ezMath::PowerOfTwo_Ceil(static_cast<ezUInt32>(maxMemory));
+      maxMemory = (float)ezMath::PowerOfTwo_Ceil(static_cast<ezUInt32>(maxMemory));
 
       tmp.SetFormat("{} MB", maxMemory);
 
