@@ -8,7 +8,7 @@ class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
   EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
 
 public:
-  ezStandardInputDevice(ezUInt32 uiWindowNumber);
+  ezStandardInputDevice(ezUInt32 uiWindowNumber, ezMinWindows::HWND hWnd);
   ~ezStandardInputDevice();
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
@@ -39,9 +39,9 @@ private:
   void OnFocusLost(ezMinWindows::HWND hWnd);
 
   static bool s_bMainWindowUsed;
+  ezMinWindows::HWND m_hWnd;
   ezUInt32 m_uiWindowNumber = 0;
   bool m_bShowCursor = true;
-  bool m_bShowCursorChanged = false;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
   // m_bFirstWndMsg and m_bFirstClick are used to fix issues Windows not giving focus to applications that have been launched

@@ -4,11 +4,11 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Time/Clock.h>
+#include <GameEngine/Console/LuaInterpreter.h>
 #include <GameEngine/Console/QuakeConsole.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-
 
 ezQuakeConsole::ezQuakeConsole()
 {
