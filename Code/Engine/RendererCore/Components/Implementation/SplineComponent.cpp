@@ -109,6 +109,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+enum SplineComponentInternalFlags
+{
+  DisallowUpdateFromNodes = 0,
+};
+
 ezSplineComponent::ezSplineComponent() = default;
 ezSplineComponent::~ezSplineComponent() = default;
 
@@ -128,6 +133,10 @@ void ezSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
   auto& s = ref_stream.GetStream();
   s >> m_SplineFlags;
   m_Spline.Deserialize(s).AssertSuccess();
+
+  // This is to prevent the spline from getting cleared in the Editor when it is deserialized as part of a prefab.
+  // In this case it still has a unique id so the 'in editor' check in UpdateSpline alone would not be sufficient.
+  SetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes, true);
 }
 
 void ezSplineComponent::OnActivated()
@@ -293,7 +302,7 @@ void ezSplineComponent::UpdateSpline()
   if (!IsActiveAndInitialized())
     return;
 
-  if (GetUniqueID() != ezInvalidIndex)
+  if (GetUniqueID() != ezInvalidIndex && !GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes))
   {
     // Only in Editor
     UpdateFromNodeObjects();
@@ -315,6 +324,8 @@ ezSplineNodeComponent* ezSplineComponent::FindNodeComponent(const ezHashedString
 
 void ezSplineComponent::UpdateFromNodeObjects()
 {
+  EZ_ASSERT_DEV(!GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes), "This function should not be called when updates from nodes are disabled.");
+
   auto& points = m_Spline.m_ControlPoints;
   points.Clear();
 
