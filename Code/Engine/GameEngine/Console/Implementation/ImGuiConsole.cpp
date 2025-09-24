@@ -94,7 +94,7 @@ void ezImGuiConsole::AddConsoleString(ezStringView sText, ezConsoleString::Type 
                                  type == ezConsoleString::Type::FuncName ||
                                  type == ezConsoleString::Type::Note);
 
-  if (bIsCommandOutput)
+  if (m_bExecutingCommand || bIsCommandOutput)
   {
     // Store in command output for console window
     ezConsoleString& cs = m_CommandOutputStrings.ExpandAndGetRef();
@@ -296,8 +296,9 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
         this))
   {
     AddToInputHistory(buffer);
+    m_bExecutingCommand = true;
     ExecuteCommand(buffer);
-    m_sCommandText.Clear();
+    m_bExecutingCommand = false;
     buffer[0] = '\0';
   }
 
@@ -1120,13 +1121,21 @@ void ezImGuiConsole::HandleInput(bool bIsOpen)
   if (ezInputManager::GetInputActionState("Console", "RepeatLast") == ezKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 1)
+    {
+      m_bExecutingCommand = true;
       ExecuteCommand(GetInputHistory()[0]);
+      m_bExecutingCommand = false;
+    }
   }
 
   if (ezInputManager::GetInputActionState("Console", "RepeatSecondLast") == ezKeyState::Pressed)
   {
     if (GetInputHistory().GetCount() >= 2)
+    {
+      m_bExecutingCommand = true;
       ExecuteCommand(GetInputHistory()[1]);
+      m_bExecutingCommand = false;
+    }
   }
 }
 

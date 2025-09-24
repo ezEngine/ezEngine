@@ -3,14 +3,14 @@
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
 #  include <Core/ResourceManager/ResourceHandle.h>
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/Configuration/Singleton.h>
 #  include <Foundation/Math/Size.h>
 #  include <Foundation/Memory/CommonAllocators.h>
 #  include <Foundation/Types/UniquePtr.h>
 #  include <GameEngine/GameEngineDLL.h>
-#  include <RendererCore/Pipeline/Declarations.h>
-
 #  include <Imgui/imgui.h>
+#  include <RendererCore/Pipeline/Declarations.h>
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
@@ -109,6 +109,7 @@ private:
   ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
   ezHashTable<ezTempHashedString, Image> m_Images;
+  ezCVarFloat* m_pTextScaleCVar = nullptr;
 };
 
 #endif

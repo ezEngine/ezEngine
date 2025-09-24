@@ -31,9 +31,8 @@
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 #  include <GameEngine/Console/ImGuiConsole.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
+#  define USE_IMGUI_CONSOLE 1
 #endif
-
-#define USE_IMGUI_CONSOLE 1
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;

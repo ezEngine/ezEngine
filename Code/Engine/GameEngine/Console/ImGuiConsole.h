@@ -110,6 +110,7 @@ protected:
   bool m_bWasOpen = false;
   bool m_bCursorWasVisible = true;
   bool m_bDefaultInputHandlingInitialized = false;
+  bool m_bExecutingCommand = false;
   ezUInt8 m_uiResetLayout = 0;
   ezMouseCursorClipMode::Enum m_MouseWasClipped;
 

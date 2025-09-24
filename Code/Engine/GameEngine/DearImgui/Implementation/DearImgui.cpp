@@ -285,6 +285,7 @@ ImGuiContext* ezImgui::CreateContext()
   ImGui::SetCurrentContext(nullptr);
   ImGuiContext* context = ImGui::CreateContext(m_pSharedFontAtlas.Borrow());
 
+  m_pTextScaleCVar = (ezCVarFloat*)ezCVar::FindCVarByName("App.TextScale");
 
   ImGuiIO& cfg = ImGui::GetIO();
 
@@ -314,9 +315,9 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   ImGuiIO& cfg = ImGui::GetIO();
 
-  if (auto* pCVar = (ezCVarFloat*)ezCVar::FindCVarByName("App.TextScale"))
+  if (m_pTextScaleCVar)
   {
-    cfg.FontGlobalScale = *pCVar;
+    cfg.FontGlobalScale = *m_pTextScaleCVar;
   }
 
   cfg.DisplaySize.x = viewport.width;
