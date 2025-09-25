@@ -31,7 +31,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ezActorManager)
   {
     if (s_pActorManager)
     {
-      s_pActorManager->DestroyAllActors(nullptr, ezActorManager::DestructionMode::Immediate);
+      s_pActorManager->DestroyAllActors(nullptr);
     }
   }
 
@@ -51,8 +51,6 @@ struct ezActorManagerImpl
 
 EZ_IMPLEMENT_SINGLETON(ezActorManager);
 
-ezCopyOnBroadcastEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
-
 ezActorManager::ezActorManager()
   : m_SingletonRegistrar(this)
 {
@@ -68,9 +66,7 @@ void ezActorManager::Shutdown()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  DestroyAllActors(nullptr, DestructionMode::Immediate);
-
-  s_ActorEvents.Clear();
+  DestroyAllActors(nullptr);
 }
 
 void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
@@ -79,38 +75,9 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
 
   EZ_ASSERT_DEV(pActor != nullptr, "Actor must exist to be added.");
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
-
-  ezActorEvent e;
-  e.m_Type = ezActorEvent::Type::AfterActorCreation;
-  e.m_pActor = m_pImpl->m_AllActors.PeekBack().Borrow();
-  s_ActorEvents.Broadcast(e);
 }
 
-void ezActorManager::DestroyActor(ezActor* pActor, DestructionMode mode)
-{
-  EZ_LOCK(m_pImpl->m_Mutex);
-
-  pActor->m_State = ezActor::State::QueuedForDestruction;
-
-  if (mode == DestructionMode::Immediate && m_bForceQueueActorDestruction == false)
-  {
-    for (ezUInt32 i = 0; i < m_pImpl->m_AllActors.GetCount(); ++i)
-    {
-      if (m_pImpl->m_AllActors[i] == pActor)
-      {
-        ezActorEvent e;
-        e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
-        e.m_pActor = pActor;
-        s_ActorEvents.Broadcast(e);
-
-        m_pImpl->m_AllActors.RemoveAtAndCopy(i);
-        break;
-      }
-    }
-  }
-}
-
-void ezActorManager::DestroyAllActors(const void* pCreatedBy, DestructionMode mode)
+void ezActorManager::DestroyAllActors(const void* pCreatedBy)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
@@ -121,16 +88,15 @@ void ezActorManager::DestroyAllActors(const void* pCreatedBy, DestructionMode mo
 
     if (pCreatedBy == nullptr || pActor->GetCreatedBy() == pCreatedBy)
     {
-      pActor->m_State = ezActor::State::QueuedForDestruction;
+      pActor->m_bQueuedForDestruction = true;
 
-      if (mode == DestructionMode::Immediate && m_bForceQueueActorDestruction == false)
+      if (m_bForceQueueActorDestruction == false)
       {
-        ezActorEvent e;
-        e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
-        e.m_pActor = pActor;
-        s_ActorEvents.Broadcast(e);
-
         m_pImpl->m_AllActors.RemoveAtAndCopy(i);
+      }
+      else
+      {
+        EZ_ASSERT_ALWAYS(false, "queue actors");
       }
     }
   }
@@ -158,24 +124,7 @@ void ezActorManager::UpdateAllActors()
   for (ezUInt32 i0 = m_pImpl->m_AllActors.GetCount(); i0 > 0; --i0)
   {
     const ezUInt32 i = i0 - 1;
-    ezActor* pActor = m_pImpl->m_AllActors[i].Borrow();
-
-    if (pActor->m_State == ezActor::State::New)
-    {
-      pActor->m_State = ezActor::State::Active;
-
-      pActor->Activate();
-
-      ezActorEvent e;
-      e.m_Type = ezActorEvent::Type::AfterActorActivation;
-      e.m_pActor = pActor;
-      s_ActorEvents.Broadcast(e);
-    }
-
-    if (pActor->m_State == ezActor::State::Active)
-    {
-      pActor->Update();
-    }
+    m_pImpl->m_AllActors[i]->Update();
   }
 }
 
@@ -190,13 +139,8 @@ void ezActorManager::DestroyQueuedActors()
     const ezUInt32 i = i0 - 1;
     ezActor* pActor = m_pImpl->m_AllActors[i].Borrow();
 
-    if (pActor->m_State == ezActor::State::QueuedForDestruction)
+    if (pActor->m_bQueuedForDestruction)
     {
-      ezActorEvent e;
-      e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
-      e.m_pActor = pActor;
-      s_ActorEvents.Broadcast(e);
-
       m_pImpl->m_AllActors.RemoveAtAndCopy(i);
     }
   }

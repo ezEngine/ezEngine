@@ -70,13 +70,9 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
 public:
   ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput);
   ~ezActorPluginWindowXR();
-  void Initialize();
 
   virtual ezWindowBase* GetWindow() const override;
   virtual ezWindowOutputTargetBase* GetOutputTarget() const override;
-
-protected:
-  virtual void Update() override;
 
 private:
   ezXRInterface* m_pVrInterface = nullptr;

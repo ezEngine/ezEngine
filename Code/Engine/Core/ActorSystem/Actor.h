@@ -5,10 +5,8 @@
 
 struct ezActorImpl;
 
-class EZ_CORE_DLL ezActor : public ezReflectedClass
+class EZ_CORE_DLL ezActor final
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezActor, ezReflectedClass);
-
   EZ_DISALLOW_COPY_AND_ASSIGN(ezActor);
 
 public:
@@ -34,38 +32,12 @@ public:
     return static_cast<Type*>(GetPlugin(ezGetStaticRTTI<Type>()));
   }
 
-  /// \brief Deletes the given plugin from the actor
-  void DestroyPlugin(ezActorPlugin* pPlugin);
-
-  /// \brief Fills the list with all plugins that have been added to the actor.
-  void GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_allPlugins);
-
-
-protected:
-  void UpdateAllPlugins();
-
-
-protected: // directly touched by ezActorManager
+private:
   friend class ezActorManager;
 
-  /// \brief Called shortly before the first call to Update()
-  virtual void Activate();
-
   /// \brief Called once per frame to update the actor state.
-  ///
-  /// By default this calls UpdateAllPlugins() internally.
-  virtual void Update();
+  void Update();
 
-private: // directly touched by ezActorManager
-  enum class State
-  {
-    New,
-    Active,
-    QueuedForDestruction
-  };
-
-  State m_State = State::New;
-
-private:
+  bool m_bQueuedForDestruction = false;
   ezUniquePtr<ezActorImpl> m_pImpl;
 };

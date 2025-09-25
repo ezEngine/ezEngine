@@ -176,8 +176,6 @@ ezActorPluginWindowXR::~ezActorPluginWindowXR()
   m_pVrInterface->OnActorDestroyed();
 }
 
-void ezActorPluginWindowXR::Initialize() {}
-
 ezWindowBase* ezActorPluginWindowXR::GetWindow() const
 {
   return m_pWindow.Borrow();
@@ -186,14 +184,6 @@ ezWindowBase* ezActorPluginWindowXR::GetWindow() const
 ezWindowOutputTargetBase* ezActorPluginWindowXR::GetOutputTarget() const
 {
   return m_pWindowOutputTarget.Borrow();
-}
-
-void ezActorPluginWindowXR::Update()
-{
-  if (GetWindow())
-  {
-    GetWindow()->ProcessWindowMessages();
-  }
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRWindow);

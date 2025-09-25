@@ -2,19 +2,12 @@
 
 #include <Core/ActorSystem/Actor.h>
 
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
 struct ezActorImpl
 {
   ezString m_sName;
   const void* m_pCreatedBy = nullptr;
-  ezHybridArray<ezUniquePtr<ezActorPlugin>, 4> m_AllPlugins;
-  ezMap<const ezRTTI*, ezActorPlugin*> m_PluginLookupCache;
+  ezHybridArray<ezUniquePtr<ezActorPlugin>, 1> m_AllPlugins;
 };
-
 
 ezActor::ezActor(ezStringView sActorName, const void* pCreatedBy)
 {
@@ -45,11 +38,7 @@ void ezActor::AddPlugin(ezUniquePtr<ezActorPlugin>&& pPlugin)
 
   pPlugin->m_pOwningActor = this;
 
-  // register this plugin under its type and all its base types
-  for (const ezRTTI* pRtti = pPlugin->GetDynamicRTTI(); pRtti != ezGetStaticRTTI<ezActorPlugin>(); pRtti = pRtti->GetParentType())
-  {
-    m_pImpl->m_PluginLookupCache[pRtti] = pPlugin.Borrow();
-  }
+  EZ_ASSERT_DEV(m_pImpl->m_AllPlugins.IsEmpty(), "Only one plugin allowed");
 
   m_pImpl->m_AllPlugins.PushBack(std::move(pPlugin));
 }
@@ -58,44 +47,23 @@ ezActorPlugin* ezActor::GetPlugin(const ezRTTI* pPluginType) const
 {
   EZ_ASSERT_DEV(pPluginType->IsDerivedFrom<ezActorPlugin>(), "The queried type has to derive from ezActorPlugin");
 
-  return m_pImpl->m_PluginLookupCache.GetValueOrDefault(pPluginType, nullptr);
-}
-
-void ezActor::DestroyPlugin(ezActorPlugin* pPlugin)
-{
-  for (ezUInt32 i = 0; i < m_pImpl->m_AllPlugins.GetCount(); ++i)
-  {
-    if (m_pImpl->m_AllPlugins[i] == pPlugin)
-    {
-      m_pImpl->m_AllPlugins.RemoveAtAndSwap(i);
-      break;
-    }
-  }
-}
-
-void ezActor::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_allPlugins)
-{
-  out_allPlugins.Clear();
-
   for (auto& pPlugin : m_pImpl->m_AllPlugins)
   {
-    out_allPlugins.PushBack(pPlugin.Borrow());
+    if (pPlugin->IsInstanceOf(pPluginType))
+    {
+      return pPlugin.Borrow();
+    }
   }
+
+  return nullptr;
 }
 
-void ezActor::UpdateAllPlugins()
+void ezActor::Update()
 {
   for (auto& pPlugin : m_pImpl->m_AllPlugins)
   {
     pPlugin->Update();
   }
-}
-
-void ezActor::Activate() {}
-
-void ezActor::Update()
-{
-  UpdateAllPlugins();
 }
 
 
