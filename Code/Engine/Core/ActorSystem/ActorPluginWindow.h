@@ -45,19 +45,3 @@ public:
   ezUniquePtr<ezWindowOutputTargetBase> m_pWindowOutputTarget;
 };
 
-/// Actor plugin that uses shared window and output target resources.
-///
-/// This plugin references externally managed window and output target instances,
-/// without taking ownership. The referenced resources must remain valid for the
-/// lifetime of this plugin.
-class EZ_CORE_DLL ezActorPluginWindowShared : public ezActorPluginWindow
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowShared, ezActorPluginWindow);
-
-public:
-  virtual ezWindowBase* GetWindow() const override;
-  virtual ezWindowOutputTargetBase* GetOutputTarget() const override;
-
-  ezWindowBase* m_pWindow = nullptr;
-  ezWindowOutputTargetBase* m_pWindowOutputTarget = nullptr;
-};
