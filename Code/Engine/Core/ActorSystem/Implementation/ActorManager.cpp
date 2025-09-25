@@ -4,7 +4,6 @@
 #include <Core/ActorSystem/ActorManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Types/UniquePtr.h>
 
 //////////////////////////////////////////////////////////////////////////
 
