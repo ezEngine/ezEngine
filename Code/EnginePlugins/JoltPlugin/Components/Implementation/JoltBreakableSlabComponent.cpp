@@ -1436,4 +1436,3 @@ void ezShatterTask::Execute()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBreakableSlabComponent);
-

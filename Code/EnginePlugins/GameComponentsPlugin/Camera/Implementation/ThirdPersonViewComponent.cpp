@@ -223,4 +223,3 @@ void ezThirdPersonViewComponent::Update()
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Camera_Implementation_ThirdPersonViewComponent);
-

@@ -14,4 +14,3 @@ ezAbstractProperty ::~ezAbstractProperty()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_AbstractProperty);
-

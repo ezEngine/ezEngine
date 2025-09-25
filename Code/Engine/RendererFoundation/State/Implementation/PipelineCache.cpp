@@ -141,4 +141,3 @@ bool ezGALPipelineCache::CacheKeyHasher::Equal(const ezGALPipelineCache::Compute
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_PipelineCache);
-

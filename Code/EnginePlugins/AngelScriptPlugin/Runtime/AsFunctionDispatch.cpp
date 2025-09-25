@@ -235,4 +235,3 @@ void ezMsgDeliverAngelScriptMsg::operator=(ezMsgDeliverAngelScriptMsg&& rhs)
 
 
 EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsFunctionDispatch);
-

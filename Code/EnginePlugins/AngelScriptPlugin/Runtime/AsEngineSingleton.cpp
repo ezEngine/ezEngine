@@ -275,4 +275,3 @@ void ezAngelScriptEngineSingleton::Register_ExtraComponentFuncs()
 
 
 EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsEngineSingleton);
-

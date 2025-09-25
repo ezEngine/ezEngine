@@ -306,4 +306,3 @@ void ezAngelScriptResource::FindMessageHandlers(const asITypeInfo* pClassType, e
 
 
 EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Resources_AngelScriptResource);
-

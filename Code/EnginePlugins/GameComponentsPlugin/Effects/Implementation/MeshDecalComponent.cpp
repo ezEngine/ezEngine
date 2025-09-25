@@ -212,4 +212,3 @@ void ezMeshDecalComponent::DeleteDecals()
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Implementation_MeshDecalComponent);
-

@@ -535,4 +535,3 @@ void ezRandomPrefabComponent::Prefabs_Remove(ezUInt32 uiIndex)
 
 
 EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Placement_Implementation_RandomPrefabComponent);
-
