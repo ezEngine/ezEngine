@@ -12,6 +12,7 @@
 #  include <Foundation/Math/Math.h>
 #  include <Foundation/Memory/MemoryTracker.h>
 #  include <Foundation/Strings/StringBuilder.h>
+#  include <Foundation/Time/Clock.h>
 #  include <Foundation/Time/Time.h>
 #  include <GameEngine/Console/LuaInterpreter.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
@@ -430,8 +431,7 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
   ezStringBuilder tmp;
 
   // Basic stats
-  const float currentFrameTime = 1.0f / ImGui::GetIO().Framerate;
-  const float currentBinMax = ezMath::Max(m_fCurrentBinMaxFrameTime, currentFrameTime);
+  const float currentFrameTime = ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
   ImGui::Text("FPS: %.0f (%.2f ms)", ImGui::GetIO().Framerate, 1000.0f * currentFrameTime);
 
   // Memory stats
@@ -461,7 +461,6 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
       tmp.SetFormat("{} ms", ezArgF(maxFrameTime * 1000.0f, 1));
 
       // Determine plot color based on current frame time performance
-      const float currentFrameTime = 1.0f / ImGui::GetIO().Framerate;
       ImU32 plotColor;
       if (currentFrameTime > 1.0f / 30.0f)      // Worse than 30 FPS
       {
@@ -684,7 +683,7 @@ void ezImGuiConsole::UpdateFrameTimes()
   if (ezImgui::GetSingleton() == nullptr)
     return;
 
-  const float currentFrameTime = 1.0f / ImGui::GetIO().Framerate;
+  const float currentFrameTime = ezClock::GetGlobalClock()->GetTimeDiff().AsFloatInSeconds();
   const ezTime currentTime = ezTime::Now();
 
   // Track the maximum frame time in the current bin
