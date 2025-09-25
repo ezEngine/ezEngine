@@ -9,7 +9,6 @@
 
 struct ezActorManagerImpl;
 class ezActor;
-class ezActorApiService;
 
 /// \brief Event data for actor lifecycle notifications.
 struct ezActorEvent
@@ -74,22 +73,7 @@ public:
   /// This is already executed by Update(), calling it directly only makes sense if one needs to clean up actors without also updating the others.
   void DestroyQueuedActors();
 
-  void AddApiService(ezUniquePtr<ezActorApiService>&& pService);
-  void DestroyApiService(ezActorApiService* pService, DestructionMode mode = DestructionMode::Immediate);
-  void DestroyAllApiServices(DestructionMode mode = DestructionMode::Immediate);
-  void DestroyQueuedActorApiServices();
-
-  ezActorApiService* GetApiService(const ezRTTI* pType);
-
-  template <typename Type>
-  Type* GetApiService()
-  {
-    return static_cast<Type*>(GetApiService(ezGetStaticRTTI<Type>()));
-  }
-
 private:
-  void ActivateQueuedApiServices();
-  void UpdateAllApiServices();
   void UpdateAllActors();
 
   // used during actor updates to force actor destruction to be queued until the actor updating is finished
