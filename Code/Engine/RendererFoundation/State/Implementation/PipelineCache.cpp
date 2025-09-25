@@ -138,3 +138,7 @@ bool ezGALPipelineCache::CacheKeyHasher::Equal(const ezGALPipelineCache::Compute
 {
   return a.m_uiHash == b.m_uiHash && a.m_Desc == b.m_Desc;
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_State_Implementation_PipelineCache);
+

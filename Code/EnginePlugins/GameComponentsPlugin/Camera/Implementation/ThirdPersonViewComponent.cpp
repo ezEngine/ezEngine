@@ -220,3 +220,7 @@ void ezThirdPersonViewComponent::Update()
   const ezVec3 vLookFromPos = vLookAtPos + m_fCurDistance * vSweepDir;
   GetOwner()->SetGlobalTransformToLookAt(vLookFromPos, vLookAtPos);
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Camera_Implementation_ThirdPersonViewComponent);
+

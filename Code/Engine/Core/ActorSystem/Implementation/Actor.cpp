@@ -67,4 +67,3 @@ void ezActor::Update()
 }
 
 
-EZ_STATICLINK_FILE(Core, Core_ActorSystem_Implementation_Actor);

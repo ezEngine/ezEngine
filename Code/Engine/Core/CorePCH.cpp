@@ -5,8 +5,6 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_Actor);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorApiService);
   EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorManager);
   EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPlugin);
   EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPluginWindow);

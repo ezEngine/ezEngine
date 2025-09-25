@@ -1433,3 +1433,7 @@ void ezShatterTask::Execute()
   m_pComponent->PrepareBreakAsync(m_Shapes, m_ShatterPoints);
   m_hShardsMesh = m_pComponent->CreateShardsMesh();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBreakableSlabComponent);
+

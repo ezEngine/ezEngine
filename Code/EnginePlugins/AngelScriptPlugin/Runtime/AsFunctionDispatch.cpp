@@ -232,3 +232,7 @@ void ezMsgDeliverAngelScriptMsg::operator=(ezMsgDeliverAngelScriptMsg&& rhs)
   rhs.m_bRelease = false;
   rhs.m_pAsMsg = nullptr;
 }
+
+
+EZ_STATICLINK_FILE(AngelScriptPlugin, AngelScriptPlugin_Runtime_AsFunctionDispatch);
+

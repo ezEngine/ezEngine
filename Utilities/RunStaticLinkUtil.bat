@@ -17,7 +17,6 @@
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\OpenXRPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\ParticlePlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\ProcGenPlugin
-..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\RecastPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\RenderDocPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\RmlUiPlugin
 ..\Output\Bin\WinVs2022Debug64\ezStaticLinkUtil.exe ..\Code\EnginePlugins\AngelScriptPlugin
