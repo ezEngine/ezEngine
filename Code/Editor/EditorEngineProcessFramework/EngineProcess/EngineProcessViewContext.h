@@ -88,7 +88,7 @@ protected:
 
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezRegisteredWndHandle m_EditorWndID;
+  ezRegisteredWndHandle m_hEditorWindow;
 
 protected:
   ezCamera m_Camera;

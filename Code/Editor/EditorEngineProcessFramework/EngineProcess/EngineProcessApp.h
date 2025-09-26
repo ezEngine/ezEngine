@@ -45,6 +45,6 @@ protected:
 
   ezEditorEngineProcessMode m_Mode = ezEditorEngineProcessMode::Primary;
 
-  ezRegisteredWndHandle m_WindowID;
+  ezRegisteredWndHandle m_hWindow;
   ezViewHandle m_hRemoteView;
 };

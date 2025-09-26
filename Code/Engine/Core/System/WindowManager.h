@@ -4,7 +4,6 @@
 
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/IdTable.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -60,39 +59,39 @@ public:
   ///
   /// \param out_WindowIDs Array to fill with window handles
   /// \param pCreatedBy Optional filter to only return windows created by this object
-  void GetRegistered(ezDynamicArray<ezRegisteredWndHandle>& out_WindowIDs, const void* pCreatedBy = nullptr);
+  void GetRegistered(ezDynamicArray<ezRegisteredWndHandle>& out_windowHandles, const void* pCreatedBy = nullptr);
 
   /// \brief Checks if a window handle is valid and refers to an existing window.
   ///
   /// Invalid handles can occur if the window was closed or if using a default-constructed handle.
-  bool IsValid(ezRegisteredWndHandle id) const;
+  bool IsValid(ezRegisteredWndHandle hWindow) const;
 
   /// \brief Gets the name of a registered window.
-  ezStringView GetName(ezRegisteredWndHandle id) const;
+  ezStringView GetName(ezRegisteredWndHandle hWindow) const;
 
   /// \brief Gets the window implementation for a registered window.
-  ezWindowBase* GetWindow(ezRegisteredWndHandle id) const;
+  ezWindowBase* GetWindow(ezRegisteredWndHandle hWindow) const;
 
   /// \brief Sets a callback to be invoked when the window is destroyed.
   ///
   /// The callback receives the window handle as parameter. Only one callback
   /// can be set per window; setting a new callback replaces the previous one.
-  void SetDestroyCallback(ezRegisteredWndHandle id, ezWindowDestroyFunc onDestroyCallback);
+  void SetDestroyCallback(ezRegisteredWndHandle hWindow, ezWindowDestroyFunc onDestroyCallback);
 
   /// \brief Associates an output target with a registered window.
   ///
   /// Output targets are destroyed before the window to ensure proper cleanup order.
   /// Setting a new output target replaces any existing one.
-  void SetOutputTarget(ezRegisteredWndHandle id, ezUniquePtr<ezWindowOutputTargetBase>&& pOutputTarget);
+  void SetOutputTarget(ezRegisteredWndHandle hWindow, ezUniquePtr<ezWindowOutputTargetBase>&& pOutputTarget);
 
   /// \brief Gets the output target associated with a window.
-  ezWindowOutputTargetBase* GetOutputTarget(ezRegisteredWndHandle id) const;
+  ezWindowOutputTargetBase* GetOutputTarget(ezRegisteredWndHandle hWindow) const;
 
   /// \brief Closes and unregisters a specific window.
   ///
   /// This first calls any registered destroy callback, then destroys the output target, then the window.
   /// The handle becomes invalid after this call.
-  void Close(ezRegisteredWndHandle id);
+  void Close(ezRegisteredWndHandle hWindow);
 
   /// \brief Closes all windows created by a specific object.
   ///
@@ -111,6 +110,5 @@ private:
     ezWindowDestroyFunc m_OnDestroy;
   };
 
-  ezMutex m_Mutex;
   ezIdTable<ezRegisteredWndHandleData, ezUniquePtr<Data>> m_Data;
 };

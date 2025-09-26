@@ -31,7 +31,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
 {
   EZ_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
 
-  if (!m_WindowID.IsInvalidated())
+  if (!m_hWindow.IsInvalidated())
     return;
 
   ezUniquePtr<ezRemoteProcessWindow> pWindow = EZ_DEFAULT_NEW(ezRemoteProcessWindow);
@@ -46,7 +46,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
 
   pWindow->Initialize(desc).IgnoreResult();
 
-  m_WindowID = ezWindowManager::GetSingleton()->Register("Engine View", this, std::move(pWindow));
+  m_hWindow = ezWindowManager::GetSingleton()->Register("Engine View", this, std::move(pWindow));
 }
 
 void ezEditorEngineProcessApp::DestroyRemoteWindow()
@@ -57,9 +57,12 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
     m_hRemoteView.Invalidate();
   }
 
-  ezWindowManager::GetSingleton()->CloseAll(this);
+  if (ezWindowManager::GetSingleton())
+  {
+    ezWindowManager::GetSingleton()->CloseAll(this);
+  }
 
-  m_WindowID.Invalidate();
+  m_hWindow.Invalidate();
 }
 
 ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
@@ -89,18 +92,18 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
       ezGALWindowSwapChainCreationDescription desc;
-      desc.m_pWindow = pWinMan->GetWindow(m_WindowID);
+      desc.m_pWindow = pWinMan->GetWindow(m_hWindow);
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
 
       pOutput->CreateSwapchain(desc);
 
-      pWinMan->SetOutputTarget(m_WindowID, std::move(pOutput));
+      pWinMan->SetOutputTarget(m_hWindow, std::move(pOutput));
     }
 
     // get swapchain
     ezGALSwapChainHandle hSwapChain;
     {
-      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWinMan->GetOutputTarget(m_WindowID));
+      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWinMan->GetOutputTarget(m_hWindow));
       hSwapChain = pOutputTarget->m_hSwapChain;
     }
 
@@ -112,7 +115,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       // EditorRenderPipeline.ezRenderPipelineAsset
       pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
-      const ezSizeU32 wndSize = pWinMan->GetWindow(m_WindowID)->GetClientAreaSize();
+      const ezSizeU32 wndSize = pWinMan->GetWindow(m_hWindow)->GetClientAreaSize();
 
       pView->SetSwapChain(hSwapChain);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));

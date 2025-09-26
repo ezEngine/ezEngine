@@ -60,7 +60,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
   {
     ezImage img;
-    if (ezWindowManager::GetSingleton()->GetOutputTarget(m_EditorWndID)->CaptureImage(img).Succeeded())
+    if (ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow)->CaptureImage(img).Succeeded())
     {
       img.SaveTo(msg->m_sOutputFile).IgnoreResult();
     }
@@ -86,10 +86,10 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   auto pWinMan = ezWindowManager::GetSingleton();
 
-  if (!m_EditorWndID.IsInvalidated())
+  if (!m_hEditorWindow.IsInvalidated())
   {
     // Update window size
-    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWinMan->GetWindow(m_EditorWndID));
+    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWinMan->GetWindow(m_hEditorWindow));
     const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
 
     EZ_ASSERT_DEV(pWindow->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
@@ -134,8 +134,8 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
       SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
-    m_EditorWndID = pWinMan->Register("EditorView", this, std::move(pWindow));
-    pWinMan->SetOutputTarget(m_EditorWndID, std::move(pOutput));
+    m_hEditorWindow = pWinMan->Register("EditorView", this, std::move(pWindow));
+    pWinMan->SetOutputTarget(m_hEditorWindow, std::move(pOutput));
   }
 }
 
