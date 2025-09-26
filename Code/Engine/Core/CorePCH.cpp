@@ -5,9 +5,6 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorManager);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPlugin);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPluginWindow);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionComponent);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionResource);
   EZ_STATICLINK_REFERENCE(Core_Configuration_Implementation_PlatformProfile);
@@ -55,6 +52,7 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);
+  EZ_STATICLINK_REFERENCE(Core_System_Implementation_WindowManager);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_CustomData);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_IntervalScheduler);

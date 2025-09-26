@@ -1,11 +1,9 @@
 #include <ComputeShaderHistogram/ComputeShaderHistogram.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
-#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/Graphics/Geometry.h>
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/Stats.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
@@ -28,7 +26,7 @@ ezComputeShaderHistogramApp::~ezComputeShaderHistogramApp() = default;
 
 void ezComputeShaderHistogramApp::Run()
 {
-  ezActorManager::GetSingleton()->Update();
+  ezWindowManager::GetSingleton()->Update();
 
   ezClock::GetGlobalClock()->Update();
   Run_InputUpdate();
@@ -164,20 +162,17 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 
   // Retrieve window and swapchain handle for rendering
   {
-    ezHybridArray<ezActor*, 8> allActors;
-    ezActorManager::GetSingleton()->GetAllActors(allActors);
+    auto pWinMan = ezWindowManager::GetSingleton();
 
-    for (ezActor* pActor : allActors)
+    ezHybridArray<ezRegisteredWndHandle, 8> windowIds;
+    pWinMan->GetRegistered(windowIds);
+
+    for (auto id : windowIds)
     {
-      ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
-
-      if (pWindowPlugin == nullptr)
-        continue;
-
-      m_pWindow = pWindowPlugin->GetWindow();
+      m_pWindow = pWinMan->GetWindow(id);
 
       // Retrieve only the first output target
-      if (auto pOutput = pWindowPlugin->GetOutputTarget())
+      if (auto pOutput = pWinMan->GetOutputTarget(id))
       {
         m_hSwapChain = static_cast<ezWindowOutputTargetGAL*>(pOutput)->m_hSwapChain;
         break;

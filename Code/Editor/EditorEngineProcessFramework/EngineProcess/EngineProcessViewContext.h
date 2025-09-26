@@ -3,6 +3,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -10,7 +11,6 @@ class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
-class ezActor;
 struct ezGALRenderTargets;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
@@ -88,7 +88,7 @@ protected:
 
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezActor* m_pEditorWndActor = nullptr;
+  ezRegisteredWndHandle m_EditorWndID;
 
 protected:
   ezCamera m_Camera;

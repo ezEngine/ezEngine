@@ -1,7 +1,5 @@
 #include <RTSPlugin/RTSPluginPCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 
 void RTSGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)

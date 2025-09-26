@@ -1,10 +1,8 @@
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
-#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
@@ -228,20 +226,14 @@ void ezGameApplication::Run_WorldUpdateAndRender()
 
 void ezGameApplication::Run_AcquireImage()
 {
-  ezHybridArray<ezActor*, 8> allActors;
-  ezActorManager::GetSingleton()->GetAllActors(allActors);
+  auto pWinMan = ezWindowManager::GetSingleton();
 
-  for (ezActor* pActor : allActors)
+  ezHybridArray<ezRegisteredWndHandle, 8> windows;
+  pWinMan->GetRegistered(windows);
+
+  for (auto id : windows)
   {
-    EZ_PROFILE_SCOPE(pActor->GetName());
-
-    ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
-
-    if (pWindowPlugin == nullptr)
-      continue;
-
-    // Ignore actors without an output target
-    if (auto pOutput = pWindowPlugin->GetOutputTarget())
+    if (auto pOutput = pWinMan->GetOutputTarget(id))
     {
       EZ_PROFILE_SCOPE("AcquireImage");
       pOutput->AcquireImage();
@@ -251,34 +243,29 @@ void ezGameApplication::Run_AcquireImage()
 
 void ezGameApplication::Run_PresentImage()
 {
-  ezHybridArray<ezActor*, 8> allActors;
-  ezActorManager::GetSingleton()->GetAllActors(allActors);
+  auto pWinMan = ezWindowManager::GetSingleton();
+
+  ezHybridArray<ezRegisteredWndHandle, 8> windows;
+  pWinMan->GetRegistered(windows);
 
   bool bExecutedFrameCapture = false;
-  for (ezActor* pActor : allActors)
+  for (auto id : windows)
   {
-    EZ_PROFILE_SCOPE(pActor->GetName());
-
-    ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
-
-    if (pWindowPlugin == nullptr)
-      continue;
-
-    // Ignore actors without an output target
-    if (auto pOutput = pWindowPlugin->GetOutputTarget())
+    if (auto pOutput = pWinMan->GetOutputTarget(id))
     {
       // if we have multiple actors, append the actor name to each screenshot
       ezStringBuilder ctxt;
-      if (allActors.GetCount() > 1)
+      if (windows.GetCount() > 1)
       {
-        ctxt.Append(" - ", pActor->GetName());
+        ctxt.Append(" - ", pWinMan->GetName(id));
       }
 
       ExecuteTakeScreenshot(pOutput, ctxt);
 
-      if (pWindowPlugin->GetWindow() && !bExecutedFrameCapture)
+      auto pWindow = pWinMan->GetWindow(id);
+      if (pWindow && !bExecutedFrameCapture)
       {
-        ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
+        ExecuteFrameCapture(pWindow->GetNativeWindowHandle(), ctxt);
         bExecutedFrameCapture = true;
       }
 

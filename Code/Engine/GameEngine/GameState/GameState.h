@@ -3,6 +3,7 @@
 #include <Core/GameState/GameStateBase.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/WindowManager.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -14,9 +15,7 @@
 class ezWindow;
 class ezWindowOutputTargetBase;
 class ezView;
-struct ezActorEvent;
 class ezWindowOutputTargetGAL;
-class ezActor;
 class ezDummyXR;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
@@ -134,7 +133,7 @@ protected:
   /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
   ///
   /// The base implementation calls CreateMainWindow(), CreateMainOutputTarget() and SetupMainView() to configure the main window.
-  virtual void CreateActors();
+  virtual void CreateWindows();
 
   /// \brief Adds custom input actions, if necessary.
   /// Unless overridden OnActivation() will call this.
@@ -153,7 +152,7 @@ protected:
   virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Creates an XR Actor, if XR is configured and available for the project.
-  ezUniquePtr<ezActor> CreateXRActor();
+  ezRegisteredWndHandle CreateXRWindow();
 
   /// \brief Creates a default main view.
   ezView* CreateMainView();

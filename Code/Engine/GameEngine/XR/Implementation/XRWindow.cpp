@@ -10,12 +10,6 @@
 #include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindowXR, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-
 //////////////////////////////////////////////////////////////////////////
 
 ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow)
@@ -162,28 +156,4 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
   return m_pCompanionWindowOutputTarget.Borrow();
 }
 
-//////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
-  : m_pVrInterface(pVrInterface)
-{
-  m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(pCompanionWindow));
-  m_pWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, pVrInterface, std::move(pCompanionWindowOutput));
-}
-
-ezActorPluginWindowXR::~ezActorPluginWindowXR()
-{
-  m_pVrInterface->OnActorDestroyed();
-}
-
-ezWindowBase* ezActorPluginWindowXR::GetWindow() const
-{
-  return m_pWindow.Borrow();
-}
-
-ezWindowOutputTargetBase* ezActorPluginWindowXR::GetOutputTarget() const
-{
-  return m_pWindowOutputTarget.Borrow();
-}
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRWindow);

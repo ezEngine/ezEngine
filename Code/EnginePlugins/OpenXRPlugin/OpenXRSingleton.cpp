@@ -1,6 +1,10 @@
 #include <OpenXRPlugin/OpenXRPluginPCH.h>
 
+#include <Core/System/WindowManager.h>
+#include <Core/World/World.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/XR/StageSpaceComponent.h>
+#include <GameEngine/XR/XRWindow.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRInputDevice.h>
@@ -8,17 +12,11 @@
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
 #include <OpenXRPlugin/OpenXRSwapChain.h>
-
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
-
-#include <Core/ActorSystem/Actor.h>
-#include <Core/World/World.h>
-#include <GameEngine/XR/StageSpaceComponent.h>
-#include <GameEngine/XR/XRWindow.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Device/DeviceDX11.h>
@@ -313,7 +311,7 @@ ezXRInputDevice& ezOpenXR::GetXRInput() const
   return *(m_pInput.Borrow());
 }
 
-ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
+ezRegisteredWndHandle ezOpenXR::CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
 
@@ -345,14 +343,20 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
     SetHMDCamera(pView->GetCamera());
   }
 
-  ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "OpenXR", this);
+  auto pWinMan = ezWindowManager::GetSingleton();
 
   EZ_ASSERT_DEV((pCompanionWindow != nullptr) == (pCompanionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
   EZ_ASSERT_DEV(pCompanionWindow == nullptr || SupportsCompanionView(), "If a companionWindow is set, SupportsCompanionView() must be true.");
 
-  ezUniquePtr<ezActorPluginWindowXR> pActorPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowXR, this, std::move(pCompanionWindow), std::move(pCompanionWindowOutput));
-  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pActorPlugin->GetOutputTarget());
-  pActor->AddPlugin(std::move(pActorPlugin));
+  ezUniquePtr<ezWindowXR> pWindowXR = EZ_DEFAULT_NEW(ezWindowXR, this, std::move(pCompanionWindow));
+  ezUniquePtr<ezWindowOutputTargetXR> pOutputTargetXR = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, this, std::move(pCompanionWindowOutput));
+
+  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pOutputTargetXR.Borrow());
+
+  ezRegisteredWndHandle windowId = pWinMan->Register("OpenXR", this, std::move(pWindowXR));
+  pWinMan->SetOutputTarget(windowId, std::move(pOutputTargetXR));
+  pWinMan->SetDestroyCallback(windowId, [this](ezRegisteredWndHandle)
+    { this->OnActorDestroyed(); });
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hView = pView->GetHandle();
@@ -361,7 +365,7 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 
-  return std::move(pActor);
+  return windowId;
 }
 
 void ezOpenXR::OnActorDestroyed()

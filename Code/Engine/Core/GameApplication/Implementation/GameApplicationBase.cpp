@@ -1,11 +1,11 @@
 #include <Core/CorePCH.h>
 
-#include <Core/ActorSystem/ActorManager.h>
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Input/InputManager.h>
 #include <Core/Interfaces/FrameCaptureInterface.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -243,7 +243,7 @@ void ezGameApplicationBase::DeactivateGameState()
 
   m_pGameState->OnDeactivation();
 
-  ezActorManager::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+  ezWindowManager::GetSingleton()->CloseAll(m_pGameState.Borrow());
 
   m_pGameState = nullptr;
 }
@@ -347,10 +347,9 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
-  // shut down all actors and APIs that may have been in use
-  if (ezActorManager::GetSingleton() != nullptr)
+  if (ezWindowManager::GetSingleton() != nullptr)
   {
-    ezActorManager::GetSingleton()->Shutdown();
+    ezWindowManager::GetSingleton()->CloseAll(nullptr);
   }
 
   {
@@ -401,7 +400,7 @@ void ezGameApplicationBase::RunOneFrame()
   EZ_PROFILE_SCOPE("Run");
   s_bUpdatePluginsExecuted = false;
 
-  ezActorManager::GetSingleton()->Update();
+  ezWindowManager::GetSingleton()->Update();
 
   const ezGameUpdateMode state = GetGameUpdateMode();
   if (state == ezGameUpdateMode::Skip)

@@ -1,12 +1,10 @@
 
 #include <GameEngine/GameEnginePCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
-#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -57,7 +55,7 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
 {
   s_pActiveGameState = this;
 
-  CreateActors();
+  CreateWindows();
   ConfigureInputActions();
 
   if (pWorld)
@@ -84,7 +82,7 @@ void ezGameState::OnDeactivation()
   {
     m_bXREnabled = false;
     ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
-    ezActorManager::GetSingleton()->DestroyAllActors(pXRInterface);
+    ezWindowManager::GetSingleton()->CloseAll(pXRInterface); // maybe do this inside Deinitialize ?
     pXRInterface->Deinitialize();
 
     if (ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>())
@@ -164,16 +162,16 @@ bool ezGameState::IsInLoadingScreen() const
   return m_pMainWorld == m_pLoadingScreenWorld;
 }
 
-ezUniquePtr<ezActor> ezGameState::CreateXRActor()
+ezRegisteredWndHandle ezGameState::CreateXRWindow()
 {
   EZ_LOG_BLOCK("CreateXRActor");
   // Init XR
   const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
   if (!pConfig)
-    return nullptr;
+    return {};
 
   if (!pConfig->m_bEnableXR)
-    return nullptr;
+    return {};
 
   ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
   if (!pXRInterface)
@@ -207,7 +205,9 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
   if (pXRInterface->Initialize().Failed())
   {
     ezLog::Error("ezXRInterface could not be initialized. See log for details.");
-    return nullptr;
+    {
+      return {};
+    }
   }
   m_bXREnabled = true;
 
@@ -241,19 +241,15 @@ ezUniquePtr<ezActor> ezGameState::CreateXRActor()
 
   ezView* pView = nullptr;
   EZ_VERIFY(ezRenderWorld::TryGetView(m_hMainView, pView), "");
-  ezUniquePtr<ezActor> pXRActor = pXRInterface->CreateActor(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
-  return std::move(pXRActor);
+  return pXRInterface->CreateXRWindow(pView, ezGALMSAASampleCount::Default, std::move(pMainWindow), std::move(pOutput));
 }
 
-void ezGameState::CreateActors()
+void ezGameState::CreateWindows()
 {
   EZ_LOG_BLOCK("CreateActors");
-  ezUniquePtr<ezActor> pXRActor = CreateXRActor();
-  if (pXRActor != nullptr)
-  {
-    ezActorManager::GetSingleton()->AddActor(std::move(pXRActor));
+  ezRegisteredWndHandle windowId = CreateXRWindow();
+  if (!windowId.IsInvalidated())
     return;
-  }
 
   ezUniquePtr<ezWindow> pMainWindow = CreateMainWindow();
   EZ_ASSERT_DEV(pMainWindow != nullptr, "To change the main window creation behavior, override ezGameState::CreateActors().");
@@ -262,15 +258,11 @@ void ezGameState::CreateActors()
   CreateMainView();
   SetupMainView(pOutput->m_hSwapChain, pMainWindow->GetClientAreaSize());
 
-  {
-    // Default flat window
-    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
-    pWindowPlugin->m_pWindow = std::move(pMainWindow);
-    pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
-    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
-    pActor->AddPlugin(std::move(pWindowPlugin));
-    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
-  }
+
+  // Default flat window
+  auto pWinMan = ezWindowManager::GetSingleton();
+  ezRegisteredWndHandle id = pWinMan->Register("Game", this, std::move(pMainWindow));
+  pWinMan->SetOutputTarget(id, std::move(pOutput));
 }
 
 void ezGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow) {}

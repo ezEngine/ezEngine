@@ -64,5 +64,4 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInputDevice);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInterface);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRSwapChain);
-  EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRWindow);
 }

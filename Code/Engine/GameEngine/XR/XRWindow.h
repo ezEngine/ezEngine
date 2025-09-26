@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
@@ -60,22 +59,4 @@ private:
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
   bool m_bRender = false;
-};
-
-/// \brief XR actor plugin window base implementation. Optionally wraps a companion window and output target.
-class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
-
-public:
-  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput);
-  ~ezActorPluginWindowXR();
-
-  virtual ezWindowBase* GetWindow() const override;
-  virtual ezWindowOutputTargetBase* GetOutputTarget() const override;
-
-private:
-  ezXRInterface* m_pVrInterface = nullptr;
-  ezUniquePtr<ezWindowXR> m_pWindow;
-  ezUniquePtr<ezWindowOutputTargetXR> m_pWindowOutputTarget;
 };

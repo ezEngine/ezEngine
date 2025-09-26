@@ -1,8 +1,6 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
-#include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
@@ -27,7 +25,7 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
-  ezActorManager::GetSingleton()->DestroyAllActors(this);
+  ezWindowManager::GetSingleton()->CloseAll(this);
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 uiId)
@@ -62,10 +60,10 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
   {
     ezImage img;
-    ezActorPluginWindow* pWindow = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
-    pWindow->GetOutputTarget()->CaptureImage(img).IgnoreResult();
-
-    img.SaveTo(msg->m_sOutputFile).IgnoreResult();
+    if (ezWindowManager::GetSingleton()->GetOutputTarget(m_EditorWndID)->CaptureImage(img).Succeeded())
+    {
+      img.SaveTo(msg->m_sOutputFile).IgnoreResult();
+    }
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
@@ -86,12 +84,12 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 {
   EZ_LOG_BLOCK("ezEngineProcessViewContext::HandleWindowUpdate");
 
-  if (m_pEditorWndActor != nullptr)
+  auto pWinMan = ezWindowManager::GetSingleton();
+
+  if (!m_EditorWndID.IsInvalidated())
   {
     // Update window size
-    ezActorPluginWindow* pWindowPlugin = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
-
-    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWindowPlugin->GetWindow());
+    auto* pWindow = static_cast<ezEditorProcessViewWindow*>(pWinMan->GetWindow(m_EditorWndID));
     const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
 
     EZ_ASSERT_DEV(pWindow->GetNativeWindowHandle() == hWnd, "Editor view handle must never change. View needs to be destroyed and recreated.");
@@ -106,56 +104,38 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     return;
   }
 
+  // create window
   {
-    // Create new actor
-    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "EditorView", this);
-
-    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
-
-    // create window
+    ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
+    if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Failed())
     {
-      ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
-      if (pWindow->UpdateWindow(hWnd, uiWidth, uiHeight).Succeeded())
-      {
-        pWindowPlugin->m_pWindow = std::move(pWindow);
-      }
-      else
-      {
-        ezLog::Error("Failed to create Editor Process View Window");
-        return;
-      }
+      ezLog::Error("Failed to create Editor Process View Window");
+      return;
     }
 
     // create output target
+    ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+      { OnSwapChainChanged(hSwapChain, size); });
+
+    ezGALWindowSwapChainCreationDescription desc;
+    desc.m_pWindow = pWindow.Borrow();
+    desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+
+    pOutput->CreateSwapchain(desc);
+    if (pOutput->m_hSwapChain.IsInvalidated())
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
-        { OnSwapChainChanged(hSwapChain, size); });
-
-      ezGALWindowSwapChainCreationDescription desc;
-      desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
-      desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-
-      pOutput->CreateSwapchain(desc);
-      if (pOutput->m_hSwapChain.IsInvalidated())
-      {
-        ezLog::Error("Failed to create swapchain for Editor Process View Window");
-        return;
-      }
-
-      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
+      ezLog::Error("Failed to create swapchain for Editor Process View Window");
+      return;
     }
 
     // setup render target
     {
-      ezWindowOutputTargetGAL* pOutput = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
-
-      const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
+      const ezSizeU32 wndSize = pWindow->GetClientAreaSize();
       SetupRenderTarget(pOutput->m_hSwapChain, nullptr, static_cast<ezUInt16>(wndSize.width), static_cast<ezUInt16>(wndSize.height));
     }
 
-    pActor->AddPlugin(std::move(pWindowPlugin));
-    m_pEditorWndActor = pActor.Borrow();
-    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
+    m_EditorWndID = pWinMan->Register("EditorView", this, std::move(pWindow));
+    pWinMan->SetOutputTarget(m_EditorWndID, std::move(pOutput));
   }
 }
 
