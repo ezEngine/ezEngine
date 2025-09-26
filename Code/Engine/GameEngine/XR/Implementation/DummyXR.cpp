@@ -1,6 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/GameApplication/GameApplicationBase.h>
+#include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/Configuration/XRConfig.h>
@@ -11,7 +12,6 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Core/System/WindowManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezDummyXR);
 
