@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/Window.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
