@@ -50,6 +50,12 @@ bool ezIpcProcessMessageProtocol::ProcessMessages()
 
 ezResult ezIpcProcessMessageProtocol::WaitForMessages(ezTime timeout)
 {
+  // Message processing can be interrupted via the m_bInterruptMessageProcessing flag. Thus, there is no guarantee that the queue is empty at this point. Only wait if the queue is empty.
+  if (ProcessMessages())
+  {
+    return EZ_SUCCESS;
+  }
+
   ezResult res = m_pChannel->WaitForMessages(timeout);
   if (res.Succeeded())
   {
