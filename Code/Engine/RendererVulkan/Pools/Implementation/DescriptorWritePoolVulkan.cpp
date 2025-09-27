@@ -9,7 +9,7 @@
 #include <RendererVulkan/State/StateVulkan.h>
 
 ezDescriptorWritePoolVulkan::ezDescriptorWritePoolVulkan(ezGALDeviceVulkan* pDevice)
-: m_pDevice(pDevice)
+  : m_pDevice(pDevice)
 {
 }
 

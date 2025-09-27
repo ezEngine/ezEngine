@@ -19,12 +19,12 @@
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 #include <RendererVulkan/Pools/QueryPoolVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
-#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>

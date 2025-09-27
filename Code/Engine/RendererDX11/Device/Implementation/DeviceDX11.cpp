@@ -16,8 +16,8 @@
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Shader/BindGroupLayoutDX11.h>
 #include <RendererDX11/Shader/BindGroupDX11.h>
+#include <RendererDX11/Shader/BindGroupLayoutDX11.h>
 #include <RendererDX11/Shader/PipelineLayoutDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>

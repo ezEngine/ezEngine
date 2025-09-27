@@ -4,10 +4,10 @@
 
 #include <RendererFoundation/Device/ImmutableSamplers.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 
 ezGALBindGroupLayoutVulkan::ezGALBindGroupLayoutVulkan(const ezGALBindGroupLayoutCreationDescription& Description)
   : ezGALBindGroupLayout(Description)

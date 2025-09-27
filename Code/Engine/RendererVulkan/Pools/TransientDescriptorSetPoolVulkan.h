@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 EZ_DEFINE_AS_POD_TYPE(vk::DescriptorType);
 

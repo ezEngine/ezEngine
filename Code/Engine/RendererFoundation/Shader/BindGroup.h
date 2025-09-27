@@ -3,8 +3,8 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 #include <Foundation/Algorithm/HashableStruct.h>
-#include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Resources/Resource.h>
+#include <RendererFoundation/Resources/ResourceFormats.h>
 
 
 /// \file

@@ -15,7 +15,9 @@ void ezGALBindGroupItem::operator=(const ezGALBindGroupItem& rhs)
   thisBase = rhsBase;
 }
 
-ezGALBindGroup::ezGALBindGroup(const ezGALBindGroupCreationDescription& Description) : ezGALResource(Description)
-{}
+ezGALBindGroup::ezGALBindGroup(const ezGALBindGroupCreationDescription& Description)
+  : ezGALResource(Description)
+{
+}
 
 ezGALBindGroup::~ezGALBindGroup() = default;

@@ -83,24 +83,23 @@ public:
   struct PendingDeletion
   {
     EZ_DECLARE_POD_TYPE();
-    vk::ObjectType m_type; ///< What type to cast m_pObject to.
+    vk::ObjectType m_type;                    ///< What type to cast m_pObject to.
     ezBitflags<PendingDeletionFlags> m_flags; ///< In case m_type == eUnknown, defines the custom deletion to be performed.
-    void* m_pObject; ///< The object to be deleted, usually cast to a vk::* type.
+    void* m_pObject;                          ///< The object to be deleted, usually cast to a vk::* type.
     union
     {
-      ezVulkanAllocation m_allocation; ///< For convenience to omit casting of m_pContext.
-      void* m_pContext; ///< 64bit of context data.
+      ezVulkanAllocation m_allocation;        ///< For convenience to omit casting of m_pContext.
+      void* m_pContext;                       ///< 64bit of context data.
     };
   };
 
   struct ReclaimResource
   {
     EZ_DECLARE_POD_TYPE();
-    vk::ObjectType m_type; ///< What type to cast m_pObject to.
-    ezUInt32 m_Data; ///< 32bit of context data.
-    void* m_pObject = nullptr; ///< The object to be reclaimed, usually cast to a vk::* type.
+    vk::ObjectType m_type;      ///< What type to cast m_pObject to.
+    ezUInt32 m_Data;            ///< 32bit of context data.
+    void* m_pObject = nullptr;  ///< The object to be reclaimed, usually cast to a vk::* type.
     void* m_pContext = nullptr; ///< 64bit of context data. Usually the object that reclaims the resource.
-
   };
 
   struct Extensions

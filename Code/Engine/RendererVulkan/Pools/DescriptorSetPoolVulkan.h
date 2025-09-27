@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 class ezGALDeviceVulkan;
 
@@ -44,7 +44,7 @@ private:
   static ezGALDeviceVulkan* s_pDevice;
   static ezMutex s_Mutex;
   static ezHashTable<ezBindGroupLayoutResourceUsageVulkan, ezSharedPtr<ezDescriptorSetPoolVulkan>, ResourceUsageHash> s_Pools; ///< Cache of all pools
-  static ezHashSet<ezDescriptorSetPoolVulkan*> s_DirtyPools;                                                    ///< Pools that need to free resources and can potentially be destroyed.
+  static ezHashSet<ezDescriptorSetPoolVulkan*> s_DirtyPools;                                                                   ///< Pools that need to free resources and can potentially be destroyed.
 
 private:
   struct DescriptorSubPool
@@ -65,11 +65,11 @@ private:
 private:
   ezMutex m_Mutex;
   ezGALDeviceVulkan* m_pDevice = nullptr;
-  ezBindGroupLayoutResourceUsageVulkan m_ResourceUsage;                       ///< How many resources of each type each descriptor set uses.
+  ezBindGroupLayoutResourceUsageVulkan m_ResourceUsage;        ///< How many resources of each type each descriptor set uses.
   ezUInt32 m_uiNextPoolSize = 64;                              ///< When the current pool runs out of data, allocate next pool with this size and double the value.
   ezUInt32 m_uiTotalAllocations = 0;                           ///< Total allocations across all sub-pools.
 
-  ezUInt32 m_uiActivePool = ezInvalidIndex;                  ///< The current pool with free allocations.
+  ezUInt32 m_uiActivePool = ezInvalidIndex;                    ///< The current pool with free allocations.
   ezHybridArray<ezUniquePtr<DescriptorSubPool>, 1> m_SubPools; ///< Available descriptor sub-pools.
   ezHashSet<DescriptorSubPool*> m_DirtySubPools;               ///< Descriptor sub-pools that have sets that need to be freed.
 };

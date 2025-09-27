@@ -1,15 +1,15 @@
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 ezDependencyTracker<Resource, Dependency>::ezDependencyTracker()
 {
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 ezDependencyTracker<Resource, Dependency>::~ezDependencyTracker()
 {
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::AddResource(Resource* pResource, const ezSet<const Dependency*>& dependencies)
 {
   EZ_LOCK(m_Mutex);
@@ -22,10 +22,9 @@ void ezDependencyTracker<Resource, Dependency>::AddResource(Resource* pResource,
   {
     InsertItem(resourceHead, pResource, pDependency);
   }
-
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::RemoveResource(Resource* pResource)
 {
   EZ_LOCK(m_Mutex);
@@ -44,7 +43,7 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResource(Resource* pResour
   m_ResourceHead.Remove(resourceHead);
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(Dependency* pDependency)
 {
   ezSet<Resource*> invalidResources;
@@ -72,7 +71,7 @@ void ezDependencyTracker<Resource, Dependency>::DependencyDestroyed(Dependency* 
   }
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHeadMap::Iterator resourceHead, Resource* pResource, const Dependency* pDependency)
 {
   Item* pItem = nullptr;
@@ -108,7 +107,7 @@ void ezDependencyTracker<Resource, Dependency>::InsertItem(typename ResourceHead
   resourceHead.Value() = pItem;
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename ResourceHeadMap::ConstIterator resourceHead, Item* pItem)
 {
   if (pItem->m_pNextResource != nullptr)
@@ -142,7 +141,7 @@ void ezDependencyTracker<Resource, Dependency>::RemoveResourceItem(typename Reso
   m_pFreeList = pItem;
 }
 
-template<typename Resource, typename Dependency>
+template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::RemoveDependencyItem(typename DependencyHeadMap::ConstIterator dependencyHead, Item* pItem)
 {
   if (pItem->m_pNextDependency != nullptr)

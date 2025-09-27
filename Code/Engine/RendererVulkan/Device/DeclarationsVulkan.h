@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
 #include <RendererFoundation/Descriptors/Enumerations.h>
+#include <vulkan/vulkan.hpp>
 
 VK_DEFINE_HANDLE(ezVulkanAllocation)
 
