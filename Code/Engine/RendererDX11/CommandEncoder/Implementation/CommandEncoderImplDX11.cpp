@@ -214,6 +214,12 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
   }
 }
 
+void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup)
+{
+  // There is no way to persist bind groups in DX11, so this just redirects to the transient bind group code path.
+  SetBindGroupPlatform(uiBindGroup, pBindGroup->GetDescription());
+}
+
 void ezGALCommandEncoderImplDX11::SetConstantBuffer(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer)
 {
   EZ_ASSERT_RELEASE(binding.m_iSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");

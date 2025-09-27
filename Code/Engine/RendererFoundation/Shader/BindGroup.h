@@ -4,6 +4,8 @@
 
 #include <Foundation/Algorithm/HashableStruct.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
+#include <RendererFoundation/Resources/Resource.h>
+
 
 /// \file
 
@@ -80,10 +82,29 @@ struct ezGALBindGroupItem : public ezHashableStruct<ezGALBindGroupItem>
 
 /// \brief Defines a bind group.
 /// Can be set to the renderer via ezGALCommandEncoder::SetBindGroup.
-struct ezGALBindGroupCreationDescription
+struct EZ_RENDERERFOUNDATION_DLL ezGALBindGroupCreationDescription
 {
+  ezUInt64 CalculateHash() const;
+  void AssertValidDescription(const ezGALDevice& galDevice) const;
+
   ezGALBindGroupLayoutHandle m_hBindGroupLayout;       ///< The layout that this bind group was created for.
   ezDynamicArray<ezGALBindGroupItem> m_BindGroupItems; ///< Contains one item for every ezShaderResourceBinding in the ezGALBindGroupLayout at matching indices in the arrays.
+};
+
+class EZ_RENDERERFOUNDATION_DLL ezGALBindGroup : public ezGALResource<ezGALBindGroupCreationDescription>
+{
+public:
+  virtual bool IsInvalidated() const = 0;
+
+protected:
+  friend class ezGALDevice;
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+  virtual void Invalidate(ezGALDevice* pDevice) = 0;
+
+  inline ezGALBindGroup(const ezGALBindGroupCreationDescription& Description);
+  inline virtual ~ezGALBindGroup();
 };
 
 #include <RendererFoundation/Shader/Implementation/BindGroup_inl.h>

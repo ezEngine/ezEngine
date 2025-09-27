@@ -51,6 +51,7 @@ struct ezGALVertexDeclarationCreationDescription;
 struct ezGALSamplerStateCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
 struct ezGALBindGroupLayoutCreationDescription;
+struct ezGALBindGroupCreationDescription;
 struct ezGALPipelineLayoutCreationDescription;
 struct ezGALGraphicsPipelineCreationDescription;
 struct ezGALComputePipelineCreationDescription;
@@ -73,6 +74,7 @@ class ezGALSamplerState;
 class ezGALRenderTargetView;
 class ezGALDevice;
 class ezGALCommandEncoder;
+class ezGALBindGroup;
 class ezGALBindGroupLayout;
 class ezGALPipelineLayout;
 class ezGALGraphicsPipeline;
@@ -571,6 +573,30 @@ class ezGALVertexDeclarationHandle
   friend class ezGALDevice;
 };
 
+/// \brief Handle to ezGALBindGroupLayout, created via ezGALDevice::CreateBindGroupLayout
+class ezGALBindGroupLayoutHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+/// \brief Handle to ezGALBindGroup, created via ezGALDevice::CreateBindGroup
+class ezGALBindGroupHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+/// \brief Handle to ezGALPipelineLayout, created via ezGALDevice::CreatePipelineLayout
+class ezGALPipelineLayoutHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
 class ezGALGraphicsPipelineHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALGraphicsPipelineHandle, ezGAL::ez18_14Id);
@@ -581,30 +607,6 @@ class ezGALGraphicsPipelineHandle
 class ezGALComputePipelineHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALComputePipelineHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-/// \brief Handle to ezGALBindGroupLayout, created ia ezGALDevice::CreateBindGroupLayout
-class ezGALBindGroupLayoutHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-/// \brief Handle to ezGALPipelineLayout, created ia ezGALDevice::CreatePipelineLayout
-class ezGALPipelineLayoutHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-/// \brief Handle to ezGALBindGroup, created ia ezGALDevice::CreateBindGroup
-class ezGALBindGroupHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };

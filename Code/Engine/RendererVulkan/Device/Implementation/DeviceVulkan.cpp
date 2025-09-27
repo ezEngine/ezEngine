@@ -13,19 +13,18 @@
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <RendererFoundation/RendererReflection.h>
-#include <RendererFoundation/Resources/RendererFallbackResources.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
-#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 #include <RendererVulkan/Pools/QueryPoolVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
+#include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackBufferVulkan.h>
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
@@ -33,6 +32,7 @@
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
+#include <RendererVulkan/Shader/BindGroupVulkan.h>
 #include <RendererVulkan/Shader/PipelineLayoutVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
@@ -617,7 +617,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezSemaphorePoolVulkan::Initialize(m_device);
   ezFencePoolVulkan::Initialize(m_device);
   ezResourceCacheVulkan::Initialize(this, m_device);
-  ezDescriptorSetPoolVulkan::Initialize(m_device);
+  ezTransientDescriptorSetPoolVulkan::Initialize(m_device);
+  ezDescriptorSetPoolVulkan::Initialize(this);
   ezImageCopyVulkan::Initialize(*this);
 
   m_pCommandEncoderImpl = EZ_NEW(&m_Allocator, ezGALCommandEncoderImplVulkan, *this);
@@ -760,6 +761,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   ezFencePoolVulkan::DeInitialize();
   ezResourceCacheVulkan::DeInitialize();
   ezDescriptorSetPoolVulkan::DeInitialize();
+  ezTransientDescriptorSetPoolVulkan::DeInitialize();
   ezMemoryAllocatorVulkan::DeInitialize();
 
   m_device.waitIdle();
@@ -1107,6 +1109,28 @@ void ezGALDeviceVulkan::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBi
   ezGALBindGroupLayoutVulkan* pVulkanBindGroupLayout = static_cast<ezGALBindGroupLayoutVulkan*>(pBindGroupLayout);
   pVulkanBindGroupLayout->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanBindGroupLayout);
+}
+
+ezGALBindGroup* ezGALDeviceVulkan::CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description)
+{
+  ezGALBindGroupVulkan* pVulkanBindGroup = EZ_NEW(&m_Allocator, ezGALBindGroupVulkan, Description);
+
+  if (pVulkanBindGroup->InitPlatform(this).Succeeded())
+  {
+    return pVulkanBindGroup;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pVulkanBindGroup);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceVulkan::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
+{
+  ezGALBindGroupVulkan* pVulkanBindGroup = static_cast<ezGALBindGroupVulkan*>(pBindGroup);
+  pVulkanBindGroup->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanBindGroup);
 }
 
 ezGALPipelineLayout* ezGALDeviceVulkan::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
@@ -1879,6 +1903,9 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
       case vk::ObjectType::ePipelineLayout:
         m_device.destroyPipelineLayout(reinterpret_cast<vk::PipelineLayout&>(deletion.m_pObject));
         break;
+      case vk::ObjectType::eDescriptorPool:
+        m_device.destroyDescriptorPool(reinterpret_cast<vk::DescriptorPool&>(deletion.m_pObject));
+        break;
       default:
         EZ_REPORT_FAILURE("This object type is not implemented");
         break;
@@ -1903,7 +1930,10 @@ void ezGALDeviceVulkan::ReclaimResources(ezDeque<ReclaimResource>& resources)
         static_cast<ezCommandBufferPoolVulkan*>(resource.m_pContext)->ReclaimCommandBuffer(reinterpret_cast<vk::CommandBuffer&>(resource.m_pObject));
         break;
       case vk::ObjectType::eDescriptorPool:
-        ezDescriptorSetPoolVulkan::ReclaimPool(reinterpret_cast<vk::DescriptorPool&>(resource.m_pObject));
+        ezTransientDescriptorSetPoolVulkan::ReclaimPool(reinterpret_cast<vk::DescriptorPool&>(resource.m_pObject));
+        break;
+      case vk::ObjectType::eDescriptorSet:
+        static_cast<ezDescriptorSetPoolVulkan*>(resource.m_pContext)->ReclaimDescriptorSet(reinterpret_cast<vk::DescriptorSet&>(resource.m_pObject), {resource.m_Data});
         break;
       default:
         EZ_REPORT_FAILURE("This object type is not implemented");
@@ -2162,6 +2192,11 @@ void ezGALDeviceVulkan::DestroyComputePipelinePlatform(ezGALComputePipeline* pCo
   ezGALComputePipelineVulkan* pComputePipelineVulkan = static_cast<ezGALComputePipelineVulkan*>(pComputePipeline);
   pComputePipelineVulkan->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pComputePipelineVulkan);
+}
+
+ezDescriptorWritePoolVulkan& ezGALDeviceVulkan::GetDescriptorWritePool() const
+{
+  return m_pCommandEncoderImpl->GetDescriptorWritePool();
 }
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_DeviceVulkan);

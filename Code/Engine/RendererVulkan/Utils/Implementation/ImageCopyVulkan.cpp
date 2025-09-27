@@ -4,7 +4,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererFoundation/State/PipelineCache.h>
-#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
@@ -385,7 +385,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   }
 
   // Descriptor Set
-  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_pShader->GetDescriptorSetLayout(0));
+  vk::DescriptorSet descriptorSet = ezTransientDescriptorSetPoolVulkan::CreateTransientDescriptorSet(m_pShader->GetDescriptorSetLayout(0));
   {
     ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
 
@@ -424,7 +424,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
           break;
       }
     }
-    ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
+    ezTransientDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pShader->GetVkPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
   }
 

@@ -2,140 +2,201 @@
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
+#include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
+//////////////////////////////////////////////////////////////////////
 
-vk::DescriptorPool ezDescriptorSetPoolVulkan::s_currentPool;
-ezHybridArray<vk::DescriptorPool, 4> ezDescriptorSetPoolVulkan::s_freePools;
-vk::Device ezDescriptorSetPoolVulkan::s_device;
-ezHashTable<vk::DescriptorType, float> ezDescriptorSetPoolVulkan::s_descriptorWeights;
+ezGALDeviceVulkan* ezDescriptorSetPoolVulkan::s_pDevice = nullptr;
+ezMutex ezDescriptorSetPoolVulkan::s_Mutex;
+ezHashTable<ezBindGroupLayoutResourceUsageVulkan, ezSharedPtr<ezDescriptorSetPoolVulkan>, ezDescriptorSetPoolVulkan::ResourceUsageHash> ezDescriptorSetPoolVulkan::s_Pools;
+ezHashSet<ezDescriptorSetPoolVulkan*> ezDescriptorSetPoolVulkan::s_DirtyPools;
 
-void ezDescriptorSetPoolVulkan::Initialize(vk::Device device)
+ezUInt32 ezDescriptorSetPoolVulkan::ResourceUsageHash::Hash(const ezBindGroupLayoutResourceUsageVulkan& a)
 {
-  s_device = device;
-  s_descriptorWeights[vk::DescriptorType::eSampler] = 0.5f;              // Image sampler.
-  s_descriptorWeights[vk::DescriptorType::eSampledImage] = 2.0f;         // Read-only image view.
-  s_descriptorWeights[vk::DescriptorType::eStorageImage] = 1.0f;         // Read / write image view.
-  s_descriptorWeights[vk::DescriptorType::eUniformBuffer] = 1.0f;        // Read-only struct (constant buffer)
-  s_descriptorWeights[vk::DescriptorType::eStorageBuffer] = 1.0f;        // Read / write struct (UAV).
-  s_descriptorWeights[vk::DescriptorType::eUniformTexelBuffer] = 0.5f;   // Read-only linear texel buffer with view.
-  s_descriptorWeights[vk::DescriptorType::eCombinedImageSampler] = 2.0f; // Read-only image view with image sampler.
+  return ezHashingUtils::xxHash32(&a.m_Usage[0], ezGALShaderResourceType::COUNT);
+}
 
-  // Not used by EZ so far.
-  s_descriptorWeights[vk::DescriptorType::eStorageTexelBuffer] = 0.5f;   // Read / write linear texel buffer with view.
-  s_descriptorWeights[vk::DescriptorType::eUniformBufferDynamic] = 1.0f; // Same as eUniformBuffer but allows updating the memory offset into the buffer dynamically.
-  s_descriptorWeights[vk::DescriptorType::eStorageBufferDynamic] = 0.0f; // Same as eStorageBuffer but allows updating the memory offset into the buffer dynamically.
+bool ezDescriptorSetPoolVulkan::ResourceUsageHash::Equal(const ezBindGroupLayoutResourceUsageVulkan& a, const ezBindGroupLayoutResourceUsageVulkan& b)
+{
+  for (ezUInt32 i = 0; i < ezGALShaderResourceType::COUNT; ++i)
+  {
+    if (a.m_Usage[i] != b.m_Usage[i])
+      return false;
+  }
 
-  // Not supported by EZ so far.
-  s_descriptorWeights[vk::DescriptorType::eInputAttachment] = 0.0f; // frame-buffer local read-only image view.
+  return true;
+}
 
-  s_descriptorWeights[vk::DescriptorType::eInlineUniformBlock] = 0.0f;
-  s_descriptorWeights[vk::DescriptorType::eAccelerationStructureKHR] = 0.0f;
-  s_descriptorWeights[vk::DescriptorType::eAccelerationStructureNV] = 0.0f;
-  s_descriptorWeights[vk::DescriptorType::eMutableVALVE] = 0.0f;
+void ezDescriptorSetPoolVulkan::Initialize(ezGALDeviceVulkan* pDevice)
+{
+  s_pDevice = pDevice;
 }
 
 void ezDescriptorSetPoolVulkan::DeInitialize()
 {
-  s_descriptorWeights.Clear();
-  s_descriptorWeights.Compact();
-
-  for (vk::DescriptorPool& pool : s_freePools)
+  // Destroy all pools, make sure ref count is zero.
+  for (auto it : s_Pools)
   {
-    s_device.destroyDescriptorPool(pool, nullptr);
+    EZ_ASSERT_DEBUG(it.Value()->GetRefCount() == 1, "Pool still referenced. A bind group layout probably leaked");
   }
-  s_freePools.Clear();
-  s_freePools.Compact();
-  if (s_currentPool)
-  {
-    s_device.resetDescriptorPool(s_currentPool);
-    s_device.destroyDescriptorPool(s_currentPool, nullptr);
-    s_currentPool = nullptr;
-  }
-
-  s_device = nullptr;
+  s_Pools.Clear();
+  s_Pools.Compact();
+  s_DirtyPools.Clear();
+  s_DirtyPools.Compact();
+  s_pDevice = nullptr;
 }
 
-ezHashTable<vk::DescriptorType, float>& ezDescriptorSetPoolVulkan::AccessDescriptorPoolWeights()
+ezSharedPtr<ezDescriptorSetPoolVulkan> ezDescriptorSetPoolVulkan::GetPool(const ezBindGroupLayoutResourceUsageVulkan& resourceUsage)
 {
-  return s_descriptorWeights;
+  EZ_LOCK(s_Mutex);
+  auto it = s_Pools.Find(resourceUsage);
+  if (it.IsValid())
+  {
+    return it.Value();
+  }
+
+  ezSharedPtr<ezDescriptorSetPoolVulkan> pPool = EZ_DEFAULT_NEW(ezDescriptorSetPoolVulkan, s_pDevice, resourceUsage);
+  s_Pools[resourceUsage] = pPool;
+
+  return pPool;
 }
 
-vk::DescriptorSet ezDescriptorSetPoolVulkan::CreateDescriptorSet(vk::DescriptorSetLayout layout)
+void ezDescriptorSetPoolVulkan::MarkPoolDirty(ezDescriptorSetPoolVulkan* pPool)
 {
+  EZ_LOCK(s_Mutex);
+  s_DirtyPools.Insert(pPool);
+}
+
+void ezDescriptorSetPoolVulkan::BeginFrame()
+{
+  EZ_LOCK(s_Mutex);
+  for (ezDescriptorSetPoolVulkan* pPool : s_DirtyPools)
+  {
+    if (pPool->ReclaimResources())
+    {
+      // #TODO_VULKAN: We should delete the pool to free resources.
+    }
+  }
+  s_DirtyPools.Clear();
+}
+
+ezDescriptorSetPoolVulkan::ezDescriptorSetPoolVulkan(ezGALDeviceVulkan* pDevice, const ezBindGroupLayoutResourceUsageVulkan& resourceUsage)
+  : m_pDevice(pDevice)
+  , m_ResourceUsage(resourceUsage)
+{
+}
+
+ezDescriptorSetPoolVulkan::~ezDescriptorSetPoolVulkan()
+{
+  ReclaimResources();
+  EZ_ASSERT_DEBUG(m_uiTotalAllocations == 0, "A descriptor set has leaked, probably caused by a bind group not being freed before shutting down the GAL device");
+  for (ezUniquePtr<DescriptorSubPool>& pool : m_SubPools)
+  {
+    m_pDevice->GetVulkanDevice().destroyDescriptorPool(pool->m_DescriptorPool);
+  }
+  m_SubPools.Clear();
+}
+
+vk::DescriptorSet ezDescriptorSetPoolVulkan::CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, ezDescriptorSetPoolVulkan::Allocation& out_Allocation)
+{
+  EZ_LOCK(m_Mutex);
+  ezUInt32 uiPoolIndex = GetFreePoolIndex();
+  DescriptorSubPool* pSubPool = m_SubPools[uiPoolIndex].Borrow();
+
+  const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_pDevice->GetBindGroupLayout(hBindGroupLayout));
+
   vk::DescriptorSet set;
-  if (!s_currentPool)
-  {
-    s_currentPool = GetNewPool();
-  }
-
   vk::DescriptorSetAllocateInfo allocateInfo;
-  allocateInfo.pSetLayouts = &layout;
-  allocateInfo.descriptorPool = s_currentPool;
+  allocateInfo.pSetLayouts = &pLayout->GetDescriptorSetLayout();
+  allocateInfo.descriptorPool = pSubPool->m_DescriptorPool;
   allocateInfo.descriptorSetCount = 1;
 
-  vk::Result res = s_device.allocateDescriptorSets(&allocateInfo, &set);
-  bool bPoolExhausted = false;
+  VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().allocateDescriptorSets(&allocateInfo, &set));
 
-  switch (res)
-  {
-    case vk::Result::eSuccess:
-      break;
-    case vk::Result::eErrorFragmentedPool:
-    case vk::Result::eErrorOutOfPoolMemory:
-      bPoolExhausted = true;
-      break;
-    default:
-      VK_ASSERT_DEV(res);
-      break;
-  }
+  ++m_uiTotalAllocations;
+  ++pSubPool->m_uiAllocatedSets;
 
-  if (bPoolExhausted)
-  {
-    ezGALDeviceVulkan* pDevice = static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice());
-    pDevice->ReclaimLater(s_currentPool);
-    s_currentPool = GetNewPool();
-    allocateInfo.descriptorPool = s_currentPool;
-    VK_ASSERT_DEV(s_device.allocateDescriptorSets(&allocateInfo, &set));
-  }
+  out_Allocation.m_uiPoolIndex = uiPoolIndex;
 
   return set;
 }
 
-void ezDescriptorSetPoolVulkan::UpdateDescriptorSet(vk::DescriptorSet descriptorSet, ezArrayPtr<vk::WriteDescriptorSet> update)
+void ezDescriptorSetPoolVulkan::ReclaimDescriptorSet(vk::DescriptorSet descriptorSet, Allocation allocation)
 {
-  s_device.updateDescriptorSets(update.GetCount(), update.GetPtr(), 0, nullptr);
-}
-
-void ezDescriptorSetPoolVulkan::ReclaimPool(vk::DescriptorPool& descriptorPool)
-{
-  s_device.resetDescriptorPool(descriptorPool);
-  s_freePools.PushBack(descriptorPool);
-}
-
-vk::DescriptorPool ezDescriptorSetPoolVulkan::GetNewPool()
-{
-  if (s_freePools.IsEmpty())
+  bool bMarkPoolDirty = false;
   {
-    ezHybridArray<vk::DescriptorPoolSize, 20> poolSizes;
-    for (auto weight : s_descriptorWeights)
+    EZ_LOCK(m_Mutex);
+    DescriptorSubPool* pPool = m_SubPools[allocation.m_uiPoolIndex].Borrow();
+    pPool->m_Reclaim.PushBack(descriptorSet);
+    if (!m_DirtySubPools.Contains(pPool))
     {
-      if (static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize) > 0)
-        poolSizes.PushBack(vk::DescriptorPoolSize(weight.Key(), static_cast<ezUInt32>(weight.Value() * s_uiPoolBaseSize)));
+      m_DirtySubPools.Insert(pPool);
+      bMarkPoolDirty = true;
     }
+  }
+
+  if (bMarkPoolDirty)
+  {
+    ezDescriptorSetPoolVulkan::MarkPoolDirty(this);
+  }
+}
+
+ezUInt32 ezDescriptorSetPoolVulkan::GetFreePoolIndex()
+{
+  if (m_uiActivePool != ezInvalidIndex && m_SubPools[m_uiActivePool]->m_uiAllocatedSets < m_SubPools[m_uiActivePool]->m_uiPoolSize)
+  {
+    return m_uiActivePool;
+  }
+
+  for (ezInt32 poolIndex = (ezInt32)m_SubPools.GetCount() - 1; poolIndex >= 0; --poolIndex)
+  {
+    if (m_SubPools[poolIndex]->m_uiAllocatedSets < m_SubPools[poolIndex]->m_uiPoolSize)
+    {
+      m_uiActivePool = poolIndex;
+      return m_uiActivePool;
+    }
+  }
+
+  ezUniquePtr<DescriptorSubPool> pSubPool = EZ_DEFAULT_NEW(DescriptorSubPool);
+  pSubPool->m_uiPoolSize = m_uiNextPoolSize;
+  {
+    // Create Vulkan descriptor pool
+    ezHybridArray<vk::DescriptorPoolSize, ezGALShaderResourceType::COUNT> poolSizes;
     vk::DescriptorPoolCreateInfo poolCreateInfo;
-    poolCreateInfo.flags = {};
-    poolCreateInfo.maxSets = s_uiPoolBaseSize;
+    poolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    poolCreateInfo.maxSets = m_uiNextPoolSize;
     poolCreateInfo.poolSizeCount = poolSizes.GetCount();
     poolCreateInfo.pPoolSizes = poolSizes.GetData();
+    for (ezUInt32 i = 0; i < ezGALShaderResourceType::COUNT; ++i)
+    {
+      if (m_ResourceUsage.m_Usage[i] > 0)
+        poolSizes.PushBack(vk::DescriptorPoolSize(ezConversionUtilsVulkan::GetDescriptorType((ezGALShaderResourceType::Enum)i), m_ResourceUsage.m_Usage[i] * m_uiNextPoolSize));
+    }
+    VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().createDescriptorPool(&poolCreateInfo, nullptr, &pSubPool->m_DescriptorPool));
+  }
+  m_SubPools.PushBack(std::move(pSubPool));
+  m_uiActivePool = m_SubPools.GetCount() - 1;
 
-    vk::DescriptorPool descriptorPool;
-    VK_ASSERT_DEV(s_device.createDescriptorPool(&poolCreateInfo, nullptr, &descriptorPool));
-    return descriptorPool;
-  }
-  else
+  m_uiNextPoolSize *= 2;
+
+  return m_uiActivePool;
+}
+
+bool ezDescriptorSetPoolVulkan::ReclaimResources()
+{
+  EZ_LOCK(m_Mutex);
+
+  for (DescriptorSubPool* pSubPool : m_DirtySubPools)
   {
-    vk::DescriptorPool pool = s_freePools.PeekBack();
-    s_freePools.PopBack();
-    return pool;
+    const ezUInt32 uiReclaimCount = pSubPool->m_Reclaim.GetCount();
+    m_pDevice->GetVulkanDevice().freeDescriptorSets(pSubPool->m_DescriptorPool, uiReclaimCount, pSubPool->m_Reclaim.GetData());
+    pSubPool->m_uiAllocatedSets -= uiReclaimCount;
+    m_uiTotalAllocations -= uiReclaimCount;
+    pSubPool->m_Reclaim.Clear();
   }
+  m_DirtySubPools.Clear();
+
+  return m_uiTotalAllocations == 0;
 }

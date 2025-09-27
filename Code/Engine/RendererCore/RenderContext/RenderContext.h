@@ -277,6 +277,8 @@ private:
   // Material
   ezMaterialResourceHandle m_hNewMaterial;
   ezMaterialResourceHandle m_hMaterial;
+  const ezMaterialResource* m_pMaterial = nullptr; ///< Must never be accessed, just used as key to ezMaterialManager::GetMaterialBindGroup
+  const ezGALBindGroup* m_pMaterialBindGroup = nullptr; ///< Only stored here to assert is we generate a layout missmatch.
 
   // Shader Resource
   ezShaderResourceHandle m_hActiveShader;

@@ -116,6 +116,11 @@ inline const ezGALBindGroupLayout* ezGALDevice::GetBindGroupLayout(ezGALBindGrou
   return Get<BindGroupLayoutTable, ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts);
 }
 
+inline const ezGALBindGroup* ezGALDevice::GetBindGroup(ezGALBindGroupHandle hBindGroup) const
+{
+  return Get<BindGroupTable, ezGALBindGroup>(hBindGroup, m_BindGroups);
+}
+
 inline const ezGALPipelineLayout* ezGALDevice::GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const
 {
   return Get<PipelineLayoutTable, ezGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts);

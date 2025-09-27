@@ -29,7 +29,7 @@ ezGALRasterizerState::~ezGALRasterizerState() = default;
 
 
 ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
-  : ezGALObject(Description)
+  : ezGALResource(Description)
 {
 }
 

@@ -250,7 +250,8 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 {
   // Don't set m_hMaterial directly since we first need to check whether the material has been modified in the mean time.
   m_hNewMaterial = hMaterial;
-  m_StateFlags.Add(ezRenderContextFlags::MaterialBindingChanged);
+  m_StateFlags.Add(ezRenderContextFlags::MaterialBindingChanged | ezRenderContextFlags::BindGroupChanged);
+  m_bDirtyBindGroups[EZ_GAL_BIND_GROUP_MATERIAL] = true;
 }
 
 ezBindGroupBuilder& ezRenderContext::GetBindGroup(ezUInt32 uiBindGroup)
@@ -285,7 +286,11 @@ void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<
 void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)
 {
   m_hMaterial.Invalidate();
+  m_pMaterial = nullptr;
+  m_pMaterialBindGroup = nullptr;
+  m_bDirtyBindGroups[EZ_GAL_BIND_GROUP_MATERIAL] = true;
   m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
+  m_StateFlags.Add(ezRenderContextFlags::BindGroupChanged);
 
   BindShaderInternal(hShader, flags);
 }
@@ -471,6 +476,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   {
     ApplyMaterialState();
     m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
+    m_StateFlags.Add(ezRenderContextFlags::BindGroupChanged);
   }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
@@ -502,7 +508,8 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       for (ezUInt32 uiBindGroup = 0; uiBindGroup < uiBindGroups; uiBindGroup++)
       {
         const bool bForceBindGroupUpdate = bForce || m_bDirtyBindGroups[uiBindGroup];
-        const bool bBindGroupModified = m_BindGroupBuilders[uiBindGroup].IsModified();
+        const bool bHasMaterialBindGroupResource = uiBindGroup == EZ_GAL_BIND_GROUP_MATERIAL && m_hMaterial.IsValid();
+        const bool bBindGroupModified = m_BindGroupBuilders[uiBindGroup].IsModified() && !bHasMaterialBindGroupResource;
         if (bBindGroupModified)
           m_Statistics.m_uiModifiedBindGroup[uiBindGroup]++;
 
@@ -562,7 +569,15 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   {
     for (ezUInt32 i = 0; i < m_pActiveGALShader->GetBindGroupCount(); ++i)
     {
-      EZ_ASSERT_DEV(m_pActiveGALShader->GetBindGroupLayout(i) == m_BindGroups[i].m_hBindGroupLayout, "Invalid Bind Group Layout");
+      const bool bHasMaterialBindGroupResource = i == EZ_GAL_BIND_GROUP_MATERIAL && m_hMaterial.IsValid();
+      if (!bHasMaterialBindGroupResource)
+      {
+        EZ_ASSERT_DEV(m_pActiveGALShader->GetBindGroupLayout(i) == m_BindGroups[i].m_hBindGroupLayout, "Invalid Bind Group Layout");
+      }
+      else
+      {
+        EZ_ASSERT_DEV(m_pActiveGALShader->GetBindGroupLayout(i) == m_pMaterialBindGroup->GetDescription().m_hBindGroupLayout, "Invalid Bind Group Resource Layout");
+      }
     }
   }
   return EZ_SUCCESS;
@@ -576,6 +591,8 @@ void ezRenderContext::ResetContextState()
 
   m_hMaterial.Invalidate();
   m_hNewMaterial.Invalidate();
+  m_pMaterial = nullptr;
+  m_pMaterialBindGroup = nullptr;
 
   m_hActiveShader.Invalidate();
   m_PermutationVariables.Clear();
@@ -1072,14 +1089,16 @@ void ezRenderContext::ApplyMaterialState()
   if (!m_hNewMaterial.IsValid())
   {
     BindShaderInternal(ezShaderResourceHandle(), ezShaderBindFlags::Default);
+    m_pMaterial = nullptr;
+    m_pMaterialBindGroup = nullptr;
     return;
   }
 
-  // check whether material has been modified
-  ezResourceLock<ezMaterialResource> pMaterial(m_hNewMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
   if (m_hNewMaterial != m_hMaterial)
   {
+    // check whether material has been modified
+    ezResourceLock<ezMaterialResource> pMaterial(m_hNewMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
     const ezMaterialManager::MaterialData* data = ezMaterialManager::GetMaterialData(pMaterial.GetPointer());
     if (data == nullptr)
     {
@@ -1088,33 +1107,14 @@ void ezRenderContext::ApplyMaterialState()
     }
 
     BindShaderInternal(data->m_hShader, ezShaderBindFlags::Default);
-
-    ezBindGroupBuilder& bindGroupMaterial = GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
-    if (!data->m_hStructuredBuffer.IsInvalidated())
-    {
-      bindGroupMaterial.BindBuffer("materialData", data->m_hStructuredBuffer);
-    }
-    else if (!data->m_hConstantBuffer.IsInvalidated())
-    {
-      bindGroupMaterial.BindBuffer("materialData", data->m_hConstantBuffer);
-    }
-
     for (const ezPermutationVar& perm : data->m_PermutationVars)
     {
       SetShaderPermutationVariableInternal(perm.m_sName, perm.m_sValue);
     }
 
-    for (const ezMaterialResourceDescriptor::Texture2DBinding& binding : data->m_Texture2DBindings)
-    {
-      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
-    }
-
-    for (const ezMaterialResourceDescriptor::TextureCubeBinding& binding : data->m_TextureCubeBindings)
-    {
-      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
-    }
-
     m_hMaterial = m_hNewMaterial;
+    // We don't know the permutation to use yet and thus also not the correct bind group layout. Therefore, we store the raw address of the material to be able to look up the correct bind group in ApplyBindGroup. We can't acquire the resource lock again as that might result in a different address (fallback vs real) and we would missmatch the material data and bind group from two different materials.
+    m_pMaterial = pMaterial.GetPointer();
   }
 }
 
@@ -1124,6 +1124,18 @@ ezResult ezRenderContext::ApplyBindGroup(const ezGALShader* pShader, ezUInt32 ui
   if (hLayout.IsInvalidated())
     return EZ_FAILURE;
 
+  const bool bHasMaterialBindGroupResource = uiBindGroup == EZ_GAL_BIND_GROUP_MATERIAL && m_hMaterial.IsValid();
+  if (bHasMaterialBindGroupResource)
+  {
+    ezGALBindGroupHandle hBindGroup = ezMaterialManager::GetMaterialBindGroup(m_pMaterial, hLayout);
+    if (hBindGroup.IsInvalidated())
+      return EZ_FAILURE;
+
+    m_pMaterialBindGroup = m_pGALCommandEncoder->GetDevice().GetBindGroup(hBindGroup);
+
+    m_pGALCommandEncoder->SetBindGroup(uiBindGroup, hBindGroup);
+    return EZ_SUCCESS;
+  }
   m_BindGroupBuilders[uiBindGroup].CreateBindGroup(hLayout, m_BindGroups[uiBindGroup]);
   m_pGALCommandEncoder->SetBindGroup(uiBindGroup, m_BindGroups[uiBindGroup]);
   return EZ_SUCCESS;

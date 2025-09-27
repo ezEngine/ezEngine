@@ -2,6 +2,7 @@
 #pragma once
 
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Resources/Resource.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALBlendState : public ezGALObject<ezGALBlendStateCreationDescription>
 {
@@ -25,7 +26,6 @@ protected:
   virtual ~ezGALDepthStencilState();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
 
@@ -42,7 +42,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALSamplerState : public ezGALObject<ezGALSamplerStateCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALSamplerState : public ezGALResource<ezGALSamplerStateCreationDescription>
 {
 public:
 protected:
@@ -50,7 +50,7 @@ protected:
 
   virtual ~ezGALSamplerState();
 
+  virtual void SetDebugNamePlatform(const char* szName) const override {};
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };

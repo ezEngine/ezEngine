@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 
 VK_DEFINE_HANDLE(ezVulkanAllocation)
 
@@ -28,4 +29,10 @@ struct ezPendingTextureCopyVulkan
   const ezGALTextureVulkan* m_pDstTexture = nullptr;
   vk::BufferImageCopy m_Region;
   vk::DeviceSize m_uiTotalSize;
+};
+
+/// \brief Used as a key to descriptor allocators. Defines the resource usage of each type inside a bind group layout.
+struct ezBindGroupLayoutResourceUsageVulkan
+{
+  ezUInt8 m_Usage[ezGALShaderResourceType::COUNT] = {0};
 };

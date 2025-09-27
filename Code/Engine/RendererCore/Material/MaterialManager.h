@@ -4,6 +4,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/RenderContext/BindGroupBuilder.h>
 
 class ezGALCommandEncoder;
 struct ezGALDeviceEvent;
@@ -26,6 +27,9 @@ public:
   /// \brief The material's render data. Accessed via ezMaterialManager::GetMaterialData.
   struct EZ_RENDERERCORE_DLL MaterialData
   {
+    ~MaterialData();
+    void DeleteBindGroups();
+
     ezShaderResourceHandle m_hShader;
     ezMaterialResource::ezMaterialId m_MaterialId; ///< Index into m_hStructuredBufferView
 
@@ -38,6 +42,13 @@ public:
     ezDynamicArray<ezMaterialResourceDescriptor::Parameter> m_Parameters; // Builds constant buffer
     ezDynamicArray<ezMaterialResourceDescriptor::Texture2DBinding> m_Texture2DBindings;
     ezDynamicArray<ezMaterialResourceDescriptor::TextureCubeBinding> m_TextureCubeBindings;
+
+    struct BindGroupCache
+    {
+      ezGALBindGroupLayoutHandle m_hLayout;
+      ezGALBindGroupHandle m_hGroup;
+    };
+    ezHybridArray<BindGroupCache, 2> m_BindGroups;
   };
 
 public:
@@ -50,6 +61,8 @@ public:
   static void MaterialRemoved(ezMaterialResource* pMaterial);
   /// \brief Returns the render data for a material resource. Can be nullptr if the material is not loaded yet or extraction + update was not executed yet.
   static const MaterialData* GetMaterialData(const ezMaterialResource* pMaterial);
+  /// Returns the bind group for the given material resource and layout.
+  static ezGALBindGroupHandle GetMaterialBindGroup(const ezMaterialResource* pMaterial, ezGALBindGroupLayoutHandle hBindGroupLayout);
   /// \brief Fired in case a material is reloaded and now occupies another index / shader.
   static ezEvent<const ezMaterialShaderChanged&, ezMutex> s_MaterialShaderChangedEvent;
 

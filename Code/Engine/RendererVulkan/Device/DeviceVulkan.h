@@ -49,6 +49,7 @@ class ezCommandBufferPoolVulkan;
 class ezStagingBufferPoolVulkan;
 class ezQueryPoolVulkan;
 class ezInitContextVulkan;
+class ezDescriptorWritePoolVulkan;
 
 /// \brief The Vulkan device implementation of the graphics abstraction layer.
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
@@ -82,22 +83,24 @@ public:
   struct PendingDeletion
   {
     EZ_DECLARE_POD_TYPE();
-    vk::ObjectType m_type;
-    ezBitflags<PendingDeletionFlags> m_flags;
-    void* m_pObject;
+    vk::ObjectType m_type; ///< What type to cast m_pObject to.
+    ezBitflags<PendingDeletionFlags> m_flags; ///< In case m_type == eUnknown, defines the custom deletion to be performed.
+    void* m_pObject; ///< The object to be deleted, usually cast to a vk::* type.
     union
     {
-      ezVulkanAllocation m_allocation;
-      void* m_pContext;
+      ezVulkanAllocation m_allocation; ///< For convenience to omit casting of m_pContext.
+      void* m_pContext; ///< 64bit of context data.
     };
   };
 
   struct ReclaimResource
   {
     EZ_DECLARE_POD_TYPE();
-    vk::ObjectType m_type;
-    void* m_pObject;
-    void* m_pContext = nullptr;
+    vk::ObjectType m_type; ///< What type to cast m_pObject to.
+    ezUInt32 m_Data; ///< 32bit of context data.
+    void* m_pObject = nullptr; ///< The object to be reclaimed, usually cast to a vk::* type.
+    void* m_pContext = nullptr; ///< 64bit of context data. Usually the object that reclaims the resource.
+
   };
 
   struct Extensions
@@ -169,6 +172,8 @@ public:
   ezFenceQueueVulkan& GetFenceQueue() const;
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
   ezInitContextVulkan& GetInitContext() const;
+  ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
+
 
   ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
   ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData);
@@ -229,9 +234,9 @@ public:
   void ReclaimLater(const ReclaimResource& reclaim);
 
   template <typename T>
-  void ReclaimLater(T& object, void* pContext = nullptr)
+  void ReclaimLater(T& object, void* pContext = nullptr, ezUInt32 data = 0)
   {
-    ReclaimLater({object.objectType, (void*)object, pContext});
+    ReclaimLater({object.objectType, data, (void*)object, pContext});
     object = nullptr;
   }
 
@@ -322,6 +327,9 @@ protected:
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) override;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) override;
+
+  virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
+  virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;

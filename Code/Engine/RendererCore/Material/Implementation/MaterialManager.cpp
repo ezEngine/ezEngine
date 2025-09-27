@@ -41,6 +41,21 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezEvent<const ezMaterialShaderChanged&, ezMutex> ezMaterialManager::s_MaterialShaderChangedEvent;
 
+ezMaterialManager::MaterialData::~MaterialData()
+{
+  DeleteBindGroups();
+}
+
+void ezMaterialManager::MaterialData::DeleteBindGroups()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  for (BindGroupCache& bindGroupCache : m_BindGroups)
+  {
+    pDevice->DestroyBindGroup(bindGroupCache.m_hGroup);
+  }
+  m_BindGroups.Clear();
+}
+
 void ezMaterialManager::MaterialAdded(ezMaterialResource* pMaterial)
 {
   ezMaterialManager* pManager = GetSingleton();
@@ -77,6 +92,58 @@ const ezMaterialManager::MaterialData* ezMaterialManager::GetMaterialData(const 
   auto it = pManager->m_Materials.Find(pMaterial);
   // EZ_ASSERT_DEV(it.IsValid(), "Loaded materials must always have a valid entry in m_Materials");
   return it.IsValid() ? &it.Value() : nullptr;
+}
+
+ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialResource* pMaterial, ezGALBindGroupLayoutHandle hBindGroupLayout)
+{
+  ezMaterialManager* pManager = GetSingleton();
+  if (!pManager)
+    return {};
+
+  auto it = pManager->m_Materials.Find(pMaterial);
+  if (!it.IsValid())
+    return {};
+
+  // First, check the cache for the given layout.
+  ezMaterialManager::MaterialData& data = it.Value();
+  for (const MaterialData::BindGroupCache& bindGroupCache : data.m_BindGroups)
+  {
+    if (bindGroupCache.m_hLayout == hBindGroupLayout)
+      return bindGroupCache.m_hGroup;
+  }
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALBindGroupCreationDescription desc;
+  {
+    // Use builder to create a new bind group for the given layout.
+    ezBindGroupBuilder bindGroupMaterial;
+    bindGroupMaterial.ResetBoundResources(pDevice);
+    if (!data.m_hStructuredBuffer.IsInvalidated())
+    {
+      bindGroupMaterial.BindBuffer("materialData", data.m_hStructuredBuffer);
+    }
+    else if (!data.m_hConstantBuffer.IsInvalidated())
+    {
+      bindGroupMaterial.BindBuffer("materialData", data.m_hConstantBuffer);
+    }
+
+    for (const ezMaterialResourceDescriptor::Texture2DBinding& binding : data.m_Texture2DBindings)
+    {
+      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
+    }
+
+    for (const ezMaterialResourceDescriptor::TextureCubeBinding& binding : data.m_TextureCubeBindings)
+    {
+      bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
+    }
+    bindGroupMaterial.CreateBindGroup(hBindGroupLayout, desc);
+  }
+  ezGALBindGroupHandle hBindGroup = pDevice->CreateBindGroup(desc);
+  if (hBindGroup.IsInvalidated())
+    return {};
+
+  data.m_BindGroups.PushBack({hBindGroupLayout, hBindGroup});
+  return hBindGroup;
 }
 
 ezMaterialManager::ezMaterialManager()
@@ -267,6 +334,7 @@ void ezMaterialManager::ApplyMaterialChanges()
     ezResourceLock<ezMaterialResource> pMaterial(extractedMaterial.m_hMaterial, ezResourceAcquireMode::PointerOnly);
     auto matIt = m_Materials.FindOrAdd(pMaterial.GetPointer());
     MaterialData& md = matIt.Value();
+    bool bDeleteBindGroups = false;
     for (ezMaterialResource::DirtyFlags::Enum flag : extractedMaterial.m_DirtyFlags)
     {
       switch (flag)
@@ -276,12 +344,15 @@ void ezMaterialManager::ApplyMaterialChanges()
           break;
         case ezMaterialResource::DirtyFlags::Texture2D:
           md.m_Texture2DBindings = std::move(extractedMaterial.m_Texture2DBindings);
+          bDeleteBindGroups = true;
           break;
         case ezMaterialResource::DirtyFlags::TextureCube:
           md.m_TextureCubeBindings = std::move(extractedMaterial.m_TextureCubeBindings);
+          bDeleteBindGroups = true;
           break;
         case ezMaterialResource::DirtyFlags::PermutationVar:
           md.m_PermutationVars = std::move(extractedMaterial.m_PermutationVars);
+          bDeleteBindGroups = true;
           break;
         case ezMaterialResource::DirtyFlags::ShaderAndId:
           md.m_MaterialId = extractedMaterial.m_MaterialId;
@@ -290,6 +361,11 @@ void ezMaterialManager::ApplyMaterialChanges()
         default:
           break;
       }
+    }
+
+    if (bDeleteBindGroups && !md.m_BindGroups.IsEmpty())
+    {
+      md.DeleteBindGroups();
     }
 
     EZ_LOCK(m_MaterialShaderMutex);

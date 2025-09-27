@@ -1,16 +1,19 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererFoundation/Shader/BindGroupLayout.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+#include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Shader/BindGroupLayout.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
+
+class ezDescriptorSetPoolVulkan;
 
 class ezGALBindGroupLayoutVulkan : public ezGALBindGroupLayout
 {
 public:
-  inline vk::DescriptorSetLayout GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+  inline const vk::DescriptorSetLayout& GetDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+  ezDescriptorSetPoolVulkan* GetDescriptorSetPool() const;
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -25,4 +28,6 @@ protected:
 
 private:
   vk::DescriptorSetLayout m_DescriptorSetLayout;
+  ezBindGroupLayoutResourceUsageVulkan m_ResourceUsage; // How many resources of each type each descriptor set uses.
+  ezSharedPtr<ezDescriptorSetPoolVulkan> m_DescriptorSetPool;
 };

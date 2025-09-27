@@ -13,6 +13,7 @@
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererFoundation/Shader/BindGroupLayout.h>
 #include <RendererFoundation/Shader/PipelineLayout.h>
 #include <RendererFoundation/Shader/Shader.h>
@@ -41,6 +42,7 @@ namespace
       SwapChain,
       VertexDeclaration,
       BindGroupLayout,
+      BindGroup,
       PipelineLayout,
       GraphicsPipeline,
       ComputePipeline,
@@ -58,6 +60,7 @@ namespace
   static_assert(sizeof(ezGALSwapChainHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALVertexDeclarationHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALBindGroupLayoutHandle) == sizeof(ezUInt32));
+  static_assert(sizeof(ezGALBindGroupHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALPipelineLayoutHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALGraphicsPipelineHandle) == sizeof(ezUInt32));
   static_assert(sizeof(ezGALComputePipelineHandle) == sizeof(ezUInt32));
@@ -71,10 +74,12 @@ ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   , m_AllocatorWrapper(&m_Allocator)
   , m_Description(desc)
 {
+  m_BindGroupTracker.m_ResourceInvalidatedEvent.AddEventHandler(ezMakeDelegate(&ezGALDevice::OnBindGroupInvalidatedEventHandler, this));
 }
 
 ezGALDevice::~ezGALDevice()
 {
+  m_BindGroupTracker.m_ResourceInvalidatedEvent.RemoveEventHandler(ezMakeDelegate(&ezGALDevice::OnBindGroupInvalidatedEventHandler, this));
   // Check for object leaks
   {
     EZ_LOG_BLOCK("ezGALDevice object leak report");
@@ -108,6 +113,9 @@ ezGALDevice::~ezGALDevice()
 
     if (!m_BindGroupLayouts.IsEmpty())
       ezLog::Warning("{0} bind group layouts have not been cleaned up", m_BindGroupLayouts.GetCount());
+
+    if (!m_BindGroups.IsEmpty())
+      ezLog::Warning("{0} bind groups have not been cleaned up", m_BindGroups.GetCount());
 
     if (!m_PipelineLayouts.IsEmpty())
       ezLog::Warning("{0} pipeline layouts have not been cleaned up", m_PipelineLayouts.GetCount());
@@ -188,6 +196,7 @@ ezResult ezGALDevice::Shutdown()
   EZ_ASSERT_DEBUG(m_uiRasterizerStates == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiSamplerStates == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiBindGroupLayouts == 0, "Error in counting deduplicated GAL resources");
+  EZ_ASSERT_DEBUG(m_uiBindGroups == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiPipelineLayouts == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiGraphicsPipelines == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiComputePipelines == 0, "Error in counting deduplicated GAL resources");
@@ -273,8 +282,8 @@ Handle ezGALDevice::TryGetHashedResource(ezUInt32 uiHash, Table& table, CacheTab
   return {};
 }
 
-template <typename Handle, typename Resource, typename Table, typename CacheTable>
-Handle ezGALDevice::InsertHashedResource(ezUInt32 uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter)
+template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
+Handle ezGALDevice::InsertHashedResource(HashType uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter)
 {
   if (pResource != nullptr)
   {
@@ -403,6 +412,97 @@ ezGALBindGroupLayoutHandle ezGALDevice::CreateBindGroupLayout(const ezGALBindGro
 void ezGALDevice::DestroyBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout)
 {
   DestroyHashedResource<ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts, GALObjectType::BindGroupLayout, m_uiBindGroupLayouts);
+}
+
+ezGALBindGroupHandle ezGALDevice::CreateBindGroup(const ezGALBindGroupCreationDescription& desc)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+  // Hash desc and return potential existing one (including inc. refcount)
+  const ezUInt64 uiHash = desc.CalculateHash();
+
+  if (ezGALBindGroupHandle hBindGroup = TryGetHashedResource<ezGALBindGroupHandle, ezGALBindGroup>(uiHash, m_BindGroups, m_BindGroupTable, GALObjectType::BindGroup, m_uiBindGroups); !hBindGroup.IsInvalidated())
+    return hBindGroup;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  {
+    EZ_LOG_BLOCK("CreateBindGroup");
+    desc.AssertValidDescription(*this);
+  }
+#endif
+
+  ezGALBindGroup* pBindGroup = CreateBindGroupPlatform(desc);
+
+  const ezGALBindGroupCreationDescription& desc2 = pBindGroup->GetDescription();
+  EZ_ASSERT_DEBUG(desc.m_hBindGroupLayout == desc2.m_hBindGroupLayout, "");
+  EZ_ASSERT_DEBUG(desc.m_BindGroupItems.GetCount() == desc2.m_BindGroupItems.GetCount(), "");
+
+  EZ_ASSERT_DEBUG(desc.CalculateHash() == desc2.CalculateHash(), "");
+  for (ezUInt32 i = 0; i < desc2.m_BindGroupItems.GetCount(); ++i)
+  {
+    EZ_ASSERT_DEBUG(desc.m_BindGroupItems[i] == desc2.m_BindGroupItems[i], "");
+  }
+
+
+  {
+    ezSet<const ezGALResourceBase*> dependencies;
+    const ezGALBindGroupLayout* pLayout = GetBindGroupLayout(desc.m_hBindGroupLayout);
+    ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
+    ezArrayPtr<const ezGALBindGroupItem> items = desc.m_BindGroupItems;
+    const ezUInt32 uiBindings = bindings.GetCount();
+    for (ezUInt32 i = 0; i < uiBindings; ++i)
+    {
+      const ezShaderResourceBinding& binding = bindings[i];
+      const ezGALBindGroupItem& item = items[i];
+      switch (binding.m_ResourceType)
+      {
+        case ezGALShaderResourceType::Sampler:
+        {
+          const ezGALSamplerState* pSampler = GetSamplerState(item.m_Sampler.m_hSampler);
+          dependencies.Insert(pSampler);
+        }
+        break;
+        case ezGALShaderResourceType::ConstantBuffer:
+        case ezGALShaderResourceType::TexelBuffer:
+        case ezGALShaderResourceType::StructuredBuffer:
+        case ezGALShaderResourceType::ByteAddressBuffer:
+        case ezGALShaderResourceType::TexelBufferRW:
+        case ezGALShaderResourceType::StructuredBufferRW:
+        case ezGALShaderResourceType::ByteAddressBufferRW:
+        {
+          const ezGALBuffer* pBuffer = GetBuffer(item.m_Buffer.m_hBuffer);
+          dependencies.Insert(pBuffer);
+        }
+        break;
+        case ezGALShaderResourceType::TextureAndSampler:
+        {
+          const ezGALSamplerState* pSampler = GetSamplerState(item.m_Texture.m_hSampler);
+          dependencies.Insert(pSampler);
+        }
+          [[fallthrough]];
+        case ezGALShaderResourceType::Texture:
+        case ezGALShaderResourceType::TextureRW:
+        {
+          const ezGALTexture* pTexture = GetTexture(item.m_Texture.m_hTexture);
+          dependencies.Insert(pTexture);
+        }
+        break;
+
+        default:
+          EZ_REPORT_FAILURE("Unsupported shader resource type in bind group");
+          break;
+      }
+    }
+
+    m_BindGroupTracker.AddResource(pBindGroup, dependencies);
+  }
+
+
+  return InsertHashedResource<ezGALBindGroupHandle>(uiHash, pBindGroup, m_BindGroups, m_BindGroupTable, m_uiBindGroups);
+}
+
+void ezGALDevice::DestroyBindGroup(ezGALBindGroupHandle hBindGroup)
+{
+  DestroyHashedResource<ezGALBindGroup>(hBindGroup, m_BindGroups, GALObjectType::BindGroup, m_uiBindGroups);
 }
 
 ezGALPipelineLayoutHandle ezGALDevice::CreatePipelineLayout(const ezGALPipelineLayoutCreationDescription& desc)
@@ -1554,6 +1654,7 @@ void ezGALDevice::EndFrame()
     ezStats::SetStat("GalDevice/RasterizerStateReferences", m_uiRasterizerStates);
     ezStats::SetStat("GalDevice/SamplerStateReferences", m_uiSamplerStates);
     ezStats::SetStat("GalDevice/BindGroupLayoutReferences", m_uiBindGroupLayouts);
+    ezStats::SetStat("GalDevice/BindGroupReferences", m_uiBindGroups);
     ezStats::SetStat("GalDevice/PipelineLayoutReferences", m_uiPipelineLayouts);
     ezStats::SetStat("GalDevice/GraphicsPipelineReferences", m_uiGraphicsPipelines);
     ezStats::SetStat("GalDevice/ComputePipelineReferences", m_uiComputePipelines);
@@ -1565,6 +1666,7 @@ void ezGALDevice::EndFrame()
     ezStats::SetStat("GalDevice/RasterizerStates", m_RasterizerStates.GetCount());
     ezStats::SetStat("GalDevice/SamplerStates", m_SamplerStates.GetCount());
     ezStats::SetStat("GalDevice/BindGroupLayouts", m_BindGroupLayouts.GetCount());
+    ezStats::SetStat("GalDevice/BindGroup", m_BindGroups.GetCount());
     ezStats::SetStat("GalDevice/PipelineLayouts", m_PipelineLayouts.GetCount());
     ezStats::SetStat("GalDevice/GraphicsPipelines", m_GraphicsPipelines.GetCount());
     ezStats::SetStat("GalDevice/ComputePipelines", m_ComputePipelines.GetCount());
@@ -1695,6 +1797,7 @@ void ezGALDevice::DestroyDeadObjects()
         EZ_VERIFY(m_SamplerStates.Remove(hSamplerState, &pSamplerState), "SamplerState not found in idTable");
         EZ_VERIFY(m_SamplerStateTable.Remove(pSamplerState->GetDescription().CalculateHash()), "SamplerState not found in de-duplication table");
 
+        m_BindGroupTracker.DependencyDestroyed(pSamplerState);
         DestroySamplerStatePlatform(pSamplerState);
 
         break;
@@ -1717,7 +1820,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBuffer* pBuffer = nullptr;
 
         EZ_VERIFY(m_Buffers.Remove(hBuffer, &pBuffer), "");
-
+        m_BindGroupTracker.DependencyDestroyed(pBuffer);
         DestroyBufferPlatform(pBuffer);
 
         break;
@@ -1742,6 +1845,7 @@ void ezGALDevice::DestroyDeadObjects()
 
         DestroyViews(pTexture);
 
+        m_BindGroupTracker.DependencyDestroyed(pTexture);
         switch (pTexture->GetDescription().m_Type)
         {
           case ezGALTextureType::Texture2DShared:
@@ -1823,6 +1927,18 @@ void ezGALDevice::DestroyDeadObjects()
         DestroyBindGroupLayoutPlatform(pBindGroupLayout);
         break;
       }
+      case GALObjectType::BindGroup:
+      {
+        ezGALBindGroupHandle hBindGroup(ezGAL::ez18_14Id(deadObject.m_uiHandle));
+        ezGALBindGroup* pBindGroup = nullptr;
+
+        EZ_VERIFY(m_BindGroups.Remove(hBindGroup, &pBindGroup), "Unexpected invalid handle");
+        m_BindGroupTable.Remove(pBindGroup->GetDescription().CalculateHash());
+
+        m_BindGroupTracker.RemoveResource(pBindGroup);
+        DestroyBindGroupPlatform(pBindGroup);
+        break;
+      }
       case GALObjectType::PipelineLayout:
       {
         ezGALPipelineLayoutHandle hPipelineLayout(ezGAL::ez18_14Id(deadObject.m_uiHandle));
@@ -1862,6 +1978,12 @@ void ezGALDevice::DestroyDeadObjects()
   }
 
   m_DeadObjects.Clear();
+}
+
+void ezGALDevice::OnBindGroupInvalidatedEventHandler(ezGALBindGroup* pBindGroup)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+  pBindGroup->Invalidate(this);
 }
 
 const ezGALSwapChain* ezGALDevice::GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const

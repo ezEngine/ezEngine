@@ -42,9 +42,16 @@ public:
   /// - Texture ranges: Mip levels and array slices within bounds
   /// - Make sure no proxy texture is present
   ///
-  /// \param uiBindGroup The bind group slot index to set
+  /// \param uiBindGroup The bind group set index to set
   /// \param bindGroup Description containing the layout and resource items to bind
   void SetBindGroup(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup);
+
+  /// \brief Sets a bind group resource to the given bind group index.
+  /// As there are two functions to set bind groups (this one and the overload for transient bind groups) the last call takes precedence if both functions are called for the same index.
+  /// \param uiBindGroup The bind group set index to set
+  /// \param hBindGroup Handle to the bind group that is to be used.
+  void SetBindGroup(ezUInt32 uiBindGroup, ezGALBindGroupHandle hBindGroup);
+
   void SetPushConstants(ezArrayPtr<const ezUInt8> data);
 
   // GPU -> CPU query functions

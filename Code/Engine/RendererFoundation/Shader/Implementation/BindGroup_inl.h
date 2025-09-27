@@ -14,3 +14,8 @@ void ezGALBindGroupItem::operator=(const ezGALBindGroupItem& rhs)
   const ezHashableStruct<ezGALBindGroupItem>& rhsBase = rhs;
   thisBase = rhsBase;
 }
+
+ezGALBindGroup::ezGALBindGroup(const ezGALBindGroupCreationDescription& Description) : ezGALResource(Description)
+{}
+
+ezGALBindGroup::~ezGALBindGroup() = default;

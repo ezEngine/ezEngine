@@ -7,6 +7,7 @@
 #include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
+#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 
 ezGALBindGroupLayoutVulkan::ezGALBindGroupLayoutVulkan(const ezGALBindGroupLayoutCreationDescription& Description)
   : ezGALBindGroupLayout(Description)
@@ -38,6 +39,13 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
     ConvertBinding(ezBinding, binding);
   }
 
+  // Build m_ResourceUsage
+  for (ezUInt32 i = 0; i < m_Description.m_ResourceBindings.GetCount(); i++)
+  {
+    const ezShaderResourceBinding& ezBinding = m_Description.m_ResourceBindings[i];
+    m_ResourceUsage.m_Usage[ezBinding.m_ResourceType.GetValue()]++;
+  }
+
   const ezGALImmutableSamplers::ImmutableSamplers& immutableSamplers = ezGALImmutableSamplers::GetImmutableSamplers();
 
   for (ezUInt32 i = 0; i < m_Description.m_ImmutableSamplers.GetCount(); i++)
@@ -62,12 +70,20 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
   descriptorSetLayout.pBindings = bindings.GetData();
   VK_ASSERT_DEBUG(pVulkanDevice->GetVulkanDevice().createDescriptorSetLayout(&descriptorSetLayout, nullptr, &m_DescriptorSetLayout));
 
+  m_DescriptorSetPool = ezDescriptorSetPoolVulkan::GetPool(m_ResourceUsage);
+
   return EZ_SUCCESS;
 }
 
 ezResult ezGALBindGroupLayoutVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
+  m_DescriptorSetPool = nullptr;
   auto* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_DescriptorSetLayout);
   return EZ_SUCCESS;
+}
+
+ezDescriptorSetPoolVulkan* ezGALBindGroupLayoutVulkan::GetDescriptorSetPool() const
+{
+  return m_DescriptorSetPool.Borrow();
 }

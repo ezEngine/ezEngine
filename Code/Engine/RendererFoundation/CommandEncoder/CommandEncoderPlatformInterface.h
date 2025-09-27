@@ -15,6 +15,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderCommonPlatformInterface
 public:
   // Resource binding functions
   virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) = 0;
+  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup) = 0;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) = 0;
 
   // GPU -> CPU query functions

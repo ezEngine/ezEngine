@@ -17,6 +17,7 @@
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Shader/BindGroupLayoutDX11.h>
+#include <RendererDX11/Shader/BindGroupDX11.h>
 #include <RendererDX11/Shader/PipelineLayoutDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
@@ -469,6 +470,29 @@ void ezGALDeviceDX11::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBind
   pDX11BindGroupLayout->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
 }
+
+ezGALBindGroup* ezGALDeviceDX11::CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description)
+{
+  ezGALBindGroupDX11* pDX11BindGroup = EZ_NEW(&m_Allocator, ezGALBindGroupDX11, Description);
+
+  if (pDX11BindGroup->InitPlatform(this).Succeeded())
+  {
+    return pDX11BindGroup;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11BindGroup);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
+{
+  ezGALBindGroupDX11* pDX11BindGroup = static_cast<ezGALBindGroupDX11*>(pBindGroup);
+  pDX11BindGroup->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11BindGroup);
+}
+
 
 ezGALPipelineLayout* ezGALDeviceDX11::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
 {

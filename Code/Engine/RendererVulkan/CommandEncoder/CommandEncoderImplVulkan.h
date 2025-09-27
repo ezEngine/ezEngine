@@ -22,6 +22,8 @@ class ezFenceQueueVulkan;
 class ezGALGraphicsPipelineVulkan;
 class ezGALComputePipelineVulkan;
 struct ezGALBindGroupCreationDescription;
+class ezDescriptorWritePoolVulkan;
+class ezGALBindGroupVulkan;
 
 class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
 {
@@ -35,10 +37,12 @@ public:
   void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
   void BeforeCommandBufferSubmit();
   void AfterCommandBufferSubmit(vk::Fence submitFence);
+  ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
 
   // ezGALCommandEncoderCommonPlatformInterface
   // State setting functions
   virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) override;
+  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup) override;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) override;
 
   // GPU -> CPU query functions
@@ -197,13 +201,11 @@ private:
 
   // Bind Groups
   ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+  const ezGALBindGroupVulkan* m_pBindGroups[EZ_GAL_MAX_BIND_GROUPS] = {};
   DynamicOffsets m_DynamicOffsets[EZ_GAL_MAX_BIND_GROUPS];
 
   // Descriptor Writes
-  ezDynamicArray<vk::WriteDescriptorSet> m_DescriptorWrites;
-  ezDeque<vk::DescriptorImageInfo> m_DescriptorImageInfos;
-  ezDeque<vk::DescriptorBufferInfo> m_DescriptorBufferInfos;
-  ezDeque<vk::BufferView> m_DescriptorBufferViews;
+  mutable ezUniquePtr<ezDescriptorWritePoolVulkan> m_pWritePool;
 
   // Actual bound descriptor sets
   ezHashTable<ezUInt64, vk::DescriptorSet> m_DescriptorCache;

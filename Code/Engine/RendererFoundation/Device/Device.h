@@ -1,5 +1,7 @@
 #pragma once
 
+#include <RendererFoundation/RendererFoundationDLL.h>
+
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -8,7 +10,8 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 #include <RendererFoundation/Device/ReadbackLock.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Utils/DependencyTracker.h>
+
 
 class ezColor;
 
@@ -51,6 +54,10 @@ public:
 
   ezGALBindGroupLayoutHandle CreateBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& description);
   void DestroyBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout);
+
+  // Bind group functions
+  ezGALBindGroupHandle CreateBindGroup(const ezGALBindGroupCreationDescription& description);
+  void DestroyBindGroup(ezGALBindGroupHandle hBindGroup);
 
   ezGALPipelineLayoutHandle CreatePipelineLayout(const ezGALPipelineLayoutCreationDescription& description);
   void DestroyPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout);
@@ -210,6 +217,7 @@ public:
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
   const ezGALBindGroupLayout* GetBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout) const;
+  const ezGALBindGroup* GetBindGroup(ezGALBindGroupHandle hBindGroup) const;
   const ezGALPipelineLayout* GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const;
   const ezGALGraphicsPipeline* GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const;
   const ezGALComputePipeline* GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const;
@@ -258,6 +266,8 @@ protected:
 
   void DestroyDeadObjects();
 
+  void OnBindGroupInvalidatedEventHandler(ezGALBindGroup* pBindGroup);
+
   /// \brief Asserts that either this device supports multi-threaded resource creation, or that this function is executed on the main thread.
   void VerifyMultithreadedAccess() const;
 
@@ -274,8 +284,8 @@ protected:
 
   template <typename Handle, typename Resource, typename Table, typename CacheTable>
   Handle TryGetHashedResource(ezUInt32 uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
-  template <typename Handle, typename Resource, typename Table, typename CacheTable>
-  Handle InsertHashedResource(ezUInt32 uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter);
+  template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
+  Handle InsertHashedResource(HashType uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter);
   template <typename Resource, typename Handle, typename Table>
   void DestroyHashedResource(Handle hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
 
@@ -296,6 +306,7 @@ protected:
   using SwapChainTable = ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper>;
   using VertexDeclarationTable = ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper>;
   using BindGroupLayoutTable = ezIdTable<ezGALBindGroupLayoutHandle::IdType, ezGALBindGroupLayout*, ezLocalAllocatorWrapper>;
+  using BindGroupTable = ezIdTable<ezGALBindGroupHandle::IdType, ezGALBindGroup*, ezLocalAllocatorWrapper>;
   using PipelineLayoutTable = ezIdTable<ezGALPipelineLayoutHandle::IdType, ezGALPipelineLayout*, ezLocalAllocatorWrapper>;
   using GraphicsPipelineTable = ezIdTable<ezGALGraphicsPipelineHandle::IdType, ezGALGraphicsPipeline*, ezLocalAllocatorWrapper>;
   using ComputePipelineTable = ezIdTable<ezGALComputePipelineHandle::IdType, ezGALComputePipeline*, ezLocalAllocatorWrapper>;
@@ -307,6 +318,8 @@ protected:
   RasterizerStateTable m_RasterizerStates;
   SamplerStateTable m_SamplerStates;
   BindGroupLayoutTable m_BindGroupLayouts;
+  BindGroupTable m_BindGroups;
+  ezDependencyTracker<ezGALBindGroup, ezGALResourceBase> m_BindGroupTracker;
   PipelineLayoutTable m_PipelineLayouts;
   GraphicsPipelineTable m_GraphicsPipelines;
   ComputePipelineTable m_ComputePipelines;
@@ -327,6 +340,7 @@ protected:
   ezHashTable<ezUInt32, ezGALRasterizerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateTable;
   ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
   ezHashTable<ezUInt32, ezGALBindGroupLayoutHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BindGroupLayoutTable;
+  ezHashTable<ezUInt64, ezGALBindGroupHandle, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_BindGroupTable;
   ezHashTable<ezUInt32, ezGALPipelineLayoutHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_PipelineLayoutTable;
   ezHashTable<ezUInt32, ezGALGraphicsPipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GraphicsPipelineTable;
   ezHashTable<ezUInt32, ezGALComputePipelineHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ComputePipelineTable;
@@ -385,6 +399,10 @@ protected:
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) = 0;
+
+  // Bind group platform functions
+  virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) = 0;
+  virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) = 0;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) = 0;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) = 0;
@@ -467,6 +485,7 @@ private:
   ezUInt32 m_uiRasterizerStates = 0;
   ezUInt32 m_uiSamplerStates = 0;
   ezUInt32 m_uiBindGroupLayouts = 0;
+  ezUInt32 m_uiBindGroups = 0;
   ezUInt32 m_uiPipelineLayouts = 0;
   ezUInt32 m_uiGraphicsPipelines = 0;
   ezUInt32 m_uiComputePipelines = 0;
