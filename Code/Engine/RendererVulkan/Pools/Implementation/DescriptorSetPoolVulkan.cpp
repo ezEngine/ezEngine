@@ -164,16 +164,18 @@ ezUInt32 ezDescriptorSetPoolVulkan::GetFreePoolIndex()
   {
     // Create Vulkan descriptor pool
     ezHybridArray<vk::DescriptorPoolSize, ezGALShaderResourceType::COUNT> poolSizes;
-    vk::DescriptorPoolCreateInfo poolCreateInfo;
-    poolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    poolCreateInfo.maxSets = m_uiNextPoolSize;
-    poolCreateInfo.poolSizeCount = poolSizes.GetCount();
-    poolCreateInfo.pPoolSizes = poolSizes.GetData();
     for (ezUInt32 i = 0; i < ezGALShaderResourceType::COUNT; ++i)
     {
       if (m_ResourceUsage.m_Usage[i] > 0)
         poolSizes.PushBack(vk::DescriptorPoolSize(ezConversionUtilsVulkan::GetDescriptorType((ezGALShaderResourceType::Enum)i), m_ResourceUsage.m_Usage[i] * m_uiNextPoolSize));
     }
+    
+    vk::DescriptorPoolCreateInfo poolCreateInfo;
+    poolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    poolCreateInfo.maxSets = m_uiNextPoolSize;
+    poolCreateInfo.poolSizeCount = poolSizes.GetCount();
+    poolCreateInfo.pPoolSizes = poolSizes.GetData();
+
     VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().createDescriptorPool(&poolCreateInfo, nullptr, &pSubPool->m_DescriptorPool));
   }
   m_SubPools.PushBack(std::move(pSubPool));
