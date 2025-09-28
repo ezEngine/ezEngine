@@ -10,7 +10,7 @@
 /// \tparam Resource The type of resource being tracked (e.g. bind groups)
 /// \tparam Dependency The base type of the dependencies (e.g., ezGALResource)
 template <typename Resource, typename Dependency>
-class EZ_RENDERERFOUNDATION_DLL ezDependencyTracker
+class ezDependencyTracker
 {
 public:
   ezDependencyTracker();

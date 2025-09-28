@@ -282,8 +282,8 @@ protected:
   template <typename View, typename Handle, typename ViewTable>
   void DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType);
 
-  template <typename Handle, typename Resource, typename Table, typename CacheTable>
-  Handle TryGetHashedResource(ezUInt32 uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
+  template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
+  Handle TryGetHashedResource(HashType uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
   template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
   Handle InsertHashedResource(HashType uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter);
   template <typename Resource, typename Handle, typename Table>

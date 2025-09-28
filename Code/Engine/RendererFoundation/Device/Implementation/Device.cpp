@@ -263,8 +263,8 @@ void ezGALDevice::EndCommands(ezGALCommandEncoder* pCommandEncoder)
   }
 }
 
-template <typename Handle, typename Resource, typename Table, typename CacheTable>
-Handle ezGALDevice::TryGetHashedResource(ezUInt32 uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter)
+template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
+Handle ezGALDevice::TryGetHashedResource(HashType uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter)
 {
   Handle hResource;
   if (cacheTable.TryGetValue(uiHash, hResource))
