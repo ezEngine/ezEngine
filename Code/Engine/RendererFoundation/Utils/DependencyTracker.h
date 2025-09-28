@@ -13,9 +13,6 @@ template <typename Resource, typename Dependency>
 class ezDependencyTracker
 {
 public:
-  ezDependencyTracker();
-  ~ezDependencyTracker();
-
   /// \brief Adds a resource and its dependencies to the tracking system.
   ///
   /// This method registers a resource along with all of its dependencies. The resource will be automatically invalidated if any of its dependencies are destroyed. Each resource can only be added once - attempting to add the same resource again will trigger an assertion in debug builds.

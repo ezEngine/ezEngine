@@ -1,14 +1,3 @@
-
-template <typename Resource, typename Dependency>
-ezDependencyTracker<Resource, Dependency>::ezDependencyTracker()
-{
-}
-
-template <typename Resource, typename Dependency>
-ezDependencyTracker<Resource, Dependency>::~ezDependencyTracker()
-{
-}
-
 template <typename Resource, typename Dependency>
 void ezDependencyTracker<Resource, Dependency>::AddResource(Resource* pResource, const ezSet<const Dependency*>& dependencies)
 {

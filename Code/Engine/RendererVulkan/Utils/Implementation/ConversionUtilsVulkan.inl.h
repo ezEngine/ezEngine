@@ -338,6 +338,9 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
       return vk::DescriptorType::eStorageBuffer;
     case ezGALShaderResourceType::ByteAddressBufferRW:
       return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::COUNT:
+      EZ_REPORT_FAILURE("COUNT is not a valid resource type");
+      break;
   }
   EZ_REPORT_FAILURE("Unknown resource type: {}", (int)type);
   return vk::DescriptorType::eMutableVALVE;

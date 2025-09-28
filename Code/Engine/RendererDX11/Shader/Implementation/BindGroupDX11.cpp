@@ -7,17 +7,17 @@ ezGALBindGroupDX11::ezGALBindGroupDX11(const ezGALBindGroupCreationDescription& 
 
 ezGALBindGroupDX11::~ezGALBindGroupDX11() = default;
 
-ezResult ezGALBindGroupDX11::InitPlatform(ezGALDevice* pDevice)
+ezResult ezGALBindGroupDX11::InitPlatform(ezGALDevice*)
 {
   return EZ_SUCCESS;
 }
 
-ezResult ezGALBindGroupDX11::DeInitPlatform(ezGALDevice* pDevice)
+ezResult ezGALBindGroupDX11::DeInitPlatform(ezGALDevice*)
 {
   return EZ_SUCCESS;
 }
 
-void ezGALBindGroupDX11::Invalidate(ezGALDevice* pDevice)
+void ezGALBindGroupDX11::Invalidate(ezGALDevice*)
 {
   m_bInvalidated = true;
 }
@@ -27,6 +27,6 @@ bool ezGALBindGroupDX11::IsInvalidated() const
   return m_bInvalidated;
 }
 
-void ezGALBindGroupDX11::SetDebugNamePlatform(const char* szName) const
+void ezGALBindGroupDX11::SetDebugNamePlatform(const char*) const
 {
 }
