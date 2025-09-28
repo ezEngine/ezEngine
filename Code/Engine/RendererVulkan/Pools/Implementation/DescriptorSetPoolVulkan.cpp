@@ -169,7 +169,7 @@ ezUInt32 ezDescriptorSetPoolVulkan::GetFreePoolIndex()
       if (m_ResourceUsage.m_Usage[i] > 0)
         poolSizes.PushBack(vk::DescriptorPoolSize(ezConversionUtilsVulkan::GetDescriptorType((ezGALShaderResourceType::Enum)i), m_ResourceUsage.m_Usage[i] * m_uiNextPoolSize));
     }
-    
+
     vk::DescriptorPoolCreateInfo poolCreateInfo;
     poolCreateInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     poolCreateInfo.maxSets = m_uiNextPoolSize;
