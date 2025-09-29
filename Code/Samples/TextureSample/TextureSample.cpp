@@ -412,8 +412,7 @@ public:
     Indices.Reserve(geom.GetPolygons().GetCount() * 6);
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+    desc.AddCommonStreams(true);
 
     desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
 
@@ -422,8 +421,8 @@ public:
       ezVec2 tc(geom.GetVertices()[v].m_vPosition.x / 100.0f, geom.GetVertices()[v].m_vPosition.y / -100.0f);
       tc += ezVec2(0.5f);
 
-      desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-      desc.SetVertexData<ezVec2>(1, v, tc);
+      desc.SetPosition(v, geom.GetVertices()[v].m_vPosition);
+      desc.SetTexCoord0(v, tc);
     }
 
     ezUInt32 t = 0;

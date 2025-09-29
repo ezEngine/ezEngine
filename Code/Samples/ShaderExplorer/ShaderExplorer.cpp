@@ -476,25 +476,8 @@ void ezShaderExplorerApp::CreateScreenQuad()
   geom.AddRect(ezVec2(2, 2), 1, 1, opt);
 
   ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-
-  desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
-
-  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-  {
-    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-  }
-
-  ezUInt32 t = 0;
-  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-  {
-    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-    {
-      desc.SetTriangleIndices(t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
-
-      ++t;
-    }
-  }
+  desc.AddStream(ezMeshVertexStreamType::Position);
+  desc.AllocateStreamsFromGeometry(geom);
 
   m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
