@@ -1,4 +1,3 @@
-#include "MeshBufferUtils.h"
 
 // static
 EZ_ALWAYS_INLINE constexpr ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatNormal(Enum value)
