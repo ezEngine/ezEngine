@@ -31,10 +31,6 @@
 #include <d3d11_3.h>
 #include <dxgidebug.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <d3d11_1.h>
-#endif
-
 ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {
   return EZ_NEW(pAllocator, ezGALDeviceDX11, description);
@@ -233,11 +229,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
 void ezGALDeviceDX11::ReportLiveGpuObjects()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // not implemented
-  return;
-
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
 
@@ -299,20 +291,6 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   m_pQueryPool = nullptr;
   m_pFenceQueue = nullptr;
   ezFencePoolDX11::DeInitialize();
-
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Force immediate destruction of all objects destroyed so far.
-  // This is necessary if we want to create a new primary swap chain/device right after this.
-  // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip
-  // Strictly speaking we should do this right after we destroy the swap chain and flush all contexts that are affected.
-  // However, the particular usecase where this problem comes up is usually a restart scenario.
-  if (m_pImmediateContext != nullptr)
-  {
-    m_pImmediateContext->ClearState();
-    m_pImmediateContext->Flush();
-  }
-#endif
 
   m_pCommandEncoder = nullptr;
   m_pCommandEncoderImpl = nullptr;

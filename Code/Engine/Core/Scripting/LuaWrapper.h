@@ -6,16 +6,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-// We compile Lua as C++ under UWP so we need to include the headers directly
-// to prevent the addition of extern "C" done by lua.hpp.
-#    include <Lua/lauxlib.h>
-#    include <Lua/lua.h>
-#    include <Lua/luaconf.h>
-#    include <Lua/lualib.h>
-#  else
-#    include <Lua/lua.hpp>
-#  endif
+#  include <Lua/lua.hpp>
 
 /// This class encapsulates ONE Lua-Script.
 ///

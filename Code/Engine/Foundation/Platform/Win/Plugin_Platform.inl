@@ -56,13 +56,7 @@ ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule,
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezStringBuilder relativePath = sFileToLoad;
-  EZ_SUCCEED_OR_RETURN(relativePath.MakeRelativeTo(ezOSFile::GetApplicationDirectory()));
-  ref_pModule = LoadPackagedLibrary(ezStringWChar(relativePath).GetData(), 0);
-#else
   ref_pModule = LoadLibraryW(ezStringWChar(sFileToLoad).GetData());
-#endif
 
   if (ref_pModule == nullptr)
   {

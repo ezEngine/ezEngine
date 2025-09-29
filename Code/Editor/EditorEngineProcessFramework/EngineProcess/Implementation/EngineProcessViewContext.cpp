@@ -65,8 +65,6 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       img.SaveTo(msg->m_sOutputFile).IgnoreResult();
     }
   }
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
 #else
 #  error "Unsupported platform."
 #endif

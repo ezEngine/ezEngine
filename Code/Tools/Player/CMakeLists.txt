@@ -15,29 +15,6 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  # Due to app sandboxing we need to explicitly name required plugins for UWP.
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-    ParticlePlugin
-    InspectorPlugin
-  )
-
-  if (EZ_BUILD_PHYSX)
-    target_link_libraries(${PROJECT_NAME} PUBLIC PhysXPlugin)
-  endif()
-
-  if (EZ_BUILD_FMOD)
-    target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
-  endif()
-
-  if (EZ_BUILD_OPENXR)
-    find_package(ezOpenXR REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC OpenXRPlugin)
-  endif()
-
-endif()
-
 ez_add_renderers(${PROJECT_NAME})
 
 add_dependencies(${PROJECT_NAME}

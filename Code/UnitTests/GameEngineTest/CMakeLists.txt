@@ -31,19 +31,6 @@ if (EZ_BUILD_RMLUI AND (EZ_CMAKE_PLATFORM_WINDOWS OR EZ_CMAKE_PLATFORM_LINUX))
   )
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  # Due to app sandboxing we need to explcitly name required plugins for UWP.
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-    InspectorPlugin
-  )
-
-  if (EZ_BUILD_FMOD)
-    target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
-  endif()
-endif()
-
-
 ez_add_renderers(${PROJECT_NAME})
 
 ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)

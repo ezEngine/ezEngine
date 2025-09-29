@@ -77,8 +77,6 @@ if(EZOPENXR_FOUND)
 		set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_HEADERS_DIR}/include")
 	endif()
 
-	ez_uwp_mark_import_as_content(ezOpenXR::Loader)
-
 	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
 
 		add_library(ezOpenXR::Remoting INTERFACE IMPORTED)

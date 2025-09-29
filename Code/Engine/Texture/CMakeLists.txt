@@ -34,9 +34,5 @@ if(EZ_CMAKE_PLATFORM_LINUX)
 endif()
 
 if(EZ_3RDPARTY_TINYEXR_SUPPORT)
-  if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-    # CMake is stupid
-  else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
-  endif()
+  target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
 endif()

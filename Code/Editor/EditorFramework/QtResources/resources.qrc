@@ -115,7 +115,6 @@
     <file>Icons/PlatformSwitch.svg</file>
     <file>Icons/PlatformXbox.svg</file>
     <file>Icons/PlatformLinux.svg</file>
-    <file>Icons/PlatformUWP.svg</file>
     <file>Icons/PlatformPlayStation.svg</file>
   </qresource>
 </RCC>

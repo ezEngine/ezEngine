@@ -22,12 +22,6 @@
 #  include <RendererDX11/Device/DeviceDX11.h>
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <winrt/Windows.Graphics.Holographic.h>
-#  include <winrt/Windows.UI.Core.h>
-#  include <winrt/base.h>
-#endif
-
 #include <vector>
 
 static_assert(ezGALMSAASampleCount::None == 1);
@@ -122,10 +116,6 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   AddExtIfSupported(XR_EXT_DEBUG_UTILS_EXTENSION_NAME, m_Extensions.m_bDebugUtils);
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_WINDOW_ATTACHMENT_EXTENSION_NAME, m_Extensions.m_bHolographicWindowAttachment);
 #endif
 
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
@@ -444,47 +434,10 @@ XrResult ezOpenXR::InitSession()
   sessionCreateInfo.systemId = m_SystemId;
   sessionCreateInfo.next = &m_XrGraphicsBindingD3D11;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (m_Extensions.m_bHolographicWindowAttachment)
-  {
-    // Creating a HolographicSpace before activating the CoreWindow to make it a holographic window
-    winrt::Windows::UI::Core::CoreWindow window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
-    winrt::Windows::Graphics::Holographic::HolographicSpace holographicSpace = winrt::Windows::Graphics::Holographic::HolographicSpace::CreateForCoreWindow(window);
-    window.Activate();
-
-    XrHolographicWindowAttachmentMSFT holographicWindowAttachment{XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT};
-    {
-      holographicWindowAttachment.next = &m_XrGraphicsBindingD3D11;
-      // TODO: The code in this block works around the fact that for some reason the commented out winrt equivalent does not compile although it works in every sample:
-      // error C2131: expression did not evaluate to a constant.
-      // holographicWindowAttachment.coreWindow = window.as<IUnknown>().get();
-      // holographicWindowAttachment.holographicSpace = holographicSpace.as<IUnknown>().get();
-      winrt::com_ptr<IUnknown> temp;
-      winrt::copy_to_abi(window.as<winrt::Windows::Foundation::IUnknown>(), *temp.put_void());
-      holographicWindowAttachment.coreWindow = temp.detach();
-
-      winrt::copy_to_abi(holographicSpace.as<winrt::Windows::Foundation::IUnknown>(), *temp.put_void());
-      holographicWindowAttachment.holographicSpace = temp.detach();
-    }
-
-    sessionCreateInfo.next = &holographicWindowAttachment;
-  }
-#endif
-
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_pInstance, &sessionCreateInfo, &m_pSession), DeinitSession);
 
   XrReferenceSpaceCreateInfo spaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (m_Extensions.m_bUnboundedReferenceSpace)
-  {
-    spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT;
-  }
-  else
-#endif
-  {
-    spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-  }
-
+  spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
   spaceCreateInfo.poseInReferenceSpace = ConvertTransform(ezTransform::MakeIdentity());
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateReferenceSpace(m_pSession, &spaceCreateInfo, &m_pSceneSpace), DeinitSession);
 
@@ -860,11 +813,6 @@ void ezOpenXR::UpdateCamera()
 
 void ezOpenXR::BeginFrame()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  winrt::Windows::UI::Core::CoreWindow window = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
-  window.Dispatcher().ProcessEvents(winrt::Windows::UI::Core::CoreProcessEventsOption::ProcessAllIfPresent);
-#endif
-
   if (m_hView.IsInvalidated() || !m_bSessionRunning)
     return;
 

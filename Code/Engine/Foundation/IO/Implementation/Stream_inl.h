@@ -191,13 +191,11 @@ namespace ezStreamWriterUtil
 
   // serialization of array
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return SerializeArray(inout_stream, pArray, uiCount);
   }
-#endif
 
   template <class T>
   ezResult SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, long)
@@ -318,13 +316,11 @@ namespace ezStreamReaderUtil
 
   // serialization of array
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return DeserializeArray(inout_stream, pArray, uiCount);
   }
-#endif
 
   template <class T>
   ezResult DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, long)

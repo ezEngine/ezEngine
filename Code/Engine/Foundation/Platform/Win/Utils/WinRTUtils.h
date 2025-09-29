@@ -9,17 +9,12 @@
 // For 10.0.10240, there are circular includes in some headers, fix by including first:
 #include <corecrt.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-// All WRL
-#  include <wrl.h>
-#else
 // Only include a subset that is C++ conformant
-#  include <wrl/def.h>
-#  include <wrl/ftm.h>
-#  include <wrl/internal.h>
-#  include <wrl/module.h>
-#  include <wrl/wrappers/corewrappers.h>
-#endif
+#include <wrl/def.h>
+#include <wrl/ftm.h>
+#include <wrl/internal.h>
+#include <wrl/module.h>
+#include <wrl/wrappers/corewrappers.h>
 
 #include <windows.devices.enumeration.h>
 #include <windows.foundation.collections.h>

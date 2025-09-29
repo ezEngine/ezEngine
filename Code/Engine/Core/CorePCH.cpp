@@ -33,7 +33,6 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_ControllerInput_GLFW);
   EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_InputDevice_GLFW);
   EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_Window_GLFW);
-  EZ_STATICLINK_REFERENCE(Core_Platform_UWP_InputDevice_UWP);
   EZ_STATICLINK_REFERENCE(Core_Platform_Win_InputDevice_Win);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);

@@ -47,9 +47,6 @@ macro(ez_create_target TYPE TARGET_NAME)
 			ez_platformhook_set_library_properties(${TARGET_NAME})
 		endif()
 
-		# PLATFORM-TODO (use hook above?)
-		ez_uwp_fix_library_properties(${TARGET_NAME} "${ALL_SOURCE_FILES}")
-
 	elseif(${TYPE} STREQUAL "APPLICATION")
 		message(STATUS "Application: ${TARGET_NAME}")
 
@@ -67,9 +64,6 @@ macro(ez_create_target TYPE TARGET_NAME)
 		else()
 			add_executable(${TARGET_NAME} ${ALL_SOURCE_FILES})
 		endif()
-
-		# PLATFORM-TODO (use hook from below?)
-		ez_uwp_add_default_content(${TARGET_NAME})
 
 		if(COMMAND ez_platformhook_set_application_properties)
 			ez_platformhook_set_application_properties(${TARGET_NAME})

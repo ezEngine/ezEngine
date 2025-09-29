@@ -24,10 +24,6 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   s_iArgc = iArgc;
   s_pArgv = pArgv;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  RoInitialize(RO_INIT_MULTITHREADED);
-#endif
-
   // without a proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(ezOSFile::GetUserDataFolder());
   if (*sTestFolder.rbegin() != '/')

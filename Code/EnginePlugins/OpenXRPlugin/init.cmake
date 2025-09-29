@@ -50,8 +50,6 @@ function(ez_link_target_openxr TARGET_NAME)
 			unset(REMOTING_ASSETS)
 
         endif()
-		
-		ez_uwp_add_import_to_sources(${TARGET_NAME} ezOpenXR::Loader)
 
 	endif()
 

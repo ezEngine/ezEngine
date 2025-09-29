@@ -126,7 +126,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
 #if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   // On platforms where this is disabled, one can usually only write to the user directory
-  // e.g. on UWP and mobile platforms
+  // e.g. on mobile platforms
   writableBinRoot = sUserDataPath;
 #endif
 

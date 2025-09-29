@@ -18,15 +18,6 @@ if (EZ_3RDPARTY_IMGUI_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    FileservePlugin
-  )
-
-endif()
-
 # XBOX controller support
 if (EZ_CMAKE_PLATFORM_WINDOWS)
 
@@ -34,14 +25,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS)
     # When using glfw, glfw will handle xbox controller input, and this plugin is not needed.
   else()
 
-    if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-
-      target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-        Xinputuap
-      )
-
-    elseif (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+    if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 
       target_link_libraries(${PROJECT_NAME}
         PRIVATE
