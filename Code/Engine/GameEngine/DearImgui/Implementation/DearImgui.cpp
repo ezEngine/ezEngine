@@ -440,4 +440,3 @@ void ezImgui::GameApplicationEventHandler(const ezGameApplicationExecutionEvent&
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_Implementation_DearImgui);
-
