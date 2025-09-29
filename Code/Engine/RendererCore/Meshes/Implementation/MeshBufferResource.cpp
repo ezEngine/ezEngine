@@ -412,7 +412,7 @@ ezArrayPtr<ezVec3> ezMeshBufferResourceDescriptor::GetPositionData()
 ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_uiStride /*= nullptr*/) const
 {
   if (out_uiStride != nullptr)
-  *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetNormalDataOffset());
@@ -688,7 +688,6 @@ void ezMeshBufferResourceDescriptor::SetBoneWeights(ezUInt32 uiVertexIndex, cons
 
   ezMeshBufferUtils::EncodeBoneWeights(vWeights, data, m_VertexStreamConfig.GetBoneWeightsFormat()).AssertSuccess();
 }
-
 
 
 

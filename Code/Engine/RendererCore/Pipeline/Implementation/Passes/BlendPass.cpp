@@ -80,7 +80,7 @@ void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    
+
     ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
     bindGroup.BindTexture("InputA", inputs[m_PinInputA.m_uiInputIndex]->m_TextureHandle);
     bindGroup.BindTexture("InputB", inputs[m_PinInputB.m_uiInputIndex]->m_TextureHandle);

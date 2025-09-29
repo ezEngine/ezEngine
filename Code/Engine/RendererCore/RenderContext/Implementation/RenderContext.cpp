@@ -542,7 +542,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (bHasVertexDeclarations && BuildVertexDeclaration(m_hActiveGALShader, m_VertexBufferStrides, m_VertexBufferBindingRates, m_VertexAttributes, hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
-     // If there is a vertex buffer we need a valid vertex declaration as well.
+    // If there is a vertex buffer we need a valid vertex declaration as well.
     if (hVertexDeclaration.IsInvalidated())
     {
       for (auto hVertexBuffer : m_hVertexBuffers)

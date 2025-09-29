@@ -440,8 +440,8 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
 
         // complicated but faster
         positionData.GetPtr()[uiVertexIdx] = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
-        
-        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTexCoordDataStride;        
+
+        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTexCoordDataStride;
         ezMeshBufferUtils::EncodeTexCoord(tc, ezByteArrayPtr(texcoordData.GetPtr() + uiByteOffset, 32), texCoordFormat).IgnoreResult();
 
         // easier to understand, but slower

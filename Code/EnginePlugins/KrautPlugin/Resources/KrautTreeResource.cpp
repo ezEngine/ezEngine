@@ -109,7 +109,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
     const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
-    buffer.AddCommonStreams();                        
+    buffer.AddCommonStreams();
     buffer.AddStream(ezMeshVertexStreamType::TexCoord1);
 
     const bool bFullPrecision = true; // Needs full precision color for now. TODO: better packing

@@ -78,7 +78,7 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-  
+
   ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
   bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
 

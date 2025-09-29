@@ -119,7 +119,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    
+
     ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
     bindGroupRenderPass.BindBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
     bindGroupRenderPass.BindTexture("SelectionDepthTexture", hDepthTexture);

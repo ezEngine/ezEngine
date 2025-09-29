@@ -76,7 +76,7 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     auto& streamConfig = pMeshBuffer->GetVertexStreamConfig();
     const ezUInt32 uiNumUVs = streamConfig.HasTexCoord0() + streamConfig.HasTexCoord1();
     const ezUInt32 uiNumColors = streamConfig.HasColor0() + streamConfig.HasColor1();
-    
+
     ezStringBuilder sText;
     sText.AppendFormat("Triangles: \t{}\t\n", uiNumTriangles);
     sText.AppendFormat("Vertices: \t{}\t\n", uiNumVertices);

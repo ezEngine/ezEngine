@@ -99,7 +99,7 @@ namespace
       ezUInt32 uiNormalStride = 0;
       const ezUInt8* pNormals = mbDesc.GetNormalData(&uiNormalStride).GetPtr();
       ezGALResourceFormat::Enum normalFormat = mbDesc.GetVertexStreamConfig().GetNormalFormat();
-      
+
       ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
       rtcSetGeometryVertexAttributeCount(triangleMesh, 1);
