@@ -420,12 +420,12 @@ namespace ezMath
     return (value & uiMaxValue) * (1.0f / fMaxValue);
   }
 
-  EZ_ALWAYS_INLINE constexpr inline float ColorByteToFloat(ezUInt8 value)
+  EZ_ALWAYS_INLINE constexpr float ColorByteToFloat(ezUInt8 value)
   {
     return ColorUnsignedIntToFloat<8>(value);
   }
 
-  EZ_ALWAYS_INLINE constexpr inline float ColorShortToFloat(ezUInt16 value)
+  EZ_ALWAYS_INLINE constexpr float ColorShortToFloat(ezUInt16 value)
   {
     return ColorUnsignedIntToFloat<16>(value);
   }
