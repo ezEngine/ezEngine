@@ -53,7 +53,7 @@ class ezAnimatedMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
   ezAnimatedMeshAssetPropertiesPatch_2_3()
-    : ezGraphPatch("ezMeshAssetProperties", 3)
+    : ezGraphPatch("ezAnimatedMeshAssetProperties", 3)
   {
   }
 
@@ -63,28 +63,25 @@ public:
 
     if (auto pProp = pNode->FindProperty("NormalPrecision"))
     {
-      ezInt64 iVal = 0;
-      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshNormalPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshNormalPrecision::_10Bit")
       {
-        bHighPrecision |= iVal != ezMeshNormalPrecision::Default;
+        bHighPrecision = true;
       }
     }
 
     if (auto pProp = pNode->FindProperty("TexCoordPrecision"))
     {
-      ezInt64 iVal = 0;
-      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshTexCoordPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshTexCoordPrecision::_16Bit")
       {
-        bHighPrecision |= iVal != ezMeshTexCoordPrecision::Default;
+        bHighPrecision = true;
       }
     }
 
     if (auto pProp = pNode->FindProperty("BoneWeightPrecision"))
     {
-      ezInt64 iVal = 0;
-      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshBoneWeightPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshBoneWeigthPrecision::_8Bit")
       {
-        bHighPrecision |= iVal != ezMeshBoneWeightPrecision::Default;
+        bHighPrecision = true;
       }
     }
 

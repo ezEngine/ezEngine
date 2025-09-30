@@ -34,17 +34,22 @@ EZ_ALWAYS_INLINE static ezUInt32 GetElementSize(ezGALResourceFormat::Enum format
 }
 
 constexpr ezGALResourceFormat::Enum s_PositionFormat = ezGALResourceFormat::XYZFloat;
-constexpr ezGALResourceFormat::Enum s_NormalFormat_lp = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit);
-constexpr ezGALResourceFormat::Enum s_NormalFormat_hp = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_32Bit);
-constexpr ezGALResourceFormat::Enum s_TangentFormat_lp = ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit);
-constexpr ezGALResourceFormat::Enum s_TangentFormat_hp = ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_32Bit);
-constexpr ezGALResourceFormat::Enum s_TexCoordFormat_lp = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_16Bit);
-constexpr ezGALResourceFormat::Enum s_TexCoordFormat_hp = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_32Bit);
+
+constexpr ezGALResourceFormat::Enum s_NormalFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
+constexpr ezGALResourceFormat::Enum s_NormalFormat_hp = ezGALResourceFormat::XYZFloat;
+
+constexpr ezGALResourceFormat::Enum s_TangentFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
+constexpr ezGALResourceFormat::Enum s_TangentFormat_hp = ezGALResourceFormat::XYZWFloat;
+
+constexpr ezGALResourceFormat::Enum s_TexCoordFormat_lp = ezGALResourceFormat::UVHalf;
+constexpr ezGALResourceFormat::Enum s_TexCoordFormat_hp = ezGALResourceFormat::UVFloat;
+
 constexpr ezGALResourceFormat::Enum s_ColorFormat_lp = ezGALResourceFormat::RGBAUByteNormalized;
 constexpr ezGALResourceFormat::Enum s_ColorFormat_hp = ezGALResourceFormat::RGBAHalf;
+
 constexpr ezGALResourceFormat::Enum s_BoneIndicesFormat = ezGALResourceFormat::RGBAUShort;
-constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_lp = ezMeshBoneWeightPrecision::ToResourceFormat(ezMeshBoneWeightPrecision::_8Bit);
-constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_hp = ezMeshBoneWeightPrecision::ToResourceFormat(ezMeshBoneWeightPrecision::_16Bit);
+constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_lp = ezGALResourceFormat::RGBAUByteNormalized;
+constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
 
 static ezGALVertexAttribute s_VertexAttributes_lp[] = {
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, s_PositionFormat, 0, 0),
@@ -600,10 +605,10 @@ ezColor ezMeshBufferResourceDescriptor::GetColor0(ezUInt32 uiVertexIndex) const
 {
   auto data = GetVertexData(ezMeshVertexStreamType::Color0, uiVertexIndex, m_VertexStreamConfig.GetColor0ElementSize());
 
-  ezVec4 res;
-  ezMeshBufferUtils::DecodeToVec4(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
+  ezColor res;
+  ezMeshBufferUtils::DecodeColor(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
 
-  return ezColor(res.x, res.y, res.z, res.w);
+  return res;
 }
 
 void ezMeshBufferResourceDescriptor::SetColor0(ezUInt32 uiVertexIndex, const ezColorLinearUB& color)
@@ -612,7 +617,7 @@ void ezMeshBufferResourceDescriptor::SetColor0(ezUInt32 uiVertexIndex, const ezC
 
   if (m_VertexStreamConfig.m_bUseHighPrecision)
   {
-    ezMeshBufferUtils::EncodeFromVec4(ezColor(color).GetAsVec4(), data, m_VertexStreamConfig.GetColorFormat()).AssertSuccess();
+    ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), ezMeshVertexColorConversion::None).AssertSuccess();
   }
   else
   {
@@ -624,17 +629,17 @@ void ezMeshBufferResourceDescriptor::SetColor0(ezUInt32 uiVertexIndex, const ezC
 {
   auto data = GetVertexData(ezMeshVertexStreamType::Color0, uiVertexIndex, m_VertexStreamConfig.GetColor0ElementSize());
 
-  ezMeshBufferUtils::EncodeColor(color.GetAsVec4(), data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
+  ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
 }
 
 ezColor ezMeshBufferResourceDescriptor::GetColor1(ezUInt32 uiVertexIndex) const
 {
   auto data = GetVertexData(ezMeshVertexStreamType::Color1, uiVertexIndex, m_VertexStreamConfig.GetColor1ElementSize());
 
-  ezVec4 res;
-  ezMeshBufferUtils::DecodeToVec4(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
+  ezColor res;
+  ezMeshBufferUtils::DecodeColor(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
 
-  return ezColor(res.x, res.y, res.z, res.w);
+  return res;
 }
 
 void ezMeshBufferResourceDescriptor::SetColor1(ezUInt32 uiVertexIndex, const ezColorLinearUB& color)
@@ -643,7 +648,7 @@ void ezMeshBufferResourceDescriptor::SetColor1(ezUInt32 uiVertexIndex, const ezC
 
   if (m_VertexStreamConfig.m_bUseHighPrecision)
   {
-    ezMeshBufferUtils::EncodeFromVec4(ezColor(color).GetAsVec4(), data, m_VertexStreamConfig.GetColorFormat()).AssertSuccess();
+    ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), ezMeshVertexColorConversion::None).AssertSuccess();
   }
   else
   {
@@ -655,7 +660,7 @@ void ezMeshBufferResourceDescriptor::SetColor1(ezUInt32 uiVertexIndex, const ezC
 {
   auto data = GetVertexData(ezMeshVertexStreamType::Color1, uiVertexIndex, m_VertexStreamConfig.GetColor1ElementSize());
 
-  ezMeshBufferUtils::EncodeColor(color.GetAsVec4(), data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
+  ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
 }
 
 const ezVec4U16& ezMeshBufferResourceDescriptor::GetBoneIndices(ezUInt32 uiVertexIndex) const

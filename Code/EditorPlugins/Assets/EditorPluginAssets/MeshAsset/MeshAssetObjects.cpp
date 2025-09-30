@@ -291,19 +291,17 @@ public:
 
     if (auto pProp = pNode->FindProperty("NormalPrecision"))
     {
-      ezInt64 iVal = 0;
-      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshNormalPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshNormalPrecision::_10Bit")
       {
-        bHighPrecision |= iVal != ezMeshNormalPrecision::Default;
+        bHighPrecision = true;
       }
     }
 
     if (auto pProp = pNode->FindProperty("TexCoordPrecision"))
     {
-      ezInt64 iVal = 0;
-      if (ezReflectionUtils::StringToEnumeration(ezGetStaticRTTI<ezMeshTexCoordPrecision>(), pProp->m_Value.Get<ezString>(), iVal))
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshTexCoordPrecision::_16Bit")
       {
-        bHighPrecision |= iVal != ezMeshTexCoordPrecision::Default;
+        bHighPrecision = true;
       }
     }
 

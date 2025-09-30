@@ -1,28 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Math/Float16.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshNormalPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_10Bit),
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_16Bit),
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_32Bit),
-EZ_END_STATIC_REFLECTED_ENUM;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshTexCoordPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_16Bit),
-  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_32Bit),
-EZ_END_STATIC_REFLECTED_ENUM;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshBoneWeightPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshBoneWeightPrecision::_8Bit),
-  EZ_ENUM_CONSTANT(ezMeshBoneWeightPrecision::_10Bit),
-  EZ_ENUM_CONSTANT(ezMeshBoneWeightPrecision::_16Bit),
-  EZ_ENUM_CONSTANT(ezMeshBoneWeightPrecision::_32Bit),
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshVertexColorConversion, 1)
   EZ_ENUM_CONSTANT(ezMeshVertexColorConversion::None),
   EZ_ENUM_CONSTANT(ezMeshVertexColorConversion::LinearToSrgb),
@@ -31,7 +12,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static
-ezResult ezMeshBufferUtils::EncodeFromFloat(const float fSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromFloat(const float fSource, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -49,7 +30,7 @@ ezResult ezMeshBufferUtils::EncodeFromFloat(const float fSource, ezArrayPtr<ezUI
 }
 
 // static
-ezResult ezMeshBufferUtils::EncodeFromVec2(const ezVec2& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec2(const ezVec2& vSource, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -69,7 +50,7 @@ ezResult ezMeshBufferUtils::EncodeFromVec2(const ezVec2& vSource, ezArrayPtr<ezU
 }
 
 // static
-ezResult ezMeshBufferUtils::EncodeFromVec3(const ezVec3& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec3(const ezVec3& vSource, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -118,7 +99,7 @@ ezResult ezMeshBufferUtils::EncodeFromVec3(const ezVec3& vSource, ezArrayPtr<ezU
 }
 
 // static
-ezResult ezMeshBufferUtils::EncodeFromVec4(const ezVec4& vSource, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec4(const ezVec4& vSource, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -173,17 +154,17 @@ ezResult ezMeshBufferUtils::EncodeFromVec4(const ezVec4& vSource, ezArrayPtr<ezU
 }
 
 // static
-ezResult ezMeshBufferUtils::DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, float& ref_fDest)
+ezResult ezMeshBufferUtils::DecodeToFloat(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, float& out_fDest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
   switch (sourceFormat)
   {
     case ezGALResourceFormat::RFloat:
-      ref_fDest = *reinterpret_cast<const float*>(source.GetPtr());
+      out_fDest = *reinterpret_cast<const float*>(source.GetPtr());
       return EZ_SUCCESS;
     case ezGALResourceFormat::RHalf:
-      ref_fDest = *reinterpret_cast<const ezFloat16*>(source.GetPtr());
+      out_fDest = *reinterpret_cast<const ezFloat16*>(source.GetPtr());
       return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
@@ -191,17 +172,17 @@ ezResult ezMeshBufferUtils::DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGA
 }
 
 // static
-ezResult ezMeshBufferUtils::DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& ref_vDest)
+ezResult ezMeshBufferUtils::DecodeToVec2(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezVec2& out_vDest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
   switch (sourceFormat)
   {
     case ezGALResourceFormat::RGFloat:
-      ref_vDest = *reinterpret_cast<const ezVec2*>(source.GetPtr());
+      out_vDest = *reinterpret_cast<const ezVec2*>(source.GetPtr());
       return EZ_SUCCESS;
     case ezGALResourceFormat::RGHalf:
-      ref_vDest = *reinterpret_cast<const ezFloat16Vec2*>(source.GetPtr());
+      out_vDest = *reinterpret_cast<const ezFloat16Vec2*>(source.GetPtr());
       return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
@@ -209,44 +190,44 @@ ezResult ezMeshBufferUtils::DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGAL
 }
 
 // static
-ezResult ezMeshBufferUtils::DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& ref_vDest)
+ezResult ezMeshBufferUtils::DecodeToVec3(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezVec3& out_vDest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
   switch (sourceFormat)
   {
     case ezGALResourceFormat::RGBFloat:
-      ref_vDest = *reinterpret_cast<const ezVec3*>(source.GetPtr());
+      out_vDest = *reinterpret_cast<const ezVec3*>(source.GetPtr());
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUShortNormalized:
-      ref_vDest.x = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[0]);
-      ref_vDest.y = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[1]);
-      ref_vDest.z = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[2]);
+      out_vDest.x = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[0]);
+      out_vDest.y = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[1]);
+      out_vDest.z = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[2]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAShortNormalized:
-      ref_vDest.x = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[0]);
-      ref_vDest.y = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[1]);
-      ref_vDest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
+      out_vDest.x = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[0]);
+      out_vDest.y = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[1]);
+      out_vDest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGB10A2UIntNormalized:
-      ref_vDest.x = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
-      ref_vDest.y = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
-      ref_vDest.z = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
+      out_vDest.x = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
+      out_vDest.y = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
+      out_vDest.z = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUByteNormalized:
-      ref_vDest.x = ezMath::ColorByteToFloat(source.GetPtr()[0]);
-      ref_vDest.y = ezMath::ColorByteToFloat(source.GetPtr()[1]);
-      ref_vDest.z = ezMath::ColorByteToFloat(source.GetPtr()[2]);
+      out_vDest.x = ezMath::ColorByteToFloat(source.GetPtr()[0]);
+      out_vDest.y = ezMath::ColorByteToFloat(source.GetPtr()[1]);
+      out_vDest.z = ezMath::ColorByteToFloat(source.GetPtr()[2]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAByteNormalized:
-      ref_vDest.x = ezMath::ColorSignedByteToFloat(source.GetPtr()[0]);
-      ref_vDest.y = ezMath::ColorSignedByteToFloat(source.GetPtr()[1]);
-      ref_vDest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
+      out_vDest.x = ezMath::ColorSignedByteToFloat(source.GetPtr()[0]);
+      out_vDest.y = ezMath::ColorSignedByteToFloat(source.GetPtr()[1]);
+      out_vDest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
       return EZ_SUCCESS;
     default:
       return EZ_FAILURE;
@@ -254,53 +235,53 @@ ezResult ezMeshBufferUtils::DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGAL
 }
 
 // static
-ezResult ezMeshBufferUtils::DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& ref_vDest)
+ezResult ezMeshBufferUtils::DecodeToVec4(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezVec4& out_vDest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
   switch (sourceFormat)
   {
     case ezGALResourceFormat::RGBAFloat:
-      ref_vDest = *reinterpret_cast<const ezVec4*>(source.GetPtr());
+      out_vDest = *reinterpret_cast<const ezVec4*>(source.GetPtr());
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAHalf:
-      ref_vDest = *reinterpret_cast<const ezFloat16Vec4*>(source.GetPtr());
+      out_vDest = *reinterpret_cast<const ezFloat16Vec4*>(source.GetPtr());
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUShortNormalized:
-      ref_vDest.x = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[0]);
-      ref_vDest.y = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[1]);
-      ref_vDest.z = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[2]);
-      ref_vDest.w = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[3]);
+      out_vDest.x = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[0]);
+      out_vDest.y = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[1]);
+      out_vDest.z = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[2]);
+      out_vDest.w = ezMath::ColorShortToFloat(reinterpret_cast<const ezUInt16*>(source.GetPtr())[3]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAShortNormalized:
-      ref_vDest.x = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[0]);
-      ref_vDest.y = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[1]);
-      ref_vDest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
-      ref_vDest.w = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[3]);
+      out_vDest.x = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[0]);
+      out_vDest.y = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[1]);
+      out_vDest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
+      out_vDest.w = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[3]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGB10A2UIntNormalized:
-      ref_vDest.x = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
-      ref_vDest.y = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
-      ref_vDest.z = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
-      ref_vDest.w = ezMath::ColorUnsignedIntToFloat<2>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 30);
+      out_vDest.x = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
+      out_vDest.y = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
+      out_vDest.z = ezMath::ColorUnsignedIntToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
+      out_vDest.w = ezMath::ColorUnsignedIntToFloat<2>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 30);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUByteNormalized:
-      ref_vDest.x = ezMath::ColorByteToFloat(source.GetPtr()[0]);
-      ref_vDest.y = ezMath::ColorByteToFloat(source.GetPtr()[1]);
-      ref_vDest.z = ezMath::ColorByteToFloat(source.GetPtr()[2]);
-      ref_vDest.w = ezMath::ColorByteToFloat(source.GetPtr()[3]);
+      out_vDest.x = ezMath::ColorByteToFloat(source.GetPtr()[0]);
+      out_vDest.y = ezMath::ColorByteToFloat(source.GetPtr()[1]);
+      out_vDest.z = ezMath::ColorByteToFloat(source.GetPtr()[2]);
+      out_vDest.w = ezMath::ColorByteToFloat(source.GetPtr()[3]);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAByteNormalized:
-      ref_vDest.x = ezMath::ColorSignedByteToFloat(source.GetPtr()[0]);
-      ref_vDest.y = ezMath::ColorSignedByteToFloat(source.GetPtr()[1]);
-      ref_vDest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
-      ref_vDest.w = ezMath::ColorSignedByteToFloat(source.GetPtr()[3]);
+      out_vDest.x = ezMath::ColorSignedByteToFloat(source.GetPtr()[0]);
+      out_vDest.y = ezMath::ColorSignedByteToFloat(source.GetPtr()[1]);
+      out_vDest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
+      out_vDest.w = ezMath::ColorSignedByteToFloat(source.GetPtr()[3]);
       return EZ_SUCCESS;
 
     default:
