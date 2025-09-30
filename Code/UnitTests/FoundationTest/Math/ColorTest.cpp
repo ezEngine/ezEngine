@@ -509,10 +509,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       ezUInt32 abgr = c1.ToABGR8();
 
       // A=0, B=64, G=128, R=255 -> 0x004080FF (A in MSB, R in LSB)
-      EZ_TEST_INT((abgr >> 24) & 0xFF, 0);   // A
-      EZ_TEST_INT((abgr >> 16) & 0xFF, 64);  // B
-      EZ_TEST_INT((abgr >> 8) & 0xFF, 128);  // G
-      EZ_TEST_INT(abgr & 0xFF, 255);         // R
+      EZ_TEST_INT((abgr >> 24) & 0xFF, 0);  // A
+      EZ_TEST_INT((abgr >> 16) & 0xFF, 64); // B
+      EZ_TEST_INT((abgr >> 8) & 0xFF, 128); // G
+      EZ_TEST_INT(abgr & 0xFF, 255);        // R
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Static factory functions")
@@ -583,9 +583,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromKelvin")
     {
       // Test some known temperature points
-      ezColor warm = ezColor::MakeFromKelvin(2700); // Warm white (incandescent)
+      ezColor warm = ezColor::MakeFromKelvin(2700);     // Warm white (incandescent)
       ezColor daylight = ezColor::MakeFromKelvin(6500); // Daylight
-      ezColor cool = ezColor::MakeFromKelvin(9000); // Cool daylight
+      ezColor cool = ezColor::MakeFromKelvin(9000);     // Cool daylight
 
       // Warm should be more red/orange
       EZ_TEST_BOOL(warm.r > warm.b);
