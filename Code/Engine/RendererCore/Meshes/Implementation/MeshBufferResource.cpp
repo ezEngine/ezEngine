@@ -414,109 +414,109 @@ ezArrayPtr<ezVec3> ezMeshBufferResourceDescriptor::GetPositionData()
   return ezMakeArrayPtr(reinterpret_cast<ezVec3*>(data.GetPtr()), data.GetCount() / sizeof(ezVec3));
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetNormalDataOffset());
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetNormalDataOffset());
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetTangentDataOffset());
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetTangentDataOffset());
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetTexCoord0DataOffset());
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
   return data.GetSubArray(m_VertexStreamConfig.GetTexCoord0DataOffset());
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::TexCoord1].GetArrayPtr();
   return data;
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::TexCoord1].GetArrayPtr();
   return data;
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetColor0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color0].GetArrayPtr();
   return data;
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetColor0ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor0ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color0].GetArrayPtr();
   return data;
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_uiStride /*= nullptr*/) const
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_pStride /*= nullptr*/) const
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetColor1ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor1ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color1].GetArrayPtr();
   return data;
 }
 
-ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_uiStride /*= nullptr*/)
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_pStride /*= nullptr*/)
 {
-  if (out_uiStride != nullptr)
-    *out_uiStride = m_VertexStreamConfig.GetColor1ElementSize();
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor1ElementSize();
 
   auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color1].GetArrayPtr();
   return data;

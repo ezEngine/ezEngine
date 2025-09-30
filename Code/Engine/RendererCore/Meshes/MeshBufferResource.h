@@ -140,28 +140,28 @@ public:
   ezArrayPtr<ezVec3> GetPositionData();
 
   /// \brief Gives access to the normal data. Use ezMeshBufferUtils::EncodeNormal/ezMeshBufferUtils::DecodeNormal to pack/unpack the normal.
-  ezArrayPtr<const ezUInt8> GetNormalData(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetNormalData(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetNormalData(ezUInt32* out_pStride = nullptr);
 
   /// \brief Gives access to the tangent data. Use ezMeshBufferUtils::EncodeTangent/ezMeshBufferUtils::DecodeTangent to pack/unpack the tangent.
-  ezArrayPtr<const ezUInt8> GetTangentData(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTangentData(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetTangentData(ezUInt32* out_pStride = nullptr);
 
   /// \brief Gives access to the tex coord 0 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
-  ezArrayPtr<const ezUInt8> GetTexCoord0Data(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTexCoord0Data(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetTexCoord0Data(ezUInt32* out_pStride = nullptr);
 
   /// \brief Gives access to the tex coord 1 data. Use ezMeshBufferUtils::EncodeTexCoord/ezMeshBufferUtils::DecodeTexCoord to pack/unpack the tex coord.
-  ezArrayPtr<const ezUInt8> GetTexCoord1Data(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetTexCoord1Data(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetTexCoord1Data(ezUInt32* out_pStride = nullptr);
 
   /// \brief Gives access to the color 0 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
-  ezArrayPtr<const ezUInt8> GetColor0Data(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetColor0Data(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetColor0Data(ezUInt32* out_pStride = nullptr);
 
   /// \brief Gives access to the color 1 data. Use ezMeshBufferUtils::EncodeFromVec4/ezMeshBufferUtils::DecodeToVec4 to pack/unpack the color.
-  ezArrayPtr<const ezUInt8> GetColor1Data(ezUInt32* out_uiStride = nullptr) const;
-  ezArrayPtr<ezUInt8> GetColor1Data(ezUInt32* out_uiStride = nullptr);
+  ezArrayPtr<const ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr) const;
+  ezArrayPtr<ezUInt8> GetColor1Data(ezUInt32* out_pStride = nullptr);
 
 
   /// \brief Slow, but convenient access to the position of a specific vertex.
