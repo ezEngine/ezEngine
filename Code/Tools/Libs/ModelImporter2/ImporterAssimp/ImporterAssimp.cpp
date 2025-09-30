@@ -117,7 +117,7 @@ namespace ezModelImporter2
       {
         if (m_Options.m_pMeshOutput->MeshBufferDesc().RecomputeNormals().Failed())
         {
-          ezLog::Error("Recomputing the mesh normals failed.");
+          ezLog::Warning("Recomputing some mesh normals failed.");
           // do not return failure here, because we can still continue
         }
       }
