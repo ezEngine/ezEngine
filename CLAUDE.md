@@ -37,11 +37,15 @@ ctest --test-dir Workspace/claude-build -C Debug
 ctest --test-dir Workspace/claude-build -C Debug -V
 ```
 
+To find more arguments for the test framework, run `FoundationTest.exe -help -close`.
+
 ### Important Notes
 
 - **Isolated Builds**: Using `-WorkspaceDir "claude-build"` creates a completely separate build environment, avoiding any conflicts with other builds
 
 - **Workspace Cleanup**: To clean up, simply delete the `Workspace/claude-build/` directory and regenerate
+
+- **When adding a file**: CMake has to be run again, to make the file part of the build.
 
 - For a basic compilation test, build the **Foundation** library.
 

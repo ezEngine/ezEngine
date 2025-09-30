@@ -14,7 +14,7 @@ namespace ezMath
 {
   /// \brief Returns whether the given value is NaN under this type.
   template <typename Type>
-  constexpr static bool IsNaN(Type value)
+  constexpr static bool IsNaN(Type value) // [tested]
   {
     EZ_IGNORE_UNUSED(value);
     return false;
@@ -22,7 +22,7 @@ namespace ezMath
 
   /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
   template <typename Type>
-  constexpr static bool IsFinite(Type value)
+  constexpr static bool IsFinite(Type value) // [tested]
   {
     EZ_IGNORE_UNUSED(value);
     return true;
@@ -224,10 +224,10 @@ namespace ezMath
   [[nodiscard]] double Round(double f); // [tested]
 
   /// \brief Rounds f to the closest value of multiple.
-  [[nodiscard]] float RoundToMultiple(float f, float fMultiple);
+  [[nodiscard]] float RoundToMultiple(float f, float fMultiple); // [tested]
 
   /// \brief Rounds f to the closest value of multiple.
-  [[nodiscard]] double RoundToMultiple(double f, double fMultiple);
+  [[nodiscard]] double RoundToMultiple(double f, double fMultiple); // [tested]
 
   /// \brief Returns the fraction-part of f.
   template <typename Type>
@@ -313,13 +313,13 @@ namespace ezMath
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet); // [tested]
 
   /// \brief Creates a bitmask in which the high N bits are set. For example for N=5, this would be '1111 1000 ... 0000'
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet); // [tested]
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
@@ -378,7 +378,7 @@ namespace ezMath
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>
-  [[nodiscard]] constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
+  [[nodiscard]] constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon); // [tested]
 
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
@@ -419,7 +419,7 @@ namespace ezMath
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
   template <typename T, typename T2>
-  [[nodiscard]] T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+  [[nodiscard]] T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint); // [tested]
 
   /// \brief Evaluates the derivative of a cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4

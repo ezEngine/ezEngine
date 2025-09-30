@@ -223,31 +223,31 @@ public:
   void SetPrintfArgs(const char* szUtf8Format, va_list szArgs); // [tested]
 
   /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
-  void SetFormat(const ezFormatString& string);
+  void SetFormat(const ezFormatString& string); // [tested]
 
   /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
-  void SetFormat(const char* szFormat, ARGS&&... args)
+  void SetFormat(const char* szFormat, ARGS&&... args) // [tested]
   {
     SetFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
-  void AppendFormat(const ezFormatString& string);
+  void AppendFormat(const ezFormatString& string); // [tested]
 
   /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
-  void AppendFormat(const char* szFormat, ARGS&&... args)
+  void AppendFormat(const char* szFormat, ARGS&&... args) // [tested]
   {
     AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
-  void PrependFormat(const ezFormatString& string);
+  void PrependFormat(const ezFormatString& string); // [tested]
 
   /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
-  void PrependFormat(const char* szFormat, ARGS&&... args)
+  void PrependFormat(const char* szFormat, ARGS&&... args) // [tested]
   {
     PrependFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }

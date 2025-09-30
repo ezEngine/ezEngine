@@ -1665,6 +1665,14 @@ bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const cha
 {
   ezTestFramework::s_iAssertCounter++;
 
+  if (ezMath::IsNaN(f1) || ezMath::IsNaN(f2) || ezMath::IsNaN(fEps))
+  {
+    char szErrorText[256];
+    safeprintf(szErrorText, 256, "Failure: f1 = '%f', f2 = '%f', epsilon = '%f' (one of them is NaN)", f1, f2, fEps);
+
+    OUTPUT_TEST_ERROR
+  }
+
   const double fD = f1 - f2;
 
   if (fD < -fEps || fD > +fEps)

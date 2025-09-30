@@ -206,13 +206,13 @@ public:
   // *** Static Functions ***
 public:
   /// \brief Returns a color with all four RGBA components set to Not-A-Number (NaN).
-  [[nodiscard]] static ezColor MakeNaN();
+  [[nodiscard]] static ezColor MakeNaN(); // [tested]
 
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
-  [[nodiscard]] static ezColor MakeZero();
+  [[nodiscard]] static ezColor MakeZero(); // [tested]
 
   /// \brief Returns a color with the given r, g, b, a values. The values must be given in a linear color space.
-  [[nodiscard]] static ezColor MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+  [[nodiscard]] static ezColor MakeRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   // *** Constructors ***
 public:
@@ -255,7 +255,7 @@ public:
   /// Originally inspired from https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
   /// But with heavy modification to better fit the mapping shown out in https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
   /// Physically accurate clipping points are 6580K for Red and 6560K for G and B. but approximated to 6570k for all to give a better mapping.
-  [[nodiscard]] static ezColor MakeFromKelvin(ezUInt32 uiKelvin);
+  [[nodiscard]] static ezColor MakeFromKelvin(ezUInt32 uiKelvin); // [tested]
 
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
@@ -268,13 +268,13 @@ public:
   void GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const; // [tested]
 
   /// \brief Conversion to const float*
-  const float* GetData() const { return &r; }
+  const float* GetData() const { return &r; } // [tested]
 
   /// \brief Conversion to float*
-  float* GetData() { return &r; }
+  float* GetData() { return &r; } // [tested]
 
   /// \brief Returns the 4 color values packed in an ezVec4
-  const ezVec4 GetAsVec4() const;
+  const ezVec4 GetAsVec4() const; // [tested]
 
   /// \brief Helper function to convert a float color value from gamma space to linear color space.
   static float GammaToLinear(float fGamma); // [tested]
@@ -292,7 +292,7 @@ public:
   bool IsNormalized() const; // [tested]
 
   /// \brief Calculates the average of the RGB channels.
-  float CalcAverageRGB() const;
+  float CalcAverageRGB() const; // [tested]
 
   /// \brief Computes saturation.
   float GetSaturation() const; // [tested]
@@ -310,26 +310,26 @@ public:
   ezColor GetComplementaryColor() const; // [tested]
 
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
-  void ScaleRGB(float fFactor);
+  void ScaleRGB(float fFactor); // [tested]
 
   /// \brief Multiplies the given factor into red, green, blue and also alpha.
-  void ScaleRGBA(float fFactor);
+  void ScaleRGBA(float fFactor); // [tested]
 
   /// \brief Returns 1 for an LDR color (all ´RGB components < 1). Otherwise the value of the largest component. Ignores alpha.
-  float ComputeHdrMultiplier() const;
+  float ComputeHdrMultiplier() const; // [tested]
 
   /// \brief Returns the base-2 logarithm of ComputeHdrMultiplier().
   /// 0 for LDR colors, +1, +2, etc. for HDR colors.
-  float ComputeHdrExposureValue() const;
+  float ComputeHdrExposureValue() const; // [tested]
 
   /// \brief Raises 2 to the power \a ev and multiplies RGB with that factor.
-  void ApplyHdrExposureValue(float fEv);
+  void ApplyHdrExposureValue(float fEv); // [tested]
 
   /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
-  void NormalizeToLdrRange();
+  void NormalizeToLdrRange(); // [tested]
 
   /// \brief Returns a darker color by converting the color to HSV, dividing the *value* by fFactor and converting it back.
-  ezColor GetDarker(float fFactor = 2.0f) const;
+  ezColor GetDarker(float fFactor = 2.0f) const; // [tested]
 
   // *** Numeric properties ***
 public:
@@ -381,13 +381,13 @@ public:
   bool IsEqualRGBA(const ezColor& rhs, float fEpsilon) const; // [tested]
 
   /// \brief Returns the current color but with changes the alpha value to the given value.
-  ezColor WithAlpha(float fAlpha) const;
+  ezColor WithAlpha(float fAlpha) const; // [tested]
 
   /// \brief Packs the 4 color values as uint8 into a single uint32 with A in the least significant bits and R in the most significant ones.
-  [[nodiscard]] ezUInt32 ToRGBA8() const;
+  [[nodiscard]] ezUInt32 ToRGBA8() const; // [tested]
 
   /// \brief Packs the 4 color values as uint8 into a single uint32 with R in the least significant bits and A in the most significant ones.
-  [[nodiscard]] ezUInt32 ToABGR8() const;
+  [[nodiscard]] ezUInt32 ToABGR8() const; // [tested]
 };
 
 // *** Operators ***
