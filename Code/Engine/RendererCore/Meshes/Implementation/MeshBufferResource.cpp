@@ -553,8 +553,8 @@ ezVec4 ezMeshBufferResourceDescriptor::GetTangent(ezUInt32 uiVertexIndex) const
 {
   auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetTangentDataOffset());
 
-  ezVec3 vTangent;
-  float fBiTangentSign;
+  ezVec3 vTangent = ezVec3::MakeZero();
+  float fBiTangentSign = 0.0f;
   ezMeshBufferUtils::DecodeTangent(data, m_VertexStreamConfig.GetTangentFormat(), vTangent, fBiTangentSign).AssertSuccess();
 
   return vTangent.GetAsVec4(fBiTangentSign);
