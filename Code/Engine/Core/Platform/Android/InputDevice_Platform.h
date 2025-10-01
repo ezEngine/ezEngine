@@ -18,6 +18,7 @@ private:
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
+  virtual void UpdateInputSlotValues() override;
 
 private:
   void AndroidInputEventHandler(ezAndroidInputEvent& event);

@@ -46,6 +46,11 @@ void ezInputDevice_Android::InitializeDevice()
   }
 }
 
+void ezInputDevice_Android::UpdateInputSlotValues()
+{
+  // nothing to do here
+}
+
 void ezInputDevice_Android::RegisterInputSlots()
 {
   RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 0", ezInputSlotFlags::IsTouchPoint);

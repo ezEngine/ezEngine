@@ -56,7 +56,7 @@ ezResult ezWindowAndroid::InitializeWindow()
 
   s_androidWindow = ezAndroidUtils::GetAndroidApp()->window;
   m_hWindowHandle = s_androidWindow;
-  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDevice_Android, 0);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDevice_Android);
   m_bInitialized = true;
 
   return EZ_SUCCESS;
