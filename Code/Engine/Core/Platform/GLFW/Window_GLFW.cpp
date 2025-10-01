@@ -329,7 +329,7 @@ void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int ac
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnKey(key, scancode, action, mods);
     }
@@ -341,7 +341,7 @@ void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnCharacter(codepoint);
     }
@@ -353,7 +353,7 @@ void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, doubl
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnCursorPosition(xpos, ypos);
     }
@@ -365,7 +365,7 @@ void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int actio
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnMouseButton(button, action, mods);
     }
@@ -377,7 +377,7 @@ void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yof
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
   if (self)
   {
-    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
     {
       pInput->OnScroll(xoffset, yoffset);
     }
