@@ -115,7 +115,7 @@ void ezInputDevice_Android::ResetInputSlotValues()
 void ezInputDevice_Android::AndroidInputEventHandler(ezAndroidInputEvent& event)
 {
   event.m_bHandled = AndroidHandleInput(event.m_pEvent);
-  SUPER::UpdateInputSlotValues();
+  UpdateInputSlotValues();
 }
 
 void ezInputDevice_Android::AndroidAppCommandEventHandler(ezInt32 iCmd)
