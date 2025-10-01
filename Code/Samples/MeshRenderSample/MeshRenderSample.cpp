@@ -1,4 +1,5 @@
 #include <Core/Graphics/Geometry.h>
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
 #include <Foundation/Application/Application.h>

@@ -3,6 +3,7 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/GameState/GameStateWindow.h>
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
