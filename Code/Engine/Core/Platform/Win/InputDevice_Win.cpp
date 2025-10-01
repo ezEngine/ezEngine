@@ -325,7 +325,7 @@ void ezInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
   SUPER::UpdateInputSlotValues();
 }
 
-void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
+void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode)
 {
   if (!m_bApplyClipRect)
     return;
@@ -403,7 +403,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
 
     m_bFirstWndMsg = false;
-    ApplyClipRect(m_ClipCursorMode, m_hWnd);
+    ApplyClipRect(m_ClipCursorMode);
 
     RECT r;
     GetWindowRect(ezMinWindows::ToNative(m_hWnd), &r);
@@ -453,7 +453,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
       {
-        ApplyClipRect(m_ClipCursorMode, m_hWnd);
+        ApplyClipRect(m_ClipCursorMode);
       }
 
       break;
@@ -462,13 +462,13 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     case WM_SETFOCUS:
     {
       m_bApplyClipRect = true;
-      ApplyClipRect(m_ClipCursorMode, m_hWnd);
+      ApplyClipRect(m_ClipCursorMode);
       break;
     }
 
     case WM_KILLFOCUS:
     {
-      OnFocusLost(m_hWnd);
+      OnFocusLost();
       return;
     }
 
@@ -506,7 +506,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       m_uiMouseButtonReceivedUp[0]++;
       m_bApplyClipRect |= m_bFirstClick;
       m_bFirstClick = false;
-      ApplyClipRect(m_ClipCursorMode, m_hWnd);
+      ApplyClipRect(m_ClipCursorMode);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -526,7 +526,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
       m_bApplyClipRect |= m_bFirstClick;
-      ApplyClipRect(m_ClipCursorMode, m_hWnd);
+      ApplyClipRect(m_ClipCursorMode);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -547,7 +547,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       m_uiMouseButtonReceivedUp[2]++;
 
       m_bApplyClipRect |= m_bFirstClick;
-      ApplyClipRect(m_ClipCursorMode, m_hWnd);
+      ApplyClipRect(m_ClipCursorMode);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -586,7 +586,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
 #  else
 
     case WM_LBUTTONUP:
-      ApplyClipRect(m_ClipCursorMode, m_hWnd);
+      ApplyClipRect(m_ClipCursorMode);
       return;
 
 #  endif
@@ -938,7 +938,7 @@ bool ezInputDeviceMouseKeyboard_Win::GetShowMouseCursor() const
   return m_bShowCursor;
 }
 
-void ezInputDeviceMouseKeyboard_Win::OnFocusLost(ezMinWindows::HWND hWnd)
+void ezInputDeviceMouseKeyboard_Win::OnFocusLost()
 {
   if (s_pMouseOver == this)
   {
@@ -946,7 +946,7 @@ void ezInputDeviceMouseKeyboard_Win::OnFocusLost(ezMinWindows::HWND hWnd)
   }
 
   m_bApplyClipRect = true;
-  ApplyClipRect(ezMouseCursorClipMode::NoClip, m_hWnd);
+  ApplyClipRect(ezMouseCursorClipMode::NoClip);
 
   auto it = m_InputSlotValues.GetIterator();
 

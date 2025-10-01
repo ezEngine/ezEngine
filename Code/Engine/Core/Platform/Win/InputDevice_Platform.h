@@ -35,8 +35,8 @@ protected:
   virtual void UpdateInputSlotValues() override;
 
 private:
-  void ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd);
-  void OnFocusLost(ezMinWindows::HWND hWnd);
+  void ApplyClipRect(ezMouseCursorClipMode::Enum mode);
+  void OnFocusLost();
 
   ezMinWindows::HWND m_hWnd;
   static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
