@@ -325,7 +325,7 @@ void ezInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
   SUPER::UpdateInputSlotValues();
 }
 
-void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND m_hWnd)
+void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
 {
   if (!m_bApplyClipRect)
     return;
@@ -938,7 +938,7 @@ bool ezInputDeviceMouseKeyboard_Win::GetShowMouseCursor() const
   return m_bShowCursor;
 }
 
-void ezInputDeviceMouseKeyboard_Win::OnFocusLost(ezMinWindows::HWND m_hWnd)
+void ezInputDeviceMouseKeyboard_Win::OnFocusLost(ezMinWindows::HWND hWnd)
 {
   if (s_pMouseOver == this)
   {
