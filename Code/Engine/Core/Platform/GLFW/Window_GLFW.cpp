@@ -199,13 +199,15 @@ ezResult ezWindowGLFW::InitializeWindow()
 
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
-  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_GLFW, m_hWindowHandle.glfwWindow);
+  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_GLFW, m_hWindowHandle.glfwWindow);
 #  else
-  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, m_hWindowHandle);
+  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, m_hWindowHandle);
 #  endif
 
-  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
-  m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
+  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
+  pInput->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
+
+  m_pInputDevice = std::move(pInput);
 
   m_bInitialized = true;
   ezLog::Success("Created glfw window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
@@ -255,7 +257,7 @@ void ezWindowGLFW::ProcessWindowMessages()
     return;
 
   // Only run the global event processing loop for the main window.
-  if (m_CreationDescription.m_uiWindowNumber == 0)
+  // if (m_CreationDescription.m_uiWindowNumber == 0)
   {
     glfwPollEvents();
   }
@@ -325,45 +327,60 @@ void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->GetInputDevice())
+  if (self)
   {
-    self->GetInputDevice()->OnKey(key, scancode, action, mods);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    {
+      pInput->OnKey(key, scancode, action, mods);
+    }
   }
 }
 
 void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->GetInputDevice())
+  if (self)
   {
-    self->GetInputDevice()->OnCharacter(codepoint);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    {
+      pInput->OnCharacter(codepoint);
+    }
   }
 }
 
 void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->GetInputDevice())
+  if (self)
   {
-    self->GetInputDevice()->OnCursorPosition(xpos, ypos);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    {
+      pInput->OnCursorPosition(xpos, ypos);
+    }
   }
 }
 
 void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->GetInputDevice())
+  if (self)
   {
-    self->GetInputDevice()->OnMouseButton(button, action, mods);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    {
+      pInput->OnMouseButton(button, action, mods);
+    }
   }
 }
 
 void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
   auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
-  if (self && self->GetInputDevice())
+  if (self)
   {
-    self->GetInputDevice()->OnScroll(xoffset, yoffset);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW>(self->GetInputDevice()))
+    {
+      pInput->OnScroll(xoffset, yoffset);
+    }
   }
 }
 
