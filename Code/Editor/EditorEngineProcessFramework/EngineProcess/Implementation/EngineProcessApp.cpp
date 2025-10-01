@@ -37,7 +37,6 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
   ezUniquePtr<ezRemoteProcessWindow> pWindow = EZ_DEFAULT_NEW(ezRemoteProcessWindow);
 
   ezWindowCreationDesc desc;
-  desc.m_uiWindowNumber = 0;
   desc.m_bClipMouseCursor = false;
   desc.m_bShowMouseCursor = true;
   desc.m_Resolution = ezSizeU32(1024, 768);

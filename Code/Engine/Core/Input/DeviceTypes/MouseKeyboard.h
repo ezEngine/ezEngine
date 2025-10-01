@@ -22,6 +22,7 @@ struct ezMouseCursorClipMode
 /// \brief This is the base class for all input devices that handle mouse and keyboard input.
 ///
 /// This class is derived from ezInputDevice but adds interface functions to handle mouse and keyboard input.
+/// It is typically instantiated on a per-window basis.
 class EZ_CORE_DLL ezInputDeviceMouseKeyboard : public ezInputDevice
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard, ezInputDevice);
@@ -53,19 +54,25 @@ public:
   ezVec2 GetMouseSpeed() const { return m_vMouseScale; }
 
   /// \brief Returns the number of the ezWindow over which the mouse moved last.
-  static ezInt32 GetWindowNumberMouseIsOver() { return s_iMouseIsOverWindowNumber; }
+  bool IsMouseOver() const { return s_pMouseOver == this; }
 
   /// \brief Returns if the associated ezWindow has focus
   bool IsFocused() { return m_bIsFocused; }
+
+  /// \brief Returns the current (normalized) mouse position within the window.
+  ///
+  /// Coordinates are in [0; 1] range ([0,0] = top left, [1,1] = bottom right of the window).
+  ezVec2 GetLocalMouseCoordinates() const { return m_vLocalMouseCoordinates; }
 
 protected:
   virtual void UpdateInputSlotValues() override;
 
   ezTime m_DoubleClickTime = ezTime::MakeFromMilliseconds(500);
-  static ezInt32 s_iMouseIsOverWindowNumber;
+  static ezInputDevice* s_pMouseOver;
+  ezVec2 m_vLocalMouseCoordinates = ezVec2(0.0f);
 
 private:
-  ezVec2 m_vMouseScale;
+  ezVec2 m_vMouseScale = ezVec2(1.0f);
 
   bool m_bIsFocused = true;
 

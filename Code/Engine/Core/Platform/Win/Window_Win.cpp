@@ -14,8 +14,10 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT msg, WPAR
 
   if (pWindow != nullptr && pWindow->IsInitialized())
   {
-    if (pWindow->GetInputDevice())
-      pWindow->GetInputDevice()->WindowMessage(ezMinWindows::FromNative(hWnd), msg, wparam, lparam);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_Win*>(pWindow->GetInputDevice()))
+    {
+      pInput->WindowMessage(msg, wparam, lparam);
+    }
 
     switch (msg)
     {
@@ -230,9 +232,11 @@ ezResult ezWindowWin::InitializeWindow()
   m_bInitialized = true;
   ezLog::Success("Created window successfully. Resolution is {0}*{1}", GetClientAreaSize().width, GetClientAreaSize().height);
 
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, ezMinWindows::FromNative(windowHandle));
-  m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
-  m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
+  auto pInput = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, ezMinWindows::FromNative(windowHandle));
+  pInput->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);
+  pInput->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
+
+  m_pInputDevice = std::move(pInput);
 
   return EZ_SUCCESS;
 }
@@ -242,9 +246,9 @@ void ezWindowWin::DestroyWindow()
   if (!m_bInitialized)
     return;
 
-  if (GetInputDevice() && GetInputDevice()->GetClipMouseCursor() != ezMouseCursorClipMode::NoClip)
+  if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_Win*>(GetInputDevice()))
   {
-    GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+    pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
   }
 
   EZ_LOG_BLOCK("ezWindow::Destroy");

@@ -199,9 +199,9 @@ ezResult ezWindowGLFW::InitializeWindow()
 
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   EZ_ASSERT_DEV(m_hWindowHandle.type == ezWindowHandle::Type::GLFW, "not a GLFW handle");
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle.glfwWindow);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_GLFW, m_hWindowHandle.glfwWindow);
 #  else
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber, m_hWindowHandle);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezInputDeviceMouseKeyboard_Win, m_hWindowHandle);
 #  endif
 
   m_pInputDevice->SetClipMouseCursor(m_CreationDescription.m_bClipMouseCursor ? ezMouseCursorClipMode::ClipToWindowImmediate : ezMouseCursorClipMode::NoClip);

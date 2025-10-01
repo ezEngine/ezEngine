@@ -265,6 +265,42 @@ public:
   static void RemoveEventHandler(ezEventInput::Handler handler) { s_InputEvents.RemoveEventHandler(handler); }
   static void RemoveEventHandler(ezEventSubscriptionID id) { s_InputEvents.RemoveEventHandler(id); }
 
+  /// \brief Returns the first input device of the requested type (or nullptr).
+  ///
+  /// Convenience function for the case that it is known that only one device exists (or will be used).
+  template <typename TYPE>
+  static TYPE* GetInputDeviceOfType()
+  {
+    for (auto pDev = ezInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
+    {
+      if (pDev->IsInstanceOf<TYPE>())
+      {
+        return (static_cast<TYPE*>(pDev));
+      }
+    }
+
+    return nullptr;
+  }
+
+
+  /// \brief Fills the array with all ezInputDevice instances of the given base type.
+  template <typename TYPE>
+  static void GetInputDevicesOfType(ezDynamicArray<TYPE*>& out_devices)
+  {
+    out_devices.Clear();
+
+    for (auto pDev = ezInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
+    {
+      if (pDev->IsInstanceOf<TYPE>())
+      {
+        out_devices.PushBack(static_cast<TYPE*>(pDev));
+      }
+    }
+  }
+
+  /// \brief Fills the array with all ezInputDevice instances of the given base type.
+  static void GetInputDevicesOfType(const ezRTTI* pRtti, ezDynamicArray<ezInputDevice*>& out_devices);
+
 private:
   friend class ezInputDevice;
 

@@ -6,7 +6,7 @@
 #  include <GLFW/glfw3.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard_GLFW, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -239,38 +239,37 @@ namespace
   }
 } // namespace
 
-ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber, GLFWwindow* windowHandle)
-  : m_uiWindowNumber(uiWindowNumber)
-  , m_pWindow(windowHandle)
+ezInputDeviceMouseKeyboard_GLFW::ezInputDeviceMouseKeyboard_GLFW(GLFWwindow* windowHandle)
+  : m_pWindow(windowHandle)
 {
 }
 
-ezStandardInputDevice::~ezStandardInputDevice()
+ezInputDeviceMouseKeyboard_GLFW::~ezInputDeviceMouseKeyboard_GLFW()
 {
 }
 
-void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
+void ezInputDeviceMouseKeyboard_GLFW::SetShowMouseCursor(bool bShow)
 {
   glfwSetInputMode(m_pWindow, GLFW_CURSOR, bShow ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
-bool ezStandardInputDevice::GetShowMouseCursor() const
+bool ezInputDeviceMouseKeyboard_GLFW::GetShowMouseCursor() const
 {
   return (glfwGetInputMode(m_pWindow, GLFW_CURSOR) != GLFW_CURSOR_DISABLED);
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void ezInputDeviceMouseKeyboard_GLFW::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
 }
 
-ezMouseCursorClipMode::Enum ezStandardInputDevice::GetClipMouseCursor() const
+ezMouseCursorClipMode::Enum ezInputDeviceMouseKeyboard_GLFW::GetClipMouseCursor() const
 {
   return ezMouseCursorClipMode::Default;
 }
 
-void ezStandardInputDevice::InitializeDevice() {}
+void ezInputDeviceMouseKeyboard_GLFW::InitializeDevice() {}
 
-void ezStandardInputDevice::RegisterInputSlots()
+void ezInputDeviceMouseKeyboard_GLFW::RegisterInputSlots()
 {
   RegisterInputSlot(ezInputSlot_KeyLeft, "Left", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyRight, "Right", ezInputSlotFlags::IsButton);
@@ -421,7 +420,7 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseWheelDown, "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
 }
 
-void ezStandardInputDevice::ResetInputSlotValues()
+void ezInputDeviceMouseKeyboard_GLFW::ResetInputSlotValues()
 {
   m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
   m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
@@ -431,7 +430,7 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseMovePosY] = 0;
 }
 
-void ezStandardInputDevice::OnKey(int key, int scancode, int action, int mods)
+void ezInputDeviceMouseKeyboard_GLFW::OnKey(int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_BACKSPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
   {
@@ -451,21 +450,24 @@ void ezStandardInputDevice::OnKey(int key, int scancode, int action, int mods)
   }
 }
 
-void ezStandardInputDevice::OnCharacter(unsigned int codepoint)
+void ezInputDeviceMouseKeyboard_GLFW::OnCharacter(unsigned int codepoint)
 {
   m_uiLastCharacter = codepoint;
 }
 
-void ezStandardInputDevice::OnCursorPosition(double xpos, double ypos)
+void ezInputDeviceMouseKeyboard_GLFW::OnCursorPosition(double xpos, double ypos)
 {
-  s_iMouseIsOverWindowNumber = m_uiWindowNumber;
+  s_pMouseOver = this;
 
   int width;
   int height;
   glfwGetWindowSize(m_pWindow, &width, &height);
 
-  m_InputSlotValues[ezInputSlot_MousePositionX] = static_cast<float>(xpos / width);
-  m_InputSlotValues[ezInputSlot_MousePositionY] = static_cast<float>(ypos / height);
+  m_vLocalMouseCoordinates.x = static_cast<float>(xpos / width);
+  m_vLocalMouseCoordinates.y = static_cast<float>(ypos / height);
+
+  m_InputSlotValues[ezInputSlot_MousePositionX] = m_vLocalMouseCoordinates.x;
+  m_InputSlotValues[ezInputSlot_MousePositionY] = m_vLocalMouseCoordinates.y;
 
   if (m_LastPos.x != ezMath::MaxValue<double>())
   {
@@ -479,7 +481,7 @@ void ezStandardInputDevice::OnCursorPosition(double xpos, double ypos)
   m_LastPos = ezVec2d(xpos, ypos);
 }
 
-void ezStandardInputDevice::OnMouseButton(int button, int action, int mods)
+void ezInputDeviceMouseKeyboard_GLFW::OnMouseButton(int button, int action, int mods)
 {
   const char* inputSlot = nullptr;
   switch (button)
@@ -507,7 +509,7 @@ void ezStandardInputDevice::OnMouseButton(int button, int action, int mods)
   }
 }
 
-void ezStandardInputDevice::OnScroll(double xoffset, double yoffset)
+void ezInputDeviceMouseKeyboard_GLFW::OnScroll(double xoffset, double yoffset)
 {
   if (yoffset > 0)
   {

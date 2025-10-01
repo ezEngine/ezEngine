@@ -406,3 +406,16 @@ ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
       return "";
   }
 }
+
+void ezInputManager::GetInputDevicesOfType(const ezRTTI* pRtti, ezDynamicArray<ezInputDevice*>& out_devices)
+{
+  out_devices.Clear();
+
+  for (auto pDev = ezInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
+  {
+    if (pDev->IsInstanceOf(pRtti))
+    {
+      out_devices.PushBack(pDev);
+    }
+  }
+}

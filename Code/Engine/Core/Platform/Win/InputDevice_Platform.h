@@ -3,16 +3,16 @@
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Foundation/Platform/Win/Utils/MinWindows.h>
 
-class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
+class EZ_CORE_DLL ezInputDeviceMouseKeyboard_Win : public ezInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_Win, ezInputDeviceMouseKeyboard);
 
 public:
-  ezStandardInputDevice(ezUInt32 uiWindowNumber, ezMinWindows::HWND hWnd);
-  ~ezStandardInputDevice();
+  ezInputDeviceMouseKeyboard_Win(ezMinWindows::HWND hWnd);
+  ~ezInputDeviceMouseKeyboard_Win();
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
-  void WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
+  void WindowMessage(ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
 
   /// \brief Calling this function will 'translate' most key names from English to the OS language, by querying that information
   /// from the OS.
@@ -38,9 +38,8 @@ private:
   void ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd);
   void OnFocusLost(ezMinWindows::HWND hWnd);
 
-  static bool s_bMainWindowUsed;
   ezMinWindows::HWND m_hWnd;
-  ezUInt32 m_uiWindowNumber = 0;
+  static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
   bool m_bShowCursor = true;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;

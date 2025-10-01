@@ -11,42 +11,44 @@
 #  include <Foundation/Threading/ThreadUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard_Win, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 #  define WM_USER_UPDATE_CURSOR (WM_USER + 1)
 
-bool ezStandardInputDevice::s_bMainWindowUsed = false;
+ezInputDeviceMouseKeyboard_Win* ezInputDeviceMouseKeyboard_Win::s_pGlobalInputHandler = nullptr;
 
-ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber, ezMinWindows::HWND hWnd)
+ezInputDeviceMouseKeyboard_Win::ezInputDeviceMouseKeyboard_Win(ezMinWindows::HWND hWnd)
 {
   m_hWnd = hWnd;
-  m_uiWindowNumber = uiWindowNumber;
 
-  if (uiWindowNumber == 0)
+  if (s_pGlobalInputHandler == nullptr)
   {
-    EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
-    ezStandardInputDevice::s_bMainWindowUsed = true;
+    // the first window that gets created takes care of handling the global input
+    s_pGlobalInputHandler = this;
   }
 
   m_DoubleClickTime = ezTime::MakeFromMilliseconds(GetDoubleClickTime());
 }
 
-ezStandardInputDevice::~ezStandardInputDevice()
+ezInputDeviceMouseKeyboard_Win::~ezInputDeviceMouseKeyboard_Win()
 {
   if (!m_bShowCursor)
   {
     ShowCursor(true);
   }
 
-  if (m_uiWindowNumber == 0)
-    ezStandardInputDevice::s_bMainWindowUsed = false;
+  if (s_pGlobalInputHandler == this)
+  {
+    s_pGlobalInputHandler = nullptr;
+    ezLog::Dev("Global mouse/keyboard input handler destroyed.");
+  }
 }
 
-void ezStandardInputDevice::InitializeDevice()
+void ezInputDeviceMouseKeyboard_Win::InitializeDevice()
 {
-  if (m_uiWindowNumber == 0)
+  if (s_pGlobalInputHandler == this)
   {
     RAWINPUTDEVICE Rid[2];
 
@@ -70,10 +72,12 @@ void ezStandardInputDevice::InitializeDevice()
       ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
   }
   else
-    ezLog::Info("Window {0} does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
+  {
+    ezLog::Dev("Window doesn't handle global mouse/keyboard input.");
+  }
 }
 
-void ezStandardInputDevice::RegisterInputSlots()
+void ezInputDeviceMouseKeyboard_Win::RegisterInputSlots()
 {
   RegisterInputSlot(ezInputSlot_KeyLeft, "Left", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyRight, "Right", ezInputSlotFlags::IsButton);
@@ -266,7 +270,7 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
-void ezStandardInputDevice::ResetInputSlotValues()
+void ezInputDeviceMouseKeyboard_Win::ResetInputSlotValues()
 {
   m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
   m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
@@ -279,7 +283,7 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
-void ezStandardInputDevice::UpdateInputSlotValues()
+void ezInputDeviceMouseKeyboard_Win::UpdateInputSlotValues()
 {
   const char* slotDown[5] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2, ezInputSlot_MouseButton3, ezInputSlot_MouseButton4};
 
@@ -321,7 +325,7 @@ void ezStandardInputDevice::UpdateInputSlotValues()
   SUPER::UpdateInputSlotValues();
 }
 
-void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND hWnd)
+void ezInputDeviceMouseKeyboard_Win::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMinWindows::HWND m_hWnd)
 {
   if (!m_bApplyClipRect)
     return;
@@ -337,15 +341,15 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMi
   RECT r;
   {
     RECT area;
-    GetClientRect(ezMinWindows::ToNative(hWnd), &area);
+    GetClientRect(ezMinWindows::ToNative(m_hWnd), &area);
     POINT p0, p1;
     p0.x = 0;
     p0.y = 0;
     p1.x = area.right;
     p1.y = area.bottom;
 
-    ClientToScreen(ezMinWindows::ToNative(hWnd), &p0);
-    ClientToScreen(ezMinWindows::ToNative(hWnd), &p1);
+    ClientToScreen(ezMinWindows::ToNative(m_hWnd), &p0);
+    ClientToScreen(ezMinWindows::ToNative(m_hWnd), &p1);
 
     r.top = p0.y;
     r.left = p0.x;
@@ -372,7 +376,7 @@ void ezStandardInputDevice::ApplyClipRect(ezMouseCursorClipMode::Enum mode, ezMi
   ClipCursor(&r);
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
+void ezInputDeviceMouseKeyboard_Win::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 {
   if (m_ClipCursorMode == mode)
     return;
@@ -388,7 +392,7 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 // When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
 #  define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
-void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 #  if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
@@ -399,10 +403,10 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
     // hack fix to make sure the mouse is in the window center and gets clipped to the window, on startup
 
     m_bFirstWndMsg = false;
-    ApplyClipRect(m_ClipCursorMode, hWnd);
+    ApplyClipRect(m_ClipCursorMode, m_hWnd);
 
     RECT r;
-    GetWindowRect(ezMinWindows::ToNative(hWnd), &r);
+    GetWindowRect(ezMinWindows::ToNative(m_hWnd), &r);
     SetCursorPos(ezMath::Lerp(r.left, r.right, 0.5f), ezMath::Lerp(r.bottom, r.top, 0.5f));
   }
 
@@ -426,7 +430,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(ezMinWindows::ToNative(hWnd), &area);
+      GetClientRect(ezMinWindows::ToNative(m_hWnd), &area);
 
       const ezUInt32 uiResX = area.right - area.left;
       const ezUInt32 uiResY = area.bottom - area.top;
@@ -434,13 +438,22 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       const float fPosX = (float)((short)LOWORD(lparam));
       const float fPosY = (float)((short)HIWORD(lparam));
 
-      s_iMouseIsOverWindowNumber = m_uiWindowNumber;
-      m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX);
-      m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
+      s_pMouseOver = this;
+      m_vLocalMouseCoordinates.x = (fPosX / uiResX);
+      m_vLocalMouseCoordinates.y = (fPosY / uiResY);
+
+      if (s_pGlobalInputHandler == this)
+      {
+        // only the 'main' window (the first one created) provides its mouse coordinates as the 'global' ones
+        // if you have multiple windows and want window specific mouse pointer handling,
+        // you need to ask the window specific input device, for its GetLocalMouseCoordinates() and IsMouseOver()
+        m_InputSlotValues[ezInputSlot_MousePositionX] = m_vLocalMouseCoordinates.x;
+        m_InputSlotValues[ezInputSlot_MousePositionY] = m_vLocalMouseCoordinates.y;
+      }
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
       {
-        ApplyClipRect(m_ClipCursorMode, hWnd);
+        ApplyClipRect(m_ClipCursorMode, m_hWnd);
       }
 
       break;
@@ -449,13 +462,13 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
     case WM_SETFOCUS:
     {
       m_bApplyClipRect = true;
-      ApplyClipRect(m_ClipCursorMode, hWnd);
+      ApplyClipRect(m_ClipCursorMode, m_hWnd);
       break;
     }
 
     case WM_KILLFOCUS:
     {
-      OnFocusLost(hWnd);
+      OnFocusLost(m_hWnd);
       return;
     }
 
@@ -483,7 +496,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       m_uiMouseButtonReceivedDown[0]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(hWnd));
+        SetCapture(ezMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
 
@@ -493,7 +506,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       m_uiMouseButtonReceivedUp[0]++;
       m_bApplyClipRect |= m_bFirstClick;
       m_bFirstClick = false;
-      ApplyClipRect(m_ClipCursorMode, hWnd);
+      ApplyClipRect(m_ClipCursorMode, m_hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -505,7 +518,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       m_uiMouseButtonReceivedDown[1]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(hWnd));
+        SetCapture(ezMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -513,7 +526,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
       m_bApplyClipRect |= m_bFirstClick;
-      ApplyClipRect(m_ClipCursorMode, hWnd);
+      ApplyClipRect(m_ClipCursorMode, m_hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -526,7 +539,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       m_uiMouseButtonReceivedDown[2]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(hWnd));
+        SetCapture(ezMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -534,7 +547,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
       m_uiMouseButtonReceivedUp[2]++;
 
       m_bApplyClipRect |= m_bFirstClick;
-      ApplyClipRect(m_ClipCursorMode, hWnd);
+      ApplyClipRect(m_ClipCursorMode, m_hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -549,7 +562,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
         m_uiMouseButtonReceivedDown[4]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(hWnd));
+        SetCapture(ezMinWindows::ToNative(m_hWnd));
       ++s_iMouseCaptureCount;
 
       return;
@@ -573,7 +586,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
 #  else
 
     case WM_LBUTTONUP:
-      ApplyClipRect(m_ClipCursorMode, hWnd);
+      ApplyClipRect(m_ClipCursorMode, m_hWnd);
       return;
 
 #  endif
@@ -734,7 +747,7 @@ void ezStandardInputDevice::WindowMessage(ezMinWindows::HWND hWnd, ezMinWindows:
             ezStringView sSlotX = ezInputManager::GetInputSlotTouchPointPositionX(iTouchPoint);
             ezStringView sSlotY = ezInputManager::GetInputSlotTouchPointPositionY(iTouchPoint);
 
-            m_InputSlotValues[sSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+            m_InputSlotValues[sSlotX] = (raw->data.mouse.lLastX / 65535.0f);
             m_InputSlotValues[sSlotY] = (raw->data.mouse.lLastY / 65535.0f);
 
             if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
@@ -773,9 +786,9 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
   ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
 }
 
-void ezStandardInputDevice::LocalizeButtonDisplayNames()
+void ezInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames()
 {
-  EZ_LOG_BLOCK("ezStandardInputDevice::LocalizeButtonDisplayNames");
+  EZ_LOG_BLOCK("ezInputDeviceMouseKeyboard_Win::LocalizeButtonDisplayNames");
 
   SetKeyNameForScanCode(1, false, ezInputSlot_KeyEscape);
   SetKeyNameForScanCode(2, false, ezInputSlot_Key1);
@@ -903,7 +916,7 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(83, true, ezInputSlot_KeyDelete);
 }
 
-void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
+void ezInputDeviceMouseKeyboard_Win::SetShowMouseCursor(bool bShow)
 {
   if (m_bShowCursor == bShow)
     return;
@@ -920,15 +933,20 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
   }
 }
 
-bool ezStandardInputDevice::GetShowMouseCursor() const
+bool ezInputDeviceMouseKeyboard_Win::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
 
-void ezStandardInputDevice::OnFocusLost(ezMinWindows::HWND hWnd)
+void ezInputDeviceMouseKeyboard_Win::OnFocusLost(ezMinWindows::HWND m_hWnd)
 {
+  if (s_pMouseOver == this)
+  {
+    s_pMouseOver = nullptr;
+  }
+
   m_bApplyClipRect = true;
-  ApplyClipRect(ezMouseCursorClipMode::NoClip, hWnd);
+  ApplyClipRect(ezMouseCursorClipMode::NoClip, m_hWnd);
 
   auto it = m_InputSlotValues.GetIterator();
 

@@ -59,6 +59,8 @@ Crouch
 CubeMap
 Curvature
 CustomData
+CustomTangentIn
+CustomTangentOut
 Cyan
 Damage
 DarkBlue
@@ -106,6 +108,7 @@ DocumentType
 DodgerBlue
 Duration
 EditBones
+EditNodes
 EditorShortcut
 Effect
 EffectiveColor
@@ -206,6 +209,7 @@ LightYellow
 Lime
 LimeGreen
 Linen
+LinkCustomTangents
 LinkToLightShape
 LocalPosition
 LocalRotation
@@ -289,7 +293,6 @@ PaleTurquoise
 PaleVioletRed
 PapayaWhip
 PassThroughUnhandledEvents
-Path
 Payload
 PeachPuff
 PenumbraSize
@@ -400,6 +403,7 @@ SpawnPoint
 SpecularMultiplier
 Speed
 SphereProjection
+Spline
 SplitModeWeight
 SpringGreen
 StageSpace
@@ -411,8 +415,8 @@ Strength
 StrengthFactor
 Subdivide
 Tan
-Tangent1
-Tangent2
+TangentModeIn
+TangentModeOut
 TargetObject
 TargetScene
 Teal

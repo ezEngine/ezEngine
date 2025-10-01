@@ -2,13 +2,13 @@
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
-class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
+class EZ_CORE_DLL ezInputDeviceMouseKeyboard_NoImpl : public ezInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_NoImpl, ezInputDeviceMouseKeyboard);
 
 public:
-  ezStandardInputDevice(ezUInt32 uiWindowNumber);
-  ~ezStandardInputDevice();
+  ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber);
+  ~ezInputDeviceMouseKeyboard_NoImpl();
 
   virtual void SetShowMouseCursor(bool bShow) override;
   virtual bool GetShowMouseCursor() const override;

@@ -110,16 +110,12 @@ struct EZ_CORE_DLL ezWindowCreationDesc
   /// The pixel resolution of the window.
   ezSizeU32 m_Resolution = ezSizeU32(1280, 720);
 
-  /// The number of the window. This is mostly used for setting up the input system, which then reports
-  /// different mouse positions for each window.
-  ezUInt8 m_uiWindowNumber = 0;
-
   /// Whether the mouse cursor should be trapped inside the window or not.
-  /// \see ezStandardInputDevice::SetClipMouseCursor
+  /// \see ezInputDeviceMouseKeyboard::SetClipMouseCursor
   bool m_bClipMouseCursor = true;
 
   /// Whether the mouse cursor should be visible or not.
-  /// \see ezStandardInputDevice::SetShowMouseCursor
+  /// \see ezInputDeviceMouseKeyboard::SetShowMouseCursor
   bool m_bShowMouseCursor = false;
 
   /// Whether the window is activated and focussed on Initialize()
@@ -223,7 +219,7 @@ public:
   virtual void OnClickClose() {}
 
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
-  ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
+  ezInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
 
   /// \brief Returns a number that can be used as a window number in ezWindowCreationDesc
   ///
@@ -238,7 +234,7 @@ protected:
   bool m_bInitialized = false;
   bool m_bVisible = true;
 
-  ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
+  ezUniquePtr<ezInputDevice> m_pInputDevice;
 
   mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
 

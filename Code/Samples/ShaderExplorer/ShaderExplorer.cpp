@@ -90,8 +90,11 @@ void ezShaderExplorerApp::Run()
   // mouse look
   if (ezInputManager::GetInputActionState("Main", "Look") == ezKeyState::Down)
   {
-    m_pWindow->GetInputDevice()->SetShowMouseCursor(false);
-    m_pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::ClipToPosition);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
+    {
+      pInput->SetShowMouseCursor(false);
+      pInput->SetClipMouseCursor(ezMouseCursorClipMode::ClipToPosition);
+    }
 
     float fInputValue = 0.0f;
     const float fMouseSpeed = 0.01f;
@@ -112,8 +115,11 @@ void ezShaderExplorerApp::Run()
   }
   else
   {
-    m_pWindow->GetInputDevice()->SetShowMouseCursor(true);
-    m_pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+    if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
+    {
+      pInput->SetShowMouseCursor(true);
+      pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+    }
   }
 
   // turn camera with keys

@@ -57,6 +57,20 @@ enum ezOccluderType
   Mesh = 2,
 }
 
+enum ezSplineComponentFlags
+{
+  VisualizeSpline = 1,
+  VisualizeUpDir = 2,
+  VisualizeTangents = 4,
+}
+
+enum ezSplineTangentMode
+{
+  Auto = 0,
+  Custom = 1,
+  Linear = 2,
+}
+
 enum ezSpriteBlendMode
 {
   Masked = 0,
@@ -123,23 +137,11 @@ enum ezPropertyAnimMode
   BackAndForth = 2,
 }
 
-enum ezFollowPathMode
+enum ezFollowSplineMode
 {
   OnlyPosition = 0,
   AlignUpZ = 1,
   FullRotation = 2,
-}
-
-enum ezPathComponentFlags
-{
-  VisualizePath = 1,
-  VisualizeUpDir = 2,
-}
-
-enum ezPathNodeTangentMode
-{
-  Auto = 0,
-  Linear = 1,
 }
 
 enum ezRootMotionMode
@@ -1053,6 +1055,8 @@ class ezComponent
   ezRenderTargetActivatorComponent@ opCast();
   ezRopeRenderComponent@ opCast();
   ezSkyBoxComponent@ opCast();
+  ezSplineComponent@ opCast();
+  ezSplineNodeComponent@ opCast();
   ezSpriteComponent@ opCast();
   ezDebugTextComponent@ opCast();
   ezDecalComponent@ opCast();
@@ -1076,9 +1080,7 @@ class ezComponent
   ezSensorCylinderComponent@ opCast();
   ezSensorConeComponent@ opCast();
   ezColorAnimationComponent@ opCast();
-  ezFollowPathComponent@ opCast();
-  ezPathComponent@ opCast();
-  ezPathNodeComponent@ opCast();
+  ezFollowSplineComponent@ opCast();
   ezPropertyAnimComponent@ opCast();
   ezResetTransformComponent@ opCast();
   ezRotorComponent@ opCast();
@@ -1174,7 +1176,6 @@ class ezMessage
   ezMsgBuildStaticMesh@ opCast();
   ezMsgOnlyApplyToObject@ opCast();
   ezEventMessage@ opCast();
-  ezMsgCollision@ opCast();
   ezMsgDeleteGameObject@ opCast();
   ezMsgComponentInternalTrigger@ opCast();
   ezMsgUpdateLocalBounds@ opCast();
@@ -1197,12 +1198,12 @@ class ezMessage
   ezMsgQueryAnimationSkeleton@ opCast();
   ezMsgApplyRootMotion@ opCast();
   ezMsgRetrieveBoneState@ opCast();
+  ezMsgSplineChanged@ opCast();
   ezMsgSetMeshMaterial@ opCast();
   ezMsgExtractRenderData@ opCast();
   ezMsgExtractOccluderData@ opCast();
   ezMsgExtractGeometry@ opCast();
   ezMsgSensorDetectedObjectsChanged@ opCast();
-  ezMsgPathChanged@ opCast();
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
@@ -1466,6 +1467,36 @@ class ezSkyBoxComponent : ezRenderComponent
   float VirtualDistance;
 }
 
+class ezSplineComponent : ezComponent
+{
+  ezVec3 GetPositionAtKey(float Key) const;
+  ezVec3 GetForwardDirAtKey(float Key) const;
+  ezVec3 GetUpDirAtKey(float Key) const;
+  ezVec3 GetScaleAtKey(float Key) const;
+  ezTransform GetTransformAtKey(float Key) const;
+  float GetTotalLength() const;
+  float GetKeyAtDistance(float Distance) const;
+  ezVec3 GetPositionAtDistance(float Distance) const;
+  ezVec3 GetForwardDirAtDistance(float Distance) const;
+  ezVec3 GetUpDirAtDistance(float Distance) const;
+  ezVec3 GetScaleAtDistance(float Distance) const;
+  ezTransform GetTransformAtDistance(float Distance) const;
+  uint GetChangeCounter() const;
+  ezSplineComponentFlags Flags;
+  bool Closed;
+  uint8 EditNodes;
+}
+
+class ezSplineNodeComponent : ezComponent
+{
+  ezAngle Roll;
+  ezSplineTangentMode TangentModeIn;
+  ezVec3 CustomTangentIn;
+  ezSplineTangentMode TangentModeOut;
+  ezVec3 CustomTangentOut;
+  bool LinkCustomTangents;
+}
+
 class ezSpriteComponent : ezRenderComponent
 {
   ezStringView Texture;
@@ -1694,35 +1725,23 @@ class ezColorAnimationComponent : ezComponent
   bool ApplyToChildren;
 }
 
-class ezFollowPathComponent : ezComponent
+class ezFollowSplineComponent : ezComponent
 {
+  void SetCurrentDistance(float Distance);
+  float GetCurrentDistance() const;
   void SetDirectionForwards(bool Forwards);
   bool IsDirectionForwards() const;
   void ToggleDirection();
-  ezString Path;
+  ezString Spline;
   float StartDistance;
   bool Running;
   ezPropertyAnimMode Mode;
   float Speed;
   float LookAhead;
   float Smoothing;
-  ezFollowPathMode FollowMode;
+  ezFollowSplineMode FollowMode;
   float TiltAmount;
   ezAngle MaxTilt;
-}
-
-class ezPathComponent : ezComponent
-{
-  ezPathComponentFlags Flags;
-  bool Closed;
-  float Detail;
-}
-
-class ezPathNodeComponent : ezComponent
-{
-  ezAngle Roll;
-  ezPathNodeTangentMode Tangent1;
-  ezPathNodeTangentMode Tangent2;
 }
 
 class ezPropertyAnimComponent : ezComponent
@@ -2187,8 +2206,8 @@ class ezEventMessage : ezMessage
   ezMsgGenericEvent@ opCast();
   ezMsgAnimationReachedEnd@ opCast();
   ezMsgTriggerTriggered@ opCast();
+  ezMsgSplineChanged@ opCast();
   ezMsgSensorDetectedObjectsChanged@ opCast();
-  ezMsgPathChanged@ opCast();
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
@@ -2218,10 +2237,6 @@ class ezMsgBuildStaticMesh : ezMessage
 class ezMsgOnlyApplyToObject : ezMessage
 {
   ezGameObjectHandle Object;
-}
-
-class ezMsgCollision : ezMessage
-{
 }
 
 class ezMsgDeleteGameObject : ezMessage
@@ -2331,6 +2346,10 @@ class ezMsgRetrieveBoneState : ezMessage
 {
 }
 
+class ezMsgSplineChanged : ezEventMessage
+{
+}
+
 class ezMsgSetMeshMaterial : ezMessage
 {
   ezStringView Material;
@@ -2350,10 +2369,6 @@ class ezMsgExtractGeometry : ezMessage
 }
 
 class ezMsgSensorDetectedObjectsChanged : ezEventMessage
-{
-}
-
-class ezMsgPathChanged : ezEventMessage
 {
 }
 

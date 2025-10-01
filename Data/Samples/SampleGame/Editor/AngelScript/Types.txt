@@ -42,8 +42,8 @@ ezEventMessageHandlerComponent
 ezFillLightComponent
 ezFillLightMode
 ezFogComponent
-ezFollowPathComponent
-ezFollowPathMode
+ezFollowSplineComponent
+ezFollowSplineMode
 ezForwardEventsToGameStateComponent
 ezGameObject
 ezGameObjectDesc
@@ -81,7 +81,6 @@ ezMsgApplyRootMotion
 ezMsgBlackboardEntryChanged
 ezMsgBuildStaticMesh
 ezMsgChildrenChanged
-ezMsgCollision
 ezMsgComponentInternalTrigger
 ezMsgComponentsChanged
 ezMsgDamage
@@ -98,7 +97,6 @@ ezMsgMoveCharacterController
 ezMsgObjectGrabbed
 ezMsgOnlyApplyToObject
 ezMsgParentChanged
-ezMsgPathChanged
 ezMsgPhysicCharacterContact
 ezMsgPhysicContact
 ezMsgPhysicsAddImpulse
@@ -114,6 +112,7 @@ ezMsgSetFloatParameter
 ezMsgSetMeshMaterial
 ezMsgSetPlaying
 ezMsgSetText
+ezMsgSplineChanged
 ezMsgStateMachineStateChanged
 ezMsgTransformChanged
 ezMsgTriggerTriggered
@@ -125,10 +124,6 @@ ezOnComponentFinishedAction
 ezOnComponentFinishedAction2
 ezParticleComponent
 ezParticleFinisherComponent
-ezPathComponent
-ezPathComponentFlags
-ezPathNodeComponent
-ezPathNodeTangentMode
 ezPhysicsShapeType
 ezPlayerStartPointComponent
 ezPointLightComponent
@@ -169,6 +164,10 @@ ezSpatialAnchorComponent
 ezSpawnBoxComponent
 ezSpawnComponent
 ezSphereReflectionProbeComponent
+ezSplineComponent
+ezSplineComponentFlags
+ezSplineNodeComponent
+ezSplineTangentMode
 ezSpotLightComponent
 ezSpriteBlendMode
 ezSpriteComponent

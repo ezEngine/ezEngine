@@ -9,13 +9,13 @@ extern "C"
   typedef struct GLFWwindow GLFWwindow;
 }
 
-class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
+class EZ_CORE_DLL ezInputDeviceMouseKeyboard_GLFW : public ezInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard_GLFW, ezInputDeviceMouseKeyboard);
 
 public:
-  ezStandardInputDevice(ezUInt32 uiWindowNumber, GLFWwindow* windowHandle);
-  ~ezStandardInputDevice();
+  ezInputDeviceMouseKeyboard_GLFW(GLFWwindow* windowHandle);
+  ~ezInputDeviceMouseKeyboard_GLFW();
 
   virtual void SetShowMouseCursor(bool bShow) override;
   virtual bool GetShowMouseCursor() const override;
@@ -43,7 +43,6 @@ private:
   virtual void ResetInputSlotValues() override;
 
 private:
-  ezUInt32 m_uiWindowNumber = 0;
   GLFWwindow* m_pWindow = nullptr;
   ezVec2d m_LastPos = ezVec2d(ezMath::MaxValue<double>());
 };

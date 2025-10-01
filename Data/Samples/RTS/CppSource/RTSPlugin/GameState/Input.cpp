@@ -6,9 +6,12 @@ void RTSGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 {
   SUPER::ConfigureMainWindowInputDevices(pWindow);
 
-  // pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
-  pWindow->GetInputDevice()->SetShowMouseCursor(true);
-  pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
+  if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
+  {
+    // pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+    pInput->SetShowMouseCursor(true);
+    pInput->SetMouseSpeed(ezVec2(0.002f));
+  }
 }
 
 void RTSGameState::ConfigureInputActions()

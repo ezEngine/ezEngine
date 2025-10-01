@@ -1,27 +1,27 @@
 #include <Core/Platform/NoImpl/InputDevice_NoImpl.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard_NoImpl, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber) {}
-ezStandardInputDevice::~ezStandardInputDevice() = default;
+ezInputDeviceMouseKeyboard_NoImpl::ezInputDeviceMouseKeyboard_NoImpl(ezUInt32 uiWindowNumber) {}
+ezInputDeviceMouseKeyboard_NoImpl::~ezInputDeviceMouseKeyboard_NoImpl() = default;
 
-void ezStandardInputDevice::SetShowMouseCursor(bool bShow) {}
+void ezInputDeviceMouseKeyboard_NoImpl::SetShowMouseCursor(bool bShow) {}
 
-bool ezStandardInputDevice::GetShowMouseCursor() const
+bool ezInputDeviceMouseKeyboard_NoImpl::GetShowMouseCursor() const
 {
   return false;
 }
 
-void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) {}
+void ezInputDeviceMouseKeyboard_NoImpl::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) {}
 
-ezMouseCursorClipMode::Enum ezStandardInputDevice::GetClipMouseCursor() const
+ezMouseCursorClipMode::Enum ezInputDeviceMouseKeyboard_NoImpl::GetClipMouseCursor() const
 {
   return ezMouseCursorClipMode::Default;
 }
 
-void ezStandardInputDevice::InitializeDevice() {}
+void ezInputDeviceMouseKeyboard_NoImpl::InitializeDevice() {}
 
-void ezStandardInputDevice::RegisterInputSlots() {}
+void ezInputDeviceMouseKeyboard_NoImpl::RegisterInputSlots() {}

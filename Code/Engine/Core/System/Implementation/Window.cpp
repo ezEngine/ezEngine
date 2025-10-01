@@ -88,9 +88,6 @@ void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& ref_writer)
       break;
   }
 
-  if (m_uiWindowNumber != 0)
-    ezOpenDdlUtils::StoreUInt8(ref_writer, m_uiWindowNumber, "Index");
-
   if (m_iMonitor >= 0)
     ezOpenDdlUtils::StoreInt8(ref_writer, m_iMonitor, "Monitor");
 
@@ -142,11 +139,6 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
         m_WindowMode = ezWindowMode::WindowFixedResolution;
       else if (mode == "ResizableWindow")
         m_WindowMode = ezWindowMode::WindowResizable;
-    }
-
-    if (const ezOpenDdlReaderElement* pIndex = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::UInt8, "Index"))
-    {
-      m_uiWindowNumber = pIndex->GetPrimitivesUInt8()[0];
     }
 
     if (const ezOpenDdlReaderElement* pMonitor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Int8, "Monitor"))

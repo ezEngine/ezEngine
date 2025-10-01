@@ -11,7 +11,7 @@
 #  include <android_native_app_glue.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice_Android, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -24,33 +24,19 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 #    define DEBUG_LOG(...)
 #  endif
 
-ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
+ezInputDevice_Android::ezInputDevice_Android()
 {
-  ezAndroidUtils::s_InputEvent.AddEventHandler(ezMakeDelegate(&ezStandardInputDevice::AndroidInputEventHandler, this));
-  ezAndroidUtils::s_AppCommandEvent.AddEventHandler(ezMakeDelegate(&ezStandardInputDevice::AndroidAppCommandEventHandler, this));
+  ezAndroidUtils::s_InputEvent.AddEventHandler(ezMakeDelegate(&ezInputDevice_Android::AndroidInputEventHandler, this));
+  ezAndroidUtils::s_AppCommandEvent.AddEventHandler(ezMakeDelegate(&ezInputDevice_Android::AndroidAppCommandEventHandler, this));
 }
 
-ezStandardInputDevice::~ezStandardInputDevice()
+ezInputDevice_Android::~ezInputDevice_Android()
 {
-  ezAndroidUtils::s_AppCommandEvent.RemoveEventHandler(ezMakeDelegate(&ezStandardInputDevice::AndroidAppCommandEventHandler, this));
-  ezAndroidUtils::s_InputEvent.RemoveEventHandler(ezMakeDelegate(&ezStandardInputDevice::AndroidInputEventHandler, this));
+  ezAndroidUtils::s_AppCommandEvent.RemoveEventHandler(ezMakeDelegate(&ezInputDevice_Android::AndroidAppCommandEventHandler, this));
+  ezAndroidUtils::s_InputEvent.RemoveEventHandler(ezMakeDelegate(&ezInputDevice_Android::AndroidInputEventHandler, this));
 }
 
-void ezStandardInputDevice::SetShowMouseCursor(bool bShow) {}
-
-bool ezStandardInputDevice::GetShowMouseCursor() const
-{
-  return false;
-}
-
-void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) {}
-
-ezMouseCursorClipMode::Enum ezStandardInputDevice::GetClipMouseCursor() const
-{
-  return ezMouseCursorClipMode::Default;
-}
-
-void ezStandardInputDevice::InitializeDevice()
+void ezInputDevice_Android::InitializeDevice()
 {
   ezHybridArray<ezScreenInfo, 2> screens;
   if (ezScreen::EnumerateScreens(screens).Succeeded())
@@ -60,7 +46,7 @@ void ezStandardInputDevice::InitializeDevice()
   }
 }
 
-void ezStandardInputDevice::RegisterInputSlots()
+void ezInputDevice_Android::RegisterInputSlots()
 {
   RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 0", ezInputSlotFlags::IsTouchPoint);
   RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 0 Position X", ezInputSlotFlags::IsTouchPosition);
@@ -106,7 +92,7 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseWheelDown, "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
 }
 
-void ezStandardInputDevice::ResetInputSlotValues()
+void ezInputDevice_Android::ResetInputSlotValues()
 {
   m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
   m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
@@ -121,13 +107,13 @@ void ezStandardInputDevice::ResetInputSlotValues()
   }
 }
 
-void ezStandardInputDevice::AndroidInputEventHandler(ezAndroidInputEvent& event)
+void ezInputDevice_Android::AndroidInputEventHandler(ezAndroidInputEvent& event)
 {
   event.m_bHandled = AndroidHandleInput(event.m_pEvent);
   SUPER::UpdateInputSlotValues();
 }
 
-void ezStandardInputDevice::AndroidAppCommandEventHandler(ezInt32 iCmd)
+void ezInputDevice_Android::AndroidAppCommandEventHandler(ezInt32 iCmd)
 {
   if (iCmd == APP_CMD_WINDOW_RESIZED)
   {
@@ -140,7 +126,7 @@ void ezStandardInputDevice::AndroidAppCommandEventHandler(ezInt32 iCmd)
   }
 }
 
-bool ezStandardInputDevice::AndroidHandleInput(AInputEvent* pEvent)
+bool ezInputDevice_Android::AndroidHandleInput(AInputEvent* pEvent)
 {
   // #TODO_ANDROID Only touchscreen input is implemented right now.
   const ezInt32 iEventType = AInputEvent_getType(pEvent);

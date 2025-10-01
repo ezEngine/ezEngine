@@ -88,8 +88,12 @@ public:
 
       m_pWindow = EZ_DEFAULT_NEW(MeshRenderSampleWindow);
       m_pWindow->Initialize(WindowCreationDesc).AssertSuccess();
-      m_pWindow->GetInputDevice()->SetShowMouseCursor(true);
-      m_pWindow->GetInputDevice()->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+
+      if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
+      {
+        pInput->SetShowMouseCursor(true);
+        pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+      }
     }
 
     // Create a rendering device

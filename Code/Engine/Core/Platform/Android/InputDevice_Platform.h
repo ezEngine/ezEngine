@@ -1,23 +1,18 @@
 #pragma once
 
-#include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputDevice.h>
 
 struct ezAndroidInputEvent;
 struct AInputEvent;
 
 /// \brief Android standard input device.
-class EZ_CORE_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
+class EZ_CORE_DLL ezInputDevice_Android : public ezInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice_Android, ezInputDevice);
 
 public:
-  ezStandardInputDevice(ezUInt32 uiWindowNumber);
-  ~ezStandardInputDevice();
-
-  virtual void SetShowMouseCursor(bool bShow) override;
-  virtual bool GetShowMouseCursor() const override;
-  virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override;
+  ezInputDevice_Android();
+  ~ezInputDevice_Android();
 
 private:
   virtual void InitializeDevice() override;

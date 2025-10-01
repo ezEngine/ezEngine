@@ -1032,24 +1032,19 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
     m_bWasOpen = bIsOpen;
     m_uiForceFocus = 3;
 
-    for (auto pDev = ezInputDevice::GetFirstInstance(); pDev; pDev = pDev->GetNextInstance())
+    if (auto pInput = ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
     {
-      if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pDev))
+      if (bIsOpen)
       {
-        if (bIsOpen)
-        {
-          m_bCursorWasVisible = pInput->GetShowMouseCursor();
-          m_MouseWasClipped = pInput->GetClipMouseCursor();
-          pInput->SetShowMouseCursor(true);
-          pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
-          break;
-        }
-        else
-        {
-          pInput->SetShowMouseCursor(m_bCursorWasVisible);
-          pInput->SetClipMouseCursor(m_MouseWasClipped);
-          break;
-        }
+        m_bCursorWasVisible = pInput->GetShowMouseCursor();
+        m_MouseWasClipped = pInput->GetClipMouseCursor();
+        pInput->SetShowMouseCursor(true);
+        pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+      }
+      else
+      {
+        pInput->SetShowMouseCursor(m_bCursorWasVisible);
+        pInput->SetClipMouseCursor(m_MouseWasClipped);
       }
     }
   }

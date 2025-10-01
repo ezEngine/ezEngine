@@ -23,6 +23,7 @@ Column
 Continuing
 Cross
 Culling
+Custom
 CustomPose
 Deactivated
 Debris
@@ -145,7 +146,8 @@ TopLeft
 TopRight
 Transparent
 Trigger
-VisualizePath
+VisualizeSpline
+VisualizeTangents
 VisualizeUpDir
 Vortex
 WeakShockwave
