@@ -25,8 +25,9 @@ void ezSkinnedMeshRenderer::SetAdditionalData(const ezRenderViewContext& renderV
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
 
   auto pSkinnedRenderData = static_cast<const ezSkinnedMeshRenderData*>(pRenderData);
+  auto pSkinningBuffer = pDevice->GetBuffer(pSkinnedRenderData->m_hSkinningTransforms);
 
-  if (pSkinnedRenderData->m_hSkinningTransforms.IsInvalidated())
+  if (pSkinningBuffer == nullptr)
   {
     pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
   }

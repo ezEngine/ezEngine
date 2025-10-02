@@ -82,7 +82,7 @@ struct ezProcGenGraphAssetDocument::GenerateContext
 
 ////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentPath)
@@ -166,7 +166,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 7);
+    chunk.BeginChunk("PlacementOutputs", 8);
 
     if (!bDebug)
     {

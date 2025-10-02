@@ -76,6 +76,9 @@ public:
   ezString m_sColorGradient;
 
   ezEnum<ezProcPlacementMode> m_PlacementMode;
+  ezUInt8 m_uiNumAdditionalRays = 4;
+  float m_fRaySpread = 1.0f;
+
   ezEnum<ezProcPlacementPattern> m_PlacementPattern;
 
   ezRenderPipelineNodeInputPin m_DensityPin;

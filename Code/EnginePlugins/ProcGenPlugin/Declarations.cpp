@@ -34,7 +34,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorMapping, ezNoBase, 1, ezRTTIDefa
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcPlacementMode, 1)
-  EZ_ENUM_CONSTANTS(ezProcPlacementMode::Raycast, ezProcPlacementMode::Fixed)
+  EZ_ENUM_CONSTANTS(ezProcPlacementMode::Raycast, ezProcPlacementMode::RaycastHighQuality, ezProcPlacementMode::Fixed)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcPlacementPattern, 1)

@@ -147,6 +147,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("ColorGradient", m_sColorGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("PlacementMode", ezProcPlacementMode, m_PlacementMode),
+    EZ_MEMBER_PROPERTY("NumAdditionalRays", m_uiNumAdditionalRays)->AddAttributes(new ezDefaultValueAttribute(4), new ezClampValueAttribute(3, 20)),
+    EZ_MEMBER_PROPERTY("RaySpread", m_fRaySpread)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_ENUM_MEMBER_PROPERTY("PlacementPattern", ezProcPlacementPattern, m_PlacementPattern),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -261,6 +263,10 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& inout_stream)
 
   // chunk version 5
   inout_stream << m_PlacementMode;
+
+  // chunk version 8
+  inout_stream << m_uiNumAdditionalRays;
+  inout_stream << m_fRaySpread;
 
   // chunk version 7
   inout_stream << m_PlacementPattern;

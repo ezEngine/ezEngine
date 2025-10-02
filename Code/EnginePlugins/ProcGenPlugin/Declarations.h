@@ -91,6 +91,7 @@ struct ezProcPlacementMode
   enum Enum
   {
     Raycast,
+    RaycastHighQuality,
     Fixed,
 
     Default = Raycast
@@ -214,6 +215,8 @@ namespace ezProcGenInternal
     ezSurfaceResourceHandle m_hSurface;
 
     ezEnum<ezProcPlacementMode> m_Mode;
+    ezUInt8 m_uiNumAdditionalRays = 4;
+    float m_fRaySpread = 1.0f;
   };
 
   struct VertexColorOutput : public Output

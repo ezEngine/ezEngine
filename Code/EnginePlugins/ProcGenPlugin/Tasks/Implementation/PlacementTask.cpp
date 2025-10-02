@@ -9,6 +9,7 @@
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 using namespace ezProcGenInternal;
 
@@ -44,6 +45,24 @@ void PlacementTask::Execute()
   }
 }
 
+bool IsRequestedSurface(ezSurfaceResourceHandle hRequestedSurface, ezSurfaceResourceHandle hHitSurface)
+{
+  if (hRequestedSurface.IsValid())
+  {
+    if (!hHitSurface.IsValid())
+      return false;
+
+    ezResourceLock<ezSurfaceResource> hitSurface(hHitSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
+      return false;
+
+    if (!hitSurface->IsBasedOn(hRequestedSurface))
+      return false;
+  }
+
+  return true;
+}
+
 void PlacementTask::FindPlacementPoints()
 {
   EZ_PROFILE_SCOPE("FindPlacementPoints");
@@ -73,29 +92,70 @@ void PlacementTask::FindPlacementPoints()
 
     ezPhysicsCastResult hitResult;
 
-    if (m_pData->m_pPhysicsModule != nullptr && m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Raycast)
+    if (m_pData->m_pPhysicsModule != nullptr &&
+        (pOutput->m_Mode == ezProcPlacementMode::Raycast ||
+          pOutput->m_Mode == ezProcPlacementMode::RaycastHighQuality))
     {
       ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
       rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);
       rayStart.SetZ(fZStart);
 
-      if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
+      ezPhysicsQueryParameters queryParams(uiCollisionLayer, ezPhysicsShapeType::Static);
+
+      if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, queryParams))
         continue;
 
-      if (pOutput->m_hSurface.IsValid())
+      if (!IsRequestedSurface(pOutput->m_hSurface, hitResult.m_hSurface))
+        continue;
+
+      if (pOutput->m_Mode == ezProcPlacementMode::RaycastHighQuality)
       {
-        if (!hitResult.m_hSurface.IsValid())
+        ezUInt32 uiNumAdditionalRays = ezMath::Max<ezUInt32>(pOutput->m_uiNumAdditionalRays, 3);
+        const ezAngle angleStep = ezAngle::MakeFromDegree(360.0f / uiNumAdditionalRays);
+
+        ezHybridArray<ezVec3, 32> hitPositions;
+
+        bool bAllValid = true;
+        for (ezUInt32 i = 0; i < uiNumAdditionalRays; ++i)
+        {
+          const ezAngle angle = angleStep * i;
+          const ezSimdVec4f offset = ezSimdVec4f(ezMath::Cos(angle), ezMath::Sin(angle), 0.0f) * pOutput->m_fRaySpread;
+          const ezSimdVec4f rayStartOffset = rayStart + offset * pOutput->m_fFootprint;
+
+          ezPhysicsCastResult offsetHitResult;
+          if (!m_pData->m_pPhysicsModule->Raycast(offsetHitResult, ezSimdConversion::ToVec3(rayStartOffset), rayDir, fZRange, queryParams))
+          {
+            bAllValid = false;
+            break;
+          }
+
+          if (!IsRequestedSurface(pOutput->m_hSurface, offsetHitResult.m_hSurface))
+          {
+            bAllValid = false;
+            break;
+          }
+
+          hitPositions.PushBack(offsetHitResult.m_vPosition);
+        }
+
+        if (!bAllValid)
           continue;
 
-        ezResourceLock<ezSurfaceResource> hitSurface(hitResult.m_hSurface, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-        if (hitSurface.GetAcquireResult() == ezResourceAcquireResult::MissingFallback)
-          continue;
+        const ezSimdVec4f up = ezSimdVec4f(0, 0, 1);
+        ezSimdVec4f avgNormal = ezSimdVec4f::MakeZero();
+        for (auto& pos : hitPositions)
+        {
+          // Do not normalize dirToP, so that points that are further away contribute more to the normal
+          const ezSimdVec4f dirToP = (ezSimdConversion::ToVec3(hitResult.m_vPosition) - ezSimdConversion::ToVec3(pos));
+          const ezSimdVec4f rightDir = up.CrossRH(dirToP);
+          const ezSimdVec4f normal = dirToP.CrossRH(rightDir);
+          avgNormal += normal;
+        }
 
-        if (!hitSurface->IsBasedOn(pOutput->m_hSurface))
-          continue;
+        hitResult.m_vNormal = ezSimdConversion::ToVec3(avgNormal.GetNormalized<3>());
       }
     }
-    else if (m_pData->m_pOutput->m_Mode == ezProcPlacementMode::Fixed)
+    else if (pOutput->m_Mode == ezProcPlacementMode::Fixed)
     {
       ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
       rayStart += ezSimdRandom::FloatMinMax(ezSimdVec4i(i), vMinOffset, vMaxOffset, seed);

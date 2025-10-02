@@ -173,6 +173,12 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
             chunk >> pOutput->m_Mode;
           }
 
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 8)
+          {
+            chunk >> pOutput->m_uiNumAdditionalRays;
+            chunk >> pOutput->m_fRaySpread;
+          }
+
           ezEnum<ezProcPlacementPattern> pattern = ezProcPlacementPattern::RegularGrid;
           if (chunk.GetCurrentChunk().m_uiChunkVersion >= 7)
           {
