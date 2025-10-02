@@ -110,8 +110,9 @@ void PlacementTask::FindPlacementPoints()
 
       if (pOutput->m_Mode == ezProcPlacementMode::RaycastHighQuality)
       {
-        ezUInt32 uiNumAdditionalRays = ezMath::Max<ezUInt32>(pOutput->m_uiNumAdditionalRays, 3);
+        const ezUInt32 uiNumAdditionalRays = ezMath::Max<ezUInt32>(pOutput->m_uiNumAdditionalRays, 3);
         const ezAngle angleStep = ezAngle::MakeFromDegree(360.0f / uiNumAdditionalRays);
+        const float fSpread = ezMath::Max(pOutput->m_fRaySpread * pOutput->m_fFootprint, 0.01f);
 
         ezHybridArray<ezVec3, 32> hitPositions;
 
@@ -119,8 +120,8 @@ void PlacementTask::FindPlacementPoints()
         for (ezUInt32 i = 0; i < uiNumAdditionalRays; ++i)
         {
           const ezAngle angle = angleStep * i;
-          const ezSimdVec4f offset = ezSimdVec4f(ezMath::Cos(angle), ezMath::Sin(angle), 0.0f) * pOutput->m_fRaySpread;
-          const ezSimdVec4f rayStartOffset = rayStart + offset * pOutput->m_fFootprint;
+          const ezSimdVec4f offset = ezSimdVec4f(ezMath::Cos(angle), ezMath::Sin(angle), 0.0f) * fSpread;
+          const ezSimdVec4f rayStartOffset = rayStart + offset;
 
           ezPhysicsCastResult offsetHitResult;
           if (!m_pData->m_pPhysicsModule->Raycast(offsetHitResult, ezSimdConversion::ToVec3(rayStartOffset), rayDir, fZRange, queryParams))
