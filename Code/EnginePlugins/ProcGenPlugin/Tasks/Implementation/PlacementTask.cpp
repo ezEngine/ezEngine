@@ -119,7 +119,7 @@ void PlacementTask::FindPlacementPoints()
         bool bAllValid = true;
         for (ezUInt32 i = 0; i < uiNumAdditionalRays; ++i)
         {
-          const ezAngle angle = angleStep * i;
+          const ezAngle angle = angleStep * float(i);
           const ezSimdVec4f offset = ezSimdVec4f(ezMath::Cos(angle), ezMath::Sin(angle), 0.0f) * fSpread;
           const ezSimdVec4f rayStartOffset = rayStart + offset;
 
