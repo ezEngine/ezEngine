@@ -1,5 +1,4 @@
 #include <Core/Input/InputManager.h>
-#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
@@ -10,18 +9,18 @@
 #  include <Foundation/Time/Clock.h>
 #  include <Xinput.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBoxController, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInputDeviceXBox360::ezInputDeviceXBox360()
+ezInputDeviceXBoxController::ezInputDeviceXBoxController()
 {
   for (ezInt32 i = 0; i < MaxControllers; ++i)
     m_bControllerConnected[i] = false;
 }
 
-ezInputDeviceXBox360::~ezInputDeviceXBox360() = default;
+ezInputDeviceXBoxController::~ezInputDeviceXBoxController() = default;
 
-void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void ezInputDeviceXBoxController::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
   ezStringBuilder s, s2;
 
@@ -33,7 +32,7 @@ void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const 
   }
 }
 
-void ezInputDeviceXBox360::SetDeadZone(const char* szButton)
+void ezInputDeviceXBoxController::SetDeadZone(const char* szButton)
 {
   ezStringBuilder s;
 
@@ -44,7 +43,7 @@ void ezInputDeviceXBox360::SetDeadZone(const char* szButton)
   }
 }
 
-void ezInputDeviceXBox360::RegisterInputSlots()
+void ezInputDeviceXBoxController::RegisterInputSlots()
 {
   RegisterControllerButton("button_a", "Button A", ezInputSlotFlags::IsButton);
   RegisterControllerButton("button_b", "Button B", ezInputSlotFlags::IsButton);
@@ -101,7 +100,7 @@ const ezStringView sControllerName[] = {
 
 static_assert(EZ_ARRAY_SIZE(sControllerName) >= ezInputDeviceController::MaxControllers);
 
-void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, float fValue)
+void ezInputDeviceXBoxController::SetValue(ezInt32 iController, const char* szButton, float fValue)
 {
   ezStringBuilder s = sControllerName[iController];
   s.Append(szButton);
@@ -109,12 +108,48 @@ void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, f
   fVal = ezMath::Max(fVal, fValue);
 }
 
-void ezInputDeviceXBox360::UpdateHardwareState(ezTime tTimeDifference)
+void ezInputDeviceXBoxController::SetupControllerMappingInOrder()
+{
+  ezHybridArray<ezUInt8, MaxControllers> connected;
+  ezHybridArray<ezUInt8, MaxControllers> disconnected;
+
+  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  {
+    XINPUT_STATE State;
+    if (XInputGetState(uiPhysical, &State) == ERROR_SUCCESS)
+    {
+      connected.PushBack(uiPhysical);
+    }
+    else
+    {
+      disconnected.PushBack(uiPhysical);
+    }
+  }
+
+  ezUInt32 uiVirtual = 0;
+
+  // map the connected controllers to the first virtual controllers
+  for (ezUInt8 uiPhysical : connected)
+  {
+    SetPhysicalControllerMapping(uiPhysical, uiVirtual);
+    uiVirtual++;
+  }
+
+  // then map the disconnected controllers to the remaining virtual controllers
+  // so that if they get connected later, they map to a free slot
+  for (ezUInt8 uiPhysical : disconnected)
+  {
+    SetPhysicalControllerMapping(uiPhysical, uiVirtual);
+    uiVirtual++;
+  }
+}
+
+void ezInputDeviceXBoxController::UpdateHardwareState(ezTime tTimeDifference)
 {
   UpdateVibration(tTimeDifference);
 }
 
-void ezInputDeviceXBox360::UpdateInputSlotValues()
+void ezInputDeviceXBoxController::UpdateInputSlotValues()
 {
   // reset all keys
   for (auto it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
@@ -126,95 +161,117 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   // update not connected controllers only every few milliseconds, apparently it takes quite some time to do this
   // even on not connected controllers
   static ezTime tLastControllerSearch;
-  static ezInt32 iControllerSearch = 0;
+  static ezUInt32 uiControllerSearch = 0;
   const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
   const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::MakeFromSeconds(0.5);
 
   if (bSearchControllers)
   {
-    iControllerSearch = (iControllerSearch + 1) % MaxControllers;
+    uiControllerSearch = (uiControllerSearch + 1) % MaxControllers;
     tLastControllerSearch = tNow;
   }
 
   // get the data from all physical devices
-  for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
+  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
-    if (m_bControllerConnected[iPhysical] || (bSearchControllers && iPhysical == iControllerSearch))
+    if (m_bControllerConnected[uiPhysical] || (bSearchControllers && uiPhysical == uiControllerSearch))
     {
-      bIsAvailable[iPhysical] = (XInputGetState(iPhysical, &State[iPhysical]) == ERROR_SUCCESS);
+      bIsAvailable[uiPhysical] = (XInputGetState(uiPhysical, &State[uiPhysical]) == ERROR_SUCCESS);
 
-      if (m_bControllerConnected[iPhysical] != bIsAvailable[iPhysical])
+      if (m_bControllerConnected[uiPhysical] != bIsAvailable[uiPhysical])
       {
-        ezLog::Info("XBox Controller {0} has been {1}.", iPhysical, bIsAvailable[iPhysical] ? "connected" : "disconnected");
+        ezLog::Info("XBox Controller {0} has been {1}.", uiPhysical, bIsAvailable[uiPhysical] ? "connected" : "disconnected");
 
         // this makes sure to reset all values below
-        if (!bIsAvailable[iPhysical])
-          ezMemoryUtils::ZeroFill(&State[iPhysical], 1);
+        if (!bIsAvailable[uiPhysical])
+          ezMemoryUtils::ZeroFill(&State[uiPhysical], 1);
       }
     }
     else
-      bIsAvailable[iPhysical] = m_bControllerConnected[iPhysical];
+      bIsAvailable[uiPhysical] = m_bControllerConnected[uiPhysical];
   }
 
-  // now update all virtual controllers
-  for (ezUInt8 uiVirtual = 0; uiVirtual < MaxControllers; ++uiVirtual)
+  // check from which physical device to take the input data
+  for (ezUInt8 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {
-    // check from which physical device to take the input data
-    const ezInt8 iPhysical = GetPhysicalControllerMapping(uiVirtual);
-
-    // if the mapping is negative (which means 'deactivated'), ignore this controller
-    if ((iPhysical < 0) || (iPhysical >= MaxControllers))
-      continue;
+    m_RecentPhysicalControllerInput[uiPhysical].Clear();
 
     // if the controller is not active, no point in updating it
     // if it just got inactive, this will reset it once, because the state is only passed on after this loop
-    if (!m_bControllerConnected[iPhysical])
+    if (!m_bControllerConnected[uiPhysical])
       continue;
 
-    SetValue(uiVirtual, "pad_up", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "pad_down", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "pad_left", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "pad_right", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_start", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_back", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "left_stick", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "right_stick", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "left_shoulder", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "right_shoulder", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_a", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_b", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_x", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0) ? 1.0f : 0.0f);
-    SetValue(uiVirtual, "button_y", ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0) ? 1.0f : 0.0f);
+    ezInt8 iVirtual = GetPhysicalControllerMapping(uiPhysical);
+    if (iVirtual < 0)
+      continue;
+
+    SetValue(iVirtual, "pad_up", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_down", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_left", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "pad_right", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_start", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_back", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "left_stick", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "right_stick", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "left_shoulder", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "right_shoulder", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_a", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_b", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_x", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0) ? 1.0f : 0.0f);
+    SetValue(iVirtual, "button_y", ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0) ? 1.0f : 0.0f);
 
     const float fTriggerRange = 255.0f;
 
-    SetValue(uiVirtual, "left_trigger", State[iPhysical].Gamepad.bLeftTrigger / fTriggerRange);
-    SetValue(uiVirtual, "right_trigger", State[iPhysical].Gamepad.bRightTrigger / fTriggerRange);
+    SetValue(iVirtual, "left_trigger", State[uiPhysical].Gamepad.bLeftTrigger / fTriggerRange);
+    SetValue(iVirtual, "right_trigger", State[uiPhysical].Gamepad.bRightTrigger / fTriggerRange);
 
     // all input points have dead-zones, so we can let the state handler do the rest
-    SetValue(uiVirtual, "leftstick_negx", (State[iPhysical].Gamepad.sThumbLX < 0) ? (-State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "leftstick_posx", (State[iPhysical].Gamepad.sThumbLX > 0) ? (State[iPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "leftstick_negy", (State[iPhysical].Gamepad.sThumbLY < 0) ? (-State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "leftstick_posy", (State[iPhysical].Gamepad.sThumbLY > 0) ? (State[iPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_negx", (State[uiPhysical].Gamepad.sThumbLX < 0) ? (-State[uiPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_posx", (State[uiPhysical].Gamepad.sThumbLX > 0) ? (State[uiPhysical].Gamepad.sThumbLX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_negy", (State[uiPhysical].Gamepad.sThumbLY < 0) ? (-State[uiPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "leftstick_posy", (State[uiPhysical].Gamepad.sThumbLY > 0) ? (State[uiPhysical].Gamepad.sThumbLY / 32767.0f) : 0.0f);
 
-    SetValue(uiVirtual, "rightstick_negx", (State[iPhysical].Gamepad.sThumbRX < 0) ? (-State[iPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "rightstick_posx", (State[iPhysical].Gamepad.sThumbRX > 0) ? (State[iPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "rightstick_negy", (State[iPhysical].Gamepad.sThumbRY < 0) ? (-State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
-    SetValue(uiVirtual, "rightstick_posy", (State[iPhysical].Gamepad.sThumbRY > 0) ? (State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_negx", (State[uiPhysical].Gamepad.sThumbRX < 0) ? (-State[uiPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_posx", (State[uiPhysical].Gamepad.sThumbRX > 0) ? (State[uiPhysical].Gamepad.sThumbRX / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_negy", (State[uiPhysical].Gamepad.sThumbRY < 0) ? (-State[uiPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
+    SetValue(iVirtual, "rightstick_posy", (State[uiPhysical].Gamepad.sThumbRY > 0) ? (State[uiPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
+
+    if ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0)
+    {
+      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::Start);
+    }
+
+    if ((State[uiPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0)
+    {
+      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::Back);
+    }
+
+    if ((State[uiPhysical].Gamepad.wButtons & (XINPUT_GAMEPAD_A | XINPUT_GAMEPAD_B | XINPUT_GAMEPAD_X | XINPUT_GAMEPAD_Y)) != 0)
+    {
+      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::FrontButton);
+    }
+
+    if ((State[uiPhysical].Gamepad.wButtons & (XINPUT_GAMEPAD_LEFT_SHOULDER | XINPUT_GAMEPAD_RIGHT_SHOULDER)) != 0)
+    {
+      m_RecentPhysicalControllerInput[uiPhysical].Add(ezPhysicalControllerInput::ShoulderButton);
+    }
   }
 
-  for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
-    m_bControllerConnected[iPhysical] = bIsAvailable[iPhysical];
+
+  for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
+  {
+    m_bControllerConnected[uiPhysical] = bIsAvailable[uiPhysical];
+  }
 }
 
-bool ezInputDeviceXBox360::IsControllerConnected(ezUInt8 uiPhysical) const
+bool ezInputDeviceXBoxController::IsPhysicalControllerConnected(ezUInt8 uiPhysical) const
 {
   EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Invalid Controller Index {0}", uiPhysical);
 
   return m_bControllerConnected[uiPhysical];
 }
 
-void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength)
+void ezInputDeviceXBoxController::ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength)
 {
   if (!m_bControllerConnected[uiPhysicalController])
     return;
@@ -232,23 +289,21 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
   }
 }
 
-static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
+static ezInputDeviceXBoxController* g_InputDeviceXBoxController = nullptr;
 
-ezInputDeviceXBox360* ezInputDeviceXBox360::GetDevice()
+ezInputDeviceXBoxController* ezInputDeviceXBoxController::GetDevice()
 {
-  if (g_InputDeviceXBox360 == nullptr)
-    g_InputDeviceXBox360 = EZ_DEFAULT_NEW(ezInputDeviceXBox360);
+  if (g_InputDeviceXBoxController == nullptr)
+  {
+    g_InputDeviceXBoxController = EZ_DEFAULT_NEW(ezInputDeviceXBoxController);
+  }
 
-  return g_InputDeviceXBox360;
+  return g_InputDeviceXBoxController;
 }
 
-void ezInputDeviceXBox360::DestroyAllDevices()
-{
-  EZ_DEFAULT_DELETE(g_InputDeviceXBox360);
-}
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBoxController)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation", 
@@ -262,25 +317,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
  
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezInputDeviceXBox360::DestroyAllDevices();
+    EZ_DEFAULT_DELETE(g_InputDeviceXBoxController);
   }
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    ezInputDeviceXBox360* pDevice = ezInputDeviceXBox360::GetDevice();
-    if(ezControllerInput::GetDevice() == nullptr)
-    {
-      ezControllerInput::SetDevice(pDevice);
-    }
+    ezInputDeviceXBoxController::GetDevice();
   }
  
   ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
-    if(ezControllerInput::GetDevice() == g_InputDeviceXBox360)
-    {
-      ezControllerInput::SetDevice(nullptr);
-    }
-    ezInputDeviceXBox360::DestroyAllDevices();
+    EZ_DEFAULT_DELETE(g_InputDeviceXBoxController);
   }
  
 EZ_END_SUBSYSTEM_DECLARATION;

@@ -10,11 +10,6 @@ InputAction
 	}
 	Slot
 	{
-		string %Key{"keyboard_return"}
-		float %Scale{1}
-	}
-	Slot
-	{
 		string %Key{"controller0_button_start"}
 		float %Scale{1}
 	}

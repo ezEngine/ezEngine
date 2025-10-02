@@ -2,6 +2,31 @@
 
 #include <Core/Input/InputDevice.h>
 
+struct ezPhysicalControllerInput
+{
+  using StorageType = ezUInt32;
+
+  enum Enum
+  {
+    Default = 0,
+
+    Start = EZ_BIT(0),          ///< The 'Start' button
+    Back = EZ_BIT(1),           ///< The 'Back' button
+    FrontButton = EZ_BIT(2),    ///< Any button on the front/top of the controller
+    ShoulderButton = EZ_BIT(3), ///< Any shoulder button
+
+    AnyInput = 0xFFFFFFFF,      ///< Any of the available input categories above
+  };
+
+  struct Bits
+  {
+    StorageType Start : 1;
+    StorageType Back : 1;
+    StorageType FrontButton : 1;
+    StorageType ShoulderButton : 1;
+  };
+};
+
 /// \brief This class is the base class for all controller type input devices.
 ///
 /// This class is derived from ezInputDevice but adds some interface functions common to most controllers.
@@ -52,31 +77,30 @@ public:
   /// \brief Returns the amount of (constant) vibration that is currently set on this controller.
   float GetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum motor);
 
-  /// \brief Sets from which physical controller a virtual controller is supposed to take its input.
+  /// \brief Sets to which virtual controller a physical controller pushes its input.
   ///
-  /// If iTakeInputFromPhysical is smaller than zero, the given virtual controller is deactivated (it will generate no input).
-  /// If input is taken from a physical controller, that is already mapped to another virtual controller, that virtual controller
-  /// will now take input from the physical controller that uiVirtualController was previously mapped to (ie. they will swap
-  /// from which physical controller to take input).
-  /// By default all virtual controllers take their input from the physical controller with the same index.
-  /// You can use this feature to let the player pick up any controller, detect which one it is (e.g. by forcing him to press 'Start')
+  /// If iVirtualController is negative, the given physical controller is not used.
+  /// Multiple physical controllers may push their input to the same virtual controller,
+  /// in which case multiple people can control the same thing.
+  ///
+  /// By default all physical controllers push their input to virtual controller 0.
+  /// So any controller can be used to play the game.
+  /// If that is not desired, change the mapping at startup.
+  ///
+  /// You can use this feature to let the player pick up any controller, detect which one it is (e.g. by forcing them to press 'Start')
   /// and then map that physical controller index to the virtual index 0 (ie. player 1).
-  /// Note that unless you specify a negative index for a mapping (which deactivates that virtual controller), mapping controllers
-  /// around does never deactivate any controller, because the indices are swapped between the different virtual controllers,
-  /// so which physical controller maps to which virtual controller only 'moves around'.
-  void SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical);
+  /// See also GetRecentPhysicalControllerInput() to detect controller usage.
+  void SetPhysicalControllerMapping(ezUInt8 uiPhysicalController, ezInt8 iVirtualController);
 
-  /// \brief Returns from which physical controller the given virtual controller takes its input. May be negative, which means
-  /// the virtual controller is deactivated.
-  ezInt8 GetPhysicalControllerMapping(ezUInt8 uiVirtual) const;
-
-  /// \brief Returns to which virtual controller the given physical controller pushes its input. May be negative, which means
-  /// the physical controller is not used.
-  ezInt8 GetVirtualControllerMapping(ezUInt8 uiPhysical) const;
+  /// \brief Returns to which virtual controller the given physical controller pushes its input.
+  ///
+  /// If negative, that means the physical controller is not used.
+  /// Multiple physical controllers may map to the same virtual controller, which would allow two people to control the same object.
+  ezInt8 GetPhysicalControllerMapping(ezUInt8 uiPhysical) const;
 
   /// \brief Queries whether the controller with the given physical index is connected to the computer.
   /// This may change at any time.
-  virtual bool IsControllerConnected(ezUInt8 uiPhysical) const = 0;
+  virtual bool IsPhysicalControllerConnected(ezUInt8 uiPhysical) const = 0;
 
   /// \brief Adds a short 'vibration track' (a sequence of vibrations) to the given controller.
   ///
@@ -94,6 +118,12 @@ public:
   /// \param fScalingFactor Additional scaling factor to apply to all values in \a fVibrationTrackValue.
   void AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor = 1.0f);
 
+  /// \brief Returns a bitmask that specifies what kind of input a controller recently (last frame) had.
+  ///
+  /// Use this to identify which controller a user has picked up and wants to use.
+  /// This is not meant to be used for handling input, only to know which physical controller to map to which virtual controller.
+  ezBitflags<ezPhysicalControllerInput> GetRecentPhysicalControllerInput(ezUInt8 uiPhysical) const;
+
 protected:
   /// \brief Combines the constant vibration and vibration tracks and applies them on each controller.
   ///
@@ -102,6 +132,12 @@ protected:
   /// of whether vibration is enabled or disabled, and also mapping virtual to physical controllers.
   void UpdateVibration(ezTime tTimeDifference);
 
+  /// To be filled out by derived implementations.
+  /// Should set the proper bits every frame when there was such user input.
+  /// Can be used by games to detect whether a player wants to use this physical controller, and potentially remap it.
+  /// Not meant for actually handling input.
+  ezBitflags<ezPhysicalControllerInput> m_RecentPhysicalControllerInput[MaxControllers];
+
 private:
   /// \brief Must be implemented by a derived controller implementation. Should set apply the vibration for the given physical controller
   /// and motor with the given strength.
@@ -109,10 +145,9 @@ private:
   /// A strength value of zero will be passed in whenever no vibration is required. No extra resetting needs to be implemented.
   virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) = 0;
 
-  ezUInt32 m_uiVibrationTrackPos;
+  ezUInt32 m_uiVibrationTrackPos = 0;
   float m_fVibrationTracks[MaxControllers][Motor::ENUM_COUNT][MaxVibrationSamples];
   bool m_bVibrationEnabled[MaxControllers];
-  ezInt8 m_iVirtualToPhysicalControllerMapping[MaxControllers]; // maps from virtual controller index to physical device index
   ezInt8 m_iPhysicalToVirtualControllerMapping[MaxControllers]; // maps from physical device index to virtual controller index
   float m_fVibrationStrength[MaxControllers][Motor::ENUM_COUNT];
 };

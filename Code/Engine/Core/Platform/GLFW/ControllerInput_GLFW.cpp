@@ -5,7 +5,6 @@
 #  include <Core/Input/DeviceTypes/Controller.h>
 #  include <Core/Input/InputManager.h>
 #  include <Core/Platform/GLFW/InputDevice_GLFW.h>
-#  include <Core/System/ControllerInput.h>
 #  include <Foundation/Configuration/Startup.h>
 #  include <Foundation/Types/UniquePtr.h>
 
@@ -22,7 +21,7 @@ public:
 
   virtual void RegisterInputSlots() override;
 
-  virtual bool IsControllerConnected(ezUInt8 uiPhysical) const override;
+  virtual bool IsPhysicalControllerConnected(ezUInt8 uiPhysical) const override;
 
 private:
   virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) override;
@@ -51,15 +50,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ControllerInput)
   ON_CORESYSTEMS_STARTUP
   {
     g_pControllerInputGlfw = EZ_DEFAULT_NEW(ezControllerInputGlfw);
-    ezControllerInput::SetDevice(g_pControllerInputGlfw.Borrow());
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    if (ezControllerInput::GetDevice() == g_pControllerInputGlfw.Borrow())
-    {
-      ezControllerInput::SetDevice(nullptr);
-    }
     g_pControllerInputGlfw.Clear();
   }
 
@@ -245,7 +239,7 @@ void ezControllerInputGlfw::RegisterInputSlots()
   SetDeadZone("rightstick_posy");
 }
 
-bool ezControllerInputGlfw::IsControllerConnected(ezUInt8 uiPhysical) const
+bool ezControllerInputGlfw::IsPhysicalControllerConnected(ezUInt8 uiPhysical) const
 {
   if (!m_bInitialized)
   {
