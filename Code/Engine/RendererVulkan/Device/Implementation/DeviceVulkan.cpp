@@ -1633,6 +1633,7 @@ void ezGALDeviceVulkan::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
     ezStats::SetStat("Vulkan/DescriptorSetsReused", encoderStats.m_uiDescriptorSetsReused);
     ezStats::SetStat("Vulkan/DescriptorWrites", encoderStats.m_uiDescriptorWrites);
     ezStats::SetStat("Vulkan/DynamicUniformBufferChanged", encoderStats.m_uiDynamicUniformBufferChanged);
+    ezStats::SetStat("Vulkan/DescriptorSetPools", ezDescriptorSetPoolVulkan::GetPoolCount());
   }
 }
 

@@ -63,6 +63,11 @@ ezSharedPtr<ezDescriptorSetPoolVulkan> ezDescriptorSetPoolVulkan::GetPool(const 
   return pPool;
 }
 
+ezUInt32 ezDescriptorSetPoolVulkan::GetPoolCount()
+{
+  return s_Pools.GetCount();
+}
+
 void ezDescriptorSetPoolVulkan::MarkPoolDirty(ezDescriptorSetPoolVulkan* pPool)
 {
   EZ_LOCK(s_Mutex);

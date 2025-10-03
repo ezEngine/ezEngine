@@ -1666,7 +1666,7 @@ void ezGALDevice::EndFrame()
     ezStats::SetStat("GalDevice/RasterizerStates", m_RasterizerStates.GetCount());
     ezStats::SetStat("GalDevice/SamplerStates", m_SamplerStates.GetCount());
     ezStats::SetStat("GalDevice/BindGroupLayouts", m_BindGroupLayouts.GetCount());
-    ezStats::SetStat("GalDevice/BindGroup", m_BindGroups.GetCount());
+    ezStats::SetStat("GalDevice/BindGroups", m_BindGroups.GetCount());
     ezStats::SetStat("GalDevice/PipelineLayouts", m_PipelineLayouts.GetCount());
     ezStats::SetStat("GalDevice/GraphicsPipelines", m_GraphicsPipelines.GetCount());
     ezStats::SetStat("GalDevice/ComputePipelines", m_ComputePipelines.GetCount());

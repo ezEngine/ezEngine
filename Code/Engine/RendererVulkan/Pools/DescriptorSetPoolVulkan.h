@@ -14,6 +14,7 @@ public:
   static void Initialize(ezGALDeviceVulkan* pDevice);
   static void DeInitialize();
   static ezSharedPtr<ezDescriptorSetPoolVulkan> GetPool(const ezBindGroupLayoutResourceUsageVulkan& resourceUsage);
+  static ezUInt32 GetPoolCount();
   static void MarkPoolDirty(ezDescriptorSetPoolVulkan* pPool);
   static void BeginFrame();
 
