@@ -114,6 +114,7 @@ ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialRes
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALBindGroupCreationDescription desc;
+  ezBitflags<ezGALBindGroupItemFlags> metaFlags;
   {
     // Use builder to create a new bind group for the given layout.
     ezBindGroupBuilder bindGroupMaterial;
@@ -136,13 +137,19 @@ ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialRes
     {
       bindGroupMaterial.BindTexture(binding.m_Name, binding.m_Value);
     }
-    bindGroupMaterial.CreateBindGroup(hBindGroupLayout, desc);
+    bindGroupMaterial.CreateBindGroup(hBindGroupLayout, desc, metaFlags);
   }
   ezGALBindGroupHandle hBindGroup = pDevice->CreateBindGroup(desc);
   if (hBindGroup.IsInvalidated())
     return {};
 
   data.m_BindGroups.PushBack({hBindGroupLayout, hBindGroup});
+  if (metaFlags.IsAnySet(ezGALBindGroupItemFlags::FallbackResource | ezGALBindGroupItemFlags::PartiallyLoaded))
+  {
+    // Bind groups that contain fallback or partially loaded resources will be deleted at the start of each frame.
+    pManager->m_DirtyBindGroups.Insert(pMaterial);
+  }
+
   return hBindGroup;
 }
 
@@ -375,6 +382,16 @@ void ezMaterialManager::ApplyMaterialChanges()
     MaterialShaderConstants& ms = *matShaderIt.Value();
     ms.MarkDirty(mid);
   }
+
+  for (const void* pMaterial : m_DirtyBindGroups)
+  {
+    MaterialData* pMD = nullptr;
+    if (m_Materials.TryGetValue(pMaterial, pMD))
+    {
+      pMD->DeleteBindGroups();
+    }
+  }
+  m_DirtyBindGroups.Clear();
 
   // We need to make sure that we are not holding the m_MaterialShaderMutex when calling MaterialShaderConstants::UpdateConstantBuffers or we may deadlock. See comment in that function.
   ezHybridArray<MaterialShaderConstants*, 8> requireUpdates;

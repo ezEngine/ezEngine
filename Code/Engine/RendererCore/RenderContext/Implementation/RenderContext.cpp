@@ -1129,7 +1129,8 @@ ezResult ezRenderContext::ApplyBindGroup(const ezGALShader* pShader, ezUInt32 ui
     m_pGALCommandEncoder->SetBindGroup(uiBindGroup, hBindGroup);
     return EZ_SUCCESS;
   }
-  m_BindGroupBuilders[uiBindGroup].CreateBindGroup(hLayout, m_BindGroups[uiBindGroup]);
+  ezBitflags<ezGALBindGroupItemFlags> metaFlags;
+  m_BindGroupBuilders[uiBindGroup].CreateBindGroup(hLayout, m_BindGroups[uiBindGroup], metaFlags);
   m_pGALCommandEncoder->SetBindGroup(uiBindGroup, m_BindGroups[uiBindGroup]);
   return EZ_SUCCESS;
 }

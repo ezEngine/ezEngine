@@ -25,21 +25,24 @@ public:
   /// Binds a sampler to this bind group
   /// @param sSlotName The slot under which the sampler is to be bound.
   /// @param hSampler If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
-  void BindSampler(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler);
+  /// @param metaFlags Optional subset of ezGALBindGroupItemFlags::MetaFlags to be added to the binding.
+  void BindSampler(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler, ezBitflags<ezGALBindGroupItemFlags> metaFlags = {});
 
   /// Binds a buffer to this bind group
   /// @param sSlotName The slot under which the buffer is to be bound.
   /// @param hBuffer If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
   /// @param bufferRange What part of the buffer should be bound. Default is entire buffer.
   /// @param overrideTexelBufferFormat Sets the format of the texel buffer. If invalid, default format of the buffer will be used.
-  void BindBuffer(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
+  /// @param metaFlags Optional subset of ezGALBindGroupItemFlags::MetaFlags to be added to the binding.
+  void BindBuffer(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat = ezGALResourceFormat::Invalid, ezBitflags<ezGALBindGroupItemFlags> metaFlags = {});
 
   /// Binds a texture to this bind group
   /// @param sSlotName The slot under which the texture is to be bound.
   /// @param hTexture If valid, it will be bound. If not, bind group item under this slot will be removed and replaced with a fallback resource if required.
   /// @param textureRange What part of the texture should be bound. Default is entire texture. Or as much as the target ezShaderResourceBinding allows for.
   /// @param overrideViewFormat If set, re-interprets the format of the texture. This can cause performance penalties. Only use it to e.g. read linear vs gamma space or other formats of same type and width.
-  void BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  /// @param metaFlags Optional subset of ezGALBindGroupItemFlags::MetaFlags to be added to the binding.
+  void BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezBitflags<ezGALBindGroupItemFlags> metaFlags = {});
 
   // Convenience functions:
   void BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
@@ -49,8 +52,9 @@ public:
 
   /// Create a new bind group for the given layout.
   /// @param hBindGroupLayout The bind group layout for which to create the bind group.
-  /// @param out_bindGroup The resulting bind group. Will be undefined if EZ_FAILURE is returned.
-  void CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_bindGroup);
+  /// @param out_bindGroup The resulting bind group.
+  /// @param out_metaFlags Union of all meta flags across the bindings in the bind group. I.e. a bit will be set here if it is set for any binding.
+  void CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLayout, ezGALBindGroupCreationDescription& out_bindGroup, ezBitflags<ezGALBindGroupItemFlags>& out_metaFlags);
 
 public:
   /// \brief Number of modifications of the hash tables each frame. Used for stats.

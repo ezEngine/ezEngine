@@ -179,4 +179,7 @@ private:
   // This container will hold dead pointers after material deletion until the next extraction phase + begin render loop.
   // This is better than locking this container on every material draw call.
   ezMap<const void*, MaterialData> m_Materials;
+
+  // Contains any materials that has bind groups with fallback or partially loaded resources. These will be deleted at the start of each frame.
+  ezSet<const void*> m_DirtyBindGroups;
 };

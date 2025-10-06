@@ -49,7 +49,11 @@ struct ezGALBindGroupItemFlags
     Sampler = EZ_BIT(0),  ///< ezGALBindGroupItem::m_Sampler is valid
     Texture = EZ_BIT(1),  ///< ezGALBindGroupItem::m_Texture is valid
     Buffer = EZ_BIT(2),   ///< ezGALBindGroupItem::m_Buffer is valid
-    Fallback = EZ_BIT(3), ///< The slot was filled with a fallback resource.
+    EmptyBinding = EZ_BIT(3), ///< The binding slot was empty and filled with a fallback resource from ezGALRendererFallbackResources.
+    FallbackResource = EZ_BIT(4), ///< The slot was filled with a fallback resource due to ezResourceAcquireMode::AllowLoadingFallback.
+    PartiallyLoaded = EZ_BIT(5),  ///< The resource is only partially loaded.
+    TypeFlags = Sampler | Texture | Buffer,
+    MetaFlags = EmptyBinding | FallbackResource | PartiallyLoaded,
     Default = 0
   };
 
