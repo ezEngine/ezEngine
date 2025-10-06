@@ -12,6 +12,9 @@ class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezVolumeCollection, ezReflectedClass);
 
 public:
+  ezVolumeCollection();
+  ~ezVolumeCollection();
+
   struct ShapeType
   {
     using StorageType = ezUInt8;
@@ -44,25 +47,28 @@ public:
 
   struct Sphere : public Shape
   {
-    float m_fFadeOutScale;
-    float m_fFadeOutBias;
+    EZ_DECLARE_POD_TYPE();
+
+    float m_fFadeOut;
   };
 
   struct Box : public Shape
   {
-    ezVec3 m_vFadeOutScale;
-    ezVec3 m_vFadeOutBias;
+    EZ_DECLARE_POD_TYPE();
+
+    ezVec3 m_vPositiveFadeOut;
+    ezVec3 m_vNegativeFadeOut;
   };
 
   struct Image : public Box
   {
-    ezImageDataResourceHandle m_Image;
+    ezImageDataResourceHandle m_hImage;
     const ezColor* m_pPixelData = nullptr;
     ezUInt32 m_uiImageWidth = 0;
     ezUInt32 m_uiImageHeight = 0;
   };
 
-  bool IsEmpty() { return m_Spheres.IsEmpty() && m_Boxes.IsEmpty(); }
+  bool IsEmpty() { return m_SortedShapes.IsEmpty(); }
 
   float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
 
@@ -70,14 +76,10 @@ public:
 
   void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
 
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart);
-
-  void AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& hImage);
+  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vPositiveFalloff, const ezVec3& vNegativeFalloff, const ezImageDataResourceHandle& hImage = {});
 
 private:
-  ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
-  ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
-  ezDynamicArray<Image, ezAlignedAllocatorWrapper> m_Images;
+  ezLinearAllocator<ezAllocatorTrackingMode::Basics> m_Allocator;
 
   ezDynamicArray<const Shape*> m_SortedShapes;
 };

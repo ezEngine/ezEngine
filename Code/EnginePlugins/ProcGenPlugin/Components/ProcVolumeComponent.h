@@ -93,8 +93,10 @@ public:
   const ezVec3& GetExtents() const { return m_vExtents; }
   void SetExtents(const ezVec3& vExtents);
 
-  const ezVec3& GetFalloff() const { return m_vFalloff; }
-  void SetFalloff(const ezVec3& vFalloff);
+  const ezVec3& GetPositiveFalloff() const { return m_vPositiveFalloff; }
+  void SetPositiveFalloff(const ezVec3& vFalloff);
+  const ezVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; }
+  void SetNegativeFalloff(const ezVec3& vFalloff);
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
@@ -104,7 +106,8 @@ public:
 
 protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
-  ezVec3 m_vFalloff = ezVec3(0.5f);
+  ezVec3 m_vPositiveFalloff = ezVec3(0.5f);
+  ezVec3 m_vNegativeFalloff = ezVec3(0.5f);
 };
 
 //////////////////////////////////////////////////////////////////////////
