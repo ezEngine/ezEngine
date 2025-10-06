@@ -23,7 +23,7 @@ ezBindGroupBuilder::ezBindGroupBuilder() = default;
 namespace
 {
   template <typename T>
-  ezBitflags<ezGALBindGroupItemFlags> GetMetaFlags(ezResourceLock<T>& pResource)
+  ezBitflags<ezGALBindGroupItemFlags> GetMetaFlags(const ezResourceLock<T>& pResource)
   {
     ezBitflags<ezGALBindGroupItemFlags> metaFlags;
     const bool isFallback = pResource.GetAcquireResult() != ezResourceAcquireResult::Final;
