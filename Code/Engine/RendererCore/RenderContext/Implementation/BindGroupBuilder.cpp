@@ -34,7 +34,7 @@ namespace
       metaFlags.Add(ezGALBindGroupItemFlags::PartiallyLoaded);
     return metaFlags;
   }
-}
+} // namespace
 
 void ezBindGroupBuilder::ResetBoundResources(const ezGALDevice* pDevice)
 {
