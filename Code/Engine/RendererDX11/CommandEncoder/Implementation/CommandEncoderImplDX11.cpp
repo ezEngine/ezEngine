@@ -127,7 +127,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       case ezGALShaderResourceType::ConstantBuffer:
       {
         const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         SetConstantBuffer(binding, pBuffer);
@@ -136,7 +136,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       case ezGALShaderResourceType::Texture:
       {
         const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
           pTexture = nullptr;
 
         if (pTexture != nullptr && UnsetUnorderedAccessViews(pTexture))
@@ -152,7 +152,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       case ezGALShaderResourceType::TextureRW:
       {
         const ezGALTextureDX11* pTexture = static_cast<const ezGALTextureDX11*>(m_GALDeviceDX11.GetTexture(item.m_Texture.m_hTexture));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
           pTexture = nullptr;
 
         if (pTexture != nullptr && UnsetResourceViews(pTexture))
@@ -170,7 +170,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       case ezGALShaderResourceType::ByteAddressBuffer:
       {
         const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         if (pBuffer != nullptr && UnsetUnorderedAccessViews(pBuffer))
@@ -189,7 +189,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
       case ezGALShaderResourceType::ByteAddressBufferRW:
       {
         const ezGALBufferDX11* pBuffer = static_cast<const ezGALBufferDX11*>(m_GALDeviceDX11.GetBuffer(item.m_Buffer.m_hBuffer));
-        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::Fallback))
+        if (item.m_Flags.IsSet(ezGALBindGroupItemFlags::EmptyBinding))
           pBuffer = nullptr;
 
         if (pBuffer != nullptr && UnsetResourceViews(pBuffer))
