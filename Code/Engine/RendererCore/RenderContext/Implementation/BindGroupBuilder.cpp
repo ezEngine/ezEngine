@@ -23,11 +23,11 @@ ezBindGroupBuilder::ezBindGroupBuilder() = default;
 namespace
 {
   template <typename T>
-  ezBitflags<ezGALBindGroupItemFlags> GetMetaFlags(const ezResourceLock<T>& pResource)
+  ezBitflags<ezGALBindGroupItemFlags> GetMetaFlags(const ezResourceLock<T>& resource)
   {
     ezBitflags<ezGALBindGroupItemFlags> metaFlags;
-    const bool isFallback = pResource.GetAcquireResult() != ezResourceAcquireResult::Final;
-    const bool isPartiallyLoaded = pResource->GetNumQualityLevelsLoadable() != 0;
+    const bool isFallback = resource.GetAcquireResult() != ezResourceAcquireResult::Final;
+    const bool isPartiallyLoaded = resource->GetNumQualityLevelsLoadable() != 0;
     if (isFallback)
       metaFlags.Add(ezGALBindGroupItemFlags::FallbackResource);
     if (isPartiallyLoaded)
