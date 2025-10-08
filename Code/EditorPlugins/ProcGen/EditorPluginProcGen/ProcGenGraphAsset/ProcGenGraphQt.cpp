@@ -129,6 +129,7 @@ void ezQtProcGenNode::UpdateState()
     {
       sTitle.Shrink(9, 0);
     }
+    sTitle.TrimLeft("_");
   }
 
   m_pTitleLabel->setPlainText(sTitle.GetData());

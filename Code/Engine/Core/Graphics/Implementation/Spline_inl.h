@@ -59,6 +59,17 @@ EZ_ALWAYS_INLINE void ezSpline::ControlPoint::SetScale(const ezSimdVec4f& vScale
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE ezUInt32 ezSpline::GetNumControlPoints() const
+{
+  return m_ControlPoints.GetCount();
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezSpline::GetNumSegments() const
+{
+  const ezUInt32 uiNumPoints = m_ControlPoints.GetCount();
+  return m_bClosed ? uiNumPoints : (ezMath::Max(uiNumPoints, 1u) - 1);
+}
+
 EZ_FORCE_INLINE ezSimdVec4f ezSpline::EvaluatePosition(float fT) const
 {
   ezUInt32 uiCp0;

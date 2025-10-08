@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Graphics/Spline.h>
 #include <Core/World/World.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/TagSet.h>
@@ -24,6 +25,7 @@ public:
       Sphere,
       Box,
       Image,
+      Spline,
 
       Default = Sphere
     };
@@ -68,15 +70,26 @@ public:
     ezUInt32 m_uiImageHeight = 0;
   };
 
+  struct Spline : public Shape
+  {
+    ezSpline m_Spline;
+    ezBoundingBox m_BoundingBox;
+    float m_fInvRadius;
+    float m_fFadeOut;
+    float m_fMaxError;
+  };
+
   bool IsEmpty() { return m_SortedShapes.IsEmpty(); }
 
   float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
 
   static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType = nullptr);
 
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
+  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
   void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vPositiveFalloff, const ezVec3& vNegativeFalloff, const ezImageDataResourceHandle& hImage = {});
+
+  void AddSpline(const ezSimdTransform& transform, const ezSpline& spline, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
 private:
   ezLinearAllocator<ezAllocatorTrackingMode::Basics> m_Allocator;

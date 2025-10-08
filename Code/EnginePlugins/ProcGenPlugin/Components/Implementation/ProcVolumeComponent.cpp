@@ -187,7 +187,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::LimeGreen),
+    new ezSphereVisualizerAttribute("Radius", ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -278,7 +278,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
   }
   EZ_END_ATTRIBUTES;
 }

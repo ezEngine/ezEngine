@@ -166,6 +166,22 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class ezProcGen_Contrast : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Contrast, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  float m_fInputValue = 0.5f;
+  float m_fContrast = 0.0f;
+
+  ezRenderPipelineNodeInputPin m_InputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezProcGen_Height : public ezProcGenNodeBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Height, ezProcGenNodeBase);

@@ -21,9 +21,28 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentFlags);
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezSplineComponentSpace
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Local,
+    Global,
+
+    Default = Local
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentSpace);
+
+//////////////////////////////////////////////////////////////////////////
+
 struct EZ_RENDERERCORE_DLL ezMsgSplineChanged : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSplineChanged, ezEventMessage);
+
+  ezUInt32 m_uiChangeCounter = ezInvalidIndex;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -49,7 +68,7 @@ protected:
 /// This can be used for moving things along the spline (see ezFollowSplineComponent) or to describe the (complex) shape of an object, for example a rope.
 ///
 /// The ezSplineComponent stores the shape as nodes with positions and tangents.
-/// Remapping XXXX
+/// It additionally creates a remapping from distance along the spline to spline key (segment index + t) for easier evaluation by distance.
 ///
 /// To set up the shape, attach child objects and attach an ezSplineNodeComponent to each. Also give each child object a distinct name.
 /// Then reference these child objects by name through the "Nodes" property on the spline shape.
@@ -78,9 +97,6 @@ public:
   ezSplineComponent();
   ~ezSplineComponent();
 
-  /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
-  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
-
   /// \brief Whether the spline end connects to the beginning.
   void SetClosed(bool bClosed);                                                       // [ property ]
   bool GetClosed() const { return m_Spline.m_bClosed; }                               // [ property ]
@@ -89,19 +105,19 @@ public:
   ezBitflags<ezSplineComponentFlags> GetSplineFlags() const { return m_SplineFlags; } // [ property ]
 
   /// \brief Returns the position of the spline at the given key (segment index + t).
-  ezVec3 GetPositionAtKey(float fKey) const; // [ scriptable ]
+  ezVec3 GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the forward direction of the spline at the given key (segment index + t).
-  ezVec3 GetForwardDirAtKey(float fKey) const; // [ scriptable ]
+  ezVec3 GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the up direction of the spline at the given key (segment index + t).
-  ezVec3 GetUpDirAtKey(float fKey) const; // [ scriptable ]
+  ezVec3 GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the scale of the spline at the given key (segment index + t).
-  ezVec3 GetScaleAtKey(float fKey) const; // [ scriptable ]
+  ezVec3 GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the transform of the spline at the given key (segment index + t).
-  ezTransform GetTransformAtKey(float fKey) const; // [ scriptable ]
+  ezTransform GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
 
   /// \brief Returns the total length of the spline (in local space)
@@ -111,19 +127,23 @@ public:
   float GetKeyAtDistance(float fDistance) const; // [ scriptable ]
 
   /// \brief Returns the position of the spline at the given distance along the spline.
-  ezVec3 GetPositionAtDistance(float fDistance) const; // [ scriptable ]
+  ezVec3 GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the forward direction of the spline at the given distance along the spline.
-  ezVec3 GetForwardDirAtDistance(float fDistance) const; // [ scriptable ]
+  ezVec3 GetForwardDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the up direction of the spline at the given distance along the spline.
-  ezVec3 GetUpDirAtDistance(float fDistance) const; // [ scriptable ]
+  ezVec3 GetUpDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the scale of the spline at the given distance along the spline.
-  ezVec3 GetScaleAtDistance(float fDistance) const; // [ scriptable ]
+  ezVec3 GetScaleAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
 
   /// \brief Returns the full transform of the spline at the given distance along the spline.
-  ezTransform GetTransformAtDistance(float fDistance) const; // [ scriptable ]
+  ezTransform GetTransformAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
+
+
+  /// \brief Finds the closest point on the spline to the given point in space.
+  float FindKeyClosestToPoint(const ezVec3& vPoint, float& out_fDistanceToPoint, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default, float fMaxError = 0.1f) const; // [ scriptable ]
 
 
   /// \brief Access to the underlying spline object
@@ -135,16 +155,21 @@ public:
 protected:
   friend class ezSplineNodeComponent;
 
+  /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
+  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);                                    // [ message handler ]
+
+  void ForwardSplineChangedEvent();
+
   ezUInt32 Nodes_GetCount() const { return m_Nodes.GetCount(); }                           // [ property ]
   const ezHashedString& Nodes_GetNode(ezUInt32 uiIndex) const { return m_Nodes[uiIndex]; } // [ property ]
   void Nodes_SetNode(ezUInt32 uiIndex, const ezHashedString& sNodeName);                   // [ property ]
   void Nodes_Insert(ezUInt32 uiIndex, const ezHashedString& sNodeName);                    // [ property ]
   void Nodes_Remove(ezUInt32 uiIndex);                                                     // [ property ]
 
-  void UpdateSpline();
+  void UpdateSpline(bool bForwardChangedEvent = true);
 
   ezSplineNodeComponent* FindNodeComponent(const ezHashedString& sNodeName);
-  void UpdateFromNodeObjects();
+  void UpdateFromNodeObjects();  
 
   void InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const;
 

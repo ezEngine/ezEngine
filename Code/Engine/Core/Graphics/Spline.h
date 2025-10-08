@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/SimdMath/SimdTransform.h>
+#include <Foundation/SimdMath/SimdBBoxSphere.h>
 
 class ezStreamReader;
 class ezStreamWriter;
@@ -73,8 +73,14 @@ struct EZ_CORE_DLL ezSpline
   ezResult Serialize(ezStreamWriter& ref_writer) const;
   ezResult Deserialize(ezStreamReader& ref_reader);
 
+
+  ezUInt32 GetNumControlPoints() const;
+  ezUInt32 GetNumSegments() const;
+
+
   /// \brief Calculates tangents for all control points with a tangent mode other than 'Custom'.
   void CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir = ezSimdVec4f(0, 0, 1), const ezSimdVec4f& vGlobalForwardDir = ezSimdVec4f(1, 0, 0));
+
 
   /// \brief Returns the position of the spline at the given parameter fT.
   ezSimdVec4f EvaluatePosition(float fT) const;
@@ -92,6 +98,20 @@ struct EZ_CORE_DLL ezSpline
 
   /// \brief Returns the full transform (consisting of position, scale, and orientation) of the spline at the given parameter fT.
   ezSimdTransform EvaluateTransform(float fT) const;
+
+
+  /// \brief Calculates the bounding volume of a single segment of the spline.
+  ezResult CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSphere& out_bounds) const;
+
+  /// \brief Calculates the bounding volume of the entire spline.
+  ezResult CalculateBounds(ezSimdBBoxSphere& out_bounds) const;
+
+
+  /// \brief Finds the closest point on a single segment of the spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
+  ezSimdVec4f FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError = 0.1f) const;
+
+  /// \brief Finds the closest point on the entire spline to the given point. Returns the position on the spline, the parameter fT, and the squared distance.
+  ezSimdVec4f FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError = 0.1f) const;
 
 private:
   float ClampAndSplitT(float fT, ezUInt32& out_uiIndex) const;

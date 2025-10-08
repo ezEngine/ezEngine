@@ -445,7 +445,7 @@ namespace ezMath
   }
 
   template <typename T, typename T2>
-  T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  EZ_FORCE_INLINE T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
     const T2 mt = 1 - t;
     const T2 mt2 = mt * mt;
@@ -460,7 +460,7 @@ namespace ezMath
   }
 
   template <typename T, typename T2>
-  T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  EZ_FORCE_INLINE T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
     const T2 mt = 1 - t;
 

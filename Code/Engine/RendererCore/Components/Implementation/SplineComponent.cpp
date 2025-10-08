@@ -13,11 +13,20 @@
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezSplineComponentFlags, 1)
   EZ_BITFLAGS_CONSTANTS(ezSplineComponentFlags::VisualizeSpline, ezSplineComponentFlags::VisualizeUpDir, ezSplineComponentFlags::VisualizeTangents)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
-// clang-format on
 
-// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSplineComponentSpace, 1)
+  EZ_ENUM_CONSTANTS(ezSplineComponentSpace::Local, ezSplineComponentSpace::Global)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSplineChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSplineChanged, 1, ezRTTIDefaultAllocator<ezMsgSplineChanged>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ChangeCounter", m_uiChangeCounter),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -82,19 +91,22 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtKey, In, "Key"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtKey, In, "Key"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtKey, In, "Key"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtKey, In, "Key"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtKey, In, "Key"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtKey, In, "Key", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtKey, In, "Key", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtKey, In, "Key", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtKey, In, "Key", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtKey, In, "Key", In, "Space"),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetTotalLength),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetKeyAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtDistance, In, "Distance"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtDistance, In, "Distance"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetPositionAtDistance, In, "Distance", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetForwardDirAtDistance, In, "Distance", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetUpDirAtDistance, In, "Distance", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtDistance, In, "Distance", In, "Space"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtDistance, In, "Distance", In, "Space"),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindKeyClosestToPoint, In, "Point", Out, "DistanceToPoint", In, "Space", In, "MaxError")->AddAttributes(
+      new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(0.1))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetChangeCounter),
   }
@@ -162,11 +174,6 @@ void ezSplineComponent::OnDeactivated()
   }
 }
 
-void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
-{
-  UpdateSpline();
-}
-
 void ezSplineComponent::SetClosed(bool bClosed)
 {
   if (m_Spline.m_bClosed == bClosed)
@@ -190,29 +197,64 @@ void ezSplineComponent::SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags)
   }
 }
 
-ezVec3 ezSplineComponent::GetPositionAtKey(float fKey) const
+ezVec3 ezSplineComponent::GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  return ezSimdConversion::ToVec3(m_Spline.EvaluatePosition(fKey));
+  ezVec3 pos = ezSimdConversion::ToVec3(m_Spline.EvaluatePosition(fKey));
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    pos = GetOwner()->GetGlobalTransform().TransformPosition(pos);
+  }
+
+  return pos;
 }
 
-ezVec3 ezSplineComponent::GetForwardDirAtKey(float fKey) const
+ezVec3 ezSplineComponent::GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  return ezSimdConversion::ToVec3(m_Spline.EvaluateDerivative(fKey).GetNormalized<3>());
+  ezVec3 dir = ezSimdConversion::ToVec3(m_Spline.EvaluateDerivative(fKey).GetNormalized<3>());
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    dir = GetOwner()->GetGlobalTransform().TransformDirection(dir);
+  }
+
+  return dir;
 }
 
-ezVec3 ezSplineComponent::GetUpDirAtKey(float fKey) const
+ezVec3 ezSplineComponent::GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  return ezSimdConversion::ToVec3(m_Spline.EvaluateUpDirection(fKey));
+  ezVec3 dir = ezSimdConversion::ToVec3(m_Spline.EvaluateUpDirection(fKey));
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    dir = GetOwner()->GetGlobalTransform().TransformDirection(dir);
+  }
+
+  return dir;
 }
 
-ezVec3 ezSplineComponent::GetScaleAtKey(float fKey) const
+ezVec3 ezSplineComponent::GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  return ezSimdConversion::ToVec3(m_Spline.EvaluateScale(fKey));
+  ezVec3 scale = ezSimdConversion::ToVec3(m_Spline.EvaluateScale(fKey));
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    scale = scale.CompMul(GetOwner()->GetGlobalTransform().m_vScale);
+  }
+
+  return scale;
 }
 
-ezTransform ezSplineComponent::GetTransformAtKey(float fKey) const
+ezTransform ezSplineComponent::GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  return ezSimdConversion::ToTransform(m_Spline.EvaluateTransform(fKey));
+  ezTransform t = ezSimdConversion::ToTransform(m_Spline.EvaluateTransform(fKey));
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    t = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), t);
+  }
+
+  return t;
 }
 
 float ezSplineComponent::GetKeyAtDistance(float fDistance) const
@@ -231,34 +273,51 @@ float ezSplineComponent::GetKeyAtDistance(float fDistance) const
   return ezMath::Lerp(fLowerKey, fUpperKey, ezMath::Saturate(ezMath::Unlerp(fLowerDistance, fUpperDistance, fDistance)));
 }
 
-ezVec3 ezSplineComponent::GetPositionAtDistance(float fDistance) const
+ezVec3 ezSplineComponent::GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
-  return GetPositionAtKey(fKey);
+  return GetPositionAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetForwardDirAtDistance(float fDistance) const
+ezVec3 ezSplineComponent::GetForwardDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
-  return GetForwardDirAtKey(fKey);
+  return GetForwardDirAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetUpDirAtDistance(float fDistance) const
+ezVec3 ezSplineComponent::GetUpDirAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
-  return GetUpDirAtKey(fKey);
+  return GetUpDirAtKey(fKey, space);
 }
 
-ezVec3 ezSplineComponent::GetScaleAtDistance(float fDistance) const
+ezVec3 ezSplineComponent::GetScaleAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
-  return GetScaleAtKey(fKey);
+  return GetScaleAtKey(fKey, space);
 }
 
-ezTransform ezSplineComponent::GetTransformAtDistance(float fDistance) const
+ezTransform ezSplineComponent::GetTransformAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
-  return GetTransformAtKey(fKey);
+  return GetTransformAtKey(fKey, space);
+}
+
+float ezSplineComponent::FindKeyClosestToPoint(const ezVec3& vPoint, float& out_fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/, float fMaxError /*= 0.1f*/) const
+{
+  ezSimdVec4f p = ezSimdConversion::ToVec3(vPoint);
+
+  if (space == ezSplineComponentSpace::Global)
+  {
+    p = GetOwner()->GetGlobalTransformSimd().GetInverse().TransformPosition(p);
+  }
+
+  float fClosestKey = 0.0f;
+  float fClosestDistSqr = 0.0f;
+  m_Spline.FindClosestPoint(p, fClosestKey, fClosestDistSqr, fMaxError);
+
+  out_fDistance = ezMath::Sqrt(fClosestDistSqr);
+  return fClosestKey;
 }
 
 void ezSplineComponent::SetSpline(ezSpline&& spline)
@@ -268,6 +327,28 @@ void ezSplineComponent::SetSpline(ezSpline&& spline)
   m_Spline.m_uiChangeCounter = uiOldChangeCounter + 1;
 
   CreateDistanceToKeyRemapping();
+
+  ForwardSplineChangedEvent();
+}
+
+void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
+{
+  UpdateSpline();
+}
+
+void ezSplineComponent::ForwardSplineChangedEvent()
+{
+  ezMsgSplineChanged msg;
+  msg.FillFromSenderComponent(this);
+  msg.m_uiChangeCounter = m_Spline.m_uiChangeCounter;
+
+  for (ezComponent* pComp : GetOwner()->GetComponents())
+  {
+    if (pComp != this)
+    {
+      pComp->SendMessage(msg);
+    }
+  }
 }
 
 void ezSplineComponent::Nodes_SetNode(ezUInt32 uiIndex, const ezHashedString& sNodeName)
@@ -297,7 +378,7 @@ void ezSplineComponent::Nodes_Remove(ezUInt32 uiIndex)
   UpdateSpline();
 }
 
-void ezSplineComponent::UpdateSpline()
+void ezSplineComponent::UpdateSpline(bool bForwardChangedEvent /* = true*/)
 {
   if (!IsActiveAndInitialized())
     return;
@@ -309,6 +390,11 @@ void ezSplineComponent::UpdateSpline()
   }
 
   CreateDistanceToKeyRemapping();
+
+  if (bForwardChangedEvent)
+  {
+    ForwardSplineChangedEvent();
+  }
 }
 
 ezSplineNodeComponent* ezSplineComponent::FindNodeComponent(const ezHashedString& sNodeName)
@@ -371,6 +457,8 @@ void ezSplineComponent::UpdateFromNodeObjects()
   m_Spline.CalculateUpDirAndAutoTangents(ezSimdConversion::ToVec3(coordinateSystem.m_vUpDir), ezSimdConversion::ToVec3(coordinateSystem.m_vForwardDir));
 
   ++m_Spline.m_uiChangeCounter;
+  if (m_Spline.m_uiChangeCounter == ezInvalidIndex)
+    m_Spline.m_uiChangeCounter = 0;
 }
 
 void ezSplineComponent::InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const

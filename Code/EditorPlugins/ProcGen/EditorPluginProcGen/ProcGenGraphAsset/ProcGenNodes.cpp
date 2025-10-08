@@ -484,6 +484,48 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 1, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Input", m_fInputValue)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new ezClampValueAttribute(-10.0f, 10.0f)),
+
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Contrast: {Contrast}"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Contrast::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(m_fInputValue);
+  }
+
+  auto pA = out_ast.CreateConstant(-m_fContrast);
+  auto pB = out_ast.CreateConstant(1.0f + m_fContrast);
+  auto pLerp = out_ast.CreateTernaryOperator(ezExpressionAST::NodeType::Lerp, pA, pB, pInput);
+  auto pSaturate = out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pLerp);
+
+  return pSaturate;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 1, ezRTTIDefaultAllocator<ezProcGen_Height>)
 {
   EZ_BEGIN_PROPERTIES

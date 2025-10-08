@@ -331,5 +331,174 @@ ezSimdTransform ezSpline::EvaluateTransform(float fT) const
   return transform;
 }
 
+ezResult ezSpline::CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSphere& out_bounds) const
+{
+  EZ_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
+
+  auto& cp0 = m_ControlPoints[uiSegmentIndex];
+  auto& cp1 = m_ControlPoints[GetCp1Index(uiSegmentIndex)];
+
+  const ezSimdVec4f points[] = {
+    cp0.m_vPos,
+    cp0.m_vPos + cp0.m_vPosTangentOut,
+    cp1.m_vPos + cp1.m_vPosTangentIn,
+    cp1.m_vPos
+  };
+
+  out_bounds.SetFromPoints(points, EZ_ARRAY_SIZE(points));
+  return EZ_SUCCESS;
+}
+
+ezResult ezSpline::CalculateBounds(ezSimdBBoxSphere& out_bounds) const
+{
+  if (m_ControlPoints.GetCount() < 2)
+  {
+    out_bounds = ezSimdBBoxSphere::MakeInvalid();
+    return EZ_FAILURE;
+  }
+
+  const ezUInt32 uiNumSegments = GetNumSegments();
+
+  out_bounds = ezSimdBBoxSphere::MakeInvalid();
+  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  {
+    ezSimdBBoxSphere segmentBounds;
+    EZ_SUCCEED_OR_RETURN(CalculateSegmentBounds(i, segmentBounds));
+    out_bounds.ExpandToInclude(segmentBounds);
+  }
+
+  return EZ_SUCCESS;
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& p0, const ezSimdVec4f& p1, const ezSimdVec4f& p2, const ezSimdVec4f& p3, const ezSimdFloat& fMinT, const ezSimdFloat& fMaxT, const ezSimdVec4f& vPoint, ezSimdVec4f& out_closestDistSqr, ezSimdVec4f& out_closestT, ezSimdFloat& out_fStep)
+{
+  ezSimdVec4f vClosestPoint = ezMath::EvaluateBezierCurve(fMinT, p0, p1, p2, p3);
+  ezSimdVec4f vClosestDistSqr = ezSimdVec4f((vClosestPoint - vPoint).GetLengthSquared<3>());
+  ezSimdVec4f vClosestT = ezSimdVec4f(fMinT);
+
+  const ezUInt32 numSteps = 8;
+  ezSimdFloat fStep = (fMaxT - fMinT) / ezSimdFloat(static_cast<float>(numSteps));
+  for (ezSimdFloat fT = fStep; fT <= fMaxT; fT += fStep)
+  {
+    const ezSimdVec4f vCandidate = ezMath::EvaluateBezierCurve(fT, p0, p1, p2, p3);
+    const ezSimdVec4f vDistSqr = ezSimdVec4f((vCandidate - vPoint).GetLengthSquared<3>());
+    const ezSimdVec4b bIsCloser = (vDistSqr < vClosestDistSqr);
+
+    vClosestPoint = ezSimdVec4f::Select(bIsCloser, vCandidate, vClosestPoint);
+    vClosestDistSqr = ezSimdVec4f::Select(bIsCloser, vDistSqr, vClosestDistSqr);
+    vClosestT = ezSimdVec4f::Select(bIsCloser, ezSimdVec4f(fT), vClosestT);
+  }
+
+  out_closestDistSqr = vClosestDistSqr;
+  out_closestT = vClosestT;
+  out_fStep = fStep;
+  return vClosestPoint;
+}
+
+ezSimdVec4f ezSpline::FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
+{
+  EZ_ASSERT_DEBUG(uiSegmentIndex < m_ControlPoints.GetCount(), "Invalid segment index");
+
+  auto& cp0 = m_ControlPoints[uiSegmentIndex];
+  auto& cp1 = m_ControlPoints[GetCp1Index(uiSegmentIndex)];
+  const ezSimdVec4f p0 = cp0.m_vPos;
+  const ezSimdVec4f p1 = cp0.m_vPos + cp0.m_vPosTangentOut;
+  const ezSimdVec4f p2 = cp1.m_vPos + cp1.m_vPosTangentIn;
+  const ezSimdVec4f p3 = cp1.m_vPos;
+  const ezSimdFloat one(1.0f);
+  const ezSimdFloat maxErrorSqr(fMaxError * fMaxError);
+
+  ezSimdVec4f vClosestDistSqr;
+  ezSimdVec4f vClosestT;
+  ezSimdFloat fStep;
+  ezSimdVec4f vClosestPoint = FindIteration(p0, p1, p2, p2, ezSimdFloat::MakeZero(), one, vPoint, vClosestDistSqr, vClosestT, fStep);
+
+  constexpr ezUInt32 maxIterations = 4;
+  for (ezUInt32 i = 0; i < maxIterations; ++i)
+  {
+    const ezSimdFloat fClosestT = vClosestT.x();
+    const ezSimdFloat fMinT = (fClosestT - fStep).Max(ezSimdFloat::MakeZero());
+    const ezSimdFloat fMaxT = (fClosestT + fStep).Min(one);
+
+    const ezSimdFloat fClosestTToMinT = (fClosestT - fMinT).Abs();
+    const ezSimdFloat fClosestTToMaxT = (fClosestT - fMaxT).Abs();
+    const ezSimdFloat fTestT = fClosestTToMaxT > fClosestTToMinT ? fMaxT : fMinT;    
+    const ezSimdVec4f vTestP = ezMath::EvaluateBezierCurve(fTestT, p0, p1, p2, p3);
+    const ezSimdFloat vTestDistSqr = (vTestP - vClosestPoint).GetLengthSquared<3>();
+    if (vTestDistSqr < maxErrorSqr)
+      break;
+
+    vClosestPoint = FindIteration(p0, p1, p2, p3, fMinT, fMaxT, vPoint, vClosestDistSqr, vClosestT, fStep);
+  }
+
+  out_fT = vClosestT.x();
+  out_fDistanceSquared = vClosestDistSqr.x();
+  return vClosestPoint;
+}
+
+ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT, float& out_fDistanceSquared, float fMaxError /*= 0.1f*/) const
+{
+  if (m_ControlPoints.GetCount() < 2)
+  {
+    out_fT = -1.0f;
+    return ezSimdVec4f::MakeNaN();
+  }
+
+  const ezUInt32 uiNumSegments = GetNumSegments();
+  ezHybridArray<ezSimdBBox, 32, ezAlignedAllocatorWrapper> segmentBounds;
+  segmentBounds.SetCountUninitialized(uiNumSegments);
+
+  ezUInt32 uiClosestSegment = 0;
+  float fClosestDistSqr = ezMath::MaxValue<float>();
+  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  {
+    auto& cp0 = m_ControlPoints[i];
+    auto& cp1 = m_ControlPoints[GetCp1Index(i)];
+
+    auto& bounds = segmentBounds[i];
+    bounds.m_Min = cp0.m_vPos;
+    bounds.m_Max = cp0.m_vPos;
+    bounds.ExpandToInclude(cp0.m_vPos + cp0.m_vPosTangentOut);
+    bounds.ExpandToInclude(cp1.m_vPos + cp1.m_vPosTangentIn);
+    bounds.ExpandToInclude(cp1.m_vPos);
+
+    const float fDistSqr = bounds.GetDistanceSquaredTo(vPoint);
+    if (fDistSqr < fClosestDistSqr)
+    {
+      fClosestDistSqr = fDistSqr;
+      uiClosestSegment = i;
+    }
+  }
+
+  fClosestDistSqr = ezMath::MaxValue<float>();
+  float fClosestT = 0.0f;
+  ezSimdVec4f vClosestPoint;
+  
+  for (ezUInt32 i = 0; i < uiNumSegments; ++i)
+  {
+    ezUInt32 uiSegment = (uiClosestSegment + i);
+    if (uiSegment >= uiNumSegments)
+      uiSegment -= uiNumSegments;
+
+    const float fDistToBoundsSqr = segmentBounds[uiSegment].GetDistanceSquaredTo(vPoint);
+    if (fDistToBoundsSqr > fClosestDistSqr)
+      continue;
+
+    float fCandidateT = 0.0f;
+    float fCandidateDistSqr = 0.0f;
+    const ezSimdVec4f vCandidate = FindClosestPointOnSegment(uiSegment, vPoint, fCandidateT, fCandidateDistSqr, fMaxError);
+    if (fCandidateDistSqr < fClosestDistSqr)
+    {
+      vClosestPoint = vCandidate;
+      fClosestDistSqr = fCandidateDistSqr;
+      fClosestT = static_cast<float>(uiSegment) + fCandidateT;
+    }
+  }
+
+  out_fT = fClosestT;
+  out_fDistanceSquared = fClosestDistSqr;
+  return vClosestPoint;
+}
+
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Spline);

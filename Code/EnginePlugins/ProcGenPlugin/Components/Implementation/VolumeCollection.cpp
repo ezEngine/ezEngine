@@ -148,6 +148,30 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
         }
       }
     }
+    else if (pShape->m_Type == ShapeType::Spline)
+    {
+      auto& spline = *static_cast<const Spline*>(pShape);
+      const ezSimdVec4f localPos = spline.GetGlobalToLocalTransform().TransformPosition(vPosition);
+      const ezSimdBBox localBox = ezSimdConversion::ToBBox(spline.m_BoundingBox);
+      if (!localBox.Contains(localPos))
+        continue;
+
+      float fT = 0.0f;
+      float fDistanceSquared = 0.0f;
+      const ezSimdVec4f pointOnSpline = spline.m_Spline.FindClosestPoint(localPos, fT, fDistanceSquared, spline.m_fMaxError);
+      const ezSimdMat4f t = spline.m_Spline.EvaluateTransform(fT).GetAsMat4().GetInverse();
+      const float fNormalizedDistance = float(t.TransformPosition(localPos).GetLength<3>()) * spline.m_fInvRadius;
+      if (fNormalizedDistance <= 1.0f)
+      {
+        const float fNewValue = ApplyValue(spline.m_BlendMode, fValue, spline.m_fValue);
+        const float fAlpha = ezMath::Saturate(fNormalizedDistance * spline.m_fFadeOut - spline.m_fFadeOut);
+        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+      }
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
   }
 
   return fValue;
@@ -248,6 +272,30 @@ void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& 
   pBox->m_vNegativeFadeOut = ezVec3(-1.0f).CompDiv(vNegativeFalloff.CompMax(ezVec3(0.0001f)));
 
   m_SortedShapes.PushBack(pBox);
+}
+
+void ezVolumeCollection::AddSpline(const ezSimdTransform& transform, const ezSpline& spline, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
+{
+  Spline* pSpline = EZ_NEW(&m_Allocator, Spline);
+  pSpline->SetGlobalToLocalTransform(transform.GetAsMat4().GetInverse());
+  pSpline->m_Type = ShapeType::Spline;
+  pSpline->m_BlendMode = blendMode;
+  pSpline->m_fValue = fValue;
+  pSpline->m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, transform.GetMaxScale());
+
+  ezSimdBBoxSphere bounds;
+  spline.CalculateBounds(bounds).IgnoreResult();
+  ezSimdBBox box = bounds.GetBox();
+  box.m_Min -= ezSimdVec4f(fRadius);
+  box.m_Max += ezSimdVec4f(fRadius);
+
+  pSpline->m_Spline = spline;
+  pSpline->m_BoundingBox = ezSimdConversion::ToBBox(box);
+  pSpline->m_fInvRadius = 1.0f / ezMath::Max(fRadius, 0.0001f);
+  pSpline->m_fFadeOut = -1.0f / ezMath::Max(fFalloff, 0.0001f);
+  pSpline->m_fMaxError = ezMath::Max(fRadius / 5.0f, 0.1f);
+
+  m_SortedShapes.PushBack(pSpline);
 }
 
 //////////////////////////////////////////////////////////////////////////
