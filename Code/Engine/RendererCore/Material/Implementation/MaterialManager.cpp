@@ -96,6 +96,7 @@ const ezMaterialManager::MaterialData* ezMaterialManager::GetMaterialData(const 
 
 ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialResource* pMaterial, ezGALBindGroupLayoutHandle hBindGroupLayout)
 {
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezMaterialManager* pManager = GetSingleton();
   if (!pManager)
     return {};
@@ -106,13 +107,24 @@ ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialRes
 
   // First, check the cache for the given layout.
   ezMaterialManager::MaterialData& data = it.Value();
-  for (const MaterialData::BindGroupCache& bindGroupCache : data.m_BindGroups)
+  for (ezUInt32 i = 0; i < data.m_BindGroups.GetCount(); ++i)
   {
+    const MaterialData::BindGroupCache& bindGroupCache = data.m_BindGroups[i];
     if (bindGroupCache.m_hLayout == hBindGroupLayout)
+    {
+      const ezGALBindGroup* pBindGroup = pDevice->GetBindGroup(bindGroupCache.m_hGroup);
+      EZ_ASSERT_DEBUG(pBindGroup != nullptr, "Bind group should be owned by the material manager but it no longer exists.");
+      if (pBindGroup->IsInvalidated())
+      {
+        pDevice->DestroyBindGroup(bindGroupCache.m_hGroup);
+        data.m_BindGroups.RemoveAtAndSwap(i);
+        break;
+      }
       return bindGroupCache.m_hGroup;
+    }
   }
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
   ezGALBindGroupCreationDescription desc;
   ezBitflags<ezGALBindGroupItemFlags> metaFlags;
   {
