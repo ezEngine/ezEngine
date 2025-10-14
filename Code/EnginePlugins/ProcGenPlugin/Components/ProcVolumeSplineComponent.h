@@ -25,10 +25,10 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnMsgSplineChanged(ezMsgSplineChanged& msg);
+  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);
   void OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
   void OnMsgExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
 
 protected:
   float m_fRadius = 5.0f;

@@ -81,12 +81,12 @@ void ezProcVolumeSplineComponent::DeserializeComponent(ezWorldReader& inout_stre
   s >> m_fFalloff;
 }
 
-void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& msg)
+void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
 {
-  if (msg.m_uiChangeCounter == ezInvalidIndex || msg.m_uiChangeCounter == m_uiLastChangeCounter)
+  if (ref_msg.m_uiChangeCounter == ezInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
     return;
 
-  m_uiLastChangeCounter = msg.m_uiChangeCounter;
+  m_uiLastChangeCounter = ref_msg.m_uiChangeCounter;
 
   GetOwner()->UpdateLocalBounds();
 
@@ -123,9 +123,9 @@ void ezProcVolumeSplineComponent::OnMsgExtractVolumes(ezMsgExtractVolumes& ref_m
   ref_msg.m_pCollection->AddSpline(GetOwner()->GetGlobalTransformSimd(), pSplineComponent->GetSpline(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFalloff);
 }
 
-void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const
 {
-  if (msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
+  if (ref_msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
     return;
 
   const ezSplineComponent* pSplineComponent = nullptr;
