@@ -164,7 +164,7 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
         auto& line = m_DebugLines.ExpandAndGetRef();
         line.m_start = ezSimdConversion::ToVec3(t.TransformPosition(vRight * fSin1 + vUp * fCos1));
         line.m_end = ezSimdConversion::ToVec3(t.TransformPosition(vRight * fSin2 + vUp * fCos2));
-      }      
+      }
     };
 
     const ezSimdVec4f vOffsets[] = {
@@ -214,7 +214,7 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
     }
 
     EZ_ASSERT_DEBUG(m_DebugLines.GetCount() == uiNumLines, "Implementation error");
-  }  
+  }
 
   ezColor c = ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon);
   ezDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, GetOwner()->GetGlobalTransform());

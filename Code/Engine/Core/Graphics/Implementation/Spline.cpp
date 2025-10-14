@@ -342,8 +342,7 @@ ezResult ezSpline::CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSph
     cp0.m_vPos,
     cp0.m_vPos + cp0.m_vPosTangentOut,
     cp1.m_vPos + cp1.m_vPosTangentIn,
-    cp1.m_vPos
-  };
+    cp1.m_vPos};
 
   out_bounds.SetFromPoints(points, EZ_ARRAY_SIZE(points));
   return EZ_SUCCESS;
@@ -422,7 +421,7 @@ ezSimdVec4f ezSpline::FindClosestPointOnSegment(ezUInt32 uiSegmentIndex, const e
 
     const ezSimdFloat fClosestTToMinT = (fClosestT - fMinT).Abs();
     const ezSimdFloat fClosestTToMaxT = (fClosestT - fMaxT).Abs();
-    const ezSimdFloat fTestT = fClosestTToMaxT > fClosestTToMinT ? fMaxT : fMinT;    
+    const ezSimdFloat fTestT = fClosestTToMaxT > fClosestTToMinT ? fMaxT : fMinT;
     const ezSimdVec4f vTestP = ezMath::EvaluateBezierCurve(fTestT, p0, p1, p2, p3);
     const ezSimdFloat vTestDistSqr = (vTestP - vClosestPoint).GetLengthSquared<3>();
     if (vTestDistSqr < maxErrorSqr)
@@ -473,7 +472,7 @@ ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT,
   fClosestDistSqr = ezMath::MaxValue<float>();
   float fClosestT = 0.0f;
   ezSimdVec4f vClosestPoint;
-  
+
   for (ezUInt32 i = 0; i < uiNumSegments; ++i)
   {
     ezUInt32 uiSegment = (uiClosestSegment + i);

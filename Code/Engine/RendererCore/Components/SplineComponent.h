@@ -156,7 +156,7 @@ protected:
   friend class ezSplineNodeComponent;
 
   /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
-  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);                                    // [ message handler ]
+  void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
 
   void ForwardSplineChangedEvent();
 
@@ -169,7 +169,7 @@ protected:
   void UpdateSpline(bool bForwardChangedEvent = true);
 
   ezSplineNodeComponent* FindNodeComponent(const ezHashedString& sNodeName);
-  void UpdateFromNodeObjects();  
+  void UpdateFromNodeObjects();
 
   void InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const;
 
