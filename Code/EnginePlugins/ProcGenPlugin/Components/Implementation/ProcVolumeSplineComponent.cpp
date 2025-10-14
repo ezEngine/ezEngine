@@ -7,6 +7,8 @@
 #include <ProcGenPlugin/Components/ProcVolumeSplineComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <RendererCore/Components/SplineComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSplineComponent, 1, ezComponentMode::Static)
@@ -106,7 +108,7 @@ void ezProcVolumeSplineComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds&
   bounds.m_BoxHalfExtents += ezSimdVec4f(m_fRadius);
   bounds.m_CenterAndRadius.SetW(bounds.m_CenterAndRadius.w() + ezSimdFloat(m_fRadius));
 
-  ref_msg.AddBounds(ezSimdConversion::ToBBoxSphere(bounds), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezSimdConversion::ToBBoxSphere(bounds), s_SpatialCategory);
 }
 
 void ezProcVolumeSplineComponent::OnMsgExtractVolumes(ezMsgExtractVolumes& ref_msg) const
@@ -177,7 +179,7 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
     const float fStep = 1.0f / static_cast<float>(uiSteps);
     for (ezUInt32 i = 0; i < uiNumSegments; ++i)
     {
-      ezSimdTransform t0 = spline.EvaluateTransform(i);
+      ezSimdTransform t0 = spline.EvaluateTransform(static_cast<float>(i));
 
       AddRing(t0, ezBasisAxis::PositiveY, ezBasisAxis::PositiveZ, uiRingSteps);
       if (i == 0 && !spline.m_bClosed)

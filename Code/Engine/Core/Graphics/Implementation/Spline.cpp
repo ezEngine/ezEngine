@@ -342,9 +342,10 @@ ezResult ezSpline::CalculateSegmentBounds(ezUInt32 uiSegmentIndex, ezSimdBBoxSph
     cp0.m_vPos,
     cp0.m_vPos + cp0.m_vPosTangentOut,
     cp1.m_vPos + cp1.m_vPosTangentIn,
-    cp1.m_vPos};
+    cp1.m_vPos,
+  };
 
-  out_bounds.SetFromPoints(points, EZ_ARRAY_SIZE(points));
+  out_bounds = ezSimdBBoxSphere::MakeFromPoints(points, EZ_ARRAY_SIZE(points));
   return EZ_SUCCESS;
 }
 

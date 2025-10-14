@@ -3,6 +3,8 @@
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 
 struct ezMsgSplineChanged;
+struct ezMsgExtractRenderData;
+struct ezDebugRendererLine;
 
 using ezProcVolumeSplineComponentManager = ezComponentManager<class ezProcVolumeSplineComponent, ezBlockStorageType::Compact>;
 

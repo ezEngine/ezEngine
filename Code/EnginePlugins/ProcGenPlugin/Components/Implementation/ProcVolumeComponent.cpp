@@ -11,13 +11,6 @@
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 
-namespace
-{
-  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
 {
@@ -43,6 +36,7 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezProcVolumeComponent::AreaInvalidatedEvent ezProcVolumeComponent::s_AreaInvalidatedEvent;
+ezSpatialData::Category ezProcVolumeComponent::s_SpatialCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
 
 ezProcVolumeComponent::ezProcVolumeComponent() = default;
 ezProcVolumeComponent::~ezProcVolumeComponent() = default;
@@ -249,7 +243,7 @@ void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_SpatialCategory);
 }
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
@@ -360,7 +354,7 @@ void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_SpatialCategory);
 }
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const

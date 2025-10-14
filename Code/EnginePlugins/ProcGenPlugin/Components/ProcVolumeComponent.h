@@ -47,6 +47,7 @@ protected:
   void InvalidateArea(const ezBoundingBox& area);
 
   static AreaInvalidatedEvent s_AreaInvalidatedEvent;
+  static ezSpatialData::Category s_SpatialCategory;
 };
 
 //////////////////////////////////////////////////////////////////////////
