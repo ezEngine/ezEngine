@@ -1,6 +1,7 @@
 #include <ComputeShaderHistogram/ComputeShaderHistogram.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
 #include <Core/System/Window.h>
 #include <Core/System/WindowManager.h>
