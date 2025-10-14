@@ -41,6 +41,7 @@ private:
 
   void RemoveTilesForComponent(ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved = nullptr);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
+  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
 
   void AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
   void ClearVisibleComponents();

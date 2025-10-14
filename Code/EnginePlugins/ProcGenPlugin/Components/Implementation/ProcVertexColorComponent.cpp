@@ -64,7 +64,6 @@ void ezProcVertexColorComponentManager::Initialize()
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
-  // TODO: also do this in ezProcPlacementComponentManager
   ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 

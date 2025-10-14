@@ -8,6 +8,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Components/ProcPlacementComponent.h>
+#include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
 #include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
@@ -59,11 +60,15 @@ void ezProcPlacementComponentManager::Initialize()
   }
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
+
+  ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnAreaInvalidated, this));
 }
 
 void ezProcPlacementComponentManager::Deinitialize()
 {
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
+
+  ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnAreaInvalidated, this));
 
   for (auto& activeTile : m_ActiveTiles)
   {
@@ -547,6 +552,32 @@ void ezProcPlacementComponentManager::OnResourceEvent(const ezResourceEvent& res
       {
         m_ComponentsToUpdate.PushBack(it->GetHandle());
       }
+    }
+  }
+}
+
+void ezProcPlacementComponentManager::OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area)
+{
+  if (area.m_pWorld != GetWorld())
+    return;
+
+  ezSimdBBox areaBox = ezSimdConversion::ToBBox(area.m_Box);
+
+  for (auto it = GetComponents(); it.IsValid(); it.Next())
+  {
+    bool bIntersects = false;
+    for (auto& bounds : it->m_Bounds)
+    {
+      if (areaBox.Overlaps(bounds.m_GlobalBoundingBox))
+      {
+        bIntersects = true;
+        break;
+      }
+    }
+
+    if (bIntersects && !m_ComponentsToUpdate.Contains(it->GetHandle()))
+    {
+      m_ComponentsToUpdate.PushBack(it->GetHandle());
     }
   }
 }
