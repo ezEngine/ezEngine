@@ -310,7 +310,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     // in non-remote mode, the process needs to be properly killed, to prevent error messages
     // this is taken care of by the editor process
     if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
-      RequestApplicationQuit();
+    {
+      QuitApplication();
+    }
 
     return;
   }

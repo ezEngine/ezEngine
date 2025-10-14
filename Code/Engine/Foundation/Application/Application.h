@@ -53,9 +53,9 @@ EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 ///
 ///     virtual void Run() override
 ///     {
-///       // Run will be called repeatedly, until RequestApplicationQuit() has been called (at any time in the frame).
+///       // Run will be called repeatedly, until QuitApplication() has been called (at any time in the frame).
 ///
-///       RequestApplicationQuit();
+///       QuitApplication();
 ///     }
 ///   };
 ///
@@ -133,7 +133,7 @@ public:
 
   /// \brief Main run function which is called periodically. This function must be overridden.
   ///
-  /// Call RequestApplicationQuit() at any point to prevent Run() from being called again.
+  /// Call QuitApplication() at any point to prevent Run() from being called again.
   virtual void Run() = 0;
 
   /// \brief Sets the value that the application will return to the OS.
@@ -169,19 +169,14 @@ public:
 
   bool IsMemoryLeakReportingEnabled() const { return m_bReportMemoryLeaks; }
 
-  /// \brief Calling this function requests that the application quits after the current invocation of Run() finishes.
+  /// Tells the application to shut itself down.
+  void QuitApplication() { m_bQuitApplication = true; }
+
+  /// Whether the application should shut down.
   ///
-  /// Sets the m_bWasQuitRequested to true as an indicator for derived application objects to engage shutdown procedures.
-  /// Can be overridden to implement custom behavior. There is no other logic associated with this
-  /// function and flag so the respective derived application class has to implement logic to perform the actual
-  /// quit when this function is called or m_bWasQuitRequested is set to true.
-  virtual void RequestApplicationQuit();
-
-  /// \brief Returns whether RequestQuit() was called.
-  EZ_ALWAYS_INLINE bool ShouldApplicationQuit() const { return m_bWasQuitRequested; }
-
-protected:
-  bool m_bWasQuitRequested = false;
+  /// By default just reports whether QuitApplication() was called.
+  /// Overridden implementations can take additional things into consideration.
+  virtual bool ShouldApplicationQuit() const { return m_bQuitApplication; }
 
 private:
   ezInt32 m_iReturnCode = 0;
@@ -190,6 +185,7 @@ private:
 
   const char** m_pArguments = nullptr;
 
+  bool m_bQuitApplication = false;
   bool m_bReportMemoryLeaks = true;
 
   ezString m_sAppName;

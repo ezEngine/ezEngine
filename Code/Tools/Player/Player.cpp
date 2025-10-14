@@ -55,19 +55,6 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
-void ezPlayerApplication::Run_InputUpdate()
-{
-  SUPER::Run_InputUpdate();
-
-  if (auto pGameState = GetActiveGameState())
-  {
-    if (pGameState->WasQuitRequested())
-    {
-      RequestApplicationQuit();
-    }
-  }
-}
-
 void ezPlayerApplication::DetermineProjectPath()
 {
   ezStringBuilder sProjectPath = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::FirstTime);

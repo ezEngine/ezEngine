@@ -17,11 +17,6 @@ enum class ezEditorEngineProcessMode
   Remote,
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRemoteProcessWindow : public ezWindow
-{
-public:
-};
-
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessApp
 {
   EZ_DECLARE_SINGLETON(ezEditorEngineProcessApp);

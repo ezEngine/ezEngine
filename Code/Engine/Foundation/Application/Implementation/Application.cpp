@@ -64,10 +64,4 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 }
 
 
-void ezApplication::RequestApplicationQuit()
-{
-  m_bWasQuitRequested = true;
-}
-
-
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;

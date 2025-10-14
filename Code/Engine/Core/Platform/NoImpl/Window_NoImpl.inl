@@ -28,11 +28,6 @@ void ezWindowNoImpl::ProcessWindowMessages()
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezWindowNoImpl::OnResize(const ezSizeU32& newWindowSize)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
 ezWindowHandle ezWindowNoImpl::GetNativeWindowHandle() const
 {
   return m_hWindowHandle;

@@ -17,6 +17,7 @@ class ezWindowOutputTargetBase;
 class ezView;
 class ezWindowOutputTargetGAL;
 class ezDummyXR;
+struct ezWindowEvent;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
@@ -130,7 +131,7 @@ public:
   void CancelBackgroundSceneLoading();
 
 protected:
-  /// \brief Creates an actor with a default window (ezGameStateWindow) adds it to the application
+  /// \brief Creates a default ezWindow and adds it to the application
   ///
   /// The base implementation calls CreateMainWindow(), CreateMainOutputTarget() and SetupMainView() to configure the main window.
   virtual void CreateWindows();
@@ -211,6 +212,8 @@ protected:
 
   /// \brief Called by `CancelBackgroundSceneLoading()` when scene loading gets canceled.
   virtual void OnBackgroundSceneLoadingCanceled();
+
+  virtual void OnWindowEvent(const ezWindowEvent& e);
 
   static ezGameState* s_pActiveGameState;
 

@@ -115,7 +115,7 @@ public:
     SetReturnCode(app.exec());
 
     ezTelemetry::CloseConnection();
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

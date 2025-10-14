@@ -31,6 +31,13 @@ public:
 
   void LogWriter(const ezLoggingEventData& e);
 
+  virtual bool ShouldApplicationQuit() const override
+  {
+    // override the behavior of ezGameApplicationGase
+    // so ignore what the game-state does
+    return ezApplication::ShouldApplicationQuit();
+  }
+
 protected:
   virtual void BaseInit_ConfigureLogging() override;
   virtual void Deinit_ShutdownLogging() override;
@@ -39,7 +46,8 @@ protected:
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
   virtual void ActivateGameStateAtStartup() override
-  { /* do nothing */
+  {
+    /* do nothing */
   }
 
 private:

@@ -305,7 +305,7 @@ void ezStackResolver::Run()
 {
   if (ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_app"))
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -315,7 +315,7 @@ void ezStackResolver::Run()
     ezLog::Error("Command line option '{}' was not specified.", sMissingOpt);
 
     ezCommandLineOption::LogAvailableOptions(ezCommandLineOption::LogAvailableModes::Always, "_app");
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -331,19 +331,19 @@ void ezStackResolver::Run()
 
   if (ParseModules().Failed())
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
   if (ParseCallstack().Failed())
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
   if (LoadModules().Failed())
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -368,7 +368,7 @@ void ezStackResolver::Run()
     if (file.Open(opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never), ezFileOpenMode::Write).Failed())
     {
       ezLog::Error("Could not open file for writing: '{}'", opt_OutputFile.GetOptionValue(ezCommandLineOption::LogMode::Never));
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -389,7 +389,7 @@ void ezStackResolver::Run()
     }
   }
 
-  RequestApplicationQuit();
+  QuitApplication();
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezStackResolver);

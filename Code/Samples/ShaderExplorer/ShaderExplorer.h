@@ -33,7 +33,7 @@
 #  define USE_DIRECTORY_WATCHER EZ_OFF
 #endif
 
-class ezShaderExplorerWindow;
+class ezWindow;
 class ezCamera;
 class ezGALDevice;
 class ezDirectoryWatcher;
@@ -63,7 +63,7 @@ private:
   void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 #endif
 
-  ezShaderExplorerWindow* m_pWindow = nullptr;
+  ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
   ezGALSwapChainHandle m_hSwapChain;

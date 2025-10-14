@@ -346,13 +346,13 @@ void ezShaderCompilerApplication::Run()
       if (!opt_IgnoreErrors.GetOptionValue(ezCommandLineOption::LogMode::Never))
       {
         SetReturnCode(uiErrors);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
     }
   }
   SetReturnCode(uiErrors);
-  RequestApplicationQuit();
+  QuitApplication();
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezShaderCompilerApplication);

@@ -1,6 +1,5 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
 #include <RendererTest/Basics/SwapChain.h>
 
@@ -21,8 +20,9 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
-    // ezGameStateWindow will write any window size changes into the config.
-    m_pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, WindowCreationDesc);
+    // ezWindow writes any window size changes into the config.
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    m_pWindow->Initialize(WindowCreationDesc);
   }
 
   // SwapChain

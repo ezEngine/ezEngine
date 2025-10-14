@@ -69,7 +69,7 @@ ezWindowWin::~ezWindowWin()
 
 ezResult ezWindowWin::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
+  EZ_LOG_BLOCK("ezWindowWin::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
@@ -95,7 +95,7 @@ ezResult ezWindowWin::InitializeWindow()
 
     if (error != ERROR_CLASS_ALREADY_EXISTS)
     {
-      ezLog::Error("Failed to create ezWindow window class! (error code '{0}')", ezArgErrorCode(error));
+      ezLog::Error("Failed to create ezWindowWin window class! (error code '{0}')", ezArgErrorCode(error));
       return EZ_FAILURE;
     }
   }
@@ -251,7 +251,7 @@ void ezWindowWin::DestroyWindow()
     pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
   }
 
-  EZ_LOG_BLOCK("ezWindow::Destroy");
+  EZ_LOG_BLOCK("ezWindowWin::Destroy");
 
   m_pInputDevice = nullptr;
 
@@ -317,11 +317,6 @@ void ezWindowWin::ProcessWindowMessages()
     HWND hWindow = ezMinWindows::ToNative(GetNativeWindowHandle());
     SetWindowPos(hWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
-}
-
-void ezWindowWin::OnResize(const ezSizeU32& newWindowSize)
-{
-  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
 ezWindowHandle ezWindowWin::GetNativeWindowHandle() const

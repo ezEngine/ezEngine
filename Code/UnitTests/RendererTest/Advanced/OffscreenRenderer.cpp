@@ -121,7 +121,7 @@ void ezOffscreenRendererTest::Run()
   if (m_RequestedFrames.IsEmpty() && m_bExiting)
   {
     SetReturnCode(0);
-    RequestApplicationQuit();
+    QuitApplication();
   }
 
   // needs to be called once per frame
@@ -165,7 +165,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
     SetReturnCode(-1);
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -173,7 +173,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
     SetReturnCode(-2);
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -182,7 +182,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line -PID parameter could not be converted to int");
     SetReturnCode(-3);
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -255,7 +255,7 @@ void ezOffscreenRendererTest::MessageFunc(const ezIpcProcessMessageProtocol::Eve
     {
       EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
       SetReturnCode(-4);
-      RequestApplicationQuit();
+      QuitApplication();
     }
   }
   else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(msg.m_pMessage))

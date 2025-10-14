@@ -69,7 +69,7 @@ public:
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
       {
         ezLog::Print(cmdHelp);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
     }
@@ -77,12 +77,12 @@ public:
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
     ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

@@ -49,7 +49,7 @@ public:
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_Editor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
     }
@@ -61,7 +61,7 @@ public:
     }
     ezQtEditorApp::GetSingleton()->ShutdownEditor();
 
-    RequestApplicationQuit();
+    QuitApplication();
   }
 
 private:

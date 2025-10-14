@@ -554,12 +554,12 @@ public:
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
     IterateOverFiles();
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

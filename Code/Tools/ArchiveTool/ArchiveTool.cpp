@@ -375,7 +375,7 @@ public:
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ArchiveTool"))
       {
         ezLog::Print(cmdHelp);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
     }
@@ -385,7 +385,7 @@ public:
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -398,7 +398,7 @@ public:
       }
 
       ezLog::Success("Finished packing archive in {}", sw.GetRunningTotal());
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -411,12 +411,12 @@ public:
       }
 
       ezLog::Success("Finished extracting archive in {}", sw.GetRunningTotal());
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
     ezLog::Error("Unknown mode");
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

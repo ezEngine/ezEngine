@@ -2,7 +2,6 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/GameApplication/GameApplicationBase.h>
-#include <Core/GameState/GameStateWindow.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Prefabs/PrefabResource.h>
 #include <Core/System/WindowManager.h>
@@ -494,10 +493,12 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 
   ezWindowCreationDesc wndDesc;
   wndDesc.LoadFromDDL(sWndCfg).IgnoreResult();
+  wndDesc.AdjustWindowSizeAndPosition().IgnoreResult();
 
-  ezUniquePtr<ezGameStateWindow> pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [] {});
-  pWindow->ResetOnClickClose([this]()
-    { this->RequestQuit("window"); });
+  ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
+  pWindow->Initialize(wndDesc);
+
+  pWindow->WindowEvents().AddEventHandler(ezMakeDelegate(&ezGameState::OnWindowEvent, this));
 
   if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(pWindow->GetInputDevice()))
   {
@@ -631,5 +632,14 @@ void ezGameState::OnBackgroundSceneLoadingFailed(ezStringView sReason)
 
 void ezGameState::OnBackgroundSceneLoadingCanceled()
 {
-  ezLog::Dev("Cancelled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
+  ezLog::Dev("Canceled background loading of scene '{}'.", m_pBackgroundSceneLoad->GetRequestedScene());
+}
+
+void ezGameState::OnWindowEvent(const ezWindowEvent& e)
+{
+  if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+  {
+    // forward the close button click to the game state
+    RequestQuit("window");
+  }
 }

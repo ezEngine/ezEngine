@@ -94,17 +94,3 @@ void RTSGame::AfterCoreSystemsStartup()
   // the ezFallbackGameState inspects the command line to figure out which scene to load
   ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
-
-void RTSGame::Run_InputUpdate()
-{
-  SUPER::Run_InputUpdate();
-
-  if (auto pGameState = GetActiveGameState())
-  {
-    // pass through the closing of the application
-    if (pGameState->WasQuitRequested())
-    {
-      RequestApplicationQuit();
-    }
-  }
-}

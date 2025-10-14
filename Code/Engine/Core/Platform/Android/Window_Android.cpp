@@ -25,7 +25,7 @@ ezWindowAndroid::~ezWindowAndroid()
 
 ezResult ezWindowAndroid::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
+  EZ_LOG_BLOCK("ezWindowAndroid::Initialize", m_CreationDescription.m_Title.GetData());
   if (m_bInitialized)
   {
     DestroyWindow();
@@ -67,7 +67,7 @@ void ezWindowAndroid::DestroyWindow()
   if (!m_bInitialized)
     return;
 
-  EZ_LOG_BLOCK("ezWindow::Destroy");
+  EZ_LOG_BLOCK("ezWindowAndroid::Destroy");
 
   s_androidWindow = nullptr;
 
@@ -90,11 +90,6 @@ ezResult ezWindowAndroid::Resize(const ezSizeU32& newWindowSize)
 void ezWindowAndroid::ProcessWindowMessages()
 {
   EZ_ASSERT_RELEASE(s_androidWindow != nullptr, "No window data available.");
-}
-
-void ezWindowAndroid::OnResize(const ezSizeU32& newWindowSize)
-{
-  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
 
 ezWindowHandle ezWindowAndroid::GetNativeWindowHandle() const

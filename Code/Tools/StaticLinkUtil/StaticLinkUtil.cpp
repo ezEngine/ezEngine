@@ -784,7 +784,7 @@ public:
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -797,7 +797,7 @@ public:
     // RewritePrecompiledHeaderIncludes();
 
     OverwriteModifiedFiles();
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

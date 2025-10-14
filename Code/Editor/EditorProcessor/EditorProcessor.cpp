@@ -169,7 +169,7 @@ public:
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
     }
@@ -192,7 +192,7 @@ public:
     QCoreApplication::sendPostedEvents();
     qApp->processEvents();
 
-    EZ_SCOPE_EXIT(ezQtEditorApp::GetSingleton()->ShutdownEditor(); RequestApplicationQuit(););
+    EZ_SCOPE_EXIT(ezQtEditorApp::GetSingleton()->ShutdownEditor(); QuitApplication(););
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 

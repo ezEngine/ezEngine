@@ -260,13 +260,23 @@ public:
 
   ezTime GetFrameTime() const { return m_FrameTime; }
 
+  /// The overridden version also quits the application when the active game state signals to quit.
+  virtual bool ShouldApplicationQuit() const override;
+
 protected:
   virtual ezGameUpdateMode GetGameUpdateMode() const { return ezGameUpdateMode::UpdateInputAndRender; }
 
-  virtual void Run_InputUpdate();
+  void Run_InputUpdate();
+
+  /// Override this to do custom input handling on the application level.
+  ///
+  /// This is executed before ezGameState::ProcessInput().
+  /// If it returns true, the game state also gets to process input, otherwise it is skipped.
   virtual bool Run_ProcessApplicationInput();
+
   /// \brief This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
   virtual void Run_AcquireImage();
+
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();

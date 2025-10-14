@@ -8,7 +8,6 @@ public:
   virtual void DestroyWindow() override;
   virtual ezResult Resize(const ezSizeU32& newWindowSize) override;
   virtual void ProcessWindowMessages() override;
-  virtual void OnResize(const ezSizeU32& newWindowSize) override;
   virtual ezWindowHandle GetNativeWindowHandle() const override;
 
 private:

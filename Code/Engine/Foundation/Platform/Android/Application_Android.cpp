@@ -86,7 +86,7 @@ void ezAndroidApplication::HandleCmd(int32_t cmd)
       }
       break;
     case APP_CMD_TERM_WINDOW:
-      m_pEzApp->RequestApplicationQuit();
+      m_pEzApp->QuitApplication();
       break;
     default:
       break;

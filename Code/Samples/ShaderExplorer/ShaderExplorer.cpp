@@ -23,37 +23,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
-static ezUInt32 g_uiWindowWidth = 640;
-static ezUInt32 g_uiWindowHeight = 480;
 static bool g_bWindowResized = false;
-
-class ezShaderExplorerWindow : public ezWindow
-{
-public:
-  ezShaderExplorerWindow()
-    : ezWindow()
-  {
-    m_bCloseRequested = false;
-  }
-
-  virtual void OnClickClose() override { m_bCloseRequested = true; }
-  virtual ezSizeU32 GetClientAreaSize() const override
-  {
-    return m_CreationDescription.m_Resolution;
-  }
-  virtual void OnResize(const ezSizeU32& newWindowSize) override
-  {
-    ezWindow::OnResize(newWindowSize);
-    if (g_uiWindowWidth != newWindowSize.width || g_uiWindowHeight != newWindowSize.height)
-    {
-      g_uiWindowWidth = newWindowSize.width;
-      g_uiWindowHeight = newWindowSize.height;
-      g_bWindowResized = true;
-    }
-  }
-
-  bool m_bCloseRequested;
-};
 
 ezShaderExplorerApp::ezShaderExplorerApp()
   : ezApplication("Shader Explorer")
@@ -75,9 +45,9 @@ void ezShaderExplorerApp::Run()
     UpdateSwapChain();
   }
 
-  if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
+  if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -186,7 +156,10 @@ void ezShaderExplorerApp::Run()
     renderingSetup.SetColorTarget(0, hBBRTV).SetDepthStencilTarget(hBBDSV);
     renderingSetup.SetClearColor(0).SetClearDepth().SetClearStencil();
 
-    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+    const float fWindowWidth = (float)m_pWindow->GetClientAreaSize().width;
+    const float fWindowHeight = (float)m_pWindow->GetClientAreaSize().height;
+
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
 
     auto& gc = ezRenderContext::GetDefaultInstance()->WriteGlobalConstants();
     ezMemoryUtils::ZeroFill(&gc, 1);
@@ -198,7 +171,7 @@ void ezShaderExplorerApp::Run()
     gc.WorldToCameraMatrix[1] = m1;
     gc.CameraToWorldMatrix[0] = m0.GetInverse();
     gc.CameraToWorldMatrix[1] = m1.GetInverse();
-    gc.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
+    gc.ViewportSize = ezVec4(fWindowWidth, fWindowHeight, 1.0f / fWindowWidth, 1.0f / fWindowHeight);
     // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
     gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
     gc.WorldTime = gc.GlobalTime;
@@ -371,16 +344,27 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   // Create a window for rendering
   {
     ezWindowCreationDesc WindowCreationDesc;
-    WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
-    WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
+    WindowCreationDesc.m_Resolution.width = 1024;
+    WindowCreationDesc.m_Resolution.height = 768;
     WindowCreationDesc.m_Title = "Shader Explorer";
     WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_bClipMouseCursor = false;
     WindowCreationDesc.m_WindowMode = ezWindowMode::WindowResizable;
-    m_pWindow = EZ_DEFAULT_NEW(ezShaderExplorerWindow);
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
     m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
-    g_uiWindowWidth = m_pWindow->GetClientAreaSize().width;
-    g_uiWindowHeight = m_pWindow->GetClientAreaSize().height;
+
+    m_pWindow->WindowEvents().AddEventHandler([this](const ezWindowEvent& e)
+      {
+        if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+        {
+          this->QuitApplication();
+        }
+        if (e.m_Type == ezWindowEvent::Type::SizeChanged)
+        {
+          g_bWindowResized = true;
+        }
+        //
+      });
   }
 
   // Create a device
@@ -465,8 +449,8 @@ void ezShaderExplorerApp::UpdateSwapChain()
   // Create depth texture
   {
     ezGALTextureCreationDescription texDesc;
-    texDesc.m_uiWidth = g_uiWindowWidth;
-    texDesc.m_uiHeight = g_uiWindowHeight;
+    texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
+    texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
     texDesc.m_Format = ezGALResourceFormat::D24S8;
     texDesc.m_bAllowRenderTargetView = true;
 

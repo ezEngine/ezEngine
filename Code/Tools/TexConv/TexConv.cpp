@@ -215,7 +215,7 @@ void ezTexConv::Run()
 
   if (ParseCommandLine().Failed())
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
@@ -223,7 +223,7 @@ void ezTexConv::Run()
   {
     if (m_Comparer.Compare().Failed())
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -264,7 +264,7 @@ void ezTexConv::Run()
   {
     if (m_Processor.Process().Failed())
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -289,7 +289,7 @@ void ezTexConv::Run()
         ezLog::Error("Failed to write atlas output image.");
       }
 
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -298,7 +298,7 @@ void ezTexConv::Run()
       if (WriteOutputFile(m_sOutputFile, m_Processor.m_OutputImage).Failed())
       {
         ezLog::Error("Failed to write main result to '{}'", m_sOutputFile);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
 
@@ -310,7 +310,7 @@ void ezTexConv::Run()
       if (m_Processor.m_ThumbnailOutputImage.SaveTo(m_sOutputThumbnailFile).Failed())
       {
         ezLog::Error("Failed to write thumbnail result to '{}'", m_sOutputThumbnailFile);
-        RequestApplicationQuit();
+        QuitApplication();
         return;
       }
 
@@ -327,7 +327,7 @@ void ezTexConv::Run()
         if (WriteOutputFile(m_sOutputLowResFile, m_Processor.m_LowResOutputImage).Failed())
         {
           ezLog::Error("Failed to write low-res result to '{}'", m_sOutputLowResFile);
-          RequestApplicationQuit();
+          QuitApplication();
           return;
         }
 
@@ -338,7 +338,7 @@ void ezTexConv::Run()
     SetReturnCode(0);
   }
 
-  RequestApplicationQuit();
+  QuitApplication();
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezTexConv);

@@ -1,6 +1,5 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>

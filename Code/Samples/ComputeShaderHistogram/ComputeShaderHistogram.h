@@ -14,6 +14,7 @@ class ezWindow;
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 class ezDirectoryWatcher;
 #endif
+
 /// Uses shader reloading mechanism of the ShaderExplorer sample for quick prototyping.
 class ezComputeShaderHistogramApp : public ezGameApplication
 {
@@ -30,9 +31,11 @@ public:
 
 private:
   void CreateHistogramQuad();
+
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
   void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 #endif
+
   ezGALTextureHandle m_hScreenTexture;
   ezGALRenderTargetViewHandle m_hScreenRTV;
 

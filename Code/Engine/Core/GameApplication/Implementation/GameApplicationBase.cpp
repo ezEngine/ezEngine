@@ -416,7 +416,9 @@ void ezGameApplicationBase::RunOneFrame()
   }
 
   if (state == ezGameUpdateMode::UpdateInputAndRender)
+  {
     Run_InputUpdate();
+  }
 
   Run_AcquireImage();
 
@@ -465,6 +467,16 @@ void ezGameApplicationBase::RunOneFrame()
     EZ_PROFILE_SCOPE("Run_FinishFrame");
     Run_FinishFrame();
   }
+}
+
+bool ezGameApplicationBase::ShouldApplicationQuit() const
+{
+  if (m_pGameState && m_pGameState->WasQuitRequested())
+  {
+    return true;
+  }
+
+  return ezApplication::ShouldApplicationQuit();
 }
 
 void ezGameApplicationBase::Run_InputUpdate()

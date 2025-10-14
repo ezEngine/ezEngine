@@ -10,6 +10,7 @@
 class ezOpenDdlWriter;
 class ezOpenDdlReader;
 class ezOpenDdlReaderElement;
+class ezWindowPlatformShared;
 
 // Currently the following scenarios are possible
 // - Windows native implementation, using HWND
@@ -125,6 +126,30 @@ struct EZ_CORE_DLL ezWindowCreationDesc
   bool m_bCenterWindowOnDisplay = true;
 };
 
+/// Broadcast when various things happen to a window.
+///
+/// Subscribe through the WindowEvents() function to be notified.
+struct ezWindowEvent
+{
+  enum Type : ezUInt32
+  {
+    WindowDestruction, ///< Sent shortly before the window gets destroyed
+    VisibilityChanged, ///< visibility state is in m_iPayload1 (0 or 1)
+    FocusChanged,      ///< focus state is in m_iPayload1 (0 or 1)
+    SizeChanged,       ///< new size width/height in m_iPayload1/m_iPayload2
+    PositionChanged,   ///< new position x/y in m_iPayload1/m_iPayload2
+    CloseButtonClicked,
+
+    UserEvent = 0xFF,
+  };
+
+  Type m_Type;
+  ezWindowPlatformShared* m_pWindow = nullptr;
+
+  ezInt32 m_iPayload1 = 0;
+  ezInt32 m_iPayload2 = 0;
+};
+
 /// \brief A simple abstraction for platform specific window creation.
 ///
 /// Will handle basic message looping. Notable events can be listened to by overriding the corresponding callbacks.
@@ -135,14 +160,15 @@ class EZ_CORE_DLL ezWindowPlatformShared : public ezWindowBase
 public:
   /// \brief Creates empty window instance with standard settings
   ///
-  /// You need to call Initialize to actually create a window.
-  /// \see ezWindow::Initialize
+  /// You need to call InitializeWindow() to actually create a window.
   ezWindowPlatformShared();
 
   /// \brief Destroys the window if not already done.
+  ///
+  /// Also broadcasts ezWindowEvent::Type::WindowDestruction.
   ~ezWindowPlatformShared();
 
-  /// \brief Returns the currently active description struct.
+  /// \brief Returns the window creation description. The description may get updated by window moves, resizes and such.
   inline const ezWindowCreationDesc& GetCreationDescription() const { return m_CreationDescription; }
 
   /// \brief Returns the size of the client area / ie. the window resolution.
@@ -159,26 +185,28 @@ public:
     return ezWindowMode::IsFullscreen(m_CreationDescription.m_WindowMode);
   }
 
-  virtual bool IsVisible() const override { return m_bVisible; }
-
-  virtual void AddReference() override { m_iReferenceCount.Increment(); }
-  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
+  /// Whether the window is currently theoretically visible.
+  ///
+  /// How accurate this is, depends on the platform specific implementation.
+  /// The implementation may return "visible" even though the window can't be seen.
+  /// However, it should never err the other way round.
+  bool IsVisible() const override { return m_bVisible; }
 
   /// \brief Creates a new platform specific window with the current settings
   ///
-  /// Will automatically call ezWindow::Destroy if window is already initialized.
+  /// Will automatically call DestroyWindow() if window is already initialized.
   ///
   /// \see ezWindow::Destroy, ezWindow::Initialize
   virtual ezResult InitializeWindow() = 0;
 
   /// \brief Creates a new platform specific window with the given settings.
   ///
-  /// Will automatically call ezWindow::Destroy if window is already initialized.
+  /// Will automatically call DestroyWindow() if window is already initialized.
   ///
   /// \param creationDescription
   ///   Struct with various settings for window creation. Will be saved internally for later lookup.
   ///
-  /// \see ezWindow::Destroy, ezWindow::Initialize
+  /// \see DestroyWindow(), InitializeWindow()
   ezResult Initialize(const ezWindowCreationDesc& creationDescription)
   {
     m_CreationDescription = creationDescription;
@@ -192,54 +220,62 @@ public:
   virtual void DestroyWindow() = 0;
 
   /// \brief Tries to resize the window.
+  ///
   /// Override OnResize to get the actual new window size.
   virtual ezResult Resize(const ezSizeU32& newWindowSize) = 0;
 
-  /// \brief Called on window resize messages.
+  /// \brief Called when a window got resized.
   ///
-  /// \param newWindowSize
-  ///   New window size in pixel.
-  /// \see OnWindowMessage
-  virtual void OnResize(const ezSizeU32& newWindowSize) = 0;
+  /// The new window size is also saved to the creation description.
+  /// The function also broadcasts ezWindowEvent::Type::SizeChanged.
+  virtual void OnResize(const ezSizeU32& newWindowSize);
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
-  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
-  {
-    EZ_IGNORE_UNUSED(iNewPosX);
-    EZ_IGNORE_UNUSED(iNewPosY);
-  }
+  ///
+  /// The function also broadcasts ezWindowEvent::Type::PositionChanged.
+  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY);
+
+  /// \brief Called when the window gets or loses focus.
+  ///
+  /// The function also broadcasts ezWindowEvent::Type::FocusChanged.
+  virtual void OnFocus(bool bHasFocus);
 
   /// \brief Called when the window gets focus or loses focus.
-  virtual void OnFocus(bool bHasFocus) { EZ_IGNORE_UNUSED(bHasFocus); }
-
-  /// \brief Called when the window gets focus or loses focus.
-  virtual void OnVisibleChange(bool bVisible) { m_bVisible = bVisible; }
+  ///
+  /// The function also broadcasts ezWindowEvent::Type::VisibilityChanged.
+  virtual void OnVisibleChange(bool bVisible);
 
   /// \brief Called when the close button of the window is clicked. Does nothing by default.
-  virtual void OnClickClose() {}
+  ///
+  /// The function also broadcasts ezWindowEvent::Type::CloseButtonClicked.
+  virtual void OnClickClose();
 
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
   ezInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
 
-  /// \brief Returns a number that can be used as a window number in ezWindowCreationDesc
+  /// \brief Allows to subscribe to window events.
   ///
-  /// This number just increments every time an ezWindow is created. It starts at zero.
-  static ezUInt8 GetNextUnusedWindowNumber();
+  /// Note that AddEventHandler() is a const function, so can be called on the returned const ezEvent reference.
+  const ezEvent<ezWindowEvent>& WindowEvents() const { return m_WindowEvents; }
+
+  virtual void AddReference() override { m_iReferenceCount.Increment(); }
+  virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
 protected:
   /// Description at creation time. ezWindow will not update this in any method other than Initialize.
   /// \remarks That means that messages like Resize will also have no effect on this variable.
   ezWindowCreationDesc m_CreationDescription;
 
+  ezEvent<ezWindowEvent> m_WindowEvents;
+
   bool m_bInitialized = false;
   bool m_bVisible = true;
+  bool m_bHasFocus = true;
 
   ezUniquePtr<ezInputDevice> m_pInputDevice;
 
   mutable ezWindowInternalHandle m_hWindowHandle = ezWindowInternalHandle();
 
-  /// increased every time an ezWindow is created, to be able to get a free window index easily
-  static ezUInt8 s_uiNextUnusedWindowNumber;
   ezAtomicInteger32 m_iReferenceCount = 0;
 };
 

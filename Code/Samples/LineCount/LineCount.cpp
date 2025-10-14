@@ -311,7 +311,7 @@ public:
     EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif
 
-    RequestApplicationQuit();
+    QuitApplication();
   }
 };
 

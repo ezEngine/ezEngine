@@ -1,5 +1,6 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
 #include <Foundation/Application/Application.h>
@@ -24,18 +25,6 @@ constexpr const char* szDefaultRenderer = "Vulkan";
 #else
 constexpr const char* szDefaultRenderer = "DX11";
 #endif
-
-static ezUInt32 g_uiWindowWidth = 800;
-static ezUInt32 g_uiWindowHeight = 600;
-
-/// \brief Custom window implementation to hook into the "Close" button
-class MeshRenderSampleWindow : public ezWindow
-{
-public:
-  virtual void OnClickClose() override { m_bCloseRequested = true; }
-
-  bool m_bCloseRequested = false;
-};
 
 /// \brief The application class.
 /// Instantiated and run through the EZ_APPLICATION_ENTRY_POINT macro at the end of this file.
@@ -81,20 +70,38 @@ public:
     ezShaderManager::Configure(szShaderModel, true);
     ezPlugin::LoadPlugin(szShaderCompiler).IgnoreResult();
 
-    // Create a window for rendering
+    // Create a window for rendering (this also sets up the mouse/keyboard input device)
     {
       ezWindowCreationDesc WindowCreationDesc;
-      WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
-      WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
+      WindowCreationDesc.m_Resolution.width = 1024;
+      WindowCreationDesc.m_Resolution.height = 768;
 
-      m_pWindow = EZ_DEFAULT_NEW(MeshRenderSampleWindow);
+      m_pWindow = EZ_DEFAULT_NEW(ezWindow);
       m_pWindow->Initialize(WindowCreationDesc).AssertSuccess();
+
+      m_pWindow->WindowEvents().AddEventHandler([this](const ezWindowEvent& e)
+        {
+          if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+          {
+            this->QuitApplication();
+          }
+          //
+        });
 
       if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard*>(m_pWindow->GetInputDevice()))
       {
         pInput->SetShowMouseCursor(true);
         pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
       }
+    }
+
+    // Register Input
+    {
+      ezInputActionConfig cfg;
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
+      ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
     }
 
     // Create a rendering device
@@ -120,10 +127,11 @@ public:
       m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
 
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+      const ezSizeU32 windowSize = m_pWindow->GetClientAreaSize();
 
       ezGALTextureCreationDescription texDesc;
-      texDesc.m_uiWidth = g_uiWindowWidth;
-      texDesc.m_uiHeight = g_uiWindowHeight;
+      texDesc.m_uiWidth = windowSize.width;
+      texDesc.m_uiHeight = windowSize.height;
       texDesc.m_Format = ezGALResourceFormat::D24S8;
       texDesc.m_bAllowRenderTargetView = true;
 
@@ -156,16 +164,20 @@ public:
   {
     EZ_LOG_BLOCK("Frame");
 
-    m_pWindow->ProcessWindowMessages();
+    // make sure time goes on
+    ezClock::GetGlobalClock()->Update();
 
-    if (m_pWindow->m_bCloseRequested)
+    // tick the input system
+    ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
+
+    // close if the Escape key was pressed
+    if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
-    // make sure time goes on
-    ezClock::GetGlobalClock()->Update();
+    m_pWindow->ProcessWindowMessages();
 
     // do the rendering
     {
@@ -184,9 +196,12 @@ public:
       renderingSetup.SetColorTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.SetClearColor(0).SetClearDepth();
 
-      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      const float fWindowWidth = (float)m_pWindow->GetClientAreaSize().width;
+      const float fWindowHeight = (float)m_pWindow->GetClientAreaSize().height;
 
-      const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f);
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
+
+      const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(70), fWindowWidth / fWindowHeight, 0.1f, 1000.0f);
 
       ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupSample.BindBuffer("ezMeshRenderSampleConstants", m_hSampleConstants);
@@ -298,7 +313,7 @@ public:
   }
 
 private:
-  MeshRenderSampleWindow* m_pWindow = nullptr;
+  ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
   ezGALSwapChainHandle m_hSwapChain;

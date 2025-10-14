@@ -34,7 +34,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
   if (!m_hWindow.IsInvalidated())
     return;
 
-  ezUniquePtr<ezRemoteProcessWindow> pWindow = EZ_DEFAULT_NEW(ezRemoteProcessWindow);
+  ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
 
   ezWindowCreationDesc desc;
   desc.m_bClipMouseCursor = false;

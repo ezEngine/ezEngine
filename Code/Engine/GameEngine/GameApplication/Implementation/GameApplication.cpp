@@ -46,7 +46,6 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   m_pUpdateTask->ConfigureTask("GameApplication.Update", ezTaskNesting::Maybe);
 
   s_pGameApplicationInstance = this;
-  m_bWasQuitRequested = false;
 
 #if USE_IMGUI_CONSOLE
   m_pConsole = EZ_DEFAULT_NEW(ezImGuiConsole);
@@ -438,10 +437,13 @@ bool ezGameApplication::Run_ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szCloseAppAction) == ezKeyState::Pressed)
   {
-    RequestApplicationQuit();
+    if (m_pGameState)
+    {
+      m_pGameState->RequestQuit("dev-esc");
+    }
   }
 
-  return true;
+  return SUPER::Run_ProcessApplicationInput();
 }
 
 

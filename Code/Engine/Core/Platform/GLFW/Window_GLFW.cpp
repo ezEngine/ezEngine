@@ -94,7 +94,7 @@ ezWindowGLFW::~ezWindowGLFW()
 
 ezResult ezWindowGLFW::InitializeWindow()
 {
-  EZ_LOG_BLOCK("ezWindow::Initialize", m_CreationDescription.m_Title.GetData());
+  EZ_LOG_BLOCK("ezWindowGLFW::Initialize", m_CreationDescription.m_Title.GetData());
 
   if (m_bInitialized)
   {
@@ -219,7 +219,7 @@ void ezWindowGLFW::DestroyWindow()
 {
   if (m_bInitialized)
   {
-    EZ_LOG_BLOCK("ezWindow::Destroy");
+    EZ_LOG_BLOCK("ezWindowGLFW::Destroy");
 
     m_pInputDevice = nullptr;
 
@@ -276,21 +276,16 @@ void ezWindowGLFW::ProcessWindowMessages()
 #  endif
 }
 
-void ezWindowGLFW::OnResize(const ezSizeU32& newWindowSize)
-{
-  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
-}
-
 void ezWindowGLFW::IconifyCallback(GLFWwindow* window, int iconified)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
     self->OnVisibleChange(!iconified);
 }
 
 void ezWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self && width > 0 && height > 0)
   {
     self->OnResize(ezSizeU32(static_cast<ezUInt32>(width), static_cast<ezUInt32>(height)));
@@ -299,7 +294,7 @@ void ezWindowGLFW::SizeCallback(GLFWwindow* window, int width, int height)
 
 void ezWindowGLFW::PositionCallback(GLFWwindow* window, int xpos, int ypos)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnWindowMove(xpos, ypos);
@@ -308,7 +303,7 @@ void ezWindowGLFW::PositionCallback(GLFWwindow* window, int xpos, int ypos)
 
 void ezWindowGLFW::CloseCallback(GLFWwindow* window)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnClickClose();
@@ -317,7 +312,7 @@ void ezWindowGLFW::CloseCallback(GLFWwindow* window)
 
 void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     self->OnFocus(focused ? true : false);
@@ -326,7 +321,7 @@ void ezWindowGLFW::FocusCallback(GLFWwindow* window, int focused)
 
 void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
@@ -338,7 +333,7 @@ void ezWindowGLFW::KeyCallback(GLFWwindow* window, int key, int scancode, int ac
 
 void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
@@ -350,7 +345,7 @@ void ezWindowGLFW::CharacterCallback(GLFWwindow* window, unsigned int codepoint)
 
 void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
@@ -362,7 +357,7 @@ void ezWindowGLFW::CursorPositionCallback(GLFWwindow* window, double xpos, doubl
 
 void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))
@@ -374,7 +369,7 @@ void ezWindowGLFW::MouseButtonCallback(GLFWwindow* window, int button, int actio
 
 void ezWindowGLFW::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-  auto self = static_cast<ezWindow*>(glfwGetWindowUserPointer(window));
+  auto self = static_cast<ezWindowGLFW*>(glfwGetWindowUserPointer(window));
   if (self)
   {
     if (auto pInput = ezDynamicCast<ezInputDeviceMouseKeyboard_GLFW*>(self->GetInputDevice()))

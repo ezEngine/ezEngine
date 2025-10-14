@@ -35,23 +35,6 @@
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
 
-class TextureSampleWindow : public ezWindow
-{
-public:
-  TextureSampleWindow()
-    : ezWindow()
-  {
-    m_bCloseRequested = false;
-  }
-
-  virtual void OnClickClose() override { m_bCloseRequested = true; }
-
-  bool m_bCloseRequested;
-};
-
-static ezUInt32 g_uiWindowWidth = 1280;
-static ezUInt32 g_uiWindowHeight = 720;
-
 class CustomTextureResourceLoader : public ezTextureResourceLoader
 {
 public:
@@ -158,10 +141,25 @@ public:
     // Create a window for rendering
     {
       ezWindowCreationDesc WindowCreationDesc;
-      WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
-      WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
-      m_pWindow = EZ_DEFAULT_NEW(TextureSampleWindow);
+      WindowCreationDesc.m_Resolution.width = 1024;
+      WindowCreationDesc.m_Resolution.height = 768;
+      m_pWindow = EZ_DEFAULT_NEW(ezWindow);
       m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
+
+      m_pWindow->WindowEvents().AddEventHandler([this](const ezWindowEvent& e)
+        {
+          if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+          {
+            this->QuitApplication();
+          }
+          //
+        });
+    }
+
+    if (auto pInput = ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
+    {
+      pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+      pInput->SetShowMouseCursor(true);
     }
 
     // Create a device
@@ -189,8 +187,8 @@ public:
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
       ezGALTextureCreationDescription texDesc;
-      texDesc.m_uiWidth = g_uiWindowWidth;
-      texDesc.m_uiHeight = g_uiWindowHeight;
+      texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
+      texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
       texDesc.m_Format = ezGALResourceFormat::D24S8;
       texDesc.m_bAllowRenderTargetView = true;
 
@@ -253,9 +251,9 @@ public:
   {
     m_pWindow->ProcessWindowMessages();
 
-    if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
+    if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     {
-      RequestApplicationQuit();
+      QuitApplication();
       return;
     }
 
@@ -265,7 +263,7 @@ public:
     if (ezInputManager::GetInputActionState("Main", "MouseDown") == ezKeyState::Down)
     {
       float fInputValue = 0.0f;
-      const float fMouseSpeed = 0.5f;
+      const float fMouseSpeed = 20.0f;
 
       if (ezInputManager::GetInputActionState("Main", "MovePosX", &fInputValue) != ezKeyState::Up)
         m_vCameraPosition.x -= fInputValue * fMouseSpeed;
@@ -296,9 +294,12 @@ public:
       renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_hBBDSV);
       renderingSetup.SetClearColor(0).SetClearDepth();
 
-      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      const float fWindowWidth = (float)m_pWindow->GetClientAreaSize().width;
+      const float fWindowHeight = (float)m_pWindow->GetClientAreaSize().height;
 
-      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
+
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -fWindowWidth * 0.5f, m_vCameraPosition.x + fWindowWidth * 0.5f, m_vCameraPosition.y + -fWindowHeight * 0.5f, m_vCameraPosition.y + fWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
       bindGroupSample.BindBuffer("ezTextureSampleConstants", m_hSampleConstants);
@@ -306,10 +307,10 @@ public:
 
       ezMat4 mTransform = ezMat4::MakeIdentity();
 
-      ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
-      ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
-      ezInt32 iRightBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.x + g_uiWindowWidth * 0.5f) / 100.0f) + 1;
-      ezInt32 iUpperBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.y + g_uiWindowHeight * 0.5f) / 100.0f) + 1;
+      ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - fWindowWidth * 0.5f) / 100.0f);
+      ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - fWindowHeight * 0.5f) / 100.0f);
+      ezInt32 iRightBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.x + fWindowWidth * 0.5f) / 100.0f) + 1;
+      ezInt32 iUpperBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.y + fWindowHeight * 0.5f) / 100.0f) + 1;
 
       iLeftBound = ezMath::Max(iLeftBound, -g_iMaxHalfExtent);
       iRightBound = ezMath::Min(iRightBound, g_iMaxHalfExtent);
@@ -443,7 +444,7 @@ public:
   }
 
 private:
-  TextureSampleWindow* m_pWindow;
+  ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
   ezGALSwapChainHandle m_hSwapChain;

@@ -8,8 +8,6 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
-ezUInt8 ezWindowPlatformShared::s_uiNextUnusedWindowNumber = 0;
-
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
   ezHybridArray<ezScreenInfo, 2> screens;
@@ -186,17 +184,72 @@ ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
   return EZ_SUCCESS;
 }
 
-ezWindowPlatformShared::ezWindowPlatformShared()
-{
-  ++s_uiNextUnusedWindowNumber;
-}
+ezWindowPlatformShared::ezWindowPlatformShared() = default;
 
 ezWindowPlatformShared::~ezWindowPlatformShared()
 {
   EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::WindowDestruction;
+  e.m_pWindow = this;
+
+  m_WindowEvents.Broadcast(e);
 }
 
-ezUInt8 ezWindowPlatformShared::GetNextUnusedWindowNumber()
+void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
 {
-  return s_uiNextUnusedWindowNumber;
+  m_CreationDescription.m_Resolution = newWindowSize;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::SizeChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = newWindowSize.width;
+  e.m_iPayload2 = newWindowSize.height;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
+{
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::PositionChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = iNewPosX;
+  e.m_iPayload2 = iNewPosY;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnFocus(bool bHasFocus)
+{
+  m_bHasFocus = bHasFocus;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::FocusChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = bHasFocus ? 1 : 0;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnVisibleChange(bool bVisible)
+{
+  m_bVisible = bVisible;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::VisibilityChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = bVisible ? 1 : 0;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnClickClose()
+{
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::CloseButtonClicked;
+  e.m_pWindow = this;
+
+  m_WindowEvents.Broadcast(e);
 }

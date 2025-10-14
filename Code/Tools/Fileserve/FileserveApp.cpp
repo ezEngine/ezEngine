@@ -77,7 +77,7 @@ void ezFileserverApp::Run()
   // if there are no more connections, and we have a timeout to close when no connections are left, we return Quit
   if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::MakeFromSeconds(0) && ezTime::Now() > m_TimeTillClosing)
   {
-    RequestApplicationQuit();
+    QuitApplication();
     return;
   }
 
