@@ -496,7 +496,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
   wndDesc.AdjustWindowSizeAndPosition().IgnoreResult();
 
   ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
-  pWindow->Initialize(wndDesc);
+  pWindow->Initialize(wndDesc).AssertSuccess("Window creation failed");
 
   pWindow->WindowEvents().AddEventHandler(ezMakeDelegate(&ezGameState::OnWindowEvent, this));
 

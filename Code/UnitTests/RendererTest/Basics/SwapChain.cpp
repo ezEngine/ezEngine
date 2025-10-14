@@ -22,7 +22,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
     // ezWindow writes any window size changes into the config.
     m_pWindow = EZ_DEFAULT_NEW(ezWindow);
-    m_pWindow->Initialize(WindowCreationDesc);
+    m_pWindow->Initialize(WindowCreationDesc).AssertSuccess("Window creation failed");
   }
 
   // SwapChain
