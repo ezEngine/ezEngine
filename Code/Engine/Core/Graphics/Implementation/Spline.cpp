@@ -370,7 +370,7 @@ ezResult ezSpline::CalculateBounds(ezSimdBBoxSphere& out_bounds) const
   return EZ_SUCCESS;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& vP0, const ezSimdVec4f& vP1, const ezSimdVec4f& vP2, const ezSimdVec4f& vP3, const ezSimdFloat& fMinT, const ezSimdFloat& fMaxT, const ezSimdVec4f& vPoint, ezSimdVec4f& out_closestDistSqr, ezSimdVec4f& out_closestT, ezSimdFloat& out_fStep)
+EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& vP0, const ezSimdVec4f& vP1, const ezSimdVec4f& vP2, const ezSimdVec4f& vP3, const ezSimdFloat& fMinT, const ezSimdFloat& fMaxT, const ezSimdVec4f& vPoint, ezSimdVec4f& out_vClosestDistSqr, ezSimdVec4f& out_vClosestT, ezSimdFloat& out_fStep)
 {
   ezSimdVec4f vClosestPoint = ezMath::EvaluateBezierCurve(fMinT, vP0, vP1, vP2, vP3);
   ezSimdVec4f vClosestDistSqr = ezSimdVec4f((vClosestPoint - vPoint).GetLengthSquared<3>());
@@ -389,8 +389,8 @@ EZ_ALWAYS_INLINE ezSimdVec4f FindIteration(const ezSimdVec4f& vP0, const ezSimdV
     vClosestT = ezSimdVec4f::Select(bIsCloser, ezSimdVec4f(fT), vClosestT);
   }
 
-  out_closestDistSqr = vClosestDistSqr;
-  out_closestT = vClosestT;
+  out_vClosestDistSqr = vClosestDistSqr;
+  out_vClosestT = vClosestT;
   out_fStep = fStep;
   return vClosestPoint;
 }
