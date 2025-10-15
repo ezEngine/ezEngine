@@ -85,7 +85,7 @@
   <customwidget>
    <class>ezQtSearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\Widgets\SearchWidget.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
