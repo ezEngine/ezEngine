@@ -508,9 +508,12 @@ namespace ezQtUtils
         return e->nativeScanCode() == 21;
       case Qt::Key_Z:
         return e->nativeScanCode() == 44;
+
+      default:
+        ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, e->nativeScanCode());
+        break;
     }
 
-    ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, e->nativeScanCode());
     return e->key() == reference;
   }
 } // namespace ezQtUtils
