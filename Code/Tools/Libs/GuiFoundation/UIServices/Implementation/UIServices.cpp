@@ -396,7 +396,7 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
   QString sToolboxPath = sToolboxKey.replace("\\", "/").replace("\"", "");
   if (sToolboxPath.isEmpty())
   {
-    sToolboxPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).split("Local/",Qt::KeepEmptyParts,Qt::CaseInsensitive).first();
+    sToolboxPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).split("Local/", Qt::KeepEmptyParts, Qt::CaseInsensitive).first();
     sToolboxPath += "Local/JetBrains/Toolbox/.settings.json";
   }
   else
@@ -449,3 +449,68 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
 
   return EZ_SUCCESS;
 }
+
+namespace ezQtUtils
+{
+  bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference)
+  {
+    switch (reference)
+    {
+      case Qt::Key_A:
+        return e->nativeScanCode() == 30;
+      case Qt::Key_B:
+        return e->nativeScanCode() == 48;
+      case Qt::Key_C:
+        return e->nativeScanCode() == 46;
+      case Qt::Key_D:
+        return e->nativeScanCode() == 32;
+      case Qt::Key_E:
+        return e->nativeScanCode() == 18;
+      case Qt::Key_F:
+        return e->nativeScanCode() == 33;
+      case Qt::Key_G:
+        return e->nativeScanCode() == 34;
+      case Qt::Key_H:
+        return e->nativeScanCode() == 35;
+      case Qt::Key_I:
+        return e->nativeScanCode() == 23;
+      case Qt::Key_J:
+        return e->nativeScanCode() == 36;
+      case Qt::Key_K:
+        return e->nativeScanCode() == 37;
+      case Qt::Key_L:
+        return e->nativeScanCode() == 38;
+      case Qt::Key_M:
+        return e->nativeScanCode() == 50;
+      case Qt::Key_N:
+        return e->nativeScanCode() == 49;
+      case Qt::Key_O:
+        return e->nativeScanCode() == 24;
+      case Qt::Key_P:
+        return e->nativeScanCode() == 25;
+      case Qt::Key_Q:
+        return e->nativeScanCode() == 16;
+      case Qt::Key_R:
+        return e->nativeScanCode() == 19;
+      case Qt::Key_S:
+        return e->nativeScanCode() == 31;
+      case Qt::Key_T:
+        return e->nativeScanCode() == 20;
+      case Qt::Key_U:
+        return e->nativeScanCode() == 22;
+      case Qt::Key_V:
+        return e->nativeScanCode() == 47;
+      case Qt::Key_W:
+        return e->nativeScanCode() == 17;
+      case Qt::Key_X:
+        return e->nativeScanCode() == 45;
+      case Qt::Key_Y:
+        return e->nativeScanCode() == 21;
+      case Qt::Key_Z:
+        return e->nativeScanCode() == 44;
+    }
+
+    ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, e->nativeScanCode());
+    return e->key() == reference;
+  }
+} // namespace ezQtUtils

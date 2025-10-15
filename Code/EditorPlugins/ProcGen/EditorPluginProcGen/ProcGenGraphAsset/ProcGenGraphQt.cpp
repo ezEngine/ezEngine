@@ -153,7 +153,7 @@ void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
 
 void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 {
-  if (pEvent->key() == Qt::Key_D || pEvent->key() == Qt::Key_F9)
+  if (ezQtUtils::IsEquivalentQtKey(pEvent, Qt::Key_D) || pEvent->key() == Qt::Key_F9)
   {
     SetDebug(!m_bDebug);
   }

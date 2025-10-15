@@ -795,17 +795,17 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
-  if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
+  if (e->modifiers() == Qt::ControlModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
   {
     e->accept();
     FrameCurve();
   }
-  else if (e->modifiers() == Qt::ShiftModifier && e->key() == Qt::Key_F)
+  else if (e->modifiers() == Qt::ShiftModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
   {
     e->accept();
     FrameSelection();
   }
-  else if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_A)
+  else if (e->modifiers() == Qt::ControlModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_A))
   {
     e->accept();
     SelectAll();
