@@ -454,6 +454,9 @@ void ezClothSheetRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTT
 
 void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
+  EZ_ASSERT_NOT_IMPLEMENTED; // TODO
+
+  #if 0
   const bool bNeedsNormals = (renderViewContext.m_pViewData->m_CameraUsageHint != ezCameraUsageHint::Shadow);
 
 
@@ -568,6 +571,7 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumPrimitives).IgnoreResult();
   }
+  #endif
 }
 
 void ezClothSheetRenderer::CreateVertexBuffer()

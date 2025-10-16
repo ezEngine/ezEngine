@@ -109,13 +109,17 @@ struct ezGALPrimitiveTopology
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     None,   // indices are not used, vertices are just used in order to form primitives
     UShort, // 16 bit indices are used to select which vertices shall form a primitive, thus meshes can only use up to 65535 vertices
     UInt,   // 32 bit indices are used to select which vertices shall form a primitive
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = None,
   };
 
 

@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/CustomMeshComponent.h>
 #include <RendererCore/Meshes/Implementation/MeshRendererUtils.h>
 #include <RendererCore/Meshes/InstancedMeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
@@ -21,6 +22,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
 {
   ref_types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
   ref_types.PushBack(ezGetStaticRTTI<ezInstancedMeshRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
 }
 
 void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
@@ -43,22 +45,36 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
   const ezMeshRenderData* pRenderData = batch.GetFirstData<ezMeshRenderData>();
 
-  const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
-  const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
-  const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
-  const bool bHasExplicitInstanceData = pRenderData->IsInstanceOf<ezInstancedMeshRenderData>();
-
-  ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-
-  // This can happen when the resource has been reloaded and now has fewer submeshes.
-  const auto& subMeshes = pMesh->GetSubMeshes();
-  if (subMeshes.GetCount() <= uiPartIndex)
+  ezUInt32 uiPrimitiveCount = 0;
+  ezUInt32 uiFirstPrimitive = 0;
+  if (pRenderData->IsInstanceOf<ezCustomMeshRenderData>())
   {
-    return;
+    const auto* pCustomData = static_cast<const ezCustomMeshRenderData*>(pRenderData);
+    uiPrimitiveCount = pCustomData->m_uiNumPrimitives;
+    uiFirstPrimitive = pCustomData->m_uiFirstPrimitive;
+
+    pContext->BindMeshBuffer(pCustomData->m_hDynamicMeshBuffer);
   }
+  else
+  {
+    const ezUInt32 uiPartIndex = pRenderData->m_uiSubMeshIndex;
 
-  ezInstanceData* pInstanceData = bHasExplicitInstanceData ? static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_pExplicitInstanceData : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
+    const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
+    ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
 
+    // This can happen when the resource has been reloaded and now has fewer submeshes.
+    const auto& subMeshes = pMesh->GetSubMeshes();
+    if (subMeshes.GetCount() <= uiPartIndex)
+    {
+      return;
+    }
+
+    const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+    uiPrimitiveCount = meshPart.m_uiPrimitiveCount;
+    uiFirstPrimitive = meshPart.m_uiFirstPrimitive;
+
+    pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+  }
 
   if (pRenderData->m_uiFlipWinding)
   {
@@ -69,11 +85,12 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
-  pContext->BindMaterial(hMaterial);
-  pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+  pContext->BindMaterial(pRenderData->m_hMaterial);  
 
   SetAdditionalData(renderViewContext, pRenderData);
 
+  const bool bHasExplicitInstanceData = pRenderData->IsInstanceOf<ezInstancedMeshRenderData>();
+  ezInstanceData* pInstanceData = bHasExplicitInstanceData ? static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_pExplicitInstanceData : pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
   pInstanceData->BindResources(pContext);
 
   if (!bHasExplicitInstanceData)
@@ -93,9 +110,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
       {
         pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
 
-        const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
-
-        if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiFilteredCount).Failed())
+        if (pContext->DrawMeshBuffer(uiPrimitiveCount, uiFirstPrimitive, uiFilteredCount).Failed())
         {
           for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
           {
@@ -116,10 +131,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
   else
   {
     ezUInt32 uiInstanceCount = static_cast<const ezInstancedMeshRenderData*>(pRenderData)->m_uiExplicitInstanceCount;
-
-    const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
-
-    pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiInstanceCount).IgnoreResult();
+    pContext->DrawMeshBuffer(uiPrimitiveCount, uiFirstPrimitive, uiInstanceCount).IgnoreResult();
   }
 }
 

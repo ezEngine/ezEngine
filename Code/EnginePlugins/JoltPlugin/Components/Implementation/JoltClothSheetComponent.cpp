@@ -659,6 +659,9 @@ void ezJoltClothSheetRenderer::GetSupportedRenderDataTypes(ezHybridArray<const e
 
 void ezJoltClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
+  EZ_ASSERT_NOT_IMPLEMENTED; // TODO
+
+#if 0
   const bool bNeedsNormals = (renderViewContext.m_pViewData->m_CameraUsageHint != ezCameraUsageHint::Shadow);
 
 
@@ -773,6 +776,7 @@ void ezJoltClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderView
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumPrimitives).IgnoreResult();
   }
+#endif
 }
 
 void ezJoltClothSheetRenderer::CreateVertexBuffer()

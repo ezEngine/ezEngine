@@ -1189,17 +1189,22 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
 
         ezResourceLock<ezDynamicMeshBufferResource> pMeshBuf(shapeGeo.m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-        ezArrayPtr<ezDynamicMeshVertex> vertices = pMeshBuf->AccessVertexData();
-        for (ezUInt32 vtxIdx = 0; vtxIdx < vertices.GetCount(); ++vtxIdx)
+        auto positionData = pMeshBuf->AccessPositionData();
+        auto nttData = pMeshBuf->AccessNormalTangentTexCoord0Data();
+        for (ezUInt32 vtxIdx = 0; vtxIdx < positionData.GetCount(); ++vtxIdx)
         {
-          auto& vtx = vertices[vtxIdx];
-          vtx.m_vPosition = positionsTmp2[vtxIdx];
+          const auto& pos = positionsTmp2[vtxIdx];
+          positionData[vtxIdx] = pos;
+
+          auto& vtx = nttData[vtxIdx];
           vtx.m_vTexCoord.SetZero();
           vtx.m_vEncodedNormal.SetZero();
           vtx.m_vEncodedTangent.SetZero();
 
-          shapeGeo.m_Bounds.ExpandToInclude(vtx.m_vPosition);
+          shapeGeo.m_Bounds.ExpandToInclude(pos);
         }
+
+        pMeshBuf->UploadChangesForNextFrame();
       }
     }
 

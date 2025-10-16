@@ -98,39 +98,16 @@ protected:
 };
 
 /// \brief Temporary data used to feed the ezCustomMeshRenderer.
-class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezRenderData
+class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezMeshRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezMeshRenderData);
 
 public:
   void FillSortingKey();
   virtual bool CanBatch(const ezRenderData& other) const override;
 
-  ezDynamicMeshBufferResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
-
-  ezUInt32 m_uiFlipWinding : 1;
-  ezUInt32 m_uiUniformScale : 1;
+  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
-
-  ezUInt32 m_uiUniqueID = 0;
-};
-
-/// \brief A renderer that handles all ezCustomMeshRenderData.
-class EZ_RENDERERCORE_DLL ezCustomMeshRenderer : public ezRenderer
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezCustomMeshRenderer);
-
-public:
-  ezCustomMeshRenderer();
-  ~ezCustomMeshRenderer();
-
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 };

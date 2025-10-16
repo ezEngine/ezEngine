@@ -36,10 +36,10 @@ EZ_ALWAYS_INLINE static ezUInt32 GetElementSize(ezGALResourceFormat::Enum format
 constexpr ezGALResourceFormat::Enum s_PositionFormat = ezGALResourceFormat::XYZFloat;
 
 constexpr ezGALResourceFormat::Enum s_NormalFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
-constexpr ezGALResourceFormat::Enum s_NormalFormat_hp = ezGALResourceFormat::XYZFloat;
+constexpr ezGALResourceFormat::Enum s_NormalFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
 
 constexpr ezGALResourceFormat::Enum s_TangentFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
-constexpr ezGALResourceFormat::Enum s_TangentFormat_hp = ezGALResourceFormat::XYZWFloat;
+constexpr ezGALResourceFormat::Enum s_TangentFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
 
 constexpr ezGALResourceFormat::Enum s_TexCoordFormat_lp = ezGALResourceFormat::UVHalf;
 constexpr ezGALResourceFormat::Enum s_TexCoordFormat_hp = ezGALResourceFormat::UVFloat;

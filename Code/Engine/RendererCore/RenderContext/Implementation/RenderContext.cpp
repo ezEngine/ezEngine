@@ -312,10 +312,7 @@ void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
 void ezRenderContext::BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
 {
   ezResourceLock<ezDynamicMeshBufferResource> pMeshBuffer(hDynamicMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
-
-  ezGALBufferHandle hVertexBuffers[] = {pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetColorBuffer()};
-
-  BindMeshBuffer(ezMakeArrayPtr(hVertexBuffers), pMeshBuffer->GetIndexBuffer(), pMeshBuffer->GetVertexAttributes(), pMeshBuffer->GetDescriptor().m_Topology, pMeshBuffer->GetDescriptor().m_uiMaxPrimitives);
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffers(), pMeshBuffer->GetIndexBuffer(), pMeshBuffer->GetVertexAttributes(), pMeshBuffer->GetDescriptor().m_Topology, pMeshBuffer->GetDescriptor().m_uiMaxPrimitives);
 }
 
 void ezRenderContext::BindMeshBuffer(ezArrayPtr<const ezGALBufferHandle> vertexBuffers, ezGALBufferHandle hIndexBuffer, ezArrayPtr<const ezGALVertexAttribute> vertexAttributes, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
