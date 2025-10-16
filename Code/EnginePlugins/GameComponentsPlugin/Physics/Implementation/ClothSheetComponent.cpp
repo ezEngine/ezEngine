@@ -316,8 +316,6 @@ void ezClothSheetComponent::UpdateClothMesh()
 
     topIdx = y;
   }
-
-  pDynamicMeshBuffer->UploadChangesForNextFrame();
 }
 
 void ezClothSheetComponent::SetupCloth()
@@ -482,8 +480,6 @@ void ezClothSheetComponent::SetupCloth()
           ++vidx;
         }
       }
-
-      pDynamicMeshBuffer->UploadChangesForNextFrame();
     }
   }
 

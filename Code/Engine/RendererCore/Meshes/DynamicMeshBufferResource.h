@@ -70,6 +70,8 @@ public:
   ezArrayPtr<ezVec3> AccessPositionData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
   {
     m_ModifiedPositionDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_PositionData.GetCount() - uiFirstVertex) - 1);
+    MarkAsDirty();
+
     return m_PositionData;
   }
 
@@ -77,6 +79,8 @@ public:
   ezArrayPtr<ezDynamicMeshVertexNTT> AccessNormalTangentTexCoord0Data(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
   {
     m_ModifiedNTTDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_NTTData.GetCount() - uiFirstVertex) - 1);
+    MarkAsDirty();
+
     return m_NTTData;
   }
 
@@ -86,6 +90,8 @@ public:
   ezArrayPtr<ezColorLinear16f> AccessColorData(ezUInt32 uiFirstVertex = 0, ezUInt32 uiNumVertices = ezInvalidIndex)
   {
     m_ModifiedColorDataRange.SetToIncludeRange(uiFirstVertex, uiFirstVertex + ezMath::Min(uiNumVertices, m_ColorData.GetCount() - uiFirstVertex) - 1);
+    MarkAsDirty();
+
     return m_ColorData;
   }
 
@@ -98,6 +104,8 @@ public:
     const ezUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
     const ezUInt32 uiMaxByte = uiMinByte + ezMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
     m_ModifiedIndexDataRange.SetToIncludeRange(uiMinByte, uiMaxByte);
+    MarkAsDirty();
+
     return ezMakeArrayPtr(reinterpret_cast<ezUInt16*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
@@ -110,23 +118,22 @@ public:
     const ezUInt32 uiMinByte = uiFirstIndex * uiIndexByteSize;
     const ezUInt32 uiMaxByte = uiMinByte + ezMath::Min(uiNumIndices * uiIndexByteSize, m_IndexData.GetCount() - uiMinByte) - 1;
     m_ModifiedIndexDataRange.SetToIncludeRange(uiMinByte, uiMaxByte);
+    MarkAsDirty();
+
     return ezMakeArrayPtr(reinterpret_cast<ezUInt32*>(m_IndexData.GetData()), m_IndexData.GetCount() / uiIndexByteSize);
   }
 
   /// \brief Returns the vertex attributes that describes the data layout of the vertex buffers.
   EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
-  /// \brief  Upload all changed data to the GPU buffer for the next rendering frame, aka the next time BeginFrame is called on the GALDevice.
-  ///
-  /// Note that this function doesn't do anything, if the vertex or index data wasn't recently accessed through AccessPositionData(), AccessNormalTangentTexCoord0(),
-  /// AccessColorData(), AccessIndex16Data() or AccessIndex32Data(). So if you want to upload multiple pieces of the data to the GPU,
-  /// you have to call these functions in between to flag the uploaded data as out-of-date.   
-  void UploadChangesForNextFrame(); 
-
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+
+  friend struct ezDynamicMeshBufferManager;
+  void MarkAsDirty();
+  void UploadChangesForNextFrame(); 
 
   ezDynamicMeshBufferResourceDescriptor m_Descriptor;
 

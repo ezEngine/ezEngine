@@ -1,11 +1,67 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/IterateBits.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
+namespace
+{
+  static ezMutex s_ResourcesToUploadMutex;
+  static ezHashSet<ezDynamicMeshBufferResource*> s_ResourcesToUpload;
+}
+
+struct ezDynamicMeshBufferManager
+{
+  static void AddResourceToUpload(ezDynamicMeshBufferResource* pResource)
+  {
+    EZ_LOCK(s_ResourcesToUploadMutex);
+    s_ResourcesToUpload.Insert(pResource);
+  }
+
+  static void RemoveResourceToUpload(ezDynamicMeshBufferResource* pResource)
+  {
+    EZ_LOCK(s_ResourcesToUploadMutex);
+    s_ResourcesToUpload.Remove(pResource);
+  }
+
+  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
+  {
+    if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+      return;
+
+    EZ_LOCK(s_ResourcesToUploadMutex);
+
+    for (auto it : s_ResourcesToUpload)
+    {
+      it->UploadChangesForNextFrame();
+    }
+
+    s_ResourcesToUpload.Clear();
+  }
+};
+
 // clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DynamicMeshBufferManager)
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core",
+    "RenderWorld"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+    ezRenderWorld::GetExtractionEvent().AddEventHandler(ezDynamicMeshBufferManager::OnExtractionEvent);
+  }
+
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezDynamicMeshBufferManager::OnExtractionEvent);
+  }
+EZ_END_SUBSYSTEM_DECLARATION;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicMeshBufferResource, 1, ezRTTIDefaultAllocator<ezDynamicMeshBufferResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -28,6 +84,8 @@ ezDynamicMeshBufferResource::~ezDynamicMeshBufferResource()
 
 ezResourceLoadDesc ezDynamicMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
+  ezDynamicMeshBufferManager::RemoveResourceToUpload(this);
+
   for (auto& hVertexBuffer : m_hVertexBuffers)
   {
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(hVertexBuffer);
@@ -141,6 +199,11 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   res.m_State = ezResourceState::Loaded;
 
   return res;
+}
+
+void ezDynamicMeshBufferResource::MarkAsDirty()
+{
+  ezDynamicMeshBufferManager::AddResourceToUpload(this);
 }
 
 void ezDynamicMeshBufferResource::UploadChangesForNextFrame()

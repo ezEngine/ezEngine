@@ -1203,8 +1203,6 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
 
           shapeGeo.m_Bounds.ExpandToInclude(pos);
         }
-
-        pMeshBuf->UploadChangesForNextFrame();
       }
     }
 
